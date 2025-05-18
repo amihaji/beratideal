@@ -69,19 +69,25 @@
                 </select>
               </div>
               <div id="programDetail" class="mb-3"></div>
+             
               <div class="form-group">
                 <label>Biaya Pengiriman:</label>
                 <select class="form-control" id="ongkirSelect" name="ongkir" required>
                   <option value="">Pilih</option>
                   <option value="Gojek">Gojek</option>
                   <option value="Gosend">Gosend</option>
-                  <option value="POS">POS</option>
+                  <option value="Gratis">Gratis</option>
                 </select>
+              </div>
+              <div class="form-group">
+                <label>By Kirim:</label>
+                <input type="text" class="form-control" id="byKirim" name="by_kirim" readonly>
               </div>
               <div class="form-group">
                 <label>Total Biaya:</label>
                 <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
               </div>
+
               <button type="button" class="btn btn-secondary prev-step">Kembali</button>
               <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
@@ -107,7 +113,7 @@
       </div>
     </div>
     <script>
-      // Multi-step logic with progress bar
+      // Multi-step logic dengan progress bar
       const steps = document.querySelectorAll('.form-step');
       const progressBar = document.getElementById('progressBar');
       let currentStep = 0;
@@ -136,6 +142,7 @@
         };
       });
       showStep(currentStep);
+      
       // Program selection logic
       const programSelect = document.getElementById('programSelect');
       const programDetail = document.getElementById('programDetail');
@@ -146,27 +153,39 @@
         '21': 'images/Mega-Trend2.webp',
         '90': 'images/Mega-Trend3.webp'
       };
+      const ongkirMap = { 'Gojek': 20000, 'Gosend': 30000, 'Gratis': 0 };
+      const byKirim = document.getElementById('byKirim');
+      const ongkirSelect = document.getElementById('ongkirSelect');
+      
+      function updateTotal() {
+        const programVal = programSelect.value;
+        const ongkirVal = ongkirSelect.value;
+        const harga = hargaMap[programVal] || 0;
+        const ongkir = ongkirMap[ongkirVal] || 0;
+        byKirim.value = ongkir;
+        totalBiaya.value = harga + ongkir;
+      }
+      
       programSelect.onchange = function() {
         const val = programSelect.value;
         if (val && hargaMap[val]) {
           programDetail.innerHTML = `<div><strong>Harga: Rp ${hargaMap[val].toLocaleString()}</strong></div><img src='${imgMap[val]}' alt='Produk' style='max-width:200px;'>`;
-          totalBiaya.value = hargaMap[val];
         } else {
           programDetail.innerHTML = '';
-          totalBiaya.value = '';
         }
+        updateTotal();
       };
-      document.getElementById('ongkirSelect').onchange = function() {
-        const val = programSelect.value;
-        if (val && hargaMap[val]) {
-          totalBiaya.value = hargaMap[val];
-        }
+      
+      ongkirSelect.onchange = function() {
+        updateTotal();
       };
-      // Google Sheets integration (replace YOUR_SCRIPT_URL with your Apps Script URL)
+      
+      // Google Sheets integration (ganti YOUR_SCRIPT_URL dengan URL Web Apps Script Anda)
       document.getElementById('multiStepForm').onsubmit = function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        fetch('https://script.google.com/macros/s/AKfycbzTbwBGuW3_o2OfJBiWWphEtlwav1QYHnpYMMH2l4NlB8RKC97ypgLVVKNngduiLZoj/exec', { // <-- Replace with your Google Apps Script Web App URL
+        // <-- Ganti dengan URL Web Apps Script Anda
+          fetch('https://script.google.com/macros/s/AKfycbzGwQ8dS95lKRz9ezVypKv5bRn7V59w2ERq37HhSDJOQiCYorR9t2fgFHLjSH0YXXrw/exec', {    
           method: 'POST',
           body: formData
         })
@@ -179,7 +198,7 @@
           alert('Gagal mengirim data.');
         });
       };
-    </script>
+      </script>  
   
     
 </body>
