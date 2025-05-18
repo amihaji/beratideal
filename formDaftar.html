@@ -3,21 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
-    <title> Gaya Hidup Sehat dan Aktif | Cara menghitung berat badan ideal | Produk Makanan dan Minuman Sehat | Lomba Turun Berat Badan | Cek kebugaran Gratis</title>
-    <meta name="description" content="Berat badan ideal menjadi salah satu cara yang efektif untuk menjaga kesehatan tubuh keseluruhan, Temukan tips gaya hidup sehat, produk makanan sehat rendah kalori, tinggi protein dan serat, serta ikuti lomba turun berat badan untuk mencapai kebugaran optimal, weight loss challenge.">
-    <meta name="keywords" content="gaya hidup sehat, kebugaran, makanan sehat, minuman sehat, lomba turun berat badan, produk tinggi protein, produk rendah kalori, klub nutrisi, weight loss challenge, tes kebugaran gratis">
-    <meta name="google-site-verification" content="Jyw_mpxcDPRJUOvqGGhxhqqFf_eoW4WnAQBodseJ7g8 "/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+    <title>Gaya Hidup Sehat dan Aktif | Cara menghitung berat badan ideal</title>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <style>.ie-panel{display: none;background: #212121;padding: 10px 0;box-shadow: 3px 3px 5px 0 rgba(0,0,0,.3);clear: both;text-align:center;position: relative;z-index: 1;} html.ie-10 .ie-panel, html.lt-ie-10 .ie-panel {display: block;}</style>
-     
- </head>
+  </head>
   <body>
- 
     <div class="container mt-5 mb-5">
       <div class="card shadow" style="max-width:600px;margin:auto;">
         <div class="card-body">
@@ -33,6 +26,18 @@
               <div class="form-group">
                 <label>Nama:</label>
                 <input type="text" class="form-control" name="nama" required>
+              </div>
+              <div class="form-group">
+                <label>Email:</label>
+                <input type="email" class="form-control" name="email" required>
+              </div>
+              <div class="form-group">
+                <label>Alamat:</label>
+                <input type="text" class="form-control" name="alamat" required>
+              </div>
+              <div class="form-group">
+                <label>Propinsi:</label>
+                <input type="text" class="form-control" name="propinsi" required>
               </div>
               <div class="form-group">
                 <label>Tgl Lahir:</label>
@@ -69,7 +74,6 @@
                 </select>
               </div>
               <div id="programDetail" class="mb-3"></div>
-             
               <div class="form-group">
                 <label>Biaya Pengiriman:</label>
                 <select class="form-control" id="ongkirSelect" name="ongkir" required>
@@ -87,7 +91,6 @@
                 <label>Total Biaya:</label>
                 <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
               </div>
-
               <button type="button" class="btn btn-secondary prev-step">Kembali</button>
               <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
@@ -104,6 +107,10 @@
               <div class="form-group">
                 <label>Upload Bukti Transfer:</label>
                 <input type="file" class="form-control" name="bukti_transfer" accept="image/*" required>
+              </div>
+              <div class="form-group">
+                <label>Link File Upload (otomatis):</label>
+                <input type="text" class="form-control" name="link_file_upload" id="linkFileUpload" readonly>
               </div>
               <button type="button" class="btn btn-secondary prev-step">Kembali</button>
               <button type="submit" class="btn btn-success">Kirim</button>
@@ -142,7 +149,6 @@
         };
       });
       showStep(currentStep);
-      
       // Program selection logic
       const programSelect = document.getElementById('programSelect');
       const programDetail = document.getElementById('programDetail');
@@ -156,7 +162,6 @@
       const ongkirMap = { 'Gojek': 20000, 'Gosend': 30000, 'Gratis': 0 };
       const byKirim = document.getElementById('byKirim');
       const ongkirSelect = document.getElementById('ongkirSelect');
-      
       function updateTotal() {
         const programVal = programSelect.value;
         const ongkirVal = ongkirSelect.value;
@@ -165,7 +170,6 @@
         byKirim.value = ongkir;
         totalBiaya.value = harga + ongkir;
       }
-      
       programSelect.onchange = function() {
         const val = programSelect.value;
         if (val && hargaMap[val]) {
@@ -175,22 +179,22 @@
         }
         updateTotal();
       };
-      
       ongkirSelect.onchange = function() {
         updateTotal();
       };
-      
       // Google Sheets integration (ganti YOUR_SCRIPT_URL dengan URL Web Apps Script Anda)
       document.getElementById('multiStepForm').onsubmit = function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        // <-- Ganti dengan URL Web Apps Script Anda
-          fetch('https://script.google.com/macros/s/AKfycbzGwQ8dS95lKRz9ezVypKv5bRn7V59w2ERq37HhSDJOQiCYorR9t2fgFHLjSH0YXXrw/exec', {    
+        fetch('https://script.google.com/macros/s/AKfycbw1zxJws8BHulNvjLu3jvzFzxrBjBoLKRo4ghqVIYTCONSFAhSTMk_t8pT_lr77u5MJ/exec', {
           method: 'POST',
           body: formData
         })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
+          if(data.link_file_upload) {
+            document.getElementById('linkFileUpload').value = data.link_file_upload;
+          }
           alert('Data berhasil dikirim!');
           location.reload();
         })
@@ -198,8 +202,6 @@
           alert('Gagal mengirim data.');
         });
       };
-      </script>  
-  
-    
-</body>
+    </script>
+  </body>
 </html>
