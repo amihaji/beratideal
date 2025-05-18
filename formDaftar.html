@@ -17,146 +17,170 @@
      
  </head>
   <body>
-       <div class="container mt-5 mb-5">
-        <form id="multiStepForm" enctype="multipart/form-data">
-          <!-- Step 1: Personal Data -->
-          <div class="form-step" id="step1">
-            <h4>Data Pribadi</h4>
-            <div class="form-group">
-              <label>Nama:</label>
-              <input type="text" class="form-control" name="nama" required>
+ 
+    <div class="container mt-5 mb-5">
+      <div class="card shadow" style="max-width:600px;margin:auto;">
+        <div class="card-body">
+          <div class="mb-4">
+            <div class="progress" style="height: 20px;">
+              <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width:25%;">Step 1 of 4</div>
             </div>
-            <div class="form-group">
-              <label>Tgl Lahir:</label>
-              <input type="date" class="form-control" name="tgl_lahir" required>
-            </div>
-            <div class="form-group">
-              <label>Jenis Kelamin:</label>
-              <select class="form-control" name="jenis_kelamin" required>
-                <option value="">Pilih</option>
-                <option value="Pria">Pria</option>
-                <option value="Wanita">Wanita</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Tlp:</label>
-              <input type="tel" class="form-control" name="tlp" required>
-            </div>
-            <div class="form-group">
-              <label>Kota:</label>
-              <input type="text" class="form-control" name="kota" required>
-            </div>
-            <button type="button" class="btn btn-primary next-step">Lanjut</button>
           </div>
-          <!-- Step 2: Order Data -->
-          <div class="form-step d-none" id="step2">
-            <h4>Data Pesanan</h4>
-            <div class="form-group">
-              <label>Pilih Program:</label>
-              <select class="form-control" id="programSelect" name="program" required>
-                <option value="">Pilih</option>
-                <option value="10">10 Hari</option>
-                <option value="21">21 Hari</option>
-                <option value="90">3 Bulan</option>
-              </select>
+          <form id="multiStepForm" enctype="multipart/form-data">
+            <!-- Step 1: Personal Data -->
+            <div class="form-step" id="step1">
+              <h4>Data Pribadi</h4>
+              <div class="form-group">
+                <label>Nama:</label>
+                <input type="text" class="form-control" name="nama" required>
+              </div>
+              <div class="form-group">
+                <label>Tgl Lahir:</label>
+                <input type="date" class="form-control" name="tgl_lahir" required>
+              </div>
+              <div class="form-group">
+                <label>Jenis Kelamin:</label>
+                <select class="form-control" name="jenis_kelamin" required>
+                  <option value="">Pilih</option>
+                  <option value="Pria">Pria</option>
+                  <option value="Wanita">Wanita</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tlp:</label>
+                <input type="tel" class="form-control" name="tlp" required>
+              </div>
+              <div class="form-group">
+                <label>Kota:</label>
+                <input type="text" class="form-control" name="kota" required>
+              </div>
+              <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
-            <div id="programDetail" class="mb-3"></div>
-            <div class="form-group">
-              <label>Biaya Pengiriman:</label>
-              <select class="form-control" id="ongkirSelect" name="ongkir" required>
-                <option value="">Pilih</option>
-                <option value="Gojek">Gojek</option>
-                <option value="Gosend">Gosend</option>
-                <option value="POS">POS</option>
-              </select>
+            <!-- Step 2: Order Data -->
+            <div class="form-step d-none" id="step2">
+              <h4>Data Pesanan</h4>
+              <div class="form-group">
+                <label>Pilih Program:</label>
+                <select class="form-control" id="programSelect" name="program" required>
+                  <option value="">Pilih</option>
+                  <option value="10">10 Hari</option>
+                  <option value="21">21 Hari</option>
+                  <option value="90">3 Bulan</option>
+                </select>
+              </div>
+              <div id="programDetail" class="mb-3"></div>
+              <div class="form-group">
+                <label>Biaya Pengiriman:</label>
+                <select class="form-control" id="ongkirSelect" name="ongkir" required>
+                  <option value="">Pilih</option>
+                  <option value="Gojek">Gojek</option>
+                  <option value="Gosend">Gosend</option>
+                  <option value="POS">POS</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Total Biaya:</label>
+                <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
+              </div>
+              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+              <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
-            <div class="form-group">
-              <label>Total Biaya:</label>
-              <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
+            <!-- Step 3: Checkout -->
+            <div class="form-step d-none" id="step3">
+              <h4>Checkout</h4>
+              <p>Pastikan data Anda sudah benar sebelum submit.</p>
+              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+              <button type="button" class="btn btn-primary next-step">Submit</button>
             </div>
-            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-            <button type="button" class="btn btn-primary next-step">Lanjut</button>
-          </div>
-          <!-- Step 3: Checkout -->
-          <div class="form-step d-none" id="step3">
-            <h4>Checkout</h4>
-            <p>Pastikan data Anda sudah benar sebelum submit.</p>
-            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-            <button type="button" class="btn btn-primary next-step">Submit</button>
-          </div>
-          <!-- Step 4: Confirmation -->
-          <div class="form-step d-none" id="step4">
-            <h4>Konfirmasi Pembayaran</h4>
-            <div class="form-group">
-              <label>Upload Bukti Transfer:</label>
-              <input type="file" class="form-control" name="bukti_transfer" accept="image/*" required>
+            <!-- Step 4: Confirmation -->
+            <div class="form-step d-none" id="step4">
+              <h4>Konfirmasi Pembayaran</h4>
+              <div class="form-group">
+                <label>Upload Bukti Transfer:</label>
+                <input type="file" class="form-control" name="bukti_transfer" accept="image/*" required>
+              </div>
+              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+              <button type="submit" class="btn btn-success">Kirim</button>
             </div>
-            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-            <button type="submit" class="btn btn-success">Kirim</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-      
-      <script>
-        // Multi-step logic
-        const steps = document.querySelectorAll('.form-step');
-        let currentStep = 0;
-        function showStep(idx) {
-          steps.forEach((step, i) => {
-            step.classList.toggle('d-none', i !== idx);
-          });
+    </div>
+    <script>
+      // Multi-step logic with progress bar
+      const steps = document.querySelectorAll('.form-step');
+      const progressBar = document.getElementById('progressBar');
+      let currentStep = 0;
+      function showStep(idx) {
+        steps.forEach((step, i) => {
+          step.classList.toggle('d-none', i !== idx);
+        });
+        const percent = ((idx+1)/steps.length)*100;
+        progressBar.style.width = percent + '%';
+        progressBar.textContent = `Step ${idx+1} of 4`;
+      }
+      document.querySelectorAll('.next-step').forEach(btn => {
+        btn.onclick = () => {
+          if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+          }
+        };
+      });
+      document.querySelectorAll('.prev-step').forEach(btn => {
+        btn.onclick = () => {
+          if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+          }
+        };
+      });
+      showStep(currentStep);
+      // Program selection logic
+      const programSelect = document.getElementById('programSelect');
+      const programDetail = document.getElementById('programDetail');
+      const totalBiaya = document.getElementById('totalBiaya');
+      const hargaMap = { '10': 650000, '21': 1000000, '90': 1000000 };
+      const imgMap = {
+        '10': 'images/Mega-Trend1.webp',
+        '21': 'images/Mega-Trend2.webp',
+        '90': 'images/Mega-Trend3.webp'
+      };
+      programSelect.onchange = function() {
+        const val = programSelect.value;
+        if (val && hargaMap[val]) {
+          programDetail.innerHTML = `<div><strong>Harga: Rp ${hargaMap[val].toLocaleString()}</strong></div><img src='${imgMap[val]}' alt='Produk' style='max-width:200px;'>`;
+          totalBiaya.value = hargaMap[val];
+        } else {
+          programDetail.innerHTML = '';
+          totalBiaya.value = '';
         }
-        document.querySelectorAll('.next-step').forEach(btn => {
-          btn.onclick = () => {
-            if (currentStep < steps.length - 1) {
-              currentStep++;
-              showStep(currentStep);
-            }
-          };
+      };
+      document.getElementById('ongkirSelect').onchange = function() {
+        const val = programSelect.value;
+        if (val && hargaMap[val]) {
+          totalBiaya.value = hargaMap[val];
+        }
+      };
+      // Google Sheets integration (replace YOUR_SCRIPT_URL with your Apps Script URL)
+      document.getElementById('multiStepForm').onsubmit = function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('YOUR_SCRIPT_URL', { // <-- Replace with your Google Apps Script Web App URL
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+          alert('Data berhasil dikirim!');
+          location.reload();
+        })
+        .catch(error => {
+          alert('Gagal mengirim data.');
         });
-        document.querySelectorAll('.prev-step').forEach(btn => {
-          btn.onclick = () => {
-            if (currentStep > 0) {
-              currentStep--;
-              showStep(currentStep);
-            }
-          };
-        });
-        showStep(currentStep);
-        // Program selection logic
-        const programSelect = document.getElementById('programSelect');
-        const programDetail = document.getElementById('programDetail');
-        const totalBiaya = document.getElementById('totalBiaya');
-        const hargaMap = { '10': 650000, '21': 1000000, '90': 1000000 };
-        const imgMap = {
-          '10': 'images/Mega-Trend1.webp',
-          '21': 'images/Mega-Trend2.webp',
-          '90': 'images/Mega-Trend3.webp'
-        };
-        programSelect.onchange = function() {
-          const val = programSelect.value;
-          if (val && hargaMap[val]) {
-            programDetail.innerHTML = `<div><strong>Harga: Rp ${hargaMap[val].toLocaleString()}</strong></div><img src='${imgMap[val]}' alt='Produk' style='max-width:200px;'>`;
-            totalBiaya.value = hargaMap[val];
-          } else {
-            programDetail.innerHTML = '';
-            totalBiaya.value = '';
-          }
-        };
-        // Optional: update total biaya if ongkir needed
-        document.getElementById('ongkirSelect').onchange = function() {
-          const val = programSelect.value;
-          if (val && hargaMap[val]) {
-            totalBiaya.value = hargaMap[val];
-          }
-        };
-        // Prevent default form submit for demo
-        document.getElementById('multiStepForm').onsubmit = function(e) {
-          alert('Form submitted!');
-          e.preventDefault();
-        };
-      </script>
-     
+      };
+    </script>
+  
     
 </body>
 </html>
