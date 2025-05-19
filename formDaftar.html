@@ -22,18 +22,15 @@
           <form id="multiStepForm" enctype="multipart/form-data">
             <!-- Step 1: Personal Data -->
             <div class="form-step" id="step1">
-
               <h4>Data Pribadi</h4>
               <div class="form-group">
                 <label>Nama:</label>
                 <input type="text" class="form-control" name="nama" required>
               </div>
-
               <div class="form-group">
                 <label>Tgl Lahir:</label>
                 <input type="date" class="form-control" name="tgl_lahir" required>
               </div>
-
               <div class="form-group">
                 <label>Jenis Kelamin:</label>
                 <select class="form-control" name="jenis_kelamin" required>
@@ -42,35 +39,28 @@
                   <option value="Wanita">Wanita</option>
                 </select>
               </div>
-
               <div class="form-group">
                 <label>Email:</label>
                 <input type="email" class="form-control" name="email" required>
               </div>
-
               <div class="form-group">
                 <label>Tlp:</label>
                 <input type="tel" class="form-control" name="tlp" required>
               </div>
-
               <div class="form-group">
                 <label>Alamat:</label>
                 <input type="text" class="form-control" name="alamat" required>
               </div>
-
               <div class="form-group">
                 <label>Kota:</label>
                 <input type="text" class="form-control" name="kota" required>
               </div>
-
               <div class="form-group">
                 <label>Propinsi:</label>
                 <input type="text" class="form-control" name="propinsi" required>
               </div>
-       
               <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
-
             <!-- Step 2: Order Data -->
             <div class="form-step d-none" id="step2">
               <h4>Data Pesanan</h4>
@@ -83,7 +73,6 @@
                   <option value="90">3 Bulan</option>
                 </select>
               </div>
-
               <div id="programDetail" class="mb-3"></div>
               <div class="form-group">
                 <label>Ekspedisi:</label>
@@ -94,21 +83,17 @@
                   <option value="Gratis">Gratis</option>
                 </select>
               </div>
-
               <div class="form-group">
                 <label>By Kirim:</label>
                 <input type="text" class="form-control" id="byKirim" name="by_kirim" readonly>
               </div>
-
               <div class="form-group">
                 <label>Total Biaya:</label>
                 <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
               </div>
-
               <button type="button" class="btn btn-secondary prev-step">Kembali</button>
               <button type="button" class="btn btn-primary next-step">Lanjut</button>
             </div>
-            
             <!-- Step 3: Checkout -->
             <div class="form-step d-none" id="step3">
               <h4>Checkout</h4>
@@ -116,7 +101,6 @@
               <button type="button" class="btn btn-secondary prev-step">Kembali</button>
               <button type="button" class="btn btn-primary next-step">Submit</button>
             </div>
-
             <!-- Step 4: Confirmation -->
             <div class="form-step d-none" id="step4">
               <h4>Konfirmasi Pembayaran</h4>
@@ -124,7 +108,6 @@
                 <label>Upload Bukti Transfer:</label>
                 <input type="file" class="form-control" name="bukti_transfer" accept="image/*" required>
               </div>
-
               <div class="form-group">
                 <label>Link File Upload (otomatis):</label>
                 <input type="text" class="form-control" name="link_file_upload" id="linkFileUpload" readonly>
@@ -203,7 +186,7 @@
       document.getElementById('multiStepForm').onsubmit = function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        fetch('https://script.google.com/macros/s/AKfycbw1zxJws8BHulNvjLu3jvzFzxrBjBoLKRo4ghqVIYTCONSFAhSTMk_t8pT_lr77u5MJ/exec', {
+        fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
           method: 'POST',
           body: formData
         })
