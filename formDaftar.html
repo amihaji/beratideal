@@ -224,16 +224,16 @@ document.getElementById('btnPrev3').onclick = function() {
 function validateStep1() {
   let valid = true, msg = [];
   const nama = document.getElementById('nama').value.trim();
-  if(nama.length === 0 || nama.length > 40 || /[^A-Z\s]/.test(nama)) msg.push('Nama wajib diisi, maksimal 40 karakter, huruf besar.');
+  if(nama.length === 3 || nama.length < 40 || /[^A-Z\s]/.test(nama)) msg.push('Nama maks 40 karakter');
   const email = document.getElementById('email').value.trim();
-  if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid dan harus huruf kecil.');
+  if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid');
   const tlp = document.getElementById('tlp').value.trim();
-  if(!/^\d{12,14}$/.test(tlp)) msg.push('No telepon wajib 12-14 digit angka.');
+  if(!/^\d{10,14}$/.test(tlp)) msg.push('No telepon wajib 10-14 digit angka.');
   const alamat = document.getElementById('alamat').value.trim();
-  if(alamat.length === 0 || alamat.length > 60) msg.push('Alamat wajib diisi, maksimal 60 karakter.');
+  if(alamat.length === 3 || alamat.length < 60) msg.push('wajib diisi, maks 60 karakter.');
   ['kecamatan','kelurahan','kota','propinsi'].forEach(id=>{
     const val = document.getElementById(id).value.trim();
-    if(val.length === 0 || val.length > 40) msg.push(id.charAt(0).toUpperCase()+id.slice(1)+' wajib diisi, maksimal 40 karakter.');
+    if(val.length === 3 || val.length < 40) msg.push(id.charAt(0).toUpperCase()+id.slice(1)+' wajib diisi, maks 40 karakter.');
   });
   if(msg.length) {
     showMsg(msg.join('<br>'),'error');
