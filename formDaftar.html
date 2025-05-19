@@ -37,7 +37,7 @@
           </div>
           <div class="form-group">
             <label>Nama:</label>
-            <input type="text" class="form-control" name="nama" id="nama" maxlength="40" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="nama" id="nama" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <div class="form-group">
             <label>Tgl Lahir:</label>
@@ -57,27 +57,27 @@
           </div>
           <div class="form-group">
             <label>Tlp:</label>
-            <input type="tel" class="form-control" name="tlp" id="tlp" pattern="\d{12,14}" maxlength="14" required>
+            <input type="tel" class="form-control" name="tlp" id="tlp" pattern="\d{10,14}" maxlength="14" required>
           </div>
           <div class="form-group">
             <label>Alamat:</label>
-            <input type="text" class="form-control" name="alamat" id="alamat" maxlength="60" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="alamat" id="alamat" maxlength="60" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <div class="form-group">
             <label>Kecamatan:</label>
-            <input type="text" class="form-control" name="kecamatan" id="kecamatan" maxlength="40" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="kecamatan" id="kecamatan" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <div class="form-group">
             <label>Kelurahan:</label>
-            <input type="text" class="form-control" name="kelurahan" id="kelurahan" maxlength="40" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="kelurahan" id="kelurahan" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <div class="form-group">
             <label>Kota:</label>
-            <input type="text" class="form-control" name="kota" id="kota" maxlength="40" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="kota" id="kota" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <div class="form-group">
             <label>Propinsi:</label>
-            <input type="text" class="form-control" name="propinsi" id="propinsi" maxlength="40" style="text-transform:uppercase" required>
+            <input type="text" class="form-control" name="propinsi" id="propinsi" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
           <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
         </div>
@@ -224,7 +224,7 @@ document.getElementById('btnPrev3').onclick = function() {
 function validateStep1() {
   let msg = [];
   const nama = document.getElementById('nama').value.trim();
-  if(nama.length < 3 || nama.length > 40 || /[^A-Z\s]/.test(nama)) msg.push('Nama wajib diisi, min 3 dan maks 40 karakter');
+  if(nama.length < 3 || nama.length > 40) msg.push('Nama wajib diisi, min 3 dan maks 40 karakter');
   const email = document.getElementById('email').value.trim();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid');
   const tlp = document.getElementById('tlp').value.trim();
