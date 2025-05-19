@@ -317,16 +317,13 @@ document.getElementById('formDaftar').onsubmit = function(e) {
 
   // Kirim Data ke Google Apps Script
   const formData = new FormData(this);
-  fetch('https://script.google.com/macros/s/AKfycbwWkwwPv1LZ7yMEHNimJXnDZcOKy289kc8shn0HdziS6ufFbf8ZQgqTpW82BMG6mZSW/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbxJvsH4wOhdZ5ulWnwK4K3jhe6OddJ4y6A_UMuoIZXC_2H-xBcNcgRqJkOyri5tOOPD/exec', {
     method: 'POST',
     body: formData
   })
   .then(r=>r.json())
   .then(res=>{
     // Debug: tampilkan response di console
-    console.log('Response dari server:', res);
-    alert('Link file upload: ' + (res.link_file_upload || 'KOSONG'));
-
     if(res.status==='success') {
       showMsg('Pendaftaran berhasil!','success');
     } else {
