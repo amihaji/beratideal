@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Form Pendaftaran Berat Ideal</title>
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     .form-step { display: none; }
@@ -27,10 +31,13 @@
         <!-- Step 1: Data Pribadi -->
         <div class="form-step active" id="step1">
           <h5>Data Pribadi</h5>
+          
+          <!-- TIDAK DIAKTIFKAN 
           <div class="form-group">
             <label>Tgl Daftar:</label>
             <input type="date" class="form-control" name="tgl_daftar" id="tgl_daftar" required>
           </div>
+          -->
           <div class="form-group">
             <label>No Pesanan:</label>
             <input type="text" class="form-control" name="no_pesanan" id="no_pesanan" readonly>
@@ -152,6 +159,8 @@
             <label>Transfer Dana:</label>
             <input type="text" class="form-control" name="transfer_dana" id="transfer_dana" readonly>
           </div>
+          
+          <!--TIDAK DIAKTIFKAN
           <div class="form-group">
             <label>Upload Bukti Transfer:</label>
             <input type="file" class="form-control" name="bukti_transfer" id="bukti_transfer" accept="image/*" required>
@@ -160,6 +169,8 @@
             <label>Link File Upload (otomatis):</label>
             <input type="text" class="form-control" name="link_file_upload" id="link_file_upload" readonly>
           </div>
+          -->
+          
           <div class="alert alert-info mt-3">
             <strong>Informasi Bank Transfer :</strong><br>
             Nama Pemilik Rek : Hesty Husain<br>
@@ -317,9 +328,7 @@ document.getElementById('formDaftar').onsubmit = function(e) {
     alert('Link file upload: ' + (res.link_file_upload || 'KOSONG'));
 
     if(res.status==='success') {
-      document.getElementById('link_file_upload').value = res.link_file_upload||'';
       showMsg('Pendaftaran berhasil!','success');
-      setTimeout(()=>window.location.href='formKonfirmasi.html',2000);
     } else {
       showMsg('Gagal menyimpan data.','error');
     }
