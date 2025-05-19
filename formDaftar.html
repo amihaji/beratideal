@@ -290,8 +290,12 @@ function updateTotal() {
 }
 
 // Submit Data Inputan
-document.getElementById('formDaftar').onsubmit = function(e) {
+// ... existing code ...
+
+// Submit Data Inputan
+document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
+  
   // Validasi Step 3
   let msg = [];
   if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
@@ -299,26 +303,42 @@ document.getElementById('formDaftar').onsubmit = function(e) {
   if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
   if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
   if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
-  if(msg.length) { showMsg(msg.join('<br>'),'error'); return; }
+  if(msg.length) { 
+    showMsg(msg.join('<br>'),'error'); 
+    return; 
+  }
   showMsg('','');
 
-  // Kirim Data ke Google Apps Script
-  const formData = new FormData(this);
-  fetch('https://script.google.com/macros/s/AKfycbxJvsH4wOhdZ5ulWnwK4K3jhe6OddJ4y6A_UMuoIZXC_2H-xBcNcgRqJkOyri5tOOPD/exec', {
-    method: 'POST',
-    body: formData
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    // Debug: tampilkan response di console
-    if(res.status==='success') {
-      showMsg('Pendaftaran berhasil!','success');
-    } else {
-      showMsg('Gagal menyimpan data.','error');
+  try {
+    const formData = new FormData(this);
+    const response = await fetch('https://script.google.com/macros/s/AKfycbx-8qoQ_LRibxZ6_aTND8Lanjg7-41mDJ-EP_XgR6kNpHfmFLF2hMtYMGEROTAQ0lwp/exec', {
+      method: 'POST',
+      mode: 'cors',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-  })
-  .catch(()=>showMsg('Gagal koneksi ke server.','error'));
+
+    const result = await response.text();
+    if (result.includes('success')) {
+      showMsg('Data berhasil disimpan!', 'success');
+      this.reset();
+      showStep(0);
+      currentStep = 0;
+      document.getElementById('tgl_daftar').valueAsDate = new Date();
+      document.getElementById('no_pesanan').value = generateNoPesanan();
+    } else {
+      throw new Error('Gagal menyimpan data');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
+  }
 };
+
+// ... existing code ...
 </script>
 </body>
 </html>
