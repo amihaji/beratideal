@@ -312,6 +312,11 @@ document.getElementById('formDaftar').onsubmit = function(e) {
   })
   .then(r=>r.json())
   .then(res=>{
+    
+    // Debug: tampilkan response di console
+    console.log('Response dari server:', res);
+    alert('Link file upload: ' + (res.link_file_upload || 'KOSONG'));
+
     if(res.status==='success') {
       document.getElementById('link_file_upload').value = res.link_file_upload||'';
       showMsg('Pendaftaran berhasil!','success');
