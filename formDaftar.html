@@ -177,6 +177,7 @@
 const steps = document.querySelectorAll('.form-step');
 const progressBar = document.getElementById('progressBar');
 let currentStep = 0;
+
 function showStep(idx) {
   steps.forEach((step, i) => step.classList.toggle('active', i === idx));
   progressBar.style.width = ((idx+1)/steps.length*100) + '%';
@@ -189,7 +190,6 @@ function generateNoPesanan() {
   const now = new Date();
   const pad = n => n.toString().padStart(2,'0');
   const tgl = pad(now.getDate())+pad(now.getMonth()+1)+now.getFullYear().toString().slice(-2);
-  // Untuk penomoran urut, bisa diganti dengan AJAX ke backend jika ingin unik
   let urut = Math.floor(Math.random()*9000)+1000;
   return `PS${tgl}-${urut}`;
 }
@@ -306,13 +306,12 @@ document.getElementById('formDaftar').onsubmit = function(e) {
 
   // Kirim Data ke Google Apps Script
   const formData = new FormData(this);
-  fetch('https://script.google.com/macros/s/AKfycbxQFPThP-C-U595Zlu9sl5CuB-KcwbU4Gp9zAOfU0IGkljO7cx1xt-OLwB9kzqc23Q5/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbwWkwwPv1LZ7yMEHNimJXnDZcOKy289kc8shn0HdziS6ufFbf8ZQgqTpW82BMG6mZSW/exec', {
     method: 'POST',
     body: formData
   })
   .then(r=>r.json())
   .then(res=>{
-    
     // Debug: tampilkan response di console
     console.log('Response dari server:', res);
     alert('Link file upload: ' + (res.link_file_upload || 'KOSONG'));
