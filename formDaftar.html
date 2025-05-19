@@ -303,6 +303,7 @@ document.getElementById('formDaftar').onsubmit = function(e) {
   if(!document.getElementById('bukti_transfer').files[0]) msg.push('Bukti transfer wajib diupload.');
   if(msg.length) { showMsg(msg.join('<br>'),'error'); return; }
   showMsg('','');
+  
   // Kirim ke Google Apps Script
   const formData = new FormData(this);
   fetch('https://script.google.com/macros/s/AKfycby0FJl_PMux5HXiZSUJ6k2mXWmQdS9em-UX14zLJt4FUMb6kHaYS2-nADfkwTt2KZin/exec', {
