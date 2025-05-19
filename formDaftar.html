@@ -1,208 +1,326 @@
 <!DOCTYPE html>
-<html class="wide wow-animation" lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
-    <title>Gaya Hidup Sehat dan Aktif | Cara menghitung berat badan ideal</title>
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/fonts.css">
-    <link rel="stylesheet" href="css/style.css">
-    <style>.ie-panel{display: none;background: #212121;padding: 10px 0;box-shadow: 3px 3px 5px 0 rgba(0,0,0,.3);clear: both;text-align:center;position: relative;z-index: 1;} html.ie-10 .ie-panel, html.lt-ie-10 .ie-panel {display: block;}</style>
-  </head>
-  <body>
-    <div class="container mt-5 mb-5">
-      <div class="card shadow" style="max-width:600px;margin:auto;">
-        <div class="card-body">
-          <div class="mb-4">
-            <div class="progress" style="height: 20px;">
-              <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width:25%;">Step 1 of 4</div>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Form Pendaftaran Berat Ideal</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    .msg-error { background:#d9534f; color:#fff; padding:10px; border-radius:5px; margin-bottom:10px; }
+    .msg-success { background:#f7f7f7; color:#222; padding:10px; border-radius:5px; margin-bottom:10px; }
+    .img-produk { max-width:150px; margin-top:10px; }
+  </style>
+</head>
+<body>
+<div class="container mt-4 mb-4">
+  <div class="card mx-auto" style="max-width:600px;">
+    <div class="card-body">
+      <h3 class="mb-3">Form Pendaftaran Berat Ideal</h3>
+      <div class="progress mb-3">
+        <div id="progressBar" class="progress-bar" role="progressbar" style="width:33%">Step 1 dari 3</div>
+      </div>
+      <form id="formDaftar" enctype="multipart/form-data" autocomplete="off">
+        <!-- Pesan -->
+        <div id="msgBox"></div>
+        <!-- Step 1: Data Pribadi -->
+        <div class="form-step active" id="step1">
+          <h5>Data Pribadi</h5>
+          <div class="form-group">
+            <label>Tgl Daftar:</label>
+            <input type="date" class="form-control" name="tgl_daftar" id="tgl_daftar" required>
+          </div>
+          <div class="form-group">
+            <label>No Pesanan:</label>
+            <input type="text" class="form-control" name="no_pesanan" id="no_pesanan" readonly>
+          </div>
+          <div class="form-group">
+            <label>Nama:</label>
+            <input type="text" class="form-control" name="nama" id="nama" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>Tgl Lahir:</label>
+            <input type="date" class="form-control" name="tgl_lahir" required>
+          </div>
+          <div class="form-group">
+            <label>Jenis Kelamin:</label>
+            <select class="form-control" name="jenis_kelamin" required>
+              <option value="">Pilih</option>
+              <option value="Pria">Pria</option>
+              <option value="Wanita">Wanita</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" class="form-control" name="email" id="email" maxlength="50" style="text-transform:lowercase" required>
+          </div>
+          <div class="form-group">
+            <label>Tlp:</label>
+            <input type="tel" class="form-control" name="tlp" id="tlp" pattern="\d{12,14}" maxlength="14" required>
+          </div>
+          <div class="form-group">
+            <label>Alamat:</label>
+            <input type="text" class="form-control" name="alamat" id="alamat" maxlength="60" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>Kecamatan:</label>
+            <input type="text" class="form-control" name="kecamatan" id="kecamatan" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>Kelurahan:</label>
+            <input type="text" class="form-control" name="kelurahan" id="kelurahan" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>Kota:</label>
+            <input type="text" class="form-control" name="kota" id="kota" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>Propinsi:</label>
+            <input type="text" class="form-control" name="propinsi" id="propinsi" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
+        </div>
+        <!-- Step 2: Data Pesanan -->
+        <div class="form-step" id="step2">
+          <h5>Data Pesanan</h5>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Program:</label>
+              <select class="form-control" name="program" id="program" required>
+                <option value="">Pilih</option>
+                <option value="10">10 Hari</option>
+                <option value="21">21 Hari</option>
+                <option value="90">3 Bulan</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label>Harga:</label>
+              <input type="text" class="form-control" name="harga_program" id="harga_program" readonly>
             </div>
           </div>
-          <form id="multiStepForm" enctype="multipart/form-data">
-            <!-- Step 1: Personal Data -->
-            <div class="form-step" id="step1">
-              <h4>Data Pribadi</h4>
-              <div class="form-group">
-                <label>Nama:</label>
-                <input type="text" class="form-control" name="nama" required>
-              </div>
-              <div class="form-group">
-                <label>Tgl Lahir:</label>
-                <input type="date" class="form-control" name="tgl_lahir" required>
-              </div>
-              <div class="form-group">
-                <label>Jenis Kelamin:</label>
-                <select class="form-control" name="jenis_kelamin" required>
-                  <option value="">Pilih</option>
-                  <option value="Pria">Pria</option>
-                  <option value="Wanita">Wanita</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Email:</label>
-                <input type="email" class="form-control" name="email" required>
-              </div>
-              <div class="form-group">
-                <label>Tlp:</label>
-                <input type="tel" class="form-control" name="tlp" required>
-              </div>
-              <div class="form-group">
-                <label>Alamat:</label>
-                <input type="text" class="form-control" name="alamat" required>
-              </div>
-              <div class="form-group">
-                <label>Kota:</label>
-                <input type="text" class="form-control" name="kota" required>
-              </div>
-              <div class="form-group">
-                <label>Propinsi:</label>
-                <input type="text" class="form-control" name="propinsi" required>
-              </div>
-              <button type="button" class="btn btn-primary next-step">Lanjut</button>
+          <div class="text-center">
+            <img id="img_produk" class="img-produk d-none" src="" alt="Produk">
+          </div>
+          <div class="form-group">
+            <label>Ekspedisi:</label>
+            <select class="form-control" name="ongkir" id="ongkir" required>
+              <option value="">Pilih</option>
+              <option value="Gojek">Gojek</option>
+              <option value="Gosend">Gosend</option>
+              <option value="POS">POS</option>
+              <option value="Gratis">Gratis</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>By Kirim:</label>
+              <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
             </div>
-            <!-- Step 2: Order Data -->
-            <div class="form-step d-none" id="step2">
-              <h4>Data Pesanan</h4>
-              <div class="form-group">
-                <label>Pilih Program:</label>
-                <select class="form-control" id="programSelect" name="program" required>
-                  <option value="">Pilih</option>
-                  <option value="10">10 Hari</option>
-                  <option value="21">21 Hari</option>
-                  <option value="90">3 Bulan</option>
-                </select>
-              </div>
-              <div id="programDetail" class="mb-3"></div>
-              <div class="form-group">
-                <label>Ekspedisi:</label>
-                <select class="form-control" id="ongkirSelect" name="ongkir" required>
-                  <option value="">Pilih</option>
-                  <option value="Gojek">Gojek</option>
-                  <option value="Gosend">Gosend</option>
-                  <option value="Gratis">Gratis</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>By Kirim:</label>
-                <input type="text" class="form-control" id="byKirim" name="by_kirim" readonly>
-              </div>
-              <div class="form-group">
-                <label>Total Biaya:</label>
-                <input type="text" class="form-control" id="totalBiaya" name="total_biaya" readonly>
-              </div>
-              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-              <button type="button" class="btn btn-primary next-step">Lanjut</button>
+            <div class="form-group col-6">
+              <label>Total Biaya:</label>
+              <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
             </div>
-            <!-- Step 3: Checkout -->
-            <div class="form-step d-none" id="step3">
-              <h4>Checkout</h4>
-              <p>Pastikan data Anda sudah benar sebelum submit.</p>
-              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-              <button type="button" class="btn btn-primary next-step">Submit</button>
-            </div>
-            <!-- Step 4: Confirmation -->
-            <div class="form-step d-none" id="step4">
-              <h4>Konfirmasi Pembayaran</h4>
-              <div class="form-group">
-                <label>Upload Bukti Transfer:</label>
-                <input type="file" class="form-control" name="bukti_transfer" accept="image/*" required>
-              </div>
-              <div class="form-group">
-                <label>Link File Upload (otomatis):</label>
-                <input type="text" class="form-control" name="link_file_upload" id="linkFileUpload" readonly>
-              </div>
-              <button type="button" class="btn btn-secondary prev-step">Kembali</button>
-              <button type="submit" class="btn btn-success">Kirim</button>
-            </div>
-          </form>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
+          <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
         </div>
-      </div>
+        <!-- Step 3: Checkout -->
+        <div class="form-step" id="step3">
+          <h5>Checkout</h5>
+          <div class="form-group">
+            <label>Bank Asal:</label>
+            <input type="text" class="form-control" name="bank_asal" id="bank_asal" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>No Rekening Asal:</label>
+            <input type="text" class="form-control" name="norek_asal" id="norek_asal" maxlength="30" required>
+          </div>
+          <div class="form-group">
+            <label>Bank Tujuan:</label>
+            <input type="text" class="form-control" name="bank_tujuan" id="bank_tujuan" maxlength="40" style="text-transform:uppercase" required>
+          </div>
+          <div class="form-group">
+            <label>No Rekening Tujuan:</label>
+            <input type="text" class="form-control" name="norek_tujuan" id="norek_tujuan" maxlength="30" required>
+          </div>
+          <div class="form-group">
+            <label>Tgl Transfer:</label>
+            <input type="date" class="form-control" name="tgl_transfer" id="tgl_transfer" required>
+          </div>
+          <div class="form-group">
+            <label>Transfer Dana:</label>
+            <input type="text" class="form-control" name="transfer_dana" id="transfer_dana" readonly>
+          </div>
+          <div class="form-group">
+            <label>Upload Bukti Transfer:</label>
+            <input type="file" class="form-control" name="bukti_transfer" id="bukti_transfer" accept="image/*" required>
+          </div>
+          <div class="form-group">
+            <label>Link File Upload (otomatis):</label>
+            <input type="text" class="form-control" name="link_file_upload" id="link_file_upload" readonly>
+          </div>
+          <div class="alert alert-info mt-3">
+            <strong>Informasi Bank Transfer :</strong><br>
+            Nama Pemilik Rek : Hesty Husain<br>
+            Nama Bank : Bank Maju Gembira<br>
+            No AC : 1234567890
+          </div>
+          <button type="button" class="btn btn-secondary" id="btnPrev3">SEBELUMNYA</button>
+          <button type="submit" class="btn btn-success float-right">SUBMIT</button>
+        </div>
+      </form>
     </div>
-    <script>
-      // Multi-step logic dengan progress bar
-      const steps = document.querySelectorAll('.form-step');
-      const progressBar = document.getElementById('progressBar');
-      let currentStep = 0;
-      function showStep(idx) {
-        steps.forEach((step, i) => {
-          step.classList.toggle('d-none', i !== idx);
-        });
-        const percent = ((idx+1)/steps.length)*100;
-        progressBar.style.width = percent + '%';
-        progressBar.textContent = `Step ${idx+1} of 4`;
-      }
-      document.querySelectorAll('.next-step').forEach(btn => {
-        btn.onclick = () => {
-          if (currentStep < steps.length - 1) {
-            currentStep++;
-            showStep(currentStep);
-          }
-        };
-      });
-      document.querySelectorAll('.prev-step').forEach(btn => {
-        btn.onclick = () => {
-          if (currentStep > 0) {
-            currentStep--;
-            showStep(currentStep);
-          }
-        };
-      });
-      showStep(currentStep);
-      // Program selection logic
-      const programSelect = document.getElementById('programSelect');
-      const programDetail = document.getElementById('programDetail');
-      const totalBiaya = document.getElementById('totalBiaya');
-      const hargaMap = { '10': 650000, '21': 1000000, '90': 1000000 };
-      const imgMap = {
-        '10': 'images/Mega-Trend1.webp',
-        '21': 'images/Mega-Trend2.webp',
-        '90': 'images/Mega-Trend3.webp'
-      };
-      const ongkirMap    = { 'Gojek': 20000, 'Gosend': 30000, 'Gratis': 0 };
-      const byKirim      = document.getElementById('byKirim');
-      const ongkirSelect = document.getElementById('ongkirSelect');
-      function updateTotal() {
-        const programVal = programSelect.value;
-        const ongkirVal  = ongkirSelect.value;
-        const harga      = hargaMap[programVal] || 0;
-        const ongkir     = ongkirMap[ongkirVal] || 0;
-        byKirim.value    = ongkir;
-        totalBiaya.value = harga + ongkir;
-      }
-      programSelect.onchange = function() {
-        const val = programSelect.value;
-        if (val && hargaMap[val]) {
-          programDetail.innerHTML = `<div><strong>Harga: Rp ${hargaMap[val].toLocaleString()}</strong></div><img src='${imgMap[val]}' alt='Produk' style='max-width:200px;'>`;
-        } else {
-          programDetail.innerHTML = '';
-        }
-        updateTotal();
-      };
-      ongkirSelect.onchange = function() {
-        updateTotal();
-      };
-      // Google Sheets integration (ganti YOUR_SCRIPT_URL dengan URL Web Apps Script Anda)
-      document.getElementById('multiStepForm').onsubmit = function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        // Masukkan ID google script disini
-        fetch('https://script.google.com/macros/s/AKfycbw8h0f7x3LRsEsFT42Jm59nWHxq0TSg6UN6tLkwts3IwqKgV4wJhdDMBi0cNjH8dZ_R/exec', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if(data.link_file_upload) {
-            document.getElementById('linkFileUpload').value = data.link_file_upload;
-          }
-          alert('Data berhasil dikirim!');
-          location.reload();
-        })
-        .catch(error => {
-          alert('Gagal mengirim data.');
-        });
-      };
-    </script>
-  </body>
+  </div>
+</div>
+<script>
+const steps = document.querySelectorAll('.form-step');
+const progressBar = document.getElementById('progressBar');
+let currentStep = 0;
+function showStep(idx) {
+  steps.forEach((step, i) => step.classList.toggle('active', i === idx));
+  progressBar.style.width = ((idx+1)/steps.length*100) + '%';
+  progressBar.textContent = `Step ${idx+1} dari 3`;
+}
+showStep(currentStep);
+
+// Generate No Pesanan otomatis
+function generateNoPesanan() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2,'0');
+  const tgl = pad(now.getDate())+pad(now.getMonth()+1)+now.getFullYear().toString().slice(-2);
+  // Untuk penomoran urut, bisa diganti dengan AJAX ke backend jika ingin unik
+  let urut = Math.floor(Math.random()*9000)+1000;
+  return `PS${tgl}-${urut}`;
+}
+document.getElementById('tgl_daftar').valueAsDate = new Date();
+document.getElementById('no_pesanan').value = generateNoPesanan();
+
+// Step navigation
+document.getElementById('btnNext1').onclick = function() {
+  if(validateStep1()) {
+    showStep(1);
+    currentStep = 1;
+  }
+};
+document.getElementById('btnPrev2').onclick = function() {
+  showStep(0); currentStep = 0;
+};
+document.getElementById('btnNext2').onclick = function() {
+  if(validateStep2()) {
+    // Hitung transfer dana
+    const total = document.getElementById('total_biaya').value.replace(/\D/g,'')*1;
+    const tlp = document.getElementById('tlp').value;
+    const last3 = tlp.slice(-3);
+    document.getElementById('transfer_dana').value = total+''+last3;
+    showStep(2); currentStep = 2;
+  }
+};
+document.getElementById('btnPrev3').onclick = function() {
+  showStep(1); currentStep = 1;
+};
+
+// Validasi Step 1
+function validateStep1() {
+  let valid = true, msg = [];
+  const nama = document.getElementById('nama').value.trim();
+  if(nama.length === 0 || nama.length > 40 || /[^A-Z\s]/.test(nama)) msg.push('Nama wajib diisi, maksimal 40 karakter, huruf besar.');
+  const email = document.getElementById('email').value.trim();
+  if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid dan harus huruf kecil.');
+  const tlp = document.getElementById('tlp').value.trim();
+  if(!/^\d{12,14}$/.test(tlp)) msg.push('No telepon wajib 12-14 digit angka.');
+  const alamat = document.getElementById('alamat').value.trim();
+  if(alamat.length === 0 || alamat.length > 60) msg.push('Alamat wajib diisi, maksimal 60 karakter.');
+  ['kecamatan','kelurahan','kota','propinsi'].forEach(id=>{
+    const val = document.getElementById(id).value.trim();
+    if(val.length === 0 || val.length > 40) msg.push(id.charAt(0).toUpperCase()+id.slice(1)+' wajib diisi, maksimal 40 karakter.');
+  });
+  if(msg.length) {
+    showMsg(msg.join('<br>'),'error');
+    return false;
+  }
+  showMsg('','');
+  return true;
+}
+
+// Validasi Step 2
+function validateStep2() {
+  let msg = [];
+  if(!document.getElementById('program').value) msg.push('Program wajib dipilih.');
+  if(!document.getElementById('ongkir').value) msg.push('Ekspedisi wajib dipilih.');
+  if(msg.length) {
+    showMsg(msg.join('<br>'),'error');
+    return false;
+  }
+  showMsg('','');
+  return true;
+}
+
+// Pesan
+function showMsg(msg,type) {
+  const box = document.getElementById('msgBox');
+  if(!msg) { box.innerHTML=''; return; }
+  box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
+}
+
+// Harga & gambar produk
+const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+const imgMap = {
+  '10': 'images/produk10hari.jpg',
+  '21': 'images/produk21hari.jpg',
+  '90': 'images/produk3bulan.jpg'
+};
+document.getElementById('program').onchange = function() {
+  const val = this.value;
+  document.getElementById('harga_program').value = val ? hargaMap[val] : '';
+  const img = document.getElementById('img_produk');
+  if(val) {
+    img.src = imgMap[val];
+    img.classList.remove('d-none');
+  } else {
+    img.classList.add('d-none');
+  }
+  updateTotal();
+};
+document.getElementById('ongkir').onchange = updateTotal;
+function updateTotal() {
+  const harga = hargaMap[document.getElementById('program').value]||0;
+  const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
+  document.getElementById('by_kirim').value = ongkir;
+  document.getElementById('total_biaya').value = harga+ongkir;
+}
+
+// Submit
+document.getElementById('formDaftar').onsubmit = function(e) {
+  e.preventDefault();
+  // Validasi Step 3
+  let msg = [];
+  if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
+  if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
+  if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
+  if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
+  if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
+  if(!document.getElementById('bukti_transfer').files[0]) msg.push('Bukti transfer wajib diupload.');
+  if(msg.length) { showMsg(msg.join('<br>'),'error'); return; }
+  showMsg('','');
+  // Kirim ke Google Apps Script
+  const formData = new FormData(this);
+  fetch('https://script.google.com/macros/s/AKfycbxPBIROAeNwY1XImLxwUnRoCYunQ7kcHbi7KN-8R9wYesBYe6iPJ_IUaxIDHVr9164W/exec', {
+    method: 'POST',
+    body: formData
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==='success') {
+      document.getElementById('link_file_upload').value = res.link_file_upload||'';
+      showMsg('Pendaftaran berhasil!','success');
+      setTimeout(()=>window.location.href='formKonfirmasi.html',2000);
+    } else {
+      showMsg('Gagal menyimpan data.','error');
+    }
+  })
+  .catch(()=>showMsg('Gagal koneksi ke server.','error'));
+};
+</script>
+</body>
 </html>
