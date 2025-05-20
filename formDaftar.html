@@ -289,6 +289,7 @@ const imgMap = {
   '21': 'images/produk21hari.webp',
   '90': 'images/produk3bulan.webp'
 };
+
 document.getElementById('program').onchange = function() {
   const val = this.value;
   document.getElementById('harga_program').value = val ? hargaMap[val] : '';
@@ -301,12 +302,17 @@ document.getElementById('program').onchange = function() {
   }
   updateTotal();
 };
+
 document.getElementById('ongkir').onchange = updateTotal;
 function updateTotal() {
   const harga = hargaMap[document.getElementById('program').value]||0;
   const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
   document.getElementById('by_kirim').value = ongkir;
-  document.getElementById('total_biaya').value = harga+ongkir;
+  // Ambil 3 digit terakhir dari no telp
+  const tlp = document.getElementById('tlp').value.trim();
+  const last3 = tlp.slice(-3);
+  const last3num = parseInt(last3) || 0;
+  document.getElementById('total_biaya').value = harga + ongkir + last3num;
 }
 
 // Submit Data Inputan
