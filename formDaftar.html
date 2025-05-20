@@ -306,12 +306,14 @@ function updateTotal() {
   const harga = hargaMap[document.getElementById('program').value]||0;
   const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
   document.getElementById('by_kirim').value = ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+ 
   // Ambil 3 digit terakhir dari no telp
-  const tlp = document.getElementById('tlp').value.trim();
+  const tlp   = document.getElementById('tlp').value.trim();
   const last3 = tlp.slice(-3).padStart(3, '0');
-  const total = harga + ongkir;
+  const total = harga + ongkir + last3;
+  
   // Gabungkan total dengan 3 digit terakhir sebagai string, lalu format
-  const totalBiaya = parseInt(total.toString() + last3);
+  const totalBiaya = parseInt(total.toString());
   document.getElementById('total_biaya').value = totalBiaya.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 }
 
