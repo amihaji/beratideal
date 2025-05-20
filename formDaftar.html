@@ -226,17 +226,14 @@ document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
     // Hitung transfer dana
     const harga = parseInt(document.getElementById('harga_program').value.replace(/\D/g,'')) || 0;
+    const ongkir = parseInt(document.getElementById('by_kirim').value.replace(/\D/g,'')) || 0;
     const tlp = document.getElementById('tlp').value.trim();
-    const last3 = tlp.slice(-3);
-    const last3num = parseInt(last3) || 0;
-    const total = harga + last3num;
-    document.getElementById('transfer_dana').value = total;
+    const last3 = tlp.slice(-3).padStart(3, '0');
+    const total = harga + ongkir;
+    const transferDana = parseInt(total.toString() + last3);
+    document.getElementById('transfer_dana').value = transferDana.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     showStep(2); currentStep = 2;
   }
-};
-
-document.getElementById('btnPrev3').onclick = function() {
-  showStep(1); currentStep = 1;
 };
 
 // Validasi Step 1
@@ -307,12 +304,14 @@ document.getElementById('ongkir').onchange = updateTotal;
 function updateTotal() {
   const harga = hargaMap[document.getElementById('program').value]||0;
   const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
-  document.getElementById('by_kirim').value = ongkir;
+  document.getElementById('by_kirim').value = ongkir.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   // Ambil 3 digit terakhir dari no telp
   const tlp = document.getElementById('tlp').value.trim();
-  const last3 = tlp.slice(-3);
-  const last3num = parseInt(last3) || 0;
-  document.getElementById('total_biaya').value = harga + ongkir + last3num;
+  const last3 = tlp.slice(-3).padStart(3, '0');
+  const total = harga + ongkir;
+  // Gabungkan total dengan 3 digit terakhir sebagai string, lalu format
+  const totalBiaya = parseInt(total.toString() + last3);
+  document.getElementById('total_biaya').value = totalBiaya.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
 // Submit Data Inputan
