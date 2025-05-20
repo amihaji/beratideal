@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Form Pendaftaran Berat Ideal</title>
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     .form-step { display: none; }
@@ -27,10 +31,12 @@
         <!-- Step 1: Data Pribadi -->
         <div class="form-step active" id="step1">
           <h5>Data Pribadi</h5>
+           
           <div class="form-group">
             <label>Tgl Daftar:</label>
-            <input type="date" class="form-control" name="tgl_daftar" id="tgl_daftar" required>
+            <input type="date" class="form-control" name="tgl_daftar" id="tgl_daftar" readonly>
           </div>
+          
           <div class="form-group">
             <label>No Pesanan:</label>
             <input type="text" class="form-control" name="no_pesanan" id="no_pesanan" readonly>
@@ -152,14 +158,7 @@
             <label>Transfer Dana:</label>
             <input type="text" class="form-control" name="transfer_dana" id="transfer_dana" readonly>
           </div>
-          <div class="form-group">
-            <label>Upload Bukti Transfer:</label>
-            <input type="file" class="form-control" name="bukti_transfer" id="bukti_transfer" accept="image/*" required>
-          </div>
-          <div class="form-group">
-            <label>Link File Upload (otomatis):</label>
-            <input type="text" class="form-control" name="link_file_upload" id="link_file_upload" readonly>
-          </div>
+          
           <div class="alert alert-info mt-3">
             <strong>Informasi Bank Transfer :</strong><br>
             Nama Pemilik Rek : Hesty Husain<br>
@@ -256,7 +255,7 @@ function validateStep2() {
   return true;
 }
 
-// Pesan
+// Tampilkan Pesan
 function showMsg(msg,type) {
   const box = document.getElementById('msgBox');
   if(!msg) { box.innerHTML=''; return; }
@@ -291,8 +290,9 @@ function updateTotal() {
 }
 
 // Submit Data Inputan
-document.getElementById('formDaftar').onsubmit = function(e) {
+document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
+  
   // Validasi Step 3
   let msg = [];
   if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
@@ -300,32 +300,41 @@ document.getElementById('formDaftar').onsubmit = function(e) {
   if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
   if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
   if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
-  if(!document.getElementById('bukti_transfer').files[0]) msg.push('Bukti transfer wajib diupload.');
-  if(msg.length) { showMsg(msg.join('<br>'),'error'); return; }
+  if(msg.length) { 
+    showMsg(msg.join('<br>'),'error'); 
+    return; 
+  }
   showMsg('','');
 
-  // Kirim Data ke Google Apps Script
-  const formData = new FormData(this);
-  fetch('https://script.google.com/macros/s/AKfycbwWkwwPv1LZ7yMEHNimJXnDZcOKy289kc8shn0HdziS6ufFbf8ZQgqTpW82BMG6mZSW/exec', {
-    method: 'POST',
-    body: formData
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    // Debug: tampilkan response di console
-    console.log('Response dari server:', res);
-    alert('Link file upload: ' + (res.link_file_upload || 'KOSONG'));
+  try {
+    const formData = new FormData(this);
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzBEMAJlKt_iWw4h_IY_Iv_J46HuaA64AdHWiHXW_UqrySJxVSHe-Z7go75nRJFCoqS/exec', {
+      method: 'POST',
+      mode: 'cors',
+      body: formData
+    });
 
-    if(res.status==='success') {
-      document.getElementById('link_file_upload').value = res.link_file_upload||'';
-      showMsg('Pendaftaran berhasil!','success');
-      setTimeout(()=>window.location.href='formKonfirmasi.html',2000);
-    } else {
-      showMsg('Gagal menyimpan data.','error');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-  })
-  .catch(()=>showMsg('Gagal koneksi ke server.','error'));
+
+    const result = await response.text();
+    if (result.includes('success')) {
+      showMsg('Data berhasil disimpan!', 'success');
+      this.reset();
+      showStep(0);
+      currentStep = 0;
+      document.getElementById('tgl_daftar').valueAsDate = new Date();
+      document.getElementById('no_pesanan').value = generateNoPesanan();
+    } else {
+      throw new Error('Gagal menyimpan data');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
+  }
 };
+
 </script>
 </body>
 </html>
