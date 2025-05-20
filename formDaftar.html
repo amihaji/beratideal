@@ -229,8 +229,8 @@ document.getElementById('btnNext2').onclick = function() {
     const ongkir = parseInt(document.getElementById('by_kirim').value.replace(/\D/g,'')) || 0;
     const tlp = document.getElementById('tlp').value.trim();
     const last3 = tlp.slice(-3).padStart(3, '0');
-    const total = harga + ongkir;
-    const transferDana = parseInt(total.toString() + last3);
+    const total = harga + ongkir + last3;
+    const transferDana = parseInt(total.toString());
     document.getElementById('transfer_dana').value = transferDana.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     showStep(2); currentStep = 2;
   }
