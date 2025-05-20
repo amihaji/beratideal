@@ -210,26 +210,31 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
-// Step navigation
+// Step Navigation
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
     showStep(1);
     currentStep = 1;
   }
 };
+
 document.getElementById('btnPrev2').onclick = function() {
   showStep(0); currentStep = 0;
 };
+
 document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
     // Hitung transfer dana
-    const total = document.getElementById('total_biaya').value.replace(/\D/g,'')*1;
-    const tlp = document.getElementById('tlp').value;
+    const harga = parseInt(document.getElementById('harga_program').value.replace(/\D/g,'')) || 0;
+    const tlp = document.getElementById('tlp').value.trim();
     const last3 = tlp.slice(-3);
-    document.getElementById('transfer_dana').value = total+''+last3;
+    const last3num = parseInt(last3) || 0;
+    const total = harga + last3num;
+    document.getElementById('transfer_dana').value = total;
     showStep(2); currentStep = 2;
   }
 };
+
 document.getElementById('btnPrev3').onclick = function() {
   showStep(1); currentStep = 1;
 };
