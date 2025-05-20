@@ -28,8 +28,7 @@
       <form id="formDaftar" enctype="multipart/form-data" autocomplete="off">
         <!-- Pesan -->
         <div id="msgBox"></div>
-
-        <!-- Step 1: DATA PRIBADI -->
+        <!-- Step 1: Data Pribadi -->
         <div class="form-step active" id="step1">
           <h5>Data Pribadi</h5>
            
@@ -88,57 +87,50 @@
           </div>
           <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
         </div>
-
-        <!-- Step 2: DATA PESANAN -->
-        // ... existing code ...
+        <!-- Step 2: Data Pesanan -->
         <div class="form-step" id="step2">
           <h5>Data Pesanan</h5>
-          <div class="row">
-            <div class="col-md-5 text-center align-self-center mb-3 mb-md-0">
-              <img id="img_produk" class="img-produk d-none" src="" alt="Produk">
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>Program:</label>
+              <select class="form-control" name="program" id="program" required>
+                <option value="">Pilih</option>
+                <option value="10">10 Hari</option>
+                <option value="21">21 Hari</option>
+                <option value="90">3 Bulan</option>
+              </select>
             </div>
-            <div class="col-md-7">
-              <div class="form-row">
-                <div class="form-group col-12">
-                  <label>Program:</label>
-                  <select class="form-control" name="program" id="program" required>
-                    <option value="">Pilih</option>
-                    <option value="10">10 Hari</option>
-                    <option value="21">21 Hari</option>
-                    <option value="90">3 Bulan</option>
-                  </select>
-                </div>
-                <div class="form-group col-12">
-                  <label>Harga:</label>
-                  <input type="text" class="form-control" name="harga_program" id="harga_program" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Ekspedisi:</label>
-                <select class="form-control" name="ongkir" id="ongkir" required>
-                  <option value="">Pilih</option>
-                  <option value="Gojek">Gojek</option>
-                  <option value="Gosend">Gosend</option>
-                  <option value="POS">POS</option>
-                  <option value="Gratis">Gratis</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-6">
-                  <label>By Kirim:</label>
-                  <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
-                </div>
-                <div class="form-group col-6">
-                  <label>Total Biaya:</label>
-                  <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
-                </div>
-              </div>
-              <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
-              <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
+            <div class="form-group col-6">
+              <label>Harga:</label>
+              <input type="text" class="form-control" name="harga_program" id="harga_program" readonly>
             </div>
           </div>
+          <div class="text-center">
+            <img id="img_produk" class="img-produk d-none" src="" alt="Produk">
+          </div>
+          <div class="form-group">
+            <label>Ekspedisi:</label>
+            <select class="form-control" name="ongkir" id="ongkir" required>
+              <option value="">Pilih</option>
+              <option value="Gojek">Gojek</option>
+              <option value="Gosend">Gosend</option>
+              <option value="POS">POS</option>
+              <option value="Gratis">Gratis</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label>By Kirim:</label>
+              <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
+            </div>
+            <div class="form-group col-6">
+              <label>Total Biaya:</label>
+              <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
+          <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
         </div>
-        // ... existing code ...
         <!-- Step 3: Checkout -->
         <div class="form-step" id="step3">
           <h5>Checkout</h5>
