@@ -225,14 +225,13 @@ document.getElementById('btnPrev2').onclick = function() {
 // Tombol LANJUT pada halaman2
 document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
-    // Hitung transfer dana
-    const harga  = parseInt(document.getElementById('harga_program').value.replace(/\D/g,'')) || 0;
-    const ongkir = parseInt(document.getElementById('by_kirim').value.replace(/\D/g,'')) || 0;
+    const harga  = parseInt(document.getElementById('harga_program').getAttribute('data-raw')) || 0;
+    const ongkir = parseInt(document.getElementById('by_kirim').getAttribute('data-raw')) || 0;
     const tlp    = document.getElementById('tlp').value.trim();
-    // Ambil 3 digit terakhir dari no telp sebagai angka
     const last3  = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
     const total  = harga + ongkir + last3;
     document.getElementById('transfer_dana').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    document.getElementById('transfer_dana').setAttribute('data-raw', total);
     showStep(2); currentStep = 2;
   }
 };
@@ -288,17 +287,13 @@ const imgMap = {
   '90': 'images/produk3bulan.webp'
 };
 
+// Update Harga & Gambar Produk
 document.getElementById('program').onchange = function() {
   const val   = this.value;
   const harga = val ? hargaMap[val] : '';
   document.getElementById('harga_program').value = harga ? harga.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
-  const img = document.getElementById('img_produk');
-  if(val) {
-    img.src = imgMap[val];
-    img.classList.remove('d-none');
-  } else {
-    img.classList.add('d-none');
-  }
+  document.getElementById('harga_program').setAttribute('data-raw', harga || '');
+  // ... existing code ...
   updateTotal();
 };
 
@@ -308,22 +303,27 @@ function updateTotal() {
   const harga  = hargaMap[document.getElementById('program').value]||0;
   const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
   document.getElementById('by_kirim').value = ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
- 
-  // Ambil 3 digit terakhir dari no telp sebagai angka
+  document.getElementById('by_kirim').setAttribute('data-raw', ongkir);
+
   const tlp   = document.getElementById('tlp').value.trim();
   const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
   const total = harga + ongkir + last3;
 
-  // Format total biaya
-  const totalBiaya = parseInt(total.toString());
-  document.getElementById('total_biaya').value = totalBiaya.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  document.getElementById('total_biaya').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  document.getElementById('total_biaya').setAttribute('data-raw', total);
 }
 
 // Submit Data Inputan
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
+
+  // Sebelum submit, set value input ke angka biasa tanpa format
+  document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
+  document.getElementById('by_kirim').value      = document.getElementById('by_kirim').getAttribute('data-raw') || '';
+  document.getElementById('total_biaya').value   = document.getElementById('total_biaya').getAttribute('data-raw') || '';
+  document.getElementById('transfer_dana').value = document.getElementById('transfer_dana').getAttribute('data-raw') || '';
   
-  // Validasi Step 3
+  // Validasi Halaman 3
   let msg = [];
   if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
   if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
