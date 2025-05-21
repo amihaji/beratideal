@@ -255,9 +255,9 @@
           
           <div class="alert alert-info mt-3">
             <strong>Informasi Bank Transfer :</strong><br>
-            Pemilik Rek : Hesty Husain<br>
-            Nama Bank : Bank Maju Gembira<br>
-            No AC : 1234567890
+            Bank : Bank Maju Gembira<br>
+            No AC : 1234567890<br>
+            Pemilik Rek : Hesty Husain
           </div>
           <!--
           <button type="button" class="btn btn-secondary" id="btnPrev3">SEBELUMNYA</button>
@@ -475,6 +475,18 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
   }
 };
+
+// Tambahkan di bagian setelah script-script lain
+  document.getElementById('formDaftar').onsubmit = function(e) {
+  e.preventDefault(); // Mencegah submit default
+  var msgBox = document.getElementById('msgBox');
+  msgBox.innerHTML = '<div class="msg-success">Pendaftaran berhasil! Anda akan diarahkan ke halaman utama...</div>';
+  setTimeout(function() {
+    document.getElementById('formDaftar').reset();
+    window.location.href = 'index.html';
+  }, 3000);
+};
+
 </script>
 <script src="js/core.min.js"></script>
 <script src="js/script.js"></script>
