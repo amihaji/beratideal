@@ -165,10 +165,14 @@
             <label>No Rekening Tujuan:</label>
             <input type="text" class="form-control" name="norek_tujuan" id="norek_tujuan" maxlength="30" required>
           </div>
+          
+          <!--TIDAK DIAKTIFKAN
           <div class="form-group">
             <label>Tgl Transfer:</label>
             <input type="date" class="form-control" name="tgl_transfer" id="tgl_transfer" required>
           </div>
+          -->
+
           <div class="form-group">
             <label>Transfer Dana:</label>
             <input type="text" class="form-control" name="transfer_dana" id="transfer_dana" readonly>
@@ -176,7 +180,7 @@
           
           <div class="alert alert-info mt-3">
             <strong>Informasi Bank Transfer :</strong><br>
-            Nama Pemilik Rek : Hesty Husain<br>
+            Pemilik Rek : Hesty Husain<br>
             Nama Bank : Bank Maju Gembira<br>
             No AC : 1234567890
           </div>
@@ -188,9 +192,19 @@
   </div>
 </div>
 <script>
-const steps = document.querySelectorAll('.form-step');
+
+// Deklarasi untuk Progressbar
+const steps       = document.querySelectorAll('.form-step');
 const progressBar = document.getElementById('progressBar');
-let currentStep = 0;
+let currentStep   = 0;
+
+// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
+const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+const imgMap = {
+  '10': 'images/produk10hari.webp',
+  '21': 'images/produk21hari.webp',
+  '90': 'images/produk3bulan.webp'
+};
 
 function showStep(idx) {
   steps.forEach((step, i) => step.classList.toggle('active', i === idx));
@@ -210,14 +224,6 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
-// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
-const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
-const imgMap = {
-  '10': 'images/produk10hari.webp',
-  '21': 'images/produk21hari.webp',
-  '90': 'images/produk3bulan.webp'
-};
-
 // Tombol LANJUT pada Halaman 1
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
@@ -227,6 +233,7 @@ document.getElementById('btnNext1').onclick = function() {
   }
 };
 
+// Tombol SEBELUM pada Halaman 2
 document.getElementById('btnPrev2').onclick = function() {
   showStep(0); currentStep = 0;
 };
@@ -340,7 +347,10 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
   if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
   if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
   if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
-  if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
+  
+  // TIDAK DIAKTIFKAN
+  // if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
+ 
   if(msg.length) { 
     showMsg(msg.join('<br>'),'error'); 
     return; 
@@ -356,7 +366,7 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     });
 
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error('Respone Network kurang baik');
     }
 
     const result = await response.text();
@@ -366,7 +376,7 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
       showStep(0);
       currentStep = 0;
       document.getElementById('tgl_daftar').valueAsDate = new Date();
-      document.getElementById('no_pesanan').value = generateNoPesanan();
+      document.getElementById('no_pesanan').value       = generateNoPesanan();
     } else {
       throw new Error('Gagal menyimpan data');
     }
