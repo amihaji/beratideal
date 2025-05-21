@@ -152,9 +152,7 @@
             <label>Propinsi:</label>
             <input type="text" class="form-control" name="propinsi" id="propinsi" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
-          <!-- 
-            <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
-          -->
+        
             <div id="msgBox"></div>
             <button type="button" class="button button-primary button-md float-right" id="btnNext1">LANJUT</button>
         </div>
@@ -210,10 +208,7 @@
                 <label>Total Biaya: (ditambahkan 3 digit angka unik utk memudahkan pengecekan)</label>
                 <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
               </div>
-              <!--
-              <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
-              <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
-              -->
+            
               <div id="msgBox"></div>
               <button type="button" class="button button-primary button-md" id="btnPrev2">SEBELUMNYA</button>
               <button type="button" class="button button-primary button-md float-right" id="btnNext2">LANJUT</button>
@@ -259,10 +254,7 @@
             No AC : 1234567890<br>
             Pemilik Rek : Hesty Husain
           </div>
-          <!--
-          <button type="button" class="btn btn-secondary" id="btnPrev3">SEBELUMNYA</button>
-          <button type="submit" class="btn btn-success float-right">SUBMIT</button>
-          -->
+      
           <div id="msgBox"></div>
           <button type="button" class="button button-primary button-md" id="btnPrev3">SEBELUMNYA</button>
           <button type="submit" class="button button-primary button-md float-right">SUBMIT</button>
@@ -477,10 +469,26 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
 };
 
 // Tambahkan di bagian setelah script-script lain
-  document.getElementById('formDaftar').onsubmit = function(e) {
-  e.preventDefault(); // Mencegah submit default
-  var msgBox = document.getElementById('msgBox');
-  msgBox.innerHTML = '<div class="msg-success">Pendaftaran berhasil! Anda akan diarahkan ke halaman utama...</div>';
+document.getElementById('formDaftar').onsubmit = function(e) {
+  e.preventDefault();
+
+  // Validasi Halaman 3
+  let msg = [];
+  if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
+  if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
+  if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
+  if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
+
+  if(msg.length) { 
+    showMsg(msg.join('<br>'),'error'); 
+    return; 
+  }
+
+  // Tampilkan pesan sukses di msgBox pada step3 (baris paling akhir inputan)
+  const activeStep = document.querySelector('.form-step.active');
+  const box = activeStep.querySelector('#msgBox');
+  box.innerHTML = '<div class="msg-success">Pendaftaran berhasil! Anda akan diarahkan ke halaman utama...</div>';
+
   setTimeout(function() {
     document.getElementById('formDaftar').reset();
     window.location.href = 'index.html';
