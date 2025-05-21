@@ -28,7 +28,8 @@
       <form id="formDaftar" enctype="multipart/form-data" autocomplete="off">
         <!-- Pesan -->
         <div id="msgBox"></div>
-        <!-- Step 1: Data Pribadi -->
+
+        <!-- Step 1: DATA PRIBADI -->
         <div class="form-step active" id="step1">
           <h5>Data Pribadi</h5>
            
@@ -87,50 +88,64 @@
           </div>
           <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
         </div>
-        <!-- Step 2: Data Pesanan -->
+
+        <!-- Step 2: DATA PESANAN -->
         <div class="form-step" id="step2">
           <h5>Data Pesanan</h5>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <label>Program:</label>
-              <select class="form-control" name="program" id="program" required>
-                <option value="">Pilih</option>
-                <option value="10">10 Hari</option>
-                <option value="21">21 Hari</option>
-                <option value="90">3 Bulan</option>
-              </select>
+          <!-- Baris pertama: dua kolom -->
+          <div class="row">
+            <!-- Kolom kiri: Program & Harga (vertikal) -->
+            <div class="col-md-7">
+              <div class="form-group">
+                <label>Program:</label>
+                <select class="form-control" name="program" id="program" required>
+                  <option value="">Pilih</option>
+                  <option value="10">10 Hari</option>
+                  <option value="21">21 Hari</option>
+                  <option value="90">3 Bulan</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Harga Paket Program :</label>
+                <input type="text" class="form-control" name="harga_program" id="harga_program" readonly>
+              </div>
             </div>
-            <div class="form-group col-6">
-              <label>Harga:</label>
-              <input type="text" class="form-control" name="harga_program" id="harga_program" readonly>
-            </div>
-          </div>
-          <div class="text-center">
-            <img id="img_produk" class="img-produk d-none" src="" alt="Produk">
-          </div>
-          <div class="form-group">
-            <label>Ekspedisi:</label>
-            <select class="form-control" name="ongkir" id="ongkir" required>
-              <option value="">Pilih</option>
-              <option value="Gojek">Gojek</option>
-              <option value="Gosend">Gosend</option>
-              <option value="POS">POS</option>
-              <option value="Gratis">Gratis</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <label>By Kirim:</label>
-              <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
-            </div>
-            <div class="form-group col-6">
-              <label>Total Biaya:</label>
-              <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
+            <!-- Kolom kanan: gambar produk -->
+            <div class="col-md-5 text-center align-self-center mb-3 mb-md-0">
+              <Label>Produk Meal Replacement</Label>
+              <div class="produk-box" style="border:1px solid #ddd; border-radius:8px; padding:16px; display:inline-block; background:#fafafa;">
+                <img id="img_produk" class="img-produk d-none" src="" alt="Produk">
+              </div>
             </div>
           </div>
-          <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
-          <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
+         
+          <!-- Baris kedua: satu kolom penuh -->
+          <div class="row mt-2">
+            <div class="col-12">
+              <div class="form-group">
+                <label>Ekspedisi:</label>
+                <select class="form-control" name="ongkir" id="ongkir" required>
+                  <option value="">Pilih</option>
+                  <option value="Gojek">Gojek</option>
+                  <option value="Gosend">Gosend</option>
+                  <option value="POS">POS</option>
+                  <option value="Gratis">Gratis</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>By Kirim:</label>
+                <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
+              </div>
+              <div class="form-group">
+                <label>Total Biaya:</label>
+                <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
+              </div>
+              <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
+              <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
+            </div>
+          </div>
         </div>
+      
         <!-- Step 3: Checkout -->
         <div class="form-step" id="step3">
           <h5>Checkout</h5>
@@ -195,31 +210,42 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
-// Step navigation
+// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
+const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+const imgMap = {
+  '10': 'images/produk10hari.webp',
+  '21': 'images/produk21hari.webp',
+  '90': 'images/produk3bulan.webp'
+};
+
+// Tombol LANJUT pada Halaman 1
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
     showStep(1);
     currentStep = 1;
+    updateTotal(); // Pastikan biaya langsung terupdate saat masuk step 2
   }
 };
+
 document.getElementById('btnPrev2').onclick = function() {
   showStep(0); currentStep = 0;
 };
+
+// Tombol LANJUT pada halaman2
 document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
-    // Hitung transfer dana
-    const total = document.getElementById('total_biaya').value.replace(/\D/g,'')*1;
-    const tlp = document.getElementById('tlp').value;
-    const last3 = tlp.slice(-3);
-    document.getElementById('transfer_dana').value = total+''+last3;
+    const harga  = parseInt(document.getElementById('harga_program').getAttribute('data-raw')) || 0;
+    const ongkir = parseInt(document.getElementById('by_kirim').getAttribute('data-raw')) || 0;
+    const tlp    = document.getElementById('tlp').value.trim();
+    const last3  = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
+    const total  = harga + ongkir + last3;
+    document.getElementById('transfer_dana').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    document.getElementById('transfer_dana').setAttribute('data-raw', total);
     showStep(2); currentStep = 2;
   }
 };
-document.getElementById('btnPrev3').onclick = function() {
-  showStep(1); currentStep = 1;
-};
 
-// Validasi Step 1
+// Validasi Halaman 1
 function validateStep1() {
   let msg = [];
   const nama = document.getElementById('nama').value.trim();
@@ -242,7 +268,7 @@ function validateStep1() {
   return true;
 }
 
-// Validasi Step 2
+// Validasi Halaman 2
 function validateStep2() {
   let msg = [];
   if(!document.getElementById('program').value) msg.push('Program wajib dipilih.');
@@ -262,16 +288,15 @@ function showMsg(msg,type) {
   box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
 }
 
-// Harga & gambar produk
-const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
-const imgMap = {
-  '10': 'images/produk10hari.webp',
-  '21': 'images/produk21hari.webp',
-  '90': 'images/produk3bulan.webp'
-};
+// Update Harga & Gambar Produk
 document.getElementById('program').onchange = function() {
-  const val = this.value;
-  document.getElementById('harga_program').value = val ? hargaMap[val] : '';
+  const val   = this.value;
+  const harga = val ? hargaMap[val] : '';
+  // Tampilkan harga terformat di input
+  document.getElementById('harga_program').value = harga ? harga.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
+  // Simpan nilai angka mentah di atribut data-raw
+  document.getElementById('harga_program').setAttribute('data-raw', harga || '');
+  // Tampilkan gambar produk sesuai program
   const img = document.getElementById('img_produk');
   if(val) {
     img.src = imgMap[val];
@@ -279,21 +304,37 @@ document.getElementById('program').onchange = function() {
   } else {
     img.classList.add('d-none');
   }
+  // Update total biaya dan by kirim
   updateTotal();
 };
+
+// Update TOTAL HARGA
 document.getElementById('ongkir').onchange = updateTotal;
 function updateTotal() {
-  const harga = hargaMap[document.getElementById('program').value]||0;
-  const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
-  document.getElementById('by_kirim').value = ongkir;
-  document.getElementById('total_biaya').value = harga+ongkir;
+  const harga  = hargaMap[document.getElementById('program').value]||0;
+  const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value];
+  document.getElementById('by_kirim').value = (ongkir !== undefined && ongkir !== null) ? ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
+  document.getElementById('by_kirim').setAttribute('data-raw', ongkir || 0);
+
+  const tlp   = document.getElementById('tlp').value.trim();
+  const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
+  const total = harga + (ongkir || 0) + last3;
+
+  document.getElementById('total_biaya').value = (harga && ongkir !== undefined && ongkir !== null) ? total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
+  document.getElementById('total_biaya').setAttribute('data-raw', total);
 }
 
 // Submit Data Inputan
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
+
+  // Sebelum submit, set value input ke angka biasa tanpa format
+  document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
+  document.getElementById('by_kirim').value      = document.getElementById('by_kirim').getAttribute('data-raw') || '';
+  document.getElementById('total_biaya').value   = document.getElementById('total_biaya').getAttribute('data-raw') || '';
+  document.getElementById('transfer_dana').value = document.getElementById('transfer_dana').getAttribute('data-raw') || '';
   
-  // Validasi Step 3
+  // Validasi Halaman 3
   let msg = [];
   if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
   if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
@@ -334,7 +375,6 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
   }
 };
-
 </script>
 </body>
 </html>
