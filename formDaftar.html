@@ -255,18 +255,26 @@ document.getElementById('btnNext2').onclick = function() {
 // Validasi Halaman 1
 function validateStep1() {
   let msg = [];
+  // Validasi Nama 
   const nama = document.getElementById('nama').value.trim();
   if(nama.length < 3 || nama.length > 40) msg.push('Nama wajib diisi, min 3 dan maks 40 karakter');
-  const email = document.getElementById('email').value.trim();
+ 
+  // Validasi Email
+  const email = document.getElementById('email').value.trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid');
+
+  // Validasi Telepon
   const tlp = document.getElementById('tlp').value.trim();
   if(!/^\d{10,14}$/.test(tlp)) msg.push('No telepon wajib 10-14 digit angka.');
+ 
+  // Validasi Alamat, Kecamatan, Kelurahan, Kota, Propensi
   const alamat = document.getElementById('alamat').value.trim();
   if(alamat.length < 3 || alamat.length > 60) msg.push('Alamat wajib diisi, min 3 dan maks 60 karakter.');
   ['kecamatan','kelurahan','kota','propinsi'].forEach(id=>{
     const val = document.getElementById(id).value.trim();
     if(val.length < 3 || val.length > 40) msg.push(id.charAt(0).toUpperCase()+id.slice(1)+' wajib diisi, min 3 dan maks 40 karakter.');
   });
+ 
   if(msg.length) {
     showMsg(msg.join('<br>'),'error');
     return false;
