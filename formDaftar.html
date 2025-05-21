@@ -210,11 +210,20 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
+// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
+const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+const imgMap = {
+  '10': 'images/produk10hari.webp',
+  '21': 'images/produk21hari.webp',
+  '90': 'images/produk3bulan.webp'
+};
+
 // Tombol LANJUT pada Halaman 1
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
     showStep(1);
     currentStep = 1;
+    updateTotal(); // Pastikan biaya langsung terupdate saat masuk step 2
   }
 };
 
@@ -281,14 +290,6 @@ function showMsg(msg,type) {
 
 // Update Harga & Gambar Produk
 document.getElementById('program').onchange = function() {
-  // Harga & Gambar Produk
-  const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
-  const imgMap = {
-    '10': 'images/produk10hari.webp',
-    '21': 'images/produk21hari.webp',
-    '90': 'images/produk3bulan.webp'
-  };
-
   const val   = this.value;
   const harga = val ? hargaMap[val] : '';
   // Tampilkan harga terformat di input
@@ -312,14 +313,14 @@ document.getElementById('ongkir').onchange = updateTotal;
 function updateTotal() {
   const harga  = hargaMap[document.getElementById('program').value]||0;
   const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value]||0;
-  document.getElementById('by_kirim').value = ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  document.getElementById('by_kirim').value = ongkir ? ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
   document.getElementById('by_kirim').setAttribute('data-raw', ongkir);
 
   const tlp   = document.getElementById('tlp').value.trim();
   const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
   const total = harga + ongkir + last3;
 
-  document.getElementById('total_biaya').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  document.getElementById('total_biaya').value = (harga && ongkir) ? total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
   document.getElementById('total_biaya').setAttribute('data-raw', total);
 }
 
@@ -374,7 +375,6 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
   }
 };
-
 </script>
 </body>
 </html>
