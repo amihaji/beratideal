@@ -210,7 +210,7 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
-// Step Navigation
+// Tombol LANJUT pada Halaman 1
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
     showStep(1);
@@ -222,21 +222,22 @@ document.getElementById('btnPrev2').onclick = function() {
   showStep(0); currentStep = 0;
 };
 
+// Tombol LANJUT pada halaman2
 document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
     // Hitung transfer dana
     const harga  = parseInt(document.getElementById('harga_program').value.replace(/\D/g,'')) || 0;
     const ongkir = parseInt(document.getElementById('by_kirim').value.replace(/\D/g,'')) || 0;
     const tlp    = document.getElementById('tlp').value.trim();
-    const last3  = tlp.slice(-3).padStart(3, '0');
+    // Ambil 3 digit terakhir dari no telp sebagai angka
+    const last3  = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
     const total  = harga + ongkir + last3;
-    const transferDana = parseInt(total.toString());
-    document.getElementById('transfer_dana').value = transferDana.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    document.getElementById('transfer_dana').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     showStep(2); currentStep = 2;
   }
 };
 
-// Validasi Step 1
+// Validasi Halaman 1
 function validateStep1() {
   let msg = [];
   const nama = document.getElementById('nama').value.trim();
@@ -259,7 +260,7 @@ function validateStep1() {
   return true;
 }
 
-// Validasi Step 2
+// Validasi Halaman 2
 function validateStep2() {
   let msg = [];
   if(!document.getElementById('program').value) msg.push('Program wajib dipilih.');
@@ -279,7 +280,7 @@ function showMsg(msg,type) {
   box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
 }
 
-// Harga & gambar produk
+// Harga & Gambar Produk
 const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
 const imgMap = {
   '10': 'images/produk10hari.webp',
@@ -288,7 +289,7 @@ const imgMap = {
 };
 
 document.getElementById('program').onchange = function() {
-  const val = this.value;
+  const val   = this.value;
   const harga = val ? hargaMap[val] : '';
   document.getElementById('harga_program').value = harga ? harga.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
   const img = document.getElementById('img_produk');
