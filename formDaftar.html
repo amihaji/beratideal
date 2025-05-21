@@ -279,16 +279,16 @@ function showMsg(msg,type) {
   box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
 }
 
-// Harga & Gambar Produk
-const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
-const imgMap = {
-  '10': 'images/produk10hari.webp',
-  '21': 'images/produk21hari.webp',
-  '90': 'images/produk3bulan.webp'
-};
-
 // Update Harga & Gambar Produk
 document.getElementById('program').onchange = function() {
+  // Harga & Gambar Produk
+  const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+  const imgMap = {
+    '10': 'images/produk10hari.webp',
+    '21': 'images/produk21hari.webp',
+    '90': 'images/produk3bulan.webp'
+  };
+  
   const val   = this.value;
   const harga = val ? hargaMap[val] : '';
   // Tampilkan harga terformat di input
