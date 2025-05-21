@@ -17,8 +17,39 @@
   <style>
     .form-step { display: none; }
     .form-step.active { display: block; }
-    .msg-error { background:#d9534f; color:#fff; padding:10px; border-radius:5px; margin-bottom:10px; }
-    .msg-success { background:#f7f7f7; color:#222; padding:10px; border-radius:5px; margin-bottom:10px; }
+    .judul-form {
+      background: #003366;
+      color: #fff;
+      padding: 16px 0 16px 0;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      font-size: 1.3rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 0;
+    }
+    .msg-error {
+      background: #d9534f;
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 400;
+    }
+    .msg-success {
+      background: #f7f7f7;
+      color: #222;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 400;
+    }
     .img-produk { max-width:150px; margin-top:10px; }
   </style>
 </head>
@@ -52,8 +83,9 @@
 <div class="container mt-4 mb-4">
   <!-- Konten Form -->
   <div class="card mx-auto" style="max-width:600px;">
-    <div class="card-body">
-      <h4 class="mb-3" style="text-align:center"><strong>Form Pendaftaran</strong></h4>
+    <div class="judul-form">Form Pendaftaran</div>
+      <div class="card-body" style="padding-top: 20px;">
+
       <!-- Progressbar -->
       <div class="progress mb-3">
         <div id="progressBar" class="progress-bar" role="progressbar" style="width:33%">Step 1 dari 3</div>
@@ -343,7 +375,10 @@ function validateStep2() {
 
 // Tampilkan Pesan
 function showMsg(msg,type) {
-  const box = document.getElementById('msgBox');
+  // Tampilkan pesan pada msgBox di step yang aktif saja
+  const activeStep = document.querySelector('.form-step.active');
+  if (!activeStep) return;
+  const box = activeStep.querySelector('#msgBox');
   if(!msg) { box.innerHTML=''; return; }
   box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
 }
