@@ -418,7 +418,7 @@ function updateTotal() {
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  // Sebelum submit, set value input ke angka biasa tanpa format
+  // Ubah nilai formatted (rupiah) menjadi angka mentah
   document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
   document.getElementById('by_kirim').value      = document.getElementById('by_kirim').getAttribute('data-raw') || '';
   document.getElementById('total_biaya').value   = document.getElementById('total_biaya').getAttribute('data-raw') || '';
@@ -426,32 +426,27 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
 
   // Validasi Halaman 3
   let msg = [];
-  if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
-  if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
-  if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
-  if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
+  if (!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
+  if (!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
+  if (!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
+  if (!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
 
-  if(msg.length) { 
-    showMsg(msg.join('<br>'),'error'); 
-    return; 
+  if (msg.length) {
+    showMsg(msg.join('<br>'), 'error');
+    return;
   }
 
   try {
-    const formData = new FormData(this);
-
-    // DEBUG: tampilkan semua data yang akan dikirim
-    for (let pair of formData.entries()) {
-      console.log(pair[0]+ ': ' + pair[1]);
-    }
-
+    // Ambil semua inputan form sebagai URL-encoded (agar bisa dibaca sebagai e.parameter di Apps Script)
+    const formData = new URLSearchParams(new FormData(this));
     const response = await fetch('https://script.google.com/macros/s/AKfycbwL2t6T1cnlM6bfolib_BN4CXdpev_eQBCDypdUUbZeXoxut7s9-B1zrkzQ4sdD4AkE/exec', {
       method: 'POST',
-      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
       body: formData
     });
 
-    // DEBUG: tampilkan status dan response
-    console.log('Status:', response.status);
     const result = await response.text();
     console.log('Response:', result);
 
@@ -465,11 +460,12 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     } else {
       showMsg('Gagal menyimpan data: ' + result, 'error');
     }
+
   } catch (err) {
     console.error('Error:', err);
     showMsg('Terjadi error: ' + err.message, 'error');
   }
-}
+};
 
 // Tambahkan di bagian setelah script-script lain
 document.getElementById('formDaftar').onsubmit = function(e) {
