@@ -416,17 +416,32 @@ function updateTotal() {
 
 // Submit Data Inputan
 // https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec
+
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  // Ambil semua inputan form
+  let msg = [];
+  if (!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
+  if (!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
+  if (!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
+  if (!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
+
+  if (msg.length) {
+    showMsg(msg.join('<br>'), 'error');
+    return;
+  }
+
   const form = document.getElementById('formDaftar');
   const inputs = form.querySelectorAll("input, select");
 
   const params = new URLSearchParams();
   inputs.forEach(input => {
     if (input.name) {
-      params.append(input.name, input.value);
+      if (['by_kirim', 'total_biaya', 'transfer_dana', 'harga_program'].includes(input.name)) {
+        params.append(input.name, input.getAttribute('data-raw') || '0');
+      } else {
+        params.append(input.name, input.value);
+      }
     }
   });
 
@@ -441,15 +456,23 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
 
     const result = await response.text();
     console.log("Response:", result);
+
     if (result.includes('success')) {
-      alert('Data berhasil disimpan ke Google Sheet!');
+      showMsg('Data berhasil disimpan ke Google Sheet!', 'success');
+      form.reset();
+      showStep(0);
+      currentStep = 0;
+      document.getElementById('tgl_daftar').valueAsDate = new Date();
+      document.getElementById('no_pesanan').value = generateNoPesanan();
     } else {
-      alert('Gagal menyimpan data: ' + result);
+      showMsg('Gagal menyimpan data: ' + result, 'error');
     }
+
   } catch (err) {
-    alert('Terjadi error: ' + err.message);
+    showMsg('Terjadi error: ' + err.message, 'error');
   }
 }
+
 </script>
 <script src="js/core.min.js"></script>
 <script src="js/script.js"></script>

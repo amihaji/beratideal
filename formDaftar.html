@@ -417,6 +417,7 @@ function updateTotal() {
 // Submit Data Inputan
 // https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec
 
+
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
@@ -458,12 +459,18 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     console.log("Response:", result);
 
     if (result.includes('success')) {
-      showMsg('Data berhasil disimpan ke Google Sheet!', 'success');
+      showMsg('Data berhasil Terdaftar!', 'success');
       form.reset();
       showStep(0);
       currentStep = 0;
       document.getElementById('tgl_daftar').valueAsDate = new Date();
       document.getElementById('no_pesanan').value = generateNoPesanan();
+
+      // Redirect ke index.html setelah 3 detik
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 3000);
+
     } else {
       showMsg('Gagal menyimpan data: ' + result, 'error');
     }
