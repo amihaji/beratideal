@@ -1,30 +1,96 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Form Pendaftaran Berat Ideal</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+  <title> Gaya Hidup Sehat dan Aktif | Cara menghitung berat badan ideal | Produk Makanan dan Minuman Sehat | Lomba Turun Berat Badan | Cek kebugaran Gratis</title>
+  <meta name="description" content="Berat badan ideal menjadi salah satu cara yang efektif untuk menjaga kesehatan tubuh keseluruhan, Temukan tips gaya hidup sehat, produk makanan sehat rendah kalori, tinggi protein dan serat, serta ikuti lomba turun berat badan untuk mencapai kebugaran optimal, weight loss challenge.">
+  <meta name="keywords" content="gaya hidup sehat, kebugaran, makanan sehat, minuman sehat, lomba turun berat badan, produk tinggi protein, produk rendah kalori, klub nutrisi, weight loss challenge, tes kebugaran gratis">
+  <meta name="google-site-verification" content="Jyw_mpxcDPRJUOvqGGhxhqqFf_eoW4WnAQBodseJ7g8 "/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
   <link rel="icon" href="images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="css/bootstrap.css">
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+ 
   <style>
     .form-step { display: none; }
     .form-step.active { display: block; }
-    .msg-error { background:#d9534f; color:#fff; padding:10px; border-radius:5px; margin-bottom:10px; }
-    .msg-success { background:#f7f7f7; color:#222; padding:10px; border-radius:5px; margin-bottom:10px; }
+    .judul-form {
+      background: #003366;
+      color: #fff;
+      padding: 16px 0 16px 0;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      font-size: 1.3rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 0;
+    }
+    .msg-error {
+      background: #d9534f;
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 100;
+    }
+    .msg-success {
+      background: #0037ce;
+      color: #ffffff;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 100;
+    }
     .img-produk { max-width:150px; margin-top:10px; }
   </style>
 </head>
 <body>
+    <!-- Page Header-->
+    <header class="section page-header" id="home">
+      <!-- RD Navbar-->
+      <div class="rd-navbar-wrap">
+        <nav class="rd-navbar rd-navbar-classic" data-layout="rd-navbar-fixed" data-sm-layout="rd-navbar-fixed" data-md-layout="rd-navbar-fixed" data-md-device-layout="rd-navbar-fixed" data-lg-layout="rd-navbar-static" data-lg-device-layout="rd-navbar-static" data-xl-layout="rd-navbar-static" data-xl-device-layout="rd-navbar-static" data-lg-stick-up-offset="46px" data-xl-stick-up-offset="46px" data-xxl-stick-up-offset="46px" data-lg-stick-up="true" data-xl-stick-up="true" data-xxl-stick-up="true">
+          <div class="rd-navbar-collapse-toggle rd-navbar-fixed-element-1" data-rd-navbar-toggle=".rd-navbar-collapse"><span></span></div>
+          <div class="rd-navbar-main-outer">
+            <div class="rd-navbar-main">
+              <!-- RD Navbar Panel-->
+              <div class="rd-navbar-panel">
+                <!-- RD Navbar Toggle-->
+                <button class="rd-navbar-toggle" data-rd-navbar-toggle=".rd-navbar-nav-wrap"><span></span></button>
+                <!-- RD Navbar Brand-->
+                <div class="rd-navbar-brand" >
+                  <a class="brand" href="index.html"><img src="images/logo-beratidealku.png" alt="Gaya Hidup Sehat dan Aktif - Tips dan Panduan - beratidealku" width="199" height="38"/></a>
+                </div>
+                <div class="logo-caption">
+                  <span>Berat Badan Ideal</span><span>Dengan Cara Menyenangkan</span></div>
+                </div>
+              </div>
+            </div>  
+          </div>  
+        </nav>
+      </div>
+    </header>
+
 <div class="container mt-4 mb-4">
+  <!-- Konten Form -->
   <div class="card mx-auto" style="max-width:600px;">
-    <div class="card-body">
-      <h3 class="mb-3">Form Pendaftaran Berat Ideal</h3>
+    <div class="judul-form">Form Pendaftaran</div>
+      <div class="card-body" style="padding-top: 20px;">
+
+      <!-- Progressbar -->
       <div class="progress mb-3">
         <div id="progressBar" class="progress-bar" role="progressbar" style="width:33%">Step 1 dari 3</div>
       </div>
+      
       <form id="formDaftar" enctype="multipart/form-data" autocomplete="off">
         <!-- Pesan -->
         <div id="msgBox"></div>
@@ -86,7 +152,9 @@
             <label>Propinsi:</label>
             <input type="text" class="form-control" name="propinsi" id="propinsi" minlength="3" maxlength="40" style="text-transform:uppercase" required oninput="this.value = this.value.toUpperCase();">
           </div>
-          <button type="button" class="btn btn-primary float-right" id="btnNext1">LANJUT</button>
+        
+            <div id="msgBox"></div>
+            <button type="button" class="button button-primary button-md float-right" id="btnNext1">LANJUT</button>
         </div>
 
         <!-- Step 2: DATA PESANAN -->
@@ -137,11 +205,13 @@
                 <input type="text" class="form-control" name="by_kirim" id="by_kirim" readonly>
               </div>
               <div class="form-group">
-                <label>Total Biaya:</label>
+                <label>Total Biaya: (ditambahkan 3 digit angka unik utk memudahkan pengecekan)</label>
                 <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
               </div>
-              <button type="button" class="btn btn-secondary" id="btnPrev2">SEBELUMNYA</button>
-              <button type="button" class="btn btn-primary float-right" id="btnNext2">LANJUT</button>
+            
+              <div id="msgBox"></div>
+              <button type="button" class="button button-primary button-md" id="btnPrev2">SEBELUMNYA</button>
+              <button type="button" class="button button-primary button-md float-right" id="btnNext2">LANJUT</button>
             </div>
           </div>
         </div>
@@ -165,32 +235,48 @@
             <label>No Rekening Tujuan:</label>
             <input type="text" class="form-control" name="norek_tujuan" id="norek_tujuan" maxlength="30" required>
           </div>
+          
+          <!--TIDAK DIAKTIFKAN
           <div class="form-group">
             <label>Tgl Transfer:</label>
             <input type="date" class="form-control" name="tgl_transfer" id="tgl_transfer" required>
           </div>
+          -->
+
           <div class="form-group">
-            <label>Transfer Dana:</label>
+            <label>Transfer Dana: (ditambahkan 3 digit angka unik utk memudahkan pengecekan)</label>
             <input type="text" class="form-control" name="transfer_dana" id="transfer_dana" readonly>
           </div>
           
           <div class="alert alert-info mt-3">
             <strong>Informasi Bank Transfer :</strong><br>
-            Nama Pemilik Rek : Hesty Husain<br>
-            Nama Bank : Bank Maju Gembira<br>
-            No AC : 1234567890
+            Bank : Bank Maju Gembira<br>
+            No AC : 1234567890<br>
+            Pemilik Rek : Hesty Husain
           </div>
-          <button type="button" class="btn btn-secondary" id="btnPrev3">SEBELUMNYA</button>
-          <button type="submit" class="btn btn-success float-right">SUBMIT</button>
+      
+          <div id="msgBox"></div>
+          <button type="button" class="button button-primary button-md" id="btnPrev3">SEBELUMNYA</button>
+          <button type="submit" class="button button-primary button-md float-right">SUBMIT</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
 <script>
-const steps = document.querySelectorAll('.form-step');
+// Deklarasi untuk Progressbar
+const steps       = document.querySelectorAll('.form-step');
 const progressBar = document.getElementById('progressBar');
-let currentStep = 0;
+let currentStep   = 0;
+
+// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
+const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
+const imgMap = {
+  '10': 'images/produk10hari.webp',
+  '21': 'images/produk21hari.webp',
+  '90': 'images/produk3bulan.webp'
+};
 
 function showStep(idx) {
   steps.forEach((step, i) => step.classList.toggle('active', i === idx));
@@ -210,14 +296,6 @@ function generateNoPesanan() {
 document.getElementById('tgl_daftar').valueAsDate = new Date();
 document.getElementById('no_pesanan').value = generateNoPesanan();
 
-// Harga & Gambar Produk (letakkan di global agar bisa diakses semua fungsi)
-const hargaMap = { '10': 700000, '21': 2100000, '90': 7000000 };
-const imgMap = {
-  '10': 'images/produk10hari.webp',
-  '21': 'images/produk21hari.webp',
-  '90': 'images/produk3bulan.webp'
-};
-
 // Tombol LANJUT pada Halaman 1
 document.getElementById('btnNext1').onclick = function() {
   if(validateStep1()) {
@@ -227,6 +305,7 @@ document.getElementById('btnNext1').onclick = function() {
   }
 };
 
+// Tombol SEBELUM pada Halaman 2
 document.getElementById('btnPrev2').onclick = function() {
   showStep(0); currentStep = 0;
 };
@@ -248,18 +327,26 @@ document.getElementById('btnNext2').onclick = function() {
 // Validasi Halaman 1
 function validateStep1() {
   let msg = [];
+  // Validasi Nama 
   const nama = document.getElementById('nama').value.trim();
   if(nama.length < 3 || nama.length > 40) msg.push('Nama wajib diisi, min 3 dan maks 40 karakter');
-  const email = document.getElementById('email').value.trim();
+ 
+  // Validasi Email
+  const email = document.getElementById('email').value.trim().toLowerCase();
   if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) msg.push('Email tidak valid');
+
+  // Validasi Telepon
   const tlp = document.getElementById('tlp').value.trim();
   if(!/^\d{10,14}$/.test(tlp)) msg.push('No telepon wajib 10-14 digit angka.');
+ 
+  // Validasi Alamat, Kecamatan, Kelurahan, Kota, Propensi
   const alamat = document.getElementById('alamat').value.trim();
   if(alamat.length < 3 || alamat.length > 60) msg.push('Alamat wajib diisi, min 3 dan maks 60 karakter.');
   ['kecamatan','kelurahan','kota','propinsi'].forEach(id=>{
     const val = document.getElementById(id).value.trim();
     if(val.length < 3 || val.length > 40) msg.push(id.charAt(0).toUpperCase()+id.slice(1)+' wajib diisi, min 3 dan maks 40 karakter.');
   });
+ 
   if(msg.length) {
     showMsg(msg.join('<br>'),'error');
     return false;
@@ -283,7 +370,10 @@ function validateStep2() {
 
 // Tampilkan Pesan
 function showMsg(msg,type) {
-  const box = document.getElementById('msgBox');
+  // Tampilkan pesan pada msgBox di step yang aktif saja
+  const activeStep = document.querySelector('.form-step.active');
+  if (!activeStep) return;
+  const box = activeStep.querySelector('#msgBox');
   if(!msg) { box.innerHTML=''; return; }
   box.innerHTML = `<div class="${type==='error'?'msg-error':'msg-success'}">${msg}</div>`;
 }
@@ -325,56 +415,43 @@ function updateTotal() {
 }
 
 // Submit Data Inputan
+// https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  // Sebelum submit, set value input ke angka biasa tanpa format
-  document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
-  document.getElementById('by_kirim').value      = document.getElementById('by_kirim').getAttribute('data-raw') || '';
-  document.getElementById('total_biaya').value   = document.getElementById('total_biaya').getAttribute('data-raw') || '';
-  document.getElementById('transfer_dana').value = document.getElementById('transfer_dana').getAttribute('data-raw') || '';
-  
-  // Validasi Halaman 3
-  let msg = [];
-  if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
-  if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
-  if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
-  if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
-  if(!document.getElementById('tgl_transfer').value.trim()) msg.push('Tgl Transfer wajib diisi.');
-  if(msg.length) { 
-    showMsg(msg.join('<br>'),'error'); 
-    return; 
-  }
-  showMsg('','');
+  // Ambil semua inputan form
+  const form = document.getElementById('formDaftar');
+  const inputs = form.querySelectorAll("input, select");
+
+  const params = new URLSearchParams();
+  inputs.forEach(input => {
+    if (input.name) {
+      params.append(input.name, input.value);
+    }
+  });
 
   try {
-    const formData = new FormData(this);
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzBEMAJlKt_iWw4h_IY_Iv_J46HuaA64AdHWiHXW_UqrySJxVSHe-Z7go75nRJFCoqS/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec', {
       method: 'POST',
-      mode: 'cors',
-      body: formData
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
     });
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
     const result = await response.text();
+    console.log("Response:", result);
     if (result.includes('success')) {
-      showMsg('Data berhasil disimpan!', 'success');
-      this.reset();
-      showStep(0);
-      currentStep = 0;
-      document.getElementById('tgl_daftar').valueAsDate = new Date();
-      document.getElementById('no_pesanan').value = generateNoPesanan();
+      alert('Data berhasil disimpan ke Google Sheet!');
     } else {
-      throw new Error('Gagal menyimpan data');
+      alert('Gagal menyimpan data: ' + result);
     }
-  } catch (error) {
-    console.error('Error:', error);
-    showMsg('Gagal menyimpan data. Silakan coba lagi.', 'error');
+  } catch (err) {
+    alert('Terjadi error: ' + err.message);
   }
-};
+}
 </script>
+<script src="js/core.min.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>
