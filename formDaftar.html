@@ -455,13 +455,13 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     
     // Tampilkan pesan sukses di msgBox step 3
     const msgBox = document.querySelector('#step3 #msgBox');
-    msgBox.innerHTML = '<div class="msg-confirm">Data telah terdaftar. Anda akan diarahkan ke halaman utama dalam 3 detik...</div>';
+    msgBox.innerHTML = '<div class="msg-confirm">Data telah terdaftar. Anda akan diarahkan ke halaman utama</div>';
     
     // Nonaktifkan tombol submit untuk menghindari multiple submission
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     
-    // Redirect setelah 3 detik
+    // Redirect setelah 3 detik kembali ke halaman utam
     setTimeout(() => {
       window.location.href = 'index.html';
     }, 3000);

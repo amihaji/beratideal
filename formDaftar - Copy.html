@@ -51,6 +51,18 @@
       font-weight: 100;
     }
     .img-produk { max-width:150px; margin-top:10px; }
+
+    .msg-confirm {
+      background: #1350f8;
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 100;
+    }
   </style>
 </head>
 <body>
@@ -415,33 +427,17 @@ function updateTotal() {
 }
 
 // Submit Data Inputan
-// https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec
-
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  let msg = [];
-  if (!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
-  if (!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
-  if (!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
-  if (!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
-
-  if (msg.length) {
-    showMsg(msg.join('<br>'), 'error');
-    return;
-  }
-
+  // Ambil semua inputan form
   const form = document.getElementById('formDaftar');
   const inputs = form.querySelectorAll("input, select");
 
   const params = new URLSearchParams();
   inputs.forEach(input => {
     if (input.name) {
-      if (['by_kirim', 'total_biaya', 'transfer_dana', 'harga_program'].includes(input.name)) {
-        params.append(input.name, input.getAttribute('data-raw') || '0');
-      } else {
-        params.append(input.name, input.value);
-      }
+      params.append(input.name, input.value);
     }
   });
 
@@ -456,20 +452,23 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
 
     const result = await response.text();
     console.log("Response:", result);
-
-    if (result.includes('success')) {
-      showMsg('Data berhasil disimpan ke Google Sheet!', 'success');
-      form.reset();
-      showStep(0);
-      currentStep = 0;
-      document.getElementById('tgl_daftar').valueAsDate = new Date();
-      document.getElementById('no_pesanan').value = generateNoPesanan();
-    } else {
-      showMsg('Gagal menyimpan data: ' + result, 'error');
-    }
+    
+    // Tampilkan pesan sukses di msgBox step 3
+    const msgBox = document.querySelector('#step3 #msgBox');
+    msgBox.innerHTML = '<div class="msg-confirm">Data telah terdaftar. Anda akan diarahkan ke halaman utama</div>';
+    
+    // Nonaktifkan tombol submit untuk menghindari multiple submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    // Redirect setelah 3 detik kembali ke halaman utam
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3000);
 
   } catch (err) {
-    showMsg('Terjadi error: ' + err.message, 'error');
+    const msgBox = document.querySelector('#step3 #msgBox');
+    msgBox.innerHTML = '<div class="msg-error">Terjadi error: ' + err.message + '</div>';
   }
 }
 
