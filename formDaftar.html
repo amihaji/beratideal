@@ -415,35 +415,39 @@ function updateTotal() {
 }
 
 // Submit Data Inputan
+// https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  // Bersihkan angka-angka format (optional)
-  document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
-  document.getElementById('by_kirim').value = document.getElementById('by_kirim').getAttribute('data-raw') || '';
-  document.getElementById('total_biaya').value = document.getElementById('total_biaya').getAttribute('data-raw') || '';
-  document.getElementById('transfer_dana').value = document.getElementById('transfer_dana').getAttribute('data-raw') || '';
+  // Ambil semua inputan form
+  const form = document.getElementById('formDaftar');
+  const inputs = form.querySelectorAll("input, select");
+
+  const params = new URLSearchParams();
+  inputs.forEach(input => {
+    if (input.name) {
+      params.append(input.name, input.value);
+    }
+  });
 
   try {
-    const formEl = document.getElementById('formDaftar');
-    const formData = new FormData(formEl);
-    const plainFormData = new URLSearchParams(formData); // ENCODE
-
     const response = await fetch('https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: plainFormData
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
     });
 
     const result = await response.text();
-    console.log("Response: ", result);
+    console.log("Response:", result);
     if (result.includes('success')) {
-      alert('Data berhasil disimpan!');
+      alert('Data berhasil disimpan ke Google Sheet!');
     } else {
-      alert('Gagal simpan: ' + result);
+      alert('Gagal menyimpan data: ' + result);
     }
-  } catch (error) {
-    alert("Error: " + error.message);
+  } catch (err) {
+    alert('Terjadi error: ' + err.message);
   }
 }
 
