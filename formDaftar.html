@@ -51,6 +51,18 @@
       font-weight: 100;
     }
     .img-produk { max-width:150px; margin-top:10px; }
+
+    .msg-confirm {
+      background: #5cb85c;
+      color: #fff;
+      padding: 7px 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 100;
+    }
   </style>
 </head>
 <body>
@@ -440,15 +452,26 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
 
     const result = await response.text();
     console.log("Response:", result);
-    if (result.includes('success')) {
-      alert('Data berhasil disimpan ke Google Sheet!');
-    } else {
-      alert('Gagal menyimpan data: ' + result);
-    }
+    
+    // Tampilkan pesan sukses di msgBox step 3
+    const msgBox = document.querySelector('#step3 #msgBox');
+    msgBox.innerHTML = '<div class="msg-confirm">Data telah terdaftar. Anda akan diarahkan ke halaman utama dalam 3 detik...</div>';
+    
+    // Nonaktifkan tombol submit untuk menghindari multiple submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    // Redirect setelah 3 detik
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3000);
+
   } catch (err) {
-    alert('Terjadi error: ' + err.message);
+    const msgBox = document.querySelector('#step3 #msgBox');
+    msgBox.innerHTML = '<div class="msg-error">Terjadi error: ' + err.message + '</div>';
   }
 }
+
 </script>
 <script src="js/core.min.js"></script>
 <script src="js/script.js"></script>
