@@ -418,52 +418,34 @@ function updateTotal() {
 document.getElementById('formDaftar').onsubmit = async function(e) {
   e.preventDefault();
 
-  // Ubah semua nilai mata uang jadi angka mentah
+  // Bersihkan angka-angka format (optional)
   document.getElementById('harga_program').value = document.getElementById('harga_program').getAttribute('data-raw') || '';
-  document.getElementById('by_kirim').value      = document.getElementById('by_kirim').getAttribute('data-raw') || '';
-  document.getElementById('total_biaya').value   = document.getElementById('total_biaya').getAttribute('data-raw') || '';
+  document.getElementById('by_kirim').value = document.getElementById('by_kirim').getAttribute('data-raw') || '';
+  document.getElementById('total_biaya').value = document.getElementById('total_biaya').getAttribute('data-raw') || '';
   document.getElementById('transfer_dana').value = document.getElementById('transfer_dana').getAttribute('data-raw') || '';
 
-  // Validasi Step 3
-  let msg = [];
-  if (!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
-  if (!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
-  if (!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
-  if (!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
-
-  if (msg.length) {
-    showMsg(msg.join('<br>'), 'error');
-    return;
-  }
-
   try {
-    const formData = new URLSearchParams(new FormData(this)); // penting!
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwL2t6T1cnlM6bfolib_BN4CXdpev_eQBCDypdUUbZeXoxut7s9-B1zrkzQ4sdD4AkE/exec', {
+    const formEl = document.getElementById('formDaftar');
+    const formData = new FormData(formEl);
+    const plainFormData = new URLSearchParams(formData); // ENCODE
+
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzJ0HYpqWn4bvSwBEcOyJkAn6v1l4JRSBVrZuM5ehRSnIH5FGXoOKx5dkTGSzYeYN0y/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData
+      body: plainFormData
     });
 
     const result = await response.text();
-    console.log('Response:', result);
-
+    console.log("Response: ", result);
     if (result.includes('success')) {
-      showMsg('Data berhasil disimpan!', 'success');
-      this.reset();
-      showStep(0);
-      currentStep = 0;
-      document.getElementById('tgl_daftar').valueAsDate = new Date();
-      document.getElementById('no_pesanan').value = generateNoPesanan();
+      alert('Data berhasil disimpan!');
     } else {
-      showMsg('Gagal menyimpan data: ' + result, 'error');
+      alert('Gagal simpan: ' + result);
     }
-
-  } catch (err) {
-    console.error('Error:', err);
-    showMsg('Terjadi error: ' + err.message, 'error');
+  } catch (error) {
+    alert("Error: " + error.message);
   }
-};
-
+}
 
 // Tambahkan di bagian setelah script-script lain
 document.getElementById('formDaftar').onsubmit = function(e) {
