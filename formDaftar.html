@@ -450,34 +450,6 @@ document.getElementById('formDaftar').onsubmit = async function(e) {
     alert('Terjadi error: ' + err.message);
   }
 }
-
-// Tambahkan di bagian setelah script-script lain
-document.getElementById('formDaftar').onsubmit = function(e) {
-  e.preventDefault();
-
-  // Validasi Halaman 3
-  let msg = [];
-  if(!document.getElementById('bank_asal').value.trim()) msg.push('Bank Asal wajib diisi.');
-  if(!document.getElementById('norek_asal').value.trim()) msg.push('No Rekening Asal wajib diisi.');
-  if(!document.getElementById('bank_tujuan').value.trim()) msg.push('Bank Tujuan wajib diisi.');
-  if(!document.getElementById('norek_tujuan').value.trim()) msg.push('No Rekening Tujuan wajib diisi.');
-
-  if(msg.length) { 
-    showMsg(msg.join('<br>'),'error'); 
-    return; 
-  }
-
-  // Tampilkan pesan sukses di msgBox pada step3 (baris paling akhir inputan)
-  const activeStep = document.querySelector('.form-step.active');
-  const box = activeStep.querySelector('#msgBox');
-  box.innerHTML = '<div class="msg-success">Pendaftaran berhasil! Anda akan diarahkan ke halaman utama...</div>';
-
-  setTimeout(function() {
-    document.getElementById('formDaftar').reset();
-    window.location.href = 'index.html';
-  }, 3000);
-};
-
 </script>
 <script src="js/core.min.js"></script>
 <script src="js/script.js"></script>
