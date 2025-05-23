@@ -192,10 +192,8 @@
             </div>
           </div>
          
-          <!-- Baris kedua: satu kolom penuh -->
-          
           <div class="row mt-2">
-          <div class="col-12">
+            <div class="col-12">
              <!--
               <div class="form-group">
                 <label>Ekspedisi:</label>
@@ -416,7 +414,10 @@ document.getElementById('program').onchange = function() {
   const tlp   = document.getElementById('tlp').value.trim();
   const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
   const total = harga + last3;
+  
+  document.getElementById('total_biaya').value = (harga && ongkir !== undefined && ongkir !== null) ? total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
   document.getElementById('total_biaya').setAttribute('data-raw', total);
+
 };
 
 // Update TOTAL HARGA
