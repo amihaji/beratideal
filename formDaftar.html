@@ -337,10 +337,11 @@ document.getElementById('btnPrev2').onclick = function() {
 document.getElementById('btnNext2').onclick = function() {
   if(validateStep2()) {
     const harga  = parseInt(document.getElementById('harga_program').getAttribute('data-raw')) || 0;
-    const ongkir = parseInt(document.getElementById('by_kirim').getAttribute('data-raw')) || 0;
+    //const ongkir = parseInt(document.getElementById('by_kirim').getAttribute('data-raw')) || 0;
     const tlp    = document.getElementById('tlp').value.trim();
     const last3  = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
-    const total  = harga + ongkir + last3;
+    //const total  = harga + ongkir + last3;
+    const total  = harga + last3;
     document.getElementById('transfer_dana').value = total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     document.getElementById('transfer_dana').setAttribute('data-raw', total);
     showStep(2); currentStep = 2;
