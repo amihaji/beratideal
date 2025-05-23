@@ -419,7 +419,13 @@ document.getElementById('program').onchange = function() {
   //  img.classList.add('d-none');
   //}
   // Update total biaya dan by kirim
-  updateTotal();
+  //updateTotal();
+
+  // Ambil tiga digit terakhir tlp
+  const tlp   = document.getElementById('tlp').value.trim();
+  const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
+  const total = harga + last3;
+  document.getElementById('total_biaya').setAttribute('data-raw', total);
 };
 
 // Update TOTAL HARGA
