@@ -422,10 +422,10 @@ document.getElementById('program').onchange = function() {
   //updateTotal();
 
   // Ambil tiga digit terakhir tlp
-  const hargaProg  = hargaMap[document.getElementById('program').value]||0;
+  //const hargaProg  = hargaMap[document.getElementById('program').value]||0;
   const tlp   = document.getElementById('tlp').value.trim();
   const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
-  const total = hargaProg + last3;
+  const total = harga + last3;
   document.getElementById('total_biaya').setAttribute('data-raw', total);
 };
 
