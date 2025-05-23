@@ -173,9 +173,11 @@
         <div class="form-step" id="step2">
           <h5>Data Pesanan</h5>
           <!-- Baris pertama: dua kolom -->
-          <div class="row">
+          <!-- <div class="row"> -->
             <!-- Kolom kiri: Program & Harga (vertikal) -->
-            <div class="col-md-7">
+            <!-- <div class="col-md-7"> -->
+              <div class="row mt-2">
+                <div class="col-12">
               <div class="form-group">
                 <label>Program:</label>
                 <select class="form-control" name="program" id="program" required>
@@ -228,7 +230,7 @@
               -->
 
               <div class="form-group">
-                <label>Total Biaya: (ditambahkan 3 digit angka unik utk memudahkan pengecekan)</label>
+                <label>Total Biaya: (ditambahkan 3 digit angka unik)</label>
                 <input type="text" class="form-control" name="total_biaya" id="total_biaya" readonly>
               </div>
             
@@ -431,21 +433,21 @@ document.getElementById('program').onchange = function() {
 };
 
 // Update TOTAL HARGA
-document.getElementById('ongkir').onchange = updateTotal;
-function updateTotal() {
-  const harga  = hargaMap[document.getElementById('program').value]||0;
+//document.getElementById('ongkir').onchange = updateTotal;
+//function updateTotal() {
+//  const harga  = hargaMap[document.getElementById('program').value]||0;
   //const ongkir = { 'Gojek':20000, 'Gosend':30000, 'POS':40000, 'Gratis':0 }[document.getElementById('ongkir').value];
   //document.getElementById('by_kirim').value = (ongkir !== undefined && ongkir !== null) ? ongkir.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
   //document.getElementById('by_kirim').setAttribute('data-raw', ongkir || 0);
 
-  const tlp   = document.getElementById('tlp').value.trim();
-  const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
+//  const tlp   = document.getElementById('tlp').value.trim();
+//  const last3 = parseInt(tlp.slice(-3).padStart(3, '0'), 10) || 0;
   //const total = harga + (ongkir || 0) + last3;
-  const total = harga + last3;
+//  const total = harga + last3;
 
   //document.getElementById('total_biaya').value = (harga && ongkir !== undefined && ongkir !== null) ? total.toLocaleString('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
-  document.getElementById('total_biaya').setAttribute('data-raw', total);
-}
+//  document.getElementById('total_biaya').setAttribute('data-raw', total);
+//}
 
 // Submit Data Inputan
 document.getElementById('formDaftar').onsubmit = async function(e) {
