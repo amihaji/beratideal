@@ -50,25 +50,25 @@
       text-transform: lowercase;
     }
 
-    /* Responsif Tombol */
+    /* Tombol responsif - Vertikal di HP dan Horizontal di Desktop */
     @media (max-width: 767px) {
       .form-navigation .col-12 {
         display: flex;
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: column; /* Tombol vertikal di HP */
+        gap: 15px; /* Jarak antar tombol */
       }
     }
 
     /* Jarak antar tombol di Halaman 3 (vertikal di HP) */
     #step-3 .form-navigation .btn {
-      margin-bottom: 10px; /* Menambahkan jarak antar tombol */
+      margin-bottom: 15px; /* Memberikan jarak antar tombol */
     }
 
     /* Horizontal Layout di Desktop */
     @media (min-width: 768px) {
       .form-navigation .col-md-6 {
         display: flex;
-        justify-content: center;
+        justify-content: center; /* Menjaga tombol sejajar */
       }
     }
   </style>
@@ -100,7 +100,7 @@
             <div class="form-group"><label>Harga</label><input type="text" class="form-control" id="harga" readonly></div>
             <div id="msgBox1"></div>
             <div class="form-navigation">
-              <div class="col-12 d-flex justify-content-center">
+              <div class="col-12">
                 <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(1)">
                   <i class="fas fa-arrow-right"></i> Lanjut
                 </button>
@@ -121,12 +121,12 @@
             <div class="form-group"><label>Propinsi</label><input type="text" class="form-control uppercase" id="propinsi"></div>
             <div id="msgBox2"></div>
             <div class="form-navigation">
-              <div class="col-12 d-flex justify-content-center">
+              <div class="col-12">
                 <button type="button" class="btn btn-secondary btn-icon w-100" onclick="prevStep()">
                   <i class="fas fa-arrow-left"></i> Sebelumnya
                 </button>
               </div>
-              <div class="col-12 d-flex justify-content-center">
+              <div class="col-12">
                 <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(2)">
                   <i class="fas fa-arrow-right"></i> Lanjut
                 </button>
@@ -156,12 +156,12 @@
 
             <!-- Form Navigation -->
             <div class="row">
-              <div class="col-12 col-md-6 d-flex justify-content-center">
+              <div class="col-12 col-md-6">
                 <button type="button" class="btn btn-secondary btn-icon w-100" id="btnPrev" onclick="prevStep()">
                   <i class="fas fa-arrow-left"></i> Sebelumnya
                 </button>
               </div>
-              <div class="col-12 col-md-6 d-flex justify-content-center">
+              <div class="col-12 col-md-6">
                 <button type="submit" class="btn btn-submit btn-icon w-100" id="btnSubmit">
                   <i class="fas fa-paper-plane"></i> Submit
                 </button>
