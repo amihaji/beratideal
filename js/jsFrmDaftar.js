@@ -154,61 +154,81 @@ let formData = {
   /**
    * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
    */
-  async function submitForm() {
-    const submitBtn = document.getElementById('btnSubmit');
-    const msgBox = document.getElementById('msgBox3');
-    
-    // Disable tombol submit
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-    
-    try {
-      // Format data untuk Google Apps Script
-      const formData = new URLSearchParams();
-      for (const key in formDataObj) {
-        formData.append(key, formDataObj[key]);
-      }
-      
-      // Gunakan fetch dengan mode 'no-cors' dan Content-Type yang benar
-      const response = await fetch('https://script.google.com/macros/s/AKfycbw0UxoSWsJDOqATPFvSG8R5IK9OVmsYMXSf9zC3Ig5syHVjr2SIwdqbUd3J9xR7mGhx/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData
-      });
-      
-      // Karena mode no-cors, kita tidak bisa baca response
-      // Asumsikan sukses jika tidak ada error
-      submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-      submitBtn.classList.remove('btn-primary');
-      submitBtn.classList.add('btn-success');
-      
-      msgBox.innerHTML = '<div class="alert alert-success mt-3">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
-      
-      // Reset form dan redirect setelah 3 detik
-      setTimeout(() => {
-        document.getElementById('formDaftar').reset();
-        window.location.href = 'index.html';
-      }, 3000);
-      
-    } catch (error) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
-      msgBox.innerHTML = `<div class="alert alert-danger mt-3">Gagal mengirim data: ${error.message}</div>`;
-      console.error('Error:', error);
-    }
-  }
+  
 
   function showSuccess(message) {
     const msgBox = document.getElementById('msgBox3');
     msgBox.innerHTML = `<div class="msg-success">${message}</div>`;
   }
     
-  /**
-   * INISIALISASI FORM SAAT HALAMAN DIMUAT
-   */
+  async function submitForm() {
+    const submitBtn = document.getElementById('btnSubmit');
+    const msgBox = document.getElementById('msgBox3');
+    
+    // 1. Kumpulkan semua data form
+    const formData = {
+      tglDaftar: new Date().toLocaleDateString('id-ID'),
+      noPesanan: document.getElementById('nomorPesanan').value,
+      program: document.getElementById('program').value,
+      harga: document.getElementById('harga').value.replace(/\D/g,'') || 0,
+      nama: document.getElementById('nama').value,
+      alamat: document.getElementById('alamat').value,
+      telp: document.getElementById('telp').value,
+      email: document.getElementById('email').value,
+      kelurahan: document.getElementById('kelurahan').value,
+      kecamatan: document.getElementById('kecamatan').value,
+      kota: document.getElementById('kota').value,
+      propinsi: document.getElementById('propinsi').value,
+      pembayaran: document.getElementById('pembayaran').value,
+      namaPenerima: document.getElementById('namaPenerima').value,
+      acPenerima: document.getElementById('acPenerima').value,
+      nominal: document.getElementById('nominal').value.replace(/\D/g,'') || 0
+    };
+  
+    // 2. Tampilkan loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    msgBox.innerHTML = '<div class="alert alert-info">Mengirim data...</div>';
+  
+    try {
+      // 3. Kirim data sebagai form-urlencoded
+      const formBody = Object.keys(formData)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(formData[key]))
+        .join('&');
+  
+      const response = await fetch('https://script.google.com/macros/s/AKfycbwsoTh3ecdIakFIDSJqpP_c0SqPjZ3SCcBm_PQ11y_G-mxgqFaRbLtP4_I95NvAFEJ8/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formBody
+      });
+  
+      // 4. Handle response
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+      submitBtn.classList.remove('btn-primary');
+      submitBtn.classList.add('btn-success');
+      
+      msgBox.innerHTML = '<div class="alert alert-success">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
+      
+      // 5. Reset form dan redirect
+      setTimeout(() => {
+        document.getElementById('formDaftar').reset();
+        // Generate nomor pesanan baru
+        document.getElementById('nomorPesanan').value = generateNoPesanan();
+        window.location.href = 'index.html';
+      }, 3000);
+  
+    } catch (error) {
+      // 6. Handle error
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+      msgBox.innerHTML = `<div class="alert alert-danger">Gagal mengirim data: ${error.message}</div>`;
+      console.error('Error:', error);
+    }
+  }
+  
+  // Fungsi generate nomor pesanan
   function generateNoPesanan() {
     const now = new Date();
     const dd = String(now.getDate()).padStart(2, '0');
@@ -217,8 +237,11 @@ let formData = {
     const random = Math.floor(Math.random() * 900) + 100; // 100-999
     return `PS${dd}${mm}${yy}-${random}`;
   }
-  
-  document.addEventListener('DOMContentLoaded', function() {
+ 
+  /**
+  * INISIALISASI FORM SAAT HALAMAN DIMUAT
+  */
+    document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('tanggal').value = new Date().toLocaleDateString('id-ID');
     document.getElementById('nomorPesanan').value = generateNoPesanan();
 
