@@ -182,35 +182,36 @@
     }
 
     /* Style untuk tombol Download QRIS */
-    .btn-download-qr {
-      background-color: #0062cc !important;
-      color: white !important;
-      border: none;
-      margin-top: 10px;
-      width: 100%;
-      max-width: 200px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .btn-download-qr:hover {
-      background-color: #0056b3 !important;
-      color: white !important;
-    }
-
-    /* Style untuk gambar QRIS */
-    .qr-image-container {
-      text-align: center;
-      margin: 15px 0;
-      padding: 10px;
-      border: 1px solid #eee;
+    /* Style untuk QR Code Container */
+    #qrisImage {
+      padding: 15px;
+      background: #f8f9fa;
       border-radius: 5px;
-      background: #f9f9f9;
+      margin: 15px 0;
+      border: 1px solid #dee2e6;
     }
 
+    /* Style untuk tombol download */
+    #btnDownloadQR {
+      background-color: #0062cc;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #btnDownloadQR:hover {
+      background-color: #0056b3;
+    }
+
+    #btnDownloadQR i {
+      margin-right: 8px;
+    }
   </style>
 </head>
+
 <body>
   <div class="container mt-5 mb-5">
     <div class="card mx-auto" style="max-width:600px">
@@ -269,23 +270,19 @@
           <!-- Halaman 3 -->
           <div class="form-step" id="step-3">
             <div class="mb-3 font-weight-bold"><i class="fas fa-credit-card"></i> Sistem Pembayaran</div>
-            <div class="form-group"><label>Sistem Pembayaran</label>
-              <select class="form-control" id="pembayaran" onchange="updatePembayaran()">
+            <div class="form-group">
+              <label>Sistem Pembayaran</label>
+              <select class="form-control" id="pembayaran" onchange="updatePembayaran()" required>
                 <option value="">-- Pilih Pembayaran --</option>
-                <option value="BCA">Transfer ke BCA</option>
-                <option value="Mandiri">Transfer ke Mandiri</option>
                 <option value="QR">QR Code</option>
+                <option value="BCA">Transfer BCA</option>
+                <option value="Mandiri">Transfer Mandiri</option>
               </select>
             </div>
-            <div class="form-group"><label>Nama Penerima</label><input type="text" class="form-control" id="namaPenerima" readonly></div>
-            <div class="form-group"><label>AC Penerima</label><input type="text" class="form-control" id="acPenerima" readonly></div>
-            <div class="form-group"><label>Nominal Transfer</label><input type="text" class="form-control" id="nominal" readonly></div>
             
-            <div id="qrisImage" class="qr-image-container" style="display: none;">
-              <!-- Gambar akan muncul di sini saat metode QR dipilih -->
-            </div>
-
-            <button type="button" id="btnDownloadQR" class="btn btn-primary btn-icon" style="display:none; background-color: #0062cc; color: white;" onclick="downloadQRIS()">
+            <div id="qrisImage" class="text-center my-3"></div>
+            
+            <button type="button" id="btnDownloadQR" class="btn btn-primary btn-icon" style="display:none; background-color:#0062cc;color:white;" onclick="downloadQRIS()">
               <i class="fas fa-download"></i> Download QRIS
             </button>
             
