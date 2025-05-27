@@ -49,7 +49,7 @@
     .form-group input.lowercase {
       text-transform: lowercase;
     }
-    /* Ensuring vertical buttons on mobile */
+    /* Ensuring vertical buttons on mobile and no overflow */
     @media (max-width: 767px) {
       .form-navigation .col-12 {
         display: flex;
@@ -57,8 +57,8 @@
         gap: 10px;
       }
     }
-    /* Add spacing between buttons and messages */
-    .form-navigation .btn {
+    /* For Page 3: Add space between buttons when vertical */
+    #step-3 .form-navigation .btn {
       margin-bottom: 10px;
     }
   </style>
@@ -90,8 +90,7 @@
             <div class="form-group"><label>Harga</label><input type="text" class="form-control" id="harga" readonly></div>
             <div id="msgBox1"></div>
             <div class="form-navigation">
-              <span></span>
-              <div class="col-12 col-md-6 d-flex justify-content-center">
+              <div class="col-12 d-flex justify-content-center">
                 <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(1)">
                   <i class="fas fa-arrow-right"></i> Lanjut
                 </button>
@@ -112,12 +111,12 @@
             <div class="form-group"><label>Propinsi</label><input type="text" class="form-control uppercase" id="propinsi"></div>
             <div id="msgBox2"></div>
             <div class="form-navigation">
-              <div class="col-12 col-md-6 d-flex justify-content-center">
+              <div class="col-12 d-flex justify-content-center">
                 <button type="button" class="btn btn-secondary btn-icon w-100" onclick="prevStep()">
                   <i class="fas fa-arrow-left"></i> Sebelumnya
                 </button>
               </div>
-              <div class="col-12 col-md-6 d-flex justify-content-center">
+              <div class="col-12 d-flex justify-content-center">
                 <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(2)">
                   <i class="fas fa-arrow-right"></i> Lanjut
                 </button>
