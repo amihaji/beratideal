@@ -1,4 +1,4 @@
-// scriptDaftar.js - FINAL
+// scriptDaftar.js - FINAL dengan Download QRIS
 
 // ============================== //
 // Inisialisasi dan Setup Awal
@@ -11,7 +11,6 @@ const formatter = new Intl.NumberFormat('id-ID');
 
 // Saat halaman selesai dimuat:
 document.addEventListener('DOMContentLoaded', () => {
-  // Isi tanggal dan nomor pesanan otomatis
   const now = new Date();
   const pad = n => n.toString().padStart(2, '0');
   const tanggal = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
@@ -63,6 +62,7 @@ function updatePembayaran() {
   let nama = "Hesty Husain";
   let ac = "";
   const qrisImage = document.getElementById('qrisImage');
+  const qrisBtn = document.getElementById('btnDownloadQR');
 
   if (value === 'BCA') ac = "bca123456789";
   else if (value === 'Mandiri') ac = "mandiri123456789";
@@ -72,9 +72,13 @@ function updatePembayaran() {
   document.getElementById('acPenerima').value = ac;
 
   if (value === 'QR') {
-    qrisImage.innerHTML = '<img src="images/QRIS CLUB KITA.jpeg" alt="QR Code" class="img-fluid" style="max-width:200px">';
+    qrisImage.innerHTML = `
+      <img src="images/QRIS CLUB KITA.jpeg" alt="QR Code" class="img-fluid mb-2" style="max-width:200px">
+    `;
+    qrisBtn.style.display = 'inline-block';
   } else {
     qrisImage.innerHTML = '';
+    qrisBtn.style.display = 'none';
   }
 }
 
@@ -145,9 +149,9 @@ function updateProgress() {
   progress.textContent = `Step ${currentStep+1} dari 3`;
 }
 
-// ================================= //
+// ================================ //
 // Kirim Data ke Google Sheet Web App
-// ================================= //
+// ================================ //
 document.getElementById('formDaftar').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -177,9 +181,11 @@ document.getElementById('formDaftar').addEventListener('submit', async function(
   const msgBox = document.getElementById('msgBox3');
   msgBox.innerHTML = '';
   const btnSubmit = document.getElementById('btnSubmit');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnQR = document.getElementById('btnDownloadQR');
 
   try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbzhWSDlJHD2b8nyZf8pp0y_MR50JgPQpy_b2wYBVcNxTpIJ1wnJvvQKE3CY4Q7jXCur/exec', {
+    const res = await fetch ('https://script.google.com/macros/s/AKfycbzhWSDlJHD2b8nyZf8pp0y_MR50JgPQpy_b2wYBVcNxTpIJ1wnJvvQKE3CY4Q7jXCur/exec', {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -188,7 +194,8 @@ document.getElementById('formDaftar').addEventListener('submit', async function(
       msgBox.innerHTML = '<div class="msg-success">Pendaftaran berhasil, lihat konfirmasinya di WA dan Email anda!</div>';
       btnSubmit.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
       btnSubmit.disabled = true;
-      document.getElementById('btnPrev').disabled = true;
+      btnPrev.disabled = true;
+      btnQR.disabled = true;
       document.getElementById('formDaftar').reset();
       setTimeout(() => {
         window.location.href = 'index.html';
