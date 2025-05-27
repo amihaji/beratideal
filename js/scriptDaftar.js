@@ -42,8 +42,8 @@ function updatePembayaran() {
     nama = "Hesty Husain";
     ac = "mandiri123456789";
   } else if (value === 'QR') {
-    nama = "Hesty Husain";
-    ac = "QR123456789";
+    nama = "CLUB KITA Hesty Husain";
+    ac = "ID1023260668521";
   }
   document.getElementById('namaPenerima').value = nama;
   document.getElementById('acPenerima').value = ac;
