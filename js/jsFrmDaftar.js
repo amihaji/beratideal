@@ -154,82 +154,52 @@ let formData = {
   /**
    * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
    */
-  async function BACKUPsubmitForm() {
+  async function submitForm() {
+    const submitBtn = document.getElementById('btnSubmit');
     const msgBox = document.getElementById('msgBox3');
-    msgBox.innerHTML = ''; // Clear previous messages
-  
-    // Validasi akhir sebelum submit
-    if (!validateStep(3)) return;
-  
-    // Update data terakhir
-    formData.tglDaftar = new Date().toLocaleDateString('id-ID');
-    formData.noPesanan = document.getElementById('nomorPesanan').value;
-  
+    
+    // Disable tombol submit
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    
     try {
-      // Tampilkan loading
-      msgBox.innerHTML = '<div class="msg-success">Mengirim data...</div>';
-  
-      const response = await fetch('https://script.google.com/macros/s/AKfycbzAlb71_n7opqogVeHcsc5Z8eX68TvEQxzZ7xDKMGVUosK_3GvuQsDZM6JQeuxM5LM4/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        mode: 'no-cors' // Tambahkan ini untuk handle CORS
-      });
-  
-      // Karena mode no-cors, kita tidak bisa baca response
-      // Asumsikan selalu sukses jika tidak ada error
-      msgBox.innerHTML = '<div class="msg-success">Data berhasil disimpan! Redirect dalam 3 detik...</div>';
+      // Format data untuk Google Apps Script
+      const formData = new URLSearchParams();
+      for (const key in formDataObj) {
+        formData.append(key, formDataObj[key]);
+      }
       
+      // Gunakan fetch dengan mode 'no-cors' dan Content-Type yang benar
+      const response = await fetch('https://script.google.com/macros/s/AKfycbw0UxoSWsJDOqATPFvSG8R5IK9OVmsYMXSf9zC3Ig5syHVjr2SIwdqbUd3J9xR7mGhx/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+      });
+      
+      // Karena mode no-cors, kita tidak bisa baca response
+      // Asumsikan sukses jika tidak ada error
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+      submitBtn.classList.remove('btn-primary');
+      submitBtn.classList.add('btn-success');
+      
+      msgBox.innerHTML = '<div class="alert alert-success mt-3">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
+      
+      // Reset form dan redirect setelah 3 detik
       setTimeout(() => {
+        document.getElementById('formDaftar').reset();
         window.location.href = 'index.html';
       }, 3000);
-  
+      
     } catch (error) {
-      msgBox.innerHTML = `<div class="msg-error">Gagal mengirim data: ${error.message}</div>`;
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+      msgBox.innerHTML = `<div class="alert alert-danger mt-3">Gagal mengirim data: ${error.message}</div>`;
       console.error('Error:', error);
     }
   }
-
-  async function submitForm() {
-    // Update data terakhir
-    const now = new Date();
-    formData.tglDaftar = now.toLocaleDateString('id-ID');
-    formData.noPesanan = document.getElementById('nomorPesanan').value;
-  
-    try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbzAlb71_n7opqogVeHcsc5Z8eX68TvEQxzZ7xDKMGVUosK_3GvuQsDZM6JQeuxM5LM4/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-  
-      if (response.ok) {
-        // Ubah tombol submit
-        const submitBtn = document.getElementById('btnSubmit');
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-        submitBtn.classList.add('btn-success');
-        submitBtn.disabled = true;
-  
-        // Tampilkan pesan sukses
-        document.getElementById('msgBox3').innerHTML = 
-          '<div class="msg-success">Data berhasil dikirim!</div>';
-  
-        // Reset form setelah 2 detik
-        setTimeout(() => {
-          document.getElementById('formDaftar').reset();
-          window.location.href = 'index.html';
-        }, 2000);
-      }
-    } catch (error) {
-      // Handle error
-    }
-  }
-
-
 
   function showSuccess(message) {
     const msgBox = document.getElementById('msgBox3');
