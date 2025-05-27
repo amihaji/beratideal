@@ -19,21 +19,19 @@
       border-radius: 8px 8px 0 0;
     }
     .msg-error {
-      background: #ff4747;
-      color: #ffffff;
+      background: #c5c5c5;
+      color: #630808;
       padding: 7px 10px;
       border-radius: 5px;
-      font-size: 1rem;
-      font-style: bold;
+      font-size: 0.9rem;
       margin-top: 0.5rem;
     }
     .msg-success {
-      background: #4c4fff;
-      color: #ffffff;
+      background: #c5c5c5;
+      color: #1737c4;
       padding: 7px 10px;
       border-radius: 5px;
-      font-size: 1rem;
-      font-style: bold;
+      font-size: 0.9rem;
       margin-top: 0.5rem;
     }
     .btn-icon { display: flex; align-items: center; gap: 8px; }
@@ -50,6 +48,18 @@
     }
     .form-group input.lowercase {
       text-transform: lowercase;
+    }
+    /* Ensuring vertical buttons on mobile */
+    @media (max-width: 767px) {
+      .form-navigation .col-12 {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    /* Add spacing between buttons and messages */
+    .form-navigation .btn {
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -81,7 +91,11 @@
             <div id="msgBox1"></div>
             <div class="form-navigation">
               <span></span>
-              <button type="button" class="btn btn-primary btn-icon" onclick="nextStep(1)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+              <div class="col-12 col-md-6 d-flex justify-content-center">
+                <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(1)">
+                  <i class="fas fa-arrow-right"></i> Lanjut
+                </button>
+              </div>
             </div>
           </div>
 
@@ -98,8 +112,16 @@
             <div class="form-group"><label>Propinsi</label><input type="text" class="form-control uppercase" id="propinsi"></div>
             <div id="msgBox2"></div>
             <div class="form-navigation">
-              <button type="button" class="btn btn-secondary btn-icon" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-              <button type="button" class="btn btn-primary btn-icon" onclick="nextStep(2)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+              <div class="col-12 col-md-6 d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary btn-icon w-100" onclick="prevStep()">
+                  <i class="fas fa-arrow-left"></i> Sebelumnya
+                </button>
+              </div>
+              <div class="col-12 col-md-6 d-flex justify-content-center">
+                <button type="button" class="btn btn-primary btn-icon w-100" onclick="nextStep(2)">
+                  <i class="fas fa-arrow-right"></i> Lanjut
+                </button>
+              </div>
             </div>
           </div>
 
@@ -123,7 +145,7 @@
             </button>
             <div id="msgBox3"></div>
 
-            <!-- Form Navigation - using Bootstrap grid system for responsive layout -->
+            <!-- Form Navigation -->
             <div class="row">
               <div class="col-12 col-md-6 d-flex justify-content-center">
                 <button type="button" class="btn btn-secondary btn-icon w-100" id="btnPrev" onclick="prevStep()">
