@@ -181,6 +181,34 @@
       border: 1px solid #f5c6cb;
     }
 
+    /* Style untuk tombol Download QRIS */
+    .btn-download-qr {
+      background-color: #0062cc !important;
+      color: white !important;
+      border: none;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 200px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-download-qr:hover {
+      background-color: #0056b3 !important;
+      color: white !important;
+    }
+
+    /* Style untuk gambar QRIS */
+    .qr-image-container {
+      text-align: center;
+      margin: 15px 0;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+
   </style>
 </head>
 <body>
@@ -252,10 +280,15 @@
             <div class="form-group"><label>Nama Penerima</label><input type="text" class="form-control" id="namaPenerima" readonly></div>
             <div class="form-group"><label>AC Penerima</label><input type="text" class="form-control" id="acPenerima" readonly></div>
             <div class="form-group"><label>Nominal Transfer</label><input type="text" class="form-control" id="nominal" readonly></div>
-            <div id="qrisImage" class="text-center mb-2"></div>
-            <button type="button" id="btnDownloadQR" class="btn btn-download-qr btn-icon" style="display:none">
+            
+            <div id="qrisImage" class="qr-image-container" style="display: none;">
+              <!-- Gambar akan muncul di sini saat metode QR dipilih -->
+            </div>
+
+            <button type="button" id="btnDownloadQR" class="btn btn-primary btn-icon" style="display:none; background-color: #0062cc; color: white;" onclick="downloadQRIS()">
               <i class="fas fa-download"></i> Download QRIS
             </button>
+            
             <div id="msgBox3"></div>
             
             <!-- Navigasi Halaman -->

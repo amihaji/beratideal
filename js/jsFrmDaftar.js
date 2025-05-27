@@ -112,34 +112,21 @@ let formData = {
    */
   function updatePembayaran() {
     const method = document.getElementById('pembayaran').value;
-    formData.pembayaran = method;
+    const qrisImage = document.getElementById('qrisImage');
+    const btnDownloadQR = document.getElementById('btnDownloadQR');
   
-    // Update info penerima berdasarkan metode pembayaran
     if (method === 'QR') {
-      formData.namaPenerima = 'CLUB KITA';
-      formData.acPenerima = '1234567890';
-      document.getElementById('qrisImage').innerHTML = '<img src="images/QRIS CLUB KITA.jpeg" alt="QR Code" style="max-width:200px;">';
-      document.getElementById('btnDownloadQR').style.display = 'block';
-    } else if (method === 'BCA') {
-      formData.namaPenerima = 'HESTY HUSAIN';
-      formData.acPenerima = '9876543210';
-      document.getElementById('qrisImage').innerHTML = '';
-      document.getElementById('btnDownloadQR').style.display = 'none';
-    } else if (method === 'Mandiri') {
-      formData.namaPenerima = 'HESTY HUSAIN';
-      formData.acPenerima = '0123456789';
-      document.getElementById('qrisImage').innerHTML = '';
-      document.getElementById('btnDownloadQR').style.display = 'none';
+      // Tampilkan gambar QRIS dari GitHub
+      qrisImage.innerHTML = `
+        <img src="https://amihaji.github.io/images/QRIS_CLUB_KITA.jpeg" 
+             alt="QR Code Pembayaran" 
+             style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
+      `;
+      btnDownloadQR.style.display = 'block';
+    } else {
+      qrisImage.innerHTML = '';
+      btnDownloadQR.style.display = 'none';
     }
-  
-    // Update nominal transfer (harga program + 3 digit terakhir telp)
-    const uniqueDigits = formData.telp ? parseInt(formData.telp.slice(-3)) || 0 : 0;
-    formData.nominal = formData.harga + uniqueDigits;
-  
-    // Update tampilan
-    document.getElementById('namaPenerima').value = formData.namaPenerima;
-    document.getElementById('acPenerima').value = formData.acPenerima;
-    document.getElementById('nominal').value = formData.nominal.toLocaleString('id-ID');
   }
   
   function getHargaProgram(program) {
@@ -151,16 +138,14 @@ let formData = {
     return prices[program] || 0;
   }
   
-  /**
-   * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
-   */
-  
-
   function showSuccess(message) {
     const msgBox = document.getElementById('msgBox3');
     msgBox.innerHTML = `<div class="msg-success">${message}</div>`;
   }
-    
+
+  /**
+   * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
+   */
   async function submitForm() {
     const submitBtn = document.getElementById('btnSubmit');
     const msgBox = document.getElementById('msgBox3');
@@ -294,4 +279,28 @@ let formData = {
     });
     document.getElementById('step-1').classList.add('active');
     updateProgressBar(1);
+  }
+
+  /**
+ * FUNGSI UNTUK DOWNLOAD QRIS
+ */
+function downloadQRIS() {
+    // URL gambar QRIS (sesuaikan dengan path di GitHub)
+    const qrImageUrl = 'https://amihaji.github.io/images/QRIS_CLUB_KITA.jpeg';
+    
+    // Buat elemen <a> sementara untuk download
+    const downloadLink = document.createElement('a');
+    downloadLink.href = qrImageUrl;
+    downloadLink.download = 'QRIS_CLUB_KITA.jpeg'; // Nama file saat didownload
+    downloadLink.target = '_blank';
+    
+    // Trigger click
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    // Optional: Beri feedback ke user
+    const msgBox = document.getElementById('msgBox3');
+    msgBox.innerHTML = '<div class="alert alert-info mt-2">Download QRIS telah dimulai</div>';
+    setTimeout(() => msgBox.innerHTML = '', 3000);
   }
