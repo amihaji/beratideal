@@ -286,7 +286,7 @@ let formData = {
  */
 function downloadQRIS() {
     // URL gambar QRIS (sesuaikan dengan path di GitHub)
-    const qrImageUrl = 'https://amihaji.github.io/images/QRIS_CLUB_KITA.jpeg';
+    const qrImageUrl = 'https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg';
     
     // Buat elemen <a> sementara untuk download
     const downloadLink = document.createElement('a');
