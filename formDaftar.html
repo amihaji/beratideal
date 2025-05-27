@@ -23,20 +23,32 @@
       color: #630808;
       padding: 7px 10px;
       border-radius: 5px;
-      margin-top: 10px;
       font-size: 0.9rem;
+      margin-top: 0.5rem;
     }
     .msg-success {
       background: #c5c5c5;
       color: #1737c4;
       padding: 7px 10px;
       border-radius: 5px;
-      margin-top: 10px;
       font-size: 0.9rem;
+      margin-top: 0.5rem;
     }
     .btn-icon { display: flex; align-items: center; gap: 8px; }
     .btn-submit { background-color: #4a4a4a; color: white; }
     .btn-submit:hover { background-color: #c82333; color: white; }
+    .form-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .form-group input.uppercase {
+      text-transform: uppercase;
+    }
+    .form-group input.lowercase {
+      text-transform: lowercase;
+    }
   </style>
 </head>
 <body>
@@ -65,23 +77,28 @@
             </div>
             <div class="form-group"><label>Harga</label><input type="text" class="form-control" id="harga" readonly></div>
             <div id="msgBox1"></div>
-            <button type="button" class="btn btn-primary float-right btn-icon" onclick="nextStep(1)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+            <div class="form-navigation">
+              <span></span>
+              <button type="button" class="btn btn-primary btn-icon" onclick="nextStep(1)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+            </div>
           </div>
 
           <!-- Step 2 -->
           <div class="form-step" id="step-2">
             <div class="mb-3 font-weight-bold"><i class="fas fa-truck"></i> Data Pengiriman Produk</div>
-            <div class="form-group"><label>Nama</label><input type="text" class="form-control" id="nama"></div>
-            <div class="form-group"><label>Alamat</label><input type="text" class="form-control" id="alamat"></div>
+            <div class="form-group"><label>Nama</label><input type="text" class="form-control uppercase" id="nama"></div>
+            <div class="form-group"><label>Alamat</label><input type="text" class="form-control uppercase" id="alamat"></div>
             <div class="form-group"><label>Telp</label><input type="text" class="form-control" id="telp"></div>
-            <div class="form-group"><label>Email</label><input type="email" class="form-control" id="email"></div>
-            <div class="form-group"><label>Kelurahan</label><input type="text" class="form-control" id="kelurahan"></div>
-            <div class="form-group"><label>Kecamatan</label><input type="text" class="form-control" id="kecamatan"></div>
-            <div class="form-group"><label>Kota</label><input type="text" class="form-control" id="kota"></div>
-            <div class="form-group"><label>Propinsi</label><input type="text" class="form-control" id="propinsi"></div>
+            <div class="form-group"><label>Email</label><input type="email" class="form-control lowercase" id="email"></div>
+            <div class="form-group"><label>Kelurahan</label><input type="text" class="form-control uppercase" id="kelurahan"></div>
+            <div class="form-group"><label>Kecamatan</label><input type="text" class="form-control uppercase" id="kecamatan"></div>
+            <div class="form-group"><label>Kota</label><input type="text" class="form-control uppercase" id="kota"></div>
+            <div class="form-group"><label>Propinsi</label><input type="text" class="form-control uppercase" id="propinsi"></div>
             <div id="msgBox2"></div>
-            <button type="button" class="btn btn-secondary btn-icon" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-            <button type="button" class="btn btn-primary float-right btn-icon" onclick="nextStep(2)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+            <div class="form-navigation">
+              <button type="button" class="btn btn-secondary btn-icon" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+              <button type="button" class="btn btn-primary btn-icon" onclick="nextStep(2)"><i class="fas fa-arrow-right"></i> Lanjut</button>
+            </div>
           </div>
 
           <!-- Step 3 -->
@@ -98,9 +115,12 @@
             <div class="form-group"><label>Nama Penerima</label><input type="text" class="form-control" id="namaPenerima" readonly></div>
             <div class="form-group"><label>AC Penerima</label><input type="text" class="form-control" id="acPenerima" readonly></div>
             <div class="form-group"><label>Nominal Transfer</label><input type="text" class="form-control" id="nominal" readonly></div>
+            <div id="qrisImage" class="text-center mb-2"></div>
             <div id="msgBox3"></div>
-            <button type="button" class="btn btn-secondary btn-icon" id="btnPrev" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-            <button type="submit" class="btn btn-submit float-right btn-icon" id="btnSubmit"><i class="fas fa-paper-plane"></i> Submit</button>
+            <div class="form-navigation">
+              <button type="button" class="btn btn-secondary btn-icon" id="btnPrev" onclick="prevStep()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+              <button type="submit" class="btn btn-submit btn-icon" id="btnSubmit"><i class="fas fa-paper-plane"></i> Submit</button>
+            </div>
           </div>
 
         </form>
