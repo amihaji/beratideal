@@ -19,21 +19,19 @@
       border-radius: 8px 8px 0 0;
     }
     .msg-error {
-      background: #f35151;
-      color: #ffffff;
+      background: #c5c5c5;
+      color: #630808;
       padding: 7px 10px;
       border-radius: 5px;
-      font-size: 1rem;
-      font-style: bold;
+      font-size: 0.9rem;
       margin-top: 0.5rem;
     }
     .msg-success {
-      background: #1201ff;
-      color: #ffffff;
+      background: #c5c5c5;
+      color: #1737c4;
       padding: 7px 10px;
       border-radius: 5px;
-      font-size: 1rem;
-      font-style: bold;
+      font-size: 0.9rem;
       margin-top: 0.5rem;
     }
     .btn-icon { display: flex; align-items: center; gap: 8px; }
@@ -103,7 +101,7 @@
             </div>
           </div>
 
-          <!-- Halaman 3 -->
+          <!-- Step 3 -->
           <div class="form-step" id="step-3">
             <div class="mb-3 font-weight-bold"><i class="fas fa-credit-card"></i> Sistem Pembayaran</div>
             <div class="form-group"><label>Sistem Pembayaran</label>
@@ -118,19 +116,23 @@
             <div class="form-group"><label>AC Penerima</label><input type="text" class="form-control" id="acPenerima" readonly></div>
             <div class="form-group"><label>Nominal Transfer</label><input type="text" class="form-control" id="nominal" readonly></div>
             <div id="qrisImage" class="text-center mb-2"></div>
+            <button type="button" id="btnDownloadQR" class="btn btn-info btn-icon" style="display:none" onclick="window.open('images/QRIS CLUB KITA.jpeg', '_blank')">
+              <i class="fas fa-download"></i> Download QRIS
+            </button>
             <div id="msgBox3"></div>
-            
-            <!-- Navigasi Halaman 3 -->
-            <div class="form-navigation">
-              <button type="button" class="btn btn-secondary btn-icon" id="btnPrev" onclick="prevStep()">
-                <i class="fas fa-arrow-left"></i> Sebelumnya
-              </button>
-              <button type="button" id="btnDownloadQR" class="btn btn-info btn-icon" style="display: none;" onclick="window.open('images/QRIS CLUB KITA.jpeg', '_blank')">
-                <i class="fas fa-download"></i> Download QRIS
-              </button>
-              <button type="submit" class="btn btn-submit btn-icon" id="btnSubmit">
-                <i class="fas fa-paper-plane"></i> Submit
-              </button>
+
+            <!-- Form Navigation - using Bootstrap grid system for responsive layout -->
+            <div class="row">
+              <div class="col-12 col-md-6 d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary btn-icon w-100" id="btnPrev" onclick="prevStep()">
+                  <i class="fas fa-arrow-left"></i> Sebelumnya
+                </button>
+              </div>
+              <div class="col-12 col-md-6 d-flex justify-content-center">
+                <button type="submit" class="btn btn-submit btn-icon w-100" id="btnSubmit">
+                  <i class="fas fa-paper-plane"></i> Submit
+                </button>
+              </div>
             </div>
           </div>
 
