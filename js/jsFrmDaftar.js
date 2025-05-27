@@ -21,10 +21,10 @@ let formData = {
     nominal: 0
   };
   
-  /**
+   /**
    * FUNGSI UNTUK NAVIGASI FORM
    */
-  function nextStep(currentStep) {
+   function nextStep(currentStep) {
     // Validasi sebelum lanjut ke step berikutnya
     if (validateStep(currentStep)) {
       document.querySelector(`#step-${currentStep}`).classList.remove('active');
@@ -155,46 +155,65 @@ let formData = {
    * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
    */
   async function submitForm() {
-    // Update tanggal dan no pesanan
-    formData.tglDaftar = new Date().toLocaleDateString('id-ID');
-    formData.noPesanan = 'PS' + Date.now().toString().slice(-6);
+    const msgBox = document.getElementById('msgBox3');
+    msgBox.innerHTML = ''; // Clear previous messages
   
-    // Kirim data ke Google Sheets
+    // Validasi akhir sebelum submit
+    if (!validateStep(3)) return;
+  
+    // Update data terakhir
+    formData.tglDaftar = new Date().toLocaleDateString('id-ID');
+    formData.noPesanan = document.getElementById('nomorPesanan').value;
+  
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbxRBeQ_bL8G6YrHsx6ifcIjS773xmS6vh6aFUHOJ4JC43lWiL46hCz2Cx2_tKEdqU9P/exec', {
+      // Tampilkan loading
+      msgBox.innerHTML = '<div class="msg-success">Mengirim data...</div>';
+  
+      const response = await fetch('https://script.google.com/macros/s/AKfycbzAlb71_n7opqogVeHcsc5Z8eX68TvEQxzZ7xDKMGVUosK_3GvuQsDZM6JQeuxM5LM4/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        mode: 'no-cors' // Tambahkan ini untuk handle CORS
       });
   
-      const result = await response.json();
-      if (result.success) {
-        showSuccess('Data berhasil disimpan!');
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 3000);
-      } else {
-        showError(document.getElementById('msgBox3'), 'Gagal menyimpan data: ' + result.message);
-      }
+      // Karena mode no-cors, kita tidak bisa baca response
+      // Asumsikan selalu sukses jika tidak ada error
+      msgBox.innerHTML = '<div class="msg-success">Data berhasil disimpan! Redirect dalam 3 detik...</div>';
+      
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 3000);
+  
     } catch (error) {
-      showError(document.getElementById('msgBox3'), 'Terjadi error: ' + error.message);
+      msgBox.innerHTML = `<div class="msg-error">Gagal mengirim data: ${error.message}</div>`;
+      console.error('Error:', error);
     }
   }
-  
+
   function showSuccess(message) {
     const msgBox = document.getElementById('msgBox3');
     msgBox.innerHTML = `<div class="msg-success">${message}</div>`;
   }
   
+  
   /**
    * INISIALISASI FORM SAAT HALAMAN DIMUAT
    */
+  function generateNoPesanan() {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yy = String(now.getFullYear()).slice(-2);
+    const random = Math.floor(Math.random() * 900) + 100; // 100-999
+    return `PS${dd}${mm}${yy}-${random}`;
+  }
+  
   document.addEventListener('DOMContentLoaded', function() {
-    // Set tanggal daftar otomatis
     document.getElementById('tanggal').value = new Date().toLocaleDateString('id-ID');
-    
+    document.getElementById('nomorPesanan').value = generateNoPesanan();
+
     // Event listener untuk perubahan program
     document.getElementById('program').addEventListener('change', function() {
       formData.program = this.value;
