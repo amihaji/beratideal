@@ -48,6 +48,37 @@
       background-color: #c82333; 
       color: white; 
     }
+    
+    .btn-download-qr {
+      background-color: #0062cc;
+      color: white;
+      border: none;
+    }
+
+    .btn-download-qr:hover {
+      background-color: #0056b3;
+      color: white;
+    }
+
+    /* Tombol Success */
+    .btn-success {
+      background-color: #28a745 !important;
+    }
+
+    /* Animasi tombol submit */
+    #btnSubmit {
+      transition: all 0.3s ease;
+    }
+
+    /* Pesan sukses */
+    .msg-success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 15px 0;
+      text-align: center;
+    }
     .form-group input.uppercase {
       text-transform: uppercase;
     }
@@ -186,13 +217,15 @@
             <div class="form-group"><label>AC Penerima</label><input type="text" class="form-control" id="acPenerima" readonly></div>
             <div class="form-group"><label>Nominal Transfer</label><input type="text" class="form-control" id="nominal" readonly></div>
             <div id="qrisImage" class="text-center mb-2"></div>
-            <button type="button" id="btnDownloadQR" class="btn btn-info btn-icon" style="display:none" onclick="window.open('images/QRIS CLUB KITA.jpeg', '_blank')">
-              <i class="fas fa-download"></i> Download QRIS
-            </button>
+          
             <div id="msgBox3"></div>
-
             <!-- Form Navigation -->
             <div class="row">
+              <div class="col-12 col-md-6">
+                <button type="button" id="btnDownloadQR" class="btn btn-download-qr btn-icon" style="display:none">
+                  <i class="fas fa-download"></i> Download QRIS
+                </button>
+              </div>
               <div class="col-12 col-md-6">
                 <button type="button" class="btn btn-secondary btn-icon w-100" id="btnPrev" onclick="prevStep()">
                   <i class="fas fa-arrow-left"></i> Sebelumnya

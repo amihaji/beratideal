@@ -37,14 +37,14 @@ let formData = {
       }
     }
   }
-  
+    
   function prevStep() {
     const currentStep = parseInt(document.querySelector('.form-step.active').id.split('-')[1]);
     document.querySelector(`#step-${currentStep}`).classList.remove('active');
-    document.querySelector(`#step-${currentStep - 1}`).classlist.add('active');
+    document.querySelector(`#step-${currentStep - 1}`).classList.add('active');
     updateProgressBar(currentStep - 1);
   }
-  
+
   function updateProgressBar(step) {
     const percentage = (step / 3) * 100;
     const progressBar = document.getElementById('progressBar');
@@ -154,7 +154,7 @@ let formData = {
   /**
    * FUNGSI UNTUK KIRIM DATA KE GOOGLE SHEETS
    */
-  async function submitForm() {
+  async function BACKUPsubmitForm() {
     const msgBox = document.getElementById('msgBox3');
     msgBox.innerHTML = ''; // Clear previous messages
   
@@ -192,12 +192,50 @@ let formData = {
     }
   }
 
+  async function submitForm() {
+    // Update data terakhir
+    const now = new Date();
+    formData.tglDaftar = now.toLocaleDateString('id-ID');
+    formData.noPesanan = document.getElementById('nomorPesanan').value;
+  
+    try {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbzAlb71_n7opqogVeHcsc5Z8eX68TvEQxzZ7xDKMGVUosK_3GvuQsDZM6JQeuxM5LM4/exec', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+  
+      if (response.ok) {
+        // Ubah tombol submit
+        const submitBtn = document.getElementById('btnSubmit');
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+        submitBtn.classList.add('btn-success');
+        submitBtn.disabled = true;
+  
+        // Tampilkan pesan sukses
+        document.getElementById('msgBox3').innerHTML = 
+          '<div class="msg-success">Data berhasil dikirim!</div>';
+  
+        // Reset form setelah 2 detik
+        setTimeout(() => {
+          document.getElementById('formDaftar').reset();
+          window.location.href = 'index.html';
+        }, 2000);
+      }
+    } catch (error) {
+      // Handle error
+    }
+  }
+
+
+
   function showSuccess(message) {
     const msgBox = document.getElementById('msgBox3');
     msgBox.innerHTML = `<div class="msg-success">${message}</div>`;
   }
-  
-  
+    
   /**
    * INISIALISASI FORM SAAT HALAMAN DIMUAT
    */
@@ -227,3 +265,40 @@ let formData = {
       submitForm();
     });
   });
+
+  // Reset Form dengan mengosongkan field
+  function resetForm() {
+    // Reset semua input
+    document.getElementById('formDaftar').reset();
+    
+    // Reset variabel formData
+    formData = {
+    tglDaftar: '',
+    noPesanan: '',
+    program: '',
+    harga: 0,
+    nama: '',
+    alamat: '',
+    telp: '',
+    email: '',
+    kelurahan: '',
+    kecamatan: '',
+    kota: '',
+    propinsi: '',
+    pembayaran: '',
+    namaPenerima: '',
+    acPenerima: '',
+    nominal: 0
+      // ... semua field lainnya
+    };
+    
+    // Generate nomor pesanan baru
+    document.getElementById('nomorPesanan').value = generateNoPesanan();
+    
+    // Reset tampilan ke step 1
+    document.querySelectorAll('.form-step').forEach(step => {
+      step.classList.remove('active');
+    });
+    document.getElementById('step-1').classList.add('active');
+    updateProgressBar(1);
+  }
