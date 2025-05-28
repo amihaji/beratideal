@@ -120,7 +120,7 @@ function updatePembayaran() {
       namaPenerima.value = 'CLUB KITA';
       acPenerima.value = '1234567890';
       // Gunakan URL alternatif yang bisa diakses
-      const qrImageUrl = 'https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg'; 
+      const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'; 
       
       qrisContainer.innerHTML = `
         <img src="${qrImageUrl}" 
@@ -205,7 +205,7 @@ function downloadQRIS() {
   // Method 2: Alternatif download
   const link = document.createElement('a');
   link.href = qrImageUrl;
-  link.download = 'qris_pembayaran.jpg';
+  link.download = 'qris_pembayaran.jpeg';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
