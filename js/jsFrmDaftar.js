@@ -16,17 +16,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const harga = getHargaProgram(this.value);
     document.getElementById('harga').value = harga.toLocaleString('id-ID');
   });
-  
-  // Event listener untuk submit form (diperbarui)
-  const form = document.getElementById('formDaftar');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitForm();
-    }, false); // Gunakan capture false
-  }
-
 });
+
+// Event listener untuk submit form (diperbarui)
+const form = document.getElementById('formDaftar');
+if (form) {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitForm();
+  }, false); // Gunakan capture false
+}
 
 // Event listener untuk download QRIS (diperbarui)
 const downloadBtn = document.getElementById('btnDownloadQR');
