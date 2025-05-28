@@ -132,22 +132,24 @@ function updatePembayaran() {
   if (method === 'QR') {
     // Buat elemen img baru dengan cara yang lebih reliable
     const img = document.createElement('img');
-    img.src = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
-    img.alt = 'QR Code Pembayaran';
+    img.src            = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
+    img.alt            = 'QR Code Pembayaran';
     img.style.maxWidth = '200px';
-    img.style.display = 'block';
-    img.style.margin = '0 auto';
-    img.style.border = '1px solid #ddd';
+    img.style.display  = 'block';
+    img.style.margin   = '0 auto';
+    img.style.border   = '1px solid #ddd';
     
+    namaPenerima.value = 'QR Code Club Kita HESTY HUSAIN';
+    acPenerima.value   = 'QR9876543210';
     qrisImage.appendChild(img);
     btnDownloadQR.style.display = 'flex'; // Ubah ke flex untuk centering icon
   
   } else if (method === 'BCA') {
     namaPenerima.value = 'HESTY HUSAIN';
-    acPenerima.value = '9876543210';
+    acPenerima.value   = '9876543210';
   } else if (method === 'Mandiri') {
     namaPenerima.value = 'HESTY HUSAIN';
-    acPenerima.value = '0123456789';
+    acPenerima.value   = '0123456789';
   }
 
   // Update nominal transfer
