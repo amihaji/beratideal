@@ -97,62 +97,13 @@ function validateStep(step) {
 
   return isValid;
 }
+
 /**
  * FUNGSI PEMBAYARAN
  */
 function updatePembayaran() {
   const method = document.getElementById('pembayaran').value;
-  const qrisImage = document.getElementById('qrisImage');
-  const btnDownloadQR = document.getElementById('btnDownloadQR');
-  const namaPenerima = document.getElementById('namaPenerima');
-  const acPenerima = document.getElementById('acPenerima');
-  const nominal = document.getElementById('nominal');
-
-  // Reset semua field
-  qrisImage.innerHTML = '';
-  btnDownloadQR.style.display = 'none';
-  namaPenerima.value = '';
-  acPenerima.value = '';
-  nominal.value = '';
-
-
-  if (method === 'QR') {
-      namaPenerima.value = 'CLUB KITA';
-      acPenerima.value = '1234567890';
-      // Gunakan URL alternatif yang bisa diakses
-      const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'; 
-      
-      qrisContainer.innerHTML = `
-        <img src="${qrImageUrl}" 
-             alt="QR Code Pembayaran"
-             style="max-width: 200px; margin: 10px auto; display: block; border: 1px solid #ddd;">
-      `;
-      btnDownloadQR.style.display = 'block';
-    
-  } else if (method === 'BCA') {
-    namaPenerima.value = 'HESTY HUSAIN';
-    acPenerima.value = '9876543210';
-  } else if (method === 'Mandiri') {
-    namaPenerima.value = 'HESTY HUSAIN';
-    acPenerima.value = '0123456789';
-  }
-
-  // Update nominal transfer
-  if (method) {
-    const harga = parseInt(document.getElementById('harga').value.replace(/\D/g,'')) || 0;
-    const telp = document.getElementById('telp').value || '';
-    const uniqueDigits = parseInt(telp.slice(-3)) || 0;
-    const total = harga + uniqueDigits;
-    nominal.value = total.toLocaleString('id-ID');
-  }
-}
-
-/**
- * FUNGSI PEMBAYARAN
- */
-function BACKUP_updatePembayaran() {
-  const method = document.getElementById('pembayaran').value;
-  const qrisImage = document.getElementById('qrisImage');
+  const qrisImage = document.getElementById('qrisImage'); // Perbaikan: Gunakan qrisImage bukan qrisContainer
   const btnDownloadQR = document.getElementById('btnDownloadQR');
   const namaPenerima = document.getElementById('namaPenerima');
   const acPenerima = document.getElementById('acPenerima');
@@ -170,10 +121,12 @@ function BACKUP_updatePembayaran() {
     acPenerima.value = '1234567890';
     
     // Tampilkan gambar QR Code
+    const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'; // Pastikan nama file lowercase
+    
     qrisImage.innerHTML = `
-      <img src="https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg" 
-           alt="QRIS CLUB KITA" 
-           style="max-width: 200px; margin: 10px auto; display: block;">
+      <img src="${qrImageUrl}" 
+           alt="QR Code Pembayaran"
+           style="max-width: 200px; margin: 10px auto; display: block; border: 1px solid #ddd;">
     `;
     btnDownloadQR.style.display = 'block';
     
@@ -196,10 +149,9 @@ function BACKUP_updatePembayaran() {
 }
 
 function downloadQRIS() {
-  // Gunakan URL yang sama dengan yang ditampilkan
-  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'; 
+  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
   
-  // Method 1: Buka di tab baru (lebih reliable)
+  // Method 1: Buka di tab baru
   window.open(qrImageUrl, '_blank');
   
   // Method 2: Alternatif download
@@ -213,20 +165,6 @@ function downloadQRIS() {
   // Beri feedback
   const msgBox = document.getElementById('msgBox3');
   msgBox.innerHTML = '<div class="alert alert-info">Silakan simpan gambar melalui browser</div>';
-  setTimeout(() => msgBox.innerHTML = '', 3000);
-}
-
-function BACKUP_downloadQRIS() {
-  const link = document.createElement('a');
-  link.href = 'https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg';
-  link.download = 'QRIS_CLUB_KITA.jpeg';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  // Beri feedback
-  const msgBox = document.getElementById('msgBox3');
-  msgBox.innerHTML = '<div class="alert alert-info">Download QRIS telah dimulai</div>';
   setTimeout(() => msgBox.innerHTML = '', 3000);
 }
 
@@ -275,7 +213,7 @@ async function submitForm() {
 
   try {
     // Kirim data ke Google Sheets
-    const response = await fetch('https://script.google.com/macros/s/AKfycbz7s5RKRsYeU7V2EcQWeIN_7AhWb2FNfpSw1t2-c5tv5TvHhNJeekMe6igKtB_Me7Ll/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzjL6T4pLCCV_cc8QxnyikE8yFfiLwGaXFL6ZvgQI8_1_N95NaXH-bSbfY1fSSORvBD/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
