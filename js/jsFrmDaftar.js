@@ -324,7 +324,7 @@ async function BACKUP_submitForm() {
 
     // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-    msgBox.innerHTML = '<div class="alert alert-success">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
+    msgBox.innerHTML    = '<div class="alert alert-success">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
     
     // Reset form dan redirect
     setTimeout(() => {
@@ -335,9 +335,9 @@ async function BACKUP_submitForm() {
 
   } catch (error) {
     // Tampilkan pesan error
-    submitBtn.disabled = false;
+    submitBtn.disabled  = false;
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
-    msgBox.innerHTML = `<div class="alert alert-danger">Gagal mengirim data: ${error.message}</div>`;
+    msgBox.innerHTML    = `<div class="alert alert-danger">Gagal mengirim data: ${error.message}</div>`;
     console.error('Error:', error);
   }
 }
