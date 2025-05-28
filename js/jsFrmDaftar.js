@@ -11,20 +11,30 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('tanggal').value = new Date().toLocaleDateString('id-ID');
   document.getElementById('nomorPesanan').value = generateNoPesanan();
 
-  // Pastikan event listener untuk download QRIS
-  document.getElementById('btnDownloadQR')?.addEventListener('click', downloadQRIS);
-  
+  // Event listener untuk download QRIS (diperbarui)
+  const downloadBtn = document.getElementById('btnDownloadQR');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      downloadQRIS(e);
+    }, false); // Gunakan capture false
+  }
+
   // Event listener untuk program
   document.getElementById('program').addEventListener('change', function() {
     const harga = getHargaProgram(this.value);
     document.getElementById('harga').value = harga.toLocaleString('id-ID');
   });
   
-  // Event listener untuk submit form
-  document.getElementById('formDaftar').addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitForm();
-  });
+  // Event listener untuk submit form (diperbarui)
+  const form = document.getElementById('formDaftar');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitForm();
+    }, false); // Gunakan capture false
+  }
+
 });
 
 /**
@@ -123,11 +133,11 @@ function updatePembayaran() {
   const nominal = document.getElementById('nominal');
 
   // Reset semua field
-  qrisImage.innerHTML = '';
-  btnDownloadQR.style.display = 'none';
-  namaPenerima.value = '';
-  acPenerima.value = '';
-  nominal.value = '';
+   btnDownloadQR.style.display = 'none';
+   qrisImage.innerHTML = '';
+   namaPenerima.value = '';
+   acPenerima.value = '';
+   nominal.value = '';
 
   if (method === 'QR') {
     // Buat elemen img baru dengan cara yang lebih reliable
@@ -154,15 +164,18 @@ function updatePembayaran() {
 
   // Update nominal transfer
   if (method) {
-    const harga = parseInt(document.getElementById('harga').value.replace(/\D/g,'')) || 0;
-    const telp = document.getElementById('telp').value || '';
+    const harga        = parseInt(document.getElementById('harga').value.replace(/\D/g,'')) || 0;
+    const telp         = document.getElementById('telp').value || '';
     const uniqueDigits = parseInt(telp.slice(-3)) || 0;
-    const total = harga + uniqueDigits;
-    nominal.value = total.toLocaleString('id-ID');
+    const total        = harga + uniqueDigits;
+    nominal.value      = total.toLocaleString('id-ID');
   }
 }
 
-function downloadQRIS() {
+function downloadQRIS(e) {
+  e.preventDefault();  // Menghentikan event bubbling
+  e.stopPropagation(); // Menghentikan propagasi event
+  
   try {
     const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
     const link = document.createElement('a');
@@ -181,30 +194,13 @@ function downloadQRIS() {
       btn.innerHTML = '<i class="fas fa-download"></i> Download QRIS';
       btn.style.backgroundColor = '';
     }, 2000);
+    
+    return false; // Tambahan untuk memastikan tidak ada submit
   } catch (error) {
     console.error('Download error:', error);
     alert('Silakan buka gambar secara manual');
+    return false;
   }
-}
-
-function BACKUP_downloadQRIS() {
-  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
-  
-  // Method 1: Buka di tab baru
-  window.open(qrImageUrl, '_blank');
-  
-  // Method 2: Alternatif download
-  const link = document.createElement('a');
-  link.href = qrImageUrl;
-  link.download = 'qris_pembayaran.jpeg';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  // Beri feedback
-  const msgBox = document.getElementById('msgBox3');
-  msgBox.innerHTML = '<div class="alert alert-info">Silakan simpan gambar melalui browser</div>';
-  setTimeout(() => msgBox.innerHTML = '', 3000);
 }
 
 function getHargaProgram(program) {
@@ -222,10 +218,9 @@ function getHargaProgram(program) {
 async function submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3 = document.getElementById('msgBox3') || document.createElement('div');
-
   
   // Validasi akhir
-  if (!validateStep(3)) return;
+  if (!validateStep(3)) return false;
 
   // Kumpulkan data
   const formData = {
@@ -261,85 +256,25 @@ async function submitForm() {
       body: new URLSearchParams(formData)
     });
 
+    if (!response.ok) throw new Error('Network response was not ok');
+    
     // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-    msgBox.innerHTML = '<div class="alert alert-success">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
-    
-    // Reset form dan redirect
+    msgBox3.innerHTML = '<div class="msg-success">Data berhasil dikirim!</div>';
+
+    // Redirect setelah 3 detik
     setTimeout(() => {
-      document.getElementById('formDaftar').reset();
-      document.getElementById('nomorPesanan').value = generateNoPesanan();
-      window.location.href = 'index.html';
+      window.location.replace('index.html'); // Gunakan replace bukan href
     }, 3000);
 
   } catch (error) {
-    // Tampilkan pesan error
     console.error('Error:', error);
     msgBox3.innerHTML = `<div class="msg-error">Gagal mengirim: ${error.message}</div>`;
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     submitBtn.disabled = false;
   }
-}
-
-async function BACKUP_submitForm() {
-  const submitBtn = document.getElementById('btnSubmit');
-  const msgBox = document.getElementById('msgBox3');
   
-  // Validasi akhir
-  if (!validateStep(3)) return;
-
-  // Kumpulkan data
-  const formData = {
-    tglDaftar: document.getElementById('tanggal').value,
-    noPesanan: document.getElementById('nomorPesanan').value,
-    program: document.getElementById('program').value,
-    harga: document.getElementById('harga').value.replace(/\D/g,''),
-    nama: document.getElementById('nama').value,
-    alamat: document.getElementById('alamat').value,
-    telp: document.getElementById('telp').value,
-    email: document.getElementById('email').value,
-    kelurahan: document.getElementById('kelurahan').value,
-    kecamatan: document.getElementById('kecamatan').value,
-    kota: document.getElementById('kota').value,
-    propinsi: document.getElementById('propinsi').value,
-    pembayaran: document.getElementById('pembayaran').value,
-    namaPenerima: document.getElementById('namaPenerima').value,
-    acPenerima: document.getElementById('acPenerima').value,
-    nominal: document.getElementById('nominal').value.replace(/\D/g,'')
-  };
-
-  // Tampilkan loading
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-
-  try {
-    // Kirim data ke Google Sheets
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzjL6T4pLCCV_cc8QxnyikE8yFfiLwGaXFL6ZvgQI8_1_N95NaXH-bSbfY1fSSORvBD/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(formData)
-    });
-
-    // Tampilkan pesan sukses
-    submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-    msgBox.innerHTML    = '<div class="alert alert-success">Data berhasil dikirim! Redirect dalam 3 detik...</div>';
-    
-    // Reset form dan redirect
-    setTimeout(() => {
-      document.getElementById('formDaftar').reset();
-      document.getElementById('nomorPesanan').value = generateNoPesanan();
-      window.location.href = 'index.html';
-    }, 3000);
-
-  } catch (error) {
-    // Tampilkan pesan error
-    submitBtn.disabled  = false;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
-    msgBox.innerHTML    = `<div class="alert alert-danger">Gagal mengirim data: ${error.message}</div>`;
-    console.error('Error:', error);
-  }
+  return false; // Mencegah form submit default
 }
 
 /**
