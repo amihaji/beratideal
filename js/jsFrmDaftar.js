@@ -64,6 +64,14 @@ function prevStep() {
   document.querySelector(`#step-${currentStep-1}`).classList.add('active');
   updateProgressBar(currentStep-1);
   currentStep = currentStep-1;
+
+  // Reset semua field TAMBAHAN
+  const btnDownloadQR         = document.getElementById('btnDownloadQR');
+  btnDownloadQR.style.display = 'none';
+  qrisImage.innerHTML = '';
+  namaPenerima.value  = '';
+  acPenerima.value    = '';
+  nominal.value       = '';
 }
 
 /**********************************
@@ -145,7 +153,6 @@ function updatePembayaran() {
   namaPenerima.value  = '';
   acPenerima.value    = '';
   nominal.value       = '';
-  btnPrev.disabled    = false;
 
   if (method === 'QR') {
     // Untuk memanggil file image qris
