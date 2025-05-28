@@ -59,6 +59,7 @@ function updateProgressBar(step) {
  */
 function validateStep(step) {
   const msgBox = document.getElementById(`msgBox${step}`);
+  if (!msgBox) return true; // Skip jika msgBox tidak ada
   msgBox.innerHTML = '';
   let isValid = true;
   const errors = [];
