@@ -97,11 +97,60 @@ function validateStep(step) {
 
   return isValid;
 }
-
 /**
  * FUNGSI PEMBAYARAN
  */
 function updatePembayaran() {
+  const method = document.getElementById('pembayaran').value;
+  const qrisImage = document.getElementById('qrisImage');
+  const btnDownloadQR = document.getElementById('btnDownloadQR');
+  const namaPenerima = document.getElementById('namaPenerima');
+  const acPenerima = document.getElementById('acPenerima');
+  const nominal = document.getElementById('nominal');
+
+  // Reset semua field
+  qrisImage.innerHTML = '';
+  btnDownloadQR.style.display = 'none';
+  namaPenerima.value = '';
+  acPenerima.value = '';
+  nominal.value = '';
+
+
+  if (method === 'QR') {
+      namaPenerima.value = 'CLUB KITA';
+      acPenerima.value = '1234567890';
+      // Gunakan URL alternatif yang bisa diakses
+      const qrImageUrl = 'https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg'; 
+      
+      qrisContainer.innerHTML = `
+        <img src="${qrImageUrl}" 
+             alt="QR Code Pembayaran"
+             style="max-width: 200px; margin: 10px auto; display: block; border: 1px solid #ddd;">
+      `;
+      btnDownloadQR.style.display = 'block';
+    
+  } else if (method === 'BCA') {
+    namaPenerima.value = 'HESTY HUSAIN';
+    acPenerima.value = '9876543210';
+  } else if (method === 'Mandiri') {
+    namaPenerima.value = 'HESTY HUSAIN';
+    acPenerima.value = '0123456789';
+  }
+
+  // Update nominal transfer
+  if (method) {
+    const harga = parseInt(document.getElementById('harga').value.replace(/\D/g,'')) || 0;
+    const telp = document.getElementById('telp').value || '';
+    const uniqueDigits = parseInt(telp.slice(-3)) || 0;
+    const total = harga + uniqueDigits;
+    nominal.value = total.toLocaleString('id-ID');
+  }
+}
+
+/**
+ * FUNGSI PEMBAYARAN
+ */
+function BACKUP_updatePembayaran() {
   const method = document.getElementById('pembayaran').value;
   const qrisImage = document.getElementById('qrisImage');
   const btnDownloadQR = document.getElementById('btnDownloadQR');
@@ -147,6 +196,27 @@ function updatePembayaran() {
 }
 
 function downloadQRIS() {
+  // Gunakan URL yang sama dengan yang ditampilkan
+  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg; // Contoh QR Code (ganti dengan URL Anda)
+  
+  // Method 1: Buka di tab baru (lebih reliable)
+  window.open(qrImageUrl, '_blank');
+  
+  // Method 2: Alternatif download
+  const link = document.createElement('a');
+  link.href = qrImageUrl;
+  link.download = 'qris_pembayaran.jpg';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Beri feedback
+  const msgBox = document.getElementById('msgBox3');
+  msgBox.innerHTML = '<div class="alert alert-info">Silakan simpan gambar melalui browser</div>';
+  setTimeout(() => msgBox.innerHTML = '', 3000);
+}
+
+function BACKUP_downloadQRIS() {
   const link = document.createElement('a');
   link.href = 'https://amihaji.github.io/beratideal/images/QRIS_CLUB_KITA.jpeg';
   link.download = 'QRIS_CLUB_KITA.jpeg';
