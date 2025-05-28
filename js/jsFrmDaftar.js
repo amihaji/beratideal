@@ -8,13 +8,13 @@ let currentStep = 1;
 *************************/
 document.addEventListener('DOMContentLoaded', function() {
   // Set tanggal dan nomor pesanan
-  document.getElementById('tanggal').value = new Date().toLocaleDateString('id-ID');
+  document.getElementById('tanggal').value      = new Date().toLocaleDateString('id-ID');
   document.getElementById('nomorPesanan').value = generateNoPesanan();
 
   // Event listener untuk program
   document.getElementById('program').addEventListener('change', function() {
-    const harga = getHargaProgram(this.value);
-    document.getElementById('harga').value = harga.toLocaleString('id-ID');
+  const harga = getHargaProgram(this.value);
+  document.getElementById('harga').value = harga.toLocaleString('id-ID');
   });
 });
 
@@ -70,7 +70,7 @@ function prevStep() {
 * Fungsi untuk update progress bar
 **********************************/
 function updateProgressBar(step) {
-  const percentage = (step/3)*100;
+  const percentage  = (step/3)*100;
   const progressBar = document.getElementById('progressBar');
   progressBar.style.width = `${percentage}%`;
   progressBar.textContent = `Step ${step} dari 3`;
@@ -81,7 +81,7 @@ function updateProgressBar(step) {
 *****************************/
 function validateStep(step) {
   const msgBoxId = `msgBox${step}`;
-  const msgBox = document.getElementById(msgBoxId);
+  const msgBox   = document.getElementById(msgBoxId);
   
   // Jika msgBox tidak ditemukan, buat elemen baru
   if (!msgBox) {
@@ -90,8 +90,8 @@ function validateStep(step) {
   }
 
   msgBox.innerHTML = '';
-  let isValid = true;
-  const errors = [];
+  let isValid      = true;
+  const errors     = [];
 
   // Validasi Step 1
   if (step === 1) {
@@ -145,6 +145,7 @@ function updatePembayaran() {
   namaPenerima.value  = '';
   acPenerima.value    = '';
   nominal.value       = '';
+  btnPrev.disabled    = false;
 
   if (method === 'QR') {
     // Untuk memanggil file image qris
