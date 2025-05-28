@@ -11,15 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('tanggal').value = new Date().toLocaleDateString('id-ID');
   document.getElementById('nomorPesanan').value = generateNoPesanan();
 
-  // Event listener untuk download QRIS (diperbarui)
-  const downloadBtn = document.getElementById('btnDownloadQR');
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      downloadQRIS(e);
-    }, false); // Gunakan capture false
-  }
-
   // Event listener untuk program
   document.getElementById('program').addEventListener('change', function() {
     const harga = getHargaProgram(this.value);
@@ -36,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 });
+
+// Event listener untuk download QRIS (diperbarui)
+const downloadBtn = document.getElementById('btnDownloadQR');
+if (downloadBtn) {
+  downloadBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    downloadQRIS(e);
+  }, false); // Gunakan capture false
+}
 
 /**
  * FUNGSI NAVIGASI FORM
