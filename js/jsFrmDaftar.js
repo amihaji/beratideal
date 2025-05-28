@@ -141,7 +141,6 @@ function updatePembayaran() {
 
   // Reset semua field
   btnDownloadQR.style.display = 'none';
-  btn.disabled        = true;
   qrisImage.innerHTML = '';
   namaPenerima.value  = '';
   acPenerima.value    = '';
