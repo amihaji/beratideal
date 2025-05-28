@@ -197,7 +197,7 @@ function BACKUP_updatePembayaran() {
 
 function downloadQRIS() {
   // Gunakan URL yang sama dengan yang ditampilkan
-  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg; // Contoh QR Code (ganti dengan URL Anda)
+  const qrImageUrl = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'; 
   
   // Method 1: Buka di tab baru (lebih reliable)
   window.open(qrImageUrl, '_blank');
