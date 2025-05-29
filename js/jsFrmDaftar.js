@@ -22,13 +22,25 @@ document.addEventListener('DOMContentLoaded', function() {
 * Event listener untuk submit form
 ***********************************/
 // const form = document.getElementById('formDaftar');//
-const form = document.getElementById('btnSubmit');
+//const form = document.getElementById('formDaftar');
+//if (form) {
+//  form.addEventListener('submit', function(e) {
+//    e.preventDefault();
+//    submitForm();
+//  }, false); // Gunakan capture false
+//}
+
+// const form = document.getElementById('formDaftar');//
+const form = document.getElementById('formDaftar');
 if (form) {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     submitForm();
   }, false); // Gunakan capture false
+} else {
+  console.warn('Element #formDaftar not found');
 }
+
 
 /************************************
 * Event listener untuk download QRIS
