@@ -38,7 +38,8 @@ if (form) {
     submitForm();
   }, false); // Gunakan capture false
 } else {
-  console.warn('Element #formDaftar not found');
+  //console.warn('Element #formDaftar not found');
+  return false;
 }
 
 
