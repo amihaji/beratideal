@@ -146,16 +146,17 @@ function updatePembayaran() {
   acPenerima.value    = '';
   nominal.value       = '';
   
-  // Nonaktifkan tombol Sebelumnya setelah memilih pembayaran
-  const prevBtn = document.querySelector('#step-3 .btn-secondary');
-  if (prevBtn) {
-    prevBtn.disabled = true;
-    prevBtn.classList.add('disabled');
-    prevBtn.style.opacity = '0.6';
-    prevBtn.style.cursor = 'not-allowed';
-  }
-  
+  // Tampilkan data sesuai metode pembayaran 
   if (method === 'QR') {
+    // Nonaktifkan tombol Sebelumnya setelah memilih pembayaran
+    const prevBtn = document.querySelector('#step-3 .btn-secondary');
+    if (prevBtn) {
+      prevBtn.disabled = true;
+      prevBtn.classList.add('disabled');
+      prevBtn.style.opacity = '0.6';
+      prevBtn.style.cursor = 'not-allowed';
+    }
+  
     // Untuk memanggil file image qris
     const img = document.createElement('img');
     img.src            = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
@@ -172,10 +173,29 @@ function updatePembayaran() {
     btnDownloadQR.style.display = 'flex'; // Ubah ke flex untuk centering icon
   
   } else if (method === 'BCA') {
+    // Nonaktifkan tombol Sebelumnya, setelah memilih pembayaran
+    const prevBtn = document.querySelector('#step-3 .btn-secondary');
+    if (prevBtn) {
+      prevBtn.disabled = true;
+      prevBtn.classList.add('disabled');
+      prevBtn.style.opacity = '0.6';
+      prevBtn.style.cursor = 'not-allowed';
+    }
+  
     // Tampilkan data bca
     namaPenerima.value = 'HESTY HUSAIN';
     acPenerima.value   = '9876543210';
+  
   } else if (method === 'Mandiri') {
+    // Nonaktifkan tombol Sebelumnya, setelah memilih pembayaran
+    const prevBtn = document.querySelector('#step-3 .btn-secondary');
+    if (prevBtn) {
+      prevBtn.disabled = true;
+      prevBtn.classList.add('disabled');
+      prevBtn.style.opacity = '0.6';
+      prevBtn.style.cursor = 'not-allowed';
+    }
+  
     // Tampilkan data mandiri
     namaPenerima.value = 'HESTY HUSAIN';
     acPenerima.value   = '0123456789';
