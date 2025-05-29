@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /**********************************
 * Event listener untuk submit form
 ***********************************/
-const form = document.getElementById('formDaftar');
+// const form = document.getElementById('formDaftar');//
+const form = document.getElementById('btnSubmit');
 if (form) {
   form.addEventListener('submit', function(e) {
     e.preventDefault();
