@@ -145,7 +145,16 @@ function updatePembayaran() {
   namaPenerima.value  = '';
   acPenerima.value    = '';
   nominal.value       = '';
-
+  
+  // Nonaktifkan tombol Sebelumnya setelah memilih pembayaran
+  const prevBtn = document.querySelector('#step-3 .btn-secondary');
+  if (prevBtn) {
+    prevBtn.disabled = true;
+    prevBtn.classList.add('disabled');
+    prevBtn.style.opacity = '0.6';
+    prevBtn.style.cursor = 'not-allowed';
+  }
+  
   if (method === 'QR') {
     // Untuk memanggil file image qris
     const img = document.createElement('img');

@@ -126,21 +126,7 @@
   width: 200px;
 }
 
-/* Tampilkan dalam mode handphone */
-/*
-@media (min-width: 768px) {
-  #step-3 .row {
-    flex-direction: row;
-    gap: 10px;
-  }
-  
-  #step-3 .col-12 {
-    flex: 1;
-  }
-}
-*/
-
-/* Untuk desktop */
+/* Untuk handphone */
 @media (min-width: 768px) {
   #step-3 .row {
     flex-direction: row;
@@ -163,12 +149,15 @@
   100% { transform: scale(1); }
 }
 
+/* Tombol submit ketika berhasil */
 .btn-success {
   animation: pulse 0.5s ease;
 }
 
-.btn:disabled {
-  opacity: 0.7;
+/* Tombol disabled */
+.btn.disabled {
+  pointer-events: none;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
