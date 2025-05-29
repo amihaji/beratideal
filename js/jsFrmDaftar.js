@@ -230,8 +230,9 @@ function downloadQRIS(e) {
     
     // Beri feedback visual
     const btn     = document.getElementById('btnDownloadQR');
-    btn.innerHTML = '<i class="fas fa-check"></i> Terdownload';
-    btn.style.backgroundColor = '#28a745';
+    btn.innerHTML             = '<i class="fas fa-check"></i> Terdownload';
+    btn.style.backgroundColor = '#28a745';   // Tombol berubah Warna hijau
+    btn.style.color           = '#fff';      // Warna teks putih
     setTimeout(() => {
       btn.innerHTML = '<i class="fas fa-download"></i> Download QRIS';
       btn.style.backgroundColor = '';
