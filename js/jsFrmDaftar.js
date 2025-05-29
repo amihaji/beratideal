@@ -39,7 +39,7 @@ if (form) {
   }, false); // Gunakan capture false
 } else {
   //console.warn('Element #formDaftar not found');
-  return false;
+  return true;
 }
 
 
