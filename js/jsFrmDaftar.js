@@ -468,7 +468,7 @@ async function submitForm() {
     };
 
     // Kirim semua data sekaligus termasuk status
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzyORJpSca4Wer9nGYhkPkkwSVL2taFWkeJK0wolc6jN6R3jfa_K1fh9jn12aT7tkFU/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -498,7 +498,7 @@ async function submitForm() {
 }
 
 async function saveToGoogleSheets(data) {
-  return fetch('https://script.google.com/macros/s/AKfycbzyORJpSca4Wer9nGYhkPkkwSVL2taFWkeJK0wolc6jN6R3jfa_K1fh9jn12aT7tkFU/exec', {
+  return fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     body: new URLSearchParams({...data, action: 'saveData'})
@@ -506,7 +506,7 @@ async function saveToGoogleSheets(data) {
 }
 
 async function updateStatus(rowId, waStatus, emailStatus) {
-  return fetch('https://script.google.com/macros/s/AKfycbzyORJpSca4Wer9nGYhkPkkwSVL2taFWkeJK0wolc6jN6R3jfa_K1fh9jn12aT7tkFU/exec', {
+  return fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     body: new URLSearchParams({
