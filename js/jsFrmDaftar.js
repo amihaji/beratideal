@@ -506,7 +506,7 @@ async function submitForm() {
 * Fungsi untuk menyimpan data ke Google Sheets
 ***********************************************/
 async function saveToGoogleSheets(formData) {
-  return await fetch('https://script.google.com/macros/s/AKfycbzjL6T4pLCCV_cc8QxnyikE8yFfiLwGaXFL6ZvgQI8_1_N95NaXH-bSbfY1fSSORvBD/exec', {
+  return await fetch('https://script.google.com/macros/s/AKfycbyNB9SxVL_epITlVHJRN52pu4zDgPhq_pEqI3DpBM8U68qQ8MpGO8A6Op4nd13DA764/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -605,7 +605,7 @@ async function kirimEmail(email, nama) {
 ****************************************************/
 async function updateStatus(noPesanan, waStatus, emailStatus) {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzjL6T4pLCCV_cc8QxnyikE8yFfiLwGaXFL6ZvgQI8_1_N95NaXH-bSbfY1fSSORvBD/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyNB9SxVL_epITlVHJRN52pu4zDgPhq_pEqI3DpBM8U68qQ8MpGO8A6Op4nd13DA764/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
