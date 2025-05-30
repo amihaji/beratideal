@@ -258,22 +258,10 @@ function getHargaProgram(program) {
   return prices[program] || 0;
 }
 
-/**********************************
-* Fungsi untuk generate No Pesanan
-**********************************/
-function generateNoPesanan() {
-  const now    = new Date();
-  const dd     = String(now.getDate()).padStart(2, '0');
-  const mm     = String(now.getMonth() + 1).padStart(2, '0');
-  const yy     = String(now.getFullYear()).slice(-2);
-  const random = Math.floor(Math.random() * 900) + 100;
-  return `PS${dd}${mm}${yy}-${random}`;
-}
-
 /***********************************************
 * Fungsi Untuk mengsubmit data dari form inputan
 /**********************************************/
-async function BACKUP_submitForm() {
+async function submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
   
@@ -306,7 +294,7 @@ async function BACKUP_submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
     // Kirim data ke Google Sheets
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzjL6T4pLCCV_cc8QxnyikE8yFfiLwGaXFL6ZvgQI8_1_N95NaXH-bSbfY1fSSORvBD/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzRMhJ8DQMPKhzKer_jQD_VBzdQfevVQj0PFa_zSr08lXB9-hqg3yiGvDuIshquFlpv/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -317,6 +305,8 @@ async function BACKUP_submitForm() {
     if (!response.ok) throw new Error('Jaringan lagi gangguan');
     
     // Tampilkan pesan sukses
+    kirimEmail(formData.email, formData.nama);
+    kirimWA(formData.telp, formData.nama);
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
@@ -334,10 +324,22 @@ async function BACKUP_submitForm() {
   return false; // Mencegah form submit default
 }
 
+/**********************************
+* Fungsi untuk generate No Pesanan
+**********************************/
+function generateNoPesanan() {
+  const now    = new Date();
+  const dd     = String(now.getDate()).padStart(2, '0');
+  const mm     = String(now.getMonth() + 1).padStart(2, '0');
+  const yy     = String(now.getFullYear()).slice(-2);
+  const random = Math.floor(Math.random() * 900) + 100;
+  return `PS${dd}${mm}${yy}-${random}`;
+}
+
 /********************************
 * Untuk kirim konfirmasi ke Email
 *********************************/
-function BACKUP_kirimEmail(email, nama) {
+function kirimEmail(email, nama) {
   try {
     const mTgl      = new Date();
     const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -375,7 +377,7 @@ function BACKUP_kirimEmail(email, nama) {
 /******************************
 * Untuk kirim konfirmasi ke WA
 *******************************/
-function BACKUP_kirimWA(nomorHP, nama) {
+function kirimWA(nomorHP, nama) {
   const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
   const url         = "https://api.fonnte.com/send";
 
@@ -433,173 +435,5 @@ function BACKUP_kirimWA(nomorHP, nama) {
   // Kirim ke konsumen dan sponsor
   UrlFetchApp.fetch(url, options_konsumen);
   UrlFetchApp.fetch(url, options_member);
-}
-
-// ***** REVISI ******
-/***********************************************
-* Fungsi Untuk mengsubmit data dari form inputan
-**********************************************/
-async function submitForm() {
-  const submitBtn = document.getElementById('btnSubmit');
-  const msgBox3 = document.getElementById('msgBox3');
-  
-  try {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-
-    // Format data dengan benar
-    const payload = {
-      tanggal: document.getElementById('tanggal').value,
-      noPesanan: document.getElementById('nomorPesanan').value,
-      program: document.getElementById('program').value,
-      harga: document.getElementById('harga').value.replace(/\D/g, '') || '0',
-      nama: document.getElementById('nama').value,
-      alamat: document.getElementById('alamat').value,
-      telp: document.getElementById('telp').value,
-      email: document.getElementById('email').value,
-      kelurahan: document.getElementById('kelurahan').value,
-      kecamatan: document.getElementById('kecamatan').value,
-      kota: document.getElementById('kota').value,
-      propinsi: document.getElementById('propinsi').value,
-      pembayaran: document.getElementById('pembayaran').value,
-      namaPenerima: document.getElementById('namaPenerima').value,
-      acPenerima: document.getElementById('acPenerima').value,
-      nominal: document.getElementById('nominal').value.replace(/\D/g, '') || '0'
-    };
-
-    // Kirim semua data sekaligus termasuk status
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'completeSubmission',
-        data: payload
-      })
-    });
-
-    const result = await response.json();
-    if (!result.success) throw new Error(result.message || 'Gagal menyimpan data');
-
-    // Tampilkan hasil
-    submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-    msgBox3.innerHTML = '<div class="msg-success">Data berhasil dikirim!</div>';
-
-    setTimeout(() => window.location.replace('index.html'), 3000);
-
-  } catch (error) {
-    console.error('Error:', error);
-    msgBox3.innerHTML = `<div class="msg-error">${error.message}</div>`;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
-    submitBtn.disabled = false;
-  }
-  return false;
-}
-
-async function saveToGoogleSheets(data) {
-  return fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: new URLSearchParams({...data, action: 'saveData'})
-  });
-}
-
-async function updateStatus(rowId, waStatus, emailStatus) {
-  return fetch('https://script.google.com/macros/s/AKfycbxgPwZp0ZhUezPXkNjJEytAahJGUqkYvTIbgfrECFKRZD_ONjhh5lfl7Pl7xmNqLydj/exec', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: new URLSearchParams({
-      action: 'updateStatus',
-      rowId: rowId,
-      waStatus: waStatus,
-      emailStatus: emailStatus
-    })
-  });
-}
-
-/**************************
-* Fungsi untuk mengirim WA
-***************************/
-async function kirimWA(nomorHP, nama) {
-  try {
-    const noWa = '62' + nomorHP.replace(/^0/, '');
-    const tglDaftar = new Date().toLocaleDateString('id-ID', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    });
-    
-    const pesan = `*KONFIRMASI PENDAFTARAN*\n` +
-      `---------------------------------------------\n` +
-      `Tgl Daftar : ${tglDaftar}\n` +
-      `Terima kasih kak ${nama}\n` +
-      `Telah mendaftar sebagai peserta Fat Loss Challange beratidealku.com\n` +
-      `Silahkan konfirmasi pembayaran di link berikut:\n` +
-      `${window.location.origin}/formBayar.html?nama=${encodeURIComponent(nama)}\n\n` +
-      `Untuk info lebih lanjut silahkan menghubungi:\n` +
-      `Member Independen\n` + 
-      `Hesty Husain\n` + 
-      `Contact WA: 081241318600\n\n` +
-      `Terima kasih 🙏\n` +
-      `---------------------------------------------\n` +
-      `*Copyright by :*\nwww.beratidealku.com\n\n` +
-      `*Map Klub Nutrisi :*\nbit.ly/LokasiKlubKita\n\n` +
-      `*Disclaimer*: Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis`;
-
-    // Simulasikan pengiriman WA (ganti dengan API asli)
-    console.log('Mengirim WA ke:', noWa);
-    console.log('Pesan:', pesan);
-    
-    // Untuk testing, kita anggap selalu berhasil
-    return 'OK';
-    
-  } catch (error) {
-    console.error('Gagal mengirim WA:', error);
-    return 'NOT';
-  }
-}
-
-/*****************************
-* Fungsi untuk mengirim Email
-*****************************/
-async function kirimEmail(email, nama) {
-  try {
-    const tglDaftar = new Date().toLocaleDateString('id-ID', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    });
-    
-    const subject = `Konfirmasi Pendaftaran Fat Loss Challenge - ${nama}`;
-    const body = `
-      <p><strong>KONFIRMASI PENDAFTARAN FAT LOSS CHALLENGE</strong></p>
-      <p>Tgl Daftar: ${tglDaftar}</p>
-      <p>Terima kasih kak <strong>${nama},</strong><br>
-      Telah mendaftar sebagai peserta Fat Loss Challange beratidealku.com</p>
-      <p>Silahkan konfirmasi pembayaran di link ini: 
-      <a href="${window.location.origin}/formBayar.html?nama=${encodeURIComponent(nama)}">Klik ini untuk konfirmasi!</a></p>
-      <p>Untuk info lebih lanjut silahkan menghubungi:<br>
-      <br>Member Independen
-      <br>Hesty Husain
-      <br>Contact WA: 081241318600
-      <br>Terima kasih</p>
-      <p>Copyright by : <a href="www.beratidealku.com">www.beratidealku.com</a></p>
-      <p>Lokasi Map NC <a href="bit.ly/LokasiKlubKita">klubKITA</a></p>
-      <p><strong>Disclaimer:</strong> Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis</p>
-    `;
-
-    // Simulasikan pengiriman Email (ganti dengan API asli)
-    console.log('Mengirim Email ke:', email);
-    console.log('Subject:', subject);
-    console.log('Body:', body);
-    
-    // Untuk testing, kita anggap selalu berhasil
-    return 'OK';
-    
-  } catch (error) {
-    console.error('Gagal mengirim Email:', error);
-    return 'NOT';
-  }
 }
 
