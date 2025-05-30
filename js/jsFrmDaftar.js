@@ -294,7 +294,7 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
     // Kirim data ke Google Sheets
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzRMhJ8DQMPKhzKer_jQD_VBzdQfevVQj0PFa_zSr08lXB9-hqg3yiGvDuIshquFlpv/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwSP_AAH6JQQeOsYq2-04fsGAgnl_lrv9iLOSQlOwn3DuHwXhYiiB3xkEyMHcgpA8Rq/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -346,7 +346,7 @@ function generateNoPesanan() {
 /********************************
 * Untuk kirim konfirmasi ke Email
 *********************************/
-function kirimEmail(email, nama) {
+function BACKUP_kirimEmail(email, nama) {
   try {
     const mTgl      = new Date();
     const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -385,7 +385,7 @@ function kirimEmail(email, nama) {
 /******************************
 * Untuk kirim konfirmasi ke WA
 *******************************/
-function kirimWA(nomorHP, nama) {
+function BACKUP_kirimWA(nomorHP, nama) {
   const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
   const url         = "https://api.fonnte.com/send";
 
