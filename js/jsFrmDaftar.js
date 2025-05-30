@@ -463,7 +463,8 @@ async function submitForm() {
     pembayaran: document.getElementById('pembayaran').value,
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima: document.getElementById('acPenerima').value,
-    nominal: document.getElementById('nominal').value.replace(/\D/g,'')
+    nominal: document.getElementById('nominal').value.replace(/\D/g,''),
+    action: 'submitForm' // Tambahkan action untuk membedakan request
   };
 
   try {
@@ -471,10 +472,12 @@ async function submitForm() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    // 1. Kirim data ke Google Sheets
+    // 1. Kirim data ke Google Sheets dan dapatkan ID baris
     const saveResponse = await saveToGoogleSheets(formData);
-    if (!saveResponse.ok) throw new Error('Gagal menyimpan data');
-
+    const result = await saveResponse.json();
+    
+    if (!result.success) throw new Error(result.error || 'Gagal menyimpan data');
+    
     // 2. Kirim WA dan Email
     const [waStatus, emailStatus] = await Promise.all([
       kirimWA(formData.telp, formData.nama),
@@ -482,7 +485,7 @@ async function submitForm() {
     ]);
 
     // 3. Update status WA dan Email di Google Sheets
-    await updateStatus(formData.noPesanan, waStatus, emailStatus);
+    await updateStatus(result.rowNumber, waStatus, emailStatus);
 
     // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
@@ -502,17 +505,43 @@ async function submitForm() {
   return false;
 }
 
-/**********************************************
+/****************************************************
 * Fungsi untuk menyimpan data ke Google Sheets
-***********************************************/
+****************************************************/
 async function saveToGoogleSheets(formData) {
-  return await fetch('https://script.google.com/macros/s/AKfycbyNB9SxVL_epITlVHJRN52pu4zDgPhq_pEqI3DpBM8U68qQ8MpGO8A6Op4nd13DA764/exec', {
+  return await fetch('https://script.google.com/macros/s/AKfycbzaOrbYyk87_v6t4bnj_ovwWyDS3Q4SzoF7j2lguuFLDHdoB9FZYo_DSQiLKD7ipcb2/exec', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams(formData)
   });
+}
+
+/****************************************************
+* Fungsi untuk update status di Google Sheets
+****************************************************/
+async function updateStatus(rowNumber, waStatus, emailStatus) {
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzaOrbYyk87_v6t4bnj_ovwWyDS3Q4SzoF7j2lguuFLDHdoB9FZYo_DSQiLKD7ipcb2/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'updateStatus',
+        rowNumber: rowNumber,
+        waStatus: waStatus,
+        emailStatus: emailStatus
+      })
+    });
+
+    if (!response.ok) throw new Error('Gagal update status');
+    return true;
+  } catch (error) {
+    console.error('Error update status:', error);
+    return false;
+  }
 }
 
 /**************************
@@ -600,28 +629,3 @@ async function kirimEmail(email, nama) {
   }
 }
 
-/****************************************************
-* Fungsi untuk update status di Google Sheets
-****************************************************/
-async function updateStatus(noPesanan, waStatus, emailStatus) {
-  try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbyNB9SxVL_epITlVHJRN52pu4zDgPhq_pEqI3DpBM8U68qQ8MpGO8A6Op4nd13DA764/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        action: 'updateStatus',
-        noPesanan: noPesanan,
-        waStatus: waStatus,
-        emailStatus: emailStatus
-      })
-    });
-
-    if (!response.ok) throw new Error('Gagal update status');
-    return true;
-  } catch (error) {
-    console.error('Error update status:', error);
-    return false;
-  }
-}
