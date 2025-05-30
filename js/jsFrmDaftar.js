@@ -301,8 +301,8 @@ async function submitForm() {
       },
       body: new URLSearchParams(formData)
     });
-    kirimEmail(formData.email, formData.nama);
-    kirimWA(formData.telp, formData.nama);
+    //kirimEmail(formData.email, formData.nama);
+    //kirimWA(formData.telp, formData.nama);
 
     if (!response.ok) throw new Error('Jaringan lagi gangguan');
     
@@ -321,8 +321,6 @@ async function submitForm() {
       document.getElementById('nomorPesanan').value = generateNoPesanan();
       window.location.href = 'index.html';
     }, 3000);
-
-
 
   } catch (error) {
     console.error('Error:', error);
