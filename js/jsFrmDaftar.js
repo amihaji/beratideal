@@ -436,6 +436,7 @@ function BACKUP_kirimWA(nomorHP, nama) {
 }
 
 // ***** REVISI ******
+// https://script.google.com/macros/s/AKfycbzgmE5jCwxwK193x14v4ptXIyJKb46Y1E4mYFP8-JVIFR6IS9O6kogdd8oo12z3zUS4/exec
 /***********************************************
 * Fungsi Untuk mengsubmit data dari form inputan
 **********************************************/
@@ -443,18 +444,17 @@ async function submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3 = document.getElementById('msgBox3') || document.createElement('div');
   
-  // Validasi akhir
   if (!validateStep(3)) return false;
 
-  // Kumpulkan dan format data inputan
+  // Format data dengan benar
   const formData = {
     tglDaftar: document.getElementById('tanggal').value,
     noPesanan: document.getElementById('nomorPesanan').value,
     program: document.getElementById('program').value,
-    harga: document.getElementById('harga').value.replace(/\D/g,'') || '0',
+    harga: document.getElementById('harga').value.replace(/[^\d]/g, '') || '0',
     nama: document.getElementById('nama').value,
     alamat: document.getElementById('alamat').value,
-    telp: document.getElementById('telp').value,
+    telp: document.getElementById('telp').value.replace(/[^\d]/g, ''),
     email: document.getElementById('email').value,
     kelurahan: document.getElementById('kelurahan').value,
     kecamatan: document.getElementById('kecamatan').value,
@@ -463,85 +463,61 @@ async function submitForm() {
     pembayaran: document.getElementById('pembayaran').value,
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima: document.getElementById('acPenerima').value,
-    nominal: document.getElementById('nominal').value.replace(/\D/g,'') || '0',
-    action: 'completeSubmit' // Gunakan action khusus
+    nominal: document.getElementById('nominal').value.replace(/[^\d]/g, '') || '0'
   };
 
   try {
-    // Tampilkan loading
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    // Kirim semua data sekaligus termasuk status WA/Email
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzgmE5jCwxwK193x14v4ptXIyJKb46Y1E4mYFP8-JVIFR6IS9O6kogdd8oo12z3zUS4/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        ...formData,
-        waStatus: 'PENDING', // Status awal
-        emailStatus: 'PENDING' // Status awal
-      })
-    });
+    // 1. Simpan data utama
+    const saveResponse = await saveToGoogleSheets(formData);
+    const result = await saveResponse.json();
+    
+    if (!result.success) throw new Error(result.message || 'Gagal menyimpan data');
 
-    const result = await response.json();
-    if (!result.success) throw new Error(result.error || 'Gagal menyimpan data');
-
-    // Jika penyimpanan berhasil, kirim WA dan Email
-    const [waResult, emailResult] = await Promise.allSettled([
-      kirimWA(formData.telp, formData.nama),
-      kirimEmail(formData.email, formData.nama)
+    // 2. Kirim notifikasi
+    const [waStatus, emailStatus] = await Promise.all([
+      sendNotification('wa', formData.telp, formData.nama),
+      sendNotification('email', formData.email, formData.nama)
     ]);
 
-    // Update status berdasarkan hasil pengiriman
-    const waStatus = waResult.status === 'fulfilled' ? waResult.value : 'NOT';
-    const emailStatus = emailResult.status === 'fulfilled' ? emailResult.value : 'NOT';
+    // 3. Update status
+    await updateStatus(result.rowId, waStatus, emailStatus);
 
-    await updateStatus(formData.noPesanan, waStatus, emailStatus);
-
-    // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML = '<div class="msg-success">Data berhasil dikirim!</div>';
 
-    // Redirect setelah 3 detik
-    setTimeout(() => {
-      window.location.replace('index.html'); 
-    }, 3000);
+    setTimeout(() => window.location.replace('index.html'), 3000);
 
   } catch (error) {
     console.error('Error:', error);
-    msgBox3.innerHTML = `<div class="msg-error">Gagal mengirim: ${error.message}</div>`;
+    msgBox3.innerHTML = `<div class="msg-error">${error.message}</div>`;
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     submitBtn.disabled = false;
   }
   return false;
 }
 
-/****************************************************
-* Fungsi untuk update status di Google Sheets
-****************************************************/
-async function updateStatus(noPesanan, waStatus, emailStatus) {
-  try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzgmE5jCwxwK193x14v4ptXIyJKb46Y1E4mYFP8-JVIFR6IS9O6kogdd8oo12z3zUS4/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        action: 'updateStatus',
-        noPesanan: noPesanan,
-        waStatus: waStatus,
-        emailStatus: emailStatus
-      })
-    });
+async function saveToGoogleSheets(data) {
+  return fetch('https://script.google.com/macros/s/AKfycbx3H6ChDd5GrWnMbcOP8xiB8WsU-QB5ziwWlcuFwP92lMbhaWXpM-AONxz5NGv9X9IN/exec', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({...data, action: 'saveData'})
+  });
+}
 
-    if (!response.ok) throw new Error('Gagal update status');
-    return true;
-  } catch (error) {
-    console.error('Error update status:', error);
-    return false;
-  }
+async function updateStatus(rowId, waStatus, emailStatus) {
+  return fetch('https://script.google.com/macros/s/AKfycbx3H6ChDd5GrWnMbcOP8xiB8WsU-QB5ziwWlcuFwP92lMbhaWXpM-AONxz5NGv9X9IN/exec', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({
+      action: 'updateStatus',
+      rowId: rowId,
+      waStatus: waStatus,
+      emailStatus: emailStatus
+    })
+  });
 }
 
 /**************************
