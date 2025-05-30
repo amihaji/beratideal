@@ -258,10 +258,22 @@ function getHargaProgram(program) {
   return prices[program] || 0;
 }
 
+/**********************************
+* Fungsi untuk generate No Pesanan
+**********************************/
+function generateNoPesanan() {
+  const now    = new Date();
+  const dd     = String(now.getDate()).padStart(2, '0');
+  const mm     = String(now.getMonth() + 1).padStart(2, '0');
+  const yy     = String(now.getFullYear()).slice(-2);
+  const random = Math.floor(Math.random() * 900) + 100;
+  return `PS${dd}${mm}${yy}-${random}`;
+}
+
 /***********************************************
 * Fungsi Untuk mengsubmit data dari form inputan
 /**********************************************/
-async function submitForm() {
+async function BACKUP_submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
   
@@ -322,22 +334,10 @@ async function submitForm() {
   return false; // Mencegah form submit default
 }
 
-/**********************************
-* Fungsi untuk generate No Pesanan
-**********************************/
-function generateNoPesanan() {
-  const now    = new Date();
-  const dd     = String(now.getDate()).padStart(2, '0');
-  const mm     = String(now.getMonth() + 1).padStart(2, '0');
-  const yy     = String(now.getFullYear()).slice(-2);
-  const random = Math.floor(Math.random() * 900) + 100;
-  return `PS${dd}${mm}${yy}-${random}`;
-}
-
 /********************************
 * Untuk kirim konfirmasi ke Email
 *********************************/
-function kirimEmail(email, nama, fileUrl) {
+function BACKUP_kirimEmail(email, nama) {
   try {
     const mTgl      = new Date();
     const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -375,7 +375,7 @@ function kirimEmail(email, nama, fileUrl) {
 /******************************
 * Untuk kirim konfirmasi ke WA
 *******************************/
-function kirimWA(nomorHP, nama, fileUrl) {
+function BACKUP_kirimWA(nomorHP, nama) {
   const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
   const url         = "https://api.fonnte.com/send";
 
@@ -433,4 +433,203 @@ function kirimWA(nomorHP, nama, fileUrl) {
   // Kirim ke konsumen dan sponsor
   UrlFetchApp.fetch(url, options_konsumen);
   UrlFetchApp.fetch(url, options_member);
+}
+
+/***********************************************
+* Fungsi Untuk mengsubmit data dari form inputan
+**********************************************/
+async function submitForm() {
+  const submitBtn = document.getElementById('btnSubmit');
+  const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
+  
+  // Validasi akhir
+  if (!validateStep(3)) return false;
+
+  // Kumpulkan data inputan
+  const formData = {
+    tglDaftar:    document.getElementById('tanggal').value,
+    noPesanan:    document.getElementById('nomorPesanan').value,
+    program:      document.getElementById('program').value,
+    harga:        document.getElementById('harga').value.replace(/\D/g,''),
+    nama:         document.getElementById('nama').value,
+    alamat:       document.getElementById('alamat').value,
+    telp:         document.getElementById('telp').value,
+    email:        document.getElementById('email').value,
+    kelurahan:    document.getElementById('kelurahan').value,
+    kecamatan:    document.getElementById('kecamatan').value,
+    kota:         document.getElementById('kota').value,
+    propinsi:     document.getElementById('propinsi').value,
+    pembayaran:   document.getElementById('pembayaran').value,
+    namaPenerima: document.getElementById('namaPenerima').value,
+    acPenerima:   document.getElementById('acPenerima').value,
+    nominal:      document.getElementById('nominal').value.replace(/\D/g,'')
+  };
+
+  try {
+    // Tampilkan loading
+    submitBtn.disabled  = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+    // Kirim data ke Google Sheets
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzatI7ZLnKMXfn6ZmKZVK2LYArL7f3H2r7y2j5fQXRJ2Z2HRbfJfq-WMHAOlepidsuV/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(formData)
+    });
+
+    if (!response.ok) throw new Error('Jaringan lagi gangguan');
+    
+    // Kirim WA dan Email setelah data tersimpan
+    const waStatus = await kirimWA(formData.telp, formData.nama);
+    const emailStatus = await kirimEmail(formData.email, formData.nama);
+    
+    // Update status WA dan Email di Google Sheets
+    await updateStatus(formData.noPesanan, waStatus, emailStatus);
+
+    // Tampilkan pesan sukses
+    submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+    msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
+
+    // Redirect setelah 3 detik ke halaman utama
+    setTimeout(() => {
+      window.location.replace('index.html'); 
+    }, 3000);
+
+  } catch (error) {
+    console.error('Error:', error);
+    msgBox3.innerHTML   = `<div class="msg-error">Gagal mengirim: ${error.message}</div>`;
+    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+    submitBtn.disabled  = false;
+  }
+  return false; // Mencegah form submit default
+}
+
+/****************************************************
+* FUNGSI UNTUK MENGIRIM WA KONFIRMASI PEMBAYARAN
+****************************************************/
+async function kirimWA(nomorHP, nama) {
+  try {
+    const mTgl = new Date();
+    const tglDaftar = mTgl.toLocaleDateString('id-ID', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    
+    const noWa = '62' + nomorHP.replace(/^0/, ''); // Format nomor WA
+    const pesan = 
+      '*KONFIRMASI PENDAFTARAN*\n' +
+      '---------------------------------------------\n' +
+      'Tgl Daftar : ' + tglDaftar + '\n' +
+      'Terima kasih kak ' + nama + '\n' +
+      'Telah mendaftar sebagai peserta Fat Loss Challange beratidealku.com\n' +
+      'Silahkan konfirmasi pembayaran di link berikut:\n' +
+      window.location.origin + '/formBayar.html?nama=' + encodeURIComponent(nama) + '\n\n' +
+      'Untuk info lebih lanjut silahkan menghubungi:\n' +
+      'Member Independen\n' + 
+      'Hesty Husain\n' + 
+      'Contact WA: 081241318600\n\n' +
+      'Terima kasih 🙏\n' +
+      '---------------------------------------------\n' +
+      '*Copyright by :*\nwww.beratidealku.com\n\n' +
+      '*Map Klub Nutrisi :*\nbit.ly/LokasiKlubKita\n\n' +
+      '*Disclaimer*: Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis';
+
+    // Ganti dengan API WA gateway Anda
+    const response = await fetch('https://api.fonnte.com/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Ekjb4bsxt4W6BcXHr4vE',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        target: noWa,
+        message: pesan
+      })
+    });
+
+    if (!response.ok) throw new Error('Gagal mengirim WA');
+    return 'OK';
+  } catch (error) {
+    console.error('Error kirim WA:', error);
+    return 'NOT';
+  }
+}
+
+/****************************************************
+* FUNGSI UNTUK MENGIRIM EMAIL KONFIRMASI PEMBAYARAN
+****************************************************/
+async function kirimEmail(email, nama) {
+  try {
+    const mTgl = new Date();
+    const tglDaftar = mTgl.toLocaleDateString('id-ID', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    
+    const subject = `Konfirmasi Pendaftaran Fat Loss Challenge - ${nama}`;
+    const body = `
+      <p><strong>KONFIRMASI PENDAFTARAN FAT LOSS CHALLENGE</strong></p>
+      <p>Tgl Daftar: ${tglDaftar}</p>
+      <p>Terima kasih kak <strong>${nama},</strong><br>
+      Telah mendaftar sebagai peserta Fat Loss Challange beratidealku.com</p>
+      <p>Silahkan konfirmasi pembayaran di link ini: 
+      <a href="${window.location.origin}/formBayar.html?nama=${encodeURIComponent(nama)}">Klik ini untuk konfirmasi!</a></p>
+      <p>Untuk info lebih lanjut silahkan menghubungi:<br>
+      <br>Member Independen
+      <br>Hesty Husain
+      <br>Contact WA: 081241318600
+      <br>Terima kasih</p>
+      <p>Copyright by : <a href="www.beratidealku.com">www.beratidealku.com</a></p>
+      <p>Lokasi Map NC <a href="bit.ly/LokasiKlubKita">klubKITA</a></p>
+      <p><strong>Disclaimer:</strong> Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis</p>
+    `;
+
+    // Ganti dengan API Email service Anda
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzatI7ZLnKMXfn6ZmKZVK2LYArL7f3H2r7y2j5fQXRJ2Z2HRbfJfq-WMHAOlepidsuV/exec?action=sendEmail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: email,
+        subject: subject,
+        htmlBody: body
+      })
+    });
+
+    if (!response.ok) throw new Error('Gagal mengirim email');
+    return 'OK';
+  } catch (error) {
+    console.error('Error kirim email:', error);
+    return 'NOT';
+  }
+}
+
+/****************************************************
+* FUNGSI UNTUK UPDATE STATUS WA DAN EMAIL DI SHEET
+****************************************************/
+async function updateStatus(noPesanan, waStatus, emailStatus) {
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzatI7ZLnKMXfn6ZmKZVK2LYArL7f3H2r7y2j5fQXRJ2Z2HRbfJfq-WMHAOlepidsuV/exec?action=updateStatus', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        noPesanan: noPesanan,
+        waStatus: waStatus,
+        emailStatus: emailStatus
+      })
+    });
+
+    if (!response.ok) throw new Error('Gagal update status');
+    return true;
+  } catch (error) {
+    console.error('Error update status:', error);
+    return false;
+  }
 }
