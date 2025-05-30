@@ -311,9 +311,18 @@ async function submitForm() {
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
     // Redirect setelah 3 dan kembali halaman utama
+    //setTimeout(() => {
+    //  window.location.replace('index.html'); 
+    //}, 3000);
+    
+    // Reset form dan kembali halaman utama
     setTimeout(() => {
-      window.location.replace('index.html'); 
+      document.getElementById('formDaftar').reset();
+      document.getElementById('nomorPesanan').value = generateNoPesanan();
+      window.location.href = 'index.html';
     }, 3000);
+
+
 
   } catch (error) {
     console.error('Error:', error);
