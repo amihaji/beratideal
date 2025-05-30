@@ -372,6 +372,7 @@ function kirimEmail(email, nama) {
     Logger.log("Gagal kirimEmail: " + error);
     throw new Error("Gagal mengirim email: " + error.message);
   }
+  return false; // Mencegah form submit default
 }
 
 /******************************
@@ -435,5 +436,6 @@ function kirimWA(nomorHP, nama) {
   // Kirim ke konsumen dan sponsor
   UrlFetchApp.fetch(url, options_konsumen);
   UrlFetchApp.fetch(url, options_member);
+return false; // Mencegah form submit default
 }
 
