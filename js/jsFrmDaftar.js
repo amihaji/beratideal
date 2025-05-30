@@ -301,12 +301,12 @@ async function submitForm() {
       },
       body: new URLSearchParams(formData)
     });
+    kirimEmail(formData.email, formData.nama);
+    kirimWA(formData.telp, formData.nama);
 
     if (!response.ok) throw new Error('Jaringan lagi gangguan');
     
     // Tampilkan pesan sukses
-    kirimEmail(formData.email, formData.nama);
-    kirimWA(formData.telp, formData.nama);
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
