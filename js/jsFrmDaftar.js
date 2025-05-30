@@ -346,7 +346,7 @@ function generateNoPesanan() {
 /********************************
 * Untuk kirim konfirmasi ke Email
 *********************************/
-function BACKUP_kirimEmail(email, nama) {
+function kirimEmail(email, nama) {
   try {
     const mTgl      = new Date();
     const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -385,7 +385,7 @@ function BACKUP_kirimEmail(email, nama) {
 /******************************
 * Untuk kirim konfirmasi ke WA
 *******************************/
-function BACKUP_kirimWA(nomorHP, nama) {
+function kirimWA(nomorHP, nama) {
   const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
   const url         = "https://api.fonnte.com/send";
 
