@@ -446,12 +446,12 @@ async function submitForm() {
   // Validasi akhir
   if (!validateStep(3)) return false;
 
-  // Kumpulkan data inputan
+  // Kumpulkan dan format data inputan
   const formData = {
     tglDaftar: document.getElementById('tanggal').value,
     noPesanan: document.getElementById('nomorPesanan').value,
     program: document.getElementById('program').value,
-    harga: document.getElementById('harga').value.replace(/\D/g,''),
+    harga: document.getElementById('harga').value.replace(/\D/g,'') || '0',
     nama: document.getElementById('nama').value,
     alamat: document.getElementById('alamat').value,
     telp: document.getElementById('telp').value,
@@ -463,8 +463,8 @@ async function submitForm() {
     pembayaran: document.getElementById('pembayaran').value,
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima: document.getElementById('acPenerima').value,
-    nominal: document.getElementById('nominal').value.replace(/\D/g,''),
-    action: 'submitForm' // Tambahkan action untuk membedakan request
+    nominal: document.getElementById('nominal').value.replace(/\D/g,'') || '0',
+    action: 'completeSubmit' // Gunakan action khusus
   };
 
   try {
@@ -472,20 +472,33 @@ async function submitForm() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    // 1. Kirim data ke Google Sheets dan dapatkan ID baris
-    const saveResponse = await saveToGoogleSheets(formData);
-    const result = await saveResponse.json();
-    
+    // Kirim semua data sekaligus termasuk status WA/Email
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzgmE5jCwxwK193x14v4ptXIyJKb46Y1E4mYFP8-JVIFR6IS9O6kogdd8oo12z3zUS4/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        ...formData,
+        waStatus: 'PENDING', // Status awal
+        emailStatus: 'PENDING' // Status awal
+      })
+    });
+
+    const result = await response.json();
     if (!result.success) throw new Error(result.error || 'Gagal menyimpan data');
-    
-    // 2. Kirim WA dan Email
-    const [waStatus, emailStatus] = await Promise.all([
+
+    // Jika penyimpanan berhasil, kirim WA dan Email
+    const [waResult, emailResult] = await Promise.allSettled([
       kirimWA(formData.telp, formData.nama),
       kirimEmail(formData.email, formData.nama)
     ]);
 
-    // 3. Update status WA dan Email di Google Sheets
-    await updateStatus(result.rowNumber, waStatus, emailStatus);
+    // Update status berdasarkan hasil pengiriman
+    const waStatus = waResult.status === 'fulfilled' ? waResult.value : 'NOT';
+    const emailStatus = emailResult.status === 'fulfilled' ? emailResult.value : 'NOT';
+
+    await updateStatus(formData.noPesanan, waStatus, emailStatus);
 
     // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
@@ -506,31 +519,18 @@ async function submitForm() {
 }
 
 /****************************************************
-* Fungsi untuk menyimpan data ke Google Sheets
-****************************************************/
-async function saveToGoogleSheets(formData) {
-  return await fetch('https://script.google.com/macros/s/AKfycbzaOrbYyk87_v6t4bnj_ovwWyDS3Q4SzoF7j2lguuFLDHdoB9FZYo_DSQiLKD7ipcb2/exec', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(formData)
-  });
-}
-
-/****************************************************
 * Fungsi untuk update status di Google Sheets
 ****************************************************/
-async function updateStatus(rowNumber, waStatus, emailStatus) {
+async function updateStatus(noPesanan, waStatus, emailStatus) {
   try {
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzaOrbYyk87_v6t4bnj_ovwWyDS3Q4SzoF7j2lguuFLDHdoB9FZYo_DSQiLKD7ipcb2/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzgmE5jCwxwK193x14v4ptXIyJKb46Y1E4mYFP8-JVIFR6IS9O6kogdd8oo12z3zUS4/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
         action: 'updateStatus',
-        rowNumber: rowNumber,
+        noPesanan: noPesanan,
         waStatus: waStatus,
         emailStatus: emailStatus
       })
