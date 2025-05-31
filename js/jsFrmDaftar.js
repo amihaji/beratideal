@@ -309,12 +309,7 @@ async function submitForm() {
     // Tampilkan pesan sukses
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
-
-    // Redirect setelah 3 dan kembali halaman utama
-    //setTimeout(() => {
-    //  window.location.replace('index.html'); 
-    //}, 3000);
-    
+     
     // Reset form dan kembali halaman utama
     setTimeout(() => {
       document.getElementById('formDaftar').reset();
@@ -379,7 +374,6 @@ function kirimEmail(email, nama) {
     Logger.log("Gagal kirimEmail: " + error);
     throw new Error("Gagal mengirim email: " + error.message);
   }
-  return false; // Mencegah form submit default
 }
 
 /******************************
@@ -393,10 +387,6 @@ function kirimWA(nomorHP, nama) {
   const tglDaftar   = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
   const noWaUser    = "62" + nomorHP.replace(/^0+/, "");
   
-  // Tambahkan parameter acak untuk mencegah preview link di WA
-  //const fakeUrl     = fileUrl + "?noPreview=" + new Date().getTime();
-  //const fakeUrl     = fileUrl;
-
   // Format isi pesan
   const fPesanWA =
     '*KONFIRMASI PENDAFTARAN*' +
@@ -443,6 +433,5 @@ function kirimWA(nomorHP, nama) {
   // Kirim ke konsumen dan sponsor
   UrlFetchApp.fetch(url, options_konsumen);
   UrlFetchApp.fetch(url, options_member);
-return false; // Mencegah form submit default
 }
 
