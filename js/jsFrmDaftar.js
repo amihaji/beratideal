@@ -288,15 +288,10 @@ async function submitForm() {
   };
 
   try {
-    // 1. Status awal
-    await tulisStatus('Q', 'PENDING', formData.noPesanan); // WA
-    await tulisStatus('R', 'PENDING', formData.noPesanan); // Email
-
-    // 2. Kirim ke Google Sheet
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxYBakaA4h6nGg5h7Pqh-nuHPUjeW4bF35oWKh-3KcqL5jQOz5Vwy3hMgVGk8zOUAga/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxLyJ9C1FQcnYL-xp92Elhvu-luKNA-U7-qHIOq3AswOqB-gR3jADtFxR-0hve6mb84/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
@@ -304,27 +299,6 @@ async function submitForm() {
 
     if (!response.ok) throw new Error('Jaringan sedang gangguan');
 
-    // 3. Kirim WA
-    try {
-      await google.script.run
-        .withSuccessHandler(() => tulisStatus('Q', 'OK', formData.noPesanan))
-        .withFailureHandler(() => tulisStatus('Q', 'NOT', formData.noPesanan))
-        .kirimWA(formData.telp, formData.nama);
-    } catch {
-      await tulisStatus('Q', 'NOT', formData.noPesanan);
-    }
-
-    // 4. Kirim Email
-    try {
-      await google.script.run
-        .withSuccessHandler(() => tulisStatus('R', 'OK', formData.noPesanan))
-        .withFailureHandler(() => tulisStatus('R', 'NOT', formData.noPesanan))
-        .kirimEmail(formData.email, formData.nama);
-    } catch {
-      await tulisStatus('R', 'NOT', formData.noPesanan);
-    }
-
-    // 5. Berhasil
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
@@ -343,6 +317,7 @@ async function submitForm() {
 
   return false;
 }
+
 
 /***************************
 * Fungsi Untuk tulis status 
