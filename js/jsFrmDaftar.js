@@ -258,10 +258,108 @@ function getHargaProgram(program) {
   return prices[program] || 0;
 }
 
+
+/***********************************************
+* REVISI Fungsi Untuk mengsubmit data dari form inputan
+/**********************************************/
+async function submitForm() {
+  const submitBtn = document.getElementById('btnSubmit');
+  const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
+
+  if (!validateStep(3)) return false;
+
+  const formData = {
+    tglDaftar:    document.getElementById('tanggal').value,
+    noPesanan:    document.getElementById('nomorPesanan').value,
+    program:      document.getElementById('program').value,
+    harga:        document.getElementById('harga').value.replace(/\D/g,''),
+    nama:         document.getElementById('nama').value,
+    alamat:       document.getElementById('alamat').value,
+    telp:         document.getElementById('telp').value,
+    email:        document.getElementById('email').value,
+    kelurahan:    document.getElementById('kelurahan').value,
+    kecamatan:    document.getElementById('kecamatan').value,
+    kota:         document.getElementById('kota').value,
+    propinsi:     document.getElementById('propinsi').value,
+    pembayaran:   document.getElementById('pembayaran').value,
+    namaPenerima: document.getElementById('namaPenerima').value,
+    acPenerima:   document.getElementById('acPenerima').value,
+    nominal:      document.getElementById('nominal').value.replace(/\D/g,'')
+  };
+
+  try {
+    // 1. Status awal
+    await tulisStatus('Q', 'PENDING', formData.noPesanan); // WA
+    await tulisStatus('R', 'PENDING', formData.noPesanan); // Email
+
+    // 2. Kirim ke Google Sheet
+    submitBtn.disabled  = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxYBakaA4h6nGg5h7Pqh-nuHPUjeW4bF35oWKh-3KcqL5jQOz5Vwy3hMgVGk8zOUAga/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData)
+    });
+
+    if (!response.ok) throw new Error('Jaringan sedang gangguan');
+
+    // 3. Kirim WA
+    try {
+      await google.script.run
+        .withSuccessHandler(() => tulisStatus('Q', 'OK', formData.noPesanan))
+        .withFailureHandler(() => tulisStatus('Q', 'NOT', formData.noPesanan))
+        .kirimWA(formData.telp, formData.nama);
+    } catch {
+      await tulisStatus('Q', 'NOT', formData.noPesanan);
+    }
+
+    // 4. Kirim Email
+    try {
+      await google.script.run
+        .withSuccessHandler(() => tulisStatus('R', 'OK', formData.noPesanan))
+        .withFailureHandler(() => tulisStatus('R', 'NOT', formData.noPesanan))
+        .kirimEmail(formData.email, formData.nama);
+    } catch {
+      await tulisStatus('R', 'NOT', formData.noPesanan);
+    }
+
+    // 5. Berhasil
+    submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+    msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
+
+    setTimeout(() => {
+      document.getElementById('formDaftar').reset();
+      document.getElementById('nomorPesanan').value = generateNoPesanan();
+      window.location.href = 'index.html';
+    }, 3000);
+
+  } catch (error) {
+    console.error('Error:', error);
+    msgBox3.innerHTML   = `<div class="msg-error">Gagal mengirim: ${error.message}</div>`;
+    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+    submitBtn.disabled  = false;
+  }
+
+  return false;
+}
+
+/***************************
+* Fungsi Untuk tulis status 
+/***************************/
+function tulisStatus(kolom, status, noPesanan) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .tulisStatusSheet(kolom, status, noPesanan);
+  });
+}
+
 /***********************************************
 * Fungsi Untuk mengsubmit data dari form inputan
 /**********************************************/
-async function submitForm() {
+async function BACKUP_submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
   
