@@ -258,7 +258,6 @@ function getHargaProgram(program) {
   return prices[program] || 0;
 }
 
-
 /***********************************************
 * REVISI Fungsi Untuk mengsubmit data dari form inputan
 /**********************************************/
@@ -291,7 +290,7 @@ async function submitForm() {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxLyJ9C1FQcnYL-xp92Elhvu-luKNA-U7-qHIOq3AswOqB-gR3jADtFxR-0hve6mb84/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyJm4GupLOEtOsCYOlHeVmLaF-_CiK0zTGhD42KDK3p1fN4acdtLey6_Qns_IL9LkNw/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
@@ -331,74 +330,6 @@ function tulisStatus(kolom, status, noPesanan) {
   });
 }
 
-/***********************************************
-* Fungsi Untuk mengsubmit data dari form inputan
-/**********************************************/
-async function BACKUP_submitForm() {
-  const submitBtn = document.getElementById('btnSubmit');
-  const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
-  
-  // Validasi akhir
-  if (!validateStep(3)) return false;
-
-  // Kumpulkan data inputan
-  const formData = {
-    tglDaftar:    document.getElementById('tanggal').value,
-    noPesanan:    document.getElementById('nomorPesanan').value,
-    program:      document.getElementById('program').value,
-    harga:        document.getElementById('harga').value.replace(/\D/g,''),
-    nama:         document.getElementById('nama').value,
-    alamat:       document.getElementById('alamat').value,
-    telp:         document.getElementById('telp').value,
-    email:        document.getElementById('email').value,
-    kelurahan:    document.getElementById('kelurahan').value,
-    kecamatan:    document.getElementById('kecamatan').value,
-    kota:         document.getElementById('kota').value,
-    propinsi:     document.getElementById('propinsi').value,
-    pembayaran:   document.getElementById('pembayaran').value,
-    namaPenerima: document.getElementById('namaPenerima').value,
-    acPenerima:   document.getElementById('acPenerima').value,
-    nominal:      document.getElementById('nominal').value.replace(/\D/g,'')
-  };
-
-  try {
-    // Tampilkan loading
-    submitBtn.disabled  = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-
-    // Kirim data ke Google Sheets
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwSP_AAH6JQQeOsYq2-04fsGAgnl_lrv9iLOSQlOwn3DuHwXhYiiB3xkEyMHcgpA8Rq/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(formData)
-    });
-    //kirimEmail(formData.email, formData.nama);
-    //kirimWA(formData.telp, formData.nama);
-
-    if (!response.ok) throw new Error('Jaringan lagi gangguan');
-    
-    // Tampilkan pesan sukses
-    submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-    msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
-     
-    // Reset form dan kembali halaman utama
-    setTimeout(() => {
-      document.getElementById('formDaftar').reset();
-      document.getElementById('nomorPesanan').value = generateNoPesanan();
-      window.location.href = 'index.html';
-    }, 3000);
-
-  } catch (error) {
-    console.error('Error:', error);
-    msgBox3.innerHTML   = `<div class="msg-error">Gagal mengirim: ${error.message}</div>`;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
-    submitBtn.disabled  = false;
-  }
-  return false; // Mencegah form submit default
-}
-
 /**********************************
 * Fungsi untuk generate No Pesanan
 **********************************/
@@ -414,7 +345,7 @@ function generateNoPesanan() {
 /********************************
 * Untuk kirim konfirmasi ke Email
 *********************************/
-function kirimEmail(email, nama) {
+function BACKUP_kirimEmail(email, nama) {
   try {
     const mTgl      = new Date();
     const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -452,7 +383,7 @@ function kirimEmail(email, nama) {
 /******************************
 * Untuk kirim konfirmasi ke WA
 *******************************/
-function kirimWA(nomorHP, nama) {
+function BACKUP_kirimWA(nomorHP, nama) {
   const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
   const url         = "https://api.fonnte.com/send";
 
