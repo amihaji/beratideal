@@ -258,9 +258,9 @@ function getHargaProgram(program) {
   return prices[program] || 0;
 }
 
-/***********************************************
-* REVISI Fungsi Untuk mengsubmit data dari form inputan
-/**********************************************/
+/************************************************
+* Fungsi Untuk mengsubmit data dari form inputan
+************************************************/
 async function submitForm() {
   const submitBtn = document.getElementById('btnSubmit');
   const msgBox3   = document.getElementById('msgBox3') || document.createElement('div');
@@ -317,19 +317,6 @@ async function submitForm() {
   return false;
 }
 
-
-/***************************
-* Fungsi Untuk tulis status 
-/***************************/
-function tulisStatus(kolom, status, noPesanan) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      .tulisStatusSheet(kolom, status, noPesanan);
-  });
-}
-
 /**********************************
 * Fungsi untuk generate No Pesanan
 **********************************/
@@ -340,102 +327,5 @@ function generateNoPesanan() {
   const yy     = String(now.getFullYear()).slice(-2);
   const random = Math.floor(Math.random() * 900) + 100;
   return `PS${dd}${mm}${yy}-${random}`;
-}
-
-/********************************
-* Untuk kirim konfirmasi ke Email
-*********************************/
-function BACKUP_kirimEmail(email, nama) {
-  try {
-    const mTgl      = new Date();
-    const tglDaftar = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
-    const subject   = `Konfirmasi Pendaftaran Fat Loss Challenge - ${nama}`;
-    const body = `
-      <p><strong>KONFIRMASI PENDAFTARAN FAT LOSS CHALLENGE</strong>
-      <p>Tgl Daftar:${tglDaftar}
-      <br>Terima kasih kak <strong>${nama},</strong>
-      <br>Telah mendaftar sebagai peserta Fat Loss Challange beratidealku.com</br>
-      <br>Silahkan konfirmasi pembayaran di link ini : <a href="${fileUrl}">Klik ini untuk konfirmasi !</a></br>
-      <p>Untuk info lebih lanjut silahkan menghubungi:<br>
-      <br>Member Independen
-      <br>Hesty Husain
-      <br>Contact WA: 081241318600
-      <br>Terima kasih
-      <p>Copyright by :<a href="www.beratidealku.com">www.beratidealku.com</a> 
-      <br>Lokasi Map NC <a href="bit.ly/LokasiKlubKita">klubKITA</a> 
-      <br><strong>Disclaimer:</strong> Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis
-    `;
-
-    if (email && email.includes("@")) {
-      MailApp.sendEmail({
-        to: email,
-        subject: subject,
-        htmlBody: body
-      });
-    }
-
-  } catch (error) {
-    Logger.log("Gagal kirimEmail: " + error);
-    throw new Error("Gagal mengirim email: " + error.message);
-  }
-}
-
-/******************************
-* Untuk kirim konfirmasi ke WA
-*******************************/
-function BACKUP_kirimWA(nomorHP, nama) {
-  const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";  // Ganti token sesuai akun
-  const url         = "https://api.fonnte.com/send";
-
-  const mTgl        = new Date();
-  const tglDaftar   = Utilities.formatDate(mTgl, Session.getScriptTimeZone(), "dd MMMM yyyy");
-  const noWaUser    = "62" + nomorHP.replace(/^0+/, "");
-  
-  // Format isi pesan
-  const fPesanWA =
-    '*KONFIRMASI PENDAFTARAN*' +
-    '\n---------------------------------------------' +
-    '\nTgl Daftar : ' + tglDaftar +
-    '\nTerima kasih kak ' + nama +
-    '\nTelah mendaftar sebagai peserta Fat Loss Challange beratidealku.com' +
-    '\nSilahkan konfirmasi pembayaran di link di bawah ini' +
-    '\n<a href="${fileUrl}"></a>' +
-    '\nUntuk info lebih lanjut silahkan menghubungi:' +
-    '\nMember Independen' + 
-    '\nHesty Husain' + 
-    '\nContact WA: 081241318600' +
-    '\n\nTerima kasih 🙏\n' +
-    '\n---------------------------------------------' +
-    '\n*Copyright by :*\nwww.beratidealku.com \n' +
-    '\n*Map Klub Nutrisi :*\nbit.ly/LokasiKlubKita \n' +
-    '\n*Disclaimer*: Hasil analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis';
-    
-  // Opsi kirim ke user
-  const options_konsumen = {
-    method: "post",
-    headers: {
-      "Authorization": TokenFonnte
-    },
-    payload: {
-      target: noWaUser,
-      message: fPesanWA
-    }
-  };
-
-  // Opsi kirim ke sponsor
-  const options_member = {
-    method: "post",
-    headers: {
-      "Authorization": TokenFonnte
-    },
-    payload: {
-      target: noWaSponsor,
-      message: "*Notifikasi List Baru*\n" + fPesanWA
-    }
-  };
-
-  // Kirim ke konsumen dan sponsor
-  UrlFetchApp.fetch(url, options_konsumen);
-  UrlFetchApp.fetch(url, options_member);
 }
 
