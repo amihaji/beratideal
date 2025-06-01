@@ -74,18 +74,64 @@
 
   <!-- Script -->
   <script>
-    // Ambil data dari URL (misal: ?noPesanan=xxx&nama=yyy)
+  document.addEventListener('DOMContentLoaded', function () {
     const params = new URLSearchParams(window.location.search);
-    const fieldIds = [
-      "tanggal", "nomorPesanan", "program", "nama", "alamat", "telp", "email",
-      "kelurahan", "kecamatan", "kota", "propinsi", "sistemBayar", "namaPenerima", "acPenerima", "nominal"
-    ];
 
-    fieldIds.forEach(id => {
-      if (params.has(id)) {
-        document.getElementById(id).value = decodeURIComponent(params.get(id));
+    const mapping = {
+      tanggal: "tanggal",
+      noPesanan: "nomorPesanan",
+      program: "program",
+      nama: "nama",
+      alamat: "alamat",
+      telp: "telp",
+      email: "email",
+      kelurahan: "kelurahan",
+      kecamatan: "kecamatan",
+      kota: "kota",
+      propinsi: "propinsi",
+      pembayaran: "sistemBayar",
+      namaPenerima: "namaPenerima",
+      acPenerima: "acPenerima",
+      nominal: "nominal"
+    };
+
+    Object.keys(mapping).forEach(param => {
+      if (params.has(param)) {
+        const id = mapping[param];
+        const value = decodeURIComponent(params.get(param));
+        const el = document.getElementById(id);
+        if (el) el.value = value;
       }
     });
+
+    // Preview gambar
+    document.getElementById("buktiTransfer").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
+
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Tombol submit (belum kirim ke server)
+    document.getElementById("formBayar").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const bukti = document.getElementById("buktiTransfer").files[0];
+      if (!bukti) {
+        alert("Silakan upload bukti transfer terlebih dahulu.");
+        return;
+      }
+      alert("Fungsi konfirmasi belum tersambung ke Google Apps Script.");
+    });
+  });
+
+
 
     // Preview bukti transfer
     document.getElementById("buktiTransfer").addEventListener("change", function () {
