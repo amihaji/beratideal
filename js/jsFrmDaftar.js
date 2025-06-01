@@ -252,8 +252,8 @@ function downloadQRIS(e) {
 function getHargaProgram(program) {
   const prices = {
     '10 Hari': 700000,
-    '21 Hari': 2100000,
-    '3 Bulan': 7000000
+    '21 Hari': 2100000
+    /* '3 Bulan': 7000000 */
   };
   return prices[program] || 0;
 }
