@@ -74,9 +74,11 @@
 
   <!-- Script -->
   <script>
+  // ******************************************** 
+  // Memanggail data inputan ke dalam form bayar
+  // ********************************************
   document.addEventListener('DOMContentLoaded', function () {
     const params = new URLSearchParams(window.location.search);
-
     const mapping = {
       tanggal: "tanggal",
       noPesanan: "nomorPesanan",
@@ -103,8 +105,8 @@
         if (el) el.value = value;
       }
     });
-
-    // Preview gambar
+    
+    // Tampilkan file hasil upload
     document.getElementById("buktiTransfer").addEventListener("change", function () {
       const file = this.files[0];
       const preview = document.getElementById("preview");
@@ -119,9 +121,9 @@
       }
     });
 
-    // Tombol submit (belum kirim ke server)
+    // Tombol submit kirim data ke sheet
     document.getElementById("formBayar").addEventListener("submit", function (e) {
-      e.preventDefault();
+    e.preventDefault();
       const bukti = document.getElementById("buktiTransfer").files[0];
       if (!bukti) {
         alert("Silakan upload bukti transfer terlebih dahulu.");
@@ -131,35 +133,38 @@
     });
   });
 
+// **********************
+// Preview bukti transfer
+// **********************
+document.getElementById("buktiTransfer").addEventListener("change", function () {
+  const file = this.files[0];
+  const preview = document.getElementById("preview");
+  preview.innerHTML = "";
 
-
-    // Preview bukti transfer
-    document.getElementById("buktiTransfer").addEventListener("change", function () {
-      const file = this.files[0];
-      const preview = document.getElementById("preview");
-      preview.innerHTML = "";
-
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
+  if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
         reader.onload = function (e) {
           preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
         };
         reader.readAsDataURL(file);
       }
-    });
+  });
 
-    // Handle submit
-    document.getElementById("formBayar").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const bukti = document.getElementById("buktiTransfer").files[0];
-      if (!bukti) {
-        alert("Silakan upload bukti transfer terlebih dahulu.");
-        return;
-      }
+// ****************
+// Handle submit
+// ****************
+document.getElementById("formBayar").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const bukti = document.getElementById("buktiTransfer").files[0];
+  if (!bukti) {
+      alert("Silakan upload bukti transfer terlebih dahulu.");
+      return;
+  }
 
-      alert("Fungsi kirim bukti akan dihubungkan ke Apps Script. (Belum aktif)");
-      // Kirim data ke Google Apps Script dan simpan 'Status Bayar' = OK di kolom S (akan dibuat di step selanjutnya)
-    });
-  </script>
+  alert("Fungsi kirim bukti akan dihubungkan ke Apps Script. (Belum aktif)");
+     // Kirim data ke Google Apps Script dan simpan 'Status Bayar' = OK di kolom S (akan dibuat di step selanjutnya)
+});
+
+</script>
 </body>
 </html>
