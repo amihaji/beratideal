@@ -290,7 +290,7 @@ async function submitForm() {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwfcB8-PN36GOsv-aMAlJ1nOCYvNwBXsOfb2geOFSCrzIUC7XamZs5BedG5LCkxiSA/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwkH8MbCbTnajQpGAW6oPf3fQqPKMiOs8FZm51wocr0U70klMDm78G54wuiEEBBDm01/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
