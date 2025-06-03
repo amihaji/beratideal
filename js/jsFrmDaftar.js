@@ -316,7 +316,7 @@ async function submitForm() {
  
   // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
  localStorage.setItem('noPesanan', data.noPesanan);
- return false;
+ //return false;
  
 }
 
