@@ -78,76 +78,129 @@
   // Memanggail data inputan ke dalam form bayar
   // ********************************************
   document.addEventListener('DOMContentLoaded', function () {
-      // Ambil noPesanan dari query string, bukan dari localStorage
-      const params = new URLSearchParams(window.location.search);
-      const noPesanan = params.get("noPesanan");
-  
-      if (!noPesanan) {
-        alert("Data tidak ditemukan. Silakan daftar ulang.");
-        return;
-      }
-  
-      // 1. Ambil data dari Apps Script via noPesanan
-      fetch("https://script.google.com/macros/s/AKfycbw0LtmDx4JtDRSnAoQhwPUsODLYh-EG2H2izIRtKV9yMzFeLGxMvOqocDZTvkkXUuW0/exec?noPesanan=" + noPesanan)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            alert("Data tidak ditemukan di server.");
-            return;
-          }
-  
-          const mapping = {
-            tanggal: "tanggal",
-            noPesanan: "nomorPesanan",
-            program: "program",
-            harga: "harga",
-            nama: "nama",
-            alamat: "alamat",
-            telp: "telp",
-            email: "email",
-            kelurahan: "kelurahan",
-            kecamatan: "kecamatan",
-            kota: "kota",
-            propinsi: "propinsi",
-            pembayaran: "sistemBayar",
-            namaPenerima: "namaPenerima",
-            acPenerima: "acPenerima",
-            nominal: "nominal"
-          };
-  
-          Object.entries(mapping).forEach(([key, id]) => {
-            const el = document.getElementById(id);
-            if (el) el.value = data[key] || "";
-          });
-        });
-  
-      // 2. Preview gambar bukti transfer
-      document.getElementById("buktiTransfer").addEventListener("change", function () {
-        const file = this.files[0];
-        const preview = document.getElementById("preview");
-        preview.innerHTML = "";
-  
-        if (file && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-  
-      // 3. Tombol submit
-      document.getElementById("formBayar").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const bukti = document.getElementById("buktiTransfer").files[0];
-        if (!bukti) {
-          alert("Silakan upload bukti transfer terlebih dahulu.");
+    const noPesanan = new URLSearchParams(window.location.search).get("noPesanan");
+
+    if (!noPesanan) {
+      displayMessage('error', 'Data tidak ditemukan. Silakan daftar ulang.');
+      return;
+    }
+
+    // Ambil data dari Apps Script
+    fetch(`https://script.google.com/macros/s/AKfycbyWPI-CGj0llHzClQZpaeou6--rLw5oaJpsJELL_7ZQ4jjHpWVwpBZ1KgGyJPINHAiC/exec?noPesanan=${noPesanan}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          displayMessage('error', 'Data tidak ditemukan di server.');
           return;
         }
-  
-        alert("Fungsi kirim bukti & update ke Sheet belum aktif.");
+
+        // Isi data form
+        const mapping = {
+          tanggal: "tanggal",
+          noPesanan: "nomorPesanan",
+          program: "program",
+          harga: "harga",
+          nama: "nama",
+          alamat: "alamat",
+          telp: "telp",
+          email: "email",
+          kelurahan: "kelurahan",
+          kecamatan: "kecamatan",
+          kota: "kota",
+          propinsi: "propinsi",
+          pembayaran: "sistemBayar",
+          namaPenerima: "namaPenerima",
+          acPenerima: "acPenerima",
+          nominal: "nominal"
+        };
+
+        Object.entries(mapping).forEach(([key, id]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = data[key] || "";
+        });
       });
+
+    // Preview gambar bukti transfer
+    document.getElementById("buktiTransfer").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
+
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
     });
-  </script>
+
+    // Tombol submit untuk upload bukti
+    document.getElementById("formBayar").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const bukti = document.getElementById("buktiTransfer").files[0];
+      if (!bukti) {
+        displayMessage('error', 'Silakan upload bukti transfer terlebih dahulu.');
+        return;
+      }
+
+      // Kirim bukti transfer dan update status
+      uploadBuktiTransfer(bukti, noPesanan);
+    });
+  });
+
+  // Fungsi untuk menampilkan pesan di form
+  function displayMessage(type, message) {
+    const msgBox = document.createElement('div');
+    msgBox.className = type === 'error' ? 'msg-error' : 'msg-success';
+    msgBox.innerHTML = message;
+    document.querySelector('#formBayar').appendChild(msgBox);
+  }
+
+  // **********************************************************
+  // Fungsi untuk upload bukti transfer dan update status bayar
+  // **********************************************************
+  function uploadBuktiTransfer(bukti, noPesanan) {
+    const formData = new FormData();
+    formData.append('file', bukti);
+
+    // Kirim ke server untuk upload ke Folder Google Drive
+    fetch('https://drive.google.com/drive/folders/1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef?usp=sharing', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const fileLink = data.fileLink; // Link file yang diupload
+
+        // Update status bayar di Sheet
+        updateStatusBayar(noPesanan, fileLink);
+      } else {
+        displayMessage('error', 'Gagal mengupload bukti transfer.');
+      }
+    });
+  }
+
+  // ******************************************
+  // Fungsi untuk update status bayar di Sheet
+  // ******************************************
+  function updateStatusBayar(noPesanan, fileLink) {
+    const payload = { noPesanan, fileLink };
+    fetch('https://script.google.com/macros/s/AKfycbyWPI-CGj0llHzClQZpaeou6--rLw5oaJpsJELL_7ZQ4jjHpWVwpBZ1KgGyJPINHAiC/exec', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        displayMessage('success', 'Pembayaran berhasil dikonfirmasi!');
+      } else {
+        displayMessage('error', 'Gagal mengupdate status pembayaran.');
+      }
+    });
+  }
+</script>
 </body>
 </html>

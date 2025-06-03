@@ -290,7 +290,7 @@ async function submitForm() {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbw0LtmDx4JtDRSnAoQhwPUsODLYh-EG2H2izIRtKV9yMzFeLGxMvOqocDZTvkkXUuW0/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyWPI-CGj0llHzClQZpaeou6--rLw5oaJpsJELL_7ZQ4jjHpWVwpBZ1KgGyJPINHAiC/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
@@ -316,8 +316,6 @@ async function submitForm() {
  
   // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
  localStorage.setItem('noPesanan', data.noPesanan);
- //return false;
- 
 }
 
 /**********************************
