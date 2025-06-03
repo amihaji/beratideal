@@ -1,0 +1,180 @@
+.form-step { display: none; }
+.form-step.active { display: block; }
+
+/* Form Container */
+.judul-form {
+  background: #003366;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
+}
+
+/* Pesan Error */
+.msg-error {
+  background: #ffffff;
+  color: #ff5f6c !important;  
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ff5f6c;
+  margin: 10px 0;
+}
+
+
+/* Pesan Sukses */
+.msg-success {
+  background: #ffffff;
+  color: #2861ff !important;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #2861ff;
+  margin: 10px 0;
+}
+
+
+/* Tombol Icon */
+.btn-icon { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  gap: 8px; 
+}
+
+/* Tombol Submit */
+.btn-submit { 
+  background-color: #151515; 
+  color: white; 
+}
+
+/* Tombol Hover Submit */
+.btn-submit:hover { 
+  background-color: #FF4141; 
+  color: white; 
+}
+
+/* Tombol Download QR */
+.btn-download-qr, #btnDownloadQR {
+  background-color: #0062cc;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  margin: 10px 0;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+}
+
+/* Tombol Hover Download QR */
+.btn-download-qr:hover, #btnDownloadQR:hover {
+  background-color: #FF4141;
+}
+
+.btn-success {
+  background-color: #0062cc !important;
+}
+
+#btnSubmit {
+  transition: all 0.3s ease;
+}
+
+/* Input Text */
+.form-group input.uppercase {
+  text-transform: uppercase;
+}
+
+.form-group input.lowercase {
+  text-transform: lowercase;
+}
+
+/* Navigasi Form */
+.form-navigation {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Animasi */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Untuk halaman 3 */
+#step-3 .row {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+#step-3 .col-12 {
+  width: 100%;
+}
+
+#qrisImage {
+  text-align: center;
+  margin: 15px 0;
+}
+
+#qrisImage img {
+  display: block;
+  margin: 0 auto;
+  max-width: 200px;
+}
+
+#btnDownloadQR {
+  display: none; /* Tetap hidden sampai dipilih */
+  margin: 15px auto 0;
+  width: 200px;
+}
+
+/* Untuk handphone */
+@media (min-width: 768px) {
+  #step-3 .row {
+    flex-direction: row;
+    gap: 10px;
+  }
+  
+  #step-3 .col-12 {
+    flex: 1;
+  }
+  
+  #btnDownloadQR {
+    margin-top: 20px;
+  }
+}
+
+/* Animasi tombol ketika berhasil */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Tombol submit ketika berhasil */
+.btn-success {
+  animation: pulse 0.5s ease;
+}
+
+/* Tombol disabled */
+.btn.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#btnSubmit[disabled] {
+  pointer-events: none;
+}
+
+#btnDownloadQR {
+  pointer-events: auto !important; /* Pastikan tombol download selalu clickable */
+}
