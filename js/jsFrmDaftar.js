@@ -290,7 +290,7 @@ async function submitForm() {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbyLcekeIDbTH4ovTzWO1K-d3D4nTJKpwbU7ftfkIrHW3DcBVkcg78fB7ydlaAX4JpSq/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwH-G7alDuNz_LbDyekFv9x3FDvDdEr71iBFcYZtlWr8o9xrA8_lrjppnnHKLshlw3I/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
@@ -313,8 +313,11 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     submitBtn.disabled  = false;
   }
-
-  return false;
+ 
+  // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
+ localStorage.setItem('noPesanan', data.noPesanan);
+ return false;
+ 
 }
 
 /**********************************
@@ -328,3 +331,4 @@ function generateNoPesanan() {
   const random = Math.floor(Math.random() * 900) + 100;
   return `PS${dd}${mm}${yy}-${random}`;
 }
+
