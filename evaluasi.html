@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+  <base target="_top">
+  <title>Survey Kebugaran - WETools Versi 2</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ 
+  <title>Survey Kebugaran - WETools Versi 2</title>   
+  <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        padding: 20px;
+      }
+      table td, table th {
+        vertical-align: middle;
+      }
+      h5, h6 {
+        color: #0d6efd;
+      }
+  </style>
+</head>
+<body>
+      <!-- TABEL 1: DATA PRIBADI -->
+      <table class="table table-bordered">
+        <tbody>
+          <tr><th style="background-color:#4d94ff;">Tgl Survey</th><td style="background-color:#4d94ff;"><b><?= tanggal ?></b></td></tr>
+          <tr><td>Nama</td><td><?= nama ?></td></tr>
+          <tr><td>No. HP</td><td><?= hp ?></td></tr>
+          <tr><td>Email</td><td><?= email ?></td></tr>
+          <tr><td>Umur</td><td><?= umur ?> tahun</td></tr>
+          <tr><td>Jenis Kelamin</td><td><?= jk ?></td></tr>
+          <tr><td>Berat Badan</td><td><?= berat ?> kg</td></tr>
+          <tr><td>Tinggi Badan</td><td><?= tinggi ?> cm</td></tr>
+          <tr><td>Lingkar Perut</td><td><?= lingkar ?> cm</td></tr>
+          <tr><td>Aktivitas Fisik</td><td><?= aktivitas ?></td></tr>
+        </tbody>
+      </table>
+
+      <!-- TABEL 2: STATUS FUNGSIONAL -->
+      <h6 class="mt-4">Status Fungsional</h6>
+      <table class="table table-bordered">
+        <tr>
+          <th style="background-color:#4d94ff; width:85%;">Pertanyaan</th>
+          <th style="background-color:#4d94ff; text-align: center; width:15%;">Jawaban</th>
+        </tr>
+        <tbody>
+          <? for (let i = 0; i < fungsional.length; i++) { ?>
+            <tr>
+              <td><?= fungsional[i].label ?></td>
+              <td style="text-align: center;"><?= fungsional[i].jawaban ?></td>
+            </tr>
+          <? } ?>
+        </tbody>
+      </table>
+
+      <!-- TABEL 3: EVALUASI PARAMETER -->
+      <h6 class="mt-4">Evaluasi Parameter</h6>
+      <table class="table table-bordered">
+        <tr>
+          <th style="background-color:#4d94ff; width:25%;">Parameter</th>
+          <th style="background-color:#4d94ff; width:5%; text-align: center;">Hasil</th>
+          <th style="background-color:#4d94ff; width:15%;text-align: center;">Referensi</th>
+          <th style="background-color:#4d94ff; width:5%; text-align: center;">Satuan</th>
+          <th style="background-color:#4d94ff; width:50%;">Keterangan</th>
+        </tr>
+        <tbody>
+          <? for (let i = 0; i < evaluasi.length; i++) { ?>
+            <tr>
+              <td><?= evaluasi[i].param ?></td>
+              <td style="text-align: center;"><?= evaluasi[i].hasil ?></td>
+              <td style="text-align: center;"><?= evaluasi[i].ideal ?></td>
+              <td style="text-align: center;"><?= evaluasi[i].satuan ?></td>
+              <td style="white-space:pre-line"><?= evaluasi[i].penjelasan ?></td>
+            </tr>
+          <? } ?>
+        </tbody>
+      </table>
+
+      <!-- TABEL 4: SKOR, KESIMPULAN & REKOMENDASI -->
+      <h6 class="mt-4">Kesimpulan & Rekomendasi</h6>
+      <table class="table table-bordered">
+        <tbody>
+          <tr><th style="background-color:#4d94ff; width:15%;">Skor</th>
+            <td style="width:85%;">
+              <!-- TIDAK DIAKTIFKAN Skor anda : <strong><?= skor ?></strong> atau <strong><?= persen ?></strong> dari total pertanyaan -->
+              Persentase kebugaran anda : <strong><?= persen ?></strong>
+            </td> 
+          </tr>
+          <tr><th style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
+            <td style="width:85%;"><?= kesimpulan ?></td>
+          </tr>
+          <tr><th style="background-color:#4d94ff; width:15%;">Rekomendasi</th>
+            <td style="width:85%;"><?= rekomendasi ?></td>
+          </tr>
+        </tbody>
+      </table>
+
+      
+      <!-- DATA UNTUK SPONSOR / PENGUNDANG -->
+      <div class="border p-3 rounded bg-light mb-4">
+        <h6><i class="fas fa-user form-icon"></i>Data Sponsor</h6>
+        <p><h7>Silahkan memasukkan data Sponsor/pengundang anda, jika ada (optional)</h7></p>
+        <div class="mb-3">
+            <label class="form-label">Nama Sponsor</label>
+            <input type="text" id="mSponsor" class="form-control" placeholder="Masukkan Nama Sponsor / pengundang" oninput="this.value = this.value.toUpperCase().substring(0, 40)">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">HP Sponsor</label>
+          <input type="tel" id="mHpSponsor" class="form-control" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA" pattern="[0-9]{10,14}">
+        </div>
+      </div>
+  
+      <div style="text-align: center;">Hasil Analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis.</div>
+
+      <script>
+        // Deklarasi Untuk melakukan perhitungan persentase dari nilai skor
+        const hasil      = calculateSkor(data); // atau dari parameter `data.skor`
+        const skor       = hasil.skor;
+        const totalTanya = 18;
+        const persen     = ((skor / totalTanya) * 100).toFixed(1) + "%";
+      </script>
+
+</body>
+</html>
