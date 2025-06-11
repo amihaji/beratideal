@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Konfirmasi Pembayaran</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container mt-5 mb-5">
+    <div class="card mx-auto shadow" style="max-width: 600px;">
+      <div class="card-header text-white bg-primary">
+        <h5 class="mb-0"><i class="fas fa-credit-card"></i> Konfirmasi Pembayaran</h5>
+      </div>
+      <div class="card-body">
+        <form id="formBayar">
+          <!-- Informasi Program -->
+          <div class="mb-4">
+            <h6><i class="fas fa-list"></i> Program Anda</h6>
+            <div class="form-group">
+              <label>Tanggal Daftar</label>
+              <input type="text" class="form-control" id="tanggal" readonly />
+            </div>
+            <div class="form-group">
+              <label>No Pesanan</label>
+              <input type="text" class="form-control" id="nomorPesanan" readonly />
+            </div>
+            <div class="form-group">
+              <label>Program</label>
+              <input type="text" class="form-control" id="program" readonly />
+            </div>
+          </div>
+
+          <!-- Data Pengiriman -->
+          <div class="mb-4">
+            <h6><i class="fas fa-truck"></i> Data Pengiriman</h6>
+            <div class="form-group"><label>Nama</label>      <input type="text"  class="form-control" id="nama" readonly /></div>
+            <div class="form-group"><label>Alamat</label>    <input type="text"  class="form-control" id="alamat" readonly /></div>
+            <div class="form-group"><label>Telp</label>      <input type="text"  class="form-control" id="telp" readonly /></div>
+            <div class="form-group"><label>Email</label>     <input type="email" class="form-control" id="email" readonly /></div>
+            <div class="form-group"><label>Kelurahan</label> <input type="text"  class="form-control" id="kelurahan" readonly /></div>
+            <div class="form-group"><label>Kecamatan</label> <input type="text"  class="form-control" id="kecamatan" readonly /></div>
+            <div class="form-group"><label>Kota</label>      <input type="text"  class="form-control" id="kota" readonly /></div>
+            <div class="form-group"><label>Propinsi</label>  <input type="text"  class="form-control" id="propinsi" readonly /></div>
+          </div>
+
+          <!-- Informasi Pembayaran -->
+          <div class="mb-4">
+            <h6><i class="fas fa-money-bill-wave"></i> Informasi Pembayaran</h6>
+            <div class="form-group"><label>Metode</label>           <input type="text" class="form-control" id="sistemBayar" readonly /></div>
+            <div class="form-group"><label>Nama Penerima</label>    <input type="text" class="form-control" id="namaPenerima" readonly /></div>
+            <div class="form-group"><label>AC Penerima</label>      <input type="text" class="form-control" id="acPenerima" readonly /></div>
+            <div class="form-group"><label>Nominal Transfer</label> <input type="text" class="form-control" id="nominal" readonly /></div>
+          </div>
+
+          <!-- Upload Bukti -->
+          <div class="mb-4">
+            <label><i class="fas fa-image"></i> Upload Bukti Transfer</label>
+            <input type="file" class="form-control-file" id="buktiTransfer" accept="image/*" required />
+            <div class="mt-2" id="preview"></div>
+          </div>
+
+          <!-- Tombol Konfirmasi -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-success w-100" id="btnKonfirmasi">
+              <i class="fas fa-paper-plane"></i> Konfirmasi Pembayaran
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+  // ******************************************** 
+  // Memanggail data inputan ke dalam form bayar
+  // ********************************************
+  document.addEventListener('DOMContentLoaded', function () {
+      // Ambil noPesanan dari query string, bukan dari localStorage
+      const params = new URLSearchParams(window.location.search);
+      const noPesanan = params.get("noPesanan");
+  
+      if (!noPesanan) {
+        alert("Data tidak ditemukan. Silakan daftar ulang.");
+        return;
+      }
+  
+      // 1. Ambil data dari Apps Script via noPesanan
+      fetch("https://script.google.com/macros/s/AKfycbw0LtmDx4JtDRSnAoQhwPUsODLYh-EG2H2izIRtKV9yMzFeLGxMvOqocDZTvkkXUuW0/exec?noPesanan=" + noPesanan)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert("Data tidak ditemukan di server.");
+            return;
+          }
+  
+          const mapping = {
+            tanggal: "tanggal",
+            noPesanan: "nomorPesanan",
+            program: "program",
+            harga: "harga",
+            nama: "nama",
+            alamat: "alamat",
+            telp: "telp",
+            email: "email",
+            kelurahan: "kelurahan",
+            kecamatan: "kecamatan",
+            kota: "kota",
+            propinsi: "propinsi",
+            pembayaran: "sistemBayar",
+            namaPenerima: "namaPenerima",
+            acPenerima: "acPenerima",
+            nominal: "nominal"
+          };
+  
+          Object.entries(mapping).forEach(([key, id]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = data[key] || "";
+          });
+        });
+  
+      // 2. Preview gambar bukti transfer
+      document.getElementById("buktiTransfer").addEventListener("change", function () {
+        const file = this.files[0];
+        const preview = document.getElementById("preview");
+        preview.innerHTML = "";
+  
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+  
+      // 3. Tombol submit
+      document.getElementById("formBayar").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const bukti = document.getElementById("buktiTransfer").files[0];
+        if (!bukti) {
+          alert("Silakan upload bukti transfer terlebih dahulu.");
+          return;
+        }
+  
+        alert("Fungsi kirim bukti & update ke Sheet belum aktif.");
+      });
+    });
+  </script>
+</body>
+</html>
