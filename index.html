@@ -378,11 +378,8 @@
               <div class="col-xl-5 col-sm-10 col-12 col-md-8 wow fadeInLeft">
                 <h2 class="big big-title">Waktunya untuk<br>Berubah</h2>
                 <p class="offset-top-30">Rasakan perubahan kebugaran anda! dengan ikut serta dalam <b>"FAT LOSS CHALLENGE PROGRAMME by BERATidealku"</b> merupakan tantangan bagi anda yang ingin Turun Berat Badan dengan panduan video tutorial yang lengkap dan terstruktur, dengan cara menyenangkan ...<br></b></p>
+                <!-- TAMPILKAN FORM CEK KEBUGARAN -->
                 <a href="#" onclick="tampilkanKonfirmasi('//amihaji.github.io/wetools/'); return false;" class="button button-primary button-md">Join With Us</a>
-               
-                <!---
-                <a href="#" onclick="tampilkanKonfirmasi('wetoolsBeratidealku.html'); return false;" class="button button-primary button-md">Join With Us</a>
-                -->    
               </div>
             </div>
           </div>
@@ -461,7 +458,7 @@
     
     <!-- SCRIPT UNTUK MODAL KONFIRMASI -->
     <script>
-      let linkTujuan = "https://amihaji.github.io/beratideal/program.html";
+      let linkTujuan = "";
       function tampilkanKonfirmasi(link) {
         linkTujuan = link;
         document.getElementById("modalKonfirmasi").style.display  = "block";
@@ -481,11 +478,8 @@
             <button onclick="tutupModal()" class="button button-primary" style="margin-top:2px;">OK</button>
           `;
         } else {
-          // Jika tidak maka akan lanjut
-          //pesan.innerHTML = `
-          //  <br>Ingin info lebih lanjut</br>
-          //  <button onclick="lanjutKeLink()" class="button button-primary" style="margin-top:10px;">YA</button>
-          //`;
+          //Jika tidak maka akan lanjut
+          pesan.innerHTML = `<br>Sebelum lanjut kita cek kebugarannya dulu yaht</br>`;
           tutupModal();
           lanjutKeLink();
         }
@@ -496,7 +490,8 @@
       }
     
       function lanjutKeLink() {
-        window.location.href = linkTujuan;
+        window.location.href = linkTujuan;       // Cek Kebugaran 
+        window.location.href ='program.html';    // Tampilkan layar program beratidealku
       }
     </script>
 </body>
