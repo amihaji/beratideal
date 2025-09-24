@@ -475,20 +475,33 @@
           pesan.innerHTML = `
             <br>Hubungi sponsor anda, <br>untuk info lebih lanjut !</br>
             <button onclick="tutupModal()" class="button button-primary" style="margin-top:0.5px;">OK</button>`;
-        } else {
-          //Jika tidak maka akan lanjut
+        } else {then(() => {
+         
           pesan.innerHTML = `<strong>Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...</strong>`;
-            // <button onclick="tutupModal()" class="button button-primary" style="margin-top:0.5px;">OK</button>`;
-          //setTimeout(5000);
-          //lanjutKeLink();
-          //window.location.href ='program.html';    // Tampilkan layar program beratidealku
           setTimeout(() => {
               lanjutKeLink();
               window.location.href = 'program.html';
             }, 3000);
-        }
-      }
-    
+        })
+       }
+       }   //Jika tidak maka akan lanjut
+      
+     /*
+.then(() => {
+    setTimeout(() => {
+      // Data berhasil terkirim
+      showPesan('success', " SUKSES : Hasil survey telah terkirim! Silahkan periksa WA/Email Anda dalam beberapa saat");
+      resetForm();
+      // Jika sudah mengisi form we, maka langsung mengakses form Program dari Beratidealku
+      lanjutKeLink();
+      window.location.href = "https://amihaji.github.io/beratideal/program.html";
+    }, 3000);
+  })
+
+
+     */
+
+
       function tutupModal() {
         document.getElementById("modalKonfirmasi").style.display = "none";
       }
