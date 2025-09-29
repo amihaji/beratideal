@@ -474,15 +474,12 @@
         // Jika member maka akan kembali ke layar utama
         if (isMember) {
           pesan.innerHTML = `Hubungi sponsor anda, <br>untuk info lebih lanjut !<br>
-            <button onclick="tutupModal()" class="button button-primary" style="margin-top:0.3px;">OK</button>`;
+            <button onclick="tutupModal()" class="button button-primary" style="margin-top:20px;">OK</button>`;
         } else {
-          pesan.innerHTML = `
-          <div style="margin-top:0.1px; color:red; text-align:center;">
-            <strong>Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...</strong>
-          <div>`;
-          setTimeout(() => {
-              lanjutKeLink();
-              //window.location.href = 'program.html';
+          pesan.innerHTML = `<strong>Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...</strong>
+            <button onclick="tutupModal()" class="button button-primary" style="margin-top:20px;">OK</button>`;
+            setTimeout(() => {
+            lanjutKeLink();
             }, 2000);
         }
        }
