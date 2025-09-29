@@ -446,7 +446,7 @@
   
     <!-- TAMPILAN MODAL KONFIRMASI -->
     <div id="modalKonfirmasi" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:9999;">
-      <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); background:#fff; padding:20px; border-radius:10px; width:80%; max-width:300px; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align:center;">
+      <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); background:#fff; padding:20px; border-radius:10px; width:90%; max-width:300px; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align:center;">
         <div id="bagianPertanyaan">
           <p><strong>Apakah Anda sudah pernah menjadi member Herbalife?</strong></p>
           <button onclick="jawabanKonfirmasi(true)"  class="button button-primary" style="margin: 10px;">YA</button>
@@ -473,10 +473,10 @@
         pesan.style.display = "block";
         // Jika member maka akan kembali ke layar utama
         if (isMember) {
-          pesan.innerHTML = `Hubungi sponsor anda, <br>untuk info lebih lanjut !<br>
+          pesan.innerHTML = `<strong>Hubungi sponsor anda, <br>untuk info lebih lanjut !<br></strong>
           <button onclick="tutupModal()" class="button button-primary">OK</button>`;
         } else {
-          pesan.innerHTML = `Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...!<br>
+          pesan.innerHTML = `<strong>Sebelum Lanjut, <br>Kita Cek Kebugarannya Dulu Yah...!<br></strong>
           <button onclick="tutupModal()" class="button button-primary">OK</button>`;
           setTimeout(() => {
           lanjutKeLink();
