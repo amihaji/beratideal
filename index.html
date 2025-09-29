@@ -473,17 +473,11 @@
         pesan.style.display = "block";
         // Jika member maka akan kembali ke layar utama
         if (isMember) {
-          pesan.innerHTML = `
-          <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); background:#fff; padding:25px; border-radius:10px; width:90%; max-width:400px; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align:center;">
-            Hubungi sponsor anda, <br>untuk info lebih lanjut !<br>
-            <button onclick="tutupModal()" class="button button-primary">OK</button>
-          </div>`;
+          pesan.innerHTML = `Hubungi sponsor anda, <br>untuk info lebih lanjut !<br>
+            <button onclick="tutupModal()" class="button button-primary">OK</button>`;
         } else {
-          pesan.innerHTML = `
-          <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); background:#fff; padding:25px; border-radius:10px; width:90%; max-width:400px; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align:center;">
-            Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...!<br>
-            <button onclick="tutupModal()" class="button button-primary">OK</button>
-          </div>`;
+          pesan.innerHTML = `Sebelum Lanjut<br>Kita Cek Kebugarannya Dulu Yah...!<br>
+          <button onclick="tutupModal()" class="button button-primary">OK</button>`;
           setTimeout(() => {
           lanjutKeLink();
           }, 2000);
