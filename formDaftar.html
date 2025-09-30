@@ -130,9 +130,10 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 <script>
-/*******************
-* Variabel Global
-*******************/
+/****************************  
+* Deklarasi variabel global *
+*****************************/ 
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec';
 let currentStep = 1;
 
 /************************
@@ -421,12 +422,22 @@ async function submitForm() {
   try {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-
-    const response = await fetch('https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec', {
+   
+    // const response = await fetch('https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec', {
+    const response = await fetch(URL_APPS_SCRIPT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
     });
+
+    /* 
+    fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: payload
+    })
+    */
 
     if (!response.ok) throw new Error('Jaringan sedang gangguan');
 
