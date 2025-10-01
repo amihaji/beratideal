@@ -90,7 +90,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxBRancSaA9Y5hnkAlhgdRKh1rnAHYBo4A8S8ns_h5Bz-ZuHMkrU1aod4niQxBIth7W/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxOzYOPENik3ygT1Gu0ZOpUSTOzkGlKa0hsj5turP0TIkJmg4BsBuDVQFispoSUf_VU/exec';
 
   // ******************************************** 
   // Memanggail data inputan ke dalam form bayar
@@ -154,43 +154,44 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxBRancSaA9Y5hn
         }
       });
     
-      /******************
-      // 3. Tombol submit
-      document.getElementById("formBayar").addEventListener("submit", function (e) {
+      // === Submit konfirmasi pembayaran ===
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
-        const bukti = document.getElementById("buktiTransfer").files[0];
-        if (!bukti) {
-          alert("Silakan upload bukti transfer terlebih dahulu.");
+
+        const file = fileInput.files[0];
+        if (!file) {
+          tampilPesan("error", "Silakan upload bukti transfer terlebih dahulu.");
           return;
         }
-        alert("Fungsi kirim bukti & update ke Sheet belum aktif.");
-      });
-      **************/ 
 
-      // Submit konfirmasi
-      document.getElementById("formBayar").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const bukti = document.getElementById("buktiTransfer").files[0];
-        if (!bukti) return tampilPesan('error', 'Silakan upload bukti transfer.');
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const base64Data = event.target.result.split(",")[1]; // hanya ambil isi base64
 
-        const formData = new FormData();
-        formData.append("file", bukti);
-        formData.append("noPesanan", noPesanan);
+          const payload = {
+            noPesanan: noPesanan,
+            file: base64Data
+          };
 
-        //fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
-        fetch(URL_APPS_SCRIPT,{
-          method: "POST",
-          body: formData
-        })
-        .then(r => r.json())
-        .then(res => {
-          if (res.success) {
-            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
-          } else {
-            tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
-          }
-        })
-        .catch(() => tampilPesan('error', '❌ Gagal koneksi ke server.'));
+          //fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+          fetch(URL_APPS_SCRIPT,{
+            method: "POST",
+            body: new URLSearchParams(payload) // kirim sebagai form-urlencoded
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                tampilPesan("success", "✅ Pembayaran berhasil dikonfirmasi.");
+              } else {
+                tampilPesan("error", data.message || "❌ Gagal mengupdate pembayaran.");
+              }
+            })
+            .catch((err) => {
+              tampilPesan("error", "❌ Gagal koneksi ke server.");
+            });
+        };
+
+        reader.readAsDataURL(file);
       });
 
       function tampilPesan(tipe, pesan) {
