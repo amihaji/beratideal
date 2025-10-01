@@ -90,16 +90,20 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzuQXoI4Ieq5HUt3Rk7z3HQwAhgJibx0sPDu4_aWwAaHrU3cdX9-fRDtvMuW86YgKNv/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzFTjIbmWNnvchv1XXaANQJr3DDY4y7w4izyIlEpSdhlb3vobBXGgfPmenfkQ4TwBK3/exec';
 
   // ******************************************** 
   // Memanggail data inputan ke dalam form bayar
   // ********************************************
   document.addEventListener('DOMContentLoaded', function () {
       // Ambil noPesanan dari query string, bukan dari localStorage
-      const params = new URLSearchParams(window.location.search);
-      const noPesanan = params.get("noPesanan");
-  
+      const params     = new URLSearchParams(window.location.search);
+      const noPesanan  = params.get("noPesanan");
+      const form       = document.getElementById("formBayar");
+      const fileInput  = document.getElementById("buktiTransfer");
+      const preview    = document.getElementById("preview");
+      const messageBox = document.getElementById("formMessage");
+
       if (!noPesanan) {
         alert("Data tidak ditemukan. Silakan daftar ulang.");
         return;
@@ -141,7 +145,7 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzuQXoI4Ieq5HUt
   
       // 2. Preview gambar bukti transfer
       document.getElementById("buktiTransfer").addEventListener("change", function () {
-        const file = this.files[0];
+        const file    = this.files[0];
         const preview = document.getElementById("preview");
         preview.innerHTML = "";
   
