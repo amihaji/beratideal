@@ -136,7 +136,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM0RsYQhutTI2mJn9KMlzfRPu-ds2gclxmTUpm_VKQDrajWRTUMzIM/exec';
 let currentStep = 1;
 
 /************************
@@ -432,15 +432,6 @@ async function submitForm() {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
     });
-
-    /* 
-    fetch(URL_APPS_SCRIPT, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: payload
-    })
-    */
 
     if (!response.ok) throw new Error('Jaringan sedang gangguan');
 

@@ -83,7 +83,12 @@
   </div>
 
   <!-- Script -->
-  <script>
+<script>
+/****************************  
+* Deklarasi variabel global *
+*****************************/ 
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM0RsYQhutTI2mJn9KMlzfRPu-ds2gclxmTUpm_VKQDrajWRTUMzIM/exec';
+
   // ******************************************** 
   // Memanggail data inputan ke dalam form bayar
   // ********************************************
@@ -98,8 +103,9 @@
       }
   
       // 1. Ambil data dari Apps Script via noPesanan
-      fetch("https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec?noPesanan=" + noPesanan)
-        .then(res => res.json())
+      //fetch("https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec?noPesanan=" + noPesanan)
+      fetch("URL_APPS_SCRIPT?noPesanan=" + noPesanan)
+      .then(res => res.json())
         .then(data => {
           if (data.error) {
             alert("Data tidak ditemukan di server.");
@@ -154,7 +160,6 @@
           alert("Silakan upload bukti transfer terlebih dahulu.");
           return;
         }
-  
         alert("Fungsi kirim bukti & update ke Sheet belum aktif.");
       });
     });
