@@ -95,74 +95,96 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzFTjIbmWNnvchv
   // ******************************************** 
   // Memanggail data inputan ke dalam form bayar
   // ********************************************
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
-  const noPesanan = params.get("noPesanan");
-  const form = document.getElementById("formBayar");
-  const fileInput = document.getElementById("buktiTransfer");
-  const preview = document.getElementById("preview");
-  const messageBox = document.getElementById("formMessage");
+  document.addEventListener('DOMContentLoaded', function () {
+      // Ambil noPesanan dari query string, bukan dari localStorage
+      const params     = new URLSearchParams(window.location.search);
+      const noPesanan  = params.get("noPesanan");
+  
+      if (!noPesanan) {
+        alert("Data tidak ditemukan. Silakan daftar ulang.");
+        return;
+      }
+  
+      // 1. Ambil data dari Apps Script via noPesanan
+      fetch(URL_APPS_SCRIPT + "?noPesanan=" + noPesanan)
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert("Data tidak ditemukan di server.");
+            return;
+          }
+  
+          const mapping = {
+            tanggal: "tanggal",
+            noPesanan: "nomorPesanan",
+            program: "program",
+            harga: "harga",
+            nama: "nama",
+            alamat: "alamat",
+            telp: "telp",
+            email: "email",
+            kelurahan: "kelurahan",
+            kecamatan: "kecamatan",
+            kota: "kota",
+            propinsi: "propinsi",
+            pembayaran: "sistemBayar",
+            namaPenerima: "namaPenerima",
+            acPenerima: "acPenerima",
+            nominal: "nominal"
+          };
+  
+          Object.entries(mapping).forEach(([key, id]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = data[key] || "";
+          });
+        });
+  
+      // 2. Preview gambar bukti transfer
+      document.getElementById("buktiTransfer").addEventListener("change", function () {
+        const file = this.files[0];
+        const preview = document.getElementById("preview");
+        preview.innerHTML = "";
+  
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    
+      // Submit konfirmasi
+      document.getElementById("formBayar").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const bukti = document.getElementById("buktiTransfer").files[0];
+        if (!bukti) return tampilPesan('error', 'Silakan upload bukti transfer.');
 
-  // === 1. Preview gambar upload ===
-  fileInput.addEventListener("change", function () {
-    const file = this.files[0];
-    preview.innerHTML = "";
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        preview.innerHTML =
-          `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+        const formData = new FormData();
+        formData.append("file", bukti);
+        formData.append("noPesanan", noPesanan);
 
-  // === 2. Submit konfirmasi pembayaran ===
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const file = fileInput.files[0];
-    if (!file) {
-      tampilPesan("error", "Silakan upload bukti transfer terlebih dahulu.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function (event) {
-    const base64Data = event.target.result.split(",")[1]; // ambil isi base64
-
-    // kirim ke Apps Script
-    const formData = new FormData();
-    formData.append("noPesanan", noPesanan);
-    formData.append("file", base64Data);
-
-      //fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
-      fetch(URL_APPS_SCRIPT, {
-      method: "POST",
-        body: formData
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            tampilPesan("success", "✅ Pembayaran berhasil dikonfirmasi.");
+        fetch(URL_APPS_SCRIPT,{
+          method: "POST",
+          body: formData
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.success) {
+            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
           } else {
-            tampilPesan("error", data.message || "❌ Gagal mengupdate pembayaran.");
+            tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
           }
         })
-        .catch((err) => {
-          tampilPesan("error", "❌ Gagal koneksi ke server.");
-        });
-    };
+        .catch(() => tampilPesan('error', '❌ Gagal koneksi ke server.'));
+      });
 
-    reader.readAsDataURL(file);
-  });
+      function tampilPesan(tipe, pesan) {
+        const msg = document.getElementById("formMessage");
+        msg.innerHTML = `<div class="${tipe === 'error' ? 'msg-error' : 'msg-success'}">${pesan}</div>`;
+      }
 
-  // === 3. Fungsi tampil pesan ke layar ===
-  function tampilPesan(tipe, pesan) {
-    messageBox.innerHTML =
-      `<div class="${tipe === "error" ? "msg-error" : "msg-success"}">${pesan}</div>`;
-  }
-});
-</script>
+    });
+  </script>
 </body>
 </html>
