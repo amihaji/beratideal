@@ -89,7 +89,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwPjf8xEgqzvKVZQHwKyDCjkAu80g3TyJTm51ODNtb4H4SBFpo8fSPysFsUomYfezQd/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyiDXgs9EuubDfznzy-m-yhuEX5Vhi5p4LLvyfKpzpT3CzQwKm6H1HoFLNazFAd3dVg/exec';
 
 // ******************************************** 
 // Memanggail data inputan ke dalam form bayar
@@ -171,21 +171,19 @@ document.addEventListener('DOMContentLoaded', function () {
       reader.onload = function(e) {
         const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
         
-        const formData = new FormData();
+        // Kirim data sebagai form-urlencoded (sama seperti formDaftar)
+        const formData = new URLSearchParams();
         formData.append("file", base64Data);
         formData.append("noPesanan", noPesanan);
 
-        // Kirim dengan Content-Type header yang tepat
         fetch(URL_APPS_SCRIPT, {
           method: "POST",
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
           body: formData
         })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(res => {
           if (res.success) {
             tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
