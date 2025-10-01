@@ -61,6 +61,9 @@
             <div class="mt-2" id="preview"></div>
           </div>
 
+          <!-- Pesan status -->
+          <div id="formMessage" class="mt-3"></div>
+
           <!-- Tombol Konfirmasi -->
           <div class="text-center">
             <button type="submit" class="btn btn-success w-100" id="btnKonfirmasi">
@@ -87,7 +90,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM0RsYQhutTI2mJn9KMlzfRPu-ds2gclxmTUpm_VKQDrajWRTUMzIM/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxBRancSaA9Y5hnkAlhgdRKh1rnAHYBo4A8S8ns_h5Bz-ZuHMkrU1aod4niQxBIth7W/exec';
 
   // ******************************************** 
   // Memanggail data inputan ke dalam form bayar
@@ -103,7 +106,6 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM
       }
   
       // 1. Ambil data dari Apps Script via noPesanan
-      //fetch("https://script.google.com/macros/s/AKfycbz5y6mMbYzlPaiiLbJN9rq6oN6FSD251OW5rh_ZxIASxTJ5NyPOygNJDNqRRvt7mAYd/exec?noPesanan=" + noPesanan)
       fetch(URL_APPS_SCRIPT + "?noPesanan=" + noPesanan)
       .then(res => res.json())
         .then(data => {
@@ -151,7 +153,8 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM
           reader.readAsDataURL(file);
         }
       });
-  
+    
+      /******************
       // 3. Tombol submit
       document.getElementById("formBayar").addEventListener("submit", function (e) {
         e.preventDefault();
@@ -162,6 +165,39 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwHSKIF8h4NovbM
         }
         alert("Fungsi kirim bukti & update ke Sheet belum aktif.");
       });
+      **************/ 
+
+      // Submit konfirmasi
+      document.getElementById("formBayar").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const bukti = document.getElementById("buktiTransfer").files[0];
+        if (!bukti) return tampilPesan('error', 'Silakan upload bukti transfer.');
+
+        const formData = new FormData();
+        formData.append("file", bukti);
+        formData.append("noPesanan", noPesanan);
+
+        //fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+        fetch(URL_APPS_SCRIPT,{
+          method: "POST",
+          body: formData
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.success) {
+            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
+          } else {
+            tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
+          }
+        })
+        .catch(() => tampilPesan('error', '❌ Gagal koneksi ke server.'));
+      });
+
+      function tampilPesan(tipe, pesan) {
+        const msg = document.getElementById("formMessage");
+        msg.innerHTML = `<div class="${tipe === 'error' ? 'msg-error' : 'msg-success'}">${pesan}</div>`;
+      }
+
     });
   </script>
 </body>
