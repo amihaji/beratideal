@@ -194,14 +194,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(res => {
           if (res.success) {
             // Tombol konfirmasi menampilkan pesan
-            setTimeout(() => {
-              konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-              tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
-              //window.location.href = 'index.html';
-            }, 2000);
-
+            konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
+      
             // Setelah Konfirmasi Pembayaran kembali ke home
-            window.location.href = 'index.html';
+            setTimeout(function() {
+              window.location.href = 'index.html';
+            }, 3000); // delay 3 detik (3000 milidetik)
 
           } else {
             tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
