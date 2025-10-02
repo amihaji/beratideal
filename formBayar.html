@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const params        = new URLSearchParams(window.location.search);
     const noPesanan     = params.get("noPesanan");
     const konfirmasiBtn = document.getElementById('btnKonfirmasi');
-    const msgBox3       = document.getElementById('msgBox3') || document.createElement('div');
             
     if (!noPesanan) {
-      alert("Data tidak ditemukan. Silakan daftar ulang.");
+      //alert("Data tidak ditemukan. Silakan daftar ulang.");
+      tampilPesan('error', '❌ Data tidak ditemukan. Silahkan daftar ulang');
       return;
     }
 
@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(res => res.json())
       .then(data => {
         if (data.error) {
-          alert("Data tidak ditemukan di server.");
+          //alert("Data tidak ditemukan di server.");
+          tampilPesan('error', '❌ Data tidak ditemukan diserver');
           return;
         }
 
@@ -192,15 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(res => {
           if (res.success) {
-            //tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
             //document.getElementById("btnKonfirmasi").disabled = true;
-
             // Tombol konfirmasi menampilkan pesan
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-            msgBox3.innerHTML       = '<div class="msg-success">Pembayaran berhasil dikonfirmasi, Admin segera menghubungi</div>';
-           
+            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
+            
             // Setelah Konfirmasi Pembayaran kembali ke home
-           window.location.href = 'index.html';
+            window.location.href = 'index.html';
 
           } else {
             tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
@@ -217,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function tampilPesan(tipe, pesan) {
   const msg = document.getElementById("formMessage");
-  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success';
+  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success' ;
   msg.innerHTML = `<div class="${alertClass}">${pesan}</div>`;
 }
 
