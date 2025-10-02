@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append("file", base64Data);
         formData.append("noPesanan", noPesanan);
 
-        // Tampilkan spinner di tombol
+        // Tampilkan spinner di tombol konfirmasi
         konfirmasiBtn.disabled  = true;
         konfirmasiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
@@ -194,8 +194,14 @@ document.addEventListener('DOMContentLoaded', function () {
           if (res.success) {
             //tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin akan segera dihubungi.');
             //document.getElementById("btnKonfirmasi").disabled = true;
+
+            // Tombol konfirmasi menampilkan pesan
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-            msgBox3.innerHTML       = '<div class="msg-success">Pembayaran berhasil dikonfirmasi.</div>';
+            msgBox3.innerHTML       = '<div class="msg-success">Pembayaran berhasil dikonfirmasi, Admin segera menghubungi</div>';
+           
+            // Setelah Konfirmasi Pembayaran kembali ke home
+           window.location.href = 'index.html';
+
           } else {
             tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
           }
@@ -207,13 +213,14 @@ document.addEventListener('DOMContentLoaded', function () {
       };
       reader.readAsDataURL(bukti);
     });
-
-    function tampilPesan(tipe, pesan) {
-      const msg = document.getElementById("formMessage");
-      const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success';
-      msg.innerHTML = `<div class="${alertClass}">${pesan}</div>`;
-    }
 });
+
+function tampilPesan(tipe, pesan) {
+  const msg = document.getElementById("formMessage");
+  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success';
+  msg.innerHTML = `<div class="${alertClass}">${pesan}</div>`;
+}
+
 </script>
 </body>
 </html>
