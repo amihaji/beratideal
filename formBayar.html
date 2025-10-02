@@ -89,7 +89,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxGVgRNOaEZqHaCzdLbY7sw_k3ZqzrOH8aAinGWhgXei_IMHjVwABN3l_-tFyQ0NGt1/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzoS_t5Y-bVMibecLCXQqKTL6a19FrTDyDSoJvKlQM_RY6xae7f-SwSf9HRFUo4Y86q/exec';
 
 // ******************************************** 
 // Memanggail data inputan ke dalam form bayar
@@ -193,11 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(res => {
           if (res.success) {
-            //document.getElementById("btnKonfirmasi").disabled = true;
             // Tombol konfirmasi menampilkan pesan
-            konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
-            
+            setTimeout(() => {
+              konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+              tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
+              //window.location.href = 'index.html';
+            }, 3000);
+
             // Setelah Konfirmasi Pembayaran kembali ke home
             window.location.href = 'index.html';
 
