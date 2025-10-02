@@ -134,7 +134,24 @@ document.addEventListener('DOMContentLoaded', function () {
           acPenerima: "acPenerima",
           nominal: "nominal"
         };
-
+       
+        // Format tanggal
+        Object.entries(mapping).forEach(([key, id]) => {
+          const el = document.getElementById(id);
+          if (el) {
+            // Format tanggal jika field adalah tanggal
+            if (key === "tanggal" && data[key]) {
+              const date  = new Date(data[key]);
+              const day   = String(date.getDate()).padStart(2, '0');
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const year  = date.getFullYear();
+              el.value = `${day}-${month}-${year}`;
+            } else {
+              el.value = data[key] || "";
+            }
+          }
+        });
+      
         Object.entries(mapping).forEach(([key, id]) => {
           const el = document.getElementById(id);
           if (el) el.value = data[key] || "";
