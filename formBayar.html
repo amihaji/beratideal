@@ -89,7 +89,7 @@
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxaHj5I1jyAqQnc3AcAto3WnCniDr9FHeNKiylVik5tPQPjoG40PZdTBOpBkQvLEdTT/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwOEuMnos-nrGkiSSIkyc775gwpey2ir2t0Wil3CAZMBSfGb8iKarlOeOusckfnZRhw/exec';
 
 // ******************************************** 
 // Memanggail data inputan ke dalam form bayar
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
       reader.onload = function(e) {
         const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
         
-        // Kirim data sebagai form-urlencoded (sama seperti formDaftar)
+        // Kirim data sebagai form-urlencoded 
         const formData = new URLSearchParams();
         formData.append("file", base64Data);
         formData.append("noPesanan", noPesanan);
@@ -228,6 +228,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+/************************
+* Fungsi tampilkan pesan
+************************/
 function tampilPesan(tipe, pesan) {
   const msg = document.getElementById("formMessage");
   const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success' ;
