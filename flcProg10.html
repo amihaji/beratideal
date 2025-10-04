@@ -162,6 +162,102 @@ body {
   text-align: center;
 }
 
+/***********************/
+/* Video Player Styles */
+/***********************/
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 15px auto;
+    display: none;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+}
+.video-wrapper iframe,
+.video-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #002266, #0044cc);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.video-placeholder:hover {
+    background: linear-gradient(45deg, #0044cc, #002266);
+}
+.video-placeholder i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+.video-placeholder-text {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+}
+.video-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+}
+.video-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+.video-controls {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+.close-video {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+.close-video:hover {
+    background: rgba(220, 53, 69, 0.8);
+    transform: scale(1.1);
+}
+
 /* Tampilan Mobile */
 @media (max-width: 591.98px) {
   .navbar-collapse .mx-auto {
@@ -236,30 +332,28 @@ body {
           
           <!-- Perkenalan -->
           <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
-              <span>
-                <i class="fas fa-angle-double-right me-2"></i>Perkenalan
-                <i class="fas fa-lock status-lock"></i>
-              </span>
-              <i class="fas fa-angle-down menu-icon"></i>
-            </button>
-            <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
-              <div class="menu-content">
-                <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" class="menu-item">
-                  <i class="fas fa-video"></i>1. Menggunakan Canva
-                </a>
-                <a href="https://youtu.be/WewA3XUo8sY?si=4_F8if33vVZlcINc" class="menu-item">
-                  <i class="fas fa-video"></i>2. Live Best Your Best Life !
-                </a>
-                <a href="#" class="menu-item">
-                  <i class="fas fa-video"></i>3. Live Best Your Best Life !
-                  <video width="320" height="240" controls>
-                    <source src="/video/Live Best Your Best Life ! - 360.mp4" type="video/mp4">
-                  </video>
-                </a>
-
+              <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
+                  <span>
+                      <i class="fas fa-angle-double-right me-2"></i>Perkenalan
+                      <i class="fas fa-lock status-lock"></i>
+                  </span>
+                  <i class="fas fa-angle-down menu-icon"></i>
+              </button>
+              <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
+                  <div class="menu-content">
+                      <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" 
+                        class="menu-item" onclick="return false;">
+                          <i class="fas fa-video"></i>1. Menggunakan Canva (Link Canva)
+                      </a>
+                      <a href="https://youtu.be/WewA3XUo8sY?si=4_F8if33vVZlcINc" 
+                        class="menu-item" onclick="return false;">
+                          <i class="fas fa-video"></i>2. Live Best Your Best Life ! (Youtube)
+                      </a>
+                      <a href="#" class="menu-item" onclick="return false;">
+                          <i class="fas fa-video"></i>3. Live Best Your Best Life ! (Folder Video)
+                      </a>
+                  </div>
               </div>
-            </div>
           </div>
 
           <!-- Pertemuan 1 -->
@@ -356,6 +450,25 @@ body {
           </div>
         </div>
 
+        <!-- Video Player Container -->
+        <div class="video-container" id="videoContainer">
+            <button class="close-video" onclick="closeVideo()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="video-wrapper">
+                <div class="video-placeholder" id="videoPlaceholder">
+                    <i class="fas fa-play-circle"></i>
+                    <div class="video-placeholder-text">Klik untuk memuat video</div>
+                </div>
+                <div class="video-loading d-none" id="videoLoading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                    </div>
+                </div>
+                <div id="videoPlayer"></div>
+            </div>
+        </div>
+
         <footer class="footer mt-3 text-white text-center p-2 rounded" style="background-color: #002266;">
           Fat Loss Challenge Versi 1.0 © 2025 <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a>
         </footer>
@@ -417,6 +530,155 @@ function logout() {
   sessionStorage.removeItem('aksesList');
   window.location.reload();
 }
+
+// Video Player Functions
+let currentVideoType = '';
+let currentVideoUrl = '';
+
+function loadVideo(videoType, videoUrl, title = '') {
+    const videoContainer = document.getElementById('videoContainer');
+    const videoPlaceholder = document.getElementById('videoPlaceholder');
+    const videoLoading = document.getElementById('videoLoading');
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    // Reset previous video
+    videoPlayer.innerHTML = '';
+    currentVideoType = videoType;
+    currentVideoUrl = videoUrl;
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Scroll to video container
+    videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Update placeholder text based on video type
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'canva') {
+        placeholderText = 'Klik untuk memuat video dari Canva';
+    } else if (videoType === 'youtube') {
+        placeholderText = 'Klik untuk memuat video dari YouTube';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video lokal';
+    }
+    
+    videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+    videoPlaceholder.style.display = 'flex';
+    videoLoading.classList.add('d-none');
+}
+
+function playVideo() {
+    const videoPlaceholder = document.getElementById('videoPlaceholder');
+    const videoLoading = document.getElementById('videoLoading');
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    // Hide placeholder, show loading
+    videoPlaceholder.style.display = 'none';
+    videoLoading.classList.remove('d-none');
+    
+    // Load video based on type
+    setTimeout(() => {
+        videoLoading.classList.add('d-none');
+        
+        if (currentVideoType === 'canva') {
+            loadCanvaVideo(currentVideoUrl);
+        } else if (currentVideoType === 'youtube') {
+            loadYouTubeVideo(currentVideoUrl);
+        } else if (currentVideoType === 'local') {
+            loadLocalVideo(currentVideoUrl);
+        }
+    }, 1000); // Simulate loading time
+}
+
+function loadCanvaVideo(url) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.innerHTML = `
+        <iframe src="${url}" 
+                frameborder="0" 
+                allowfullscreen 
+                allow="autoplay; fullscreen">
+        </iframe>
+    `;
+}
+
+function loadYouTubeVideo(url) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    // Extract YouTube video ID from URL
+    const videoId = extractYouTubeId(url);
+    videoPlayer.innerHTML = `
+        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+    `;
+}
+
+function loadLocalVideo(url) {
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoPlayer.innerHTML = `
+        <video controls autoplay style="width:100%; height:100%">
+            <source src="${url}" type="video/mp4">
+            Browser Anda tidak mendukung pemutaran video.
+        </video>
+    `;
+}
+
+function extractYouTubeId(url) {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+function closeVideo() {
+    const videoContainer = document.getElementById('videoContainer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    
+    // Stop video playback
+    videoPlayer.innerHTML = '';
+    videoContainer.style.display = 'none';
+    
+    // Reset states
+    document.getElementById('videoPlaceholder').style.display = 'flex';
+    document.getElementById('videoLoading').classList.add('d-none');
+    
+    currentVideoType = '';
+    currentVideoUrl = '';
+}
+
+// Update menu items to use video loader
+document.addEventListener('DOMContentLoaded', function() {
+    // Update Canva link
+    const canvaLink = document.querySelector('a[href*="canva.com"]');
+    if (canvaLink) {
+        canvaLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('canva', this.href, 'Menggunakan Canva');
+        };
+    }
+    
+    // Update YouTube link
+    const youtubeLink = document.querySelector('a[href*="youtu.be"]');
+    if (youtubeLink) {
+        youtubeLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('youtube', this.href, 'Live Best Your Best Life!');
+        };
+    }
+    
+    // Update local video link
+    const localVideoLink = document.querySelector('a[href="#"]');
+    if (localVideoLink && localVideoLink.textContent.includes('Folder Video')) {
+        localVideoLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
+        };
+    }
+    
+    // Add click event to video placeholder
+    document.getElementById('videoPlaceholder').addEventListener('click', playVideo);
+});
+
 </script>
 </body>
 </html>
