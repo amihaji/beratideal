@@ -520,7 +520,6 @@ body {
     </div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Show About form
@@ -548,8 +547,6 @@ document.addEventListener('DOMContentLoaded', function () {
         <i class="fas fa-sign-out-alt"></i> Logout
       </a>
     `;
-    
-    // Di sini nanti bisa menambahkan logika untuk membuka kunci menu berdasarkan progress
   }
 });
 
@@ -567,6 +564,12 @@ let currentVideoType = '';
 let currentVideoUrl = '';
 
 function loadVideo(videoType, videoUrl, title = '') {
+    // Untuk Canva, buka di tab baru (karena CSP restrictions)
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    
     const videoContainer = document.getElementById('videoContainer');
     const videoPlaceholder = document.getElementById('videoPlaceholder');
     const videoLoading = document.getElementById('videoLoading');
@@ -585,9 +588,7 @@ function loadVideo(videoType, videoUrl, title = '') {
     
     // Update placeholder text based on video type
     let placeholderText = 'Klik untuk memuat video';
-    if (videoType === 'canva') {
-        placeholderText = 'Klik untuk memuat video dari Canva';
-    } else if (videoType === 'youtube') {
+    if (videoType === 'youtube') {
         placeholderText = 'Klik untuk memuat video dari YouTube';
     } else if (videoType === 'local') {
         placeholderText = 'Klik untuk memuat video lokal';
@@ -611,38 +612,31 @@ function playVideo() {
     setTimeout(() => {
         videoLoading.classList.add('d-none');
         
-        if (currentVideoType === 'canva') {
-            loadCanvaVideo(currentVideoUrl);
-        } else if (currentVideoType === 'youtube') {
+        if (currentVideoType === 'youtube') {
             loadYouTubeVideo(currentVideoUrl);
         } else if (currentVideoType === 'local') {
             loadLocalVideo(currentVideoUrl);
         }
-    }, 1000); // Simulate loading time
-}
-
-function loadCanvaVideo(url) {
-    const videoPlayer = document.getElementById('videoPlayer');
-    videoPlayer.innerHTML = `
-        <iframe src="${url}" 
-                frameborder="0" 
-                allowfullscreen 
-                allow="autoplay; fullscreen">
-        </iframe>
-    `;
+    }, 1000);
 }
 
 function loadYouTubeVideo(url) {
     const videoPlayer = document.getElementById('videoPlayer');
     // Extract YouTube video ID from URL
     const videoId = extractYouTubeId(url);
-    videoPlayer.innerHTML = `
-        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-        </iframe>
-    `;
+    if (videoId) {
+        videoPlayer.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        `;
+    } else {
+        // Fallback: jika tidak bisa extract ID, buka di tab baru
+        window.open(url, '_blank');
+        closeVideo();
+    }
 }
 
 function loadLocalVideo(url) {
@@ -666,6 +660,19 @@ function closeVideo() {
     const videoPlayer = document.getElementById('videoPlayer');
     
     // Stop video playback
+    const iframe = videoPlayer.querySelector('iframe');
+    const video = videoPlayer.querySelector('video');
+    
+    if (iframe) {
+        // Hentikan iframe YouTube
+        iframe.src = '';
+    }
+    if (video) {
+        // Hentikan video lokal
+        video.pause();
+        video.currentTime = 0;
+    }
+    
     videoPlayer.innerHTML = '';
     videoContainer.style.display = 'none';
     
@@ -679,12 +686,12 @@ function closeVideo() {
 
 // Update menu items to use video loader
 document.addEventListener('DOMContentLoaded', function() {
-    // Update Canva link
+    // Update Canva link - buka di tab baru
     const canvaLink = document.querySelector('a[href*="canva.com"]');
     if (canvaLink) {
         canvaLink.onclick = function(e) {
             e.preventDefault();
-            loadVideo('canva', this.href, 'Menggunakan Canva');
+            loadVideo('canva', this.href, 'Materi Pertemuan Pertama');
         };
     }
     
@@ -693,23 +700,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (youtubeLink) {
         youtubeLink.onclick = function(e) {
             e.preventDefault();
-            loadVideo('youtube', this.href, 'Live Best Your Best Life!');
+            loadVideo('youtube', this.href, 'Alasan Mengapa Herbalife');
         };
     }
     
-    // Update local video link
-    const localVideoLink = document.querySelector('a[href="#"]');
-    if (localVideoLink && localVideoLink.textContent.includes('Video')) {
-        localVideoLink.onclick = function(e) {
-            e.preventDefault();
-            loadVideo('local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
-        };
-    }
+    // Update local video link - perbaiki selector
+    const localVideoLinks = document.querySelectorAll('a.menu-item');
+    localVideoLinks.forEach(link => {
+        if (link.textContent.includes('Live Best Your Best Life !')) {
+            link.onclick = function(e) {
+                e.preventDefault();
+                loadVideo('local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
+            };
+        }
+    });
     
     // Add click event to video placeholder
     document.getElementById('videoPlaceholder').addEventListener('click', playVideo);
+    
+    // Close video dengan ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeVideo();
+        }
+    });
 });
-
 </script>
 </body>
 </html>
