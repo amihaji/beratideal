@@ -183,9 +183,10 @@ body {
     margin: 15px auto;
     display: none;
     background: #000;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    border: 3px solid #002266;
 }
 .video-wrapper {
     position: relative;
@@ -208,7 +209,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, #002266, #0044cc);
+    background: linear-gradient(135deg, #002266 0%, #0044cc 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -218,37 +219,37 @@ body {
     transition: all 0.3s ease;
 }
 .video-placeholder:hover {
-    background: linear-gradient(45deg, #0044cc, #002266);
+    background: linear-gradient(135deg, #0044cc 0%, #002266 100%);
+    transform: scale(1.02);
 }
 .video-placeholder i {
     font-size: 48px;
     margin-bottom: 15px;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 .video-placeholder-text {
     font-size: 16px;
     font-weight: 500;
     text-align: center;
+    padding: 0 20px;
 }
+/* Spinner di tengah video player */
 .video-loading {
-    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
     justify-content: center;
     align-items: center;
     background: #000;
+    z-index: 5;
 }
 .video-loading .spinner-border {
     width: 3rem;
     height: 3rem;
-    justify-content: center;
-    align-items: center;
-    vertical-align: middle;
-}
-.video-controls {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
+    color: #dc3545;
 }
 .close-video {
     position: absolute;
@@ -258,17 +259,18 @@ body {
     color: white;
     border: none;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
+    z-index: 20;
     transition: all 0.3s ease;
+    font-size: 14px;
 }
 .close-video:hover {
-    background: rgba(220, 53, 69, 0.8);
+    background: rgba(220, 53, 69, 0.9);
     transform: scale(1.1);
 }
 /***** Akhir Video Player Styles *****/
@@ -348,7 +350,7 @@ body {
         <div class="menu-accordion" id="menuAccordion">
           
           <!-- Perkenalan -->
-          <div class="menu-accordion-item">
+            <div class="menu-accordion-item">
               <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
                   <span>
                       <i class="fas fa-angle-double-right me-2"></i>Perkenalan
@@ -360,7 +362,7 @@ body {
                   <div class="menu-content">
                       <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" 
                         class="menu-item" onclick="return false;">
-                         <i class="fas fa-video"></i>1. Materi Pertemuan Pertama (Link Canva)
+                        <i class="fas fa-video"></i>1. Materi Pertemuan Pertama (Link Canva)
                       </a>
                       <a href="https://youtu.be/9DoHhx9jlGM?si=JFxp9Szh2YGlyNnH" 
                         class="menu-item" onclick="return false;">
@@ -370,6 +372,25 @@ body {
                         class="menu-item" onclick="return false;">
                         <i class="fas fa-video"></i>3. Live Best Your Best Life ! (Folder Video)
                       </a>
+                      
+                      <!-- Video Player untuk Perkenalan -->
+                      <div class="video-container" id="videoContainerPerkenalan">
+                          <button class="close-video" onclick="closeVideo('perkenalan')">
+                              <i class="fas fa-times"></i>
+                          </button>
+                          <div class="video-wrapper">
+                              <div class="video-placeholder" onclick="playVideo('perkenalan')">
+                                  <i class="fas fa-play-circle"></i>
+                                  <div class="video-placeholder-text">Klik untuk memuat video</div>
+                              </div>
+                              <div class="video-loading" id="videoLoadingPerkenalan">
+                                  <div class="spinner-border" role="status">
+                                      <span class="visually-hidden">Loading video...</span>
+                                  </div>
+                              </div>
+                              <div id="videoPlayerPerkenalan"></div>
+                          </div>
+                      </div>
                   </div>
               </div>
           </div>
@@ -397,6 +418,25 @@ body {
                 <a href="#" class="menu-item">
                   <i class="fas fa-dumbbell"></i>1.4 Workout - Pertemuan Pertama
                 </a>
+                
+                <!-- Video Player untuk Pertemuan 1 -->
+                <div class="video-container" id="videoContainerPertemuan1">
+                    <button class="close-video" onclick="closeVideo('pertemuan1')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="video-wrapper">
+                        <div class="video-placeholder" onclick="playVideo('pertemuan1')">
+                            <i class="fas fa-play-circle"></i>
+                            <div class="video-placeholder-text">Klik untuk memuat video</div>
+                        </div>
+                        <div class="video-loading" id="videoLoadingPertemuan1">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading video...</span>
+                            </div>
+                        </div>
+                        <div id="videoPlayerPertemuan1"></div>
+                    </div>
+                </div>
               </div>
             </div>
           </div>
@@ -413,40 +453,42 @@ body {
             <div class="collapse" id="pertemuan2Content" data-bs-parent="#menuAccordion">
               <div class="menu-content">
                 <a href="#" class="menu-item">
-                  <i class="fas fa-video"></i>2.1 Video Materi - Pertemuan Kedua
+                  <i class="fas fa-video"></i>1.1 Video Materi - Pertemuan Kedua
                 </a>
                 <a href="#" class="menu-item">
-                  <i class="fas fa-question-circle"></i>2.2 Quiz - Pertemuan Kedua
+                  <i class="fas fa-question-circle"></i>1.2 Quiz - Pertemuan Kedua
                 </a>
                 <a href="#" class="menu-item">
-                  <i class="fas fa-utensils"></i>2.3 Meal Plan - Pertemuan Kedua
+                  <i class="fas fa-utensils"></i>1.3 Meal Plan - Pertemuan Kedua
                 </a>
                 <a href="#" class="menu-item">
-                  <i class="fas fa-dumbbell"></i>2.4 Workout - Pertemuan Kedua
+                  <i class="fas fa-dumbbell"></i>1.4 Workout - Pertemuan Kedua
                 </a>
+                
+                <!-- Video Player untuk Pertemuan 2 -->
+                <div class="video-container" id="videoContainerPertemuan2">
+                    <button class="close-video" onclick="closeVideo('pertemuan2')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="video-wrapper">
+                        <div class="video-placeholder" onclick="playVideo('pertemuan2')">
+                            <i class="fas fa-play-circle"></i>
+                            <div class="video-placeholder-text">Klik untuk memuat video</div>
+                        </div>
+                        <div class="video-loading" id="videoLoadingPertemuan2">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading video...</span>
+                            </div>
+                        </div>
+                        <div id="videoPlayerPertemuan2"></div>
+                    </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Pertemuan 3-10 (sama struktur) -->
-          <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan3Content">
-              <span>
-                <i class="fas fa-angle-double-right me-2"></i>Pertemuan Ketiga
-                <i class="fas fa-lock status-lock"></i>
-              </span>
-              <i class="fas fa-angle-down menu-icon"></i>
-            </button>
-            <div class="collapse" id="pertemuan3Content" data-bs-parent="#menuAccordion">
-              <div class="menu-content">
-                <a href="#" class="menu-item"><i class="fas fa-video"></i>3.1 Video Materi</a>
-                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i>3.2 Quiz</a>
-                <a href="#" class="menu-item"><i class="fas fa-utensils"></i>3.3 Meal Plan</a>
-                <a href="#" class="menu-item"><i class="fas fa-dumbbell"></i>3.4 Workout</a>
-              </div>
-            </div>
-          </div>
-
+          
           <!-- Tambahkan pertemuan 4-10 dengan struktur yang sama -->
     
           <!-- TAMPILAN KREASI RESEP -->
@@ -484,25 +526,6 @@ body {
           </div>
         </div>
 
-        <!-- Video Player Container -->
-        <div class="video-container" id="videoContainer">
-            <button class="close-video" onclick="closeVideo()">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="video-wrapper">
-                <div class="video-placeholder" id="videoPlaceholder">
-                    <i class="fas fa-play-circle"></i>
-                    <div class="video-placeholder-text">Klik untuk memuat video</div>
-                </div>
-                <div class="video-loading d-none" id="videoLoading">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading video...</span>
-                    </div>
-                </div>
-                <div id="videoPlayer"></div>
-            </div>
-        </div>
-
         <footer class="footer mt-3 text-white text-center p-2 rounded" style="background-color: #002266;">
           Fat Loss Challenge Versi 1.0 © 2025 <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a>
         </footer>
@@ -537,13 +560,10 @@ function hideAbout() {
 
 // Cek status login saat halaman dimuat
 document.addEventListener('DOMContentLoaded', function () {
-  // Event listener untuk tombol Close About
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
   
-  // Cek apakah user sudah login
   const userToken = localStorage.getItem('userToken');
   if (userToken) {
-    // Jika sudah login, ubah tombol login menjadi logout
     const loginMenuItem = document.getElementById('loginMenuItem');
     loginMenuItem.innerHTML = `
       <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
@@ -551,6 +571,8 @@ document.addEventListener('DOMContentLoaded', function () {
       </a>
     `;
   }
+  
+  initializeVideoPlayers();
 });
 
 // Logout function
@@ -563,33 +585,64 @@ function logout() {
 }
 
 // Video Player Functions
-let currentVideoType = '';
-let currentVideoUrl = '';
+let currentVideoData = {};
 
-function loadVideo(videoType, videoUrl, title = '') {
-    // Untuk Canva, buka di tab baru (karena CSP restrictions)
+function initializeVideoPlayers() {
+    // Setup Canva link
+    const canvaLink = document.querySelector('a[href*="canva.com"]');
+    if (canvaLink) {
+        canvaLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('perkenalan', 'canva', this.href, 'Materi Pertemuan Pertama');
+        };
+    }
+    
+    // Setup YouTube link
+    const youtubeLink = document.querySelector('a[href*="youtu.be"]');
+    if (youtubeLink) {
+        youtubeLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('perkenalan', 'youtube', this.href, 'Alasan Mengapa Herbalife');
+        };
+    }
+    
+    // Setup local video link
+    const localVideoLink = document.querySelector('a[href="video/Live Best Your Best Life ! - 360.mp4"]');
+    if (localVideoLink) {
+        localVideoLink.onclick = function(e) {
+            e.preventDefault();
+            loadVideo('perkenalan', 'local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
+        };
+    }
+}
+
+function loadVideo(section, videoType, videoUrl, title = '') {
+    // Untuk Canva, buka di tab baru
     if (videoType === 'canva') {
         window.open(videoUrl, '_blank');
         return;
     }
     
-    const videoContainer = document.getElementById('videoContainer');
-    const videoPlaceholder = document.getElementById('videoPlaceholder');
-    const videoLoading = document.getElementById('videoLoading');
-    const videoPlayer = document.getElementById('videoPlayer');
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Close video di section lain yang mungkin terbuka
+    closeAllVideos();
     
     // Reset previous video
     videoPlayer.innerHTML = '';
-    currentVideoType = videoType;
-    currentVideoUrl = videoUrl;
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl
+    };
     
     // Show video container
     videoContainer.style.display = 'block';
     
-    // Scroll to video container
-    videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Update placeholder text based on video type
+    // Update placeholder text
     let placeholderText = 'Klik untuk memuat video';
     if (videoType === 'youtube') {
         placeholderText = 'Klik untuk memuat video dari YouTube';
@@ -599,33 +652,32 @@ function loadVideo(videoType, videoUrl, title = '') {
     
     videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
     videoPlaceholder.style.display = 'flex';
-    videoLoading.classList.add('d-none');
+    videoLoading.style.display = 'none';
 }
 
-function playVideo() {
-    const videoPlaceholder = document.getElementById('videoPlaceholder');
-    const videoLoading = document.getElementById('videoLoading');
-    const videoPlayer = document.getElementById('videoPlayer');
+function playVideo(section) {
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
     
     // Hide placeholder, show loading
     videoPlaceholder.style.display = 'none';
-    videoLoading.classList.remove('d-none');
+    videoLoading.style.display = 'flex';
     
     // Load video based on type
     setTimeout(() => {
-        videoLoading.classList.add('d-none');
+        videoLoading.style.display = 'none';
         
-        if (currentVideoType === 'youtube') {
-            loadYouTubeVideo(currentVideoUrl);
-        } else if (currentVideoType === 'local') {
-            loadLocalVideo(currentVideoUrl);
+        if (currentVideoData.type === 'youtube') {
+            loadYouTubeVideo(videoPlayer, currentVideoData.url);
+        } else if (currentVideoData.type === 'local') {
+            loadLocalVideo(videoPlayer, currentVideoData.url);
         }
     }, 1000);
 }
 
-function loadYouTubeVideo(url) {
-    const videoPlayer = document.getElementById('videoPlayer');
-    // Extract YouTube video ID from URL
+function loadYouTubeVideo(videoPlayer, url) {
     const videoId = extractYouTubeId(url);
     if (videoId) {
         videoPlayer.innerHTML = `
@@ -636,14 +688,12 @@ function loadYouTubeVideo(url) {
             </iframe>
         `;
     } else {
-        // Fallback: jika tidak bisa extract ID, buka di tab baru
         window.open(url, '_blank');
-        closeVideo();
+        closeVideo(currentVideoData.section);
     }
 }
 
-function loadLocalVideo(url) {
-    const videoPlayer = document.getElementById('videoPlayer');
+function loadLocalVideo(videoPlayer, url) {
     videoPlayer.innerHTML = `
         <video controls autoplay style="width:100%; height:100%">
             <source src="${url}" type="video/mp4">
@@ -658,76 +708,51 @@ function extractYouTubeId(url) {
     return (match && match[7].length === 11) ? match[7] : null;
 }
 
-function closeVideo() {
-    const videoContainer = document.getElementById('videoContainer');
-    const videoPlayer = document.getElementById('videoPlayer');
+function closeVideo(section) {
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
     
     // Stop video playback
     const iframe = videoPlayer.querySelector('iframe');
-    const video = videoPlayer.querySelector('video');
+    const localVideo = videoPlayer.querySelector('video');
     
-    if (iframe) {
-        // Hentikan iframe YouTube
-        iframe.src = '';
-    }
-    if (video) {
-        // Hentikan video lokal
-        video.pause();
-        video.currentTime = 0;
+    if (iframe) iframe.src = '';
+    if (localVideo) {
+        localVideo.pause();
+        localVideo.currentTime = 0;
     }
     
     videoPlayer.innerHTML = '';
     videoContainer.style.display = 'none';
+    videoPlaceholder.style.display = 'flex';
+    videoLoading.style.display = 'none';
     
-    // Reset states
-    document.getElementById('videoPlaceholder').style.display = 'flex';
-    document.getElementById('videoLoading').classList.add('d-none');
-    
-    currentVideoType = '';
-    currentVideoUrl = '';
+    currentVideoData = {};
 }
 
-// Update menu items to use video loader
-document.addEventListener('DOMContentLoaded', function() {
-    // Update Canva link - buka di tab baru
-    const canvaLink = document.querySelector('a[href*="canva.com"]');
-    if (canvaLink) {
-        canvaLink.onclick = function(e) {
-            e.preventDefault();
-            loadVideo('canva', this.href, 'Materi Pertemuan Pertama');
-        };
-    }
-    
-    // Update YouTube link
-    const youtubeLink = document.querySelector('a[href*="youtu.be"]');
-    if (youtubeLink) {
-        youtubeLink.onclick = function(e) {
-            e.preventDefault();
-            loadVideo('youtube', this.href, 'Alasan Mengapa Herbalife');
-        };
-    }
-    
-    // Update local video link - perbaiki selector
-    const localVideoLinks = document.querySelectorAll('a.menu-item');
-    localVideoLinks.forEach(link => {
-        if (link.textContent.includes('Live Best Your Best Life !')) {
-            link.onclick = function(e) {
-                e.preventDefault();
-                loadVideo('local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
-            };
+function closeAllVideos() {
+    const videoContainers = document.querySelectorAll('.video-container');
+    videoContainers.forEach(container => {
+        const section = container.id.replace('videoContainer', '');
+        if (section) {
+            closeVideo(section.toLowerCase());
         }
     });
-    
-    // Add click event to video placeholder
-    document.getElementById('videoPlaceholder').addEventListener('click', playVideo);
-    
-    // Close video dengan ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeVideo();
-        }
-    });
+}
+
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Close video dengan ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentVideoData.section) {
+        closeVideo(currentVideoData.section);
+    }
 });
 </script>
+
 </body>
 </html>
