@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
   
-  initializeVideoPlayers();
+  initializeAllVideoPlayers();
 });
 
 // Logout function
@@ -590,33 +590,59 @@ function logout() {
 // Video Player Functions
 let currentVideoData = {};
 
-function initializeVideoPlayers() {
-    // Setup Canva link
-    const canvaLink = document.querySelector('a[href*="canva.com"]');
-    if (canvaLink) {
-        canvaLink.onclick = function(e) {
+function initializeAllVideoPlayers() {
+    // Setup semua link video secara otomatis
+    const videoLinks = document.querySelectorAll('.menu-item[href]');
+    
+    videoLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        const section = findParentSection(link);
+        
+        if (!section) return;
+        
+        // Tentukan jenis video berdasarkan URL
+        let videoType = '';
+        let videoUrl = href;
+        
+        if (href.includes('canva.com')) {
+            videoType = 'canva';
+        } else if (href.includes('youtu.be') || href.includes('youtube.com')) {
+            videoType = 'youtube';
+        } else if (href.includes('.mp4') || href.includes('.webm') || href.includes('.ogg')) {
+            videoType = 'local';
+        } else {
+            return; // Skip link yang bukan video
+        }
+        
+        // Attach click event
+        link.onclick = function(e) {
             e.preventDefault();
-            loadVideo('perkenalan', 'canva', this.href, 'Materi Pertemuan Pertama');
+            loadVideo(section, videoType, videoUrl, link.textContent.trim());
         };
+    });
+}
+
+function findParentSection(element) {
+    // Cari parent menu-accordion-item
+    let parent = element.closest('.menu-accordion-item');
+    if (!parent) return null;
+    
+    // Cari button header untuk mendapatkan ID section
+    const headerButton = parent.querySelector('.menu-header');
+    if (!headerButton) return null;
+    
+    const target = headerButton.getAttribute('data-bs-target');
+    if (!target) return null;
+    
+    // Extract section name dari ID target
+    // Contoh: #perkenalanContent -> perkenalan
+    // Contoh: #pertemuan1Content -> pertemuan1
+    const sectionMatch = target.match(/#(.+)Content/);
+    if (sectionMatch && sectionMatch[1]) {
+        return sectionMatch[1];
     }
     
-    // Setup YouTube link
-    const youtubeLink = document.querySelector('a[href*="youtu.be"]');
-    if (youtubeLink) {
-        youtubeLink.onclick = function(e) {
-            e.preventDefault();
-            loadVideo('perkenalan', 'youtube', this.href, 'Alasan Mengapa Herbalife');
-        };
-    }
-    
-    // Setup local video link
-    const localVideoLink = document.querySelector('a[href="video/Live Best Your Best Life ! - 360.mp4"]');
-    if (localVideoLink) {
-        localVideoLink.onclick = function(e) {
-            e.preventDefault();
-            loadVideo('perkenalan', 'local', 'video/Live Best Your Best Life ! - 360.mp4', 'Live Best Your Best Life!');
-        };
-    }
+    return null;
 }
 
 function loadVideo(section, videoType, videoUrl, title = '') {
@@ -626,10 +652,15 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
     
-    const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) {
+        console.error('Video container not found for section:', section);
+        return;
+    }
+    
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
     
     // Close video di section lain yang mungkin terbuka
     closeAllVideos();
@@ -639,7 +670,8 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     currentVideoData = {
         section: section,
         type: videoType,
-        url: videoUrl
+        url: videoUrl,
+        title: title
     };
     
     // Show video container
@@ -655,7 +687,12 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     
     videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
     videoPlaceholder.style.display = 'flex';
-    videoLoading.style.display = 'none';
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto scroll ke video container
+    setTimeout(() => {
+        videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 }
 
 function playVideo(section) {
@@ -666,11 +703,11 @@ function playVideo(section) {
     
     // Hide placeholder, show loading
     videoPlaceholder.style.display = 'none';
-    videoLoading.style.display = 'flex';
+    if (videoLoading) videoLoading.style.display = 'flex';
     
     // Load video based on type
     setTimeout(() => {
-        videoLoading.style.display = 'none';
+        if (videoLoading) videoLoading.style.display = 'none';
         
         if (currentVideoData.type === 'youtube') {
             loadYouTubeVideo(videoPlayer, currentVideoData.url);
@@ -691,6 +728,7 @@ function loadYouTubeVideo(videoPlayer, url) {
             </iframe>
         `;
     } else {
+        // Fallback: buka di tab baru jika tidak bisa extract ID
         window.open(url, '_blank');
         closeVideo(currentVideoData.section);
     }
@@ -706,31 +744,48 @@ function loadLocalVideo(videoPlayer, url) {
 }
 
 function extractYouTubeId(url) {
-    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : null;
+    // Support multiple YouTube URL formats
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
+        /youtube\.com\/watch\?.*v=([^&?#]+)/,
+        /youtu\.be\/([^&?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            return match[1];
+        }
+    }
+    
+    return null;
 }
 
 function closeVideo(section) {
     const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) return;
+    
     const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
     const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
     
     // Stop video playback
-    const iframe = videoPlayer.querySelector('iframe');
-    const localVideo = videoPlayer.querySelector('video');
-    
-    if (iframe) iframe.src = '';
-    if (localVideo) {
-        localVideo.pause();
-        localVideo.currentTime = 0;
+    if (videoPlayer) {
+        const iframe = videoPlayer.querySelector('iframe');
+        const localVideo = videoPlayer.querySelector('video');
+        
+        if (iframe) iframe.src = '';
+        if (localVideo) {
+            localVideo.pause();
+            localVideo.currentTime = 0;
+        }
+        
+        videoPlayer.innerHTML = '';
     }
     
-    videoPlayer.innerHTML = '';
     videoContainer.style.display = 'none';
-    videoPlaceholder.style.display = 'flex';
-    videoLoading.style.display = 'none';
+    if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
+    if (videoLoading) videoLoading.style.display = 'none';
     
     currentVideoData = {};
 }
@@ -753,6 +808,17 @@ function capitalizeFirst(string) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && currentVideoData.section) {
         closeVideo(currentVideoData.section);
+    }
+});
+
+// Juga close video ketika klik di luar video player (opsional)
+document.addEventListener('click', function(e) {
+    if (currentVideoData.section && !e.target.closest('.video-container')) {
+        // Cek jika klik di luar video container
+        const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(currentVideoData.section)}`);
+        if (videoContainer && !videoContainer.contains(e.target)) {
+            closeVideo(currentVideoData.section);
+        }
     }
 });
 </script>
