@@ -276,19 +276,34 @@ body {
 }
 /***** Akhir Video Player Styles *****/
 
-/*****  Playlist Styles Youtube *****/
+/***** Playlist Styles Youtube *****/
 .playlist-container {
     display: none;
     background: white;
     border: 1px solid #dee2e6;
     border-top: none;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f8f9fa;
+}
+.playlist-container::-webkit-scrollbar {
+    width: 6px;
+}
+.playlist-container::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+.playlist-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+.playlist-container::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
 }
 .playlist-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid #f8f9fa;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -299,36 +314,49 @@ body {
 .playlist-item:last-child {
     border-bottom: none;
 }
-.playlist-item i {
-    width: 20px;
-    margin-right: 10px;
-    color: #dc3545;
-}
 .playlist-thumbnail {
-    width: 60px;
-    height: 45px;
+    width: 120px;
+    height: 68px;
     margin-right: 12px;
-    background: #ddd;
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #666;
-    text-align: center;
+    overflow: hidden;
+    background: #ddd;
+    flex-shrink: 0;
+}
+.playlist-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .playlist-info {
     flex: 1;
+    min-width: 0;
 }
 .playlist-title {
     font-weight: 500;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 .playlist-duration {
     font-size: 12px;
     color: #666;
 }
-/***** Akhir Playlist Youtube *****/
+.playlist-loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+.playlist-error {
+    padding: 20px;
+    text-align: center;
+    color: #dc3545;
+}
+/***** Akhir Playlist Styles Youtube *****/
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -694,21 +722,7 @@ function initializeAllVideoPlayers() {
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    
-    // Setup MANUAL untuk healthyRecept - cari link secara global
-    /*
-    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
-    if (healthyReceptLink) {
-        console.log('✅ Manual setup: Found healthyRecept playlist link');
-        healthyReceptLink.onclick = function(e) {
-            e.preventDefault();
-            const videoUrl = this.getAttribute('href');
-            console.log('🎬 Manual: Loading healthyRecept playlist:', videoUrl);
-            loadVideo('healthyRecept', 'youtubePlaylist', videoUrl, 'Healthy Snacking Playlist');
-        };
-    }
-    */
-
+ 
     // Setup untuk healthyRecept - tampilkan playlist
     const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
     if (healthyReceptLink) {
@@ -907,6 +921,33 @@ function loadLocalVideo(videoPlayer, url) {
     }
 }
 
+// Fungsi untuk menggunakan YouTube Data API (perlu API Key)
+async function fetchYouTubePlaylistReal(playlistId, apiKey) {
+    try {
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playlistId}&key=${apiKey}`
+        );
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch playlist');
+        }
+        
+        const data = await response.json();
+        
+        return data.items.map(item => ({
+            id: item.id,
+            videoId: item.snippet.resourceId.videoId,
+            title: item.snippet.title,
+            duration: 'Loading...', // Butuh additional API call untuk duration
+            thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url
+        }));
+        
+    } catch (error) {
+      console.error('YouTube API Error:', error);
+      throw error;
+    }
+}
+
 // Fungsi baru untuk YouTube Playlist
 function loadYouTubePlaylist(videoPlayer, url) {
     const playlistId = extractYouTubePlaylistId(url);
@@ -930,6 +971,184 @@ function loadYouTubePlaylist(videoPlayer, url) {
             closeVideo(currentVideoData.section);
         }
     }
+}
+
+// Fungsi untuk mendapatkan data playlist dari YouTube
+async function fetchYouTubePlaylist(playlistId) {
+    try {
+        // NOTE: Di production, Anda perlu YouTube API Key
+        // Untuk demo, kita gunakan approach alternatif
+        console.log('Fetching playlist:', playlistId);
+        
+        // Simulasi delay loading
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Untuk demo, kita buat data dinamis berdasarkan playlist ID
+        // Di production, ganti dengan YouTube API call
+        const demoVideos = {
+            'PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG': [
+                {
+                    id: 'video1',
+                    videoId: '9DoHhx9jlGM',
+                    title: 'Healthy Snack Ideas - Quick & Easy Recipes',
+                    duration: '5:30',
+                    thumbnail: `https://img.youtube.com/vi/9DoHhx9jlGM/mqdefault.jpg`
+                },
+                {
+                    id: 'video2',
+                    videoId: 'Zg_badTE2Ec', 
+                    title: 'Protein Packed Snacks for Weight Loss',
+                    duration: '7:15',
+                    thumbnail: `https://img.youtube.com/vi/Zg_badTE2Ec/mqdefault.jpg`
+                },
+                {
+                    id: 'video3',
+                    videoId: 'dQw4w9WgXcQ',
+                    title: 'Low Carb Snacking Options',
+                    duration: '6:45',
+                    thumbnail: `https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg`
+                },
+                {
+                    id: 'video4',
+                    videoId: 'abc123def',
+                    title: 'Vegetarian Healthy Snacks',
+                    duration: '8:20',
+                    thumbnail: `https://img.youtube.com/vi/abc123def/mqdefault.jpg`
+                },
+                {
+                    id: 'video5',
+                    videoId: 'xyz789ghi',
+                    title: 'Energy Boosting Snacks',
+                    duration: '4:55',
+                    thumbnail: `https://img.youtube.com/vi/xyz789ghi/mqdefault.jpg`
+                }
+            ]
+        };
+        
+        return demoVideos[playlistId] || [];
+        
+    } catch (error) {
+        console.error('Error fetching playlist:', error);
+        throw error;
+    }
+}
+
+// Fungsi extract playlist ID dari URL
+function extractPlaylistId(url) {
+    const match = url.match(/[&?]list=([^&]+)/);
+    return match ? match[1] : null;
+}
+
+// Update fungsi showPlaylist
+async function showPlaylist(section, playlistUrl) {
+    console.log('Showing playlist for:', section, playlistUrl);
+    
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (!playlistContainer) {
+        console.error('Playlist container not found for section:', section);
+        return;
+    }
+    
+    // Tampilkan loading state
+    playlistContainer.innerHTML = `
+        <div class="playlist-loading">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading playlist...</span>
+            </div>
+            <div class="mt-2">Loading playlist...</div>
+        </div>
+    `;
+    playlistContainer.style.display = 'block';
+    
+    try {
+        const playlistId = extractPlaylistId(playlistUrl);
+        if (!playlistId) {
+            throw new Error('Invalid playlist URL');
+        }
+        
+        const playlistItems = await fetchYouTubePlaylist(playlistId);
+        
+        if (playlistItems.length === 0) {
+            playlistContainer.innerHTML = `
+                <div class="playlist-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="mt-2">Playlist tidak ditemukan atau kosong</div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Kosongkan dan isi playlist container dengan data real
+        playlistContainer.innerHTML = '';
+        
+        playlistItems.forEach(item => {
+            const playlistItem = document.createElement('div');
+            playlistItem.className = 'playlist-item';
+            playlistItem.innerHTML = `
+                <div class="playlist-thumbnail">
+                    <img src="${item.thumbnail}" alt="${item.title}" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjY4IiB2aWV3Qm94PSIwIDAgMTIwIDY4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNjgiIGZpbGw9IiNkZGRkZGQiLz48dGV4dCB4PSI2MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+VGh1bWJuYWlsPC90ZXh0Pjwvc3ZnPg=='">
+                </div>
+                <div class="playlist-info">
+                    <div class="playlist-title">${item.title}</div>
+                    <div class="playlist-duration">${item.duration}</div>
+                </div>
+            `;
+            
+            playlistItem.onclick = function() {
+                playVideoFromPlaylist(section, item.videoId, item.title);
+            };
+            
+            playlistContainer.appendChild(playlistItem);
+        });
+        
+        console.log(`Loaded ${playlistItems.length} videos from playlist`);
+        
+    } catch (error) {
+        console.error('Error loading playlist:', error);
+        playlistContainer.innerHTML = `
+            <div class="playlist-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="mt-2">Gagal memuat playlist: ${error.message}</div>
+            </div>
+        `;
+    }
+    
+    // Scroll ke playlist
+    playlistContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// fungsi playVideoFromPlaylist untuk handle error video
+function playVideoFromPlaylist(section, videoId, title) {
+    console.log('Playing video from playlist:', { section, videoId, title });
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) {
+        console.error('Video container not found for section:', section);
+        return;
+    }
+    
+    // Sembunyikan playlist
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (playlistContainer) {
+        playlistContainer.style.display = 'none';
+    }
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Set current video data
+    currentVideoData = {
+        section: section,
+        type: 'youtube',
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        title: title
+    };
+    
+    // Auto play video
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
 }
 
 // Fungsi untuk extract Playlist ID dari URL YouTube
@@ -976,102 +1195,6 @@ function extractYouTubeId(url) {
     return null;
 }
 
-// Fungsi baru untuk menampilkan playlist
-function showPlaylist(section, playlistUrl) {
-    console.log('Showing playlist for:', section, playlistUrl);
-    
-    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
-    if (!playlistContainer) {
-        console.error('Playlist container not found for section:', section);
-        return;
-    }
-    
-    // Tampilkan playlist container
-    playlistContainer.style.display = 'block';
-    
-    // Untuk demo, kita buat playlist items statis
-    // Di production, Anda bisa fetch data playlist dari YouTube API
-    const playlistItems = [
-        {
-            id: 'video1',
-            title: 'Healthy Snack Ideas - Part 1',
-            duration: '5:30',
-            videoId: '9DoHhx9jlGM' // Ganti dengan video ID yang sesuai
-        },
-        {
-            id: 'video2', 
-            title: 'Easy Protein Snacks',
-            duration: '7:15',
-            videoId: 'Zg_badTE2Ec' // Ganti dengan video ID yang sesuai
-        },
-        {
-            id: 'video3',
-            title: 'Low Carb Snacking Options',
-            duration: '6:45',
-            videoId: 'abc123' // Ganti dengan video ID yang sesuai
-        }
-    ];
-    
-    // Kosongkan dan isi playlist container
-    playlistContainer.innerHTML = '';
-    
-    playlistItems.forEach(item => {
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'playlist-item';
-        playlistItem.innerHTML = `
-            <div class="playlist-thumbnail">
-                <i class="fas fa-play-circle"></i>
-            </div>
-            <div class="playlist-info">
-                <div class="playlist-title">${item.title}</div>
-                <div class="playlist-duration">${item.duration}</div>
-            </div>
-        `;
-        
-        playlistItem.onclick = function() {
-            playVideoFromPlaylist(section, item.videoId, item.title);
-        };
-        
-        playlistContainer.appendChild(playlistItem);
-    });
-    
-    // Scroll ke playlist
-    playlistContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// Fungsi baru untuk memutar video dari playlist
-function playVideoFromPlaylist(section, videoId, title) {
-    console.log('Playing video from playlist:', { section, videoId, title });
-    
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    if (!videoContainer) {
-        console.error('Video container not found for section:', section);
-        return;
-    }
-    
-    // Sembunyikan playlist
-    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
-    if (playlistContainer) {
-        playlistContainer.style.display = 'none';
-    }
-    
-    // Show video container
-    videoContainer.style.display = 'block';
-    
-    // Set current video data
-    currentVideoData = {
-        section: section,
-        type: 'youtube',
-        url: `https://www.youtube.com/watch?v=${videoId}`,
-        title: title
-    };
-    
-    // Auto play video
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
-}
-
 function closeVideo(section) {
     console.log('Closing video for section:', section);
     
@@ -1083,7 +1206,6 @@ function closeVideo(section) {
     if (playlistContainer) {
         playlistContainer.style.display = 'none';
     }
-
 
     if (!videoContainer) return;
     
