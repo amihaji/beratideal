@@ -276,6 +276,60 @@ body {
 }
 /***** Akhir Video Player Styles *****/
 
+/*****  Playlist Styles Youtube *****/
+.playlist-container {
+    display: none;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.playlist-item:hover {
+    background-color: #e7e7e7;
+}
+.playlist-item:last-child {
+    border-bottom: none;
+}
+.playlist-item i {
+    width: 20px;
+    margin-right: 10px;
+    color: #dc3545;
+}
+.playlist-thumbnail {
+    width: 60px;
+    height: 45px;
+    margin-right: 12px;
+    background: #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+.playlist-info {
+    flex: 1;
+}
+.playlist-title {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+.playlist-duration {
+    font-size: 12px;
+    color: #666;
+}
+/***** Akhir Playlist Youtube *****/
+
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
   .navbar-collapse .mx-auto {
@@ -510,19 +564,24 @@ body {
                   <i class="fas fa-play-circle"></i>Healthy Snacking Playlist
                 </a>
                 
+                <!-- Playlist Container (akan diisi secara dinamis) -->
+                <div class="playlist-container" id="playlistHealthyRecept">
+                  <!-- Playlist items akan diisi oleh JavaScript -->
+                </div>
+                
                 <!-- Video Player untuk Healthy Recept -->
                 <div class="video-container" id="videoContainerHealthyRecept">
                   <button class="close-video" onclick="closeVideo('healthyRecept')">
                     <i class="fas fa-times"></i>
                   </button>
                   <div class="video-wrapper">
-                    <div class="video-placeholder" onclick="playVideo('healthyRecept')"> 
+                    <div class="video-placeholder" onclick="playVideo('healthyRecept')">
                       <i class="fas fa-play-circle"></i>
-                      <div class="video-placeholder-text">Klik untuk memuat playlist</div>
+                      <div class="video-placeholder-text">Pilih video dari playlist</div>
                     </div>
                     <div class="video-loading" id="videoLoadingHealthyRecept">
                       <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading playlist...</span>
+                        <span class="visually-hidden">Loading video...</span>
                       </div>
                     </div>
                     <div id="videoPlayerHealthyRecept"></div>
@@ -637,6 +696,7 @@ function initializeAllVideoPlayers() {
     ]);
     
     // Setup MANUAL untuk healthyRecept - cari link secara global
+    /*
     const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
     if (healthyReceptLink) {
         console.log('✅ Manual setup: Found healthyRecept playlist link');
@@ -647,7 +707,19 @@ function initializeAllVideoPlayers() {
             loadVideo('healthyRecept', 'youtubePlaylist', videoUrl, 'Healthy Snacking Playlist');
         };
     }
-    
+    */
+
+    // Setup untuk healthyRecept - tampilkan playlist
+    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
+    if (healthyReceptLink) {
+        console.log('✅ Setup: Found healthyRecept playlist link');
+        healthyReceptLink.onclick = function(e) {
+            e.preventDefault();
+            showPlaylist('healthyRecept', this.getAttribute('href'));
+        };
+    }
+
+
     // Setup video placeholder click events
     document.querySelectorAll('.video-placeholder').forEach(placeholder => {
         const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
@@ -904,10 +976,115 @@ function extractYouTubeId(url) {
     return null;
 }
 
+// Fungsi baru untuk menampilkan playlist
+function showPlaylist(section, playlistUrl) {
+    console.log('Showing playlist for:', section, playlistUrl);
+    
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (!playlistContainer) {
+        console.error('Playlist container not found for section:', section);
+        return;
+    }
+    
+    // Tampilkan playlist container
+    playlistContainer.style.display = 'block';
+    
+    // Untuk demo, kita buat playlist items statis
+    // Di production, Anda bisa fetch data playlist dari YouTube API
+    const playlistItems = [
+        {
+            id: 'video1',
+            title: 'Healthy Snack Ideas - Part 1',
+            duration: '5:30',
+            videoId: '9DoHhx9jlGM' // Ganti dengan video ID yang sesuai
+        },
+        {
+            id: 'video2', 
+            title: 'Easy Protein Snacks',
+            duration: '7:15',
+            videoId: 'Zg_badTE2Ec' // Ganti dengan video ID yang sesuai
+        },
+        {
+            id: 'video3',
+            title: 'Low Carb Snacking Options',
+            duration: '6:45',
+            videoId: 'abc123' // Ganti dengan video ID yang sesuai
+        }
+    ];
+    
+    // Kosongkan dan isi playlist container
+    playlistContainer.innerHTML = '';
+    
+    playlistItems.forEach(item => {
+        const playlistItem = document.createElement('div');
+        playlistItem.className = 'playlist-item';
+        playlistItem.innerHTML = `
+            <div class="playlist-thumbnail">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="playlist-info">
+                <div class="playlist-title">${item.title}</div>
+                <div class="playlist-duration">${item.duration}</div>
+            </div>
+        `;
+        
+        playlistItem.onclick = function() {
+            playVideoFromPlaylist(section, item.videoId, item.title);
+        };
+        
+        playlistContainer.appendChild(playlistItem);
+    });
+    
+    // Scroll ke playlist
+    playlistContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Fungsi baru untuk memutar video dari playlist
+function playVideoFromPlaylist(section, videoId, title) {
+    console.log('Playing video from playlist:', { section, videoId, title });
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) {
+        console.error('Video container not found for section:', section);
+        return;
+    }
+    
+    // Sembunyikan playlist
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (playlistContainer) {
+        playlistContainer.style.display = 'none';
+    }
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Set current video data
+    currentVideoData = {
+        section: section,
+        type: 'youtube',
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        title: title
+    };
+    
+    // Auto play video
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
 function closeVideo(section) {
     console.log('Closing video for section:', section);
     
     const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) return;
+    
+    // Juga sembunyikan playlist jika ada
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (playlistContainer) {
+        playlistContainer.style.display = 'none';
+    }
+
+
     if (!videoContainer) return;
     
     const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
