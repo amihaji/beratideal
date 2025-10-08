@@ -635,12 +635,10 @@ function initializeAllVideoPlayers() {
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    
     // Setup untuk Youtube playlist
     setupVideoLinksForSection('healthyRecept', [
         { selector: 'a[href*="youtube.com/playlist"]', type: 'youtubePlaylist' }
     ]);
-    
     // Setup video placeholder click events
     document.querySelectorAll('.video-placeholder').forEach(placeholder => {
         const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
