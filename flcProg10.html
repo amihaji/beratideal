@@ -616,32 +616,44 @@ let currentVideoData = {};
 
 function initializeAllVideoPlayers() {
     console.log('Initializing video players...');
+    
+    // DEBUG: Cek semua section yang ada
+    console.log('=== DEBUG SECTION IDs ===');
+    const allSections = document.querySelectorAll('[id$="Content"]');
+    allSections.forEach(section => {
+        console.log('Found section:', section.id);
+    });
+    console.log('=== END DEBUG ===');
+    
     // Setup semua link video secara manual untuk setiap section
-    // Setup Untuk Menu Perkenalan
     setupVideoLinksForSection('perkenalan', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    // Setup Untuk Menu Pertemuan1
+    
     setupVideoLinksForSection('pertemuan1', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    // Setup Untuk Menu Pertemuan2
+    
     setupVideoLinksForSection('pertemuan2', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },  
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    // Setup untuk Youtube playlist
+    
+    // Setup untuk Youtube playlist - PASTIKAN INI DIEKSEKUSI
+    console.log('Setting up healthyRecept section...');
     setupVideoLinksForSection('healthyRecept', [
         { selector: 'a[href*="youtube.com/playlist"]', type: 'youtubePlaylist' }
     ]);
+    
     // Setup video placeholder click events
     document.querySelectorAll('.video-placeholder').forEach(placeholder => {
         const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
+        console.log('Setup placeholder for section:', section);
         placeholder.addEventListener('click', function() {
             playVideo(section);
         });
@@ -651,20 +663,38 @@ function initializeAllVideoPlayers() {
 }
 
 function setupVideoLinksForSection(section, linkConfigs) {
-    const menuContent = document.getElementById(section + 'Content');
+    const sectionId = section + 'Content';
+    console.log('🔍 Searching for section:', sectionId);
+    
+    const menuContent = document.getElementById(sectionId);
+    
     if (!menuContent) {
-        console.error('Menu content not found for section:', section);
+        console.error('❌ Menu content not found for section:', sectionId);
+        console.log('📋 Available sections:');
+        // List semua section yang ada
+        const allSections = document.querySelectorAll('[id$="Content"]');
+        allSections.forEach(el => {
+            console.log('   -', el.id, el);
+        });
         return;
     }
     
+    console.log('✅ Found menu content for:', sectionId);
+    console.log('🔗 Looking for links in this section...');
+    
     linkConfigs.forEach(config => {
         const link = menuContent.querySelector(config.selector);
+        console.log('   Selector:', config.selector, 'Found:', link ? '✅' : '❌');
+        
         if (link) {
+            console.log('   Link href:', link.getAttribute('href'));
+            console.log('   Link text:', link.textContent.trim());
+            
             link.onclick = function(e) {
                 e.preventDefault();
                 const videoUrl = this.getAttribute('href');
                 const title = this.textContent.trim();
-                console.log('Loading video:', { section, type: config.type, url: videoUrl, title });
+                console.log('🎬 Clicked! Loading video:', { section, type: config.type, url: videoUrl, title });
                 loadVideo(section, config.type, videoUrl, title);
             };
         }
