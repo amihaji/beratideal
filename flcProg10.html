@@ -505,7 +505,29 @@ body {
             </button>
             <div class="collapse" id="healthyRecept" data-bs-parent="#menuAccordion">
               <div class="menu-content">
-                <a href="https://www.youtube.com/playlist?list=PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG" class="menu-item"><i class="fas fa-chart-line"></i>Healthy Snacking</a>
+                <a href="https://www.youtube.com/playlist?list=PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-play-circle"></i>Healthy Snacking Playlist
+                </a>
+                
+                <!-- Video Player untuk Healthy Recept -->
+                <div class="video-container" id="videoContainerHealthyRecept">
+                  <button class="close-video" onclick="closeVideo('healthyRecept')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('healthyRecept')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Klik untuk memuat playlist</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingHealthyRecept">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading playlist...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerHealthyRecept"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -550,6 +572,8 @@ body {
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
 // Show About form
 function showAbout() {
@@ -592,25 +616,29 @@ let currentVideoData = {};
 
 function initializeAllVideoPlayers() {
     console.log('Initializing video players...');
-    
     // Setup semua link video secara manual untuk setiap section
+    // Setup Untuk Menu Perkenalan
     setupVideoLinksForSection('perkenalan', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
-        // { selector: 'a[href="video/Live Best Your Best Life ! - 360.mp4"]', type: 'local' }
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    
+    // Setup Untuk Menu Pertemuan1
     setupVideoLinksForSection('pertemuan1', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
-    
+    // Setup Untuk Menu Pertemuan2
     setupVideoLinksForSection('pertemuan2', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },  
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
         { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    // Setup khusus untuk Healthy Recept (YouTube Playlist)
+    setupVideoLinksForSection('healthyRecept', [
+        { selector: 'a[href*="youtube.com/playlist"]', type: 'youtubePlaylist' }
     ]);
     
     // Setup video placeholder click events
@@ -679,10 +707,12 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     // Show video container
     videoContainer.style.display = 'block';
     
-    // Update placeholder text
+    // Update placeholder text berdasarkan jenis konten
     let placeholderText = 'Klik untuk memuat video';
     if (videoType === 'youtube') {
         placeholderText = 'Klik untuk memuat video dari YouTube';
+    } else if (videoType === 'youtubePlaylist') {
+        placeholderText = 'Klik untuk memuat playlist YouTube';
     } else if (videoType === 'local') {
         placeholderText = 'Klik untuk memuat video lokal';
     }
@@ -724,6 +754,9 @@ function playVideo(section) {
         if (currentVideoData.type === 'youtube') {
             console.log('Loading YouTube video:', currentVideoData.url);
             loadYouTubeVideo(videoPlayer, currentVideoData.url);
+        } else if (currentVideoData.type === 'youtubePlaylist') {
+            console.log('Loading YouTube playlist:', currentVideoData.url);
+            loadYouTubePlaylist(videoPlayer, currentVideoData.url);
         } else if (currentVideoData.type === 'local') {
             console.log('Loading local video:', currentVideoData.url);
             loadLocalVideo(videoPlayer, currentVideoData.url);
@@ -776,6 +809,53 @@ function loadLocalVideo(videoPlayer, url) {
     }
 }
 
+// Fungsi baru untuk YouTube Playlist
+function loadYouTubePlaylist(videoPlayer, url) {
+    const playlistId = extractYouTubePlaylistId(url);
+    console.log('YouTube Playlist ID extracted:', playlistId);
+    
+    if (playlistId) {
+        // Buat iframe untuk YouTube Playlist
+        videoPlayer.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        `;
+        console.log('YouTube playlist iframe created');
+    } else {
+        console.error('Could not extract YouTube Playlist ID from URL:', url);
+        // Fallback: buka di tab baru
+        window.open(url, '_blank');
+        if (currentVideoData.section) {
+            closeVideo(currentVideoData.section);
+        }
+    }
+}
+
+// Fungsi untuk extract Playlist ID dari URL YouTube
+function extractYouTubePlaylistId(url) {
+    console.log('Extracting YouTube Playlist ID from:', url);
+    
+    const patterns = [
+        /(?:youtube\.com\/.*list=)([^&]+)/,
+        /youtube\.com\/playlist\?list=([^&]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            console.log('YouTube Playlist ID found:', match[1]);
+            return match[1];
+        }
+    }
+    
+    console.log('No YouTube Playlist ID found');
+    return null;
+}
+
+// Fungsi extractYouTubeId yang sudah ada (tetap dipertahankan)
 function extractYouTubeId(url) {
     console.log('Extracting YouTube ID from:', url);
     
@@ -852,9 +932,10 @@ document.addEventListener('keydown', function(e) {
         closeVideo(currentVideoData.section);
     }
 });
-
 // Debug: log untuk memastikan script loaded
 console.log('Video player script loaded successfully');
+
+
 </script>
 </body>
 </html>
