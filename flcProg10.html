@@ -617,15 +617,7 @@ let currentVideoData = {};
 function initializeAllVideoPlayers() {
     console.log('Initializing video players...');
     
-    // DEBUG: Cek semua section yang ada
-    console.log('=== DEBUG SECTION IDs ===');
-    const allSections = document.querySelectorAll('[id$="Content"]');
-    allSections.forEach(section => {
-        console.log('Found section:', section.id);
-    });
-    console.log('=== END DEBUG ===');
-    
-    // Setup semua link video secara manual untuk setiap section
+    // Setup untuk sections yang sudah ada di DOM
     setupVideoLinksForSection('perkenalan', [
         { selector: 'a[href*="canva.com"]', type: 'canva' },
         { selector: 'a[href*="youtube.com"]', type: 'youtube' },
@@ -644,11 +636,17 @@ function initializeAllVideoPlayers() {
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
     
-    // Setup untuk Youtube playlist - PASTIKAN INI DIEKSEKUSI
-    console.log('Setting up healthyRecept section...');
-    setupVideoLinksForSection('healthyRecept', [
-        { selector: 'a[href*="youtube.com/playlist"]', type: 'youtubePlaylist' }
-    ]);
+    // Setup MANUAL untuk healthyRecept - cari link secara global
+    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
+    if (healthyReceptLink) {
+        console.log('✅ Manual setup: Found healthyRecept playlist link');
+        healthyReceptLink.onclick = function(e) {
+            e.preventDefault();
+            const videoUrl = this.getAttribute('href');
+            console.log('🎬 Manual: Loading healthyRecept playlist:', videoUrl);
+            loadVideo('healthyRecept', 'youtubePlaylist', videoUrl, 'Healthy Snacking Playlist');
+        };
+    }
     
     // Setup video placeholder click events
     document.querySelectorAll('.video-placeholder').forEach(placeholder => {
