@@ -285,7 +285,9 @@ body { background-color: #f8f9fa; }
       margin-bottom: 1rem;
   }
   .navbar-nav:not(.mx-auto) .nav-item, .navbar-nav:not(.mx-auto) .main-menu-link { 
-    width: 100%; 
+    /*width: 100%; */
+    width: 50%; 
+     
   }
 }
 /***** Akhir Tampilan Mobile *****/
@@ -352,7 +354,7 @@ body { background-color: #f8f9fa; }
           
           <!-- Perkenalan -->
           <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent" data-bs-parent="#menuAccordion">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Perkenalan
                 <i class="fas fa-lock status-lock"></i>
@@ -576,6 +578,7 @@ body { background-color: #f8f9fa; }
     </div>
   </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -583,10 +586,6 @@ body { background-color: #f8f9fa; }
 // CONFIGURATION
 // *********************************************
 const PLAYLIST_JSON_URL = './data/playlist.json';
-
-// *********************
-// CORE APP FUNCTIONS 
-// *********************
 
 /******************
 * Show About form 
@@ -602,9 +601,9 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-/****************
-* DOM READY
-*****************/
+/*************************************
+* Cek status login saat halaman dimuat
+**************************************/
 document.addEventListener('DOMContentLoaded', function () {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -622,11 +621,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize video players
     initializeAllVideoPlayers();
-
     console.log('✅ App initialized successfully');
 });
 
-// ***** Logout function *****
+/********************
+/  Logout function 
+*********************/
 function logout() {
   localStorage.removeItem('userId');
   localStorage.removeItem('userToken');
@@ -640,16 +640,136 @@ function logout() {
 // ***************************
 let currentVideoData = {};
 
+/***********************************
+* Fungsi Initialisasi Seluruh video
+************************************/ 
+function initializeAllVideoPlayers() {
+    console.log('Initializing video players...');
+    
+    // Setup untuk sections lainnya
+    setupVideoLinksForSection('perkenalan', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    setupVideoLinksForSection('pertemuan1', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    setupVideoLinksForSection('pertemuan2', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },  
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    // Setup untuk healthyRecept dengan JSON data
+    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
+    if (healthyReceptLink) {
+        console.log('✅ Setup: Found healthyRecept playlist link');
+        healthyReceptLink.onclick = function(e) {
+            e.preventDefault();
+            showPlaylist('healthyRecept', this.getAttribute('href'));
+        };
+    }
+    
+    // Setup video placeholder click events
+    document.querySelectorAll('.video-placeholder').forEach(placeholder => {
+        const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
+        placeholder.addEventListener('click', function() {
+            playVideo(section);
+        });
+    });
+    
+    console.log('✅ Video players initialized');
+}
+
+/**************************
+* Fungsi Setup Link Video 
+***************************/ 
+function setupVideoLinksForSection(section, linkConfigs) {
+    const menuContent = document.getElementById(section + 'Content');
+    if (!menuContent) return;
+    
+    linkConfigs.forEach(config => {
+        const link = menuContent.querySelector(config.selector);
+        if (link) {
+            link.onclick = function(e) {
+                e.preventDefault();
+                const videoUrl = this.getAttribute('href');
+                const title = this.textContent.trim();
+                loadVideo(section, config.type, videoUrl, title);
+            };
+        }
+    });
+}
+
+/********************
+* Fungsi Load Video
+*********************/ 
+function loadVideo(section, videoType, videoUrl, title = '') {
+    console.log('loadVideo called:', { section, videoType, videoUrl, title });
+    
+    // Untuk Canva, buka di tab baru
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) return;
+    
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Close video di section lain
+    closeAllVideos();
+    
+    // Reset previous video 
+    if (videoPlayer) videoPlayer.innerHTML = '';
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl,
+        title: title
+    };
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Update placeholder text
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'youtube') {
+        placeholderText = 'Klik untuk memuat video dari YouTube';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video lokal';
+    }
+    
+    if (videoPlaceholder) {
+        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+        videoPlaceholder.style.display = 'flex';
+    }
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto play setelah ditampilkan
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
 /********************
 * Fungsi Play Video 
 *********************/
 function playVideo(section) {
     console.log('playVideo called for section:', section);
     
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
     const videoPlaceholder = videoContainer?.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
     
     if (!videoContainer || !videoPlayer) {
         console.error('Video elements not found for section:', section);
@@ -1031,136 +1151,14 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// =================
-// INITIALIZATION
-// =================
-
-/***********************************
-* Fungsi Initialisasi Seluruh video
-************************************/ 
-function initializeAllVideoPlayers() {
-    console.log('Initializing video players...');
-    
-    // Setup untuk sections lainnya
-    setupVideoLinksForSection('perkenalan', [
-        { selector: 'a[href*="canva.com"]', type: 'canva' },
-        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
-        { selector: 'a[href*=".mp4"]', type: 'local' }
-    ]);
-    
-    setupVideoLinksForSection('pertemuan1', [
-        { selector: 'a[href*="canva.com"]', type: 'canva' },
-        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
-        { selector: 'a[href*=".mp4"]', type: 'local' }
-    ]);
-    
-    setupVideoLinksForSection('pertemuan2', [
-        { selector: 'a[href*="canva.com"]', type: 'canva' },  
-        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
-        { selector: 'a[href*=".mp4"]', type: 'local' }
-    ]);
-    
-    // Setup untuk healthyRecept dengan JSON data
-    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
-    if (healthyReceptLink) {
-        console.log('✅ Setup: Found healthyRecept playlist link');
-        healthyReceptLink.onclick = function(e) {
-            e.preventDefault();
-            showPlaylist('healthyRecept', this.getAttribute('href'));
-        };
-    }
-    
-    // Setup video placeholder click events
-    document.querySelectorAll('.video-placeholder').forEach(placeholder => {
-        const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
-        placeholder.addEventListener('click', function() {
-            playVideo(section);
-        });
-    });
-    
-    console.log('✅ Video players initialized');
-}
-
-/**************************
-* Fungsi Setup Link Video 
-***************************/ 
-function setupVideoLinksForSection(section, linkConfigs) {
-    const menuContent = document.getElementById(section + 'Content');
-    if (!menuContent) return;
-    
-    linkConfigs.forEach(config => {
-        const link = menuContent.querySelector(config.selector);
-        if (link) {
-            link.onclick = function(e) {
-                e.preventDefault();
-                const videoUrl = this.getAttribute('href');
-                const title = this.textContent.trim();
-                loadVideo(section, config.type, videoUrl, title);
-            };
-        }
-    });
-}
-
-/********************
-* Fungsi Load Video
-*********************/ 
-function loadVideo(section, videoType, videoUrl, title = '') {
-    console.log('loadVideo called:', { section, videoType, videoUrl, title });
-    
-    // Untuk Canva, buka di tab baru
-    if (videoType === 'canva') {
-        window.open(videoUrl, '_blank');
-        return;
-    }
-    
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    if (!videoContainer) return;
-    
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    
-    // Close video di section lain
-    closeAllVideos();
-    
-    // Reset previous video 
-    if (videoPlayer) videoPlayer.innerHTML = '';
-    currentVideoData = {
-        section: section,
-        type: videoType,
-        url: videoUrl,
-        title: title
-    };
-    
-    // Show video container
-    videoContainer.style.display = 'block';
-    
-    // Update placeholder text
-    let placeholderText = 'Klik untuk memuat video';
-    if (videoType === 'youtube') {
-        placeholderText = 'Klik untuk memuat video dari YouTube';
-    } else if (videoType === 'local') {
-        placeholderText = 'Klik untuk memuat video lokal';
-    }
-    
-    if (videoPlaceholder) {
-        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
-        videoPlaceholder.style.display = 'flex';
-    }
-    if (videoLoading) videoLoading.style.display = 'none';
-    
-    // Auto play setelah ditampilkan
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
-}
-
 // Close video dengan ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && currentVideoData.section) {
         closeVideo(currentVideoData.section);
     }
 });
+// Debug: log untuk memastikan script loaded
+console.log('Video player script loaded successfully');
 
 </script>
 </body>
