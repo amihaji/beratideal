@@ -601,43 +601,11 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-
-/*************************************
-* Handle accordion toggle behavior
-**************************************/
-function BACKUP_setupAccordionToggle() {
-    const accordionHeaders = document.querySelectorAll('.menu-header');
-    
-    accordionHeaders.forEach(header => {
-        header.addEventListener('click', function(e) {
-            const targetId = this.getAttribute('data-bs-target');
-            const targetContent = document.querySelector(targetId);
-            const isCurrentlyOpen = !this.classList.contains('collapsed');
-            
-            // Jika menu yang sama diklik dan sedang terbuka, tutup menu tersebut
-            if (isCurrentlyOpen) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Tutup menu yang sedang terbuka
-                const bsCollapse = new bootstrap.Collapse(targetContent, {
-                    toggle: false
-                });
-                bsCollapse.hide();
-                
-                // Update class header
-                this.classList.add('collapsed');
-                this.setAttribute('aria-expanded', 'false');
-            }
-        });
-    });
-}
-
 // *********************************************
-// ACCORDION TOGGLE FIX
+// ACCORDION TOGGLE FIX - SOLUSI 2
 // *********************************************
 document.addEventListener('DOMContentLoaded', function() {
-    // Fix untuk toggle menu yang sama
+    // Fix untuk toggle menu yang sama - dengan pendekatan Bootstrap instance
     document.querySelectorAll('.menu-header').forEach(header => {
         header.addEventListener('click', function(e) {
             const targetId = this.getAttribute('data-bs-target');
@@ -645,28 +613,47 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!targetContent) return;
             
-            // Check if this menu is currently open
-            const isCurrentlyOpen = targetContent.classList.contains('show');
+            // Cara lebih akurat untuk check status
+            const isCurrentlyOpen = targetContent.classList.contains('show') || 
+                                   targetContent.offsetHeight > 0;
             
             console.log('Menu diklik:', targetId, 'Status terbuka:', isCurrentlyOpen);
+            console.log('Class list:', targetContent.classList);
+            console.log('Height:', targetContent.offsetHeight);
             
             if (isCurrentlyOpen) {
-                // Jika menu sudah terbuka, tutup manual
+                // Jika menu sudah terbuka, tutup manual dengan Bootstrap
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Manual hide
-                targetContent.classList.remove('show');
-                targetContent.style.height = '0';
-                this.classList.add('collapsed');
-                this.setAttribute('aria-expanded', 'false');
+                // Gunakan Bootstrap Collapse instance
+                const bsCollapse = bootstrap.Collapse.getInstance(targetContent);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                } else {
+                    // Fallback manual
+                    targetContent.classList.remove('show');
+                    targetContent.style.height = '0';
+                    this.classList.add('collapsed');
+                    this.setAttribute('aria-expanded', 'false');
+                }
                 
-                console.log('Menu ditutup manual');
+                console.log('✅ Menu berhasil ditutup');
             }
         });
     });
+    
+    // Debug: Log ketika menu terbuka/ditutup
+    document.querySelectorAll('.collapse').forEach(collapseElement => {
+        collapseElement.addEventListener('show.bs.collapse', function() {
+            console.log('🟢 Menu DIBUKA:', this.id);
+        });
+        
+        collapseElement.addEventListener('hide.bs.collapse', function() {
+            console.log('🔴 Menu DITUTUP:', this.id);
+        });
+    });
 });
-
 
 /*************************************
 * Cek status login saat halaman dimuat
