@@ -602,10 +602,12 @@ function hideAbout() {
 }
 
 // *********************************************
-// ACCORDION TOGGLE FIX - SOLUSI 2
+// ACCORDION TOGGLE FIX - SOLUSI 4 (TIMING FIX)
 // *********************************************
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Fix untuk toggle menu yang sama - dengan pendekatan Bootstrap instance
+    let activeMenu = null;
+    
     document.querySelectorAll('.menu-header').forEach(header => {
         header.addEventListener('click', function(e) {
             const targetId = this.getAttribute('data-bs-target');
@@ -613,44 +615,54 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!targetContent) return;
             
-            // Cara lebih akurat untuk check status
-            const isCurrentlyOpen = targetContent.classList.contains('show') || 
-                                   targetContent.offsetHeight > 0;
+            // Check if this is the same menu that's currently active
+            const isSameMenu = activeMenu === targetId;
             
-            console.log('Menu diklik:', targetId, 'Status terbuka:', isCurrentlyOpen);
-            console.log('Class list:', targetContent.classList);
-            console.log('Height:', targetContent.offsetHeight);
+            console.log('🔄 Menu diklik:', targetId);
+            console.log('Active menu:', activeMenu);
+            console.log('Is same menu:', isSameMenu);
             
-            if (isCurrentlyOpen) {
-                // Jika menu sudah terbuka, tutup manual dengan Bootstrap
+            if (isSameMenu) {
+                // Jika mengklik menu yang sama, tutup saja
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Gunakan Bootstrap Collapse instance
+                // Gunakan Bootstrap untuk menutup
                 const bsCollapse = bootstrap.Collapse.getInstance(targetContent);
                 if (bsCollapse) {
                     bsCollapse.hide();
                 } else {
                     // Fallback manual
-                    targetContent.classList.remove('show');
-                    targetContent.style.height = '0';
-                    this.classList.add('collapsed');
-                    this.setAttribute('aria-expanded', 'false');
+                    const manualCollapse = new bootstrap.Collapse(targetContent, {
+                        toggle: false
+                    });
+                    manualCollapse.hide();
                 }
                 
-                console.log('✅ Menu berhasil ditutup');
+                activeMenu = null;
+                console.log('✅ Menu aktif ditutup');
+                return;
             }
+            
+            // Update active menu
+            activeMenu = targetId;
         });
     });
     
-    // Debug: Log ketika menu terbuka/ditutup
+    // Track when menus actually open/close
     document.querySelectorAll('.collapse').forEach(collapseElement => {
-        collapseElement.addEventListener('show.bs.collapse', function() {
-            console.log('🟢 Menu DIBUKA:', this.id);
+        collapseElement.addEventListener('shown.bs.collapse', function() {
+            // 'shown' event terjadi SETELAH transisi selesai
+            const targetId = '#' + this.id;
+            console.log('🎉 Menu BERHASIL DIBUKA:', this.id);
         });
         
-        collapseElement.addEventListener('hide.bs.collapse', function() {
-            console.log('🔴 Menu DITUTUP:', this.id);
+        collapseElement.addEventListener('hidden.bs.collapse', function() {
+            // 'hidden' event terjadi SETELAH transisi selesai  
+            console.log('💤 Menu BERHASIL DITUTUP:', this.id);
+            if (activeMenu === '#' + this.id) {
+                activeMenu = null;
+            }
         });
     });
 });
