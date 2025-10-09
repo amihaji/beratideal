@@ -602,66 +602,55 @@ function hideAbout() {
 }
 
 // *********************************************
-// ACCORDION TOGGLE FIX - SOLUSI 4 (TIMING FIX)
+// ACCORDION TOGGLE FIX - SOLUSI SUPER SIMPLE
 // *********************************************
 
 document.addEventListener('DOMContentLoaded', function() {
-    let activeMenu = null;
+    let currentOpenMenu = null;
     
     document.querySelectorAll('.menu-header').forEach(header => {
+        // Remove Bootstrap's click handler completely
+        header.setAttribute('data-bs-toggle', '');
+        
         header.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const targetId = this.getAttribute('data-bs-target');
             const targetContent = document.querySelector(targetId);
             
             if (!targetContent) return;
             
-            // Check if this is the same menu that's currently active
-            const isSameMenu = activeMenu === targetId;
-            
             console.log('🔄 Menu diklik:', targetId);
-            console.log('Active menu:', activeMenu);
-            console.log('Is same menu:', isSameMenu);
+            console.log('Current open:', currentOpenMenu);
             
-            if (isSameMenu) {
-                // Jika mengklik menu yang sama, tutup saja
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Gunakan Bootstrap untuk menutup
-                const bsCollapse = bootstrap.Collapse.getInstance(targetContent);
-                if (bsCollapse) {
-                    bsCollapse.hide();
-                } else {
-                    // Fallback manual
-                    const manualCollapse = new bootstrap.Collapse(targetContent, {
-                        toggle: false
-                    });
-                    manualCollapse.hide();
+            // Jika klik menu yang sama yang sedang terbuka
+            if (currentOpenMenu === targetId) {
+                // TUTUP menu
+                targetContent.style.display = 'none';
+                targetContent.classList.remove('show');
+                this.classList.add('collapsed');
+                currentOpenMenu = null;
+                console.log('✅ Menu DITUTUP');
+            } else {
+                // BUKA menu baru
+                // Tutup menu yang sebelumnya terbuka
+                if (currentOpenMenu) {
+                    const previousContent = document.querySelector(currentOpenMenu);
+                    const previousHeader = document.querySelector(`[data-bs-target="${currentOpenMenu}"]`);
+                    if (previousContent && previousHeader) {
+                        previousContent.style.display = 'none';
+                        previousContent.classList.remove('show');
+                        previousHeader.classList.add('collapsed');
+                    }
                 }
                 
-                activeMenu = null;
-                console.log('✅ Menu aktif ditutup');
-                return;
-            }
-            
-            // Update active menu
-            activeMenu = targetId;
-        });
-    });
-    
-    // Track when menus actually open/close
-    document.querySelectorAll('.collapse').forEach(collapseElement => {
-        collapseElement.addEventListener('shown.bs.collapse', function() {
-            // 'shown' event terjadi SETELAH transisi selesai
-            const targetId = '#' + this.id;
-            console.log('🎉 Menu BERHASIL DIBUKA:', this.id);
-        });
-        
-        collapseElement.addEventListener('hidden.bs.collapse', function() {
-            // 'hidden' event terjadi SETELAH transisi selesai  
-            console.log('💤 Menu BERHASIL DITUTUP:', this.id);
-            if (activeMenu === '#' + this.id) {
-                activeMenu = null;
+                // Buka menu baru
+                targetContent.style.display = 'block';
+                targetContent.classList.add('show');
+                this.classList.remove('collapsed');
+                currentOpenMenu = targetId;
+                console.log('✅ Menu DIBUKA');
             }
         });
     });
