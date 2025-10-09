@@ -601,10 +601,9 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-// *********************************************
-// ACCORDION TOGGLE FIX - SOLUSI SUPER SIMPLE
-// *********************************************
-
+// ***********************
+// ACCORDION TOGGLE FIX 
+// ************************
 document.addEventListener('DOMContentLoaded', function() {
     let currentOpenMenu = null;
     
@@ -677,35 +676,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize video players
     initializeAllVideoPlayers();
     console.log('✅ App initialized successfully');
-    
-    // Accordion toggle fix sudah dihandle di atas
-});
 
-/* TIDAK DIGUNAKAN
-document.addEventListener('DOMContentLoaded', function () {
-    // About overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    
-    // Cek login status
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        loginMenuItem.innerHTML = `
-            <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        `;
-    }
-    
-    // Setup accordion toggle behavior
-    setupAccordionToggle();
-    
-    // Initialize video players
-    initializeAllVideoPlayers();
-    console.log('✅ App initialized successfully');
 });
-
-*/
 
 /********************
 /  Logout function 
