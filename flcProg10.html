@@ -602,6 +602,33 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
+// ===============
+// DOM READY
+// ===============
+document.addEventListener('DOMContentLoaded', function () {
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+
+    // Initialize accordion auto-close behavior
+    //initializeSimpleAccordion();
+    //initializeAccordionBehavior();
+    console.log('✅ App initialized successfully');
+});
+
 // ***** Logout function *****
 function logout() {
   localStorage.removeItem('userId');
@@ -1186,33 +1213,6 @@ function initializeSimpleAccordion() {
         });
     }, 100);
 }
-
-// ===============
-// DOM READY
-// ===============
-document.addEventListener('DOMContentLoaded', function () {
-    // About overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    
-    // Cek login status
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        loginMenuItem.innerHTML = `
-            <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        `;
-    }
-    
-    // Initialize video players
-    initializeAllVideoPlayers();
-
-    // Initialize accordion auto-close behavior
-    initializeSimpleAccordion();
-    //initializeAccordionBehavior();
-    console.log('✅ App initialized successfully');
-});
 
 // Close video dengan ESC key
 document.addEventListener('keydown', function(e) {
