@@ -1131,6 +1131,28 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     }, 500);
 }
 
+/****************************
+* Close others when one opens
+*****************************/
+function initializeAccordionBehavior() {
+    const accordion = document.getElementById('menuAccordion');
+    
+    accordion.addEventListener('show.bs.collapse', function(event) {
+        // Get all open collapses
+        const openCollapses = accordion.querySelectorAll('.collapse.show');
+        
+        // Close all except the current one
+        openCollapses.forEach(openCollapse => {
+            if (openCollapse.id !== event.target.id) {
+                const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            }
+        });
+    });
+}
+
 // ===============
 // DOM READY
 // ===============
@@ -1151,6 +1173,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize video players
     initializeAllVideoPlayers();
+
+    // Initialize accordion auto-close behavior
+    initializeAccordionBehavior();
     console.log('✅ App initialized successfully');
 });
 
