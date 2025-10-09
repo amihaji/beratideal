@@ -1134,7 +1134,7 @@ function loadVideo(section, videoType, videoUrl, title = '') {
 /****************************
 * Close others when one opens
 *****************************/
-function initializeAccordionBehavior() {
+function BACKUP_initializeAccordionBehavior() {
     const accordion = document.getElementById('menuAccordion');
     
     accordion.addEventListener('show.bs.collapse', function(event) {
@@ -1151,6 +1151,40 @@ function initializeAccordionBehavior() {
             }
         });
     });
+}
+
+/**
+ * Simple accordion auto-close solution
+ */
+function initializeSimpleAccordion() {
+    // Wait for Bootstrap to load
+    setTimeout(() => {
+        const accordionButtons = document.querySelectorAll('.menu-header');
+        
+        accordionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-bs-target').replace('#', '');
+                const targetElement = document.getElementById(targetId);
+                
+                // If this menu is already open, close it
+                if (targetElement.classList.contains('show')) {
+                    // It will be closed by Bootstrap, do nothing
+                    return;
+                }
+                
+                // Close all other open menus
+                const allOpenMenus = document.querySelectorAll('.menu-content.show');
+                allOpenMenus.forEach(menu => {
+                    if (menu.id !== targetId) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(menu);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
+                });
+            });
+        });
+    }, 100);
 }
 
 // ===============
@@ -1175,7 +1209,8 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeAllVideoPlayers();
 
     // Initialize accordion auto-close behavior
-    initializeAccordionBehavior();
+    initializeSimpleAccordion();
+    //initializeAccordionBehavior();
     console.log('✅ App initialized successfully');
 });
 
