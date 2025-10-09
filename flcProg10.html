@@ -602,9 +602,9 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-// ===============
-// DOM READY
-// ===============
+/****************
+* DOM READY
+*****************/
 document.addEventListener('DOMContentLoaded', function () {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -623,9 +623,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize video players
     initializeAllVideoPlayers();
 
-    // Initialize accordion auto-close behavior
-    initializeSimpleAccordion();
-    //initializeAccordionBehavior();
     console.log('✅ App initialized successfully');
 });
 
@@ -1156,62 +1153,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     setTimeout(() => {
         playVideo(section);
     }, 500);
-}
-
-/****************************
-* Close others when one opens
-*****************************/
-function BACKUP_initializeAccordionBehavior() {
-    const accordion = document.getElementById('menuAccordion');
-    
-    accordion.addEventListener('show.bs.collapse', function(event) {
-        // Get all open collapses
-        const openCollapses = accordion.querySelectorAll('.collapse.show');
-        
-        // Close all except the current one
-        openCollapses.forEach(openCollapse => {
-            if (openCollapse.id !== event.target.id) {
-                const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
-                if (bsCollapse) {
-                    bsCollapse.hide();
-                }
-            }
-        });
-    });
-}
-
-/**
- * Simple accordion auto-close solution
- */
-function initializeSimpleAccordion() {
-    // Wait for Bootstrap to load
-    setTimeout(() => {
-        const accordionButtons = document.querySelectorAll('.menu-header');
-        
-        accordionButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-bs-target').replace('#', '');
-                const targetElement = document.getElementById(targetId);
-                
-                // If this menu is already open, close it
-                if (targetElement.classList.contains('show')) {
-                    // It will be closed by Bootstrap, do nothing
-                    return;
-                }
-                
-                // Close all other open menus
-                const allOpenMenus = document.querySelectorAll('.menu-content.show');
-                allOpenMenus.forEach(menu => {
-                    if (menu.id !== targetId) {
-                        const bsCollapse = bootstrap.Collapse.getInstance(menu);
-                        if (bsCollapse) {
-                            bsCollapse.hide();
-                        }
-                    }
-                });
-            });
-        });
-    }, 100);
 }
 
 // Close video dengan ESC key
