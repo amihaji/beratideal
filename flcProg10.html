@@ -605,7 +605,7 @@ function hideAbout() {
 /*************************************
 * Handle accordion toggle behavior
 **************************************/
-function setupAccordionToggle() {
+function BACKUP_setupAccordionToggle() {
     const accordionHeaders = document.querySelectorAll('.menu-header');
     
     accordionHeaders.forEach(header => {
@@ -633,9 +633,67 @@ function setupAccordionToggle() {
     });
 }
 
+// *********************************************
+// ACCORDION TOGGLE FIX
+// *********************************************
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix untuk toggle menu yang sama
+    document.querySelectorAll('.menu-header').forEach(header => {
+        header.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('data-bs-target');
+            const targetContent = document.querySelector(targetId);
+            
+            if (!targetContent) return;
+            
+            // Check if this menu is currently open
+            const isCurrentlyOpen = targetContent.classList.contains('show');
+            
+            console.log('Menu diklik:', targetId, 'Status terbuka:', isCurrentlyOpen);
+            
+            if (isCurrentlyOpen) {
+                // Jika menu sudah terbuka, tutup manual
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Manual hide
+                targetContent.classList.remove('show');
+                targetContent.style.height = '0';
+                this.classList.add('collapsed');
+                this.setAttribute('aria-expanded', 'false');
+                
+                console.log('Menu ditutup manual');
+            }
+        });
+    });
+});
+
+
 /*************************************
 * Cek status login saat halaman dimuat
 **************************************/
+document.addEventListener('DOMContentLoaded', function () {
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    console.log('✅ App initialized successfully');
+    
+    // Accordion toggle fix sudah dihandle di atas
+});
+
+/* TIDAK DIGUNAKAN
 document.addEventListener('DOMContentLoaded', function () {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -658,6 +716,8 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeAllVideoPlayers();
     console.log('✅ App initialized successfully');
 });
+
+*/
 
 /********************
 /  Logout function 
