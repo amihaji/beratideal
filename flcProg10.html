@@ -579,26 +579,30 @@ body { background-color: #f8f9fa; }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// =============================================
+// *********************************************
 // CONFIGURATION
-// =============================================
+// *********************************************
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
-// =============================================
-// CORE APP FUNCTIONS (TETAP)
-// =============================================
+// *********************
+// CORE APP FUNCTIONS 
+// *********************
 
-// Show About form
+/******************
+* Show About form 
+*******************/
 function showAbout() {
   document.getElementById('aboutOverlay').style.display = 'flex';
 }
 
-// Hide About form  
+/******************
+* Hide About form 
+*******************/  
 function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-// Logout function
+// ***** Logout function *****
 function logout() {
   localStorage.removeItem('userId');
   localStorage.removeItem('userToken');
@@ -607,11 +611,14 @@ function logout() {
   window.location.reload();
 }
 
-// =============================================
-// VIDEO PLAYER CORE FUNCTIONS (TETAP)
-// =============================================
+// ***************************
+// VIDEO PLAYER CORE FUNCTIONS 
+// ***************************
 let currentVideoData = {};
 
+/********************
+* Fungsi Play Video 
+*********************/
 function playVideo(section) {
     console.log('playVideo called for section:', section);
     
@@ -643,6 +650,9 @@ function playVideo(section) {
     }, 1000);
 }
 
+/***************************
+* Fungsi Load Video Youtube 
+****************************/
 function loadYouTubeVideo(videoPlayer, url) {
     const videoId = extractYouTubeId(url);
     console.log('YouTube ID extracted:', videoId);
@@ -666,6 +676,9 @@ function loadYouTubeVideo(videoPlayer, url) {
     }
 }
 
+/*************************
+* Fungsi Load Local Video 
+**************************/
 function loadLocalVideo(videoPlayer, url) {
     console.log('Creating local video element for:', url);
     videoPlayer.innerHTML = `
@@ -688,6 +701,9 @@ function loadLocalVideo(videoPlayer, url) {
     }
 }
 
+/***************************
+* Fungsi Extract ID Youtube 
+****************************/
 function extractYouTubeId(url) {
     console.log('Extracting YouTube ID from:', url);
     
@@ -710,6 +726,9 @@ function extractYouTubeId(url) {
     return null;
 }
 
+/*********************
+* Fungsi Close Video 
+**********************/
 function closeVideo(section) {
     console.log('Closing video for section:', section);
     
@@ -738,6 +757,9 @@ function closeVideo(section) {
     currentVideoData = {};
 }
 
+/**************************
+* Fungsi Close All Video 
+***************************/
 function closeAllVideos() {
     console.log('Closing all videos');
     const videoContainers = document.querySelectorAll('.video-container');
@@ -749,9 +771,9 @@ function closeAllVideos() {
     });
 }
 
-/**
- * Load playlist data dari JSON file
- */
+/***********************************
+* Load playlist data dari JSON file
+************************************/
 async function loadPlaylistData() {
     try {
         console.log('📥 Loading playlist data from JSON...');
@@ -772,9 +794,9 @@ async function loadPlaylistData() {
     }
 }
 
-/**
- * Proven videos sebagai fallback
- */
+/********************************
+* Proven videos sebagai fallback
+*********************************/
 function getProvenVideos() {
     return [
         {
@@ -796,9 +818,9 @@ function getProvenVideos() {
     ];
 }
 
-/**
- * Show playlist dari JSON data
- */
+/******************************
+* Show playlist dari JSON data
+*******************************/
 async function showPlaylist(section, playlistUrl) {
     const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
     if (!playlistContainer) {
@@ -833,9 +855,9 @@ async function showPlaylist(section, playlistUrl) {
     }
 }
 
-/**
- * Render playlist items
- */
+/*************************
+* Render playlist items
+**************************/
 function renderPlaylist(container, items, section) {
     container.innerHTML = '';
     
@@ -899,9 +921,9 @@ function renderPlaylist(container, items, section) {
     container.appendChild(footer);
 }
 
-/**
- * Play video dari playlist
- */
+/**************************
+* Play video dari playlist
+***************************/
 function playVideoFromPlaylist(section, videoId, title) {
     console.log('🎬 Playing video from playlist:', { section, videoId, title });
     
@@ -939,19 +961,28 @@ function playVideoFromPlaylist(section, videoId, title) {
     }, 600);
 }
 
-// =============================================
+// ======================
 // UTILITY FUNCTIONS
-// =============================================
+// ======================
 
+/*******************************
+* Fungsi Untuk Huruf Awal Besar
+********************************/ 
 function capitalizeFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+/*******************************
+* Fungsi extrack ID Playlist
+********************************/ 
 function extractPlaylistId(url) {
     const match = url.match(/[&?]list=([^&]+)/);
     return match ? match[1] : null;
 }
 
+/*************************
+* Fungsi tampilkan pesan
+**************************/ 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.style.cssText = `
@@ -968,9 +999,7 @@ function showToast(message, type = 'info') {
         max-width: 300px;
     `;
     toast.textContent = message;
-    
     document.body.appendChild(toast);
-    
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transition = 'opacity 0.5s';
@@ -978,10 +1007,13 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// =============================================
+// =================
 // INITIALIZATION
-// =============================================
+// =================
 
+/***********************************
+* Fungsi Initialisasi Seluruh video
+************************************/ 
 function initializeAllVideoPlayers() {
     console.log('Initializing video players...');
     
@@ -1004,7 +1036,7 @@ function initializeAllVideoPlayers() {
         { selector: 'a[href*=".mp4"]', type: 'local' }
     ]);
     
-    // ✅ Setup untuk healthyRecept dengan JSON data
+    // Setup untuk healthyRecept dengan JSON data
     const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
     if (healthyReceptLink) {
         console.log('✅ Setup: Found healthyRecept playlist link');
@@ -1025,6 +1057,9 @@ function initializeAllVideoPlayers() {
     console.log('✅ Video players initialized');
 }
 
+/**************************
+* Fungsi Setup Link Video 
+***************************/ 
 function setupVideoLinksForSection(section, linkConfigs) {
     const menuContent = document.getElementById(section + 'Content');
     if (!menuContent) return;
@@ -1042,6 +1077,9 @@ function setupVideoLinksForSection(section, linkConfigs) {
     });
 }
 
+/********************
+* Fungsi Load Video
+*********************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
     console.log('loadVideo called:', { section, videoType, videoUrl, title });
     
@@ -1085,7 +1123,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
         videoPlaceholder.style.display = 'flex';
     }
-    
     if (videoLoading) videoLoading.style.display = 'none';
     
     // Auto play setelah ditampilkan
@@ -1094,9 +1131,9 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     }, 500);
 }
 
-// =============================================
+// ===============
 // DOM READY
-// =============================================
+// ===============
 document.addEventListener('DOMContentLoaded', function () {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -1114,7 +1151,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize video players
     initializeAllVideoPlayers();
-    
     console.log('✅ App initialized successfully');
 });
 
