@@ -385,11 +385,20 @@ function downloadQRIS(e) {
 /************************************
 * Fungsi untuk mengambil nilai harga
 ************************************/
-function getHargaProgram(program) {
+function BACKUP_getHargaProgram(program) {
   const prices = {
     '10 Hari': 700000,
     '21 Hari': 2100000
     /* '3 Bulan': 7000000 */
+  };
+  return prices[program] || 0;
+}
+
+function getHargaProgram(program) {
+  const prices = {
+    'Weight Management': 700000,
+    'Keep Health': 2100000,
+    'Fat Loss Challenge': 800000 
   };
   return prices[program] || 0;
 }
