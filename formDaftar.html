@@ -32,6 +32,9 @@
             <div class="form-group"><label>Program</label>
               <input type="text" class="form-control" id="program" value="FIT Challenge" readonly>
             </div>
+            <div class="form-group"><label>Harga</label>
+              <input type="text" class="form-control" id="harga" value="700000" readonly>
+            </div>
               
             <!-- TIDAK AKTIF --
             <div class="form-group"><label>Program</label>
@@ -42,9 +45,9 @@
                 <option value="Fat Loss Challenge">Fat Loss Challenge</option> 
               </select>
             </div>
+            <div class="form-group"><label>Harga</label><input type="text" class="form-control" id="harga" readonly></div>
             -->
             
-            <div class="form-group"><label>Harga</label><input type="text" class="form-control" id="harga" readonly></div>
             <div id="msgBox1"></div>
             <div class="form-navigation">
               <button type="button" class="btn btn-primary btn-icon" onclick="nextStep(1)">
@@ -392,18 +395,11 @@ function downloadQRIS(e) {
 /************************************
 * Fungsi untuk mengambil nilai harga
 ************************************/
-function BACKUP_getHargaProgram(program) {
-  const prices = {
-    '10 Hari': 700000,
-    '21 Hari': 2100000
-    /* '3 Bulan': 7000000 */
-  };
-  return prices[program] || 0;
-}
-
 function getHargaProgram(program) {
   const prices = {
-    'FIT Challenge': 800000 
+    '10 Hari': 700000,
+    '21 Hari': 2100000,
+    '3 Bulan': 7000000 
   };
   return prices[program] || 0;
 }
