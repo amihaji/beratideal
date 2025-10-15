@@ -352,6 +352,59 @@ body { background-color: #f8f9fa; }
         <!-- Menu Accordion -->
         <div class="menu-accordion" id="menuAccordion">
           
+          <!-- Panduan Aplikasi -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panduanContent">
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Panduan Aplikasi
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="panduanContent" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-video"></i>1.1 Tutorial Panduan Penggunaan Aplikasi
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-utensils"></i>1.2 Panduan Meal Plan
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-dumbbell"></i>1.3 Panduan Workout
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-glass-martini-alt"></i>1.4 Panduan Water Reminder
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-bed"></i>1.5 Panduan Waktu Istirahat
+                </a>
+                
+                <!-- Video Player untuk Panduan Aplikasi -->
+                <div class="video-container" id="videoContainerPanduan">
+                  <button class="close-video" onclick="closeVideo('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('panduan')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Klik untuk memuat video</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingPanduan">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerPanduan"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Perkenalan -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
