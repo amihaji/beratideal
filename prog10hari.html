@@ -899,7 +899,7 @@ function initializeAllVideoPlayers() {
     ]);
     */
 
-    // Setup untuk pertemuan1 - 10
+    // Setup untuk pertemuan 1 - 10
     for (let i = 1; i <= 10; i++) {
         setupVideoLinksForSection(`pertemuan${i}`, [
             { selector: 'a[href*="canva.com"]', type: 'canva' },
@@ -935,8 +935,6 @@ function initializeAllVideoPlayers() {
         });
     });
     
-    console.log('✅ Video players initialized');
-
     // Close video dengan ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && currentVideoData.section) {
@@ -945,7 +943,6 @@ function initializeAllVideoPlayers() {
     });
     // Debug: log untuk memastikan script loaded
     console.log('Video player script loaded successfully');
-
 }
 
 /**************************
@@ -968,9 +965,9 @@ function setupVideoLinksForSection(section, linkConfigs) {
     });
 }
 
-/**************************
+/***********************
 * Fungsi Setup Link PDF 
-***************************/ 
+************************/ 
 function setupPDFLinksForSection(section, linkConfigs) {
     const menuContent = document.getElementById(section + 'Content');
     if (!menuContent) return;
@@ -1283,9 +1280,9 @@ async function showPlaylist(section, playlistUrl) {
     }
 }
 
-/*************************
+/***********************
 * Render playlist items
-**************************/
+************************/
 function renderPlaylist(container, items, section) {
     container.innerHTML = '';
     
@@ -1389,9 +1386,9 @@ function playVideoFromPlaylist(section, videoId, title) {
     }, 600);
 }
 
-// ======================
+// ====================
 // UTILITY FUNCTIONS
-// ======================
+// ====================
 
 /*******************************
 * Fungsi Untuk Huruf Awal Besar
@@ -1435,10 +1432,9 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-
-// ***************************
+// **********************
 // PDF VIEWER FUNCTIONS 
-// ***************************
+// **********************
 let currentPDFData = {};
 
 /********************
@@ -1488,27 +1484,7 @@ function loadPDF(section, pdfUrl, title = '') {
 }
 
 /********************
-* Fungsi Display PDF
-*********************/
-function BACKUP_displayPDF(section, pdfUrl, title) {
-    console.log('Displaying PDF:', pdfUrl);
-    
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (!pdfContainer) return;
-    
-    if (isMobile) {
-        // Untuk mobile, gunakan Google Docs Viewer atau fallback
-        displayPDFForMobile(section, pdfUrl, title);
-    } else {
-        // Untuk desktop, gunakan embed langsung
-        displayPDFForDesktop(section, pdfUrl);
-    }
-}
-
-/********************
-* Fungsi Display PDF dengan PDF.js
+* Fungsi Display PDF 
 *********************/
 function displayPDF(section, pdfUrl, title) {
     console.log('Displaying PDF with PDF.js:', pdfUrl);
@@ -1530,9 +1506,9 @@ function displayPDF(section, pdfUrl, title) {
     }
 }
 
-/********************
+/*********************************
 * Fungsi Display PDF dengan PDF.js
-*********************/
+**********************************/
 function displayPDFWithPDFJS(section, pdfUrl, title) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -1651,7 +1627,7 @@ function displayPDFWithPDFJS(section, pdfUrl, title) {
 }
 
 /********************
-* Fungsi Opsi Mobile yang Lebih Baik
+* Fungsi Opsi Mobile 
 *********************/
 function showMobilePDFOptions(section, pdfUrl, title) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
@@ -1669,23 +1645,15 @@ function showMobilePDFOptions(section, pdfUrl, title) {
                     <i class="fas fa-eye me-2"></i>Lihat di Aplikasi (PDF.js)
                 </button>
                 
-                <button class="btn btn-success btn-lg" onclick="downloadPDF('${section}')">
-                    <i class="fas fa-download me-2"></i>Download PDF
-                </button>
-                
                 <button class="btn btn-outline-primary btn-lg" onclick="openPDFInNewTab('${section}')">
                     <i class="fas fa-external-link-alt me-2"></i>Buka di Browser
-                </button>
-                
-                <button class="btn btn-outline-secondary" onclick="closePDF('${section}')">
-                    <i class="fas fa-times me-2"></i>Tutup
                 </button>
             </div>
             
             <div class="mt-4 p-3 bg-light rounded">
                 <small class="text-muted">
                     <i class="fas fa-info-circle me-1"></i>
-                    <strong>PDF.js</strong> mungkin membutuhkan waktu lebih lama untuk memuat, 
+                    <strong>File PDF</strong> mungkin membutuhkan waktu lebih lama untuk memuat, 
                     tetapi dapat menampilkan PDF langsung di aplikasi.
                 </small>
             </div>
@@ -1693,9 +1661,9 @@ function showMobilePDFOptions(section, pdfUrl, title) {
     `;
 }
 
-/********************
+/***************************
 * Fungsi Fallback ke Iframe
-*********************/
+****************************/
 function fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -1724,66 +1692,9 @@ function fallbackToIframe(section, pdfUrl) {
     `;
 }
 
-/********************
-* Fungsi Display PDF untuk Desktop
-*********************/
-function BACKUP_displayPDFForDesktop(section, pdfUrl) {
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    pdfContainer.innerHTML = `
-        <iframe 
-            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" 
-            width="100%" 
-            height="100%" 
-            style="border: none; min-height: 500px;"
-            onload="console.log('PDF loaded successfully for desktop')"
-            onerror="handlePDFError('${section}')"
-        >
-            Browser Anda tidak mendukung tampilan PDF. 
-            <a href="${pdfUrl}" target="_blank">Download PDF</a>
-        </iframe>
-    `;
-}
-
-/********************
-* Fungsi Display PDF untuk Mobile
-*********************/
-function BACKUP_displayPDFForMobile(section, pdfUrl, title) {
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    // Coba beberapa metode untuk mobile
-    const googleDocsUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(window.location.origin + '/' + pdfUrl)}`;
-    
-    pdfContainer.innerHTML = `
-        <div class="pdf-mobile-warning">
-            <i class="fas fa-info-circle me-2"></i>
-            Untuk pengalaman terbaik di mobile, disarankan download PDF
-        </div>
-        <div style="height: 500px; display: flex; flex-direction: column; gap: 10px; padding: 15px;">
-            <iframe 
-                src="${googleDocsUrl}"
-                width="100%" 
-                height="100%" 
-                style="border: none; flex: 1;"
-                onload="console.log('Google Docs PDF viewer loaded')"
-                onerror="fallbackPDFMobile('${section}', '${pdfUrl}')"
-            >
-            </iframe>
-            <div class="text-center">
-                <button class="btn btn-primary btn-sm" onclick="downloadPDF('${section}')">
-                    <i class="fas fa-download me-1"></i>Download PDF
-                </button>
-                <button class="btn btn-secondary btn-sm" onclick="openPDFInNewTab('${section}')">
-                    <i class="fas fa-external-link-alt me-1"></i>Buka di Tab Baru
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-/********************
+/*******************************
 * Fungsi Fallback untuk Mobile
-*********************/
+********************************/
 function fallbackPDFMobile(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -1806,7 +1717,7 @@ function fallbackPDFMobile(section, pdfUrl) {
 /*********************
 * Fungsi Download PDF
 **********************/
-function downloadPDF(section) {
+function BACKUP_downloadPDF(section) {
     if (currentPDFData.url) {
         const link = document.createElement('a');
         link.href = currentPDFData.url;
@@ -1818,18 +1729,18 @@ function downloadPDF(section) {
     }
 }
 
-/*********************
+/****************************
 * Fungsi Open PDF in New Tab
-**********************/
+****************************/
 function openPDFInNewTab(section) {
     if (currentPDFData.url) {
         window.open(currentPDFData.url, '_blank');
     }
 }
 
-/*********************
+/**************************
 * Fungsi Handle PDF Error
-**********************/
+***************************/
 function handlePDFError(section) {
     console.error('Error loading PDF for section:', section);
     
@@ -1855,9 +1766,9 @@ function handlePDFError(section) {
     }
 }
 
-/*********************
+/*******************
 * Fungsi Close PDF
-**********************/
+********************/
 function closePDF(section) {
     console.log('Closing PDF for section:', section);
     
@@ -1873,9 +1784,9 @@ function closePDF(section) {
     currentPDFData = {};
 }
 
-/**************************
+/************************
 * Fungsi Close All PDFs
-***************************/
+*************************/
 function closeAllPDFs() {
     console.log('Closing all PDFs');
     const pdfViewers = document.querySelectorAll('.pdf-viewer');
