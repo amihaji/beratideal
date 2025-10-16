@@ -1341,7 +1341,7 @@ function renderPlaylist(container, items, section) {
     footer.style.textAlign = 'center';
     footer.style.background = '#f8f9fa';
     footer.innerHTML = `
-        <div><i class="fas fa-database me-1"></i>Data dari JSON • ${new Date().toLocaleDateString('id-ID')}</div>
+        <div><i class="fas fa-database me-1"></i>Data update • ${new Date().toLocaleDateString('id-ID')}</div>
     `;
     container.appendChild(footer);
 }
@@ -1397,9 +1397,9 @@ function capitalizeFirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-/*******************************
+/*****************************
 * Fungsi extrack ID Playlist
-********************************/ 
+******************************/ 
 function extractPlaylistId(url) {
     const match = url.match(/[&?]list=([^&]+)/);
     return match ? match[1] : null;
@@ -1712,21 +1712,6 @@ function fallbackPDFMobile(section, pdfUrl) {
             </div>
         </div>
     `;
-}
-
-/*********************
-* Fungsi Download PDF
-**********************/
-function BACKUP_downloadPDF(section) {
-    if (currentPDFData.url) {
-        const link = document.createElement('a');
-        link.href = currentPDFData.url;
-        link.download = currentPDFData.title + '.pdf';
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 }
 
 /****************************
