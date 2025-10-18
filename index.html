@@ -28,6 +28,7 @@
             --light-color: #ffffff;
             --gray-light: #f5f5f5;
             --gray-medium: #e9ecef;
+            --light-gray-text: #f8f9fa;
         }
         
         /* Preloader */
@@ -256,10 +257,11 @@
         .testimonial-img {
             width: 300px;
             height: 350px;
-            object-fit: cover;
+            object-fit: contain;
             border: 5px solid var(--light-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            background-color: var(--light-color);
         }
         
         .testimonial-img.active {
@@ -481,6 +483,13 @@
             
             .cta-section, .about-section {
                 background-position: center;
+            }
+            
+            /* CTA Text Color for Mobile */
+            .cta-section .big-title,
+            .cta-section p {
+                color: var(--light-gray-text) !important;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
             }
         }
     </style>
@@ -843,11 +852,11 @@
     
     <!-- Custom JavaScript -->
     <script>
-        // Preloader
+        // Preloader - lebih cepat (hanya 500ms)
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.getElementById('preloader').style.display = 'none';
-            }, 1000);
+            }, 500); // Diperpendek dari 1000ms ke 500ms
         });
 
         // Set current year in footer
