@@ -22,23 +22,21 @@
     <!-- CSS Kustom -->
     <style>
         :root {
-            --primary-color: #e74c3c;
+            --primary-color: #026e02;
             --secondary-color: #f8f9fa;
             --dark-color: #212529;
             --light-color: #ffffff;
-            --gray-light: #f5f5f5;
         }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--dark-color);
-            overflow-x: hidden;
         }
         
         /* Header & Navbar */
         .navbar {
-            background-color: var(--primary-color);
+            background-color: var(--light-color);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 15px 0;
         }
@@ -48,67 +46,18 @@
         }
         
         .navbar-nav .nav-link {
-            color: var(--light-color);
+            color: var(--dark-color);
             font-weight: 500;
             margin: 0 10px;
-            position: relative;
-            transition: all 0.3s ease;
         }
         
         .navbar-nav .nav-link:hover {
-            color: var(--light-color);
-        }
-        
-        .navbar-nav .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--light-color);
-            transition: width 0.3s ease;
-        }
-        
-        .navbar-nav .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        .navbar-toggler {
-            border-color: var(--light-color);
-        }
-        
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-        
-        .social-icons {
-            display: flex;
-            gap: 10px;
-            margin-left: 20px;
-        }
-        
-        .social-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .social-icon:hover {
-            background-color: var(--primary-color);
-            color: var(--light-color);
-            transform: translateY(-3px);
         }
         
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/background-1.webp');
             background-size: cover;
             background-position: center;
             color: var(--light-color);
@@ -130,37 +79,30 @@
         .service-box {
             text-align: center;
             margin-bottom: 30px;
-            padding: 30px 20px;
+            padding: 20px;
             border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            height: 100%;
+            transition: transform 0.3s ease;
         }
         
         .service-box:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
         .square-figure {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background-color: var(--primary-color);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .service-box:hover .square-figure {
-            transform: scale(1.1);
         }
         
         .square-figure span {
             color: var(--light-color);
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         
         /* Testimonial Section */
@@ -175,7 +117,7 @@
         
         .quotes-creative {
             position: relative;
-            padding: 30px;
+            padding: 20px;
             background-color: var(--light-color);
             border-radius: 8px;
             margin-bottom: 20px;
@@ -203,119 +145,57 @@
             color: var(--primary-color);
         }
         
-        .testimonial-img-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
         .testimonial-img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid var(--light-color);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .testimonial-img.active {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.3);
-        }
-        
-        .testimonial-name {
-            margin-top: 15px;
-            font-weight: 600;
-            color: var(--primary-color);
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
         
         /* CTA Section */
         .cta-section {
-            background-color: var(--light-color);
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('images/background-3.png');
+            background-size: cover;
+            background-position: center;
+            color: var(--light-color);
             padding: 100px 0;
-            text-align: center;
         }
         
         .big-title {
             font-size: 3.5rem;
             font-weight: 700;
             line-height: 1.2;
-            color: var(--dark-color);
-        }
-        
-        .cta-btn {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 15px 40px;
-            font-weight: 600;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-        
-        .cta-btn:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            transform: translateY(-3px);
-        }
-        
-        .cta-btn i {
-            margin-right: 10px;
-            font-size: 1.5rem;
         }
         
         /* About Section */
         .about-section {
-            background-color: var(--gray-light);
+            background-color: var(--secondary-color);
             padding: 80px 0;
+            background-image: url('images/background-2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: right center;
         }
         
         .handwritten-name {
             font-family: 'Dancing Script', cursive;
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--primary-color);
         }
         
         .handwritten-title {
             font-family: 'Caveat', cursive;
             font-size: 1.4rem;
-            color: var(--dark-color);
-        }
-        
-        .about-btn {
-            background-color: #026e02;
-            border-color: #026e02;
-            color: white;
-            padding: 15px 40px;
-            font-weight: 600;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-        
-        .about-btn:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        .about-btn i {
-            margin-right: 10px;
-            font-size: 1.5rem;
         }
         
         /* Footer */
         footer {
-            background-color: var(--light-color);
-            color: var(--dark-color);
+            background-color: var(--dark-color);
+            color: var(--light-color);
             padding: 60px 0 20px;
-            border-top: 1px solid #e9ecef;
         }
         
         footer h6 {
-            color: var(--dark-color);
+            color: var(--light-color);
             margin-bottom: 20px;
             font-weight: 600;
         }
@@ -330,7 +210,7 @@
         }
         
         footer a {
-            color: var(--dark-color);
+            color: var(--light-color);
             text-decoration: none;
         }
         
@@ -347,30 +227,17 @@
             font-size: 1.5rem;
         }
         
-        /* Back to Top Button */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
+        /* Buttons */
+        .btn-primary {
             background-color: var(--primary-color);
-            color: var(--light-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            text-decoration: none;
+            border-color: var(--primary-color);
+            padding: 12px 30px;
+            font-weight: 600;
         }
         
-        .back-to-top:hover {
-            background-color: #c0392b;
-            color: var(--light-color);
-            transform: translateY(-5px);
+        .btn-primary:hover {
+            background-color: #025a02;
+            border-color: #025a02;
         }
         
         /* Modal */
@@ -419,17 +286,15 @@
                 margin-bottom: 40px;
             }
             
-            .social-icons {
-                margin-left: 0;
-                margin-top: 15px;
-                justify-content: center;
+            .about-section {
+                background-image: none;
             }
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#home">
                 <img src="images/logo-beratidealku.png" alt="Gaya Hidup Sehat dan Aktif - Tips dan Panduan - beratidealku">
@@ -446,26 +311,15 @@
                         <a class="nav-link" href="#services">Layanan</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#testimonial">Testimonial</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="#tantanganFIT">FIT Challenge</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#tentang">About</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#masuk">Login</a>
+                    </li>
                 </ul>
-                <div class="social-icons">
-                    <a href="https://facebook.com/beratidealku" class="social-icon">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.instagram.com/hestyamin" class="social-icon">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="social-icon">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </div>
             </div>
         </div>
     </nav>
@@ -477,6 +331,7 @@
                 <div class="col-lg-4 col-md-6">
                     <h1 class="creative-title">BERATidealku</h1>
                     <p class="mb-4">FIT CHALLENGE PROGRAMME by BERATidealku, merupakan tantangan bagi anda yang ingin meningkatkan level kebugarannya dengan cara menyenangkan</p>
+                    <button class="btn btn-primary" onclick="tampilkanKonfirmasi('https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+info+tentang+%3A%0A1.+Klub+Nutrisi%0A2.+Weight+loss+challenge%0APilih+info+%3A+.+.+.+.+.')">Tanya Coach</button>
                 </div>
             </div>
         </div>
@@ -593,7 +448,7 @@
                         <div id="testimonialCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
                             <div class="carousel-inner">
                                 <!-- Testimoni 1 -->
-                                <div class="carousel-item active" data-img="images/Testimoni4-Hesty.webp" data-name="Hesty - Turun 10kg">
+                                <div class="carousel-item active">
                                     <div class="quotes-creative">
                                         <i class="fas fa-quote-right top-quote"></i>
                                         <p>Memberikan banyak manfaat serta meningkatkan stamina dan kebugaran, sehingga membantu dalam aktifitas seharian saya sebagai ibu rumah tangga.</p>
@@ -603,7 +458,7 @@
                                 </div>
                                 
                                 <!-- Testimoni 2 -->
-                                <div class="carousel-item" data-img="images/Testimoni1-Appi.webp" data-name="Mulvi - Turun 30kg">
+                                <div class="carousel-item">
                                     <div class="quotes-creative">
                                         <i class="fas fa-quote-right top-quote"></i>
                                         <p>Stamina bertambah dan tidak mudah mengantuk dan sangat membantu saya dalam beraktifitas.</p>
@@ -613,23 +468,13 @@
                                 </div>
                                 
                                 <!-- Testimoni 3 -->
-                                <div class="carousel-item" data-img="images/Testimoni2-Herna.webp" data-name="Herna - Turun 15kg">
+                                <div class="carousel-item">
                                     <div class="quotes-creative">
                                         <i class="fas fa-quote-right top-quote"></i>
                                         <p>Saya mendapatkan bentuk tubuh yang ideal, tidak gampang lelah dan makin berstamina saat olahraga.</p>
                                         <i class="fas fa-quote-left bottom-quote"></i>
                                     </div>
                                     <div class="creative-text">Herna</div>
-                                </div>
-                                
-                                <!-- Testimoni 4 -->
-                                <div class="carousel-item" data-img="images/Testimoni3-Akmal.webp" data-name="Atmal - Turun 10kg">
-                                    <div class="quotes-creative">
-                                        <i class="fas fa-quote-right top-quote"></i>
-                                        <p>Saya merasakan kebugaran yang luar biasa dan memudahkan saya dalam beraktifitas dalam bekerja.</p>
-                                        <i class="fas fa-quote-left bottom-quote"></i>
-                                    </div>
-                                    <div class="creative-text">Atmal</div>
                                 </div>
                             </div>
                             
@@ -646,9 +491,37 @@
                 </div>
                 
                 <div class="col-lg-6">
-                    <div class="testimonial-img-container">
-                        <img id="activeTestimonialImg" src="images/Testimoni4-Hesty.webp" alt="Hesty - Turun 10kg" class="testimonial-img active">
-                        <div id="activeTestimonialName" class="testimonial-name">Hesty - Turun 10kg</div>
+                    <div class="row">
+                        <!-- Testimonial Images -->
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni4-Hesty.webp" alt="Hesty - Turun 10kg" class="testimonial-img">
+                            <span>Hesty - Turun 10kg</span>
+                        </div>
+                        
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni1-Appi.webp" alt="Mulvi - Turun 30kg" class="testimonial-img">
+                            <span>Mulvi - Turun 30kg</span>
+                        </div>
+                        
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni2-Herna.webp" alt="Herna - Turun 15kg" class="testimonial-img">
+                            <span>Herna - Turun 15kg</span>
+                        </div>
+                        
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni3-Akmal.webp" alt="Atmal - Turun 10kg" class="testimonial-img">
+                            <span>Atmal - Turun 10kg</span>
+                        </div>
+                        
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni5-dr-Indri.webp" alt="dr.Indri - Turun 12kg" class="testimonial-img">
+                            <span>dr.Indri - Turun 12kg</span>
+                        </div>
+                        
+                        <div class="col-md-4 col-6 mb-4">
+                            <img src="images/Testimoni6-dr-Muslim.webp" alt="dr.Muslim - Turun 10kg" class="testimonial-img">
+                            <span>dr.Muslim - Turun 10kg</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -658,12 +531,12 @@
     <!-- CTA Section -->
     <section class="cta-section" id="tantanganFIT">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center">
+            <div class="row">
+                <div class="col-lg-5 col-md-8">
                     <h2 class="big-title mb-4">Waktunya untuk<br>Berubah</h2>
                     <p class="mb-4">Rasakan perubahan kebugaran anda! dengan ikut serta dalam <b>"FIT CHALLENGE PROGRAMME by BERATidealku"</b> merupakan tantangan bagi anda yang ingin meningkatkan level kebugaran dengan panduan video tutorial yang lengkap dan terstruktur, dengan cara menyenangkan ...</p>
-                    <button class="btn cta-btn" onclick="tampilkanKonfirmasi('/beratideal/wetoolsBeratideal.html')">
-                        <i class="fas fa-arrow-right"></i> Join With Us
+                    <button class="btn btn-primary" onclick="tampilkanKonfirmasi('/beratideal/wetoolsBeratideal.html')">
+                        <i class="fas fa-arrow-right me-2"></i> Join With Us
                     </button>
                 </div>
             </div>
@@ -687,8 +560,8 @@
                         <p class="mt-4"><strong><span class="handwritten-name">Hesty Husain</span></strong><br>
                         <span class="handwritten-title">Personal Diet Partner</span></p>
                     </div>
-                    <a class="btn about-btn" href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+info+tentang+%3A%0A1.+Klub+Nutrisi%0A2.+FIT+challenge%0APilih+info+%3A+.+.+.+.+." target="_blank">
-                        <i class="fab fa-whatsapp"></i> Tanya Coach
+                    <a class="btn" style="background-color: #026e02; color: white;" href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+info+tentang+%3A%0A1.+Klub+Nutrisi%0A2.+FIT+challenge%0APilih+info+%3A+.+.+.+.+." target="_blank">
+                        <i class="fab fa-whatsapp me-2"></i> Tanya Coach
                     </a>
                 </div>
             </div>
@@ -726,7 +599,7 @@
                 </div>
             </div>
             
-            <hr class="my-4">
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
             
             <div class="row align-items-center">
                 <div class="col-md-7 mb-3 mb-md-0">
@@ -736,17 +609,11 @@
                     <div class="social-links justify-content-md-end justify-content-start">
                         <a href="https://facebook.com/beratidealku"><i class="fab fa-facebook"></i></a>
                         <a href="https://www.instagram.com/hestyamin"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
-
-    <!-- Back to Top Button -->
-    <a href="#home" class="back-to-top">
-        <i class="fas fa-arrow-up"></i>
-    </a>
 
     <!-- Modal Konfirmasi -->
     <div class="modal-overlay" id="modalKonfirmasi">
@@ -767,32 +634,6 @@
     <script>
         // Set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-        
-        // Testimonial image update
-        const testimonialCarousel = document.getElementById('testimonialCarousel');
-        const activeTestimonialImg = document.getElementById('activeTestimonialImg');
-        const activeTestimonialName = document.getElementById('activeTestimonialName');
-        
-        testimonialCarousel.addEventListener('slide.bs.carousel', function (event) {
-            const activeItem = event.relatedTarget;
-            const imgSrc = activeItem.getAttribute('data-img');
-            const nameText = activeItem.getAttribute('data-name');
-            
-            // Remove active class from current image
-            activeTestimonialImg.classList.remove('active');
-            
-            // Update image and name after a short delay for transition
-            setTimeout(() => {
-                activeTestimonialImg.src = imgSrc;
-                activeTestimonialImg.alt = nameText;
-                activeTestimonialName.textContent = nameText;
-                
-                // Add active class back
-                setTimeout(() => {
-                    activeTestimonialImg.classList.add('active');
-                }, 50);
-            }, 300);
-        });
         
         // Modal functionality
         let linkTujuan = "";
@@ -834,34 +675,6 @@
         document.getElementById('modalKonfirmasi').addEventListener('click', function(e) {
             if (e.target === this) {
                 tutupModal();
-            }
-        });
-        
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // Show/hide back to top button
-        window.addEventListener('scroll', function() {
-            const backToTop = document.querySelector('.back-to-top');
-            if (window.pageYOffset > 300) {
-                backToTop.style.display = 'flex';
-            } else {
-                backToTop.style.display = 'none';
             }
         });
     </script>
