@@ -28,6 +28,43 @@
             --light-color: #ffffff;
             --gray-light: #f5f5f5;
             --gray-medium: #e9ecef;
+            --light-gray-text: #f8f9fa;
+        }
+        
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--gray-medium);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.2rem;
         }
         
         body {
@@ -60,19 +97,22 @@
             color: var(--primary-color);
         }
         
-        .navbar-nav .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-        
-        .navbar-nav .nav-link:hover::after {
-            width: 100%;
+        /* Garis bawah hanya untuk desktop */
+        @media (min-width: 992px) {
+            .navbar-nav .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 0;
+                left: 0;
+                background-color: var(--primary-color);
+                transition: width 0.3s ease;
+            }
+            
+            .navbar-nav .nav-link:hover::after {
+                width: 100%;
+            }
         }
         
         .navbar-toggler {
@@ -109,7 +149,7 @@
         
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/background-1.webp');
             background-size: cover;
             background-position: center;
             color: var(--light-color);
@@ -141,33 +181,31 @@
             transform: translateY(-10px);
         }
         
-        .diamond-figure {
+        .circle-figure {
             width: 100px;
             height: 100px;
             background-color: var(--light-color);
             border: 2px solid var(--gray-medium);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
             transition: all 0.3s ease;
-            transform: rotate(45deg);
-            position: relative;
         }
         
-        .diamond-figure i {
-            transform: rotate(-45deg);
+        .circle-figure i {
             color: var(--primary-color);
-            font-size: 2rem;
+            font-size: 2.5rem;
             transition: all 0.3s ease;
         }
         
-        .service-box:hover .diamond-figure {
+        .service-box:hover .circle-figure {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
         
-        .service-box:hover .diamond-figure i {
+        .service-box:hover .circle-figure i {
             color: var(--light-color);
         }
         
@@ -217,12 +255,13 @@
         }
         
         .testimonial-img {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
+            width: 300px;
+            height: 350px;
+            object-fit: contain;
             border: 5px solid var(--light-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            background-color: var(--light-color);
         }
         
         .testimonial-img.active {
@@ -238,9 +277,9 @@
         
         /* CTA Section */
         .cta-section {
-            background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background: url('images/background-3.png');
             background-size: cover;
-            background-position: left center;
+            background-position: right center;
             padding: 100px 0;
         }
         
@@ -260,12 +299,12 @@
             font-size: 1.2rem;
             border-radius: 5px;
             transition: all 0.3s ease;
-            float: right;
         }
         
         .cta-btn:hover {
             background-color: var(--dark-color);
             border-color: var(--dark-color);
+            color: white;
             transform: translateY(-3px);
         }
         
@@ -276,14 +315,10 @@
         
         /* About Section */
         .about-section {
-            background-color: var(--gray-light);
+            background: url('images/background-2.png');
+            background-size: cover;
+            background-position: right center;
             padding: 80px 0;
-        }
-        
-        .about-img {
-            width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .handwritten-name {
@@ -311,8 +346,8 @@
         }
         
         .about-btn:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
+            background-color: var(--dark-color);
+            border-color: var(--dark-color);
             color: white;
             transform: translateY(-3px);
         }
@@ -441,15 +476,31 @@
                 justify-content: center;
             }
             
-            .cta-btn {
-                float: none;
-                display: block;
-                margin: 0 auto;
+            .testimonial-img {
+                width: 250px;
+                height: 300px;
+            }
+            
+            .cta-section, .about-section {
+                background-position: center;
+            }
+            
+            /* CTA Text Color for Mobile */
+            .cta-section .big-title,
+            .cta-section p {
+                color: var(--light-gray-text) !important;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
             }
         }
     </style>
 </head>
 <body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="spinner"></div>
+        <div class="loading-text">Tunggu lagi load...</div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
@@ -526,7 +577,7 @@
                 <!-- Layanan 1 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-utensils"></i>
                         </div>
                         <h5>Meal Plan</h5>
@@ -537,7 +588,7 @@
                 <!-- Layanan 2 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-dumbbell"></i>
                         </div>
                         <h5>Panduan Olahraga</h5>
@@ -548,7 +599,7 @@
                 <!-- Layanan 3 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-gift"></i>
                         </div>
                         <h5>Loyalty Program</h5>
@@ -559,7 +610,7 @@
                 <!-- Layanan 4 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-users"></i>
                         </div>
                         <h5>Komunitas</h5>
@@ -570,7 +621,7 @@
                 <!-- Layanan 5 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-user"></i>
                         </div>
                         <h5>Bimbingan Coach</h5>
@@ -581,7 +632,7 @@
                 <!-- Layanan 6 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-video"></i>
                         </div>
                         <h5>Free Akses Zoom</h5>
@@ -592,7 +643,7 @@
                 <!-- Layanan 7 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-glass-whiskey"></i>
                         </div>
                         <h5>Meal Replacement</h5>
@@ -603,7 +654,7 @@
                 <!-- Layanan 8 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="diamond-figure">
+                        <div class="circle-figure">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         <h5>Tips Sehat</h5>
@@ -694,7 +745,7 @@
     <!-- CTA Section -->
     <section class="cta-section" id="tantanganFIT">
         <div class="container">
-            <div class="row justify-content-end">
+            <div class="row">
                 <div class="col-lg-5">
                     <h2 class="big-title mb-4">Waktunya untuk<br>Berubah</h2>
                     <p class="mb-4">Rasakan perubahan kebugaran anda! dengan ikut serta dalam <b>"FIT CHALLENGE PROGRAMME by BERATidealku"</b> merupakan tantangan bagi anda yang ingin meningkatkan level kebugaran dengan panduan video tutorial yang lengkap dan terstruktur, dengan cara menyenangkan ...</p>
@@ -709,11 +760,8 @@
     <!-- About Section -->
     <section class="about-section" id="tentang">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <img src="https://images.unsplash.com/photo-1494790108755-2616c113a1c1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Hesty Husain - Personal Diet Partner" class="about-img">
-                </div>
-                <div class="col-lg-8">
+            <div class="row">
+                <div class="col-lg-7">
                     <div class="mb-5">
                         <h2 class="creative-title mb-4">About <span>Me</span></h2>
                         <p>Hai, saya Hesty.</p>
@@ -804,6 +852,13 @@
     
     <!-- Custom JavaScript -->
     <script>
+        // Preloader - lebih cepat (hanya 500ms)
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('preloader').style.display = 'none';
+            }, 500); // Diperpendek dari 1000ms ke 500ms
+        });
+
         // Set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
         

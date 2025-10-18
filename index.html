@@ -192,6 +192,7 @@
             justify-content: center;
             margin: 0 auto 20px;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .circle-figure i {
@@ -203,10 +204,40 @@
         .service-box:hover .circle-figure {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
         }
         
         .service-box:hover .circle-figure i {
             color: var(--light-color);
+        }
+        
+        /* Efek pendar saat hover */
+        .service-box:hover .circle-figure::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background-color: rgba(248, 249, 250, 0.6);
+            animation: pulse 1.5s ease-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
         }
         
         /* Testimonial Section */
@@ -256,7 +287,7 @@
         
         .testimonial-img {
             width: 300px;
-            height: 350px;
+            height: 280px; /* Tinggi dikurangi agar lebih proporsional */
             object-fit: contain;
             border: 5px solid var(--light-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -478,7 +509,7 @@
             
             .testimonial-img {
                 width: 250px;
-                height: 300px;
+                height: 230px; /* Tinggi dikurangi untuk mobile */
             }
             
             .cta-section, .about-section {
@@ -852,11 +883,11 @@
     
     <!-- Custom JavaScript -->
     <script>
-        // Preloader - lebih cepat (hanya 500ms)
+        // Preloader - lebih cepat (hanya 300ms)
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.getElementById('preloader').style.display = 'none';
-            }, 500); // Diperpendek dari 1000ms ke 500ms
+            }, 300); // Diperpendek dari 500ms ke 300ms
         });
 
         // Set current year in footer
