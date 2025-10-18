@@ -60,22 +60,19 @@
             color: var(--primary-color);
         }
         
-        /* Garis bawah hanya untuk desktop */
-        @media (min-width: 992px) {
-            .navbar-nav .nav-link::after {
-                content: '';
-                position: absolute;
-                width: 0;
-                height: 2px;
-                bottom: 0;
-                left: 0;
-                background-color: var(--primary-color);
-                transition: width 0.3s ease;
-            }
-            
-            .navbar-nav .nav-link:hover::after {
-                width: 100%;
-            }
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover::after {
+            width: 100%;
         }
         
         .navbar-toggler {
@@ -112,7 +109,7 @@
         
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/background-1.webp');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
             color: var(--light-color);
@@ -144,31 +141,33 @@
             transform: translateY(-10px);
         }
         
-        .circle-figure {
+        .diamond-figure {
             width: 100px;
             height: 100px;
             background-color: var(--light-color);
             border: 2px solid var(--gray-medium);
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
             transition: all 0.3s ease;
+            transform: rotate(45deg);
+            position: relative;
         }
         
-        .circle-figure i {
+        .diamond-figure i {
+            transform: rotate(-45deg);
             color: var(--primary-color);
-            font-size: 2.5rem;
+            font-size: 2rem;
             transition: all 0.3s ease;
         }
         
-        .service-box:hover .circle-figure {
+        .service-box:hover .diamond-figure {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
         
-        .service-box:hover .circle-figure i {
+        .service-box:hover .diamond-figure i {
             color: var(--light-color);
         }
         
@@ -218,8 +217,8 @@
         }
         
         .testimonial-img {
-            width: 250px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             object-fit: cover;
             border: 5px solid var(--light-color);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -239,9 +238,9 @@
         
         /* CTA Section */
         .cta-section {
-            background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0.7)), url('images/background-3.png');
+            background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7)), url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
-            background-position: right center;
+            background-position: left center;
             padding: 100px 0;
         }
         
@@ -261,6 +260,7 @@
             font-size: 1.2rem;
             border-radius: 5px;
             transition: all 0.3s ease;
+            float: right;
         }
         
         .cta-btn:hover {
@@ -276,10 +276,14 @@
         
         /* About Section */
         .about-section {
-            background: linear-gradient(to left, rgba(245,245,245,0.9), rgba(245,245,245,0.7)), url('images/background-2.png');
-            background-size: cover;
-            background-position: right center;
+            background-color: var(--gray-light);
             padding: 80px 0;
+        }
+        
+        .about-img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .handwritten-name {
@@ -307,8 +311,8 @@
         }
         
         .about-btn:hover {
-            background-color: var(--dark-color);
-            border-color: var(--dark-color);
+            background-color: #6c757d;
+            border-color: #6c757d;
             color: white;
             transform: translateY(-3px);
         }
@@ -437,9 +441,10 @@
                 justify-content: center;
             }
             
-            .testimonial-img {
-                width: 200px;
-                height: 250px;
+            .cta-btn {
+                float: none;
+                display: block;
+                margin: 0 auto;
             }
         }
     </style>
@@ -521,7 +526,7 @@
                 <!-- Layanan 1 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-utensils"></i>
                         </div>
                         <h5>Meal Plan</h5>
@@ -532,7 +537,7 @@
                 <!-- Layanan 2 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-dumbbell"></i>
                         </div>
                         <h5>Panduan Olahraga</h5>
@@ -543,7 +548,7 @@
                 <!-- Layanan 3 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-gift"></i>
                         </div>
                         <h5>Loyalty Program</h5>
@@ -554,7 +559,7 @@
                 <!-- Layanan 4 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-users"></i>
                         </div>
                         <h5>Komunitas</h5>
@@ -565,7 +570,7 @@
                 <!-- Layanan 5 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-user"></i>
                         </div>
                         <h5>Bimbingan Coach</h5>
@@ -576,7 +581,7 @@
                 <!-- Layanan 6 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-video"></i>
                         </div>
                         <h5>Free Akses Zoom</h5>
@@ -587,7 +592,7 @@
                 <!-- Layanan 7 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-glass-whiskey"></i>
                         </div>
                         <h5>Meal Replacement</h5>
@@ -598,7 +603,7 @@
                 <!-- Layanan 8 -->
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="service-box">
-                        <div class="circle-figure">
+                        <div class="diamond-figure">
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         <h5>Tips Sehat</h5>
@@ -689,7 +694,7 @@
     <!-- CTA Section -->
     <section class="cta-section" id="tantanganFIT">
         <div class="container">
-            <div class="row">
+            <div class="row justify-content-end">
                 <div class="col-lg-5">
                     <h2 class="big-title mb-4">Waktunya untuk<br>Berubah</h2>
                     <p class="mb-4">Rasakan perubahan kebugaran anda! dengan ikut serta dalam <b>"FIT CHALLENGE PROGRAMME by BERATidealku"</b> merupakan tantangan bagi anda yang ingin meningkatkan level kebugaran dengan panduan video tutorial yang lengkap dan terstruktur, dengan cara menyenangkan ...</p>
@@ -704,8 +709,11 @@
     <!-- About Section -->
     <section class="about-section" id="tentang">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-7">
+            <div class="row align-items-center">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <img src="https://images.unsplash.com/photo-1494790108755-2616c113a1c1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Hesty Husain - Personal Diet Partner" class="about-img">
+                </div>
+                <div class="col-lg-8">
                     <div class="mb-5">
                         <h2 class="creative-title mb-4">About <span>Me</span></h2>
                         <p>Hai, saya Hesty.</p>
