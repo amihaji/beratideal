@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Menu - Fat Loss Challenge Program 10 Hari</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+body { background-color: #f8f9fa; }
+/***** Judul di Navbar *****/
+.brand-title { font-size: 12px; font:wide; color: #023581; line-height: 1; }
+/***** Sub Judul di Navbar *****/
+.brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
+
+/***** Main Menu Navbar *****/
+.main-menu-link { font-weight: 500; padding: 8px 12px !important; border-radius: 6px; }
+.main-menu-link:hover, .main-menu-link.active { 
+  color: #dc3545 !important; 
+  background-color: #dadada;
+}
+
+/****** Icon Medsos ******/
+.social-icon { 
+  display: inline-flex; 
+  justify-content: center; 
+  align-items: center; 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%; 
+}
+.social-icon i { color: #555; transition: color 0.3s ease-in-out; }
+.social-icon:hover { background-color: #dadada; }
+.social-icon:hover i { color: #dc3545; }
+
+/***** Header Image *****/
+.header-image img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    /*
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    */
+}
+
+/***** Menu Accordian ******/
+.menu-accordion { margin-bottom: 10px; }
+.menu-header {
+  /* background: linear-gradient(135deg, #002266 0%, #0044cc 100%); */
+  background: linear-gradient(135deg, #105fff 0%, #cfdaff 100%);
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  text-align: left;
+  width: 100%;
+  /* border-radius: 8px; */
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+.menu-header:hover {
+  /* background: linear-gradient(135deg, #0044cc 0%, #002266 100%); */
+  background: linear-gradient(135deg, #cfdaff 0%, #105fff 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.menu-header .menu-icon { transition: transform 0.3s ease; }
+.menu-header.collapsed .menu-icon { transform: rotate(0deg); }
+.menu-header:not(.collapsed) .menu-icon { transform: rotate(180deg); }
+.menu-content {
+  background-color: white;
+  /* border: 1px solid #dee2e6; */
+  border-top: none;
+  /* border-radius: 0 0 8px 8px; */
+  padding: 0;
+}
+.menu-item {
+  display: block;
+  padding: 12px 20px;
+  color: #333;      
+  text-decoration: none;
+  border-bottom: 1px solid #f8f9fa;
+  transition: all 0.2s ease;
+}
+.menu-item:last-child { border-bottom: none; }
+/* Warna Hover Item Text Menu */
+.menu-item:hover {
+  /* Warna Pointer Sub Menu */
+  background-color: #e7e7e7;
+  /* color: #002266; */
+  color: #830000;        
+  text-decoration: none;
+}
+/* Warna Icon Menu */
+.menu-item i { width: 20px; margin-right: 10px; color: #000000; }
+/* Status Icon Lock */
+.status-lock { color: #002fff; margin-left: 10px; }
+/* Status Icon Unlock */
+.status-unlock { color: #ffffff; margin-left: 10px; }
+/***** Akhir Menu Accordian *****/
+
+/***** Footer *****/
+.footer a:hover { color: #ff4d4d !important; }
+
+/****** About Overlay ******/
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none;
+}
+.about-form {
+  width: 100%;
+  max-width: 350px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+/***** Akhir About *****/
+
+/***** Video Player Styles *****/
+.video-container {
+    position: relative;
+    width: 100%;
+    /* max-width: 800px; */
+    max-width: 780px;
+    margin: 15px auto;
+    display: none;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    /* border: 3px solid #002266; */
+    border: 3px solid #000000;
+}
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+}
+.video-wrapper iframe,
+.video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+.video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #002266 0%, #0044cc 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.video-placeholder:hover {
+    background: linear-gradient(135deg, #0044cc 0%, #002266 100%);
+    transform: scale(1.02);
+}
+.video-placeholder i { font-size: 48px; margin-bottom: 15px; opacity: 0.9; }
+.video-placeholder-text { font-size: 16px; font-weight: 500; text-align: center; padding: 0 20px; }
+/* Spinner di tengah video player */
+.video-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    z-index: 5;
+}
+.video-loading .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
+.close-video {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+.close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
+/***** Akhir Video Player Styles *****/
+
+/***** Playlist Video Youtube *****/
+.playlist-container {
+    display: none;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.playlist-container::-webkit-scrollbar { width: 6px; }
+.playlist-container::-webkit-scrollbar-track { background: #f8f9fa; }
+.playlist-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f8f9fa;
+    transition: all 0.2s ease;
+}
+.playlist-item:hover { background-color: #f8f9fa;}
+.playlist-item:last-child { border-bottom: none; }
+.playlist-thumbnail {
+    position: relative;
+    width: 120px;
+    height: 68px;
+    margin-right: 12px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #ddd;
+    flex-shrink: 0;
+}
+.playlist-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+.position-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+.playlist-info { flex: 1; min-width: 0; }
+.playlist-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 1.3;
+    display: -webkit-box;
+    /* -webkit-line-clamp: 2; */
+    line-clamp: 2;
+    /*-webkit-box-orient: vertical;*/
+    box-orient: vertical;
+    overflow: hidden;
+}
+.playlist-meta {display: flex; gap: 12px; font-size: 12px; color: #666;}
+.playlist-duration {color: #dc3545; font-weight: 500;}
+.playlist-position {color: #6c757d; }
+.playlist-loading {padding: 30px 20px; text-align: center; color: #666;}
+.playlist-error { padding: 30px 20px; text-align: center; color: #dc3545;}
+/***** Akhir Playlist Youtube *****/
+
+/***** Tampilan Mobile ******/
+@media (max-width: 591.98px) {
+  .navbar-collapse .mx-auto {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      flex-direction: row; 
+      margin-bottom: 1rem;
+  }
+  .navbar-nav:not(.mx-auto) .nav-item, .navbar-nav:not(.mx-auto) .main-menu-link { 
+    /*width: 100%; */
+    width: 50%; 
+     
+  }
+}
+/***** Akhir Tampilan Mobile *****/
+
+</style>
+</head>
+
+<body>
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="card mx-auto shadow p-0" style="max-width:789px">
+      <!-- HEADER -->
+      <header>
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
+          <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+              <img src="images/logo-beratidealku.png" alt="Logo" width="199" height="38" class="me-2">
+              <div class="d-md-block">
+                <div class="brand-title">Fat Loss Challenge</div>
+                <div class="brand-subtitle">Program 10 Hari</div>
+              </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+              <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+                <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+              </ul>
+              <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link main-menu-link" href="#about" onclick="showAbout()">About</a></li>
+                <li class="nav-item" id="loginMenuItem">
+                  <a class="nav-link main-menu-link" href="loginFLC.html">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+      
+      <div class="card-body">
+
+        <!-- Header Image -->
+        <div class="header-image">
+            <!-- <body background="https://lh3.googleusercontent.com/d/1UMpdpx9R9kr6mfeztn3gSNnvmynLSuSb"> -->
+            <!-- <img src="images/Header-flc.jpg" alt="Header Image" width="100%" height="100%" class="me-2"> -->
+            <img src="images/Header-flc.jpg" alt="Header Image">
+        </div>
+        <!-- 
+        <div class="card-title text-white text-center p-1 rounded mb-3" style="background-color: #105fff; border: #dddcdc; border-style:groove; border-width: 3px;">
+             <h5 style="text-shadow: #c6d8ff;">Fat Loss Challenge - Program 10 Hari</h5>
+        </div>
+        -->
+        <div class="card-title text-white p-1 mb-0" style="background-color: #002266;">
+          <h5 style="text-shadow: #c6d8ff; text-align: left;">   PROGRAM 10 HARI</h5>
+        </div>
+        
+        <!-- Menu Accordion -->
+        <div class="menu-accordion" id="menuAccordion">
+          
+          <!-- Perkenalan -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Perkenalan
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-video"></i>1. Materi Pertemuan Pertama (Link Canva)
+                </a>
+                <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife (Youtube)
+                </a>
+                <a href="video/Live Best Your Best Life ! - 360.mp4" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-video"></i>3. Live Best Your Best Life ! (Folder Video)
+                </a>
+                      
+                <!-- Video Player untuk Perkenalan -->
+                <div class="video-container" id="videoContainerPerkenalan">
+                  <button class="close-video" onclick="closeVideo('perkenalan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('perkenalan')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Klik untuk memuat video</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingPerkenalan">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerPerkenalan"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pertemuan 1 -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan1Content">
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Pertemuan Pertama
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="pertemuan1Content" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-video"></i>1.1 Video Materi - Dari Mana Saja Sumber Protein Bisa Didapatkan?
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-question-circle"></i>1.2 Quiz - Tentang Sumber Protein
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-utensils"></i>1.3 Meal Plan - Pertemuan Pertama
+                </a>
+                <a href="#" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-dumbbell"></i>1.4 Workout - Pertemuan Pertama
+                </a>
+                      
+                <!-- Video Player untuk Pertemuan Pertama -->
+                <div class="video-container" id="videoContainerPertemuan1">
+                  <button class="close-video" onclick="closeVideo('pertemuan1')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('pertemuan1')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Klik untuk memuat video</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingPertemuan1">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerPertemuan1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pertemuan 2 -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan2Content"> 
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Pertemuan Kedua
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="pertemuan2Content" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="#" class="menu-item">
+                  <i class="fas fa-video"></i>1.1 Video Materi - Pertemuan Kedua
+                </a>
+                <a href="#" class="menu-item">
+                  <i class="fas fa-question-circle"></i>1.2 Quiz - Pertemuan Kedua
+                </a>
+                <a href="#" class="menu-item">
+                  <i class="fas fa-utensils"></i>1.3 Meal Plan - Pertemuan Kedua
+                </a>
+                <a href="#" class="menu-item">
+                  <i class="fas fa-dumbbell"></i>1.4 Workout - Pertemuan Kedua
+                </a>
+                
+                <!-- Video Player untuk Pertemuan 2 -->
+                <div class="video-container" id="videoContainerPertemuan2">
+                    <button class="close-video" onclick="closeVideo('pertemuan2')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="video-wrapper">
+                        <div class="video-placeholder" onclick="playVideo('pertemuan2')">
+                            <i class="fas fa-play-circle"></i>
+                            <div class="video-placeholder-text">Klik untuk memuat video</div>
+                        </div>
+                        <div class="video-loading" id="videoLoadingPertemuan2">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading video...</span>
+                            </div>
+                        </div>
+                        <div id="videoPlayerPertemuan2"></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pertemuan 3-10 (sama struktur) -->
+          
+          <!-- Tambahkan pertemuan 4-10 dengan struktur yang sama -->
+    
+          <!-- TAMPILAN KREASI RESEP -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthyRecept">
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Resep Healthy Snacking
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="healthyRecept" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="https://www.youtube.com/playlist?list=PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG" 
+                  class="menu-item" onclick="return false;">
+                  <i class="fas fa-play-circle"></i>Playlist Kreasi Resep Sehat
+                </a>
+                
+                <!-- Playlist Container (akan diisi secara dinamis) -->
+                <div class="playlist-container" id="playlistHealthyRecept">
+                  <!-- Playlist items akan diisi oleh JavaScript -->
+                </div>
+                
+                <!-- Video Player untuk Healthy Recept -->
+                <div class="video-container" id="videoContainerHealthyRecept">
+                  <button class="close-video" onclick="closeVideo('healthyRecept')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('healthyRecept')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Pilih video dari playlist</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingHealthyRecept">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerHealthyRecept"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAMPILAN DASHBOARD FIT TRACK -->
+          <div class="menu-accordion-item">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dasboardFitTrack">
+              <span>
+                <i class="fas fa-angle-double-right me-2"></i>Dashboard Fit Track
+                <i class="fas fa-lock status-lock"></i>
+              </span>
+              <i class="fas fa-angle-down menu-icon"></i>
+            </button>
+            <div class="collapse" id="dasboardFitTrack" data-bs-parent="#menuAccordion">
+              <div class="menu-content">
+                <a href="#" class="menu-item"><i class="fas fa-chart-line"></i>Fit Track1</a>
+                <a href="#" class="menu-item"><i class="fas fa-heartbeat"></i>Fit Track2</a>
+                <a href="#" class="menu-item"><i class="fas fa-dumbbell"></i>Fit Track3</a>
+             </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer mt-3 text-white text-center p-2 rounded" style="background-color: #002266;">
+          Fat Loss Challenge Versi 1.0 © 2025 <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a>
+        </footer>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- About Overlay -->
+<div class="about-overlay" id="aboutOverlay">
+  <div class="about-form">
+    <h5 class="mb-2">Fat Loss Challenge Versi 1.0</h5>
+    <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a>
+    <br>Allright Reserved
+    <br>Hanya digunakan untuk kalangan internal
+    <div class="d-grid mt-4">
+      <button id="btnCloseAbout" class="btn btn-primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// *********************************************
+// CONFIGURATION
+// *********************************************
+const PLAYLIST_JSON_URL = './data/playlist.json';
+
+/******************
+* Show About form 
+*******************/
+function showAbout() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
+}
+
+/******************
+* Hide About form 
+*******************/  
+function hideAbout() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+// ***********************
+// ACCORDION TOGGLE FIX 
+// ************************
+document.addEventListener('DOMContentLoaded', function() {
+    let currentOpenMenu = null;
+    
+    document.querySelectorAll('.menu-header').forEach(header => {
+        // Remove Bootstrap's click handler completely
+        header.setAttribute('data-bs-toggle', '');
+        
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const targetId = this.getAttribute('data-bs-target');
+            const targetContent = document.querySelector(targetId);
+            
+            if (!targetContent) return;
+            
+            console.log('🔄 Menu diklik:', targetId);
+            console.log('Current open:', currentOpenMenu);
+            
+            // Jika klik menu yang sama yang sedang terbuka
+            if (currentOpenMenu === targetId) {
+                // TUTUP menu
+                targetContent.style.display = 'none';
+                targetContent.classList.remove('show');
+                this.classList.add('collapsed');
+                currentOpenMenu = null;
+                console.log('✅ Menu DITUTUP');
+            } else {
+                // BUKA menu baru
+                // Tutup menu yang sebelumnya terbuka
+                if (currentOpenMenu) {
+                    const previousContent = document.querySelector(currentOpenMenu);
+                    const previousHeader = document.querySelector(`[data-bs-target="${currentOpenMenu}"]`);
+                    if (previousContent && previousHeader) {
+                        previousContent.style.display = 'none';
+                        previousContent.classList.remove('show');
+                        previousHeader.classList.add('collapsed');
+                    }
+                }
+                
+                // Buka menu baru
+                targetContent.style.display = 'block';
+                targetContent.classList.add('show');
+                this.classList.remove('collapsed');
+                currentOpenMenu = targetId;
+                console.log('✅ Menu DIBUKA');
+            }
+        });
+    });
+});
+
+/*************************************
+* Cek status login saat halaman dimuat
+**************************************/
+document.addEventListener('DOMContentLoaded', function () {
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFLC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    console.log('✅ App initialized successfully');
+
+});
+
+/********************
+/  Logout function 
+*********************/
+function logout() {
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('userLevel');
+  sessionStorage.removeItem('aksesList');
+  window.location.reload();
+}
+
+// ***************************
+// VIDEO PLAYER CORE FUNCTIONS 
+// ***************************
+let currentVideoData = {};
+
+/***********************************
+* Fungsi Initialisasi Seluruh video
+************************************/ 
+function initializeAllVideoPlayers() {
+    console.log('Initializing video players...');
+    
+    // Setup untuk sections lainnya
+    setupVideoLinksForSection('perkenalan', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    setupVideoLinksForSection('pertemuan1', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    setupVideoLinksForSection('pertemuan2', [
+        { selector: 'a[href*="canva.com"]', type: 'canva' },  
+        { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+        { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+    
+    // Setup untuk healthyRecept dengan JSON data
+    const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
+    if (healthyReceptLink) {
+        console.log('✅ Setup: Found healthyRecept playlist link');
+        healthyReceptLink.onclick = function(e) {
+            e.preventDefault();
+            showPlaylist('healthyRecept', this.getAttribute('href'));
+        };
+    }
+    
+    // Setup video placeholder click events
+    document.querySelectorAll('.video-placeholder').forEach(placeholder => {
+        const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
+        placeholder.addEventListener('click', function() {
+            playVideo(section);
+        });
+    });
+    
+    console.log('✅ Video players initialized');
+}
+
+/**************************
+* Fungsi Setup Link Video 
+***************************/ 
+function setupVideoLinksForSection(section, linkConfigs) {
+    const menuContent = document.getElementById(section + 'Content');
+    if (!menuContent) return;
+    
+    linkConfigs.forEach(config => {
+        const link = menuContent.querySelector(config.selector);
+        if (link) {
+            link.onclick = function(e) {
+                e.preventDefault();
+                const videoUrl = this.getAttribute('href');
+                const title = this.textContent.trim();
+                loadVideo(section, config.type, videoUrl, title);
+            };
+        }
+    });
+}
+
+/********************
+* Fungsi Load Video
+*********************/ 
+function loadVideo(section, videoType, videoUrl, title = '') {
+    console.log('loadVideo called:', { section, videoType, videoUrl, title });
+    
+    // Untuk Canva, buka di tab baru
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) return;
+    
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Close video di section lain
+    closeAllVideos();
+    
+    // Reset previous video 
+    if (videoPlayer) videoPlayer.innerHTML = '';
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl,
+        title: title
+    };
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Update placeholder text
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'youtube') {
+        placeholderText = 'Klik untuk memuat video dari YouTube';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video lokal';
+    }
+    
+    if (videoPlaceholder) {
+        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+        videoPlaceholder.style.display = 'flex';
+    }
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto play setelah ditampilkan
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
+/********************
+* Fungsi Play Video 
+*********************/
+function playVideo(section) {
+    console.log('playVideo called for section:', section);
+    
+    const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer?.querySelector('.video-placeholder');
+    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    if (!videoContainer || !videoPlayer) {
+        console.error('Video elements not found for section:', section);
+        return;
+    }
+    
+    // Hide placeholder, show loading
+    if (videoPlaceholder) videoPlaceholder.style.display = 'none';
+    if (videoLoading) videoLoading.style.display = 'flex';
+    
+    // Load video based on type
+    setTimeout(() => {
+        if (videoLoading) videoLoading.style.display = 'none';
+        
+        if (currentVideoData.type === 'youtube') {
+            console.log('Loading YouTube video:', currentVideoData.url);
+            loadYouTubeVideo(videoPlayer, currentVideoData.url);
+        } else if (currentVideoData.type === 'local') {
+            console.log('Loading local video:', currentVideoData.url);
+            loadLocalVideo(videoPlayer, currentVideoData.url);
+        }
+    }, 1000);
+}
+
+/***************************
+* Fungsi Load Video Youtube 
+****************************/
+function loadYouTubeVideo(videoPlayer, url) {
+    const videoId = extractYouTubeId(url);
+    console.log('YouTube ID extracted:', videoId);
+    
+    if (videoId) {
+        videoPlayer.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+            </iframe>
+        `;
+        console.log('YouTube iframe created');
+    } else {
+        console.error('Could not extract YouTube ID from URL:', url);
+        // Fallback: buka di tab baru
+        window.open(url, '_blank');
+        if (currentVideoData.section) {
+            closeVideo(currentVideoData.section);
+        }
+    }
+}
+
+/*************************
+* Fungsi Load Local Video 
+**************************/
+function loadLocalVideo(videoPlayer, url) {
+    console.log('Creating local video element for:', url);
+    videoPlayer.innerHTML = `
+        <video controls autoplay style="width:100%; height:100%">
+            <source src="${url}" type="video/mp4">
+            Browser Anda tidak mendukung pemutaran video.
+        </video>
+    `;
+    
+    // Handle error loading local video
+    const videoElement = videoPlayer.querySelector('video');
+    if (videoElement) {
+        videoElement.onerror = function() {
+            console.error('Error loading local video:', url);
+            alert('Video tidak dapat dimuat. Pastikan file video ada di folder yang benar.');
+            if (currentVideoData.section) {
+                closeVideo(currentVideoData.section);
+            }
+        };
+    }
+}
+
+/***************************
+* Fungsi Extract ID Youtube 
+****************************/
+function extractYouTubeId(url) {
+    console.log('Extracting YouTube ID from:', url);
+    
+    // Support multiple YouTube URL formats
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
+        /youtube\.com\/watch\?.*v=([^&?#]+)/,
+        /youtu\.be\/([^&?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            console.log('YouTube ID found:', match[1]);
+            return match[1];
+        }
+    }
+    
+    console.log('No YouTube ID found');
+    return null;
+}
+
+/*********************
+* Fungsi Close Video 
+**********************/
+function closeVideo(section) {
+    console.log('Closing video for section:', section);
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) return;
+    
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    
+    // Stop video playback
+    const iframe = videoPlayer.querySelector('iframe');
+    const localVideo = videoPlayer.querySelector('video');
+    
+    if (iframe) iframe.src = '';
+    if (localVideo) {
+        localVideo.pause();
+        localVideo.currentTime = 0;
+    }
+    
+    videoPlayer.innerHTML = '';
+    videoContainer.style.display = 'none';
+    if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    currentVideoData = {};
+}
+
+/**************************
+* Fungsi Close All Video 
+***************************/
+function closeAllVideos() {
+    console.log('Closing all videos');
+    const videoContainers = document.querySelectorAll('.video-container');
+    videoContainers.forEach(container => {
+        const section = container.id.replace('videoContainer', '');
+        if (section) {
+            closeVideo(section);
+        }
+    });
+}
+
+/***********************************
+* Load playlist data dari JSON file
+************************************/
+async function loadPlaylistData() {
+    try {
+        console.log('📥 Loading playlist data from JSON...');
+        const response = await fetch(PLAYLIST_JSON_URL);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ Loaded ${data.length} videos from JSON`);
+        return data;
+        
+    } catch (error) {
+        console.error('❌ Error loading playlist data:', error);
+        // Fallback ke proven videos
+        return getProvenVideos();
+    }
+}
+
+/********************************
+* Proven videos sebagai fallback
+*********************************/
+function getProvenVideos() {
+    return [
+        {
+            id: '1',
+            videoId: '9DoHhx9jlGM',
+            title: 'Alasan Mengapa Herbalife - Penjelasan Lengkap',
+            thumbnail: 'https://i.ytimg.com/vi/9DoHhx9jlGM/mqdefault.jpg',
+            duration: '15:30',
+            position: 1
+        },
+        {
+            id: '2', 
+            videoId: 'Zg_badTE2Ec',
+            title: 'Dari Mana Saja Sumber Protein Bisa Didapatkan?',
+            thumbnail: 'https://i.ytimg.com/vi/Zg_badTE2Ec/mqdefault.jpg',
+            duration: '12:45',
+            position: 2
+        }
+    ];
+}
+
+/******************************
+* Show playlist dari JSON data
+*******************************/
+async function showPlaylist(section, playlistUrl) {
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (!playlistContainer) {
+        console.error('Playlist container not found');
+        return;
+    }
+    
+    // Tampilkan loading
+    playlistContainer.innerHTML = `
+        <div class="playlist-loading">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="mt-2">Memuat daftar video...</div>
+        </div>
+    `;
+    playlistContainer.style.display = 'block';
+    
+    try {
+        const playlistItems = await loadPlaylistData();
+        
+        if (!playlistItems || playlistItems.length === 0) {
+            throw new Error('Tidak ada data video');
+        }
+        
+        renderPlaylist(playlistContainer, playlistItems, section);
+        
+    } catch (error) {
+        console.error('Error showing playlist:', error);
+        // Fallback ke proven videos
+        const provenVideos = getProvenVideos();
+        renderPlaylist(playlistContainer, provenVideos, section);
+        showToast('⚠️ Menggunakan data lokal', 'info');
+    }
+}
+
+/*************************
+* Render playlist items
+**************************/
+function renderPlaylist(container, items, section) {
+    container.innerHTML = '';
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'playlist-header';
+    header.style.padding = '12px 15px';
+    header.style.borderBottom = '1px solid #dee2e6';
+    header.style.background = '#f8f9fa';
+    header.style.fontWeight = '600';
+    header.innerHTML = `
+        <div>
+            <i class="fas fa-list-ul me-2"></i>Playlist Healthy Snacking
+            <div style="font-size: 12px; color: #666; font-weight: normal; margin-top: 2px;">
+                ${items.length} video tersedia
+            </div>
+        </div>
+    `;
+    container.appendChild(header);
+    
+    // Render playlist items
+    items.forEach((item, index) => {
+        const playlistItem = document.createElement('div');
+        playlistItem.className = 'playlist-item';
+        playlistItem.style.cursor = 'pointer';
+        playlistItem.innerHTML = `
+            <div class="playlist-thumbnail">
+                <img src="${item.thumbnail}" alt="${item.title}" 
+                     loading="lazy"
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjY4IiB2aWV3Qm94PSIwIDAgMTIwIDY4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNjgiIGZpbGw9IiNlZGVkZWQiLz48dGV4dCB4PSI2MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+VGh1bWJuYWlsPC90ZXh0Pjwvc3ZnPg=='">
+                <div class="position-badge">${index + 1}</div>
+            </div>
+            <div class="playlist-info">
+                <div class="playlist-title">${item.title}</div>
+                <div class="playlist-meta">
+                    ${item.duration ? `<span class="playlist-duration"><i class="fas fa-clock me-1"></i>${item.duration}</span>` : ''}
+                    <span class="playlist-position">Video ${index + 1}</span>
+                </div>
+            </div>
+        `;
+        
+        playlistItem.onclick = function() {
+            playVideoFromPlaylist(section, item.videoId, item.title);
+        };
+        
+        container.appendChild(playlistItem);
+    });
+    
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'playlist-footer';
+    footer.style.padding = '10px 15px';
+    footer.style.borderTop = '1px solid #dee2e6';
+    footer.style.fontSize = '12px';
+    footer.style.color = '#666';
+    footer.style.textAlign = 'center';
+    footer.style.background = '#f8f9fa';
+    footer.innerHTML = `
+        <div><i class="fas fa-database me-1"></i>Data dari JSON • ${new Date().toLocaleDateString('id-ID')}</div>
+    `;
+    container.appendChild(footer);
+}
+
+/**************************
+* Play video dari playlist
+***************************/
+function playVideoFromPlaylist(section, videoId, title) {
+    console.log('🎬 Playing video from playlist:', { section, videoId, title });
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) {
+        console.error('Video container not found for section:', section);
+        return;
+    }
+    
+    // Sembunyikan playlist
+    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+    if (playlistContainer) {
+        playlistContainer.style.display = 'none';
+    }
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Set current video data
+    currentVideoData = {
+        section: section,
+        type: 'youtube',
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        title: title
+    };
+    
+    // Auto play video setelah delay
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+    
+    // Scroll ke video player
+    setTimeout(() => {
+        videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 600);
+}
+
+// ======================
+// UTILITY FUNCTIONS
+// ======================
+
+/*******************************
+* Fungsi Untuk Huruf Awal Besar
+********************************/ 
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/*******************************
+* Fungsi extrack ID Playlist
+********************************/ 
+function extractPlaylistId(url) {
+    const match = url.match(/[&?]list=([^&]+)/);
+    return match ? match[1] : null;
+}
+
+/*************************
+* Fungsi tampilkan pesan
+**************************/ 
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 14px;
+        max-width: 300px;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+// Close video dengan ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentVideoData.section) {
+        closeVideo(currentVideoData.section);
+    }
+});
+// Debug: log untuk memastikan script loaded
+console.log('Video player script loaded successfully');
+
+</script>
+</body>
+</html>

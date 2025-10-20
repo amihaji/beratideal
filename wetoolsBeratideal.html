@@ -1,0 +1,944 @@
+<!---------------------------------------------------------------
+Aplikasi Survey Kebugaran - WETools Versi 5.0 GitHUB
+
+Dibuat dengan menggunakan : 
+- HTML Bootstrap versi 5.0
+- CSS dan JScript
+- Google Script Aplication
+
+Terdiri atas beberapa file :
+- Database : Sheet "SurveyData", "DataWE"
+- index.html (program utama) ditempatkan di GitHUB
+- DashWE.html ditempatkan di GitHUB
+- code.gs (program server side)
+- templatePDF.html (untuk menampilkan hasil ke bentuk file PDF, di tempatkan di Google script)
+
+Fitur Aplikasi:
+- Form Input Survey Kebugaran
+- Menghasilkan file pdf
+- File pdf dapat dikirim ke email dan wa
+- Penambahan Inputan untuk Data Sponsor/Pengundang
+- Hasil Survey TIDAK ditampilkan ke layar
+- Tampilan lebih Responsive 
+------------------------------------------------------------------->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base target="_top">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Survey Kebugaran - WETools Versi 4</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   
+<style>
+/* Style body */    
+body {
+  /* background-image: url('../images/Header_WETools.jpg'); */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* style header image */
+/* .header-image img { max-width: 100%; height: auto; } */
+
+/* Style Form dan Page */
+.page { display: none; }
+.page.active { display: block; }
+.progress-bar { background-color: #0b5ed7; }
+.form-icon { margin-right: 10px; }
+
+/* Notifikasi Message Box */
+.notification-message {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;    /* agar icon dan teks tidak dempet */
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%; */
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/* Style button */
+.btn-custom { background-color: #002266; color: white; width: 100%; margin-bottom: 0.5rem; }
+.btn-custom:hover { background-color: #0b5ed7; color: white; }
+.btn-kirim { background-color: #002266; color: white; width: 100%; }
+.btn-kirim:hover { background-color: #0b5ed7; color: white; }
+
+/* Styel footer */
+.footer a:hover { color: #ff4d4d !important; }
+
+/* Style spinner */
+#loadingSpinner { display: none; text-align: center; padding: 20px; }
+#loadingSpinner .spinner-border { width: 3rem; height: 3rem; border-width: 0.25em; }
+
+/* Judul Header dan Menu */
+.brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
+.brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
+
+/* Styling untuk Ikon Sosial Media */
+.social-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+}
+.social-icon i { color: #555; transition: color 0.3s ease-in-out; }
+.social-icon:hover { background-color: #dadada; }
+.social-icon:hover i { color: #dc3545; }
+
+/* Styling untuk Menu Utama */
+.main-menu-link {
+    font-weight: 500;
+    padding: 8px 12px !important;
+    border-radius: 6px;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+.main-menu-link:hover,
+.main-menu-link.active {
+    color: #dc3545 !important; 
+    background-color: #dadada;
+}
+
+/* Untuk membuat sudut navbar mengikuti card */
+.card > header:first-child > .navbar {
+    border-top-left-radius: var(--bs-card-border-radius);
+    border-top-right-radius: var(--bs-card-border-radius);
+}
+
+/* About Form Overlay */
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none; /* Hidden by default */
+}
+.about-form {
+  width: 100%;
+  max-width: 350px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* --- Tampilan Mobile (Vertikal) --- */
+@media (max-width: 991.98px) {
+  .btn-custom, .btn-kirim { margin-bottom: 0.1rem; }
+  .navbar-collapse {
+    align-items: stretch;   /* stretch agar item bisa membentang penuh */
+    padding-top: 1rem;
+  }
+  /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
+  .navbar-collapse .mx-auto {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      flex-direction: row;
+      margin-bottom: 1rem;
+  }
+  /* Membuat item menu utama vertikal membentang penuh */
+  .navbar-nav:not(.mx-auto) .nav-item {
+      width: 100%;        /* Item <li> sekarang akan selebar container */
+  }
+  .navbar-nav:not(.mx-auto) .main-menu-link {
+      width: 100%;       /* Link <a> di dalamnya juga ikut membentang */
+      text-align: left;  /* Pastikan teks tetap rata kiri */
+  }
+}
+
+</style>
+</head>
+
+<body>
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+      <div class="card mx-auto card shadow p-0" style="max-width:1024px">
+
+        <!-- HEADER MENU -->
+        <header>
+          <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
+          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
+            <div class="container-fluid">
+              
+              <!-- Logo dan Nama Brand -->
+              <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="images/logo-beratidealku.png" alt="Logo" width="199" height="38" class="me-2">
+                <div class="d-none d-md-block">
+                  <div class="brand-title">WE Tools</div>
+                  <div class="brand-subtitle">Wellness Evaluation Tools</div>
+                </div>
+              </a>
+
+              <!-- Tombol Hamburger untuk Mobile -->
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" width="100%">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <!-- Bagian Menu dan Social Media -->
+              <div class="collapse navbar-collapse" id="mainNavbar">
+                <!-- Social Media Icons -->
+                <ul class="navbar-nav mx-auto">
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku"   target="_blank" title="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a></li>
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a></li>
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com"             target="_blank" title="YouTube"><i class="fab fa-youtube fa-lg"></i></a></li>
+                </ul>
+                <!-- Menu Navigasi Utama -->
+                <ul class="navbar-nav gap-2">
+                  <li class="nav-item"><a class="nav-link main-menu-link" href="https://amihaji.github.io/beratideal">Home</a></li>
+                  <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
+                  <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </header>
+   
+        <!-- HEADER IMAGE -->
+        <!-- TIDAK DITAMPILKAN 
+        <div class="header-image">
+            <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
+        </div>       
+        -->
+
+        <div class="card-body">
+          <div class="card-title text-white text-center p-1 rounded" style="background-color:#002266;">
+            <h4>SURVEY KEBUGARAN</h4>
+          </div>
+          <!-- <p>&nbsp;</p> -->  
+          <div class="progress mb-4">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 33%"></div>
+          </div>
+
+          <form id="fitnessForm" class="needs-validation" novalidate>
+            <!-- HALAMAN 1 -->
+            <div class="page active" id="page1">
+              <h5 class="mb-3"><i class="fas fa-user form-icon"></i> Data Survey (Wajib Isi)</h5>
+              <p class="text-muted mb-4">Silahkan memasukkan data, Hasil Evaluasi Kebugaran melalui Whatsapp Anda</p>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label for="mNama" class="form-label">Nama Lengkap</label>
+                  <input type="text" id="mNama" class="form-control" required oninput="this.value = this.value.toUpperCase().substring(0, 40)">
+                </div>
+                <div class="col-md-12">
+                  <label for="mNomorHp" class="form-label">Nomor HP</label>
+                  <input type="tel" id="mNomorHp" class="form-control" required pattern="[0-9]{10,14}">
+                </div>
+                <div class="col-md-12">
+                  <label for="mEmail" class="form-label">Email (opsional)</label>
+                  <input type="email" id="mEmail" class="form-control" oninput="this.value = this.value.toLowerCase()">
+                </div>
+                <div class="col-md-12">
+                  <label for="mUmur" class="form-label">Umur</label>
+                  <input type="number" id="mUmur" class="form-control" required min="18" max="80">
+                </div>
+                <div class="col-md-12">
+                  <label for="mJenisKelamin" class="form-label">Jenis Kelamin</label>
+                  <select id="mJenisKelamin" class="form-select" required>
+                    <option value="">Pilih Gender</option>
+                    <option value="Pria">Pria</option>
+                    <option value="Wanita">Wanita</option>
+                  </select>
+                </div>
+                <div class="col-md-12">
+                  <label for="mBeratBadan" class="form-label">Berat Badan (kg)</label>
+                  <input type="number" id="mBeratBadan" class="form-control" required min="40" max="150">
+                </div>
+                <div class="col-md-12">
+                  <label for="mTinggiBadan" class="form-label">Tinggi Badan (cm)</label>
+                  <input type="number" id="mTinggiBadan" class="form-control" required min="100" max="190">
+                </div>
+                <div class="col-md-12">
+                  <label for="mLingkarPerut" class="form-label">Lingkar Perut (gunakan ukuran celana)</label>
+                  <select id="mLingkarPerut" class="form-select" required>
+                    <option value="">Pilih Ukuran Celana</option>
+                    <option value="68">26 = Lingkar 68 cm</option>
+                    <option value="70">27 = Lingkar 70 cm</option>
+                    <option value="72">28 = Lingkar 72 cm</option>
+                    <option value="74">29 = Lingkar 74 cm</option>
+                    <option value="76">30 = Lingkar 76 cm</option>
+                    <option value="78">31 = Lingkar 78 cm</option>
+                    <option value="80">32 = Lingkar 80 cm</option>
+                    <option value="82">33 = Lingkar 82 cm</option>
+                    <option value="84">34 = Lingkar 84 cm</option>
+                    <option value="86">35 = Lingkar 86 cm</option>
+                    <option value="88">36 = Lingkar 88 cm</option>
+                    <option value="90">37 = Lingkar 90 cm</option>
+                    <option value="92">38 = Lingkar 92 cm</option>
+                    <option value="94">39 = Lingkar 94 cm</option>
+                    <option value="96">40 = Lingkar 96 cm</option>
+                    <option value="98">41 = Lingkar 98 cm</option>
+                    <option value="100">42 = Lingkar 100 cm</option>
+                    <option value="102">43 = Lingkar 102 cm</option>
+                    <option value="104">44 = Lingkar 104 cm</option>
+                    <option value="106">45 = Lingkar 106 cm</option>
+                    <option value="108">46 = Lingkar 108 cm</option>
+                    <option value="110">47 = Lingkar 110 cm</option>
+                  </select>
+                </div>
+                <div class="col-md-12">
+                  <label for="mAktivitasFisik" class="form-label">Aktivitas Fisik</label>
+                  <select id="mAktivitasFisik" class="form-select" required>
+                    <option value="">Pilih aktifitas yang dijalani</option>
+                    <option value="Sedikit/Tidak Olahraga">Sedikit/Tidak Olahraga</option>
+                    <option value="Olahraga ringan 1-3 hari/minggu">Olahraga ringan 1-3 hari/minggu</option>
+                    <option value="Olahraga moderat 3-5 hari/minggu">Olahraga moderat 3-5 hari/minggu</option>
+                    <option value="Olahraga berat 6-7 hari per minggu">Olahraga berat 6-7 hari/minggu</option>
+                    <option value="Olahraga sangat aktif + Kegiatan fisik">Olahraga aktif + Kegiatan fisik</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Pesan notifikasi Halaman 1 -->
+              <div id="pesanNotification1" class="notification-message" style="margin-top:5px; width:100%;">
+                  <i id="pesanNotifIcon1" class="pesan-notif-icon"></i><span id="pesanNotifText1"></span>
+              </div>
+              <!-- Navigasi Hamalan1 -->
+              <div id="formMessage1" class="mt-3"></div>
+              <div class="d-flex flex-column flex-md-row justify-content-center gap-2 mt-2">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="resetForm()">
+                  <i class="fas fa-rotate-left me-2"></i> Reset
+                </button>
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="validatePage1()">
+                  <i class="fas fa-arrow-right me-2"></i> Berikutnya
+                </button>
+              </div>
+            </div>
+
+            <!-- HALAMAN 2 -->
+            <div class="page" id="page2">
+              <h5 class="mb-3"><i class="fas fa-list-check me-2"></i>Jawab sesuai yang anda rasakan (Wajib Isi)</h5>
+              <div class="row g-3">
+
+                <!--PERTANYAAN FUNGSIONAL 1-18 -->
+                <div class="col-md-12">
+                  <label class="form-label">1. Sarapan Setiap Pagi</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mSarapan" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mSarapan" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">2. Menu sarapan nasi goreng, roti, kue</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mMenu" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mMenu" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">3. Sering merasa ngantuk terutama setelah makan </label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mNgantuk" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mNgantuk" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">4. Sering lelah, lesu dan kurang berstamina</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLelah" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLelah" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">5. Sering merasakan gangguan lambung</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLambung" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLambung" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">6. Sering merasa lapar atau haus</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLapar" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mLapar" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">7. Minum air putih 8 gelas/hari</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mAir" value="Ya" required><label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mAir" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">8. Mengkonsumsi makanan instant, minuman manis, ultra processed food dan sejenisnya</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKonsumsi" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKonsumsi" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">9. BAB tidak lancar</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBab" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBab" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">10. Sering keram / kesemutan</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKeram" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKeram" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">11. Tidur malam paling lambat pukul 10 malam, selama 6-8 jam/hari</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mTidur" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mTidur" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">12. Berolahraga minimum 30 menit setiap 3-5 hari dalam seminggu</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mOlahraga" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mOlahraga" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">13. Kurang minum tetapi sering buang air kecil</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBak" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBak" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">14. Kerutan di kulit wajah sebelum usia 40 tahun</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKerutan" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mKerutan" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">15. Sulit tidur / cemas / kurang konsentrasi</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mSulit" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mSulit" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">16. Berat badan naik 3kg dalam 3 bulan</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBBNaik" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mBBNaik" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">17. Merokok (termasuk rokok elektrik)</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mRokok" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mRokok" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">18. Minum alkohol</label><br><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mAlkohol" value="Ya" required>
+                  <label class="form-check-label">Ya</label></div><div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="mAlkohol" value="Tidak">
+                  <label class="form-check-label">Tidak</label></div>
+                </div>
+              </div>
+
+              <!-- DATA SPONSOR -->
+              <div class="border p-3 rounded bg-light mt-4">
+                <h6><i class="fas fa-user me-2"></i>Data Sponsor (Opsional)</h6>
+                <div class="mb-12"><label class="form-label">Nama Sponsor</label>
+                  <input type="text" id="mSponsor" class="form-control" placeholder="Masukkan Nama Sponsor jika ada" oninput="this.value = this.value.toUpperCase().substring(0, 40)"></div>
+                <div class="mb-12"><label class="form-label">HP Sponsor</label>
+                  <input type="tel" id="mHpSponsor" class="form-control" placeholder="Nomor WA tanpa awal angka 0" pattern="[0-9]{10,14}"></div>
+              </div>
+
+              <!-- Pesan notifikasi Halaman 2 -->
+              <div id="pesanNotification2" class="notification-message" style="margin-top:5px; width:100%;">
+                <i id="pesanNotifIcon2" class="pesan-notif-icon"></i><span id="pesanNotifText2"></span>
+              </div>
+             
+              <!-- Navigasi Halaman2 -->
+              <div id="formMessage2" class="mt-3"></div>
+              <div class="d-flex flex-column flex-md-row justify-content-center gap-2 mt-2">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="navigate(2, 1)">
+                  <i class="fas fa-arrow-left me-2"></i> Sebelumnya
+                </button>
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="validatePage2()">
+                  <i class="fas fa-paper-plane me-2"></i> Submit
+                </button>
+              </div>
+            </div>
+
+            <!-- HALAMAN 3 --> 
+            <div class="page" id="page3">
+              <!-- Tampilkan Load spinner -->
+              <div id="loadingSpinner" class="text-center my-3">
+                  <div class="spinner-border text-primary" role="status"></div>
+                  <p class="mt-2">Memproses data...</p>
+              </div>
+              <div id="hasilAnalisa" style="display: none;">
+                <!-- TAMPILKAN HASIL EVALUASI -->
+                <h5 class="mb-3"><i class="fas fa-chart-line form-icon"></i>Hasil Evaluasi</h5>
+                <!-- DISINI UNTUK MENAMPILKAN HASIL EVALUASI DGN JSCRIPT -->
+              </div> 
+
+              <!-- TAMPILKAN TOMBOL CTA -->
+              <div id="tampilCTA" style="display: none;">
+                <div class="border p-3 rounded bg-light mt-4">    
+                  <h5 style="text-align: center; color:#cc0000;" >SELAMAT,</h5>
+                  <h6 style="text-align: center; color:#cc0000;">Anda sudah berhasil menyelesaikan survey kebugaran Anda, <br>Silahkan lihat hasilnya di WA atau email Anda, dengan klik <strong>"KIRIM HASIL SURVEY"</strong></h6>
+                  <div class="text-center text-muted mt-3"><small>Hasil Analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis</small></div>
+                  <div class="d-flex justify-content-center mt-3"><div style="max-width: 50%;"><button id="btnKirim" class="btn btn-success" onclick="handleKirimSurvey()"><i class="fas fa-share-square me-2"></i>KIRIM HASIL SURVEY</button></div></div>
+                </div>
+              </div>  
+            </div>
+          </form>
+        </div>
+        
+        <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">
+          WETools Versi 5.0 © 2025 | <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a> - All rights reserved
+        </footer>
+    </div>
+  </div>
+</div>
+
+<!-- About Overlay -->
+<div class="about-overlay" id="aboutOverlay">
+  <div class="about-form">
+    <h5 class="mb-2">Aplikasi WETools Versi 5.0</h5>
+    <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a>
+    <br>Allright Reserved
+    <br>Wellness Evaluation Tools
+    <div class="d-grid mt-4">
+      <button id="btnCloseAbout" class="btn btn-primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+//***********  Deklarasi variabel global ****************
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyEtNW-NSqgJER7SWDcIgDKJHeROxkwG-dDyj-eNWRmFo1pv6ss-A51qGyUVkEQyRim/exec';
+// ******************************************************
+
+// ***************
+// Show About form
+// ****************
+function showAbout() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
+}
+
+// ****************
+// Hide About form
+// ****************
+function hideAbout() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+// ***************************
+// Event untuk tampilan About
+// ***************************
+document.addEventListener('DOMContentLoaded', function () {
+  // Event listener untuk tombol About
+  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    showAbout();
+  });
+  
+  // Event listener untuk tombol Close About
+  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+});
+
+// ***********************
+// Untuk navigasi halaman
+// ***********************
+function BACKUP_navigate(from, to) {
+    if (from !== null) document.getElementById("page" + from).classList.remove("active");
+    document.getElementById("page" + to).classList.add("active");
+    updateProgressBar(to);
+    const msgBox = document.getElementById("formMessage" + to);
+    if (msgBox) msgBox.innerHTML = "";
+}
+
+function navigate(from, to) {
+    if (from !== null) {
+      document.getElementById("page" + from).classList.remove("active");
+      // Sembunyikan pesan notifikasi di halaman sebelumnya
+      const prevNotif = document.getElementById(`pesanNotification${from}`);
+      if (prevNotif) prevNotif.style.display = 'none';
+    }
+    
+    document.getElementById("page" + to).classList.add("active");
+    updateProgressBar(to);
+    const msgBox = document.getElementById("formMessage" + to);
+    if (msgBox) msgBox.innerHTML = "";
+}
+
+// *************************
+// Untuk update Progress Bar
+// *************************
+function updateProgressBar(page) {
+    const percent = page === 1 ? 33 : page === 2 ? 66 : 100;
+    document.getElementById("progressBar").style.width = percent + "%";
+}
+
+// *************************
+// Untuk validasi halaman 1
+// *************************
+function validatePage1() {
+    document.getElementById("formMessage1").innerHTML = "";
+    const fields = ["mNama", "mNomorHp", "mUmur", "mBeratBadan", "mTinggiBadan", "mJenisKelamin", "mLingkarPerut", "mAktivitasFisik"];
+    for (const id of fields) {
+        if (!document.getElementById(id).value) 
+        //return showMessage(1, "Semua data wajib diisi.", "error");
+        return showPesan('warning', " PERHATIAN : Semua data wajib diisi.");
+    }
+    // Cek validasi nama
+    if (document.getElementById("mNama").value.length < 3) 
+      return showPesan('warning', " PERHATIAN : Nama harus minimal 3 karakter");
+    
+    // Cek validasi nomor hp
+    if (!/^[0-9]{10,14}$/.test(document.getElementById("mNomorHp").value)) 
+      return showPesan('warning', " PERHATIAN : Nomor HP harus 10-14 digit angka.");
+
+    // Cek validasi email
+    const email = document.getElementById("mEmail").value;
+    if (email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)) 
+      return showPesan('warning', " PERHATIAN : Format email salah");
+   
+    // Cek validasi umur
+    const umur = parseInt(document.getElementById("mUmur").value, 10);
+    if (!/^\d{2}$/.test(umur) || umur < 18 || umur > 80) 
+      return showPesan('warning', "PERHATIAN: Umur harus 2 digit, (18–80 tahun)");
+  
+    // Cek validasi Berat Badan
+    const beratBadan = parseInt(document.getElementById("mBeratBadan").value, 10);
+    if (!/^\d{2,3}$/.test(beratBadan) || beratBadan < 40 || beratBadan > 150) 
+      return showPesan('warning', "PERHATIAN: Berat badan harus 2-3 digit, (40–150 kg)");
+    
+    // Cek validasi Tinggi Badan
+    const tinggiBadan = parseInt(document.getElementById("mTinggiBadan").value, 10);
+    if (!/^\d{3}$/.test(tinggiBadan) || tinggiBadan < 100 || tinggiBadan > 190) 
+      return showPesan('warning', "PERHATIAN: Tinggi badan harus 3 digit, (100–190 cm)");
+    
+    navigate(1, 2);
+}
+
+// *************************
+// Untuk validasi halaman 2
+// *************************
+function validatePage2() {
+    document.getElementById("formMessage2").innerHTML = "";
+    const questions = ["mSarapan","mMenu","mNgantuk","mLelah","mLambung","mLapar","mAir","mKonsumsi","mBab","mKeram","mTidur","mOlahraga","mBak","mKerutan","mSulit","mBBNaik","mRokok","mAlkohol"];
+    for (const name of questions) {
+        if (!document.querySelector(`input[name="${name}"]:checked`)) {
+            const label = document.querySelector(`input[name="${name}"]`).closest('div.col-md-12').querySelector('.form-label').textContent;
+            //console.log(`Validasi gagal: ${label}`);
+            showPesan('warning', ` PERHATIAN : Harap jawab pertanyaan: "${label}"`);
+            return false; // Tambahkan return false untuk menghentikan proses
+        }
+    }
+    submitForm();
+}
+
+// ***********************************
+// Untuk mengirim data ke google sheet
+// ***********************************
+function submitForm() {
+    try {
+        const formData = {
+            mNama: document.getElementById("mNama").value, 
+            mNomorHp: document.getElementById("mNomorHp").value, 
+            mEmail: document.getElementById("mEmail").value,
+            mUmur: document.getElementById("mUmur").value, 
+            mJenisKelamin: document.getElementById("mJenisKelamin").value, 
+            mBeratBadan: document.getElementById("mBeratBadan").value,
+            mTinggiBadan: document.getElementById("mTinggiBadan").value,
+            mLingkarPerut: document.getElementById("mLingkarPerut").value, 
+            mAktivitasFisik: document.getElementById("mAktivitasFisik").value,
+            mSarapan: document.querySelector('input[name="mSarapan"]:checked').value, 
+            mMenu: document.querySelector('input[name="mMenu"]:checked').value,
+            mNgantuk: document.querySelector('input[name="mNgantuk"]:checked').value, 
+            mLelah: document.querySelector('input[name="mLelah"]:checked').value,
+            mLambung: document.querySelector('input[name="mLambung"]:checked').value, 
+            mLapar: document.querySelector('input[name="mLapar"]:checked').value,
+            mAir: document.querySelector('input[name="mAir"]:checked').value, 
+            mKonsumsi: document.querySelector('input[name="mKonsumsi"]:checked').value,
+            mBab: document.querySelector('input[name="mBab"]:checked').value, 
+            mKeram: document.querySelector('input[name="mKeram"]:checked').value,
+            mTidur: document.querySelector('input[name="mTidur"]:checked').value, 
+            mOlahraga: document.querySelector('input[name="mOlahraga"]:checked').value,
+            mBak: document.querySelector('input[name="mBak"]:checked').value, 
+            mKerutan: document.querySelector('input[name="mKerutan"]:checked').value,
+            mSulit: document.querySelector('input[name="mSulit"]:checked').value, 
+            mBBNaik: document.querySelector('input[name="mBBNaik"]:checked').value,
+            mRokok: document.querySelector('input[name="mRokok"]:checked').value, 
+            mAlkohol: document.querySelector('input[name="mAlkohol"]:checked').value,
+            mSponsor: document.getElementById("mSponsor").value || "HESTY HUSAIN", 
+            mHpSponsor: document.getElementById("mHpSponsor").value || "81241318600",
+        };
+
+        navigate(2, 3);
+        document.getElementById("loadingSpinner").style.display = "block";
+        document.getElementById("hasilAnalisa").style.display = "none";
+        document.getElementById("tampilCTA").style.display = "none";
+
+        setTimeout(() => {
+            const callbackName = 'jsonp_callback_' + Date.now();
+            const script = document.createElement('script');
+            const params = new URLSearchParams(formData).toString();
+            script.src = `${URL_APPS_SCRIPT}?callback=${callbackName}&${params}`;
+
+            script.onerror = () => {
+                document.getElementById("loadingSpinner").style.display = "none";
+                showPesan('error', " ERROR : Gagal terhubung ke server. Periksa koneksi internet atau URL Script");
+                delete window[callbackName];
+            };
+            
+            window[callbackName] = (response) => {
+                document.getElementById("loadingSpinner").style.display = "none";
+                try {
+                    if (response && response.status === "success" && response.data) {
+                        tampilkanHasilEvaluasi(response.data);
+                        
+                        // **************************************************************
+                        // Bagian ini untuk menampilkan Hasil Analisa "block" atau "none"
+                        document.getElementById("hasilAnalisa").style.display = "none";
+                        // **************************************************************
+
+                        // Tampilkan Tombol CTA
+                        document.getElementById("tampilCTA").style.display = "block";
+                        window.dataTerakhir = response.data;
+                    } else {
+                        showPesan('error', ` ERROR : dari server ${error.message || 'Format respons tidak dikenal'}`);
+                    }
+                } catch (e) {
+                    showPesan('error', ` ERROR : Terjadi saat menampilkan hasil: ${error.message}`);
+                } finally {
+                    if (script.parentNode) script.parentNode.removeChild(script);
+                    delete window[callbackName];
+                }
+            };
+            document.body.appendChild(script);
+        }, 50);
+
+    } catch (error) {
+        document.getElementById("loadingSpinner").style.display = "none";
+        showPesan('error', ` ERROR : Terjadi kesalahan pada form :${error.message}`);
+    }
+}
+
+// **********************************************
+// Untuk menampilkan Hasil Evaluasi & Tombol CTA 
+// **********************************************
+function tampilkanHasilEvaluasi(data) {
+    const hasilAnalisa = document.getElementById("hasilAnalisa");
+    
+    // Versi Aman: Gunakan "|| []" untuk .map dan "?." untuk objek
+    const fungsionalHTML = (data.fungsional || []).map(item => `
+        <tr><td>${item.label || "-"}</td><td style="text-align:center;">${item.jawaban || "-"}</td></tr>`).join('');
+
+    const evaluasiHTML = (data.evaluasi || []).map(item => `
+        <tr><td>${item.param || "-"}</td><td style="text-align:center;">${item.hasil || "-"}</td>
+        <td style="text-align:center;">${item.ideal || "-"}</td><td style="text-align:center;">${item.satuan || "-"}</td>
+        <td style="white-space:pre-line">${item.penjelasan || "-"}</td></tr>`).join('');
+
+    hasilAnalisa.innerHTML = `
+        <div class="card-body">
+            <!-- DATA PROFILE -->
+            <table class="table table-bordered">
+              <tbody>
+                <tr><th style="background-color:#4d94ff;">Tgl Survey</th>
+                  <td style="background-color:#4d94ff;"><b>${data.tanggal || "-"}</b></td>
+                </tr>
+                <tr><td>Nama</td><td>${data.nama || "-"}</td></tr>
+                <tr><td>No. HP</td><td>${data.hp || "-"}</td></tr>
+                <tr><td>Email</td><td>${data.email || "Tidak diisi"}</td></tr>
+                <tr><td>Umur</td><td>${data.umur || "-"} tahun</td></tr>
+                <tr><td>Jenis Kelamin</td><td>${data.jk || "-"}</td></tr>
+                <tr><td>Berat Badan</td><td>${data.berat || "-"} kg</td></tr>
+                <tr><td>Tinggi Badan</td><td>${data.tinggi || "-"} cm</td></tr>
+                <tr><td>Lingkar Perut</td><td>${data.lingkar || "-"} cm</td></tr>
+                <tr><td>Aktivitas Fisik</td><td>${data.aktivitas || "-"}</td></tr>
+              </tbody>
+            </table>
+            
+            <!-- DATA FUNGSIONAL -->
+            <h5 class="mt-4"><i class="fas fa-list-check me-2"></i>Status Fungsional</h5>
+            <table class="table table-bordered">
+              <thead>
+                <tr><th style="background-color:#4d94ff; width:85%;">Pertanyaan</th>
+                <th style="background-color:#4d94ff; text-align:center; width:15%;">Jawaban</th></tr>
+              </thead>
+              <tbody>${fungsionalHTML}</tbody>
+            </table>
+
+            <!-- DATA EVALUASI -->
+            <h5 class="mt-4"><i class="fas fa-heartbeat me-2"></i>Evaluasi Parameter</h5>
+            <div style="overflow-x: auto; width: 100%;">
+              <table class="table table-bordered">
+                <thead>
+                  <tr><th style="background-color:#4d94ff; width:25%;">Parameter</th>
+                  <th style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
+                  <th style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
+                  <th style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
+                  <th style="background-color:#4d94ff; width:50%;">Keterangan</th></tr>
+                </thead>
+                <tbody>${evaluasiHTML}</tbody>
+              </table>
+            </div>
+            
+            <!-- DATA KESIMPULAN DAN REKOMENDASI -->
+            <h5 class="mt-4"><i class="fas fa-clipboard-check me-2"></i>Kesimpulan & Rekomendasi</h5>
+            <table class="table table-bordered">
+              <tbody>
+                <tr><th style="background-color:#4d94ff; width:15%;">Skor</th>
+                  <td style="width:85%;">Persentase kebugaran anda : <strong>${data.persen || "0%"}</strong></td>
+                </tr>
+                <tr><th style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
+                  <td style="width:85%;">${data.kesimpulan || "-"}</td>
+                </tr>
+                <tr><th style="background-color:#4d94ff; width:15%;">Rekomendasi</th>
+                  <td style="width:85%;">${data.rekomendasi || "-"}</td>
+                </tr>
+              </tbody>
+            </table>
+        </div>`;
+}
+
+// ****************************************
+// Untuk menghandel pengiriman Hasil Survey 
+// ****************************************
+function handleKirimSurvey() {
+  const btnKirim = document.getElementById("btnKirim");
+  btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+  btnKirim.disabled = true;
+
+  if (!window.dataTerakhir) {
+    showPesan('error', " ERROR : Data survey tidak ditemukan. Silahkan submit ulang");
+    //showMessage(3, "Data survey tidak ditemukan. Silakan submit ulang", "error");
+    btnKirim.innerHTML = '<i class="fas fa-share-square me-2"></i>KIRIM HASIL SURVEY';
+    btnKirim.disabled = false;
+    return;
+  }
+
+  const payload = JSON.stringify({ action: "kirimHasilSurvey", data: window.dataTerakhir });
+
+  // Mengirim data ke server id Google Apps Script  
+  fetch(URL_APPS_SCRIPT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: payload
+  })
+  .then(() => {
+    setTimeout(() => {
+    // Data berhasil terkirim
+    showPesan('success', " SUKSES : Hasil survey telah terkirim! Silahkan periksa WA/Email Anda dalam beberapa saat");
+    resetForm();
+    // Setelah cek kebugaran, tampilkan program beratidealku
+    // window.location.href = 'program.html';
+
+    // Setelah cek kebugaran, tampilkan Form Daftar
+    window.location.href = 'formDaftar.html';
+  }, 3000);
+  })
+  .catch(error => {
+    //console.error("Error:", error);
+    showPesan('error', " ERROR : Gagal mengirim permintaan" + error.message);
+  })
+  .finally(() => {
+    btnKirim.innerHTML = '<i class="fas fa-share-square me-2"></i>TERKIRIM';
+    btnKirim.disabled = true;
+  });
+}
+
+// ********************
+// Untuk mereset form  
+// ********************
+function resetForm() {
+    document.getElementById("fitnessForm").reset();
+    navigate(null, 1);
+    document.getElementById("loadingSpinner").style.display = "none";
+    document.getElementById("hasilAnalisa").style.display = "none";
+    document.getElementById("tampilCTA").style.display = "none";
+    btnKirim.innerHTML = '<i class="fas fa-share-square me-2"></i>KIRIM HASIL SURVEY';
+    btnKirim.disabled = false;
+    window.dataTerakhir = null;
+    showPesan('success', " SUKSES : Form berhasil direset. Silakan isi kembali.");
+    //showMessage(1, "Form berhasil direset. Silakan isi kembali.", "success");
+}
+
+// *****************************************
+// Pesan Notifikasi untuk di Form Tabel User
+// *****************************************
+function showPesan(type, message, duration = 3000) {
+  // Tentukan halaman aktif saat ini
+  let activePage = 1;
+  for (let i = 1; i <= 3; i++) {
+    if (document.getElementById(`page${i}`).classList.contains('active')) {
+      activePage = i;
+      break;
+    }
+  }
+  
+  // Pilih elemen notifikasi berdasarkan halaman aktif
+  const box  = document.getElementById(`pesanNotification${activePage}`);
+  const icon = document.getElementById(`pesanNotifIcon${activePage}`);
+  const text = document.getElementById(`pesanNotifText${activePage}`);
+
+  if (!box || !icon || !text) {
+    console.error("Elemen notifikasi tidak ditemukan!");
+    return;
+  }
+
+  // Reset class
+  box.className  = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  
+  text.textContent = message;
+  // Pastikan elemen terlihat
+  box.style.display = 'flex';
+  // Scroll ke posisi elemen jika perlu
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Atur timer untuk menyembunyikan pesan
+  clearTimeout(window.notificationTimer); // Hapus timer sebelumnya jika ada
+  window.notificationTimer = setTimeout(() => {
+    box.style.display = 'none';
+  }, duration);
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Tanda Terima Produk</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container mt-5 mb-5">
+    <div class="card mx-auto shadow" style="max-width: 600px;">
+      <div class="card-header text-white" style="background-color: #041e55;">
+        <h5 class="mb-0"><i class="fas fa-box"></i> Form Tanda Terima Produk</h5>
+      </div>
+      <div class="card-body">
+        <form id="formTandaTerima">
+          <!-- Informasi Pesanan -->
+          <div class="mb-4">
+            <h6><i class="fas fa-list"></i> Informasi Pesanan</h6>
+            <div class="form-group">
+              <label>Tanggal Terima</label>
+              <input type="text" class="form-control" id="tanggalTerima" readonly />
+            </div>
+            <div class="form-group">
+              <label>No Pesanan</label>
+              <input type="text" class="form-control" id="nomorPesanan" readonly />
+            </div>
+            <div class="form-group">
+              <label>Nama Konsumen</label>
+              <input type="text" class="form-control" id="nama" readonly />
+            </div>
+            <div class="form-group">
+              <label>Alamat Konsumen</label>
+              <textarea class="form-control" id="alamat" readonly rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- Upload Bukti Produk -->
+          <div class="mb-4">
+            <h6><i class="fas fa-image"></i> Bukti Produk Diterima</h6>
+            <div class="form-group">
+              <label>Upload Foto Produk</label>
+              <input type="file" class="form-control-file" id="buktiProduk" accept="image/*" required />
+              <small class="form-text text-muted">Upload foto produk yang sudah diterima</small>
+            </div>
+            <div class="mt-2" id="preview"></div>
+          </div>
+
+          <!-- Pernyataan Tanda Terima -->
+          <div class="border p-3 rounded bg-light mt-4" style="text-align: center;" >  
+            <h6 style="color:#cc0000;">PERNYATAAN TANDA TERIMA</h6>
+            <div class="form-check text-center text-muted mt-3">
+              <input class="form-check-input" type="checkbox" id="pernyataan" required>
+              <label class="form-check-label" for="pernyataan">
+                Saya menyatakan telah menerima produk dengan baik dan dalam kondisi yang sesuai
+              </label>
+            </div>
+          </div>
+
+          <!-- Pesan status -->
+          <div id="formMessage" class="mt-3"></div>
+
+          <!-- Tombol Submit -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-success w-100" id="btnSubmit">
+              <i class="fas fa-paper-plane"></i> Submit Tanda Terima
+            </button>
+          </div>
+        </form>
+
+        <!-- Tampilan Footer pada form -->
+        <footer class="section footer-classic context-light mt-2">
+          <div class="row row-30 justify-content-center">
+            <div>
+              Powered By :<a class="brand" href="index.html"><img src="images/logo-beratidealku.png" width="99" height="19"></a>
+            </div>
+          </div>          
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+/****************************  
+* Deklarasi variabel global *
+*****************************/ 
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwOEuMnos-nrGkiSSIkyc775gwpey2ir2t0Wil3CAZMBSfGb8iKarlOeOusckfnZRhw/exec';
+
+// ******************************************** 
+// Memanggil data inputan ke dalam form tanda terima
+// ********************************************
+document.addEventListener('DOMContentLoaded', function () {
+    // Ambil noPesanan dari query string
+    const params        = new URLSearchParams(window.location.search);
+    const noPesanan     = params.get("noPesanan");
+    const submitBtn     = document.getElementById('btnSubmit');
+    
+    // Set tanggal terima
+    document.getElementById('tanggalTerima').value = new Date().toLocaleDateString('id-ID');
+            
+    if (!noPesanan) {
+      tampilPesan('error', '❌ Data tidak ditemukan. Silakan gunakan link yang benar.');
+      return;
+    }
+
+    // 1. Ambil data dari Apps Script via noPesanan
+    fetch(URL_APPS_SCRIPT + "?noPesanan=" + noPesanan)
+    .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          tampilPesan('error', '❌ Data tidak ditemukan di server.');
+          return;
+        }
+
+        // Isi data ke form
+        document.getElementById('nomorPesanan').value = data.noPesanan || "";
+        document.getElementById('nama').value = data.nama || "";
+        
+        // Format alamat lengkap
+        const alamatLengkap = `${data.alamat || ''}, ${data.kelurahan || ''}, ${data.kecamatan || ''}, ${data.kota || ''}, ${data.propinsi || ''}`;
+        document.getElementById('alamat').value = alamatLengkap;
+ 
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        tampilPesan('error', 'Gagal mengambil data dari server.');
+      });
+
+    // 2. Preview gambar bukti produk
+    document.getElementById("buktiProduk").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
+
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded border" style="max-height:250px;" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  
+    // Submit form
+    document.getElementById("formTandaTerima").addEventListener("submit", function (e) {
+      e.preventDefault();
+      
+      const buktiProduk = document.getElementById("buktiProduk").files[0];
+      const pernyataan = document.getElementById("pernyataan").checked;
+      
+      if (!buktiProduk) {
+        tampilPesan('error', 'Silakan upload foto produk yang diterima.');
+        return;
+      }
+      
+      if (!pernyataan) {
+        tampilPesan('error', 'Silakan centang pernyataan bahwa produk telah diterima dengan baik.');
+        return;
+      }
+
+      // Convert file to base64
+      const reader  = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
+        
+        // Kirim data sebagai form-urlencoded 
+        const formData = new URLSearchParams();
+        formData.append("fileProduk", base64Data);
+        formData.append("noPesanan", noPesanan);
+        formData.append("action", "tandaTerima"); // Flag untuk membedakan action
+
+        // Tampilkan spinner di tombol submit
+        submitBtn.disabled  = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+        fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: formData
+        })
+        .then(response => response.json())
+        .then(res => {
+          if (res.success) {
+            // Tombol submit menampilkan pesan
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+            tampilPesan('success', '✅ Tanda terima berhasil dikirim. Terima kasih!');
+      
+            // Kembali ke home setelah 3 detik
+            setTimeout(function() {
+              window.location.href = 'index.html';
+            }, 3000);
+
+          } else {
+            tampilPesan('error', res.message || '❌ Gagal mengirim tanda terima.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Tanda Terima';
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          tampilPesan('error', '❌ Gagal koneksi ke server: ' + error.message);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Tanda Terima';
+        });
+      };
+      reader.readAsDataURL(buktiProduk);
+    });
+});
+
+/************************
+* Fungsi tampilkan pesan
+************************/
+function tampilPesan(tipe, pesan) {
+  const msg = document.getElementById("formMessage");
+  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success';
+  msg.innerHTML = `<div class="${alertClass}">${pesan}</div>`;
+}
+
+</script>
+</body>
+</html>
