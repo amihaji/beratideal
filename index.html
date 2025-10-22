@@ -803,22 +803,21 @@
         <i class="fas fa-arrow-up"></i>
     </a>
 
-    <!-- Modal Konfirmasi -->
-    <div class="modal-overlay" id="modalKonfirmasi">
-        <div class="modal-content">
-            <h5 class="mb-3">Konfirmasi</h5>
-            <p class="mb-4">Apakah Anda yakin ingin bergabung?</p>
-            <div class="d-flex justify-content-between">
-                <button class="btn btn-secondary" onclick="tutupModal()">Batal</button>
-                <button class="btn btn-primary" id="btnYa">Ya</button>
-            </div>
+    <!-- TAMPILAN MODAL KONFIRMASI -->
+    <div id="modalKonfirmasi" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:9999;">
+      <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); background:#fff; padding:20px; border-radius:10px; width:90%; max-width:300px; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align:center;">
+        <div id="bagianPertanyaan">
+          <p><strong>Apakah Anda pernah<br>menjadi member Herbalife?</strong></p>
+          <button onclick="jawabanKonfirmasi(true)"  class="button button-primary button-sm" style="margin: 10px;">YA</button>
+          <button onclick="jawabanKonfirmasi(false)" class="button button-primary button-sm" style="margin: 10px;">TIDAK</button>
         </div>
+        <div id="pesanKonfirmasi" style="display:none; margin-top:20px;"></div>
+      </div>
     </div>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- JavaScript Kustom -->
     <script>
         // Preloader
         window.addEventListener('load', function() {
@@ -871,26 +870,42 @@
                 activeTestimonialImg.classList.add('active');
             }, 50);
         });
-
-        // Modal Konfirmasi
-        function tampilkanKonfirmasi(url) {
-            document.getElementById('modalKonfirmasi').style.display = 'block';
-            document.getElementById('btnYa').onclick = function() {
-                window.location.href = url;
-            };
+        
+        //  Modal Konfirmasi
+        let linkTujuan = "";
+        function tampilkanKonfirmasi(link) {
+            linkTujuan = link;
+            document.getElementById("modalKonfirmasi").style.display  = "block";
+            document.getElementById("bagianPertanyaan").style.display = "block";
+            document.getElementById("pesanKonfirmasi").style.display  = "none";
+            document.getElementById("pesanKonfirmasi").innerHTML      = "";
         }
-
-        function tutupModal() {
-            document.getElementById('modalKonfirmasi').style.display = 'none';
-        }
-
-        // Tutup modal jika klik di luar konten
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalKonfirmasi');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+        
+        function jawabanKonfirmasi(isMember) {
+            document.getElementById("bagianPertanyaan").style.display = "none";
+            const pesan         = document.getElementById("pesanKonfirmasi");
+            pesan.style.display = "block";
+            // Jika member maka akan kembali ke layar utama
+            if (isMember) {
+            pesan.innerHTML = `<strong>Hubungi sponsor anda, <br>untuk info lebih lanjut !<br></strong>
+            <button onclick="tutupModal()" class="button button-primary button-sm">OK</button>`;
+            } else {
+            pesan.innerHTML = `<strong>Sebelum Lanjut, <br>Kita Cek Kebugarannya Dulu Yah...!<br></strong>
+            <button onclick="tutupModal()" class="button button-primary button-sm">OK</button>`;
+            setTimeout(() => {
+            lanjutKeLink();
+            }, 2000);
             }
         }
+            
+        function tutupModal() {
+            document.getElementById("modalKonfirmasi").style.display = "none";
+        }
+        
+        function lanjutKeLink() {
+            window.location.href = linkTujuan;       // Cek Kebugaran 
+        }
+
     </script>
 </body>
 </html>
