@@ -577,7 +577,7 @@ body { background-color: #f8f9fa; }
                   class="menu-item" onclick="return false;">
                   <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan?
                 </a>
-                <a href="pdf/Panduan_Meal_Plan_HariKe1.pdf" 
+                <a href="pdf/Modul_Meal_Plan_HariKe1.pdf" 
                   class="menu-item" onclick="return false;">
                   <i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama
                 </a>
@@ -606,6 +606,16 @@ body { background-color: #f8f9fa; }
                   <i class="fas fa-check-square"></i> SELESAI MODUL PERTAMA
                 </a>
             
+                <!-- PDF Viewer untuk Modul hari Pertama -->
+                <div class="pdf-viewer" id="pdfViewerMealPlan">
+                  <button class="close-pdf" onclick="closePDF('mealPlan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="pdf-container" id="pdfContainerMealPlan">
+                    <!-- PDF akan dimuat di sini -->
+                  </div>
+                </div>
+
                 <!-- Video Player untuk Modul Hari Pertama -->
                 <div class="video-container" id="videoContainerPertemuan1">
                   <button class="close-video" onclick="closeVideo('pertemuan1')">
@@ -933,6 +943,16 @@ function initializeAllVideoPlayers() {
         { selector: 'a[href*="Panduan_Progress_Tracking.pdf"]' }
     ]);
     
+    // Setup PDF links untuk modul meal plan
+    setupPDFLinksForSection('mealPlan', [
+        { selector: 'a[href*="Meal_Plan_HariKe1.pdf"]' },
+        { selector: 'a[href*="Meal_Plan_HariKe2.pdf"]' },
+        { selector: 'a[href*="Meal_Plan_HariKe3.pdf"]' },
+        { selector: 'a[href*="Meal_Plan_HariKe4.pdf"]' },
+        { selector: 'a[href*="Meal_Plan_HariKe5.pdf"]' }
+    ]);
+
+
     // Setup untuk healthyRecept dengan JSON data
     const healthyReceptLink = document.querySelector('a[href*="youtube.com/playlist"]');
     if (healthyReceptLink) {
