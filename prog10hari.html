@@ -801,54 +801,12 @@ body { background-color: #f8f9fa; }
                     <p><i class="fas far fa-lightbulb mt-1 mb-1" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami
                   </div>  
 
-                  <h6><b>INPUT DATA KONDISI TUBUH</b></h6> 
-                  <div class="input-group mt-3 mb-3">  
-                    <div class="input-group-text">
-                      <i class="fas fa-venus-mars"></i> 
-                    </div>
-
-                    <!-- Pilih Jenis Kelamin -->
-                    <select class="form-select" id="jenisKelamin1" required>
-                      <option value="">Pilih Jenis Kelamin</option>
-                      <option value="Pria">Pria</option>
-                      <option value="Wanita">Wanita</option>
-                    </select>
-                  </div> 
-                  
-                  <!-- Input Data Umur -->
-                  <div class="input-group mb-3">
-                    <div class="input-group-text">
-                      <i class="fas fa-restroom"></i>
-                    </div>
-                    <input type="number" class="form-control" id="umur1" placeholder="Input Umur">
-                  </div>  
-                  
-                  <!-- Input Berat Badan -->
-                  <div class="input-group mb-3">
-                    <div class="input-group-text">
-                      <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
-                    </div>
-                    <input type="number" class="form-control" id="beratBadan1" placeholder="Input Berat badan">
-                  </div>  
-
-                  <!-- Input Tinggi Badan -->
-                  <div class="input-group mb-3">
-                    <div class="input-group-text">
-                      <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
-                    </div>
-                    <input type="number" class="form-control" id="tinggiBadan1" placeholder="Input Tinggi badan">
-                  </div>  
-                  
-                  <!-- Input Lingkar Pinggang -->
-                  <div class="input-group mb-3">
-                    <div class="input-group-text">
-                      <i class="fas fa-ribbon" style="padding-left: 3px; padding-right: 4px;"></i>
-                    </div>
-                    <input type="number" class="form-control" id="lngkarPinggang1" placeholder="Input Lingkar Pinggang">
+                  <!-- Data Kondisi Tubuh -->
+                  <div class="mt-3 mb-2" id="kondisitubuh-container">
+                    <h6><b>INPUT DATA KONDISI TUBUH</b></h6> 
+                    <div id="kondisiTubuh"></div>
+                      <!-- Disini Tampilkan Data Kondisi Tubuh, menggunakan jscript -->
                   </div>
-                  
-                  <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTubuh1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-                  <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTubuh1"><i class="fas fa-check-double"></i> Selesai</button>
                 </div>
 
                 <!-- TANYA COACH HARI PERTAMA -->
@@ -2096,6 +2054,67 @@ if (radioIstirahat) {
   `;
     radioIstirahat.appendChild(wrapper);
 } 
+
+/**************************
+* Input Data Kondisi Tubuh
+***************************/   
+const inputKondisiTubuh = document.getElementById("kondisiTubuh");
+if (inputKondisiTubuh) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "input-group mb-1 align-items-start";
+  wrapper.innerHTML = `  
+    <div class="input-group mt-3 mb-3">  
+      <div class="input-group-text">
+        <i class="fas fa-venus-mars"></i> 
+      </div>
+
+      <!-- Pilih Jenis Kelamin -->
+       <select class="form-select" id="jenisKelamin1" required>
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Pria">Pria</option>
+          <option value="Wanita">Wanita</option>
+        </select>
+    </div> 
+
+    <!-- Input Data Umur -->
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <i class="fas fa-restroom"></i>
+      </div>
+      <input type="number" class="form-control" id="umur1" placeholder="Input Umur">
+    </div>  
+                  
+    <!-- Input Berat Badan -->
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
+      </div>
+      <input type="number" class="form-control" id="beratBadan" placeholder="Input Berat badan">
+    </div>  
+
+    <!-- Input Tinggi Badan -->
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
+      </div>
+      <input type="number" class="form-control" id="tinggiBadan" placeholder="Input Tinggi badan">
+    </div>  
+                  
+    <!-- Input Lingkar Pinggang -->
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <i class="fas fa-ribbon" style="padding-left: 3px; padding-right: 4px;"></i>
+      </div>
+      <input type="number" class="form-control" id="lngkarPinggang" placeholder="Input Lingkar Pinggang">
+    </div>
+
+    <div>
+      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTubuh"><i class="fa fa-pencil-square-o"></i> Simpan</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTubuh"><i class="fas fa-check-double"></i> Selesai</button>
+    </div>
+  `;
+  inputKondisiTubuh.appendChild(wrapper);
+}                 
 
 </script>
 </body>
