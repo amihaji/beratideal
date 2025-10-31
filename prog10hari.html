@@ -733,25 +733,25 @@ body { background-color: #f8f9fa; }
                       <div class="input-group-text">
                         <input type="radio">
                       </div>
-                      <input type="text" class="form-control" placeholder="Kurang dari 1 ltr air putih" readonly>
+                      <input type="text" class="form-control" id="kurang1LtrAir1" placeholder="Kurang dari 1 ltr air putih" readonly>
                     </div>  
                     <div class="input-group mb-3">
                       <div class="input-group-text">
                         <input type="radio">
                       </div>
-                      <input type="text" class="form-control" placeholder="1 ltr air putih" readonly>
+                      <input type="text" class="form-control" id="pas1LtrAir1" placeholder="1 ltr air putih" readonly>
                     </div>  
                     <div class="input-group mb-3">
                       <div class="input-group-text">
                         <input type="radio">
                       </div>
-                      <input type="text" class="form-control" placeholder="2 ltr air putih" readonly>
+                      <input type="text" class="form-control" id="pas2LtrAir1" placeholder="2 ltr air putih" readonly>
                     </div>  
                     <div class="input-group mb-3">
                       <div class="input-group-text">
                         <input type="radio"> 
                       </div>
-                      <input type="text" class="form-control" placeholder="Lebih dari 2 ltr air putih" readonly>
+                      <input type="text" class="form-control" id="lebih2LtrAir1" placeholder="Lebih dari 2 ltr air putih" readonly>
                     </div>
                     <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
                     <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir1"><i class="fas fa-check-double"></i> Selesai</button>
@@ -775,29 +775,37 @@ body { background-color: #f8f9fa; }
                     <p><i class="fas far fa-lightbulb mt-1 mb-1" style="color: #fa0000;"></i><b> Tips : </b>Pastikan anda istirahat dalam ruangan yang penchayaannya redup, hening dan memiliki suhu ruang yang nyaman
                   </div>
 
-                  <h6><b>WAKTU ISTIRAHAT PER MALAM</b></h6> 
+                  <!-- Tampilan Waktu Istirahat -->
+                  <div class="mt-3 mb-2" id="istirahat-container">
+                    <h6><b>WAKTU ISTIRAHAT PER MALAM</b></h6> 
+                    <div id="istirahatRadioBtn"></div>
+                    <!-- Disini tampil, menggunakan jscript-->
+                  </div>
+                    
+                  <!--  
                   <div class="input-group mb-3">
                     <div class="input-group-text">
                       <input type="radio">
                     </div>
-                    <input type="text" class="form-control" placeholder="Kurang dari 6jam per malam" readonly>
+                    <input type="text" class="form-control" id="tidurKurang6Jam1" placeholder="Kurang dari 6jam per malam" readonly>
                   </div>  
                   <div class="input-group mb-3">
                     <div class="input-group-text">
                       <input type="radio">
                     </div>
-                    <input type="text" class="form-control" placeholder="6jam-8jam per malam" readonly>
+                    <input type="text" class="form-control" id="tidurAntara6_8Jam1" placeholder="6jam-8jam per malam" readonly>
                   </div>  
                   <div class="input-group mb-3">
                     <div class="input-group-text">
                       <input type="radio">
                     </div>
-                    <input type="text" class="form-control" placeholder="Lebih 8jam per malam" readonly>
+                    <input type="text" class="form-control" id="tidurLebih8Jam1" placeholder="Lebih 8jam per malam" readonly>
                   </div>  
-                  <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-                  <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat1"><i class="fas fa-check-double"></i> Selesai</button>
+                  <button type="button" class="btn btn-primary btn-sm" id="btnSimpanTidur1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiTidur1"><i class="fas fa-check-double"></i> Selesai</button>
                 </div>
-               
+                -->
+
                 <!-- DATA TRACKING HARI PERTAMA -->
                 <a href="#" 
                   class="menu-item" onclick="return false;">
@@ -823,7 +831,7 @@ body { background-color: #f8f9fa; }
                     </div>
 
                     <!-- Pilih Jenis Kelamin -->
-                    <select class="form-select" id="mJenisKelamin" required>
+                    <select class="form-select" id="jenisKelamin1" required>
                       <option value="">Pilih Jenis Kelamin</option>
                       <option value="Pria">Pria</option>
                       <option value="Wanita">Wanita</option>
@@ -835,7 +843,7 @@ body { background-color: #f8f9fa; }
                     <div class="input-group-text">
                       <i class="fas fa-restroom"></i>
                     </div>
-                    <input type="number" class="form-control" placeholder="Input Umur">
+                    <input type="number" class="form-control" id="umur1" placeholder="Input Umur">
                   </div>  
                   
                   <!-- Input Berat Badan -->
@@ -843,7 +851,7 @@ body { background-color: #f8f9fa; }
                     <div class="input-group-text">
                       <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
                     </div>
-                    <input type="number" class="form-control" placeholder="Input Berat badan">
+                    <input type="number" class="form-control" id="beratBadan1" placeholder="Input Berat badan">
                   </div>  
 
                   <!-- Input Tinggi Badan -->
@@ -851,7 +859,7 @@ body { background-color: #f8f9fa; }
                     <div class="input-group-text">
                       <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
                     </div>
-                    <input type="number" class="form-control" placeholder="Input Tinggi badan">
+                    <input type="number" class="form-control" id="tinggiBadan1" placeholder="Input Tinggi badan">
                   </div>  
                   
                   <!-- Input Lingkar Pinggang -->
@@ -859,7 +867,7 @@ body { background-color: #f8f9fa; }
                     <div class="input-group-text">
                       <i class="fas fa-ribbon" style="padding-left: 3px; padding-right: 4px;"></i>
                     </div>
-                    <input type="number" class="form-control" placeholder="Input Lingkar Pinggang">
+                    <input type="number" class="form-control" id="lngkarPinggang1" placeholder="Input Lingkar Pinggang">
                   </div>
                   
                   <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTubuh1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
@@ -2075,6 +2083,43 @@ if (listEl) {
       listEl.appendChild(wrapper);
   });
 }
+
+/******************
+* Daftar Istirahat
+*******************/   
+const radioIstirahat = document.getElementById("istirahatRadioBtn");
+
+if (radioIstirahat) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "input-group mb-1 align-items-start";
+  wrapper.innerHTML = `  
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="tidurKurang6Jam1" placeholder="Kurang dari 6jam per malam" readonly>
+    </div>  
+    
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="tidurAntara6_8Jam1" placeholder="6jam-8jam per malam" readonly>
+    </div>  
+    
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="tidurLebih8Jam1" placeholder="Lebih 8jam per malam" readonly>
+    </div>  
+    
+    <button type="button" class="btn btn-primary btn-sm" id="btnSimpanTidur1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
+    <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiTidur1"><i class="fas fa-check-double"></i> Selesai</button>
+    <!-- </div> -->
+    `;
+    radioIstirahat.appendChild(wrapper);
+} 
 
 </script>
 </body>
