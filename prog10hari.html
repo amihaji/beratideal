@@ -728,35 +728,14 @@ body { background-color: #f8f9fa; }
                     <i class="far fa-check-circle"></i> Minumlah lebih banyak jika iklim cuaca panas dan sering berolahraga</br>
                   </div>
 
-                  <h6><b>ASUPAN AIR PUTIH PERHARI</b></h6> 
-                    <div class="input-group mb-3">
-                      <div class="input-group-text">
-                        <input type="radio">
-                      </div>
-                      <input type="text" class="form-control" id="kurang1LtrAir1" placeholder="Kurang dari 1 ltr air putih" readonly>
-                    </div>  
-                    <div class="input-group mb-3">
-                      <div class="input-group-text">
-                        <input type="radio">
-                      </div>
-                      <input type="text" class="form-control" id="pas1LtrAir1" placeholder="1 ltr air putih" readonly>
-                    </div>  
-                    <div class="input-group mb-3">
-                      <div class="input-group-text">
-                        <input type="radio">
-                      </div>
-                      <input type="text" class="form-control" id="pas2LtrAir1" placeholder="2 ltr air putih" readonly>
-                    </div>  
-                    <div class="input-group mb-3">
-                      <div class="input-group-text">
-                        <input type="radio"> 
-                      </div>
-                      <input type="text" class="form-control" id="lebih2LtrAir1" placeholder="Lebih dari 2 ltr air putih" readonly>
-                    </div>
-                    <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir1"><i class="fas fa-check-double"></i> Selesai</button>
-                   </div>  
-               
+                 <!-- Asupan Air Putih dalam sehari -->
+                  <div class="mt-3 mb-2" id="istirahat-container">
+                    <h6><b>ASUPAN AIR PUTIH PERHARI</b></h6> 
+                    <div id="airputihRadioBtn"></div>
+                    <!-- Disini Tampilkan Asupan Air Perhari jscript -->
+                  </div>
+                </div>
+              
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
                 <a href="#" 
                   class="menu-item" onclick="return false;">
@@ -2019,9 +1998,52 @@ if (listEl) {
   });
 }
 
-/******************
-* Daftar Istirahat
-*******************/   
+/**************************
+* Minum Air Putih per hari
+***************************/   
+const minumAirPutih = document.getElementById("airputihRadioBtn");
+if (minumAirPutih) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "input-group mb-1 align-items-start";
+  wrapper.innerHTML = `
+    div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="kurang1LtrAir1" placeholder="Kurang dari 1 ltr air putih" readonly>
+    </div>  
+    
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="pas1LtrAir1" placeholder="1 ltr air putih" readonly>
+    </div>  
+    
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio">
+      </div>
+      <input type="text" class="form-control" id="pas2LtrAir1" placeholder="2 ltr air putih" readonly>
+    </div>  
+    
+    <div class="input-group mb-3">
+      <div class="input-group-text">
+        <input type="radio"> 
+      </div>
+      <input type="text" class="form-control" id="lebih2LtrAir1" placeholder="Lebih dari 2 ltr air putih" readonly>
+    </div>
+    <div>
+       <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir1"><i class="fa fa-pencil-square-o"></i> Simpan</button>
+       <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir1"><i class="fas fa-check-double"></i> Selesai</button>
+    </div>  
+`;
+  minumAirPutih.appendChild(wrapper);
+}    
+
+/***********************
+* Jadwal Waktu Istrihat
+************************/   
 const radioIstirahat = document.getElementById("istirahatRadioBtn");
 if (radioIstirahat) {
   const wrapper = document.createElement("div");
@@ -2054,6 +2076,7 @@ if (radioIstirahat) {
   `;
     radioIstirahat.appendChild(wrapper);
 } 
+
 
 /**************************
 * Input Data Kondisi Tubuh
