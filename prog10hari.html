@@ -111,7 +111,7 @@ body { background-color: #f8f9fa; }
 /***** akhir Sebmenu *****/ 
 
 /***** Tombol Close di Header *****/
-.btn-close-custom {
+.btn-close-header {
   background: none;
   border: none;
   color: white;
@@ -123,9 +123,14 @@ body { background-color: #f8f9fa; }
   align-items: center;
   justify-content: center;
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 50%;
 }
-.btn-close-custom:hover { color: #ff4d4d; }
+.btn-close-header:hover {
+  opacity: 1;
+  color: #dc3545 !important;
+  background-color: rgba(255, 255, 255, 0.2);
+}
 
 /***** Footer *****/
 .footer a:hover { color: #ff4d4d !important; }
@@ -672,11 +677,11 @@ body { background-color: #f8f9fa; }
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Apa Yang Anda Makan Hari Ini ?</h6>
-                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('mealPlanContent1')" style="background: none; border: none; font-size: 18px;">
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('mealPlanContent1')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
-              
+
               <h6><b>PANDUAN NUTRISI</b></h6>
               <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</p>
               <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniMealPlan1"><i class="fas fa-utensils"></i> Cek Disini</button>
