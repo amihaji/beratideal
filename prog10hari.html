@@ -104,6 +104,12 @@ body { background-color: #f8f9fa; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
 /***** Akhir Menu Accordian *****/
 
+/***** Submenu Content Styles *****/
+.submenu-content { border-radius: 8px; margin: 10px 0; display: none; }
+.submenu-trigger { cursor: pointer; }
+.submenu-trigger:hover { background-color: #e7e7e7; color: #830000; }
+/***** akhir Sebmenu *****/ 
+
 /***** Footer *****/
 .footer a:hover { color: #ff4d4d !important; }
 
@@ -575,157 +581,43 @@ body { background-color: #f8f9fa; }
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item video-link" onclick="return false;" data-section="pertemuan1" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
                   <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan?
                 </a>
               
                 <!-- MEAL PLAN HARI PERTAMA -->
                 <a href="#" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item submenu-trigger" onclick="return false;" data-target="mealPlanContent">
                   <i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama
-                </a> 
-                <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6>Apa Yang Anda Makan Hari Ini ?</h6>
-                </div> 
-                <div class="border p-3 bg-light mt-0 mb-2">
-                  <h6><b>PANDUAN NUTRISI</b></h6>
-                  <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</br>
-                  <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniMealPlan1"><i class="fas fa-utensils"></i> Cek Disini</button>
+                </a>
 
-                  <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
-                    <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan makanan yang anda konsumsi adalah makanan yang sehat dan seimbang,</br> yang terpenuhi unsur</br>
-                    <i class="far fa-check-circle"></i> Karbohidrat 40%</br>
-                    <i class="far fa-check-circle"></i> Protein 30%</br>
-                    <i class="far fa-check-circle"></i> Lemak 30%</br>
-                  </div>
-
-                  <!-- Jadwal Meal Plan -->
-                  <div class="mt-3 mb-2" id="jadwalMealplan-container">
-                    <h6 class="mt-2"><b>JADWAL MEAL PLAN</b></h6>
-                    <div id="jadwalMealplan-list"></div>
-                    <!-- Disini tampil jadwal meal plan, menggunakan jscript-->
-                  </div>
-                </div>
-              
                 <!-- WORKOUT HARI PERTAMA -->
                 <a href="#" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item submenu-trigger" onclick="return false;" data-target="workoutContent">
                   <i class="fas fa-dumbbell"></i>1.3 Workout - Hari Pertama
                 </a>
-                <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6>Apa Olahraga Anda Hari Ini ?</h6>
-                </div> 
-
-                <div class="border p-3 bg-light mt-0 mb-2"> 
-                  <h6><b>PANDUAN WORKOUT</b></h6>
-                  <p><b>Rekomendasi Olahraga : </b>Olahraga 3-5 hari seminggu dengan durasi 20-30 menit setiap harinya, dengan pilihan jenis olahraga yang sesuai dengan kebutuhan tubuh dan kesehatan</br>
-                  <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniWorkout1"><i class="fas fa-dumbbell"></i> Cek Disini</button>
-
-                  <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
-                    <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Bergabunglah dengan berbagai komunitas olahraga, dimana orang-orangnya saling mendukung dan memotivasi satu sama lain
-                  </div>
-
-                  <h6><b>JENIS WORKOUT</b></h6>  
-                  <!-- Pilih Jenis Olahraga Kardio -->
-                  <div class="mt-3 mb-2" id="kardio-container">
-                    <h6>Olahraga Kardio :</h6>
-                    <div id="olahragaKardio-list"></div>
-                    <!-- Disini tampil olahraga kardio, menggunakan jscript-->
-                  </div>
-
-                  <!-- Pilih Jenis Olahraga Resistane -->
-                  <div class="mt-3 mb-2" id="resistance-container">
-                    <h6>Olahraga Resistane :</h6>
-                    <div id="olahragaResisten-list"></div>
-                    <!-- Disini tampil olahraga resistane, menggunakan jscript-->
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout"><i class="fas fa-check-double"></i> Selesai</button>
-                </div>  
               
                 <!-- WATER REMINDER HARI PERTAMA -->
                 <a href="#" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item submenu-trigger" onclick="return false;" data-target="waterReminderContent">
                   <i class="fas fa-prescription-bottle"></i>1.4 Water Reminder - Hari Pertama
                 </a>
-                <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6>Hari Ini Anda Minum Air Putih Berapa ?</h6>
-                </div> 
-
-                <div class="border p-3 bg-light mt-0 mb-2">
-                  <h6><b>PANDUAN WATER REMINDER</b></h6>
-                  <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</br>
-                  <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniAirMinum1"><i class="fas fa-prescription-bottle"></i> Cek Disini</button>
-                    
-                  <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
-                    <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Untuk mencukupi asupan air minum sehari</br>
-                    <i class="far fa-check-circle"></i> Belilah botol air yang dapat digunakan kembali untuk dibawa kemana-mana</br>
-                    <i class="far fa-check-circle"></i> Botol yang memiliki tulisan takaran air, untuk mengetahui sudah berapa banyak yang anda minum</br>
-                    <i class="far fa-check-circle"></i> Minulah lebih banyak jika iklim cuaca panas dan sering berolahraga</br>
-                  </div>
-
-                <!-- Asupan Air Putih dalam sehari -->
-                  <div class="mt-3 mb-2" id="airputih-container">
-                    <h6><b>ASUPAN AIR PUTIH PERHARI</b></h6> 
-                    <div id="airputihRadioBtn"></div>
-                    <!-- Disini Tampilkan Asupan Air Perhari jscript -->
-                  </div>
-                </div>
               
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
                 <a href="#" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item submenu-trigger" onclick="return false;" data-target="istirahatContent">
                   <i class="fas fa-bed"></i>1.5 Waktu Istirahat - Hari Pertama
                 </a>
-                <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6>Hari Ini Istirahatnya Berapa Lama ?</h6>
-                </div> 
-
-                <div class="border p-3 bg-light mt-0 mb-2">
-                  <h6><b>PANDUAN ISTIRAHAT</b></h6>
-                  <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</br>
-                  <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat1"><i class="fas fa-bed"></i> Cek Disini</button>
-                    
-                  <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
-                    <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan anda istirahat dalam ruangan yang penchayaannya redup, hening dan memiliki suhu ruang yang nyaman
-                  </div>
-
-                  <!-- Waktu Istirahat -->
-                  <div class="mt-3 mb-2" id="istirahat-container">
-                    <h6><b>WAKTU ISTIRAHAT PER MALAM</b></h6> 
-                    <div id="istirahatRadioBtn"></div>
-                    <!-- Disini Tampilkan Waktu Istirahat, menggunakan jscript -->
-                  </div>
-                </div>
                 
                 <!-- DATA TRACKING HARI PERTAMA -->
                 <a href="#" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item submenu-trigger" onclick="return false;" data-target="dataTrackingContent">
                   <i class="fas fa-user-friends"></i>1.6 Data Tracking - Hari Pertama
                 </a>
-                <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6>Lengkapi Data Kondisi Tubuh Anda !</h6>
-                </div> 
-
-                <div class="border p-3 bg-light mt-0 mb-2">
-                  <h6><b>PANDUAN DATA TRACKING</b></h6>
-                  <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-                  <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1"><i class="fas fa-bed"></i> Cek Disini</button>
-                    
-                  <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
-                    <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami
-                  </div>  
-
-                  <!-- Data Kondisi Tubuh -->
-                  <div class="mt-3 mb-2" id="kondisitubuh-container">
-                    <h6><b>INPUT DATA KONDISI TUBUH</b></h6> 
-                    <div id="kondisiTubuh"></div>
-                      <!-- Disini Tampilkan Data Kondisi Tubuh, menggunakan jscript -->
-                  </div>
-                </div>
 
                 <!-- TANYA COACH HARI PERTAMA -->
                 <a href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+bertanya+materi+tentang+" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item" target="_blank">
                   <i class="fa fa-whatsapp"></i>1.7 Tanya Coach? - Hari Pertama
                 </a>
 
@@ -733,39 +625,136 @@ body { background-color: #f8f9fa; }
                 <a href="#" 
                   class="menu-item" onclick="return false;">
                   <i class="fas fa-check-double"></i>Selesai Modul Hari Pertama
-                </a>      
-
-                <!-- PDF Viewer untuk Modul hari Pertama -->
-                <div class="pdf-viewer" id="pdfViewerMealPlan">
-                  <button class="close-pdf" onclick="closePDF('mealPlan')">
-                    <i class="fas fa-times"></i>
-                  </button>
-                  <div class="pdf-container" id="pdfContainerMealPlan">
-                    <!-- PDF akan dimuat di sini -->
-                  </div>
-                </div>
-
-                <!-- Video Player untuk Modul Hari Pertama -->
-                <div class="video-container" id="videoContainerPertemuan1">
-                  <button class="close-video" onclick="closeVideo('pertemuan1')">
-                    <i class="fas fa-times"></i>
-                  </button>
-                  <div class="video-wrapper">
-                    <div class="video-placeholder" onclick="playVideo('pertemuan1')">
-                      <i class="fas fa-play-circle"></i>
-                      <div class="video-placeholder-text">Klik untuk memuat video</div>
-                    </div>
-                    <div class="video-loading" id="videoLoadingPertemuan1">
-                      <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading video...</span>
-                      </div>
-                    </div>
-                    <div id="videoPlayerPertemuan1"></div>
-                  </div>
-                </div>
+                </a>
               </div>
             </div>
-          </div> <!-- TUTUP menu-accordion-item yang benar -->
+          </div>
+
+          <!-- KONTEN DETAIL YANG DITAMPILKAN SAAT SUBMENU DIKLIK -->
+          <!-- Meal Plan Content -->
+          <div class="submenu-content border p-3 bg-light mt-2 mb-2" id="mealPlanContent" style="display: none;">
+            <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+              <h6>Apa Yang Anda Makan Hari Ini ?</h6>
+            </div> 
+            
+            <h6><b>PANDUAN NUTRISI</b></h6>
+            <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</p>
+            <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniMealPlan1"><i class="fas fa-utensils"></i> Cek Disini</button>
+
+            <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
+              <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan makanan yang anda konsumsi adalah makanan yang sehat dan seimbang, yang terpenuhi unsur</p>
+              <i class="far fa-check-circle"></i> Karbohidrat 40%</br>
+              <i class="far fa-check-circle"></i> Protein 30%</br>
+              <i class="far fa-check-circle"></i> Lemak 30%</br>
+            </div>
+
+            <!-- Jadwal Meal Plan -->
+            <div class="mt-3 mb-2" id="jadwalMealplan-container">
+              <h6 class="mt-2"><b>JADWAL MEAL PLAN</b></h6>
+              <div id="jadwalMealplan-list"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="hideSubmenu('mealPlanContent')"><i class="fas fa-times"></i> Tutup</button>
+          </div>
+
+          <!-- Workout Content -->
+          <div class="submenu-content border p-3 bg-light mt-2 mb-2" id="workoutContent" style="display: none;">
+            <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+              <h6>Apa Olahraga Anda Hari Ini ?</h6>
+            </div> 
+
+            <h6><b>PANDUAN WORKOUT</b></h6>
+            <p><b>Rekomendasi Olahraga : </b>Olahraga 3-5 hari seminggu dengan durasi 20-30 menit setiap harinya, dengan pilihan jenis olahraga yang sesuai dengan kebutuhan tubuh dan kesehatan</p>
+            <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniWorkout1"><i class="fas fa-dumbbell"></i> Cek Disini</button>
+
+            <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
+              <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Bergabunglah dengan berbagai komunitas olahraga, dimana orang-orangnya saling mendukung dan memotivasi satu sama lain</p>
+            </div>
+
+            <h6><b>JENIS WORKOUT</b></h6>  
+            <!-- Pilih Jenis Olahraga Kardio -->
+            <div class="mt-3 mb-2" id="kardio-container">
+              <h6>Olahraga Kardio :</h6>
+              <div id="olahragaKardio-list"></div>
+            </div>
+
+            <!-- Pilih Jenis Olahraga Resistance -->
+            <div class="mt-3 mb-2" id="resistance-container">
+              <h6>Olahraga Resistance :</h6>
+              <div id="olahragaResisten-list"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout"><i class="fas fa-check-double"></i> Selesai</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="hideSubmenu('workoutContent')"><i class="fas fa-times"></i> Tutup</button>
+          </div>
+
+          <!-- Water Reminder Content -->
+          <div class="submenu-content border p-3 bg-light mt-2 mb-2" id="waterReminderContent" style="display: none;">
+            <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+              <h6>Hari Ini Anda Minum Air Putih Berapa ?</h6>
+            </div> 
+
+            <h6><b>PANDUAN WATER REMINDER</b></h6>
+            <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</p>
+            <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniAirMinum1"><i class="fas fa-prescription-bottle"></i> Cek Disini</button>
+              
+            <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
+              <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Untuk mencukupi asupan air minum sehari</p>
+              <i class="far fa-check-circle"></i> Belilah botol air yang dapat digunakan kembali untuk dibawa kemana-mana</br>
+              <i class="far fa-check-circle"></i> Botol yang memiliki tulisan takaran air, untuk mengetahui sudah berapa banyak yang anda minum</br>
+              <i class="far fa-check-circle"></i> Minumlah lebih banyak jika iklim cuaca panas dan sering berolahraga</br>
+            </div>
+
+            <!-- Asupan Air Putih dalam sehari -->
+            <div class="mt-3 mb-2" id="airputih-container">
+              <h6><b>ASUPAN AIR PUTIH PERHARI</b></h6> 
+              <div id="airputihRadioBtn"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="hideSubmenu('waterReminderContent')"><i class="fas fa-times"></i> Tutup</button>
+          </div>
+
+          <!-- Istirahat Content -->
+          <div class="submenu-content border p-3 bg-light mt-2 mb-2" id="istirahatContent" style="display: none;">
+            <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+              <h6>Hari Ini Istirahatnya Berapa Lama ?</h6>
+            </div> 
+
+            <h6><b>PANDUAN ISTIRAHAT</b></h6>
+            <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</p>
+            <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat1"><i class="fas fa-bed"></i> Cek Disini</button>
+              
+            <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
+              <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan anda istirahat dalam ruangan yang pencahayaannya redup, hening dan memiliki suhu ruang yang nyaman</p>
+            </div>
+
+            <!-- Waktu Istirahat -->
+            <div class="mt-3 mb-2" id="istirahat-container">
+              <h6><b>WAKTU ISTIRAHAT PER MALAM</b></h6> 
+              <div id="istirahatRadioBtn"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="hideSubmenu('istirahatContent')"><i class="fas fa-times"></i> Tutup</button>
+          </div>
+
+          <!-- Data Tracking Content -->
+          <div class="submenu-content border p-3 bg-light mt-2 mb-2" id="dataTrackingContent" style="display: none;">
+            <div class="card-title p-1 mb-0" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+              <h6>Lengkapi Data Kondisi Tubuh Anda !</h6>
+            </div> 
+
+            <h6><b>PANDUAN DATA TRACKING</b></h6>
+            <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</p>
+            <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1"><i class="fas fa-bed"></i> Cek Disini</button>
+              
+            <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
+              <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami</p>
+            </div>  
+
+            <!-- Data Kondisi Tubuh -->
+            <div class="mt-3 mb-2" id="kondisitubuh-container">
+              <h6><b>INPUT DATA KONDISI TUBUH</b></h6> 
+              <div id="kondisiTubuh"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="hideSubmenu('dataTrackingContent')"><i class="fas fa-times"></i> Tutup</button>
+          </div>
+
           <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
     
           <!-- TAMPILAN KREASI RESEP -->
@@ -2169,6 +2158,45 @@ if (inputKondisiTubuh) {
   `;
   inputKondisiTubuh.appendChild(wrapper);
 }                 
+
+/***********************
+* Fungsi untuk Submenu
+************************/
+function showSubmenu(targetId) {
+  // Sembunyikan semua submenu content
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  
+  // Tampilkan submenu yang dipilih
+  const targetContent = document.getElementById(targetId);
+  if (targetContent) {
+    targetContent.style.display = 'block';
+    
+    // Scroll ke konten yang ditampilkan
+    setTimeout(() => {
+      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+// Sembunyikan submenu
+function hideSubmenu(targetId) {
+  const targetContent = document.getElementById(targetId);
+  if (targetContent) {
+    targetContent.style.display = 'none';
+  }
+}
+
+// Event listener untuk submenu triggers
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.submenu-trigger').forEach(trigger => {
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-target');
+      showSubmenu(target);
+    });
+  });
+});
 
 </script>
 </body>
