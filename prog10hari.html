@@ -110,6 +110,23 @@ body { background-color: #f8f9fa; }
 .submenu-trigger:hover { background-color: #e7e7e7; color: #830000; }
 /***** akhir Sebmenu *****/ 
 
+/***** Tombol Close di Header *****/
+.btn-close-custom {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+.btn-close-custom:hover { color: #ff4d4d; }
+
 /***** Footer *****/
 .footer a:hover { color: #ff4d4d !important; }
 
@@ -653,13 +670,16 @@ body { background-color: #f8f9fa; }
           <!-- Meal Plan Content -->
           <div class="submenu-content" id="mealPlanContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
-              <div class="card-title p-1 mb-2" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                <h6>Apa Yang Anda Makan Hari Ini ?</h6>
-              </div> 
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mb-0">Apa Yang Anda Makan Hari Ini ?</h6>
+                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('mealPlanContent1')" style="background: none; border: none; font-size: 18px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
               
               <h6><b>PANDUAN NUTRISI</b></h6>
-              <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</br>
-              <button type="button" class="btn btn-success btn-sm mt-0" id="btnCekDisiniMealPlan1"><i class="fas fa-utensils"></i> Cek Disini</button>
+              <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</p>
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniMealPlan1"><i class="fas fa-utensils"></i> Cek Disini</button>
 
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan makanan yang anda konsumsi adalah makanan yang sehat dan seimbang, yang terpenuhi unsur</p>
@@ -673,20 +693,22 @@ body { background-color: #f8f9fa; }
                 <h6 class="mt-2"><b>JADWAL MEAL PLAN</b></h6>
                 <div id="jadwalMealplan-list"></div>
               </div>
-              <button type="button" class="btn btn-danger btn-sm mt-2" onclick="hideSubmenu('mealPlanContent1')"><i class="fas fa-times"></i> Tutup</button>
             </div>
           </div>
 
           <!-- Workout Content -->
           <div class="submenu-content" id="workoutContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
-              <div class="card-title p-1 mb-2" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                <h6>Apa Olahraga Anda Hari Ini ?</h6>
-              </div> 
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color:  #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mb-0">Apa Olahraga Anda Hari Ini ?</h6>
+                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('workoutContent1')" style="background: none; border: none; font-size: 18px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
 
               <h6><b>PANDUAN WORKOUT</b></h6>
-              <p><b>Rekomendasi Olahraga : </b>Olahraga 3-5 hari seminggu dengan durasi 20-30 menit setiap harinya, dengan pilihan jenis olahraga yang sesuai dengan kebutuhan tubuh dan kesehatan</br>
-              <button type="button" class="btn btn-success btn-sm mt-0" id="btnCekDisiniWorkout1"><i class="fas fa-dumbbell"></i> Cek Disini</button>
+              <p><b>Rekomendasi Olahraga : </b>Olahraga 3-5 hari seminggu dengan durasi 20-30 menit setiap harinya, dengan pilihan jenis olahraga yang sesuai dengan kebutuhan tubuh dan kesehatan</p>
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniWorkout1"><i class="fas fa-dumbbell"></i> Cek Disini</button>
 
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Bergabunglah dengan berbagai komunitas olahraga, dimana orang-orangnya saling mendukung dan memotivasi satu sama lain</p>
@@ -705,20 +727,22 @@ body { background-color: #f8f9fa; }
                 <div id="olahragaResisten-list"></div>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout"><i class="fas fa-check-double"></i> Selesai</button>
-              <button type="button" class="btn btn-danger btn-sm ms-2" onclick="hideSubmenu('workoutContent1')"><i class="fas fa-times"></i> Tutup</button>
             </div>
           </div>
 
           <!-- Water Reminder Content -->
           <div class="submenu-content" id="waterReminderContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
-              <div class="card-title p-1 mb-2" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                <h6>Hari Ini Anda Minum Air Putih Berapa ?</h6>
-              </div> 
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mb-0">Hari Ini Anda Minum Air Putih Berapa ?</h6>
+                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('waterReminderContent1')" style="background: none; border: none; font-size: 18px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
 
               <h6><b>PANDUAN WATER REMINDER</b></h6>
-              <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</br>
-              <button type="button" class="btn btn-success btn-sm mt-0" id="btnCekDisiniAirMinum1"><i class="fas fa-prescription-bottle"></i> Cek Disini</button>
+              <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</p>
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniAirMinum1"><i class="fas fa-prescription-bottle"></i> Cek Disini</button>
                 
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Untuk mencukupi asupan air minum sehari</p>
@@ -732,20 +756,22 @@ body { background-color: #f8f9fa; }
                 <h6><b>ASUPAN AIR PUTIH PERHARI</b></h6> 
                 <div id="airputihRadioBtn"></div>
               </div>
-              <button type="button" class="btn btn-danger btn-sm mt-2" onclick="hideSubmenu('waterReminderContent1')"><i class="fas fa-times"></i> Tutup</button>
             </div>
           </div>
 
           <!-- Istirahat Content -->
           <div class="submenu-content" id="istirahatContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
-              <div class="card-title p-1 mb-2" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                <h6>Hari Ini Istirahatnya Berapa Lama ?</h6>
-              </div> 
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mb-0">Hari Ini Istirahatnya Berapa Lama ?</h6>
+                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('istirahatContent1')" style="background: none; border: none; font-size: 18px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
 
               <h6><b>PANDUAN ISTIRAHAT</b></h6>
-              <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</br>
-              <button type="button" class="btn btn-success btn-sm mt-0" id="btnCekDisiniIstirihat1"><i class="fas fa-bed"></i> Cek Disini</button>
+              <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</p>
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat1"><i class="fas fa-bed"></i> Cek Disini</button>
                 
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan anda istirahat dalam ruangan yang pencahayaannya redup, hening dan memiliki suhu ruang yang nyaman</p>
@@ -756,21 +782,23 @@ body { background-color: #f8f9fa; }
                 <h6><b>WAKTU ISTIRAHAT PER MALAM</b></h6> 
                 <div id="istirahatRadioBtn"></div>
               </div>
-              <button type="button" class="btn btn-danger btn-sm mt-2" onclick="hideSubmenu('istirahatContent1')"><i class="fas fa-times"></i> Tutup</button>
             </div>
           </div>
 
           <!-- Data Tracking Content -->
           <div class="submenu-content" id="dataTrackingContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
-              <div class="card-title p-1 mb-2" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                <h6>Lengkapi Data Kondisi Tubuh Anda !</h6>
-              </div> 
-              
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mb-0">Lengkapi Data Kondisi Tubuh Anda !</h6>
+                <button type="button" class="btn btn-sm text-white position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('dataTrackingContent1')" style="background: none; border: none; font-size: 18px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
               <h6><b>PANDUAN DATA TRACKING</b></h6>
-              <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-success btn-sm mt-0" id="btnCekDisiniDataTubuh1"><i class="fas fa-bed"></i> Cek Disini</button>
-              
+              <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</p>
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1"><i class="fas fa-bed"></i> Cek Disini</button>
+                
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami</p>
               </div>  
@@ -780,7 +808,6 @@ body { background-color: #f8f9fa; }
                 <h6><b>INPUT DATA KONDISI TUBUH</b></h6> 
                 <div id="kondisiTubuh"></div>
               </div>
-              <button type="button" class="btn btn-danger btn-sm mt-2" onclick="hideSubmenu('dataTrackingContent1')"><i class="fas fa-times"></i> Tutup</button>
             </div>
           </div>
 
