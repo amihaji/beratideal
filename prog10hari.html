@@ -113,6 +113,15 @@ body { background-color: #f8f9fa; }
 }
 .menu-content .pdf-container { max-height: 400px; overflow-y: auto; }
 
+/***** Playlist Container di Menu Accordion *****/
+.menu-content .playlist-container {
+    margin: 10px 0;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 400px;
+}
+
 /***** Submenu Content Styles *****/
 .submenu-content { border-radius: 8px; margin: 10px 0; display: none; }
 .submenu-trigger { cursor: pointer; }
@@ -842,18 +851,19 @@ body { background-color: #f8f9fa; }
             </button>
             <div class="collapse" id="healthyRecept" data-bs-parent="#menuAccordion">
               <div class="menu-content">
+                <!-- Playlist Link - PERBAIKAN DI SINI -->
                 <a href="https://www.youtube.com/playlist?list=PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item playlist-trigger" data-target="playlistHealthyRecept">
                   <i class="fas fa-play-circle"></i>Playlist Kreasi Resep Sehat
                 </a>
                 
-                <!-- Playlist Container (akan diisi secara dinamis) -->
-                <div class="playlist-container" id="playlistHealthyRecept">
+                <!-- Playlist Container -->
+                <div class="playlist-container" id="playlistHealthyRecept" style="display: none;">
                   <!-- Playlist items akan diisi oleh JavaScript -->
                 </div>
                 
                 <!-- Video Player untuk Healthy Recept -->
-                <div class="video-container" id="videoContainerHealthyRecept">
+                <div class="video-container" id="videoContainerHealthyRecept" style="display: none;">
                   <button class="close-video" onclick="closeVideo('healthyRecept')">
                     <i class="fas fa-times"></i>
                   </button>
@@ -995,38 +1005,41 @@ document.addEventListener('DOMContentLoaded', function() {
 * Update event listener di DOMContentLoaded
 ********************************************/
 document.addEventListener('DOMContentLoaded', function() {
-    // Submenu triggers
-    document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-        trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.getAttribute('data-target');
-            showSubmenu(target);
-        });
+  // Submenu triggers
+  document.querySelectorAll('.submenu-trigger').forEach(trigger => {
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-target');
+      showSubmenu(target);
     });
-    
-    // Setup video links
-    setupAllLinks();
-    
-    // Setup PDF links khusus untuk menu Panduan
-    setupPanduanPDFLinks();
-    
-    // About overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    
-    // Cek login status
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        loginMenuItem.innerHTML = `
-            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        `;
-    }
-    
-    // Initialize video players
-    initializeAllVideoPlayers();
-    console.log('✅ App initialized successfully');
+  });
+  
+  // Setup video links
+  setupAllLinks();
+  
+  // Setup PDF links khusus untuk menu Panduan
+  setupPanduanPDFLinks();
+  
+  // Setup playlist triggers
+  setupPlaylistTriggers();
+  
+  // About overlay
+  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+  
+  // Cek login status
+  const userToken = localStorage.getItem('userToken');
+  if (userToken) {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    loginMenuItem.innerHTML = `
+      <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    `;
+  }
+  
+  // Initialize video players
+  initializeAllVideoPlayers();
+  console.log('✅ App initialized successfully');
 });
 
 /*****************
@@ -1457,107 +1470,174 @@ function getProvenVideos() {
     ];
 }
 
-/******************************
-* Show playlist dari JSON data
-*******************************/
-async function showPlaylist(section, playlistUrl) {
-    const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
-    if (!playlistContainer) {
-        console.error('Playlist container not found');
-        return;
-    }
-    
-    // Tampilkan loading
-    playlistContainer.innerHTML = `
-        <div class="playlist-loading">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <div class="mt-2">Memuat daftar video...</div>
-        </div>
-    `;
-    playlistContainer.style.display = 'block';
-    
-    try {
-        const playlistItems = await loadPlaylistData();
-        
-        if (!playlistItems || playlistItems.length === 0) {
-            throw new Error('Tidak ada data video');
-        }
-        
-        renderPlaylist(playlistContainer, playlistItems, section);
-        
-    } catch (error) {
-        console.error('Error showing playlist:', error);
-        // Fallback ke proven videos
-        const provenVideos = getProvenVideos();
-        renderPlaylist(playlistContainer, provenVideos, section);
-        showToast('⚠️ Menggunakan data lokal', 'info');
-    }
+/**************************
+* Fungsi untuk Playlist Triggers
+***************************/
+function setupPlaylistTriggers() {
+  document.querySelectorAll('.playlist-trigger').forEach(trigger => {
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-target');
+      const playlistUrl = this.getAttribute('href');
+      showPlaylistInSection(target, playlistUrl, this);
+    });
+  });
 }
 
-/***********************
-* Render playlist items
-************************/
+/******************************
+* Show playlist di section yang tepat
+*******************************/
+async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
+  const playlistContainer = document.getElementById(targetId);
+  if (!playlistContainer) {
+    console.error('Playlist container not found:', targetId);
+    return;
+  }
+  
+  // Sembunyikan semua konten lain
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  document.querySelectorAll('.video-container').forEach(video => {
+    video.style.display = 'none';
+  });
+  document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+    pdf.style.display = 'none';
+  });
+  document.querySelectorAll('.playlist-container').forEach(playlist => {
+    playlist.style.display = 'none';
+  });
+  
+  // Tampilkan loading
+  playlistContainer.innerHTML = `
+    <div class="playlist-loading">
+      <div class="spinner-border spinner-border-sm" role="status"></div>
+      <div class="mt-2">Memuat daftar video...</div>
+    </div>
+  `;
+  playlistContainer.style.display = 'block';
+  
+  // Tempatkan playlist container setelah trigger element
+  if (triggerElement && triggerElement.parentNode) {
+    triggerElement.parentNode.insertBefore(playlistContainer, triggerElement.nextSibling);
+  }
+  
+  try {
+    const playlistItems = await loadPlaylistData();
+    
+    if (!playlistItems || playlistItems.length === 0) {
+      throw new Error('Tidak ada data video');
+    }
+    
+    renderPlaylist(playlistContainer, playlistItems, 'healthyRecept');
+    
+  } catch (error) {
+    console.error('Error showing playlist:', error);
+    // Fallback ke proven videos
+    const provenVideos = getProvenVideos();
+    renderPlaylist(playlistContainer, provenVideos, 'healthyRecept');
+    showToast('⚠️ Menggunakan data lokal', 'info');
+  }
+}
+
+/************************************************
+* Update fungsi showPlaylist untuk compatibility
+*************************************************/
+async function showPlaylist(section, playlistUrl) {
+  const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+  const triggerElement = document.querySelector(`[data-target="playlist${capitalizeFirst(section)}"]`);
+  
+  if (playlistContainer && triggerElement) {
+    await showPlaylistInSection(`playlist${capitalizeFirst(section)}`, playlistUrl, triggerElement);
+  }
+}
+
+/*******************************************
+* Render playlist items dengan tombol close
+********************************************/
 function renderPlaylist(container, items, section) {
-    container.innerHTML = '';
-    
-    // Header
-    const header = document.createElement('div');
-    header.className = 'playlist-header';
-    header.style.padding = '12px 15px';
-    header.style.borderBottom = '1px solid #dee2e6';
-    header.style.background = '#f8f9fa';
-    header.style.fontWeight = '600';
-    header.innerHTML = `
-        <div>
-            <i class="fas fa-list-ul me-2"></i>Playlist Healthy Snacking
-            <div style="font-size: 12px; color: #666; font-weight: normal; margin-top: 2px;">
-                ${items.length} video tersedia
-            </div>
+  container.innerHTML = '';
+  
+  // Header dengan tombol close
+  const header = document.createElement('div');
+  header.className = 'playlist-header position-relative';
+  header.style.padding = '12px 15px';
+  header.style.borderBottom = '1px solid #dee2e6';
+  header.style.background = '#f8f9fa';
+  header.style.fontWeight = '600';
+  header.innerHTML = `
+    <div>
+      <i class="fas fa-list-ul me-2"></i>Playlist Healthy Snacking
+      <div style="font-size: 12px; color: #666; font-weight: normal; margin-top: 2px;">
+        ${items.length} video tersedia
+      </div>
+    </div>
+    <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hidePlaylist('${container.id}')">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  container.appendChild(header);
+  
+  // Render playlist items
+  items.forEach((item, index) => {
+    const playlistItem = document.createElement('div');
+    playlistItem.className = 'playlist-item';
+    playlistItem.style.cursor = 'pointer';
+    playlistItem.innerHTML = `
+      <div class="playlist-thumbnail">
+        <img src="${item.thumbnail}" alt="${item.title}" 
+             loading="lazy"
+             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjY4IiB2aWV3Qm94PSIwIDAgMTIwIDY4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNjgiIGZpbGw9IiNlZGVkZWQiLz48dGV4dCB4PSI2MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+VGh1bWJuYWlsPC90ZXh0Pjwvc3ZnPg=='">
+        <div class="position-badge">${index + 1}</div>
+      </div>
+      <div class="playlist-info">
+        <div class="playlist-title">${item.title}</div>
+        <div class="playlist-meta">
+          ${item.duration ? `<span class="playlist-duration"><i class="fas fa-clock me-1"></i>${item.duration}</span>` : ''}
+          <span class="playlist-position">Video ${index + 1}</span>
         </div>
+      </div>
     `;
-    container.appendChild(header);
     
-    // Render playlist items
-    items.forEach((item, index) => {
-        const playlistItem = document.createElement('div');
-        playlistItem.className = 'playlist-item';
-        playlistItem.style.cursor = 'pointer';
-        playlistItem.innerHTML = `
-            <div class="playlist-thumbnail">
-                <img src="${item.thumbnail}" alt="${item.title}" 
-                     loading="lazy"
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjY4IiB2aWV3Qm94PSIwIDAgMTIwIDY4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNjgiIGZpbGw9IiNlZGVkZWQiLz48dGV4dCB4PSI2MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+VGh1bWJuYWlsPC90ZXh0Pjwvc3ZnPg=='">
-                <div class="position-badge">${index + 1}</div>
-            </div>
-            <div class="playlist-info">
-                <div class="playlist-title">${item.title}</div>
-                <div class="playlist-meta">
-                    ${item.duration ? `<span class="playlist-duration"><i class="fas fa-clock me-1"></i>${item.duration}</span>` : ''}
-                    <span class="playlist-position">Video ${index + 1}</span>
-                </div>
-            </div>
-        `;
-        
-        playlistItem.onclick = function() {
-            playVideoFromPlaylist(section, item.videoId, item.title);
-        };
-        
-        container.appendChild(playlistItem);
-    });
+    playlistItem.onclick = function() {
+      playVideoFromPlaylist(section, item.videoId, item.title);
+    };
     
-    // Footer
-    const footer = document.createElement('div');
-    footer.className = 'playlist-footer';
-    footer.style.padding = '10px 15px';
-    footer.style.borderTop = '1px solid #dee2e6';
-    footer.style.fontSize = '12px';
-    footer.style.color = '#666';
-    footer.style.textAlign = 'center';
-    footer.style.background = '#f8f9fa';
-    footer.innerHTML = `
-        <div><i class="fas fa-database me-1"></i>Data update • ${new Date().toLocaleDateString('id-ID')}</div>
-    `;
-    container.appendChild(footer);
+    container.appendChild(playlistItem);
+  });
+  
+  // Footer
+  const footer = document.createElement('div');
+  footer.className = 'playlist-footer';
+  footer.style.padding = '10px 15px';
+  footer.style.borderTop = '1px solid #dee2e6';
+  footer.style.fontSize = '12px';
+  footer.style.color = '#666';
+  footer.style.textAlign = 'center';
+  footer.style.background = '#f8f9fa';
+  footer.innerHTML = `
+    <div><i class="fas fa-database me-1"></i>Data update • ${new Date().toLocaleDateString('id-ID')}</div>
+  `;
+  container.appendChild(footer);
+}
+
+/**********************
+* Fungsi Hide Playlist
+***********************/
+function hidePlaylist(playlistId) {
+  const playlistContainer = document.getElementById(playlistId);
+  if (playlistContainer) {
+    playlistContainer.style.display = 'none';
+    
+    // Kembalikan ke posisi semula jika perlu
+    const healthyReceptContent = document.getElementById('healthyRecept');
+    if (healthyReceptContent && playlistId === 'playlistHealthyRecept') {
+      const menuContent = healthyReceptContent.querySelector('.menu-content');
+      if (menuContent) {
+        menuContent.appendChild(playlistContainer);
+      }
+    }
+  }
 }
 
 /**************************
