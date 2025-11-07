@@ -966,9 +966,12 @@ body { background-color: #f8f9fa; }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script>
-// *********************************************
-// CONFIGURATION
-// *********************************************
+
+// **********************************
+// ***** FUNGSI UTAMA APLIKASI ******
+// **********************************
+
+// Konfigurasi
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -983,6 +986,17 @@ function showAbout() {
 *******************/  
 function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+/*****************
+/ Logout function 
+******************/
+function logout() {
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('userLevel');
+  sessionStorage.removeItem('aksesList');
+  window.location.reload();
 }
 
 // ***********************
@@ -1039,9 +1053,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/*******************************************
-* Update event listener di DOMContentLoaded
-********************************************/
+/***********************************
+* Event listener di DOMContentLoaded
+************************************/
 document.addEventListener('DOMContentLoaded', function() {
   // Submenu triggers
   document.querySelectorAll('.submenu-trigger').forEach(trigger => {
@@ -1080,20 +1094,10 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('✅ App initialized successfully');
 });
 
-/*****************
-/ Logout function 
-******************/
-function logout() {
-  localStorage.removeItem('userId');
-  localStorage.removeItem('userToken');
-  localStorage.removeItem('userLevel');
-  sessionStorage.removeItem('aksesList');
-  window.location.reload();
-}
 
-// ***************************
-// VIDEO PLAYER CORE FUNCTIONS 
-// ***************************
+// ********************************
+// ***** FUNGSI VIDEO PLAYER ******
+// ********************************
 let currentVideoData = {};
 
 /***********************************
@@ -1102,7 +1106,7 @@ let currentVideoData = {};
 function initializeAllVideoPlayers() {
   console.log('Initializing video players...');
   
-  setupAllVideoLinks();
+  // setupAllVideoLinks();
   
   // Setup video placeholder click events
   document.querySelectorAll('.video-placeholder').forEach(placeholder => {
@@ -1120,28 +1124,8 @@ function initializeAllVideoPlayers() {
   });
 }
 
-/**************************
-* Fungsi Setup Link Video 
-***************************/ 
-function setupVideoLinksForSection(section, linkConfigs) {
-    const menuContent = document.getElementById(section + 'Content');
-    if (!menuContent) return;
-    
-    linkConfigs.forEach(config => {
-        const link = menuContent.querySelector(config.selector);
-        if (link) {
-            link.onclick = function(e) {
-                e.preventDefault();
-                const videoUrl = this.getAttribute('href');
-                const title = this.textContent.trim();
-                loadVideo(section, config.type, videoUrl, title);
-            };
-        }
-    });
-}
-
-/********************************
-* Fungsi untuk Setup Semua Links
+/*******************************
+* Setup Semua Link Video dan PDF
 ********************************/
 function setupAllLinks() {
   // Setup video links
@@ -1188,71 +1172,9 @@ function setupAllLinks() {
   setupPDFLinks();
 }
 
-/**************************
-* Fungsi untuk PDF Links
-***************************/
-function setupPDFLinks() {
-  document.querySelectorAll('.pdf-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const section = this.getAttribute('data-section');
-      const pdfUrl = this.getAttribute('data-url');
-      const title = this.textContent.trim();
-      
-      // Sembunyikan semua video container
-      document.querySelectorAll('.video-container').forEach(video => {
-        video.style.display = 'none';
-      });
-      
-      // Sembunyikan semua submenu content
-      document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      
-      // Sembunyikan semua PDF viewer terlebih dahulu
-      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-      });
-      
-      // Load PDF
-      loadPDF(section, pdfUrl, title);
-      
-      // Tampilkan PDF viewer di posisi yang tepat
-      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-      if (pdfViewer) {
-        pdfViewer.style.display = 'block';
-        
-        // Sisipkan PDF viewer setelah link PDF yang diklik
-        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
-      }
-    });
-  });
-}
-
-/***********************
-* Fungsi Setup Link PDF 
-************************/ 
-function setupPDFLinksForSection(section, linkConfigs) {
-    const menuContent = document.getElementById(section + 'Content');
-    if (!menuContent) return;
-    
-    linkConfigs.forEach(config => {
-        const link = menuContent.querySelector(config.selector);
-        if (link) {
-            link.onclick = function(e) {
-                e.preventDefault();
-                const pdfUrl = this.getAttribute('href');
-                const title = this.textContent.trim();
-                loadPDF(section, pdfUrl, title);
-            };
-        }
-    });
-}
-
-/********************
-* Fungsi Load Video
-*********************/ 
+/****************************************
+* Fungsi Memuat Video Berdasarkan Section
+*****************************************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
     console.log('loadVideo called:', { section, videoType, videoUrl, title });
     
@@ -1304,9 +1226,9 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     }, 500);
 }
 
-/********************
-* Fungsi Play Video 
-*********************/
+/*******************************
+* Memutar Video yang sudah dimuat
+********************************/
 function playVideo(section) {
     console.log('playVideo called for section:', section);
     
@@ -1338,9 +1260,9 @@ function playVideo(section) {
     }, 1000);
 }
 
-/***************************
-* Fungsi Load Video Youtube 
-****************************/
+/*********************
+* Memuat Video Youtube 
+**********************/
 function loadYouTubeVideo(videoPlayer, url) {
     const videoId = extractYouTubeId(url);
     console.log('YouTube ID extracted:', videoId);
@@ -1364,9 +1286,9 @@ function loadYouTubeVideo(videoPlayer, url) {
     }
 }
 
-/*************************
-* Fungsi Load Local Video 
-**************************/
+/*******************
+* Memuat Video Local
+********************/
 function loadLocalVideo(videoPlayer, url) {
     console.log('Creating local video element for:', url);
     videoPlayer.innerHTML = `
@@ -1390,7 +1312,7 @@ function loadLocalVideo(videoPlayer, url) {
 }
 
 /***************************
-* Fungsi Extract ID Youtube 
+* Ekstrak ID dari URL YouTube
 ****************************/
 function extractYouTubeId(url) {
     console.log('Extracting YouTube ID from:', url);
@@ -1414,9 +1336,9 @@ function extractYouTubeId(url) {
     return null;
 }
 
-/*********************
-* Fungsi Close Video 
-**********************/
+/*********************************
+* Tutup Video di Section Tertentu
+**********************************/
 function closeVideo(section) {
     console.log('Closing video for section:', section);
     
@@ -1445,9 +1367,9 @@ function closeVideo(section) {
     currentVideoData = {};
 }
 
-/**************************
-* Fungsi Close All Video 
-***************************/
+/***************************************
+* Tutup Semua Video yang sedang diputar
+***************************************/
 function closeAllVideos() {
     console.log('Closing all videos');
     const videoContainers = document.querySelectorAll('.video-container');
@@ -1461,9 +1383,14 @@ function closeAllVideos() {
     closeAllPDFs();
 }
 
-/***********************************
-* Load playlist data dari JSON file
-************************************/
+
+// ****************************
+// ***** FUNGSI PLAYLIST ******
+/******************************
+ 
+/************************************
+* Memuat data playlist dari File JSon
+*************************************/
 async function loadPlaylistData() {
     try {
         console.log('📥 Loading playlist data from JSON...');
@@ -1485,7 +1412,7 @@ async function loadPlaylistData() {
 }
 
 /********************************
-* Proven videos sebagai fallback
+* Fallback Video Jika JSon Error
 *********************************/
 function getProvenVideos() {
     return [
@@ -1508,9 +1435,9 @@ function getProvenVideos() {
     ];
 }
 
-/**************************
-* Fungsi untuk Playlist Triggers
-***************************/
+/***********************
+* Setup Trigger Playlist 
+************************/
 function setupPlaylistTriggers() {
   document.querySelectorAll('.playlist-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
@@ -1522,11 +1449,8 @@ function setupPlaylistTriggers() {
   });
 }
 
-/************************************
-* Show playlist di section yang tepat
-*************************************/
 /******************************
-* Show playlist di section yang tepat
+* Tampilkan Playlist di Section 
 *******************************/
 async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   const playlistContainer = document.getElementById(targetId);
@@ -1548,13 +1472,6 @@ async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   document.querySelectorAll('.playlist-container').forEach(playlist => {
     playlist.style.display = 'none';
   });
-  
-  // HAPUS BAGIAN INI - tidak perlu tombol close terpisah
-  // Tampilkan tombol close playlist
-  // const playlistCloseBtn = document.getElementById('playlistCloseBtn');
-  // if (playlistCloseBtn) {
-  //   playlistCloseBtn.style.display = 'block';
-  // }
   
   // Tampilkan loading
   playlistContainer.innerHTML = `
@@ -1588,21 +1505,6 @@ async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   }
 }
 
-/************************************************
-* Update fungsi showPlaylist untuk compatibility
-*************************************************/
-async function showPlaylist(section, playlistUrl) {
-  const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
-  const triggerElement = document.querySelector(`[data-target="playlist${capitalizeFirst(section)}"]`);
-  
-  if (playlistContainer && triggerElement) {
-    await showPlaylistInSection(`playlist${capitalizeFirst(section)}`, playlistUrl, triggerElement);
-  }
-}
-
-/*******************************************
-* Render playlist items dengan tombol close
-********************************************/
 /***********************
 * Render playlist items dengan tombol close
 ************************/
@@ -1673,6 +1575,18 @@ function renderPlaylist(container, items, section) {
   container.appendChild(footer);
 }
 
+/************************************************
+* Update fungsi showPlaylist untuk compatibility
+*************************************************/
+async function showPlaylist(section, playlistUrl) {
+  const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
+  const triggerElement = document.querySelector(`[data-target="playlist${capitalizeFirst(section)}"]`);
+  
+  if (playlistContainer && triggerElement) {
+    await showPlaylistInSection(`playlist${capitalizeFirst(section)}`, playlistUrl, triggerElement);
+  }
+}
+
 /**********************
 * Fungsi Hide Playlist
 ***********************/
@@ -1694,7 +1608,7 @@ function hidePlaylist(playlistId) {
 }
 
 /**************************
-* Play video dari playlist
+* Putar Video dari Playlist
 ***************************/
 function playVideoFromPlaylist(section, videoId, title) {
     console.log('🎬 Playing video from playlist:', { section, videoId, title });
@@ -1733,63 +1647,56 @@ function playVideoFromPlaylist(section, videoId, title) {
     }, 600);
 }
 
-// ====================
-// UTILITY FUNCTIONS
-// ====================
-
-/*******************************
-* Fungsi Untuk Huruf Awal Besar
-********************************/ 
-function capitalizeFirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-/*****************************
-* Fungsi extrack ID Playlist
-******************************/ 
-function extractPlaylistId(url) {
-    const match = url.match(/[&?]list=([^&]+)/);
-    return match ? match[1] : null;
-}
-
-/*************************
-* Fungsi tampilkan pesan
-**************************/ 
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        font-size: 14px;
-        max-width: 300px;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
-}
-
-// **********************
-// PDF VIEWER FUNCTIONS 
-// **********************
+// *****************************
+// ***** FUNGSI PDF VIEWER *****
+// *****************************
 let currentPDFData = {};
 
-/********************
-* Fungsi Load PDF
-*********************/ 
-/********************
-* Fungsi Load PDF (DIPERBAIKI)
-*********************/ 
+/**********************
+* Fungsi Setup PDF Link
+***********************/
+function setupPDFLinks() {
+  document.querySelectorAll('.pdf-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const pdfUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua video container
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      
+      // Sembunyikan semua submenu content
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Sembunyikan semua PDF viewer terlebih dahulu
+      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+      });
+      
+      // Load PDF
+      loadPDF(section, pdfUrl, title);
+      
+      // Tampilkan PDF viewer di posisi yang tepat
+      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+      if (pdfViewer) {
+        pdfViewer.style.display = 'block';
+        
+        // Sisipkan PDF viewer setelah link PDF yang diklik
+        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
+      }
+    });
+  });
+}
+
+/****************************
+* Memuat dan Menampilkan PDF
+****************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
@@ -1836,9 +1743,9 @@ function loadPDF(section, pdfUrl, title = '') {
     }, 500);
 }
 
-/**************************
-* Fungsi untuk Setup PDF Links di Menu Panduan
-***************************/
+/*************************************
+* Setup link PDF - khusus Menu Panduan
+**************************************/
 function setupPanduanPDFLinks() {
     const panduanContent = document.getElementById('panduanContent');
     if (!panduanContent) return;
@@ -1858,52 +1765,9 @@ function setupPanduanPDFLinks() {
     }
 }
 
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('loadPDF called:', { section, pdfUrl, title });
-    
-    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    const pdfTitle = document.getElementById(`pdfTitle${capitalizeFirst(section)}`);
-    
-    if (!pdfViewer || !pdfContainer) return;
-    
-    // Close video dan PDF lain
-    closeAllVideos();
-    closeAllPDFs();
-    
-    // Reset previous PDF
-    pdfContainer.innerHTML = '';
-    currentPDFData = {
-        section: section,
-        url: pdfUrl,
-        title: title
-    };
-    
-    // Update title
-    if (pdfTitle) {
-        pdfTitle.textContent = title;
-    }
-    
-    // Show loading
-    pdfContainer.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <div class="mt-2">Memuat PDF, tunggu...</div>
-        </div>
-    `;
-    
-    // Show PDF viewer
-    pdfViewer.style.display = 'block';
-    
-    // Load PDF setelah ditampilkan
-    setTimeout(() => {
-        displayPDF(section, pdfUrl, title);
-    }, 500);
-}
-
-/********************
-* Fungsi Display PDF 
-*********************/
+/****************
+* Menampilkan PDF
+*****************/
 function displayPDF(section, pdfUrl, title) {
     console.log('Displaying PDF with PDF.js:', pdfUrl);
     
@@ -1924,9 +1788,9 @@ function displayPDF(section, pdfUrl, title) {
     }
 }
 
-/*********************************
-* Fungsi Display PDF dengan PDF.js
-**********************************/
+/******************************
+* Menampilkan PDF dengan PDF.js
+*******************************/
 function displayPDFWithPDFJS(section, pdfUrl, title) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -2044,9 +1908,9 @@ function displayPDFWithPDFJS(section, pdfUrl, title) {
     });
 }
 
-/********************
-* Fungsi Opsi Mobile 
-*********************/
+/*********************************
+* Tampilkan Opsi PDF untuk Mobile
+*********************************/
 function showMobilePDFOptions(section, pdfUrl, title) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -2079,9 +1943,9 @@ function showMobilePDFOptions(section, pdfUrl, title) {
     `;
 }
 
-/***************************
-* Fungsi Fallback ke Iframe
-****************************/
+/*************************************
+* Fallback ke Iframe Jika PDF.js Gagal
+**************************************/
 function fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
@@ -2113,7 +1977,7 @@ function fallbackToIframe(section, pdfUrl) {
 /*******************************
 * Fungsi Fallback untuk Mobile
 ********************************/
-function fallbackPDFMobile(section, pdfUrl) {
+function BACKUP_fallbackPDFMobile(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
     pdfContainer.innerHTML = `
@@ -2132,9 +1996,9 @@ function fallbackPDFMobile(section, pdfUrl) {
     `;
 }
 
-/****************************
-* Fungsi Open PDF in New Tab
-****************************/
+/*********************
+* Buka PDF di Tab Baru
+**********************/
 function openPDFInNewTab(section) {
     if (currentPDFData.url) {
         window.open(currentPDFData.url, '_blank');
@@ -2169,9 +2033,9 @@ function handlePDFError(section) {
     }
 }
 
-/*******************
-* Fungsi Close PDF
-********************/
+/******************
+* Tutup PDF Viewer
+*******************/
 function closePDF(section) {
     console.log('Closing PDF for section:', section);
     
@@ -2188,10 +2052,7 @@ function closePDF(section) {
 }
 
 /************************
-* Fungsi Close All PDFs
-*************************/
-/************************
-* Fungsi Close All PDFs (DIPERBAIKI)
+* Tutup Semua PDF Viewer
 *************************/
 function closeAllPDFs() {
     console.log('Closing all PDFs');
@@ -2211,16 +2072,106 @@ function closeAllPDFs() {
     }
 }
 
-function BACKUP_closeAllPDFs() {
-    console.log('Closing all PDFs');
-    const pdfViewers = document.querySelectorAll('.pdf-viewer');
-    pdfViewers.forEach(viewer => {
-        const section = viewer.id.replace('pdfViewer', '');
-        if (section) {
-            closePDF(section.toLowerCase());
-        }
-    });
+
+// ********************************
+// ***** FUNGSI SUMNEU DAN UI *****
+/**********************************
+
+/*******************
+* Tampilkan Submenu
+*******************/
+function showSubmenu(targetId) {
+  // Sembunyikan semua submenu content dan video player
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    content.style.display = 'none';
+  });
+  document.querySelectorAll('.video-container').forEach(video => {
+    video.style.display = 'none';
+  });
+  
+  // Tampilkan submenu yang dipilih
+  const targetContent = document.getElementById(targetId);
+  if (targetContent) {
+    targetContent.style.display = 'block';
+    
+    // Cari posisi yang tepat untuk menampilkan konten
+    const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
+    if (triggerElement) {
+      // Sisipkan konten setelah trigger element
+      triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
+    }
+    
+    // Scroll ke konten yang ditampilkan
+    setTimeout(() => {
+      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
 }
+
+/**********************
+* Sembunyikan Submenu
+***********************/
+function hideSubmenu(targetId) {
+  const targetContent = document.getElementById(targetId);
+  if (targetContent) {
+    targetContent.style.display = 'none';
+    // Kembalikan ke posisi semula (setelah accordion)
+    const menuAccordion = document.getElementById('menuAccordion');
+    if (menuAccordion) {
+      menuAccordion.parentNode.insertBefore(targetContent, menuAccordion.nextSibling);
+    }
+  }
+}
+
+// *****************************
+// ***** UTILITY FUNCTIONS *****
+// *****************************
+
+/**********************************
+* Kapitalisasi Untuk Huruf Pertama
+***********************************/ 
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/*****************************
+* Ekstrak ID Playlist dari URL
+******************************/ 
+function extractPlaylistId(url) {
+    const match = url.match(/[&?]list=([^&]+)/);
+    return match ? match[1] : null;
+}
+
+/************************
+* Fungsi tampilkan pesan
+*************************/ 
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 14px;
+        max-width: 300px;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+// *********************************
+// ***** FUNGSI - FUNGSI FORM  *****
+// *********************************
 
 /******************
 * Jadwal Meal Plan
@@ -2512,53 +2463,13 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }                 
 
-/***********************
-* Fungsi untuk Submenu
-************************/
-function showSubmenu(targetId) {
-  // Sembunyikan semua submenu content dan video player
-  document.querySelectorAll('.submenu-content').forEach(content => {
-    content.style.display = 'none';
-  });
-  document.querySelectorAll('.video-container').forEach(video => {
-    video.style.display = 'none';
-  });
-  
-  // Tampilkan submenu yang dipilih
-  const targetContent = document.getElementById(targetId);
-  if (targetContent) {
-    targetContent.style.display = 'block';
-    
-    // Cari posisi yang tepat untuk menampilkan konten
-    const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
-    if (triggerElement) {
-      // Sisipkan konten setelah trigger element
-      triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
-    }
-    
-    // Scroll ke konten yang ditampilkan
-    setTimeout(() => {
-      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-}
 
-function hideSubmenu(targetId) {
-  const targetContent = document.getElementById(targetId);
-  if (targetContent) {
-    targetContent.style.display = 'none';
-    // Kembalikan ke posisi semula (setelah accordion)
-    const menuAccordion = document.getElementById('menuAccordion');
-    if (menuAccordion) {
-      menuAccordion.parentNode.insertBefore(targetContent, menuAccordion.nextSibling);
-    }
-  }
-}
+
 
 /**************************
 * Fungsi untuk Video Links
 ***************************/
-function setupVideoLinks() {
+function  BACKUP_setupVideoLinks() {
   document.querySelectorAll('.video-link').forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -2601,7 +2512,7 @@ function setupVideoLinks() {
 /*************************************************
 * Fungsi untuk Setup Video Links di Semua Section
 *************************************************/
-function setupAllVideoLinks() {
+function BACKUP_setupAllVideoLinks() {
   // Setup untuk panduan aplikasi
   setupVideoLinksForSection('panduan', [
     { selector: 'a[href*="canva.com"]', type: 'canva' },
