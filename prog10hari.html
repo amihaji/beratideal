@@ -612,7 +612,7 @@ body { background-color: #f8f9fa; }
                   class="menu-item video-link" data-section="perkenalan" data-type="youtube" data-url="https://www.youtube.com/watch?v=9DoHhx9jlGM">
                   <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife
                 </a>
-                
+
                 <!-- Local Video - PERBAIKAN DI SINI -->
                 <a href="video/Live Best Your Best Life ! - 360.mp4" 
                   class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
@@ -2612,7 +2612,9 @@ function setupAllVideoLinks() {
   // Setup untuk perkenalan
   setupVideoLinksForSection('perkenalan', [
     { selector: 'a[href*="canva.com"]', type: 'canva' },
-    { selector: 'a.video-link[data-section="perkenalan"]', type: 'dynamic' }
+    { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+    { selector: 'a[href*=".mp4"]', type: 'local' }
+    // { selector: 'a.video-link[data-section="perkenalan"]', type: 'dynamic' }
   ]);
   
   // Setup untuk pertemuan 1 - 10
