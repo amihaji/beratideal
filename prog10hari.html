@@ -547,27 +547,18 @@ body { background-color: #f8f9fa; }
               <div class="menu-content">
                 <!-- Tampilkan Video Link Canva -->
                 <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item" target="_blank">
                   <i class="fas fa-video"></i>1. Perkenalan dengan Personal Diet Partner
                 </a>
+                
                 <!-- Tampilkan Video Link Youtube -->
                 <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item video-link" data-section="perkenalan" data-type="youtube" data-url="https://www.youtube.com/watch?v=9DoHhx9jlGM">
                   <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife
                 </a>
-                <!-- Tampilkan Video Link Folder  -->
-                <a href="video/Live Best Your Best Life ! - 360.mp4" 
-                  class="menu-item" onclick="return false;">
-                  <i class="fas fa-video"></i>3. Live Best Your Best Life !
-                </a>
-                <!-- Selesai Perkenalan -->
-                <a href="#" 
-                  class="menu-item" onclick="return false;">
-                  <i class="fas fa-check-double"></i>Selesai Perkenalan
-                </a>      
-
-                <!-- Video Player untuk Perkenalan -->
-                <div class="video-container" id="videoContainerPerkenalan">
+                
+                <!-- Video Player untuk Perkenalan - DITEMPATKAN DI SINI -->
+                <div class="video-container" id="videoContainerPerkenalan" style="display: none;">
                   <button class="close-video" onclick="closeVideo('perkenalan')">
                     <i class="fas fa-times"></i>
                   </button>
@@ -582,7 +573,20 @@ body { background-color: #f8f9fa; }
                       </div>
                     </div>
                     <div id="videoPlayerPerkenalan"></div>
+                  </div>
                 </div>
+                
+                <!-- Tampilkan Video Link Folder -->
+                <a href="video/Live Best Your Best Life ! - 360.mp4" 
+                  class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
+                  <i class="fas fa-video"></i>3. Live Best Your Best Life !
+                </a>
+                
+                <!-- Selesai Perkenalan -->
+                <a href="#" 
+                  class="menu-item">
+                  <i class="fas fa-check-double"></i>Selesai Perkenalan
+                </a>      
               </div>
             </div>
           </div>
@@ -980,30 +984,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/*************************************
-* Cek status login saat halaman dimuat
-**************************************/
-document.addEventListener('DOMContentLoaded', function () {
-    // About overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    
-    // Cek login status
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        loginMenuItem.innerHTML = `
-            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        `;
-    }
-    
-    // Initialize video players
-    initializeAllVideoPlayers();
-    console.log('✅ App initialized successfully');
-
-});
-
 /*****************
 / Logout function 
 ******************/
@@ -1024,6 +1004,28 @@ let currentVideoData = {};
 * Fungsi Initialisasi Seluruh video
 ************************************/ 
 function initializeAllVideoPlayers() {
+  console.log('Initializing video players...');
+  
+  setupAllVideoLinks();
+  
+  // Setup video placeholder click events
+  document.querySelectorAll('.video-placeholder').forEach(placeholder => {
+    const section = placeholder.closest('.video-container').id.replace('videoContainer', '');
+    placeholder.addEventListener('click', function() {
+      playVideo(section);
+    });
+  });
+  
+  // Close video dengan ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && currentVideoData.section) {
+      closeVideo(currentVideoData.section);
+    }
+  });
+}
+
+//------------------------------------------
+function BACKUP_initializeAllVideoPlayers() {
     console.log('Initializing video players...');
 
     // Setup untuk panduan aplikasi
@@ -2283,6 +2285,74 @@ function setupVideoLinks() {
         content.style.display = 'none';
       });
       
+      // Sembunyikan semua video container terlebih dahulu
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      
+      // Load video
+      loadVideo(section, videoType, videoUrl, title);
+      
+      // Tampilkan video player di posisi yang tepat
+      const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+      if (videoContainer) {
+        videoContainer.style.display = 'block';
+        
+        // Sisipkan video container setelah link video yang diklik
+        this.parentNode.insertBefore(videoContainer, this.nextSibling);
+        
+        // Auto play video
+        setTimeout(() => {
+          playVideo(section);
+        }, 500);
+      }
+    });
+  });
+}
+
+/*************************************************
+* Fungsi untuk Setup Video Links di Semua Section
+*************************************************/
+function setupAllVideoLinks() {
+  // Setup untuk panduan aplikasi
+  setupVideoLinksForSection('panduan', [
+    { selector: 'a[href*="canva.com"]', type: 'canva' },
+    { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+    { selector: 'a[href*=".mp4"]', type: 'local' }
+  ]);
+  
+  // Setup untuk perkenalan
+  setupVideoLinksForSection('perkenalan', [
+    { selector: 'a[href*="canva.com"]', type: 'canva' },
+    { selector: 'a.video-link[data-section="perkenalan"]', type: 'dynamic' }
+  ]);
+  
+  // Setup untuk pertemuan 1 - 10
+  for (let i = 1; i <= 10; i++) {
+    setupVideoLinksForSection(`pertemuan${i}`, [
+      { selector: 'a[href*="canva.com"]', type: 'canva' },
+      { selector: 'a[href*="youtube.com"]', type: 'youtube' },
+      { selector: 'a[href*=".mp4"]', type: 'local' }
+    ]);
+  }
+}
+
+//-----------------------------------
+function BACKUP_setupVideoLinks() {
+  document.querySelectorAll('.video-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const videoType = this.getAttribute('data-type');
+      const videoUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua submenu content
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
       // Load video
       loadVideo(section, videoType, videoUrl, title);
       
@@ -2303,8 +2373,11 @@ function setupVideoLinks() {
   });
 }
 
-// Update event listener di DOMContentLoaded
+/*******************************************
+* Update event listener di DOMContentLoaded
+********************************************/
 document.addEventListener('DOMContentLoaded', function() {
+  
   // Submenu triggers
   document.querySelectorAll('.submenu-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
@@ -2314,10 +2387,51 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Video links
-  setupVideoLinks();
+  // Video links - setup semua video links termasuk perkenalan
+  setupAllVideoLinks();
   
-  // Fungsi lainnya yang sudah ada...
+  // About overlay
+  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+  
+  // Cek login status saat halaman dimuat
+  const userToken = localStorage.getItem('userToken');
+  if (userToken) {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    loginMenuItem.innerHTML = `
+      <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    `;
+  }
+  
+  // Initialize video players
+  initializeAllVideoPlayers();
+  console.log('✅ App initialized successfully');
+});
+
+
+/*************************************
+* Cek status login saat halaman dimuat
+**************************************/
+BACKUP_document.addEventListener('DOMContentLoaded', function () {
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    console.log('✅ App initialized successfully');
+
 });
 
 
