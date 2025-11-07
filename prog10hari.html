@@ -257,18 +257,29 @@ body { background-color: #f8f9fa; }
 .close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
 /***** Akhir Video Player Styles *****/
 
-/***** Playlist Video Youtube *****/
+/***** Playlist Container Styles Video Youtube *****/
 .playlist-container {
     display: none;
     background: white;
     border: 1px solid #dee2e6;
     border-top: none;
-    max-height: 500px;
-    overflow-y: auto;
+    max-height: 400px; /* PASTIKAN ADA */
+    overflow-y: auto;  /* PASTIKAN ADA */
     scrollbar-width: thin;
 }
 .playlist-container::-webkit-scrollbar { width: 6px; }
 .playlist-container::-webkit-scrollbar-track { background: #f8f9fa; }
+.playlist-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+/***** Playlist di Menu Accordion *****/
+.menu-content .playlist-container {
+    margin: 10px 0;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 400px; /* PASTIKAN ADA */
+}
+
 .playlist-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 .playlist-item {
     display: flex;
@@ -851,7 +862,7 @@ body { background-color: #f8f9fa; }
             </button>
             <div class="collapse" id="healthyRecept" data-bs-parent="#menuAccordion">
               <div class="menu-content">
-                <!-- Playlist Link - PERBAIKAN DI SINI -->
+                <!-- Playlist Link - SIMPLE -->
                 <a href="https://www.youtube.com/playlist?list=PLJU0P2EGDp-8Zs3cF6x84nF1wkB66hYvG" 
                   class="menu-item playlist-trigger" data-target="playlistHealthyRecept">
                   <i class="fas fa-play-circle"></i>Playlist Kreasi Resep Sehat
@@ -1484,6 +1495,9 @@ function setupPlaylistTriggers() {
   });
 }
 
+/************************************
+* Show playlist di section yang tepat
+*************************************/
 /******************************
 * Show playlist di section yang tepat
 *******************************/
@@ -1507,6 +1521,13 @@ async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   document.querySelectorAll('.playlist-container').forEach(playlist => {
     playlist.style.display = 'none';
   });
+  
+  // HAPUS BAGIAN INI - tidak perlu tombol close terpisah
+  // Tampilkan tombol close playlist
+  // const playlistCloseBtn = document.getElementById('playlistCloseBtn');
+  // if (playlistCloseBtn) {
+  //   playlistCloseBtn.style.display = 'block';
+  // }
   
   // Tampilkan loading
   playlistContainer.innerHTML = `
@@ -1555,6 +1576,9 @@ async function showPlaylist(section, playlistUrl) {
 /*******************************************
 * Render playlist items dengan tombol close
 ********************************************/
+/***********************
+* Render playlist items dengan tombol close
+************************/
 function renderPlaylist(container, items, section) {
   container.innerHTML = '';
   
@@ -1572,7 +1596,8 @@ function renderPlaylist(container, items, section) {
         ${items.length} video tersedia
       </div>
     </div>
-    <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hidePlaylist('${container.id}')">
+    <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" 
+            onclick="hidePlaylist('${container.id}')">
       <i class="fas fa-times"></i>
     </button>
   `;
@@ -1626,16 +1651,17 @@ function renderPlaylist(container, items, section) {
 ***********************/
 function hidePlaylist(playlistId) {
   const playlistContainer = document.getElementById(playlistId);
+  
   if (playlistContainer) {
     playlistContainer.style.display = 'none';
-    
-    // Kembalikan ke posisi semula jika perlu
-    const healthyReceptContent = document.getElementById('healthyRecept');
-    if (healthyReceptContent && playlistId === 'playlistHealthyRecept') {
-      const menuContent = healthyReceptContent.querySelector('.menu-content');
-      if (menuContent) {
-        menuContent.appendChild(playlistContainer);
-      }
+  }
+  
+  // Kembalikan ke posisi semula jika perlu
+  const healthyReceptContent = document.getElementById('healthyRecept');
+  if (healthyReceptContent && playlistId === 'playlistHealthyRecept') {
+    const menuContent = healthyReceptContent.querySelector('.menu-content');
+    if (menuContent) {
+      menuContent.appendChild(playlistContainer);
     }
   }
 }
