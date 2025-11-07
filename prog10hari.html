@@ -542,22 +542,27 @@ body { background-color: #f8f9fa; }
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
 
-            <!-- SUBMENU PERKENALAN --> 
             <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
-                <!-- Tampilkan Video Link Canva -->
+                <!-- Canva Link - Buka di tab baru -->
                 <a href="https://www.canva.com/design/DAGqjXWcl6o/ylVUgMbZ8it0TXN0dqCKzQ/view?utm_content=DAGqjXWcl6o&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h1feb0aca2a" 
                   class="menu-item" target="_blank">
                   <i class="fas fa-video"></i>1. Perkenalan dengan Personal Diet Partner
                 </a>
                 
-                <!-- Tampilkan Video Link Youtube -->
+                <!-- YouTube Video -->
                 <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM" 
                   class="menu-item video-link" data-section="perkenalan" data-type="youtube" data-url="https://www.youtube.com/watch?v=9DoHhx9jlGM">
                   <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife
                 </a>
                 
-                <!-- Video Player untuk Perkenalan - DITEMPATKAN DI SINI -->
+                <!-- Local Video - PERBAIKAN DI SINI -->
+                <a href="video/Live Best Your Best Life ! - 360.mp4" 
+                  class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
+                  <i class="fas fa-video"></i>3. Live Best Your Best Life !
+                </a>
+                
+                <!-- Video Player untuk Perkenalan -->
                 <div class="video-container" id="videoContainerPerkenalan" style="display: none;">
                   <button class="close-video" onclick="closeVideo('perkenalan')">
                     <i class="fas fa-times"></i>
@@ -576,15 +581,7 @@ body { background-color: #f8f9fa; }
                   </div>
                 </div>
                 
-                <!-- Tampilkan Video Link Folder -->
-                <a href="video/Live Best Your Best Life ! - 360.mp4" 
-                  class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
-                  <i class="fas fa-video"></i>3. Live Best Your Best Life !
-                </a>
-                
-                <!-- Selesai Perkenalan -->
-                <a href="#" 
-                  class="menu-item">
+                <a href="#" class="menu-item">
                   <i class="fas fa-check-double"></i>Selesai Perkenalan
                 </a>      
               </div>
@@ -988,7 +985,6 @@ document.addEventListener('DOMContentLoaded', function() {
 * Update event listener di DOMContentLoaded
 ********************************************/
 document.addEventListener('DOMContentLoaded', function() {
-  
   // Submenu triggers
   document.querySelectorAll('.submenu-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
@@ -998,13 +994,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Video links - setup semua video links termasuk perkenalan
-  setupAllVideoLinks();
+  // Setup semua links (video dan PDF)
+  setupAllLinks();
   
   // About overlay
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
   
-  // Cek login status saat halaman dimuat
+  // Cek login status
   const userToken = localStorage.getItem('userToken');
   if (userToken) {
     const loginMenuItem = document.getElementById('loginMenuItem');
@@ -1015,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
   }
   
-  // Initialize video players
+  // Initialize video players (untuk placeholder click)
   initializeAllVideoPlayers();
   console.log('✅ App initialized successfully');
 });
@@ -1078,6 +1074,96 @@ function setupVideoLinksForSection(section, linkConfigs) {
             };
         }
     });
+}
+
+/********************************
+* Fungsi untuk Setup Semua Links
+********************************/
+function setupAllLinks() {
+  // Setup video links
+  document.querySelectorAll('.video-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const videoType = this.getAttribute('data-type');
+      const videoUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua konten lain
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+      });
+      
+      // Load video
+      loadVideo(section, videoType, videoUrl, title);
+      
+      // Tampilkan video player di posisi yang tepat
+      const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+      if (videoContainer) {
+        videoContainer.style.display = 'block';
+        
+        // Sisipkan video container setelah link video yang diklik
+        this.parentNode.insertBefore(videoContainer, this.nextSibling);
+        
+        // Auto play video
+        setTimeout(() => {
+          playVideo(section);
+        }, 500);
+      }
+    });
+  });
+  
+  // Setup PDF links
+  setupPDFLinks();
+}
+
+/**************************
+* Fungsi untuk PDF Links
+***************************/
+function setupPDFLinks() {
+  document.querySelectorAll('.pdf-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const pdfUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua video container
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      
+      // Sembunyikan semua submenu content
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Sembunyikan semua PDF viewer terlebih dahulu
+      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+      });
+      
+      // Load PDF
+      loadPDF(section, pdfUrl, title);
+      
+      // Tampilkan PDF viewer di posisi yang tepat
+      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+      if (pdfViewer) {
+        pdfViewer.style.display = 'block';
+        
+        // Sisipkan PDF viewer setelah link PDF yang diklik
+        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
+      }
+    });
+  });
 }
 
 /***********************
