@@ -262,32 +262,49 @@ body { background-color: #f8f9fa; }
     display: none;
     background: white;
     border: 1px solid #dee2e6;
-    border-top: none;
-    max-height: 400px; /* PASTIKAN ADA */
-    overflow-y: auto;  /* PASTIKAN ADA */
+    border-radius: 0 0 8px 8px;
+    max-height: 400px !important;
+    overflow-y: auto !important;
     scrollbar-width: thin;
+    position: relative;
 }
-.playlist-container::-webkit-scrollbar { width: 6px; }
-.playlist-container::-webkit-scrollbar-track { background: #f8f9fa; }
-.playlist-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.playlist-container::-webkit-scrollbar { 
+    width: 8px !important;
+    display: block !important;
+}
+.playlist-container::-webkit-scrollbar-track { 
+    background: #f8f9fa !important;
+    display: block !important;
+}
+.playlist-container::-webkit-scrollbar-thumb { 
+    background: #ccc !important;
+    border-radius: 4px !important;
+    display: block !important;
+}
+.playlist-container::-webkit-scrollbar-thumb:hover {
+    background: #aaa !important;
+}
+/***** Playlist Items Container *****/
+.playlist-items {
+    max-height: 320px;
+    overflow-y: auto;
+}
+/***** Playlist Header dan Footer - Fixed *****/
+.playlist-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+.playlist-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
 
-/***** Playlist di Menu Accordion *****/
-.menu-content .playlist-container {
-    margin: 10px 0;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-    max-height: 400px; /* PASTIKAN ADA */
-}
-
-.playlist-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-.playlist-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid #f8f9fa;
-    transition: all 0.2s ease;
-}
 .playlist-item:hover { background-color: #f8f9fa;}
 .playlist-item:last-child { border-bottom: none; }
 .playlist-thumbnail {
