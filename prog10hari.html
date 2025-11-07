@@ -268,27 +268,6 @@ body { background-color: #f8f9fa; }
     scrollbar-width: thin;
     position: relative;
 }
-.playlist-container::-webkit-scrollbar { 
-    width: 8px !important;
-    display: block !important;
-}
-.playlist-container::-webkit-scrollbar-track { 
-    background: #f8f9fa !important;
-    display: block !important;
-}
-.playlist-container::-webkit-scrollbar-thumb { 
-    background: #ccc !important;
-    border-radius: 4px !important;
-    display: block !important;
-}
-.playlist-container::-webkit-scrollbar-thumb:hover {
-    background: #aaa !important;
-}
-/***** Playlist Items Container *****/
-.playlist-items {
-    max-height: 320px;
-    overflow-y: auto;
-}
 
 /***** Tombol Close di Playlist Header *****/
 .playlist-header .btn-close-header {
@@ -313,7 +292,6 @@ body { background-color: #f8f9fa; }
     background-color: rgba(220, 53, 69, 0.1);
     transform: scale(1.1);
 }
-/***** Pastikan Playlist Header Position Relative *****/
 .playlist-header.position-relative {
     position: relative !important;
 }
@@ -323,24 +301,20 @@ body { background-color: #f8f9fa; }
     top: 50% !important;
     right: 10px !important;
     transform: translateY(-50%) !important;
-}
+} 
 
-/***** Playlist Header dan Footer - Fixed *****/
-.playlist-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+/***** Playlist Video Items Container *****/
+.playlist-container::-webkit-scrollbar { width: 8px !important; display: block !important; }
+.playlist-container::-webkit-scrollbar-track { background: #f8f9fa !important; display: block !important;}
+.playlist-container::-webkit-scrollbar-thumb { background: #ccc !important; border-radius: 4px !important; display: block !important;}
+.playlist-container::-webkit-scrollbar-thumb:hover { background: #aaa !important;}
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f8f9fa;
+    transition: all 0.2s ease;
 }
-.playlist-footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-}
-
 .playlist-item:hover { background-color: #f8f9fa;}
 .playlist-item:last-child { border-bottom: none; }
 .playlist-thumbnail {
