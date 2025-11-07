@@ -104,6 +104,15 @@ body { background-color: #f8f9fa; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
 /***** Akhir Menu Accordian *****/
 
+/***** PDF Viewer di Menu Accordion *****/
+.menu-content .pdf-viewer {
+    margin: 10px 0;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.menu-content .pdf-container { max-height: 400px; overflow-y: auto; }
+
 /***** Submenu Content Styles *****/
 .submenu-content { border-radius: 8px; margin: 10px 0; display: none; }
 .submenu-trigger { cursor: pointer; }
@@ -483,13 +492,25 @@ body { background-color: #f8f9fa; }
             <!-- SUBMENU PANDUAN APLIKASI -->
             <div class="collapse" id="panduanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
-
+                <!-- Video Tutorial -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
-                  class="menu-item" onclick="return false;">
+                  class="menu-item video-link" data-section="panduan" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
                   <i class="fas fa-file-video"></i>Video Tutorial Panduan Penggunaan Aplikasi
                 </a>
-                <!-- Video Player untuk Panduan Aplikasi -->
-                <div class="video-container" id="videoContainerPanduan">
+                
+                <!-- PDF Panduan - KEMBALI KE CARA ORIGINAL -->
+                <a href="pdf/Panduan_Meal_Plan.pdf" 
+                  class="menu-item" onclick="return loadPDF('panduan', 'pdf/Panduan_Meal_Plan.pdf', 'PDF Panduan Penggunaan Aplikasi')">
+                  <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
+                </a>
+                
+                <!-- Selesai Panduan -->
+                <a href="#" class="menu-item">
+                  <i class="fas fa-check-double"></i>Selesai Panduan
+                </a>
+                
+                <!-- Video Player untuk Panduan -->
+                <div class="video-container" id="videoContainerPanduan" style="display: none;">
                   <button class="close-video" onclick="closeVideo('panduan')">
                     <i class="fas fa-times"></i>
                   </button>
@@ -507,12 +528,8 @@ body { background-color: #f8f9fa; }
                   </div>
                 </div>
                 
-                <a href="pdf/Panduan_Meal_Plan.pdf" 
-                  class="menu-item" onclick="return false;">
-                  <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
-                </a>
-                <!-- PDF Viewer untuk Panduan Aplikasi -->
-                <div class="pdf-viewer" id="pdfViewerPanduan">
+                <!-- PDF Viewer untuk Panduan - DIPINDAH KE SINI -->
+                <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
                   <button class="close-pdf" onclick="closePDF('panduan')">
                     <i class="fas fa-times"></i>
                   </button>
@@ -520,16 +537,9 @@ body { background-color: #f8f9fa; }
                     <!-- PDF akan dimuat di sini -->
                   </div>
                 </div>
-
-                <a href="#" 
-                  class="menu-item" onclick="return false;">
-                  <i class="fas fa-check-double"></i>Selesai Panduan
-                </a>
-    
               </div>
             </div>
           </div>
-
           <!--------------------->
           <!-- MENU PERKENALAN --> 
           <!--------------------->
@@ -985,35 +995,38 @@ document.addEventListener('DOMContentLoaded', function() {
 * Update event listener di DOMContentLoaded
 ********************************************/
 document.addEventListener('DOMContentLoaded', function() {
-  // Submenu triggers
-  document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-    trigger.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = this.getAttribute('data-target');
-      showSubmenu(target);
+    // Submenu triggers
+    document.querySelectorAll('.submenu-trigger').forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-target');
+            showSubmenu(target);
+        });
     });
-  });
-  
-  // Setup semua links (video dan PDF)
-  setupAllLinks();
-  
-  // About overlay
-  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-  
-  // Cek login status
-  const userToken = localStorage.getItem('userToken');
-  if (userToken) {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    loginMenuItem.innerHTML = `
-      <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
-    `;
-  }
-  
-  // Initialize video players (untuk placeholder click)
-  initializeAllVideoPlayers();
-  console.log('✅ App initialized successfully');
+    
+    // Setup video links
+    setupAllLinks();
+    
+    // Setup PDF links khusus untuk menu Panduan
+    setupPanduanPDFLinks();
+    
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    console.log('✅ App initialized successfully');
 });
 
 /*****************
@@ -1641,7 +1654,78 @@ let currentPDFData = {};
 /********************
 * Fungsi Load PDF
 *********************/ 
+/********************
+* Fungsi Load PDF (DIPERBAIKI)
+*********************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('loadPDF called:', { section, pdfUrl, title });
+    
+    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    if (!pdfViewer || !pdfContainer) return;
+    
+    // Close video dan PDF lain
+    closeAllVideos();
+    closeAllPDFs();
+    
+    // Reset previous PDF
+    pdfContainer.innerHTML = '';
+    currentPDFData = {
+        section: section,
+        url: pdfUrl,
+        title: title
+    };
+    
+    // Show loading
+    pdfContainer.innerHTML = `
+        <div class="pdf-loading">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="mt-2">Memuat PDF, tunggu...</div>
+        </div>
+    `;
+    
+    // Show PDF viewer
+    pdfViewer.style.display = 'block';
+    
+    // Untuk PDF di menu Panduan, pastikan posisinya tepat
+    if (section === 'panduan') {
+        // Cari link PDF yang diklik dan tempatkan PDF viewer setelahnya
+        const pdfLink = document.querySelector(`a[onclick*="${pdfUrl}"]`);
+        if (pdfLink && pdfLink.parentNode) {
+            pdfLink.parentNode.insertBefore(pdfViewer, pdfLink.nextSibling);
+        }
+    }
+    
+    // Load PDF setelah ditampilkan
+    setTimeout(() => {
+        displayPDF(section, pdfUrl, title);
+    }, 500);
+}
+
+/**************************
+* Fungsi untuk Setup PDF Links di Menu Panduan
+***************************/
+function setupPanduanPDFLinks() {
+    const panduanContent = document.getElementById('panduanContent');
+    if (!panduanContent) return;
+    
+    // Setup PDF link untuk panduan
+    const pdfLink = panduanContent.querySelector('a[href*="Panduan_Meal_Plan.pdf"]');
+    if (pdfLink) {
+        // Hapus event listener lama jika ada
+        pdfLink.replaceWith(pdfLink.cloneNode(true));
+        
+        // Setup yang baru
+        const newPdfLink = panduanContent.querySelector('a[href*="Panduan_Meal_Plan.pdf"]');
+        newPdfLink.onclick = function(e) {
+            e.preventDefault();
+            loadPDF('panduan', this.getAttribute('href'), 'PDF Panduan Penggunaan Aplikasi');
+        };
+    }
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
@@ -1973,7 +2057,28 @@ function closePDF(section) {
 /************************
 * Fungsi Close All PDFs
 *************************/
+/************************
+* Fungsi Close All PDFs (DIPERBAIKI)
+*************************/
 function closeAllPDFs() {
+    console.log('Closing all PDFs');
+    const pdfViewers = document.querySelectorAll('.pdf-viewer');
+    pdfViewers.forEach(viewer => {
+        const section = viewer.id.replace('pdfViewer', '');
+        if (section) {
+            closePDF(section.toLowerCase());
+        }
+    });
+    
+    // Kembalikan PDF viewer ke posisi semula di menu Panduan
+    const panduanPDFViewer = document.getElementById('pdfViewerPanduan');
+    const panduanContent = document.getElementById('panduanContent');
+    if (panduanPDFViewer && panduanContent) {
+        panduanContent.querySelector('.menu-content').appendChild(panduanPDFViewer);
+    }
+}
+
+function BACKUP_closeAllPDFs() {
     console.log('Closing all PDFs');
     const pdfViewers = document.querySelectorAll('.pdf-viewer');
     pdfViewers.forEach(viewer => {
