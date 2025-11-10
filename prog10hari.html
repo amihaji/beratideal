@@ -380,6 +380,38 @@ body { background-color: #f8f9fa; }
 .playlist-error { padding: 30px 20px; text-align: center; color: #dc3545;}
 /***** Akhir Playlist Youtube *****/
 
+/***** PDF Viewer Styles - SPECIFIC FOR PANDUAN *****/
+#pdfViewerPanduan {
+    display: none;
+    position: relative;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    max-height: 600px;
+    overflow: visible;
+}
+#pdfContainerPanduan {
+    width: 100%;
+    height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+#pdfContainerPanduan::-webkit-scrollbar {
+    width: 8px;
+}
+#pdfContainerPanduan::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+#pdfContainerPanduan::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+/* Untuk PDF di menu content */
+.menu-content #pdfViewerPanduan {
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
 /***** PDF Viewer Styles *****/
 .pdf-viewer {
     display: none;
@@ -595,14 +627,28 @@ body { background-color: #f8f9fa; }
                 </div>
                 
                 <!-- PDF Viewer untuk Panduan - DIPINDAH KE SINI -->
+                <!--
                 <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
                   <button class="close-pdf" onclick="closePDF('panduan')">
                     <i class="fas fa-times"></i>
                   </button>
                   <div class="pdf-container" id="pdfContainerPanduan">
-                    <!-- PDF akan dimuat di sini -->
+                    
                   </div>
                 </div>
+                 -->
+
+                <!-- PDF Viewer untuk Panduan - STRUCTURE SIMPLE -->
+                <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
+                    <button class="close-pdf" onclick="closePDF('panduan')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <!-- GUNAKAN DIV TUNGGAL dengan overflow -->
+                    <div class="pdf-single-container" id="pdfContainerPanduan">
+                        <!-- PDF akan dimuat di sini -->
+                    </div>
+                </div>
+
               </div>
             </div>
           </div>
