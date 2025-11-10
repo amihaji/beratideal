@@ -360,75 +360,42 @@ body { background-color: #f8f9fa; }
     border: 1px solid #dee2e6;
     border-top: none;
 }
-.pdf-container { width: 100%; height: 500px; scrollbar-width: none; }
-.pdf-container::-webkit-scrollbar { display: none;}                /* Chrome/Safari - hide scrollbar */
-.pdf-container iframe { width: 100%; height: 100%; border: none; } /* Biarkan iframe yang handle scrolling */
-.pdf-viewer::-webkit-scrollbar { width: 0px; display: none;}
-.pdf-container::-webkit-scrollbar-track { background: #f8f9fa; }
-.pdf-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-.pdf-header {
-    padding: 12px 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    display: flex;
-    justify-content: between;
-    align-items: center;
+.pdf-container { 
+    width: 100%; 
+    height: 500px; 
+    scrollbar-width: none; 
+    overflow-x: hidden; /* TAMBAH INI - hilangkan scroll horizontal */
 }
-.pdf-title { font-weight: 600; color: #333; flex: 1; }
-.pdf-actions { display: flex; gap: 10px; }
-.pdf-loading {
-    padding: 30px 20px;
-    text-align: center;
-    color: #666;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.pdf-error {
-    padding: 30px 20px;
-    text-align: center;
-    color: #dc3545;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-.pdf-mobile-warning {
-    padding: 15px;
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
-    margin: 10px;
-    text-align: center;
-    font-size: 14px;
-}
-.close-pdf {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
+.pdf-container::-webkit-scrollbar { 
+    display: none;
+}                
+.pdf-container iframe { 
+    width: 100%; 
+    height: 100%; 
     border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 25;
-    transition: all 0.3s ease;
-    font-size: 14px;
+    overflow-x: hidden !important; /* TAMBAH INI */
 }
-.close-pdf:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1);}
-/***** Akhir PDF Viewer Styles *****/
+
+/* HAPUS yang tidak perlu */
+.pdf-viewer::-webkit-scrollbar { 
+    width: 0px; 
+    display: none;
+}
 
 /***** PDF.js Viewer Styles *****/
-.pdfjs-viewer { width: 100%; height: 500px; border: 1px solid #ddd; overflow: auto; background: #f5f5f5;}
-.pdfjs-canvas { display: block; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+.pdfjs-viewer { 
+    width: 100%; 
+    height: 500px; 
+    border: 1px solid #ddd; 
+    overflow: auto; 
+    background: #f5f5f5;
+}
+.pdfjs-canvas { 
+    display: block; 
+    margin: 0 auto; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 100%; /* TAMBAH INI - pastikan tidak melebihi container */
+}
 .pdfjs-controls {
     padding: 10px;
     background: white;
@@ -438,9 +405,13 @@ body { background-color: #f8f9fa; }
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    /* PINDAH KE BAWAH - tambahkan margin-top dan border-top */
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    border-bottom: none;
 }
 .pdfjs-page-info { font-size: 14px; color: #666;}
-/***** Akhir PDF.js Viewer Styles *****/
+/***** Akhir PDF Viewer Styles *****/
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -1684,42 +1655,6 @@ function setupPDFLinks() {
 /****************************
 * Memuat dan Menampilkan PDF
 ****************************/ 
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('loadPDF called:', { section, pdfUrl, title });
-    
-    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    if (!pdfViewer || !pdfContainer) return;
-    
-    closeAllVideos();
-    closeAllPDFs();
-    
-    pdfContainer.innerHTML = '';
-    currentPDFData = { section: section, url: pdfUrl, title: title };
-    
-    // KEMBALI ke IFRAME dengan parameter yang benar
-    pdfContainer.innerHTML = `
-        <iframe 
-            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
-            width="100%" 
-            height="500" 
-            style="border: none;"
-            onerror="handlePDFError('${section}')"
-        >
-        </iframe>
-    `;
-    
-    pdfViewer.style.display = 'block';
-    
-    if (section === 'panduan') {
-        const pdfLink = document.querySelector(`a[onclick*="${pdfUrl}"]`);
-        if (pdfLink && pdfLink.parentNode) {
-            pdfLink.parentNode.insertBefore(pdfViewer, pdfLink.nextSibling);
-        }
-    }
-}
-
 function loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
@@ -1792,6 +1727,119 @@ function setupPanduanPDFLinks() {
 * Menampilkan PDF
 *****************/
 function displayPDF(section, pdfUrl, title) {
+    console.log('Displaying PDF with PDF.js:', pdfUrl);
+    
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    if (!pdfContainer) return;
+    
+    // Set up PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    const scale = 1.5;
+    
+    function renderPage(num) {
+        pageRendering = true;
+        
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            canvas.className = 'pdfjs-canvas';
+            
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            
+            const renderTask = page.render(renderContext);
+            
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+            
+            // Clear container dan tambahkan canvas DULUAN
+            const viewer = document.getElementById(`pdfjsViewer${capitalizeFirst(section)}`);
+            viewer.innerHTML = '';
+            viewer.appendChild(canvas);
+            
+            // Update page info
+            document.getElementById(`pdfjsPageInfo${capitalizeFirst(section)}`).textContent = 
+                `Halaman ${num} dari ${pdfDoc.numPages}`;
+                
+        }).catch(function(error) {
+            console.error('Error rendering page:', error);
+            handlePDFError(section);
+        });
+    }
+    
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+    
+    function onPrevPage() {
+        if (pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    }
+    
+    function onNextPage() {
+        if (pageNum >= pdfDoc.numPages) return;
+        pageNum++;
+        queueRenderPage(pageNum);
+    }
+    
+    // Load the PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        
+        // Update container - CONTROLS DIBAWAH SETELAH CANVAS
+        pdfContainer.innerHTML = `
+            <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
+            <div class="pdfjs-controls">
+                <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
+                    <i class="fas fa-chevron-left"></i> Sebelumnya
+                </button>
+                <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
+                    Halaman 1 dari ${pdfDoc.numPages}
+                </span>
+                <button class="btn btn-sm btn-outline-primary" onclick="onNextPage${capitalizeFirst(section)}()">
+                    Berikutnya <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        `;
+        
+        // Render first page
+        renderPage(1);
+        
+        // Store functions globally for button access
+        window[`onPrevPage${capitalizeFirst(section)}`] = onPrevPage;
+        window[`onNextPage${capitalizeFirst(section)}`] = onNextPage;
+        
+    }).catch(function(error) {
+        console.error('Error loading PDF with PDF.js:', error);
+        // Fallback ke iframe
+        fallbackToIframe(section, pdfUrl);
+    });
+}
+
+function BACKUP_displayPDF(section, pdfUrl, title) {
     console.log('Displaying PDF with PDF.js:', pdfUrl);
     
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
@@ -1973,27 +2021,14 @@ function fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
     pdfContainer.innerHTML = `
-        <div class="pdf-mobile-warning">
-            <i class="fas fa-info-circle me-2"></i>
-            Menggunakan metode alternatif untuk menampilkan PDF
-        </div>
         <iframe 
-            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" 
+            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
             width="100%" 
             height="500" 
             style="border: none;"
-            onload="console.log('PDF iframe fallback loaded')"
             onerror="handlePDFError('${section}')"
         >
         </iframe>
-        <div class="text-center mt-3">
-            <button class="btn btn-primary me-2" onclick="downloadPDF('${section}')">
-                <i class="fas fa-download me-1"></i>Download PDF
-            </button>
-            <button class="btn btn-secondary" onclick="openPDFInNewTab('${section}')">
-                <i class="fas fa-external-link-alt me-1"></i>Buka di Tab Baru
-            </button>
-        </div>
     `;
 }
 
