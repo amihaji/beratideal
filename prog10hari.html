@@ -1713,7 +1713,56 @@ function setupPDFLinks() {
 /****************************
 * Memuat dan Menampilkan PDF
 ****************************/ 
+/****************************
+* Memuat dan Menampilkan PDF
+****************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('loadPDF called:', { section, pdfUrl, title });
+    
+    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    if (!pdfViewer || !pdfContainer) return;
+    
+    // Close video dan PDF lain
+    closeAllVideos();
+    closeAllPDFs();
+    
+    // Reset previous PDF
+    pdfContainer.innerHTML = '';
+    currentPDFData = {
+        section: section,
+        url: pdfUrl,
+        title: title
+    };
+    
+    // Show loading
+    pdfContainer.innerHTML = `
+        <div class="pdf-loading">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="mt-2">Memuat PDF, tunggu...</div>
+        </div>
+    `;
+    
+    // Show PDF viewer
+    pdfViewer.style.display = 'block';
+    
+    // Untuk PDF di menu Panduan, pastikan posisinya tepat
+    if (section === 'panduan') {
+        // Cari link PDF yang diklik dan tempatkan PDF viewer setelahnya
+        const pdfLink = document.querySelector(`a[onclick*="${pdfUrl}"]`);
+        if (pdfLink && pdfLink.parentNode) {
+            pdfLink.parentNode.insertBefore(pdfViewer, pdfLink.nextSibling);
+        }
+    }
+    
+    // Load PDF setelah ditampilkan
+    setTimeout(() => {
+        displayPDF(section, pdfUrl, title);
+    }, 500);
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
@@ -1963,6 +2012,34 @@ function showMobilePDFOptions(section, pdfUrl, title) {
 * Fallback ke Iframe Jika PDF.js Gagal
 **************************************/
 function fallbackToIframe(section, pdfUrl) {
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    pdfContainer.innerHTML = `
+        <div class="pdf-mobile-warning">
+            <i class="fas fa-info-circle me-2"></i>
+            Menggunakan metode alternatif untuk menampilkan PDF
+        </div>
+        <iframe 
+            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" 
+            width="100%" 
+            height="500" 
+            style="border: none;"
+            onload="console.log('PDF iframe fallback loaded')"
+            onerror="handlePDFError('${section}')"
+        >
+        </iframe>
+        <div class="text-center mt-3">
+            <button class="btn btn-primary me-2" onclick="downloadPDF('${section}')">
+                <i class="fas fa-download me-1"></i>Download PDF
+            </button>
+            <button class="btn btn-secondary" onclick="openPDFInNewTab('${section}')">
+                <i class="fas fa-external-link-alt me-1"></i>Buka di Tab Baru
+            </button>
+        </div>
+    `;
+}
+
+function BACKUP_fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
     pdfContainer.innerHTML = `
