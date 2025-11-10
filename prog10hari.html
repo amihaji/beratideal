@@ -572,24 +572,38 @@ body { background-color: #f8f9fa; }
                   class="menu-item video-link" data-section="panduan" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
                   <i class="fas fa-file-video"></i>Video Tutorial Panduan Penggunaan Aplikasi
                 </a>
-                    
+                
                 <!-- PDF Panduan - KEMBALI KE CARA ORIGINAL -->
                 <a href="pdf/Panduan_Meal_Plan.pdf" 
                   class="menu-item" onclick="return loadPDF('panduan', 'pdf/Panduan_Meal_Plan.pdf', 'PDF Panduan Penggunaan Aplikasi')">
                   <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
-                    
+                
                 <!-- Selesai Panduan -->
                 <a href="#" class="menu-item">
                   <i class="fas fa-check-double"></i>Selesai Panduan
                 </a>
-                    
+                
                 <!-- Video Player untuk Panduan -->
                 <div class="video-container" id="videoContainerPanduan" style="display: none;">
-                  <!-- ... video player code ... -->
+                  <button class="close-video" onclick="closeVideo('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('panduan')">
+                      <i class="fas fa-play-circle"></i>
+                      <div class="video-placeholder-text">Klik untuk memuat video</div>
+                    </div>
+                    <div class="video-loading" id="videoLoadingPanduan">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading video...</span>
+                      </div>
+                    </div>
+                    <div id="videoPlayerPanduan"></div>
+                  </div>
                 </div>
-                    
-                <!-- PDF Viewer untuk Panduan - KEMBALI KE CARA ORIGINAL -->
+                
+                <!-- PDF Viewer untuk Panduan -->
                 <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
                   <button class="close-pdf" onclick="closePDF('panduan')">
                     <i class="fas fa-times"></i>
@@ -598,11 +612,10 @@ body { background-color: #f8f9fa; }
                     <!-- PDF akan dimuat di sini -->
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
-          
+
           <!--------------------->
           <!-- MENU PERKENALAN --> 
           <!--------------------->
