@@ -380,49 +380,6 @@ body { background-color: #f8f9fa; }
 .playlist-error { padding: 30px 20px; text-align: center; color: #dc3545;}
 /***** Akhir Playlist Youtube *****/
 
-/***** PDF Viewer Styles - SPECIFIC FOR PANDUAN *****/
-#pdfViewerPanduan {
-    display: none;
-    position: relative;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-top: none;
-    max-height: 600px;
-    overflow: visible;
-}
-#pdfContainerPanduan {
-    width: 100%;
-    height: 500px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-}
-#pdfContainerPanduan::-webkit-scrollbar {
-    width: 8px;
-}
-#pdfContainerPanduan::-webkit-scrollbar-track {
-    background: #f8f9fa;
-}
-#pdfContainerPanduan::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-}
-/* Untuk PDF di menu content */
-.menu-content #pdfViewerPanduan {
-    margin: 10px 0;
-    border-radius: 8px;
-}
-/* TAMBAHKAN INI - Hide scrollbar di iframe/object */
-#pdfContainerPanduan iframe,
-#pdfContainerPanduan object {
-    overflow: hidden !important;
-}
-#pdfContainerPanduan iframe::-webkit-scrollbar,
-#pdfContainerPanduan object::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
 /***** PDF Viewer Styles *****/
 .pdf-viewer {
     display: none;
@@ -430,13 +387,22 @@ body { background-color: #f8f9fa; }
     background: white;
     border: 1px solid #dee2e6;
     border-top: none;
-    max-height: 600px;
-    overflow: hidden;
-    scrollbar-width: none;
+}
+.pdf-container {
+    width: 100%;
+    height: 500px; /* PASTIKAN height fixed */
+    scrollbar-width: none; /* Firefox - hide scrollbar */
+}
+.pdf-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari - hide scrollbar */
+}
+/* Biarkan iframe yang handle scrolling */
+.pdf-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 .pdf-viewer::-webkit-scrollbar { width: 0px; display: none;}
-.pdf-container { width: 100%; height: 100%; min-height: 500px; overflow-y: auto; scrollbar-width: thin;}
-.pdf-container::-webkit-scrollbar { width: 6px; }
 .pdf-container::-webkit-scrollbar-track { background: #f8f9fa; }
 .pdf-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 .pdf-header {
@@ -606,63 +572,37 @@ body { background-color: #f8f9fa; }
                   class="menu-item video-link" data-section="panduan" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
                   <i class="fas fa-file-video"></i>Video Tutorial Panduan Penggunaan Aplikasi
                 </a>
-                
+                    
                 <!-- PDF Panduan - KEMBALI KE CARA ORIGINAL -->
                 <a href="pdf/Panduan_Meal_Plan.pdf" 
                   class="menu-item" onclick="return loadPDF('panduan', 'pdf/Panduan_Meal_Plan.pdf', 'PDF Panduan Penggunaan Aplikasi')">
                   <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
-                
+                    
                 <!-- Selesai Panduan -->
                 <a href="#" class="menu-item">
                   <i class="fas fa-check-double"></i>Selesai Panduan
                 </a>
-                
+                    
                 <!-- Video Player untuk Panduan -->
                 <div class="video-container" id="videoContainerPanduan" style="display: none;">
-                  <button class="close-video" onclick="closeVideo('panduan')">
-                    <i class="fas fa-times"></i>
-                  </button>
-                  <div class="video-wrapper">
-                    <div class="video-placeholder" onclick="playVideo('panduan')">
-                      <i class="fas fa-play-circle"></i>
-                      <div class="video-placeholder-text">Klik untuk memuat video</div>
-                    </div>
-                    <div class="video-loading" id="videoLoadingPanduan">
-                      <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading video...</span>
-                      </div>
-                    </div>
-                    <div id="videoPlayerPanduan"></div>
-                  </div>
+                  <!-- ... video player code ... -->
                 </div>
-                
-                <!-- PDF Viewer untuk Panduan - DIPINDAH KE SINI -->
-                <!--
+                    
+                <!-- PDF Viewer untuk Panduan - KEMBALI KE CARA ORIGINAL -->
                 <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
                   <button class="close-pdf" onclick="closePDF('panduan')">
                     <i class="fas fa-times"></i>
                   </button>
                   <div class="pdf-container" id="pdfContainerPanduan">
-                    
+                    <!-- PDF akan dimuat di sini -->
                   </div>
-                </div>
-                 -->
-
-                <!-- PDF Viewer untuk Panduan - STRUCTURE SIMPLE -->
-                <div class="pdf-viewer" id="pdfViewerPanduan" style="display: none;">
-                    <button class="close-pdf" onclick="closePDF('panduan')">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <!-- GUNAKAN DIV TUNGGAL dengan overflow -->
-                    <div class="pdf-single-container" id="pdfContainerPanduan">
-                        <!-- PDF akan dimuat di sini -->
-                    </div>
                 </div>
 
               </div>
             </div>
           </div>
+          
           <!--------------------->
           <!-- MENU PERKENALAN --> 
           <!--------------------->
@@ -1784,27 +1724,16 @@ function loadPDF(section, pdfUrl, title = '') {
     pdfContainer.innerHTML = '';
     currentPDFData = { section: section, url: pdfUrl, title: title };
     
-    // GUNAKAN OBJECT TAG - lebih bersih untuk PDF
+    // KEMBALI ke IFRAME dengan parameter yang benar
     pdfContainer.innerHTML = `
-        <div style="padding: 10px;">
-            <object 
-                data="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
-                type="application/pdf" 
-                width="100%" 
-                height="500"
-                style="border: none; border-radius: 4px; display: block;"
-            >
-                <p>PDF tidak dapat ditampilkan. <a href="${pdfUrl}" target="_blank">Download PDF</a></p>
-            </object>
-            <div class="text-center mt-3">
-                <button class="btn btn-primary me-2" onclick="downloadPDF('${section}')">
-                    <i class="fas fa-download me-1"></i>Download PDF
-                </button>
-                <button class="btn btn-secondary" onclick="openPDFInNewTab('${section}')">
-                    <i class="fas fa-external-link-alt me-1"></i>Buka di Tab Baru
-                </button>
-            </div>
-        </div>
+        <iframe 
+            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
+            width="100%" 
+            height="500" 
+            style="border: none;"
+            onerror="handlePDFError('${section}')"
+        >
+        </iframe>
     `;
     
     pdfViewer.style.display = 'block';
