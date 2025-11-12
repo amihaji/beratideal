@@ -395,6 +395,7 @@ body { background-color: #f8f9fa; }
     justify-content: center;
     align-items: center;
 }
+/* TIDAK DIGUNAKAN
 .pdf-mobile-warning {
     padding: 15px;
     background: #fff3cd;
@@ -404,6 +405,8 @@ body { background-color: #f8f9fa; }
     text-align: center;
     font-size: 14px;
 }
+*/
+
 .close-pdf {
     position: absolute;
     top: 10px;
@@ -464,9 +467,38 @@ body { background-color: #f8f9fa; }
       margin-bottom: 1rem;
   }
   .navbar-nav:not(.mx-auto) .nav-item, .navbar-nav:not(.mx-auto) .main-menu-link { 
-    /*width: 100%; */
     width: 50%; 
    }
+  
+  /* PDF Viewer untuk Mobile */
+  .pdf-container { 
+      height: 400px;                 /* Sedikit lebih pendek untuk mobile */
+      overflow-x: hidden !important; /* Pastikan no horizontal scroll */
+      overflow-y: auto;              /* Biarkan vertical scroll */
+  }
+    .pdf-container iframe {
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch; /* Smooth scroll untuk iOS */
+  }
+  
+  /* Untuk PDF.js viewer di mobile */
+  .pdfjs-viewer { 
+      height: 350px; 
+      overflow-x: hidden !important;
+      overflow-y: auto;
+  }
+    .pdfjs-canvas {
+      max-width: 100% !important;
+      height: auto !important; /* Biarkan tinggi menyesuaikan */
+  }
+    .pdfjs-controls {
+      padding: 8px 5px;
+      font-size: 12px;
+  }
+    .pdfjs-controls .btn {
+      font-size: 12px;
+      padding: 4px 8px;
+  }
 }
 /***** Akhir Tampilan Mobile *****/
 
