@@ -572,7 +572,7 @@ body { background-color: #f8f9fa; }
                 
                 <!-- PDF Panduan - KEMBALI KE CARA ORIGINAL -->
                 <a href="pdf/Panduan_Meal_Plan.pdf" 
-                  class="menu-item" onclick="return loadPDF('panduan', 'pdf/Panduan_Meal_Plan.pdf', 'PDF Panduan Penggunaan Aplikasi')">
+                  class="menu-item" onclick="return loadPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikisi.pdf', 'PDF Panduan Penggunaan Aplikasi')">
                   <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
                 
@@ -1775,13 +1775,13 @@ function setupPanduanPDFLinks() {
     if (!panduanContent) return;
     
     // Setup PDF link untuk panduan
-    const pdfLink = panduanContent.querySelector('a[href*="Panduan_Meal_Plan.pdf"]');
+    const pdfLink = panduanContent.querySelector('a[href*="Panduan_Penggunaan_Aplikasi.pdf"]');
     if (pdfLink) {
         // Hapus event listener lama jika ada
         pdfLink.replaceWith(pdfLink.cloneNode(true));
         
         // Setup yang baru
-        const newPdfLink = panduanContent.querySelector('a[href*="Panduan_Meal_Plan.pdf"]');
+        const newPdfLink = panduanContent.querySelector('a[href*="Panduan_Penggunaan_Aplikasi.pdf"]');
         newPdfLink.onclick = function(e) {
             e.preventDefault();
             loadPDF('panduan', this.getAttribute('href'), 'PDF Panduan Penggunaan Aplikasi');
