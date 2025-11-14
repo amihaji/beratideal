@@ -932,7 +932,7 @@ body { background-color: #f8f9fa; }
 
               <h6><b>PANDUAN DATA TRACKING</b></h6>
               <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1">
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh">
                 <i class="fas fa-bed"></i> Cek Disini
               </button>
       
@@ -1173,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', function() {
       loadPDF('istirahat1', '/pdf/Istirahat_HariKe1.pdf', 'Waktu Istirahat Hari Pertama');
   });
   // Data Tracking Hari Pertama
-  document.getElementById('btnCekDisiniDataTubuh1')?.addEventListener('click', function() {
+  document.getElementById('btnCekDisiniDataTubuh')?.addEventListener('click', function() {
       loadPDF('datatracking1', '/pdf/DataTracking_HariKe1.pdf', 'Data Tracking Hari Pertama');
   });
 
@@ -1843,7 +1843,6 @@ function loadPDF(section, pdfUrl, title = '') {
         displayPDF(section, pdfUrl, title);
     }, 500);
 }
-
 
 function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
