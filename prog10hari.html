@@ -767,6 +767,15 @@ body { background-color: #f8f9fa; }
                   <i class="fas fa-times"></i>
                 </button>
               </div>
+              <!-- PDF Viewer untuk Meal Plan -->
+              <div class="pdf-viewer" id="pdfViewerMealplan1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('mealplan1')">
+                  <i class="fas fa-times"></i>
+                </button>
+                <div class="pdf-container" id="pdfContainerMealplan1">
+                  <!-- PDF akan dimuat di sini -->
+                </div>
+              </div>
 
               <h6><b>PANDUAN NUTRISI</b></h6>
               <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</br>
@@ -795,6 +804,15 @@ body { background-color: #f8f9fa; }
                  <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('workoutContent1')">
                   <i class="fas fa-times"></i>
                 </button>
+              </div>
+              <!-- PDF Viewer untuk Workout -->
+              <div class="pdf-viewer" id="pdfViewerWorkout1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('workout1')">
+                  <i class="fas fa-times"></i>
+                </button>
+                <div class="pdf-container" id="pdfContainerWorkout1">
+                  <!-- PDF akan dimuat di sini -->
+                </div>
               </div>
 
               <h6><b>PANDUAN WORKOUT</b></h6>
@@ -830,6 +848,15 @@ body { background-color: #f8f9fa; }
                   <i class="fas fa-times"></i>
                 </button>
               </div>
+              <!-- PDF Viewer untuk Water Reminder -->
+              <div class="pdf-viewer" id="pdfViewerWater1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('water1')">
+                  <i class="fas fa-times"></i>
+                </button>
+                <div class="pdf-container" id="pdfContainerWater1">
+                  <!-- PDF akan dimuat di sini -->
+                </div>
+              </div>
 
               <h6><b>PANDUAN WATER REMINDER</b></h6>
               <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</br>
@@ -862,8 +889,19 @@ body { background-color: #f8f9fa; }
 
               <h6><b>PANDUAN ISTIRAHAT</b></h6>
               <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat"><i class="fas fa-bed"></i> Cek Disini</button>
-                
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat">
+                <i class="fas fa-bed"></i> Cek Disini
+              </button>
+              <!-- PDF Viewer untuk Istirahat -->
+              <div class="pdf-viewer" id="pdfViewerIstirahat1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('istirahat1')">
+                  <i class="fas fa-times"></i>
+                </button>
+                <div class="pdf-container" id="pdfContainerIstirahat1">
+                  <!-- PDF akan dimuat di sini -->
+                </div>
+              </div>
+
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan anda istirahat dalam ruangan yang pencahayaannya redup, hening dan memiliki suhu ruang yang nyaman</p>
               </div>
@@ -881,15 +919,26 @@ body { background-color: #f8f9fa; }
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Lengkapi Data Kondisi Tubuh Anda !</h6>
-                 <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('dataTrackingContent1')">
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('dataTrackingContent1')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
 
               <h6><b>PANDUAN DATA TRACKING</b></h6>
               <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1"><i class="fas fa-bed"></i> Cek Disini</button>
-                
+              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh1">
+                <i class="fas fa-bed"></i> Cek Disini
+              </button>
+              <!-- PDF Viewer untuk Data Tracking -->
+              <div class="pdf-viewer" id="pdfViewerDatatracking1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('datatracking1')">
+                  <i class="fas fa-times"></i>
+                </button>
+                <div class="pdf-container" id="pdfContainerDatatracking1">
+                  <!-- PDF akan dimuat di sini -->
+                </div>
+              </div>  
+
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami</p>
               </div>  
@@ -1098,7 +1147,29 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup PDF links khusus untuk menu Panduan
   setupPanduanPDFLinks();
-  
+
+  // Setup tombol "Cek Disini" untuk Modul Hari Pertama
+  // Meal Plan hari pertama  
+  document.getElementById('btnCekDisiniMealPlan')?.addEventListener('click', function() {
+      loadPDF('mealplan1', '/pdf/MealPlan_HariKe1.pdf', 'Meal Plan Hari Pertama');
+  });
+  // Workout hari pertama
+  document.getElementById('btnCekDisiniWorkout')?.addEventListener('click', function() {
+      loadPDF('workout1', '/pdf/Workout_HariKe1.pdf', 'Workout Hari Pertama');
+  });
+  // WaterReminder hari pertama
+  document.getElementById('btnCekDisiniAirMinum')?.addEventListener('click', function() {
+      loadPDF('water1', '/pdf/WaterReminder_HariKe1.pdf', 'Water Reminder Hari Pertama');
+  });
+  // Istirahat hari pertama
+  document.getElementById('btnCekDisiniIstirihat')?.addEventListener('click', function() {
+      loadPDF('istirahat1', '/pdf/Istirahat_HariKe1.pdf', 'Waktu Istirahat Hari Pertama');
+  });
+  // Data Tracking Hari Pertama
+  document.getElementById('btnCekDisiniDataTubuh1')?.addEventListener('click', function() {
+      loadPDF('datatracking1', '/pdf/DataTracking_HariKe1.pdf', 'Data Tracking Hari Pertama');
+  });
+
   // Setup playlist triggers
   setupPlaylistTriggers();
   
@@ -1753,6 +1824,51 @@ function loadPDF(section, pdfUrl, title = '') {
     // Show PDF viewer
     pdfViewer.style.display = 'block';
     
+    // Untuk PDF di submenu, cari parent submenu content dan tempatkan PDF viewer di dalamnya
+    const submenuContent = pdfViewer.closest('.submenu-content');
+    if (submenuContent) {
+        // Pastikan PDF viewer ada di dalam submenu content
+        submenuContent.appendChild(pdfViewer);
+    }
+    
+    // Load PDF setelah ditampilkan
+    setTimeout(() => {
+        displayPDF(section, pdfUrl, title);
+    }, 500);
+}
+
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
+    console.log('loadPDF called:', { section, pdfUrl, title });
+    
+    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    if (!pdfViewer || !pdfContainer) return;
+    
+    // Close video dan PDF lain
+    closeAllVideos();
+    closeAllPDFs();
+    
+    // Reset previous PDF
+    pdfContainer.innerHTML = '';
+    currentPDFData = {
+        section: section,
+        url: pdfUrl,
+        title: title
+    };
+    
+    // Show loading
+    pdfContainer.innerHTML = `
+        <div class="pdf-loading">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="mt-2">Memuat PDF, tunggu...</div>
+        </div>
+    `;
+    
+    // Show PDF viewer
+    pdfViewer.style.display = 'block';
+    
     // Untuk PDF di menu Panduan, pastikan posisinya tepat
     if (section === 'panduan') {
         // Cari link PDF yang diklik dan tempatkan PDF viewer setelahnya
@@ -2110,6 +2226,17 @@ function closePDF(section) {
 * Tutup Semua PDF Viewer
 *************************/
 function closeAllPDFs() {
+    console.log('Closing all PDFs');
+    const pdfViewers = document.querySelectorAll('.pdf-viewer');
+    pdfViewers.forEach(viewer => {
+        const section = viewer.id.replace('pdfViewer', '');
+        if (section) {
+            closePDF(section.toLowerCase());
+        }
+    });
+}
+
+function BACKUP_closeAllPDFs() {
     console.log('Closing all PDFs');
     const pdfViewers = document.querySelectorAll('.pdf-viewer');
     pdfViewers.forEach(viewer => {
