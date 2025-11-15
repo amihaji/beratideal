@@ -1173,27 +1173,8 @@ document.addEventListener('DOMContentLoaded', function() {
   setupPanduanPDFLinks();
 
   // Setup tombol "Cek Disini" untuk Modul Hari Pertama
-  // Meal Plan hari pertama  
-  document.getElementById('btnCekDisiniMealPlan')?.addEventListener('click', function() {
-      loadPDF('mealplan1', 'https://amihaji.github.io/beratideal/pdf/MealPlan_HariKe1.pdf', 'Meal Plan Hari Pertama');
-  });
-  // Workout hari pertama
-  document.getElementById('btnCekDisiniWorkout')?.addEventListener('click', function() {
-      loadPDF('workout1', 'https://amihaji.github.io/beratideal/pdf/WorkOut_HariKe1.pdf', 'Workout Hari Pertama');
-  });
-  // WaterReminder hari pertama
-  document.getElementById('btnCekDisiniAirMinum')?.addEventListener('click', function() {
-      loadPDF('water1', 'https://amihaji.github.io/beratideal/pdf/WaterReminder_HariKe1.pdf', 'Water Reminder Hari Pertama');
-  });
-  // Istirahat hari pertama
-  document.getElementById('btnCekDisiniIstirihat')?.addEventListener('click', function() {
-      loadPDF('istirahat1', 'https://amihaji.github.io/beratideal/pdf/Istirahat_HariKe1.pdf', 'Waktu Istirahat Hari Pertama');
-  });
-  // Data Tracking Hari Pertama
-  document.getElementById('btnCekDisiniDataTubuh')?.addEventListener('click', function() {
-      loadPDF('datatracking1', 'https://amihaji.github.io/beratideal/pdf/DataTracking_HariKe1.pdf', 'Data Tracking Hari Pertama');
-  });
-
+  setupCekDisiniButtons();
+  
   // Setup playlist triggers
   setupPlaylistTriggers();
   
@@ -1216,6 +1197,59 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('✅ App initialized successfully');
 });
 
+/*************************
+* Setup Tombol Cek Disini
+**************************/
+function setupCekDisiniButtons() {
+    console.log('🔧 Setting up Cek Disini buttons...');
+    
+    // Meal Plan hari pertama  
+    const btnMealPlan = document.getElementById('btnCekDisiniMealPlan');
+    if (btnMealPlan) {
+        btnMealPlan.addEventListener('click', function() {
+            console.log('📋 Meal Plan button clicked');
+            loadPDF('mealplan1', 'https://amihaji.github.io/beratideal/pdf/MealPlan_HariKe1.pdf', 'Meal Plan Hari Pertama');
+        });
+    }
+    
+    // Workout hari pertama
+    const btnWorkout = document.getElementById('btnCekDisiniWorkout');
+    if (btnWorkout) {
+        btnWorkout.addEventListener('click', function() {
+            console.log('💪 Workout button clicked');
+            loadPDF('workout1', 'https://amihaji.github.io/beratideal/pdf/WorkOut_HariKe1.pdf', 'Workout Hari Pertama');
+        });
+    }
+    
+    // WaterReminder hari pertama
+    const btnAirMinum = document.getElementById('btnCekDisiniAirMinum');
+    if (btnAirMinum) {
+        btnAirMinum.addEventListener('click', function() {
+            console.log('💧 Water Reminder button clicked');
+            loadPDF('water1', 'https://amihaji.github.io/beratideal/pdf/WaterReminder_HariKe1.pdf', 'Water Reminder Hari Pertama');
+        });
+    }
+    
+    // Istirahat hari pertama
+    const btnIstirahat = document.getElementById('btnCekDisiniIstirihat');
+    if (btnIstirahat) {
+        btnIstirahat.addEventListener('click', function() {
+            console.log('😴 Istirahat button clicked');
+            loadPDF('istirahat1', 'https://amihaji.github.io/beratideal/pdf/Istirahat_HariKe1.pdf', 'Waktu Istirahat Hari Pertama');
+        });
+    }
+    
+    // Data Tracking Hari Pertama - PERBAIKAN: ID yang benar
+    const btnDataTubuh = document.getElementById('btnCekDisiniDataTubuh');
+    if (btnDataTubuh) {
+        btnDataTubuh.addEventListener('click', function() {
+            console.log('📊 Data Tracking button clicked');
+            loadPDF('datatracking1', 'https://amihaji.github.io/beratideal/pdf/DataTracking_HariKe1.pdf', 'Data Tracking Hari Pertama');
+        });
+    }
+    
+    console.log('✅ Cek Disini buttons setup completed');
+}
 
 // ********************************
 // ***** FUNGSI VIDEO PLAYER ******
@@ -1823,7 +1857,10 @@ function loadPDF(section, pdfUrl, title = '') {
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     
-    if (!pdfViewer || !pdfContainer) return;
+    if (!pdfViewer || !pdfContainer) {
+        console.error('❌ PDF Viewer or Container not found for section:', section);
+        return;
+    }
     
     // Close video dan PDF lain
     closeAllVideos();
@@ -1851,67 +1888,28 @@ function loadPDF(section, pdfUrl, title = '') {
     // **PERBAIKAN: Tempatkan PDF viewer di posisi yang tepat**
     if (section === 'panduan') {
         // Untuk menu Panduan: tempatkan setelah link PDF yang diklik
-        const pdfLink = document.querySelector(`a[onclick*="${pdfUrl}"]`);
+        const pdfLink = document.getElementById('pdfPanduanLink');
         if (pdfLink && pdfLink.parentNode) {
             pdfLink.parentNode.insertBefore(pdfViewer, pdfLink.nextSibling);
+            console.log('✅ PDF Panduan placed after link');
         }
     } else {
         // Untuk tombol "Cek Disini": tempatkan setelah tombol yang diklik
-        const cekDisiniBtn = document.querySelector(`#btnCekDisini${capitalizeFirst(section)}`);
+        const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(section)}`);
         if (cekDisiniBtn && cekDisiniBtn.parentNode) {
-            // Cari parent yang tepat (div atau p) dan tempatkan setelahnya
-            const parentElement = cekDisiniBtn.closest('p') || cekDisiniBtn.closest('div');
-            if (parentElement) {
-                parentElement.parentNode.insertBefore(pdfViewer, parentElement.nextSibling);
+            // Tempatkan PDF viewer setelah parent paragraph dari tombol
+            const parentParagraph = cekDisiniBtn.closest('p');
+            if (parentParagraph && parentParagraph.parentNode) {
+                parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
+                console.log('✅ PDF placed after button paragraph');
             } else {
                 // Fallback: tempatkan setelah tombol langsung
                 cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
+                console.log('✅ PDF placed after button');
             }
+        } else {
+            console.error('❌ Cek Disini button not found for section:', section);
         }
-    }
-    
-    // Load PDF setelah ditampilkan
-    setTimeout(() => {
-        displayPDF(section, pdfUrl, title);
-    }, 500);
-}
-
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('loadPDF called:', { section, pdfUrl, title });
-    
-    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    if (!pdfViewer || !pdfContainer) return;
-    
-    // Close video dan PDF lain
-    closeAllVideos();
-    closeAllPDFs();
-    
-    // Reset previous PDF
-    pdfContainer.innerHTML = '';
-    currentPDFData = {
-        section: section,
-        url: pdfUrl,
-        title: title
-    };
-    
-    // Show loading
-    pdfContainer.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <div class="mt-2">Memuat PDF, tunggu...</div>
-        </div>
-    `;
-    
-    // Show PDF viewer
-    pdfViewer.style.display = 'block';
-    
-    // Untuk PDF di submenu, cari parent submenu content dan tempatkan PDF viewer di dalamnya
-    const submenuContent = pdfViewer.closest('.submenu-content');
-    if (submenuContent) {
-        // Pastikan PDF viewer ada di dalam submenu content
-        submenuContent.appendChild(pdfViewer);
     }
     
     // Load PDF setelah ditampilkan
@@ -1923,36 +1921,21 @@ function BACKUP_loadPDF(section, pdfUrl, title = '') {
 /*************************************
 * Setup link PDF - khusus Menu Panduan
 **************************************/
-function setupPanduanPDFLink() {
-const panduanPDFLink = document.querySelector('a[href="pdf/Panduan_Penggunaan_Aplikasi.pdf"]');
-if (panduanPDFLink) {
-    // Hapus onclick attribute yang lama
-    panduanPDFLink.removeAttribute('onclick');
-    
-    // Tambahkan event listener baru
-    panduanPDFLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        loadPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf', 'PDF Panduan Penggunaan Aplikasi');
-    });
-  }
-}
-
-function BACKUP_setupPanduanPDFLinks() {
-    const panduanContent = document.getElementById('panduanContent');
-    if (!panduanContent) return;
-    
-    // Setup PDF link untuk panduan
-    const pdfLink = panduanContent.querySelector('a[href*="Panduan_Penggunaan_Aplikasi.pdf"]');
-    if (pdfLink) {
-        // Hapus event listener lama jika ada
-        pdfLink.replaceWith(pdfLink.cloneNode(true));
+function setupPanduanPDFLinks() {
+    const panduanPDFLink = document.getElementById('pdfPanduanLink');
+    if (panduanPDFLink) {
+        // Hapus href yang menyebabkan navigasi
+        panduanPDFLink.href = "#";
         
-        // Setup yang baru
-        const newPdfLink = panduanContent.querySelector('a[href*="Panduan_Penggunaan_Aplikasi.pdf"]');
-        newPdfLink.onclick = function(e) {
+        // Tambahkan event listener baru
+        panduanPDFLink.addEventListener('click', function(e) {
             e.preventDefault();
-            loadPDF('panduan', this.getAttribute('href'), 'PDF Panduan Penggunaan Aplikasi');
-        };
+            loadPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf', 'PDF Panduan Penggunaan Aplikasi');
+        });
+        
+        console.log('✅ PDF Panduan link setup completed');
+    } else {
+        console.error('❌ PDF Panduan link not found');
     }
 }
 
@@ -2285,11 +2268,21 @@ function closeAllPDFs() {
         }
     });
     
-    // Untuk Panduan kembalikan pdf viewer ke posisi semula
+    // **KEMBALIKAN PDF VIEWER KE POSISI SEMULA**
+    // Untuk Panduan
     const panduanPDFViewer = document.getElementById('pdfViewerPanduan');
     const panduanContent = document.getElementById('panduanContent');
     if (panduanPDFViewer && panduanContent) {
-        panduanContent.querySelector('.menu-content').appendChild(panduanPDFViewer);
+        const menuContent = panduanContent.querySelector('.menu-content');
+        if (menuContent) {
+            // Tempatkan sebelum "Selesai Panduan"
+            const selesaiLink = menuContent.querySelector('a[href="#"]:last-child');
+            if (selesaiLink) {
+                menuContent.insertBefore(panduanPDFViewer, selesaiLink);
+            } else {
+                menuContent.appendChild(panduanPDFViewer);
+            }
+        }
     }
     
     // Untuk submenu lainnya, kembalikan ke submenu content masing-masing
@@ -2302,18 +2295,6 @@ function closeAllPDFs() {
         }
     });
 }
-
-function BACKUP_closeAllPDFs() {
-    console.log('Closing all PDFs');
-    const pdfViewers = document.querySelectorAll('.pdf-viewer');
-    pdfViewers.forEach(viewer => {
-        const section = viewer.id.replace('pdfViewer', '');
-        if (section) {
-            closePDF(section.toLowerCase());
-        }
-    });
-}
-
 
 // ********************************
 // ***** FUNGSI SUMNEU DAN UI *****
