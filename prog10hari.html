@@ -585,12 +585,7 @@ body { background-color: #f8f9fa; }
                     <!-- PDF akan dimuat di sini -->
                   </div>
                 </div>
-
-                <!-- Selesai Panduan -->
-                <a href="#" class="menu-item">
-                  <i class="fas fa-check-double"></i>Selesai Panduan
-                </a>
-                
+               
                 <!-- Video Player untuk Panduan -->
                 <div class="video-container" id="videoContainerPanduan" style="display: none;">
                   <button class="close-video" onclick="closeVideo('panduan')">
@@ -610,9 +605,15 @@ body { background-color: #f8f9fa; }
                   </div>
                 </div>
 
+                <!-- Selesai Panduan -->
+                <a href="#" class="menu-item">
+                  <i class="fas fa-check-double"></i>Selesai Panduan
+                </a>
+
               </div>
             </div>
-
+          </div>
+          
           <!--------------------->
           <!-- MENU PERKENALAN --> 
           <!--------------------->
@@ -639,7 +640,7 @@ body { background-color: #f8f9fa; }
                   <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife
                 </a>
 
-                <!-- Local Video - PERBAIKAN DI SINI -->
+                <!-- Local Video -->
                 <a href="video/Live Best Your Best Life ! - 360.mp4" 
                   class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
                   <i class="fas fa-video"></i>3. Live Best Your Best Life !
@@ -1925,7 +1926,7 @@ function BACKUP_loadPDF(section, pdfUrl, title = '') {
 **************************************/
 // Di dalam DOMContentLoaded, ganti setup untuk Panduan PDF
 function setupPanduanPDFLink() {
-const panduanPDFLink = document.querySelector('a[href="pdf/Panduan_Meal_Plan.pdf"]');
+const panduanPDFLink = document.querySelector('a[href="pdf/Panduan_Penggunaan_Aplikasi.pdf"]');
 if (panduanPDFLink) {
     // Hapus onclick attribute yang lama
     panduanPDFLink.removeAttribute('onclick');
