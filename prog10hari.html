@@ -2872,9 +2872,9 @@ if (inputKondisiTubuh) {
 /************************************************
 * Tampilkan Pesan dalam Form (Bootstrap Standard)
 *************************************************/
-/*********************************************
-* Tampilkan Pesan dalam Form (Optimal Version)
-**********************************************/
+/************************************
+* Tampilkan Pesan dalam Form (Simple Fixed)
+*************************************/
 function showFormMessage(message, type = 'info', containerId = 'form-message') {
     // Cari atau buat container pesan
     let messageContainer = document.getElementById(containerId);
@@ -2895,15 +2895,16 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
         }
     }
     
-    // Buat alert Bootstrap yang optimal
+    // Buat alert Bootstrap
     const messageElement = document.createElement('div');
-    messageElement.className = `alert alert-${type} alert-dismissible p-2 pe-3 fade show`;
+    messageElement.className = `alert alert-${type} alert-dismissible py-2 px-3 fade show`;
     messageElement.style.fontSize = '0.875rem';
+    messageElement.style.lineHeight = '1.2';
     messageElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center w-100">
-            <span class="me-3">${message}</span>
-            <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="alert" style="transform: scale(0.7);"></button>
-        </div>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" 
+                style="transform: scale(0.7); position: relative; top: -1px; float: right; margin-left: 10px;">
+        </button>
     `;
     
     // Hapus pesan sebelumnya dan tambahkan yang baru
