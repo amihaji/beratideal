@@ -848,6 +848,7 @@ body { background-color: #f8f9fa; }
                   <!-- Pilihan olahraga resisten dimuat di sini -->
                 </div>
               </div>
+
               <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout"><i class="fa fa-check"></i> Selesai</button>
             </div>
           </div>
@@ -2492,58 +2493,196 @@ if (kardioExercises) {
   kardioExercises.appendChild(wrapper);
 } 
 
-/***************************
-* Daftar Olahraga Resisten
-***************************/   
+/*********************************************
+* Daftar Olahraga Resisten - DROPDOWN VERSION
+*********************************************/   
 const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
 const listEl = document.getElementById("olahragaResisten-list");
 
 if (listEl) {
-  resistanceExercises.forEach((name) => {
   const wrapper = document.createElement("div");
-  wrapper.className = "mb-1";  /*"input-group mb-1 align-items-start"; */
+  wrapper.className = "mb-3";
   wrapper.innerHTML = `  
-    <div class="input-group mb-1">
-      <div class="input-group-text">
-        <input type="checkbox" id="olahragaResisten" class="res-check">
+    <div class="form-group mb-3">
+      <select class="form-select" id="resistanceDropdown" style="max-width: 100%;">
+        <option value="">Pilih Olahraga Resistance</option>
+        ${resistanceExercises.map(exercise => 
+          `<option value="${exercise}">${exercise}</option>`
+        ).join('')}
+      </select>
+    </div>
+    
+    <div id="selectedResistanceContainer">
+      <!-- Selected exercises will appear here -->
+    </div>
+  `;
+  
+  listEl.appendChild(wrapper);
+  
+  // Event listener untuk dropdown
+  const dropdown = document.getElementById('resistanceDropdown');
+  const container = document.getElementById('selectedResistanceContainer');
+  
+  dropdown.addEventListener('change', function() {
+    const selectedValue = this.value;
+    if (selectedValue) {
+      addResistanceExercise(selectedValue);
+      this.value = ''; // Reset dropdown
+    }
+  });
+}
+
+/************************************
+* Fungsi Tambah Olahraga Resistance
+*************************************/
+function addResistanceExercise(exerciseName) {
+  const container = document.getElementById('selectedResistanceContainer');
+  const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
+  
+  // Cek apakah exercise sudah dipilih
+  if (document.getElementById(`resistance-${exerciseId}`)) {
+    showToast('Olahraga ini sudah dipilih', 'info');
+    return;
+  }
+  
+  const exerciseElement = document.createElement("div");
+  exerciseElement.id = `resistance-${exerciseId}`;
+  exerciseElement.className = "resistance-exercise-item border p-3 mb-2 rounded bg-light";
+  exerciseElement.innerHTML = `  
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h6 class="mb-0 text-primary">${exerciseName}</h6>
+      <button type="button" class="btn btn-sm btn-outline-danger delete-resistance" 
+              onclick="removeResistanceExercise('${exerciseId}')"
+              data-bs-toggle="tooltip" title="Hapus">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="row g-2">
+      <div class="col-12 col-md-4">
+        <div class="input-group">	
+          <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
+          <input type="number" min="0" id="jmlSet-${exerciseId}" class="form-control resistance-input" 
+                 placeholder="Jumlah set" data-exercise="${exerciseId}" data-type="set">
+        </div>
       </div>
-     
-      <input type="text" class="form-control" placeholder="${name}" readonly>
-      <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanOlahragaResisten" style="border-radius: 0px 5px 5px 0;" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
-             
-      <div class="w-100 mt-2 d-none res-fields">
-        <div class="row g-2">
-          <div class="col-12 col-md-4">
-            <div class="input-group">	
-              <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
-              <input type="number" min="0" id="jmlSet" class="form-control" placeholder="Jumlah set">
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
-              <input type="number" min="0" id="jmlRepetisi" class="form-control" placeholder="Jumlah Repetisi">
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
-              <input type="number" min="0" id="jmlDurasi" class="form-control" placeholder="Durasi dalam Menit">
-            </div>
-          </div>
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
+          <input type="number" min="0" id="jmlRepetisi-${exerciseId}" class="form-control resistance-input" 
+                 placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-type="repetisi">
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
+          <input type="number" min="0" id="jmlDurasi-${exerciseId}" class="form-control resistance-input" 
+                 placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-type="durasi">
         </div>
       </div>
     </div>
+    
+    <div class="mt-2">
+      <button type="button" class="btn btn-primary btn-sm btn-simpan-resistance" 
+              onclick="simpanResistanceData('${exerciseId}')"
+              data-bs-toggle="tooltip" title="Simpan">
+        <i class="fa fa-pencil-square-o"></i> Simpan
+      </button>
+    </div>
   `;
-
-    const checkbox = wrapper.querySelector(".res-check");
-    const fields = wrapper.querySelector(".res-fields");
-    checkbox.addEventListener("change", () => {
-      fields.classList.toggle("d-none", !checkbox.checked);
+  
+  container.appendChild(exerciseElement);
+  
+  // Auto-save ketika input berubah
+  const inputs = exerciseElement.querySelectorAll('.resistance-input');
+  inputs.forEach(input => {
+    input.addEventListener('change', function() {
+      const exerciseId = this.getAttribute('data-exercise');
+      simpanResistanceData(exerciseId);
     });
-      listEl.appendChild(wrapper);
   });
 }
+
+/*********************************
+* Fungsi Hapus Olahraga Resistance
+**********************************/
+function removeResistanceExercise(exerciseId) {
+  const exerciseElement = document.getElementById(`resistance-${exerciseId}`);
+  if (exerciseElement) {
+    exerciseElement.remove();
+    showToast('Olahraga dihapus', 'success');
+    
+    // Hapus juga dari localStorage jika ada
+    localStorage.removeItem(`resistance-${exerciseId}`);
+  }
+}
+
+/*******************************
+* Fungsi Simpan Data Resistance
+*******************************/
+function simpanResistanceData(exerciseId) {
+  const setValue = document.getElementById(`jmlSet-${exerciseId}`)?.value;
+  const repetisiValue = document.getElementById(`jmlRepetisi-${exerciseId}`)?.value;
+  const durasiValue = document.getElementById(`jmlDurasi-${exerciseId}`)?.value;
+  
+  const exerciseData = {
+    name: document.querySelector(`#resistance-${exerciseId} h6`).textContent,
+    set: setValue,
+    repetisi: repetisiValue,
+    durasi: durasiValue,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Simpan ke localStorage
+  localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
+  
+  showToast('Data resistance disimpan', 'success');
+}
+
+/******************************************
+* Fungsi Load Data Resistance yang Tersimpan
+*******************************************/
+function loadSavedResistanceData() {
+  const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
+  
+  resistanceExercises.forEach(exercise => {
+    const savedData = localStorage.getItem(`resistance-${exercise}`);
+    if (savedData) {
+      addResistanceExercise(exercise.replace(/-/g, ' '));
+      
+      // Set values setelah element dibuat
+      setTimeout(() => {
+        const data = JSON.parse(savedData);
+        const setInput = document.getElementById(`jmlSet-${exercise}`);
+        const repetisiInput = document.getElementById(`jmlRepetisi-${exercise}`);
+        const durasiInput = document.getElementById(`jmlDurasi-${exercise}`);
+        
+        if (setInput && data.set) setInput.value = data.set;
+        if (repetisiInput && data.repetisi) repetisiInput.value = data.repetisi;
+        if (durasiInput && data.durasi) durasiInput.value = data.durasi;
+      }, 100);
+    }
+  });
+}
+
+/************************************************
+* Fungsi Reset Data Resistance (untuk hari baru)
+************************************************/
+function resetResistanceData() {
+  const container = document.getElementById('selectedResistanceContainer');
+  if (container) {
+    container.innerHTML = '';
+  }
+  
+  // Hapus semua data resistance dari localStorage
+  const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
+  resistanceExercises.forEach(exercise => {
+    localStorage.removeItem(`resistance-${exercise}`);
+  });
+  
+  showToast('Data resistance direset', 'info');
+}
+
 
 /**************************
 * Minum Air Putih per hari
