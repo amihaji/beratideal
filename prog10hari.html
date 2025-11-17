@@ -459,15 +459,42 @@ body { background-color: #f8f9fa; }
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-.delete-resistance { transition: all 0.3s ease; }
+.delete-resistance, .btn-simpan-resistance {
+  transition: all 0.3s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .delete-resistance:hover {
   transform: scale(1.1);
   background-color: #dc3545 !important;
   color: white !important;
 }
-.btn-simpan-resistance { transition: all 0.3s ease; }
-.btn-simpan-resistance:hover { transform: translateY(-1px); }
+.btn-simpan-resistance:hover { transform: scale(1.1); }
+.form-message-container { min-height: 50px; }
 /***** Akhir Resistance Exercise Styles *****/
+
+/* Alert customization */
+.alert { border-radius: 8px; border: none; font-size: 14px; }
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+}
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+}
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+/* Akhir Alert customization */
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -2566,7 +2593,7 @@ function addResistanceExercise(exerciseName) {
   
   // Cek apakah exercise sudah dipilih
   if (document.getElementById(`resistance-${exerciseId}`)) {
-    showToast('Olahraga ini sudah dipilih', 'info');
+    showFormMessage('Olahraga ini sudah dipilih', 'warning', 'resistance-message');
     return;
   }
   
@@ -2574,13 +2601,20 @@ function addResistanceExercise(exerciseName) {
   exerciseElement.id = `resistance-${exerciseId}`;
   exerciseElement.className = "resistance-exercise-item border p-3 mb-2 rounded bg-light";
   exerciseElement.innerHTML = `  
-    <div class="d-flex justify-content-between align-items-start mb-2">
-      <h6 class="mb-0 text-primary">${exerciseName}</h6>
-      <button type="button" class="btn btn-sm btn-outline-danger delete-resistance" 
-              onclick="removeResistanceExercise('${exerciseId}')"
-              data-bs-toggle="tooltip" title="Hapus">
-        <i class="fas fa-times"></i>
-      </button>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0 text-primary flex-grow-1">${exerciseName}</h6>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-primary btn-sm btn-simpan-resistance" 
+                onclick="simpanResistanceData('${exerciseId}')"
+                data-bs-toggle="tooltip" title="Simpan">
+          <i class="fa fa-save"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger delete-resistance" 
+                onclick="removeResistanceExercise('${exerciseId}')"
+                data-bs-toggle="tooltip" title="Hapus">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
     </div>
     
     <div class="row g-2">
@@ -2606,14 +2640,6 @@ function addResistanceExercise(exerciseName) {
         </div>
       </div>
     </div>
-    
-    <div class="mt-2">
-      <button type="button" class="btn btn-primary btn-sm btn-simpan-resistance" 
-              onclick="simpanResistanceData('${exerciseId}')"
-              data-bs-toggle="tooltip" title="Simpan">
-        <i class="fa fa-pencil-square-o"></i> Simpan
-      </button>
-    </div>
   `;
   
   container.appendChild(exerciseElement);
@@ -2635,7 +2661,7 @@ function removeResistanceExercise(exerciseId) {
   const exerciseElement = document.getElementById(`resistance-${exerciseId}`);
   if (exerciseElement) {
     exerciseElement.remove();
-    showToast('Olahraga dihapus', 'success');
+    showFormMessage('Olahraga berhasil dihapus', 'success', 'resistance-message');
     
     // Hapus juga dari localStorage jika ada
     localStorage.removeItem(`resistance-${exerciseId}`);
@@ -2644,11 +2670,17 @@ function removeResistanceExercise(exerciseId) {
 
 /*******************************
 * Fungsi Simpan Data Resistance
-*******************************/
+********************************/
 function simpanResistanceData(exerciseId) {
   const setValue = document.getElementById(`jmlSet-${exerciseId}`)?.value;
   const repetisiValue = document.getElementById(`jmlRepetisi-${exerciseId}`)?.value;
   const durasiValue = document.getElementById(`jmlDurasi-${exerciseId}`)?.value;
+  
+  // Validasi: minimal satu field harus diisi
+  if (!setValue && !repetisiValue && !durasiValue) {
+    showFormMessage('Isi minimal satu field data', 'warning', 'resistance-message');
+    return;
+  }
   
   const exerciseData = {
     name: document.querySelector(`#resistance-${exerciseId} h6`).textContent,
@@ -2661,7 +2693,28 @@ function simpanResistanceData(exerciseId) {
   // Simpan ke localStorage
   localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
   
-  showToast('Data resistance disimpan', 'success');
+  showFormMessage('Data resistance berhasil disimpan', 'success', 'resistance-message');
+}
+
+/***********************************************
+* Fungsi Reset Data Resistance (untuk hari baru)
+************************************************/
+function resetResistanceData() {
+  const container = document.getElementById('selectedResistanceContainer');
+  if (container) {
+    container.innerHTML = '';
+  }
+  
+  // Hapus pesan
+  clearFormMessage('resistance-message');
+  
+  // Hapus semua data resistance dari localStorage
+  const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
+  resistanceExercises.forEach(exercise => {
+    localStorage.removeItem(`resistance-${exercise}`);
+  });
+  
+  showFormMessage('Data resistance berhasil direset', 'info', 'resistance-message');
 }
 
 /******************************************
@@ -2688,24 +2741,6 @@ function loadSavedResistanceData() {
       }, 100);
     }
   });
-}
-
-/************************************************
-* Fungsi Reset Data Resistance (untuk hari baru)
-************************************************/
-function resetResistanceData() {
-  const container = document.getElementById('selectedResistanceContainer');
-  if (container) {
-    container.innerHTML = '';
-  }
-  
-  // Hapus semua data resistance dari localStorage
-  const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
-  resistanceExercises.forEach(exercise => {
-    localStorage.removeItem(`resistance-${exercise}`);
-  });
-  
-  showToast('Data resistance direset', 'info');
 }
 
 
@@ -2849,6 +2884,104 @@ if (inputKondisiTubuh) {
   `;
   inputKondisiTubuh.appendChild(wrapper);
 }                 
+
+// ******************************
+// *** FUNGSI PESAN FLEKSIBEL ***
+// ******************************
+
+/****************************
+* Tampilkan Pesan dalam Form
+*****************************/
+function showFormMessage(message, type = 'info', containerId = 'form-message') {
+    // Cari atau buat container pesan
+    let messageContainer = document.getElementById(containerId);
+    
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.id = containerId;
+        messageContainer.className = 'form-message-container mt-3';
+        
+        // Tempatkan sebelum tombol Selesai atau di akhir form
+        const selesaiButton = document.querySelector('#btnSelesaiWorkout');
+        if (selesaiButton && selesaiButton.parentNode) {
+            selesaiButton.parentNode.insertBefore(messageContainer, selesaiButton);
+        } else {
+            // Fallback: tempatkan di container resistance
+            const resistanceContainer = document.getElementById('selectedResistanceContainer');
+            if (resistanceContainer) {
+                resistanceContainer.parentNode.appendChild(messageContainer);
+            }
+        }
+    }
+    
+    // Tentukan warna berdasarkan type
+    const colorMap = {
+        'success': 'success',
+        'error': 'danger', 
+        'warning': 'warning',
+        'info': 'info'
+    };
+    
+    const colorClass = colorMap[type] || 'info';
+    
+    // Buat elemen pesan
+    const messageElement = document.createElement('div');
+    messageElement.className = `alert alert-${colorClass} alert-dismissible fade show`;
+    messageElement.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Hapus pesan sebelumnya dan tambahkan yang baru
+    messageContainer.innerHTML = '';
+    messageContainer.appendChild(messageElement);
+    
+    // Auto-hide setelah 5 detik untuk pesan success/info
+    if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+            if (messageElement.parentNode) {
+                messageElement.remove();
+            }
+        }, 5000);
+    }
+}
+
+/*************************
+* Hapus Pesan dari Form
+**************************/
+function clearFormMessage(containerId = 'form-message') {
+    const messageContainer = document.getElementById(containerId);
+    if (messageContainer) {
+        messageContainer.innerHTML = '';
+    }
+}
+
+/****************************************
+* Pesan Toast Global (untuk outside form)
+*****************************************/
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+        color: ${type === 'warning' ? '#000' : 'white'};
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 14px;
+        max-width: 300px;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
 
 </script>
 </body>
