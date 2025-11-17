@@ -449,6 +449,26 @@ body { background-color: #f8f9fa; }
 .pdfjs-page-info { font-size: 14px; color: #666;}
 /***** Akhir PDF.js Viewer Styles *****/
 
+/***** Resistance Exercise Styles *****/
+.resistance-exercise-item {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e9ecef 100%);
+  border-left: 4px solid #002266 !important;
+  transition: all 0.3s ease;
+}
+.resistance-exercise-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.delete-resistance { transition: all 0.3s ease; }
+.delete-resistance:hover {
+  transform: scale(1.1);
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+.btn-simpan-resistance { transition: all 0.3s ease; }
+.btn-simpan-resistance:hover { transform: translateY(-1px); }
+/***** Akhir Resistance Exercise Styles *****/
+
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
   .navbar-collapse .mx-auto {
@@ -1178,6 +1198,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup playlist triggers
   setupPlaylistTriggers();
+  
+  // Load saved resistance data
+  setTimeout(() => {
+    loadSavedResistanceData();
+  }, 1000);
   
   // About overlay
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
