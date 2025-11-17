@@ -450,18 +450,18 @@ body { background-color: #f8f9fa; }
 /***** Akhir PDF.js Viewer Styles *****/
 
 /* Alert customization */
-.alert { border-radius: 8px; border: none; font-size: 14px; }
+.alert { border-radius: 4px; border: none; font-size: 14px; padding-top:2px ; padding-bottom: 2px; }
 .alert-success {
   background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #155724;
+  color: #0052cc;
 }
 .alert-warning {
   background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-  color: #856404;
+  color: #ffaa00;
 }
 .alert-info {
   background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-  color: #0c5460;
+  color: #06b0ce;
 }
 .alert-danger {
   background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
@@ -791,7 +791,7 @@ body { background-color: #f8f9fa; }
               
               <h6><b>PANDUAN NUTRISI</b></h6>
               <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniMealPlan">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniMealPlan">
                 <i class="fas fa-utensils"></i> Cek Disini
               </button>
         
@@ -834,7 +834,7 @@ body { background-color: #f8f9fa; }
               
               <h6><b>PANDUAN WORKOUT</b></h6>
               <p><b>Rekomendasi Olahraga : </b>Olahraga 3-5 hari seminggu dengan durasi 20-30 menit setiap harinya, dengan pilihan jenis olahraga yang sesuai dengan kebutuhan tubuh dan kesehatan</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniWorkout">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniWorkout">
                 <i class="fas fa-dumbbell"></i> Cek Disini
               </button>
    
@@ -885,7 +885,7 @@ body { background-color: #f8f9fa; }
              
               <h6><b>PANDUAN WATER REMINDER</b></h6>
               <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniAirMinum">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniAirMinum">
                 <i class="fas fa-prescription-bottle"></i> Cek Disini
               </button>
      
@@ -928,7 +928,7 @@ body { background-color: #f8f9fa; }
 
               <h6><b>PANDUAN ISTIRAHAT</b></h6>
               <p><b>Rekomendasi Istirahat : </b>Dapatkan jam istirahat anda antara 6-8 Jam per malam</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniIstirihat">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniIstirihat">
                 <i class="fas fa-bed"></i> Cek Disini
               </button>
           
@@ -968,7 +968,7 @@ body { background-color: #f8f9fa; }
 
               <h6><b>PANDUAN DATA TRACKING</b></h6>
               <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-success btn-sm mt-1" id="btnCekDisiniDataTubuh">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniDataTubuh">
                 <i class="fas fa-bed"></i> Cek Disini
               </button>
               
@@ -2641,7 +2641,7 @@ function removeResistanceExercise(exerciseId) {
   const exerciseElement = document.getElementById(`resistance-${exerciseId}`);
   if (exerciseElement) {
     exerciseElement.remove();
-    showFormMessage('Olahraga berhasil dihapus', 'success', 'resistance-message');
+    showFormMessage('Olahraga berhasil dihapus', 'danger', 'resistance-message');
     localStorage.removeItem(`resistance-${exerciseId}`);
   }
 }
@@ -2669,7 +2669,7 @@ function simpanResistanceData(exerciseId) {
   };
   
   localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
-  showFormMessage('Data resistance berhasil disimpan', 'success', 'resistance-message');
+  showFormMessage('Data resistance berhasil disimpan', 'primary', 'resistance-message');
 }
 
 /***********************************************
@@ -2902,7 +2902,7 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
     messageContainer.innerHTML = '';
     messageContainer.appendChild(messageElement);
     
-    // Auto-hide setelah 5 detik untuk pesan success/info
+    // Auto-hide setelah 5 detik untuk pesan success/info/primary
     if (type === 'success' || type === 'info') {
         setTimeout(() => {
             if (messageElement.parentNode) {
