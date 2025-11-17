@@ -449,33 +449,6 @@ body { background-color: #f8f9fa; }
 .pdfjs-page-info { font-size: 14px; color: #666;}
 /***** Akhir PDF.js Viewer Styles *****/
 
-/***** Resistance Exercise Styles *****/
-.resistance-exercise-item {
-  background: linear-gradient(135deg, #f8f9ff 0%, #e9ecef 100%);
-  border-left: 4px solid #002266 !important;
-  transition: all 0.3s ease;
-}
-.resistance-exercise-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-.delete-resistance, .btn-simpan-resistance {
-  transition: all 0.3s ease;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.delete-resistance:hover {
-  transform: scale(1.1);
-  background-color: #dc3545 !important;
-  color: white !important;
-}
-.btn-simpan-resistance:hover { transform: scale(1.1); }
-.form-message-container { min-height: 50px; }
-/***** Akhir Resistance Exercise Styles *****/
-
 /* Alert customization */
 .alert { border-radius: 8px; border: none; font-size: 14px; }
 .alert-success {
@@ -1214,10 +1187,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
+  // Initialize Bootstrap tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+
   // Setup video links
   setupAllLinks();
   
-  // Setup PDF links khusus untuk menu Panduan
+    // Setup PDF links khusus untuk menu Panduan
   setupPanduanPDFLinks();
 
   // Setup tombol "Cek Disini" untuk Modul Hari Pertama
@@ -2555,8 +2534,9 @@ if (listEl) {
   const wrapper = document.createElement("div");
   wrapper.className = "mb-3";
   wrapper.innerHTML = `  
-    <div class="form-group mb-3">
-      <select class="form-select" id="resistanceDropdown" style="max-width: 100%;">
+    <div class="mb-3">
+      <label class="form-label">Pilih Olahraga Resistance:</label>
+      <select class="form-select" id="resistanceDropdown">
         <option value="">Pilih Olahraga Resistance</option>
         ${resistanceExercises.map(exercise => 
           `<option value="${exercise}">${exercise}</option>`
@@ -2573,8 +2553,6 @@ if (listEl) {
   
   // Event listener untuk dropdown
   const dropdown = document.getElementById('resistanceDropdown');
-  const container = document.getElementById('selectedResistanceContainer');
-  
   dropdown.addEventListener('change', function() {
     const selectedValue = this.value;
     if (selectedValue) {
@@ -2599,44 +2577,46 @@ function addResistanceExercise(exerciseName) {
   
   const exerciseElement = document.createElement("div");
   exerciseElement.id = `resistance-${exerciseId}`;
-  exerciseElement.className = "resistance-exercise-item border p-3 mb-2 rounded bg-light";
+  exerciseElement.className = "resistance-exercise-item card mb-3";
   exerciseElement.innerHTML = `  
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="mb-0 text-primary flex-grow-1">${exerciseName}</h6>
-      <div class="d-flex gap-2">
-        <button type="button" class="btn btn-primary btn-sm btn-simpan-resistance" 
-                onclick="simpanResistanceData('${exerciseId}')"
-                data-bs-toggle="tooltip" title="Simpan">
-          <i class="fa fa-save"></i>
-        </button>
-        <button type="button" class="btn btn-sm btn-outline-danger delete-resistance" 
-                onclick="removeResistanceExercise('${exerciseId}')"
-                data-bs-toggle="tooltip" title="Hapus">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </div>
-    
-    <div class="row g-2">
-      <div class="col-12 col-md-4">
-        <div class="input-group">	
-          <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
-          <input type="number" min="0" id="jmlSet-${exerciseId}" class="form-control resistance-input" 
-                 placeholder="Jumlah set" data-exercise="${exerciseId}" data-type="set">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="card-title mb-0 text-primary">${exerciseName}</h6>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-success btn-sm" 
+                  onclick="simpanResistanceData('${exerciseId}')"
+                  data-bs-toggle="tooltip" title="Simpan">
+            <i class="fas fa-save"></i>
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" 
+                  onclick="removeResistanceExercise('${exerciseId}')"
+                  data-bs-toggle="tooltip" title="Hapus">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
       </div>
-      <div class="col-12 col-md-4">
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
-          <input type="number" min="0" id="jmlRepetisi-${exerciseId}" class="form-control resistance-input" 
-                 placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-type="repetisi">
+      
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">	
+            <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
+            <input type="number" min="0" id="jmlSet-${exerciseId}" class="form-control" 
+                   placeholder="Jumlah set" data-exercise="${exerciseId}" data-type="set">
+          </div>
         </div>
-      </div>
-      <div class="col-12 col-md-4">
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
-          <input type="number" min="0" id="jmlDurasi-${exerciseId}" class="form-control resistance-input" 
-                 placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-type="durasi">
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
+            <input type="number" min="0" id="jmlRepetisi-${exerciseId}" class="form-control" 
+                   placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-type="repetisi">
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
+            <input type="number" min="0" id="jmlDurasi-${exerciseId}" class="form-control" 
+                   placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-type="durasi">
+          </div>
         </div>
       </div>
     </div>
@@ -2645,7 +2625,7 @@ function addResistanceExercise(exerciseName) {
   container.appendChild(exerciseElement);
   
   // Auto-save ketika input berubah
-  const inputs = exerciseElement.querySelectorAll('.resistance-input');
+  const inputs = exerciseElement.querySelectorAll('input[type="number"]');
   inputs.forEach(input => {
     input.addEventListener('change', function() {
       const exerciseId = this.getAttribute('data-exercise');
@@ -2662,15 +2642,13 @@ function removeResistanceExercise(exerciseId) {
   if (exerciseElement) {
     exerciseElement.remove();
     showFormMessage('Olahraga berhasil dihapus', 'success', 'resistance-message');
-    
-    // Hapus juga dari localStorage jika ada
     localStorage.removeItem(`resistance-${exerciseId}`);
   }
 }
 
-/*******************************
+/******************************
 * Fungsi Simpan Data Resistance
-********************************/
+*******************************/
 function simpanResistanceData(exerciseId) {
   const setValue = document.getElementById(`jmlSet-${exerciseId}`)?.value;
   const repetisiValue = document.getElementById(`jmlRepetisi-${exerciseId}`)?.value;
@@ -2683,16 +2661,14 @@ function simpanResistanceData(exerciseId) {
   }
   
   const exerciseData = {
-    name: document.querySelector(`#resistance-${exerciseId} h6`).textContent,
+    name: document.querySelector(`#resistance-${exerciseId} .card-title`).textContent,
     set: setValue,
     repetisi: repetisiValue,
     durasi: durasiValue,
     timestamp: new Date().toISOString()
   };
   
-  // Simpan ke localStorage
   localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
-  
   showFormMessage('Data resistance berhasil disimpan', 'success', 'resistance-message');
 }
 
@@ -2889,9 +2865,9 @@ if (inputKondisiTubuh) {
 // *** FUNGSI PESAN FLEKSIBEL ***
 // ******************************
 
-/****************************
-* Tampilkan Pesan dalam Form
-*****************************/
+/************************************************
+* Tampilkan Pesan dalam Form (Bootstrap Standard)
+*************************************************/
 function showFormMessage(message, type = 'info', containerId = 'form-message') {
     // Cari atau buat container pesan
     let messageContainer = document.getElementById(containerId);
@@ -2899,9 +2875,9 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
     if (!messageContainer) {
         messageContainer = document.createElement('div');
         messageContainer.id = containerId;
-        messageContainer.className = 'form-message-container mt-3';
+        messageContainer.className = 'mt-3';
         
-        // Tempatkan sebelum tombol Selesai atau di akhir form
+        // Tempatkan sebelum tombol Selesai
         const selesaiButton = document.querySelector('#btnSelesaiWorkout');
         if (selesaiButton && selesaiButton.parentNode) {
             selesaiButton.parentNode.insertBefore(messageContainer, selesaiButton);
@@ -2914,22 +2890,12 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
         }
     }
     
-    // Tentukan warna berdasarkan type
-    const colorMap = {
-        'success': 'success',
-        'error': 'danger', 
-        'warning': 'warning',
-        'info': 'info'
-    };
-    
-    const colorClass = colorMap[type] || 'info';
-    
-    // Buat elemen pesan
+    // Buat alert Bootstrap
     const messageElement = document.createElement('div');
-    messageElement.className = `alert alert-${colorClass} alert-dismissible fade show`;
+    messageElement.className = `alert alert-${type} alert-dismissible fade show`;
     messageElement.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+        <span>${message}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     
     // Hapus pesan sebelumnya dan tambahkan yang baru
@@ -2940,15 +2906,16 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
     if (type === 'success' || type === 'info') {
         setTimeout(() => {
             if (messageElement.parentNode) {
-                messageElement.remove();
+                const bsAlert = new bootstrap.Alert(messageElement);
+                bsAlert.close();
             }
         }, 5000);
     }
 }
 
-/*************************
+/***********************
 * Hapus Pesan dari Form
-**************************/
+************************/
 function clearFormMessage(containerId = 'form-message') {
     const messageContainer = document.getElementById(containerId);
     if (messageContainer) {
@@ -2957,30 +2924,46 @@ function clearFormMessage(containerId = 'form-message') {
 }
 
 /****************************************
-* Pesan Toast Global (untuk outside form)
-*****************************************/
+* Pesan Toast Global (Bootstrap Standard)
+****************************************/
 function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8'};
-        color: ${type === 'warning' ? '#000' : 'white'};
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        font-size: 14px;
-        max-width: 300px;
+    // Buat toast container jika belum ada
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '1100';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Buat toast element
+    const toastId = 'toast-' + Date.now();
+    const toastElement = document.createElement('div');
+    toastElement.id = toastId;
+    toastElement.className = `toast align-items-center text-bg-${type} border-0`;
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
     `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    
+    toastContainer.appendChild(toastElement);
+    
+    // Inisialisasi dan tampilkan toast
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 3000
+    });
+    toast.show();
+    
+    // Hapus element setelah toast disembunyikan
+    toastElement.addEventListener('hidden.bs.toast', function () {
+        toastElement.remove();
+    });
 }
 
 </script>
