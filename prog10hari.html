@@ -2872,7 +2872,56 @@ if (inputKondisiTubuh) {
 /************************************************
 * Tampilkan Pesan dalam Form (Bootstrap Standard)
 *************************************************/
+/************************************
+* Tampilkan Pesan dalam Form (Bootstrap Only)
+*************************************/
 function showFormMessage(message, type = 'info', containerId = 'form-message') {
+    // Cari atau buat container pesan
+    let messageContainer = document.getElementById(containerId);
+    
+    if (!messageContainer) {
+        messageContainer = document.createElement('div');
+        messageContainer.id = containerId;
+        messageContainer.className = 'mt-2';
+        
+        const selesaiButton = document.querySelector('#btnSelesaiWorkout');
+        if (selesaiButton && selesaiButton.parentNode) {
+            selesaiButton.parentNode.insertBefore(messageContainer, selesaiButton);
+        } else {
+            const resistanceContainer = document.getElementById('selectedResistanceContainer');
+            if (resistanceContainer) {
+                resistanceContainer.parentNode.appendChild(messageContainer);
+            }
+        }
+    }
+    
+    // Buat alert Bootstrap dengan padding kecil
+    const messageElement = document.createElement('div');
+    messageElement.className = `alert alert-${type} alert-dismissible p-2 fade show`;
+    messageElement.style.fontSize = '0.875rem';
+    messageElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="me-3">${message}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="transform: scale(0.8);"></button>
+        </div>
+    `;
+    
+    // Hapus pesan sebelumnya dan tambahkan yang baru
+    messageContainer.innerHTML = '';
+    messageContainer.appendChild(messageElement);
+    
+    // Auto-hide setelah 5 detik
+    if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+            if (messageElement.parentNode) {
+                const bsAlert = new bootstrap.Alert(messageElement);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+}
+
+function BACKUP_showFormMessage(message, type = 'info', containerId = 'form-message') {
     // Cari atau buat container pesan
     let messageContainer = document.getElementById(containerId);
     
