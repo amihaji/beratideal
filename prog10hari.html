@@ -2902,9 +2902,11 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
     messageElement.style.lineHeight = '1.2';
     messageElement.innerHTML = `
         ${message}
-        <button type="button" class="btn-close d-flex justify-content-end" data-bs-dismiss="alert" 
-                style="transform: scale(0.7); position: relative;">
+        <div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert">
+                <!-- style="transform: scale(0.7); position: relative;"> -->
         </button>
+        </div>
     `;
 
     // Hapus pesan sebelumnya dan tambahkan yang baru
