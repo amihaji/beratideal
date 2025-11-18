@@ -452,20 +452,20 @@ body { background-color: #f8f9fa; }
 /* Alert customization */
 .alert { border-radius: 4px; border: none; font-size: 14px; }
 .alert-success {
-  color: #e7e7e7;
+  color: #ffffff;
   background: #0054d1;
 }
 .alert-warning {
-  color: #e7e7e7;
-  background: #e99b00;
+  color: #ffffff;
+  background: #b37700;
 }
 .alert-info {
-  color: #e7e7e7;
+  color: #ffffff;
   background: #0099b4; 
 }
 .alert-danger {
-  color: #e7e7e7;
-  background: #96000f;
+  color: #ffffff;
+  background: #ff0019;
 }
 /* Akhir Alert customization */
 
@@ -2719,7 +2719,6 @@ function loadSavedResistanceData() {
   });
 }
 
-
 /**************************
 * Minum Air Putih per hari
 ***************************/   
@@ -2800,7 +2799,6 @@ if (radioIstirahat) {
     radioIstirahat.appendChild(wrapper);
 } 
 
-
 /**************************
 * Input Data Kondisi Tubuh
 ***************************/   
@@ -2865,12 +2863,9 @@ if (inputKondisiTubuh) {
 // *** FUNGSI PESAN FLEKSIBEL ***
 // ******************************
 
-/************************************************
-* Tampilkan Pesan dalam Form (Bootstrap Standard)
-*************************************************/
-/************************************
+/******************************************
 * Tampilkan Pesan dalam Form (Simple Fixed)
-*************************************/
+*******************************************/
 function showFormMessage(message, type = 'info', containerId = 'form-message') {
     // Cari atau buat container pesan
     let messageContainer = document.getElementById(containerId);
@@ -2908,51 +2903,6 @@ function showFormMessage(message, type = 'info', containerId = 'form-message') {
     messageContainer.appendChild(messageElement);
     
     // Auto-hide setelah 5 detik
-    if (type === 'success' || type === 'info') {
-        setTimeout(() => {
-            if (messageElement.parentNode) {
-                const bsAlert = new bootstrap.Alert(messageElement);
-                bsAlert.close();
-            }
-        }, 5000);
-    }
-}
-
-function BACKUP_showFormMessage(message, type = 'info', containerId = 'form-message') {
-    // Cari atau buat container pesan
-    let messageContainer = document.getElementById(containerId);
-    
-    if (!messageContainer) {
-        messageContainer = document.createElement('div');
-        messageContainer.id = containerId;
-        messageContainer.className = 'mt-3';
-        
-        // Tempatkan sebelum tombol Selesai
-        const selesaiButton = document.querySelector('#btnSelesaiWorkout');
-        if (selesaiButton && selesaiButton.parentNode) {
-            selesaiButton.parentNode.insertBefore(messageContainer, selesaiButton);
-        } else {
-            // Fallback: tempatkan di container resistance
-            const resistanceContainer = document.getElementById('selectedResistanceContainer');
-            if (resistanceContainer) {
-                resistanceContainer.parentNode.appendChild(messageContainer);
-            }
-        }
-    }
-    
-    // Buat alert Bootstrap
-    const messageElement = document.createElement('div');
-    messageElement.className = `alert alert-${type} alert-dismissible fade show`;
-    messageElement.innerHTML = `
-        <span>${message}</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Hapus pesan sebelumnya dan tambahkan yang baru
-    messageContainer.innerHTML = '';
-    messageContainer.appendChild(messageElement);
-    
-    // Auto-hide setelah 5 detik untuk pesan success/info
     if (type === 'success' || type === 'info') {
         setTimeout(() => {
             if (messageElement.parentNode) {
