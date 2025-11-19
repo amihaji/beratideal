@@ -1342,6 +1342,71 @@ function setupAllLinks() {
 * Fungsi Memuat Video Berdasarkan Section
 *****************************************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
+    console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
+    
+    // Debug proses loading
+    debugVideoLoadProcess(section, videoType, videoUrl);
+    
+    // Untuk Canva, buka di tab baru
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    
+    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    if (!videoContainer) {
+        console.error('❌ Video container not found for section:', section);
+        return;
+    }
+    
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Validasi URL YouTube
+    if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
+        console.error('❌ Invalid YouTube URL:', videoUrl);
+        showToast('URL YouTube tidak valid', 'error');
+        return;
+    }
+    
+    // Close video di section lain
+    closeAllVideos();
+    
+    // Reset previous video 
+    if (videoPlayer) videoPlayer.innerHTML = '';
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl,
+        title: title
+    };
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    
+    // Update placeholder text
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'youtube') {
+        const youtubeId = extractYouTubeId(videoUrl);
+        placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video lokal';
+    }
+    
+    if (videoPlaceholder) {
+        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+        videoPlaceholder.style.display = 'flex';
+    }
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto play setelah ditampilkan
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
+function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
     console.log('loadVideo called:', { section, videoType, videoUrl, title });
     
     // Untuk Canva, buka di tab baru
@@ -1481,6 +1546,56 @@ function loadLocalVideo(videoPlayer, url) {
 * Ekstrak ID dari URL YouTube
 ****************************/
 function extractYouTubeId(url) {
+    console.log('🔍 Extracting YouTube ID from:', url);
+    
+    if (!url) {
+        console.log('❌ URL is empty');
+        return null;
+    }
+    
+    // Support semua format URL YouTube
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
+        /youtube\.com\/watch\?.*v=([^&?#]+)/,
+        /youtu\.be\/([^&?#]+)/,
+        /youtube\.com\/v\/([^&?#]+)/,
+        /youtube\.com\/watch\?.*vi?=([^&?#]+)/,
+        /youtube\.com\/user\/.*\/[^#]+\?.*v=([^&?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            const videoId = match[1];
+            console.log('✅ YouTube ID found:', videoId);
+            return videoId;
+        }
+    }
+    
+    // Fallback: coba ekstrak dengan metode split
+    try {
+        if (url.includes('youtube.com/watch?v=')) {
+            const videoId = url.split('v=')[1]?.split('&')[0];
+            if (videoId && videoId.length === 11) {
+                console.log('✅ YouTube ID found (fallback):', videoId);
+                return videoId;
+            }
+        } else if (url.includes('youtu.be/')) {
+            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            if (videoId && videoId.length === 11) {
+                console.log('✅ YouTube ID found (fallback):', videoId);
+                return videoId;
+            }
+        }
+    } catch (error) {
+        console.error('Error in fallback extraction:', error);
+    }
+    
+    console.log('❌ No YouTube ID found in URL:', url);
+    return null;
+}
+
+function BACKUP_extractYouTubeId(url) {
     console.log('Extracting YouTube ID from:', url);
     
     // Support multiple YouTube URL formats
@@ -1549,6 +1664,31 @@ function closeAllVideos() {
     closeAllPDFs();
 }
 
+/*******************************
+* Validasi URL YouTube - FUNGSI BARU
+********************************/
+function validateYouTubeUrl(url) {
+    console.log('🔍 Validating YouTube URL:', url);
+    
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    const isValid = youtubeRegex.test(url);
+    
+    console.log('✅ YouTube URL validation:', isValid);
+    return isValid;
+}
+
+/*******************************
+* Debug Video Load Process - FUNGSI BARU
+********************************/
+function debugVideoLoadProcess(section, videoType, videoUrl) {
+    console.log('🔧 DEBUG VIDEO LOAD PROCESS:');
+    console.log('Section:', section);
+    console.log('Video Type:', videoType);
+    console.log('Video URL:', videoUrl);
+    console.log('Is YouTube URL:', validateYouTubeUrl(videoUrl));
+    console.log('YouTube ID:', extractYouTubeId(videoUrl));
+    console.log('Video Container exists:', !!document.getElementById(`videoContainer${capitalizeFirst(section)}`));
+}
 
 // ****************************
 // ***** FUNGSI PLAYLIST ******
