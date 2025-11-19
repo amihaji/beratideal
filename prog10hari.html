@@ -2939,17 +2939,16 @@ if (inputKondisiTubuh) {
   const wrapper = document.createElement("div");
   wrapper.className = "mb-1"; /* "input-group mb-1 align-items-start"; */
   wrapper.innerHTML = `  
+    <!-- Pilih Jenis Kelamin -->
     <div class="input-group mt-3 mb-3">  
       <div class="input-group-text">
         <i class="fas fa-venus-mars"></i> 
       </div>
-
-      <!-- Pilih Jenis Kelamin -->
-       <select class="form-select" id="jenisKelamin1" required>
-          <option value="">Pilih Jenis Kelamin</option>
-          <option value="Pria">Pria</option>
-          <option value="Wanita">Wanita</option>
-        </select>
+      <select class="form-select" id="jenisKelamin1" required>
+        <option value="">Pilih Jenis Kelamin</option>
+        <option value="Pria">Pria</option>
+        <option value="Wanita">Wanita</option>
+      </select>
     </div> 
 
     <!-- Input Data Umur -->
@@ -2986,8 +2985,10 @@ if (inputKondisiTubuh) {
 
     <!-- Input Aktivitas Olahraga -->
     <div class="form-group mb-3"> 
+      <div class="input-group-text">
+        <i class="fas fa-dumbbell"></i> 
+      </div>
       <select class="form-select" id="aktivitasOlahraga" style="max-width: 100%;" required>
-        <i class="fas fa-dumbbell" style="padding-left: 3px; padding-right: 4px;"></i>
         <option value="">Pilihan Aktivitas Olahraga...</option>
         <option value="Sedikit/Tidak Olahraga">Sedikit/Tidak Olahraga</option>
         <option value="Olahraga ringan 1-3 hari/minggu">Olahraga ringan 1-3 hari/minggu</option>
@@ -2996,6 +2997,7 @@ if (inputKondisiTubuh) {
         <option value="Olahraga sangat aktif + Kegiatan fisik">Olahraga aktif + Kegiatan fisik</option>           
       </select>
     </div>
+
     <div>
       <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTubuh" data-bs-toggle="tooltip" title="Simpan Data Tubuh"><i class="fa fa-pencil-square-o"></i> Simpan</button>
     </div>
