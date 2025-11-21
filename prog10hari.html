@@ -676,7 +676,7 @@ body { background-color: #f8f9fa; }
           <!-- MENU MODUL HARI PERTAMA -->
           <!-----------------------------> 
           <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan1Content">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan1Content" data-hari="1">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Modul Hari Pertama
                 <i class="fas fa-lock status-lock"></i>
@@ -1075,6 +1075,8 @@ body { background-color: #f8f9fa; }
 // ***** FUNGSI UTAMA APLIKASI ******
 // **********************************
 
+// Tambahkan di bagian FUNGSI UTAMA APLIKASI
+const URL_APPS_SCRIPT_PROGRAM = 'https://script.google.com/macros/s/AKfycbwOEuMnos-nrGkiSSIkyc775gwpey2ir2t0Wil3CAZMBSfGb8iKarlOeOusckfnZRhw/exec';
 // Konfigurasi
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
@@ -1179,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup video links
   setupAllLinks();
   
-    // Setup PDF links khusus untuk menu Panduan
+  // Setup PDF links khusus untuk menu Panduan
   setupPanduanPDFLinks();
 
   // Setup tombol "Cek Disini" untuk Modul Hari Pertama
@@ -1188,6 +1190,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup playlist triggers
   setupPlaylistTriggers();
   
+  // Setup Materi Pertemuan
+  setupMateriCompletion();
+  
+  // Setup MealPlan
+  setupMealPlanUpload();
+
   // Load saved resistance data
   setTimeout(() => {
     loadSavedResistanceData();
@@ -3114,6 +3122,321 @@ function showToast(message, type = 'info') {
     // Hapus element setelah toast disembunyikan
     toastElement.addEventListener('hidden.bs.toast', function () {
         toastElement.remove();
+    });
+}
+
+/************************************
+* Fungsi untuk simpan status materi
+*************************************/
+function simpanStatusMateri(hariKe, status) {
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        showToast('Silakan login terlebih dahulu', 'error');
+        return;
+    }
+
+    const data = {
+        action: 'updateMateri',
+        userId: localStorage.getItem('userId'),
+        hariKe: hariKe,
+        statusMateri: status,
+        timestamp: new Date().toISOString()
+    };
+
+    fetch(URL_APPS_SCRIPT_PROGRAM, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data)
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'OK') {
+            showToast('Status materi berhasil disimpan', 'success');
+            // Update UI - ganti icon lock dengan unlock
+            updateMateriStatusUI(hariKe, status);
+        } else {
+            showToast('Gagal menyimpan status materi', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan saat menyimpan', 'error');
+    });
+}
+
+/************************************
+* Fungsi untuk update UI status materi
+*************************************/
+function updateMateriStatusUI(hariKe, status) {
+    const materiHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (materiHeader) {
+        const lockIcon = materiHeader.querySelector('.status-lock');
+        if (lockIcon && status === 'OK') {
+            lockIcon.className = 'status-unlock';
+            lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        }
+    }
+}
+
+/********************************************************
+* Tambahkan event listener untuk tombol centang di video
+*********************************************************/
+function setupMateriCompletion() {
+    document.querySelectorAll('.video-container').forEach(container => {
+        // Buat tombol centang di pojok kiri atas video
+        const completeBtn = document.createElement('button');
+        completeBtn.className = 'complete-video-btn';
+        completeBtn.innerHTML = '<i class="far fa-check-circle"></i>';
+        completeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 25;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            color: #28a745;
+        `;
+        
+        completeBtn.addEventListener('mouseenter', function() {
+            this.style.background = '#28a745';
+            this.style.color = 'white';
+            this.innerHTML = '<i class="fas fa-check-circle"></i>';
+        });
+        
+        completeBtn.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.9)';
+            this.style.color = '#28a745';
+            this.innerHTML = '<i class="far fa-check-circle"></i>';
+        });
+
+        completeBtn.addEventListener('click', function() {
+            const section = container.id.replace('videoContainer', '');
+            const hariKe = getHariKeFromSection(section);
+            simpanStatusMateri(hariKe, 'OK');
+        });
+
+        const videoWrapper = container.querySelector('.video-wrapper');
+        if (videoWrapper) {
+            videoWrapper.style.position = 'relative';
+            videoWrapper.appendChild(completeBtn);
+        }
+    });
+}
+
+/********************************************************
+* Helper function untuk menentukan hari ke dari section
+/********************************************************/
+function getHariKeFromSection(section) {
+    const hariMap = {
+        'Pertemuan1': 1,
+        'Pertemuan2': 2,
+        'Pertemuan3': 3,
+        // Tambahkan mapping untuk hari lainnya
+    };
+    return hariMap[section] || 1;
+}
+
+/**************************************
+* Fungsi untuk handle upload meal plan
+**************************************/
+function setupMealPlanUpload() {
+    // Setup untuk setiap tombol upload di meal plan
+    const uploadButtons = {
+        'btnUploadSarapan': 'sarapan',
+        'btnUploadCemilanPagi': 'cemilanPagi', 
+        'btnUploadMakanSiang': 'makanSiang',
+        'btnUploadCemilanSore': 'cemilanSore',
+        'btnUploadMakanMalam': 'makanMalam'
+    };
+
+    Object.keys(uploadButtons).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const mealType = uploadButtons[btnId];
+                triggerMealPlanUpload(mealType);
+            });
+        }
+    });
+
+    // Setup tombol simpan
+    const simpanButtons = {
+        'btnSimpanSarapan': 'sarapan',
+        'btnSimpanCemilanPagi': 'cemilanPagi',
+        'btnSimpanMakanSiang': 'makanSiang',
+        'btnSimpanCemilanSore': 'cemilanSore',
+        'btnSimpanMakanMalam': 'makanMalam',
+        'btnSelesaiMealPlan': 'selesai'
+    };
+
+    Object.keys(simpanButtons).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const actionType = simpanButtons[btnId];
+                if (actionType === 'selesai') {
+                    simpanStatusMealPlan(1, 'OK');
+                } else {
+                    simpanStatusMealItem(1, actionType, 'OK');
+                }
+            });
+        }
+    });
+}
+
+/***********************************
+* Fungsi untuk trigger upload file
+***********************************/
+function triggerMealPlanUpload(mealType) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.capture = 'environment'; // Untuk mobile camera
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadMealPlanImage(file, mealType);
+        }
+    });
+    
+    fileInput.click();
+}
+
+/*************************************************
+* Fungsi untuk upload image ke Google Apps Script
+/*************************************************/
+function uploadMealPlanImage(file, mealType) {
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        showToast('Silakan login terlebih dahulu', 'error');
+        return;
+    }
+
+    const userId = localStorage.getItem('userId');
+    const hariKe = 1; // Untuk hari pertama
+    const fileName = `${userId}_MP${hariKe}${capitalizeFirst(mealType)}.jpg`;
+
+    const formData = new FormData();
+    formData.append('action', 'uploadMealPlan');
+    formData.append('userId', userId);
+    formData.append('hariKe', hariKe);
+    formData.append('mealType', mealType);
+    formData.append('file', file);
+    formData.append('fileName', fileName);
+
+    // Tampilkan loading
+    showToast('Mengupload foto...', 'info');
+
+    fetch(URL_APPS_SCRIPT_PROGRAM, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showToast('Foto berhasil diupload', 'success');
+            // Update input field dengan nama file
+            const inputField = document.getElementById(mealType);
+            if (inputField) {
+                inputField.value = fileName;
+            }
+            // Enable tombol simpan
+            const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
+            if (simpanBtn) {
+                simpanBtn.classList.remove('disabled');
+            }
+        } else {
+            showToast('Gagal upload foto: ' + result.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan saat upload', 'error');
+    });
+}
+
+/*************************************************
+* Fungsi untuk simpan status meal item individual
+**************************************************/
+function simpanStatusMealItem(hariKe, mealType, status) {
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        showToast('Silakan login terlebih dahulu', 'error');
+        return;
+    }
+
+    const data = {
+        action: 'updateMealItem',
+        userId: localStorage.getItem('userId'),
+        hariKe: hariKe,
+        mealType: mealType,
+        status: status,
+        timestamp: new Date().toISOString()
+    };
+
+    fetch(URL_APPS_SCRIPT_PROGRAM, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data)
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'OK') {
+            showToast(`Status ${mealType} berhasil disimpan`, 'success');
+        } else {
+            showToast(`Gagal menyimpan status ${mealType}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan saat menyimpan', 'error');
+    });
+}
+
+/***********************************************
+* Fungsi untuk simpan status meal plan lengkap
+************************************************/
+function simpanStatusMealPlan(hariKe, status) {
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        showToast('Silakan login terlebih dahulu', 'error');
+        return;
+    }
+
+    const data = {
+        action: 'updateMealPlan',
+        userId: localStorage.getItem('userId'),
+        hariKe: hariKe,
+        status: status,
+        timestamp: new Date().toISOString()
+    };
+
+    fetch(URL_APPS_SCRIPT_PROGRAM, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data)
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'OK') {
+            showToast('Meal Plan hari ini selesai!', 'success');
+        } else {
+            showToast('Gagal menyimpan status meal plan', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan saat menyimpan', 'error');
     });
 }
 
