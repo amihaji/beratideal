@@ -3130,37 +3130,67 @@ function showToast(message, type = 'info') {
 *************************************/
 function simpanStatusMateri(hariKe, status) {
     const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
+    const userId = localStorage.getItem('userId');
+    
+    console.log('🔧 DEBUG simpanStatusMateri:', { userId, hariKe, status, userToken });
+    
+    if (!userToken || !userId) {
         showToast('Silakan login terlebih dahulu', 'error');
+        console.log('❌ User not logged in');
         return;
     }
 
     const data = {
         action: 'updateMateri',
-        userId: localStorage.getItem('userId'),
+        userId: userId,
         hariKe: hariKe,
         statusMateri: status,
         timestamp: new Date().toISOString()
     };
 
+    console.log('📤 Sending data to server:', data);
+    console.log('📤 URL:', URL_APPS_SCRIPT_PROGRAM);
+
     fetch(URL_APPS_SCRIPT_PROGRAM, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        },
         body: new URLSearchParams(data)
     })
-    .then(response => response.text())
+    .then(response => {
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response ok:', response.ok);
+        return response.text();
+    })
     .then(result => {
-        if (result === 'OK') {
-            showToast('Status materi berhasil disimpan', 'success');
-            // Update UI - ganti icon lock dengan unlock
-            updateMateriStatusUI(hariKe, status);
-        } else {
-            showToast('Gagal menyimpan status materi', 'error');
+        console.log('📥 Raw response:', result);
+        
+        try {
+            const jsonResult = JSON.parse(result);
+            console.log('📥 Parsed JSON:', jsonResult);
+            
+            if (jsonResult.success) {
+                showToast('Status materi berhasil disimpan', 'success');
+                updateMateriStatusUI(hariKe, status);
+            } else {
+                showToast('Gagal menyimpan status materi: ' + (jsonResult.message || 'Unknown error'), 'error');
+            }
+        } catch (e) {
+            // Jika response bukan JSON
+            if (result === 'OK') {
+                showToast('Status materi berhasil disimpan', 'success');
+                updateMateriStatusUI(hariKe, status);
+            } else {
+                console.log('❌ Unexpected response:', result);
+                showToast('Response tidak dikenali: ' + result, 'error');
+            }
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showToast('Terjadi kesalahan saat menyimpan', 'error');
+        console.error('❌ Fetch error:', error);
+        showToast('Terjadi kesalahan jaringan: ' + error.message, 'error');
     });
 }
 
