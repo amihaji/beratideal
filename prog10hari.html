@@ -2511,6 +2511,245 @@ function hideSubmenu(targetId) {
 // ***** UTILITY FUNCTIONS *****
 // *****************************
 
+/*******************************************************
+/*          PROGRAM 10 HARI - FRONTEND SIMPLE        *
+/*******************************************************/
+
+const PROGRAM_APP_URL = 'https://script.google.com/macros/s/AKfycbwczdR28getr8oPJJNZb7cV5XsdFon9Hpib2D2UkDnAFddqUAhpVo0QgTTLyp0vs5A/exec';
+
+// 1.1 MATERI VIDEO - Tombol Centang
+function setupMateriCompletion() {
+  document.querySelectorAll('.video-container').forEach(container => {
+    const completeBtn = document.createElement('button');
+    completeBtn.innerHTML = '✓';
+    completeBtn.className = 'btn btn-success btn-sm';
+    completeBtn.style.cssText = `
+      position: absolute; top: 10px; left: 10px; z-index: 25;
+      width: 30px; height: 30px; border-radius: 50%;
+    `;
+    
+    completeBtn.onclick = function() {
+      const section = container.id.replace('videoContainer', '');
+      const hariKe = getHariKeFromSection(section);
+      simpanMateri(hariKe);
+    };
+    
+    const videoWrapper = container.querySelector('.video-wrapper');
+    if (videoWrapper) {
+      videoWrapper.style.position = 'relative';
+      videoWrapper.appendChild(completeBtn);
+    }
+  });
+}
+
+async function simpanMateri(hariKe) {
+  const userId = localStorage.getItem('userId');
+  
+  if (!userId) {
+    alert('Silakan login terlebih dahulu');
+    return;
+  }
+  
+  const data = {
+    action: 'updateMateri',
+    userId: userId,
+    hariKe: hariKe
+  };
+  
+  try {
+    const response = await fetch(PROGRAM_APP_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams(data)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Materi berhasil disimpan!', 'success');
+      // Update UI - ganti icon kunci
+      updateLockIcon(hariKe, 'materi');
+    } else {
+      showToast('Gagal: ' + result.message, 'error');
+    }
+  } catch (error) {
+    showToast('Error jaringan: ' + error.message, 'error');
+  }
+}
+
+// 1.2 MEAL PLAN - Upload Foto
+function setupMealPlanUpload() {
+  // Setup tombol upload
+  const uploadConfig = {
+    'btnUploadSarapan': 'sarapan',
+    'btnUploadCemilanPagi': 'cemilanPagi',
+    'btnUploadMakanSiang': 'makanSiang', 
+    'btnUploadCemilanSore': 'cemilanSore',
+    'btnUploadMakanMalam': 'makanMalam'
+  };
+  
+  Object.entries(uploadConfig).forEach(([btnId, mealType]) => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.onclick = () => uploadMealPhoto(mealType);
+    }
+  });
+  
+  // Setup tombol selesai
+  const btnSelesai = document.getElementById('btnSelesaiMealPlan');
+  if (btnSelesai) {
+    btnSelesai.onclick = () => selesaiMealPlan();
+  }
+}
+
+function uploadMealPhoto(mealType) {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  
+  fileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validasi file
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('File terlalu besar (max 5MB)', 'error');
+      return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+      showToast('File harus berupa gambar', 'error');
+      return;
+    }
+    
+    showToast('Mengupload foto...', 'info');
+    
+    try {
+      const base64 = await fileToBase64(file);
+      await simpanMealPlan(mealType, base64);
+      
+      // Update UI
+      const inputField = document.getElementById(mealType);
+      if (inputField) {
+        inputField.value = `✓ ${file.name}`;
+      }
+      
+    } catch (error) {
+      showToast('Upload gagal: ' + error.message, 'error');
+    }
+  };
+  
+  fileInput.click();
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+  });
+}
+
+async function simpanMealPlan(mealType, fileData = null) {
+  const userId = localStorage.getItem('userId');
+  
+  const data = {
+    action: 'uploadMealPlan',
+    userId: userId,
+    hariKe: 1,
+    mealType: mealType
+  };
+  
+  if (fileData) {
+    data.file = fileData;
+  }
+  
+  try {
+    const response = await fetch(PROGRAM_APP_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams(data)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast(`${mealType} berhasil disimpan!`, 'success');
+    } else {
+      showToast('Gagal: ' + result.message, 'error');
+    }
+  } catch (error) {
+    showToast('Error: ' + error.message, 'error');
+  }
+}
+
+async function selesaiMealPlan() {
+  const userId = localStorage.getItem('userId');
+  
+  const data = {
+    action: 'updateMealPlan',
+    userId: userId,
+    hariKe: 1
+  };
+  
+  try {
+    const response = await fetch(PROGRAM_APP_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: new URLSearchParams(data)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Meal Plan selesai!', 'success');
+    } else {
+      showToast('Gagal: ' + result.message, 'error');
+    }
+  } catch (error) {
+    showToast('Error: ' + error.message, 'error');
+  }
+}
+
+// HELPER FUNCTIONS
+function getHariKeFromSection(section) {
+  const map = {'Pertemuan1': 1, 'Pertemuan2': 2, 'Pertemuan3': 3};
+  return map[section] || 1;
+}
+
+function updateLockIcon(hariKe, type) {
+  const header = document.querySelector(`[data-hari="${hariKe}"]`);
+  if (header) {
+    const lockIcon = header.querySelector('.status-lock');
+    if (lockIcon) {
+      lockIcon.className = 'status-unlock';
+      lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+    }
+  }
+}
+
+function showToast(message, type = 'info') {
+  // Simple toast notification
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+    background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+    color: white; border-radius: 4px; z-index: 10000;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// INITIALIZE
+document.addEventListener('DOMContentLoaded', function() {
+  setupMateriCompletion();
+  setupMealPlanUpload();
+  console.log('✅ Program 10 Hari initialized');
+});
+
 /**********************************
 * Kapitalisasi Untuk Huruf Pertama
 ***********************************/ 
@@ -2529,29 +2768,6 @@ function extractPlaylistId(url) {
 /************************
 * Fungsi tampilkan pesan
 *************************/ 
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        font-size: 14px;
-        max-width: 300px;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
-}
 
 // *********************************
 // ***** FUNGSI - FUNGSI FORM  *****
@@ -3210,69 +3426,11 @@ function updateMateriStatusUI(hariKe, status) {
 /********************************************************
 * Tambahkan event listener untuk tombol centang di video
 *********************************************************/
-function setupMateriCompletion() {
-    document.querySelectorAll('.video-container').forEach(container => {
-        // Buat tombol centang di pojok kiri atas video
-        const completeBtn = document.createElement('button');
-        completeBtn.className = 'complete-video-btn';
-        completeBtn.innerHTML = '<i class="fa fa-check"></i>'; 
-        completeBtn.style.cssText = `
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 25;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            color: #28a745;
-        `;
-        
-        completeBtn.addEventListener('mouseenter', function() {
-            this.style.background = '#28a745';
-            this.style.color = 'white';
-            this.innerHTML = '<i class="fa fa-check"></i>';
-        });
-        
-        completeBtn.addEventListener('mouseleave', function() {
-            this.style.background = 'rgba(255,255,255,0.9)';
-            this.style.color = '#28a745';
-            this.innerHTML = '<i class="fa fa-check"></i>';
-        });
-
-        completeBtn.addEventListener('click', function() {
-            const section = container.id.replace('videoContainer', '');
-            const hariKe = getHariKeFromSection(section);
-            simpanStatusMateri(hariKe, 'OK');
-        });
-
-        const videoWrapper = container.querySelector('.video-wrapper');
-        if (videoWrapper) {
-            videoWrapper.style.position = 'relative';
-            videoWrapper.appendChild(completeBtn);
-        }
-    });
-}
 
 /********************************************************
 * Helper function untuk menentukan hari ke dari section
 /********************************************************/
-function getHariKeFromSection(section) {
-    const hariMap = {
-        'Pertemuan1': 1,
-        'Pertemuan2': 2,
-        'Pertemuan3': 3,
-        // Tambahkan mapping untuk hari lainnya
-    };
-    return hariMap[section] || 1;
-}
+
 
 /**************************************
 * Fungsi untuk handle upload meal plan
@@ -3372,96 +3530,6 @@ function uploadMealPlanImage(file, mealType) {
 }
 
 // Perbaiki setupMealPlanUpload untuk pilih file
-function setupMealPlanUpload() {
-    const uploadButtons = {
-        'btnUploadSarapan': 'sarapan',
-        'btnUploadCemilanPagi': 'cemilanPagi', 
-        'btnUploadMakanSiang': 'makanSiang',
-        'btnUploadCemilanSore': 'cemilanSore',
-        'btnUploadMakanMalam': 'makanMalam'
-    };
-
-    Object.keys(uploadButtons).forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', function() {
-                const mealType = uploadButtons[btnId];
-                
-                // Buat file input untuk pilih file
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = 'image/*';
-                fileInput.capture = 'environment'; // Untuk kamera di mobile
-                
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        // Validasi file (max 5MB)
-                        if (file.size > 5 * 1024 * 1024) {
-                            showToast('File terlalu besar. Maksimal 5MB', 'error');
-                            return;
-                        }
-                        
-                        // Validasi tipe file
-                        if (!file.type.startsWith('image/')) {
-                            showToast('File harus berupa gambar', 'error');
-                            return;
-                        }
-                        
-                        uploadMealPlanImage(file, mealType);
-                    }
-                });
-                
-                fileInput.click();
-            });
-        }
-    });
-
-    // Setup tombol simpan (untuk kasus tanpa upload file)
-    const simpanButtons = {
-        'btnSimpanSarapan': 'sarapan',
-        'btnSimpanCemilanPagi': 'cemilanPagi',
-        'btnSimpanMakanSiang': 'makanSiang',
-        'btnSimpanCemilanSore': 'cemilanSore',
-        'btnSimpanMakanMalam': 'makanMalam',
-        'btnSelesaiMealPlan': 'selesai'
-    };
-
-    Object.keys(simpanButtons).forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', function() {
-                const actionType = simpanButtons[btnId];
-                if (actionType === 'selesai') {
-                    simpanStatusMealPlan(1, 'OK');
-                } else {
-                    // Untuk simpan tanpa upload file
-                    const data = {
-                        action: 'uploadMealPlan',
-                        userId: localStorage.getItem('userId'),
-                        hariKe: 1,
-                        mealType: actionType
-                        // Tidak ada file, jadi hanya simpan status
-                    };
-                    
-                    fetch(URL_APPS_SCRIPT_PROGRAM, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams(data)
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            showToast('Status ' + actionType + ' disimpan', 'success');
-                        } else {
-                            showToast('Gagal: ' + result.message, 'error');
-                        }
-                    });
-                }
-            });
-        }
-    });
-}
 
 /*************************************************
 * Fungsi untuk simpan status meal item individual
