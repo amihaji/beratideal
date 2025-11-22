@@ -2633,7 +2633,65 @@ function uploadMealPhoto(mealType) {
   fileInput.click();
 }
 
-function uploadMealPlanWithFile(mealType, fileData) {
+async function uploadMealPlanWithFile(mealType, fileData) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  console.log('🔧 uploadMealPlanWithFile called:', { userId, mealType, fileDataLength: fileData.length });
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'uploadMealPlan',
+        userId: userId,
+        hariKe: 1,
+        mealType: mealType,
+        file: fileData
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 Upload response:', result);
+
+    try {
+      const jsonResult = JSON.parse(result);
+      if (jsonResult.success) {
+        showNotification('success', jsonResult.message);
+        // Update input field
+        const inputField = document.getElementById(mealType);
+        if (inputField) {
+          inputField.value = '✓ Foto terupload';
+        }
+        // Enable tombol simpan
+        const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
+        if (simpanBtn) {
+          simpanBtn.classList.remove('disabled');
+        }
+      } else {
+        showNotification('error', jsonResult.message || 'Upload gagal');
+      }
+    } catch (e) {
+      // Jika response bukan JSON
+      if (result === "OK") {
+        showNotification('success', 'Upload berhasil!');
+      } else {
+        showNotification('error', 'Response tidak valid: ' + result);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Upload fetch error:', error);
+    showNotification('error', 'Gagal terhubung: ' + error.message);
+  }
+}
+
+function BACKUP_uploadMealPlanWithFile(mealType, fileData) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showNotification('error', 'Silakan login terlebih dahulu');
