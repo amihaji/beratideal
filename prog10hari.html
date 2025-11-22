@@ -1075,7 +1075,7 @@ body { background-color: #f8f9fa; }
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwagtiXsFOBrO7Sj5GiCPFKyoy2ffuoPzWAP2B926X9DzsTfbmoJUL29Qa-Dnh0-zGF/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbx2XbJMMYku921YYqL-XvU0VAVCu-OqY45tJitMBeBzGCzULJsbsMOmsuRtIRUd4FDm/exec';
 // Deklarasi Global
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
@@ -2478,28 +2478,38 @@ function simpanMateri(hariKe) {
     return;
   }
 
+  console.log('🔧 simpanMateri called:', { userId, hariKe });
+  console.log('📤 URL:', URL_PROGRAM_APP);
+
   const callbackName = 'cb_materi_' + Date.now();
+  const url = `${URL_PROGRAM_APP}?action=updateMateri&userId=${encodeURIComponent(userId)}&hariKe=${hariKe}&callback=${callbackName}`;
+  
+  console.log('📤 Full URL:', url);
+
   const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP}?action=updateMateri&userId=${encodeURIComponent(userId)}&hariKe=${hariKe}&callback=${callbackName}`;
+  script.src = url;
 
   window[callbackName] = function(response) {
+    console.log('📥 Response received:', response);
     if (response === "OK") {
       showNotification('success', 'Materi berhasil disimpan!');
       updateMateriStatusUI(hariKe);
     } else {
-      showNotification('error', 'Gagal menyimpan materi');
+      showNotification('error', 'Gagal menyimpan materi: ' + response);
     }
     document.body.removeChild(script);
     delete window[callbackName];
   };
 
-  script.onerror = function() {
+  script.onerror = function(error) {
+    console.error('❌ Script error:', error);
     showNotification('error', 'Gagal terhubung ke server');
     document.body.removeChild(script);
     delete window[callbackName];
   };
 
   document.body.appendChild(script);
+  console.log('📤 Script element appended');
 }
 
 // 1.2 MEAL PLAN - Upload Foto
