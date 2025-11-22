@@ -3762,32 +3762,6 @@ function simpanStatusMealPlan(hariKe, status) {
     });
 }
 
-// Fungsi test koneksi
-function testConnection() {
-  const callbackName = 'cb_test_' + Date.now();
-  const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP}?action=test&callback=${callbackName}`;
-
-  window[callbackName] = function(response) {
-    console.log('Test connection response:', response);
-    if (response.status === "success") {
-      showNotification('success', '✅ Koneksi berhasil! Server aktif.');
-    } else {
-      showNotification('error', '❌ Koneksi gagal: ' + response.message);
-    }
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  script.onerror = function() {
-    showNotification('error', '❌ Gagal terhubung ke server. Periksa URL.');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  document.body.appendChild(script);
-}
-
 </script>
 </body>
 </html>
