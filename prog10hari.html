@@ -1075,9 +1075,9 @@ body { background-color: #f8f9fa; }
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbx6QJiq2dm561ApSTY2mpXvDPDYOMmdJOvxIfsrJsqc7WqoN1KpU9GIpPEsNoycNL1L/exec';
 // Deklarasi Global
-const URL_APPS_SCRIPT_PROGRAM = 'https://script.google.com/macros/library/d/1cCRoymTHLTcLZnxWVZXeiYb1YQPEAr2YiOAj3YLV90c6OwTAjAFhnbJv/5';
-const PLAYLIST_JSON_URL       = './data/playlist.json';
+const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
 * Show About form 
@@ -1194,6 +1194,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup MealPlan
   setupMealPlanUpload();
+  
+  console.log('✅ Program 10 Hari initialized');
+
 
   // Load saved resistance data
   setTimeout(() => {
@@ -2515,17 +2518,16 @@ function hideSubmenu(targetId) {
 /*          PROGRAM 10 HARI - FRONTEND SIMPLE        *
 /*******************************************************/
 
-const PROGRAM_APP_URL = 'https://script.google.com/macros/s/AKfycbwczdR28getr8oPJJNZb7cV5XsdFon9Hpib2D2UkDnAFddqUAhpVo0QgTTLyp0vs5A/exec';
-
 // 1.1 MATERI VIDEO - Tombol Centang
 function setupMateriCompletion() {
+  // Tambah tombol centang di setiap video container
   document.querySelectorAll('.video-container').forEach(container => {
     const completeBtn = document.createElement('button');
-    completeBtn.innerHTML = '✓';
+    completeBtn.innerHTML = '<i class="fas fa-check"></i>';
     completeBtn.className = 'btn btn-success btn-sm';
     completeBtn.style.cssText = `
       position: absolute; top: 10px; left: 10px; z-index: 25;
-      width: 30px; height: 30px; border-radius: 50%;
+      width: 35px; height: 35px; border-radius: 50%; padding: 0;
     `;
     
     completeBtn.onclick = function() {
@@ -2542,39 +2544,35 @@ function setupMateriCompletion() {
   });
 }
 
-async function simpanMateri(hariKe) {
+function simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
-  
   if (!userId) {
     alert('Silakan login terlebih dahulu');
     return;
   }
-  
-  const data = {
-    action: 'updateMateri',
-    userId: userId,
-    hariKe: hariKe
-  };
-  
-  try {
-    const response = await fetch(PROGRAM_APP_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams(data)
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Materi berhasil disimpan!', 'success');
-      // Update UI - ganti icon kunci
-      updateLockIcon(hariKe, 'materi');
+
+  const callbackName = 'cb_materi_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP}?action=updateMateri&userId=${encodeURIComponent(userId)}&hariKe=${hariKe}&callback=${callbackName}`;
+
+  window[callbackName] = function(response) {
+    if (response === "OK") {
+      showNotification('success', 'Materi berhasil disimpan!');
+      updateMateriStatusUI(hariKe);
     } else {
-      showToast('Gagal: ' + result.message, 'error');
+      showNotification('error', 'Gagal menyimpan materi');
     }
-  } catch (error) {
-    showToast('Error jaringan: ' + error.message, 'error');
-  }
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  script.onerror = function() {
+    showNotification('error', 'Gagal terhubung ke server');
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
 }
 
 // 1.2 MEAL PLAN - Upload Foto
@@ -2583,22 +2581,44 @@ function setupMealPlanUpload() {
   const uploadConfig = {
     'btnUploadSarapan': 'sarapan',
     'btnUploadCemilanPagi': 'cemilanPagi',
-    'btnUploadMakanSiang': 'makanSiang', 
+    'btnUploadMakanSiang': 'makanSiang',
     'btnUploadCemilanSore': 'cemilanSore',
     'btnUploadMakanMalam': 'makanMalam'
   };
-  
+
   Object.entries(uploadConfig).forEach(([btnId, mealType]) => {
     const btn = document.getElementById(btnId);
     if (btn) {
-      btn.onclick = () => uploadMealPhoto(mealType);
+      btn.onclick = function() {
+        uploadMealPhoto(mealType);
+      };
     }
   });
-  
-  // Setup tombol selesai
+
+  // Setup tombol simpan
+  const simpanConfig = {
+    'btnSimpanSarapan': 'sarapan',
+    'btnSimpanCemilanPagi': 'cemilanPagi',
+    'btnSimpanMakanSiang': 'makanSiang',
+    'btnSimpanCemilanSore': 'cemilanSore',
+    'btnSimpanMakanMalam': 'makanMalam'
+  };
+
+  Object.entries(simpanConfig).forEach(([btnId, mealType]) => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.onclick = function() {
+        simpanMealItem(mealType);
+      };
+    }
+  });
+
+  // Tombol selesai meal plan
   const btnSelesai = document.getElementById('btnSelesaiMealPlan');
   if (btnSelesai) {
-    btnSelesai.onclick = () => selesaiMealPlan();
+    btnSelesai.onclick = function() {
+      selesaiMealPlan();
+    };
   }
 }
 
@@ -2606,40 +2626,198 @@ function uploadMealPhoto(mealType) {
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
-  
-  fileInput.onchange = async (e) => {
+  fileInput.capture = 'environment';
+
+  fileInput.onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     // Validasi file
     if (file.size > 5 * 1024 * 1024) {
-      showToast('File terlalu besar (max 5MB)', 'error');
+      showNotification('error', 'File terlalu besar (maks 5MB)');
       return;
     }
-    
+
     if (!file.type.startsWith('image/')) {
-      showToast('File harus berupa gambar', 'error');
+      showNotification('error', 'File harus berupa gambar');
       return;
     }
-    
-    showToast('Mengupload foto...', 'info');
-    
-    try {
-      const base64 = await fileToBase64(file);
-      await simpanMealPlan(mealType, base64);
-      
-      // Update UI
-      const inputField = document.getElementById(mealType);
-      if (inputField) {
-        inputField.value = `✓ ${file.name}`;
-      }
-      
-    } catch (error) {
-      showToast('Upload gagal: ' + error.message, 'error');
-    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64Data = e.target.result.split(',')[1];
+      uploadMealPlanWithFile(mealType, base64Data);
+    };
+    reader.onerror = function() {
+      showNotification('error', 'Gagal membaca file');
+    };
+    reader.readAsDataURL(file);
   };
-  
+
   fileInput.click();
+}
+
+function uploadMealPlanWithFile(mealType, fileData) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  const callbackName = 'cb_upload_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP}?action=uploadMealPlan&userId=${encodeURIComponent(userId)}&hariKe=1&mealType=${mealType}&file=${encodeURIComponent(fileData)}&callback=${callbackName}`;
+
+  window[callbackName] = function(response) {
+    try {
+      const result = typeof response === 'string' ? JSON.parse(response) : response;
+      
+      if (result.success) {
+        showNotification('success', result.message);
+        // Update input field
+        const inputField = document.getElementById(mealType);
+        if (inputField) {
+          inputField.value = '✓ Foto terupload';
+        }
+        // Enable tombol simpan
+        const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
+        if (simpanBtn) {
+          simpanBtn.classList.remove('disabled');
+        }
+      } else {
+        showNotification('error', result.message || 'Upload gagal');
+      }
+    } catch (e) {
+      showNotification('error', 'Response tidak valid');
+    }
+    
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  script.onerror = function() {
+    showNotification('error', 'Gagal terhubung ke server');
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
+}
+
+function simpanMealItem(mealType) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  const callbackName = 'cb_mealitem_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP}?action=updateMealItem&userId=${encodeURIComponent(userId)}&hariKe=1&mealType=${mealType}&callback=${callbackName}`;
+
+  window[callbackName] = function(response) {
+    if (response === "OK") {
+      showNotification('success', `Status ${mealType} berhasil disimpan`);
+    } else {
+      showNotification('error', `Gagal menyimpan status ${mealType}`);
+    }
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  script.onerror = function() {
+    showNotification('error', 'Gagal terhubung ke server');
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
+}
+
+function selesaiMealPlan() {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  const callbackName = 'cb_selesai_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP}?action=updateMealPlan&userId=${encodeURIComponent(userId)}&hariKe=1&callback=${callbackName}`;
+
+  window[callbackName] = function(response) {
+    if (response === "OK") {
+      showNotification('success', 'Meal Plan selesai!');
+    } else {
+      showNotification('error', 'Gagal menyelesaikan meal plan');
+    }
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  script.onerror = function() {
+    showNotification('error', 'Gagal terhubung ke server');
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
+}
+
+/**********************************
+/* FUNGSI BANTU                  *
+/**********************************/
+function getHariKeFromSection(section) {
+  const map = {
+    'Pertemuan1': 1, 'Pertemuan2': 2, 'Pertemuan3': 3,
+    'Pertemuan4': 4, 'Pertemuan5': 5, 'Pertemuan6': 6,
+    'Pertemuan7': 7, 'Pertemuan8': 8, 'Pertemuan9': 9,
+    'Pertemuan10': 10
+  };
+  return map[section] || 1;
+}
+
+function updateMateriStatusUI(hariKe) {
+  const header = document.querySelector(`[data-hari="${hariKe}"]`);
+  if (header) {
+    const lockIcon = header.querySelector('.status-lock');
+    if (lockIcon) {
+      lockIcon.className = 'status-unlock';
+      lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+    }
+  }
+}
+
+function capitalizeFirst(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function showNotification(type, message) {
+  // Gunakan notifikasi yang sudah ada di loginFC.txt
+  const notificationBox = document.getElementById('notificationBox');
+  const icon = document.getElementById('pesanNotifIcon');
+  const text = document.getElementById('pesanNotifText');
+  
+  if (notificationBox && icon && text) {
+    notificationBox.className = 'notification-message w-100 mb-2';
+    icon.className = 'pesan-notif-icon me-2';
+    
+    if (type === 'error') {
+      notificationBox.classList.add('notification-error');
+      icon.classList.add('fas', 'fa-times-circle');
+    } else if (type === 'success') {
+      notificationBox.classList.add('notification-success');
+      icon.classList.add('fas', 'fa-check-circle');
+    }
+    
+    text.textContent = message;
+    notificationBox.style.display = 'flex';
+    setTimeout(() => { notificationBox.style.display = 'none'; }, 3000);
+  } else {
+    // Fallback simple alert
+    alert(message);
+  }
 }
 
 function fileToBase64(file) {
@@ -2684,39 +2862,6 @@ async function simpanMealPlan(mealType, fileData = null) {
   }
 }
 
-async function selesaiMealPlan() {
-  const userId = localStorage.getItem('userId');
-  
-  const data = {
-    action: 'updateMealPlan',
-    userId: userId,
-    hariKe: 1
-  };
-  
-  try {
-    const response = await fetch(PROGRAM_APP_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams(data)
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Meal Plan selesai!', 'success');
-    } else {
-      showToast('Gagal: ' + result.message, 'error');
-    }
-  } catch (error) {
-    showToast('Error: ' + error.message, 'error');
-  }
-}
-
-// HELPER FUNCTIONS
-function getHariKeFromSection(section) {
-  const map = {'Pertemuan1': 1, 'Pertemuan2': 2, 'Pertemuan3': 3};
-  return map[section] || 1;
-}
 
 function updateLockIcon(hariKe, type) {
   const header = document.querySelector(`[data-hari="${hariKe}"]`);
@@ -2750,12 +2895,6 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('✅ Program 10 Hari initialized');
 });
 
-/**********************************
-* Kapitalisasi Untuk Huruf Pertama
-***********************************/ 
-function capitalizeFirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 /*****************************
 * Ekstrak ID Playlist dari URL
@@ -3412,16 +3551,6 @@ function simpanStatusMateri(hariKe, status) {
 /************************************
 * Fungsi untuk update UI status materi
 *************************************/
-function updateMateriStatusUI(hariKe, status) {
-    const materiHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (materiHeader) {
-        const lockIcon = materiHeader.querySelector('.status-lock');
-        if (lockIcon && status === 'OK') {
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-        }
-    }
-}
 
 /********************************************************
 * Tambahkan event listener untuk tombol centang di video
