@@ -1075,7 +1075,7 @@ body { background-color: #f8f9fa; }
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbx2XbJMMYku921YYqL-XvU0VAVCu-OqY45tJitMBeBzGCzULJsbsMOmsuRtIRUd4FDm/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyArNF6VXv87ksnV7t55sAFgr4Et7YzmTn_Dte-EvULYQJub1qM9UtbT5Ka8DZ-0q6W/exec';
 // Deklarasi Global
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
@@ -1200,11 +1200,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Cek status perkenalan dan lock/unlock modul
   checkPerkenalanStatus();
+
   console.log('✅ Program 10 Hari initialized');
-
-
-
-
 
   // Load saved resistance data
   setTimeout(() => {
@@ -2542,32 +2539,6 @@ function unlockModulHariPertama() {
   }
 }
 
-
-function BACKUP_setupMateriCompletion() {
-  // Tambah tombol centang di setiap video container
-  document.querySelectorAll('.video-container').forEach(container => {
-    const completeBtn = document.createElement('button');
-    completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-    completeBtn.className = 'btn btn-success btn-sm';
-    completeBtn.style.cssText = `
-      position: absolute; top: 10px; left: 10px; z-index: 25;
-      width: 35px; height: 35px; border-radius: 50%; padding: 0;
-    `;
-    
-    completeBtn.onclick = function() {
-      const section = container.id.replace('videoContainer', '');
-      const hariKe = getHariKeFromSection(section);
-      simpanMateri(hariKe);
-    };
-    
-    const videoWrapper = container.querySelector('.video-wrapper');
-    if (videoWrapper) {
-      videoWrapper.style.position = 'relative';
-      videoWrapper.appendChild(completeBtn);
-    }
-  });
-}
-
 // Ganti fungsi simpanMateri dengan ini:
 async function simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
@@ -2606,46 +2577,6 @@ async function simpanMateri(hariKe) {
   }
 }
 
-function Backup_simpanMateri(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    alert('Silakan login terlebih dahulu');
-    return;
-  }
-
-  console.log('🔧 simpanMateri called:', { userId, hariKe });
-  console.log('📤 URL:', URL_PROGRAM_APP);
-
-  const callbackName = 'cb_materi_' + Date.now();
-  const url = `${URL_PROGRAM_APP}?action=updateMateri&userId=${encodeURIComponent(userId)}&hariKe=${hariKe}&callback=${callbackName}`;
-  
-  console.log('📤 Full URL:', url);
-
-  const script = document.createElement('script');
-  script.src = url;
-
-  window[callbackName] = function(response) {
-    console.log('📥 Response received:', response);
-    if (response === "OK") {
-      showNotification('success', 'Materi berhasil disimpan!');
-      updateMateriStatusUI(hariKe);
-    } else {
-      showNotification('error', 'Gagal menyimpan materi: ' + response);
-    }
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  script.onerror = function(error) {
-    console.error('❌ Script error:', error);
-    showNotification('error', 'Gagal terhubung ke server');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  document.body.appendChild(script);
-  console.log('📤 Script element appended');
-}
 
 // 1.2 MEAL PLAN - Upload Foto
 function setupMealPlanUpload() {
@@ -2788,52 +2719,6 @@ async function uploadMealPlanWithFile(mealType, fileData) {
   }
 }
 
-function BACKUP_uploadMealPlanWithFile(mealType, fileData) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
-    return;
-  }
-
-  const callbackName = 'cb_upload_' + Date.now();
-  const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP}?action=uploadMealPlan&userId=${encodeURIComponent(userId)}&hariKe=1&mealType=${mealType}&file=${encodeURIComponent(fileData)}&callback=${callbackName}`;
-
-  window[callbackName] = function(response) {
-    try {
-      const result = typeof response === 'string' ? JSON.parse(response) : response;
-      
-      if (result.success) {
-        showNotification('success', result.message);
-        // Update input field
-        const inputField = document.getElementById(mealType);
-        if (inputField) {
-          inputField.value = '✓ Foto terupload';
-        }
-        // Enable tombol simpan
-        const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
-        if (simpanBtn) {
-          simpanBtn.classList.remove('disabled');
-        }
-      } else {
-        showNotification('error', result.message || 'Upload gagal');
-      }
-    } catch (e) {
-      showNotification('error', 'Response tidak valid');
-    }
-    
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  script.onerror = function() {
-    showNotification('error', 'Gagal terhubung ke server');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  document.body.appendChild(script);
-}
 
 function simpanMealItem(mealType) {
   const userId = localStorage.getItem('userId');
@@ -2941,9 +2826,9 @@ function BACKUP_selesaiMealPlan() {
   document.body.appendChild(script);
 }
 
-/**********************************
-/* FUNGSI BANTU                  *
-/**********************************/
+/****************
+/* FUNGSI BANTU *
+/***************/
 function getHariKeFromSection(section) {
   const map = {
     'Pertemuan1': 1, 'Pertemuan2': 2, 'Pertemuan3': 3,
@@ -3065,8 +2950,6 @@ function showToast(message, type = 'info') {
 }
 
 
-
-
 /*****************************
 * Ekstrak ID Playlist dari URL
 ******************************/ 
@@ -3074,10 +2957,6 @@ function extractPlaylistId(url) {
     const match = url.match(/[&?]list=([^&]+)/);
     return match ? match[1] : null;
 }
-
-/************************
-* Fungsi tampilkan pesan
-*************************/ 
 
 // *********************************
 // ***** FUNGSI - FUNGSI FORM  *****
@@ -3713,24 +3592,6 @@ function simpanStatusMateri(hariKe, status) {
         showToast('Terjadi kesalahan jaringan: ' + error.message, 'error');
     });
 }
-
-/************************************
-* Fungsi untuk update UI status materi
-*************************************/
-
-/********************************************************
-* Tambahkan event listener untuk tombol centang di video
-*********************************************************/
-
-/********************************************************
-* Helper function untuk menentukan hari ke dari section
-/********************************************************/
-
-
-/**************************************
-* Fungsi untuk handle upload meal plan
-**************************************/
-
 
 /***********************************
 * Fungsi untuk trigger upload file
