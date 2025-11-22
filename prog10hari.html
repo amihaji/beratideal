@@ -1075,7 +1075,7 @@ body { background-color: #f8f9fa; }
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbx6QJiq2dm561ApSTY2mpXvDPDYOMmdJOvxIfsrJsqc7WqoN1KpU9GIpPEsNoycNL1L/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwagtiXsFOBrO7Sj5GiCPFKyoy2ffuoPzWAP2B926X9DzsTfbmoJUL29Qa-Dnh0-zGF/exec';
 // Deklarasi Global
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
@@ -1419,57 +1419,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     }, 500);
 }
 
-function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
-    console.log('loadVideo called:', { section, videoType, videoUrl, title });
-    
-    // Untuk Canva, buka di tab baru
-    if (videoType === 'canva') {
-        window.open(videoUrl, '_blank');
-        return;
-    }
-    
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    if (!videoContainer) return;
-    
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    
-    // Close video di section lain
-    closeAllVideos();
-    
-    // Reset previous video 
-    if (videoPlayer) videoPlayer.innerHTML = '';
-    currentVideoData = {
-        section: section,
-        type: videoType,
-        url: videoUrl,
-        title: title
-    };
-    
-    // Show video container
-    videoContainer.style.display = 'block';
-    
-    // Update placeholder text
-    let placeholderText = 'Klik untuk memuat video';
-    if (videoType === 'youtube') {
-        placeholderText = 'Klik untuk memuat video dari YouTube';
-    } else if (videoType === 'local') {
-        placeholderText = 'Klik untuk memuat video lokal';
-    }
-    
-    if (videoPlaceholder) {
-        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
-        videoPlaceholder.style.display = 'flex';
-    }
-    if (videoLoading) videoLoading.style.display = 'none';
-    
-    // Auto play setelah ditampilkan
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
-}
-
 /*******************************
 * Memutar Video yang sudah dimuat
 ********************************/
@@ -1605,28 +1554,6 @@ function extractYouTubeId(url) {
     }
     
     console.log('❌ No YouTube ID found in URL:', url);
-    return null;
-}
-
-function BACKUP_extractYouTubeId(url) {
-    console.log('Extracting YouTube ID from:', url);
-    
-    // Support multiple YouTube URL formats
-    const patterns = [
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/,
-        /youtube\.com\/watch\?.*v=([^&?#]+)/,
-        /youtu\.be\/([^&?#]+)/
-    ];
-    
-    for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match && match[1]) {
-            console.log('YouTube ID found:', match[1]);
-            return match[1];
-        }
-    }
-    
-    console.log('No YouTube ID found');
     return null;
 }
 
@@ -3734,6 +3661,44 @@ function simpanStatusMealPlan(hariKe, status) {
         showToast('Terjadi kesalahan saat menyimpan', 'error');
     });
 }
+
+// Fungsi test koneksi
+function testConnection() {
+  const callbackName = 'cb_test_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP}?action=test&callback=${callbackName}`;
+
+  window[callbackName] = function(response) {
+    console.log('Test connection response:', response);
+    if (response.status === "success") {
+      showNotification('success', '✅ Koneksi berhasil! Server aktif.');
+    } else {
+      showNotification('error', '❌ Koneksi gagal: ' + response.message);
+    }
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  script.onerror = function() {
+    showNotification('error', '❌ Gagal terhubung ke server. Periksa URL.');
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
+}
+
+// Panggil test connection saat load
+document.addEventListener('DOMContentLoaded', function() {
+  // Test koneksi dulu
+  setTimeout(() => {
+    testConnection();
+  }, 1000);
+  
+  // Setup lainnya
+  setupMateriCompletion();
+  setupMealPlanUpload();
+});
 
 </script>
 </body>
