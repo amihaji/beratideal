@@ -1189,13 +1189,21 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup playlist triggers
   setupPlaylistTriggers();
   
+  // Setup Materi Perkenalan
+  setupPerkenalanCompletion();
+
   // Setup Materi Pertemuan
   setupMateriCompletion();
   
   // Setup MealPlan
   setupMealPlanUpload();
-  
+
+  // Cek status perkenalan dan lock/unlock modul
+  checkPerkenalanStatus();
   console.log('✅ Program 10 Hari initialized');
+
+
+
 
 
   // Load saved resistance data
@@ -2447,6 +2455,95 @@ function hideSubmenu(targetId) {
 
 // 1.1 MATERI VIDEO - Tombol Centang
 function setupMateriCompletion() {
+  // Hanya tambah tombol centang di video yang perlu (video materi hari)
+  document.querySelectorAll('.video-container').forEach(container => {
+    const videoLink = container.closest('.menu-content').querySelector('.video-link');
+    if (videoLink && videoLink.textContent.includes('Materi Hari')) {
+      const completeBtn = document.createElement('button');
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.className = 'btn btn-success btn-sm';
+      completeBtn.style.cssText = `
+        position: absolute; top: 10px; left: 10px; z-index: 25;
+        width: 35px; height: 35px; border-radius: 50%; padding: 0;
+      `;
+      
+      completeBtn.onclick = function() {
+        const section = container.id.replace('videoContainer', '');
+        const hariKe = getHariKeFromSection(section);
+        simpanMateri(hariKe);
+      };
+      
+      const videoWrapper = container.querySelector('.video-wrapper');
+      if (videoWrapper) {
+        videoWrapper.style.position = 'relative';
+        videoWrapper.appendChild(completeBtn);
+      }
+    }
+  });
+}
+
+// Tambahkan di JavaScript
+function setupPerkenalanCompletion() {
+  const selesaiPerkenalanBtn = document.querySelector('a[href="#"].menu-item:contains("Selesai Perkenalan")');
+  if (selesaiPerkenalanBtn) {
+    selesaiPerkenalanBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      selesaiPerkenalan();
+    });
+  }
+}
+
+async function selesaiPerkenalan() {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'updatePerkenalan',
+        userId: userId
+      })
+    });
+
+    const result = await response.text();
+    
+    if (result === "OK") {
+      showNotification('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.');
+      unlockModulHariPertama();
+    } else {
+      showNotification('error', 'Gagal: ' + result);
+    }
+  } catch (error) {
+    showNotification('error', 'Gagal terhubung: ' + error.message);
+  }
+}
+
+function unlockModulHariPertama() {
+  // Buka kunci Modul Hari Pertama
+  const modulPertamaHeader = document.querySelector('[data-hari="1"]');
+  if (modulPertamaHeader) {
+    const lockIcon = modulPertamaHeader.querySelector('.status-lock');
+    if (lockIcon) {
+      lockIcon.className = 'status-unlock';
+      lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+    }
+    
+    // Enable accordion
+    modulPertamaHeader.classList.remove('disabled');
+    modulPertamaHeader.style.pointerEvents = 'auto';
+    modulPertamaHeader.style.opacity = '1';
+  }
+}
+
+
+function BACKUP_setupMateriCompletion() {
   // Tambah tombol centang di setiap video container
   document.querySelectorAll('.video-container').forEach(container => {
     const completeBtn = document.createElement('button');
@@ -2768,7 +2865,53 @@ function simpanMealItem(mealType) {
   document.body.appendChild(script);
 }
 
-function selesaiMealPlan() {
+async function selesaiMealPlan() {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showNotification('error', 'Silakan login terlebih dahulu');
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        action: 'updateMealPlan',
+        userId: userId,
+        hariKe: 1
+      })
+    });
+
+    const result = await response.text();
+    console.log('Selesai Meal Plan response:', result);
+    
+    if (result === "OK") {
+      showNotification('success', 'Meal Plan hari pertama selesai! ✅');
+      // Update UI atau beri feedback
+      updateMealPlanUI();
+    } else {
+      showNotification('error', 'Gagal menyelesaikan meal plan: ' + result);
+    }
+  } catch (error) {
+    console.error('Selesai Meal Plan error:', error);
+    showNotification('error', 'Gagal terhubung: ' + error.message);
+  }
+}
+
+function updateMealPlanUI() {
+  // Beri feedback visual bahwa meal plan selesai
+  const btnSelesai = document.getElementById('btnSelesaiMealPlan');
+  if (btnSelesai) {
+    btnSelesai.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
+    btnSelesai.classList.remove('btn-secondary');
+    btnSelesai.classList.add('btn-success');
+  }
+}
+
+function BACKUP_selesaiMealPlan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showNotification('error', 'Silakan login terlebih dahulu');
@@ -2921,12 +3064,7 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// INITIALIZE
-document.addEventListener('DOMContentLoaded', function() {
-  setupMateriCompletion();
-  setupMealPlanUpload();
-  console.log('✅ Program 10 Hari initialized');
-});
+
 
 
 /*****************************
@@ -2957,7 +3095,6 @@ if (jadwalMealplan) {
     <div class="input-group mt-0 mb-2">
       <input class="form-control" type="text" id="sarapan" placeholder="Upload Sarapan" style="max-width: 100%;" readonly>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadSarapan" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-        <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanSarapan" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
       </input>
     </div>
 
@@ -2965,7 +3102,6 @@ if (jadwalMealplan) {
     <div class="input-group mt-0 mb-2">
       <input class="form-control" type="text" id="cemilanPagi" placeholder="Upload Cemilan Pagi" style="max-width: 100%;" readonly>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadCemilanPagi" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-        <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanCemilanPagi" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
       </input>
     </div>
 
@@ -2973,7 +3109,6 @@ if (jadwalMealplan) {
     <div class="input-group mt-0 mb-2">
       <input class="form-control" type="text" id="makanSiang" placeholder="Upload Makan Siang" style="max-width: 100%;" readonly>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadMakanSiang" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-        <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanMakanSiang" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
       </input>
     </div>
 
@@ -2981,7 +3116,6 @@ if (jadwalMealplan) {
     <div class="input-group mt-0 mb-2">
       <input class="form-control" type="text" id="cemilanSore" placeholder="Upload Cemilan Sore" style="max-width: 100%;" readonly>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadCemilanSore" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-        <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanCemilanSore" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
       </input>
     </div>
 
@@ -2989,7 +3123,6 @@ if (jadwalMealplan) {
     <div class="input-group mt-0 mb-2">
       <input class="form-control" type="text" id="makanMalam" placeholder="Upload Makan Malam" style="max-width: 100%;" readonly>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadMakanMalam" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-        <button type="button" class="btn btn-primary btn-sm disabled" id="btnSimpanMakanMalam" data-bs-toggle="tooltip" title="simpan"><i class="fa fa-pencil-square-o"></i></button>
       </input>
     </div>
     <div>
@@ -3793,18 +3926,6 @@ function testConnection() {
 
   document.body.appendChild(script);
 }
-
-// Panggil test connection saat load
-document.addEventListener('DOMContentLoaded', function() {
-  // Test koneksi dulu
-  setTimeout(() => {
-    testConnection();
-  }, 1000);
-  
-  // Setup lainnya
-  setupMateriCompletion();
-  setupMealPlanUpload();
-});
 
 </script>
 </body>
