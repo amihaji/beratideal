@@ -1076,7 +1076,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_APPS_SCRIPT_PROGRAM = 'https://script.google.com/macros/s/AKfycbxwnv0Zqcz8244IaqxTcSmg6o20zr_sSAXNW5yoiq1hwK0UW9Qi5_fOzK3vp6rrhL8V/exec';
+const URL_APPS_SCRIPT_PROGRAM = 'https://script.google.com/macros/library/d/1cCRoymTHLTcLZnxWVZXeiYb1YQPEAr2YiOAj3YLV90c6OwTAjAFhnbJv/5';
 const PLAYLIST_JSON_URL       = './data/playlist.json';
 
 /******************
@@ -3277,68 +3277,7 @@ function getHariKeFromSection(section) {
 /**************************************
 * Fungsi untuk handle upload meal plan
 **************************************/
-// Di fungsi setupMealPlanUpload(), ganti menjadi:
-function setupMealPlanUpload() {
-    const uploadButtons = {
-        'btnUploadSarapan': 'sarapan',
-        'btnUploadCemilanPagi': 'cemilanPagi', 
-        'btnUploadMakanSiang': 'makanSiang',
-        'btnUploadCemilanSore': 'cemilanSore',
-        'btnUploadMakanMalam': 'makanMalam'
-    };
 
-    Object.keys(uploadButtons).forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', function() {
-                const mealType = uploadButtons[btnId];
-                
-                // Untuk sementara, langsung simpan tanpa pilih file
-                if (confirm('Simpan status ' + mealType + ' sebagai OK?')) {
-                    uploadMealPlanImage(null, mealType);
-                }
-                
-                /* 
-                // Kode asli untuk upload file (non-aktif sementara)
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = 'image/*';
-                fileInput.onchange = function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        uploadMealPlanImage(file, mealType);
-                    }
-                };
-                fileInput.click();
-                */
-            });
-        }
-    });
-
-    // Setup tombol simpan (tetap sama)
-    const simpanButtons = {
-        'btnSimpanSarapan': 'sarapan',
-        'btnSimpanCemilanPagi': 'cemilanPagi',
-        'btnSimpanMakanSiang': 'makanSiang', 
-        'btnSimpanCemilanSore': 'cemilanSore',
-        'btnSimpanMakanMalam': 'makanMalam',
-        'btnSelesaiMealPlan': 'selesai'
-    };
-
-    Object.keys(simpanButtons).forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', function() {
-                const actionType = simpanButtons[btnId];
-                if (actionType === 'selesai') {
-                    simpanStatusMealPlan(1, 'OK');
-                } else {
-                    simpanStatusMealItem(1, actionType, 'OK');
-                }
-            });
-        }
-    });
-}
 
 /***********************************
 * Fungsi untuk trigger upload file
@@ -3362,7 +3301,7 @@ function triggerMealPlanUpload(mealType) {
 /*************************************************
 * Fungsi untuk upload image ke Google Apps Script
 /*************************************************/
-// Fungsi untuk upload image (sementara tanpa file)
+// Fungsi untuk upload image yang sebenarnya
 function uploadMealPlanImage(file, mealType) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
@@ -3373,42 +3312,154 @@ function uploadMealPlanImage(file, mealType) {
     const userId = localStorage.getItem('userId');
     const hariKe = 1;
     
-    // Untuk sementara, langsung simpan status tanpa upload file
-    const data = {
-        action: 'uploadMealPlan',
-        userId: userId,
-        hariKe: hariKe,
-        mealType: mealType
+    // Generate nama file sesuai format: UserID_MP1MealType.jpg
+    const fileName = `${userId}_MP${hariKe}${capitalizeFirst(mealType)}.jpg`;
+    
+    // Convert file to base64
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
+        
+        const data = {
+            action: 'uploadMealPlan',
+            userId: userId,
+            hariKe: hariKe,
+            mealType: mealType,
+            file: base64Data,
+            fileName: fileName
+        };
+
+        showToast('Mengupload foto ' + mealType + '...', 'info');
+
+        fetch(URL_APPS_SCRIPT_PROGRAM, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showToast(result.message, 'success');
+                // Update input field dengan nama file
+                const inputField = document.getElementById(mealType);
+                if (inputField) {
+                    inputField.value = fileName + ' ✓';
+                }
+                // Enable tombol simpan
+                const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
+                if (simpanBtn) {
+                    simpanBtn.classList.remove('disabled');
+                }
+                
+                console.log('✅ Upload berhasil. File URL:', result.fileLink);
+            } else {
+                showToast('Gagal: ' + result.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Terjadi kesalahan upload', 'error');
+        });
+    };
+    
+    reader.onerror = function(error) {
+        console.error('Error reading file:', error);
+        showToast('Gagal membaca file', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// Perbaiki setupMealPlanUpload untuk pilih file
+function setupMealPlanUpload() {
+    const uploadButtons = {
+        'btnUploadSarapan': 'sarapan',
+        'btnUploadCemilanPagi': 'cemilanPagi', 
+        'btnUploadMakanSiang': 'makanSiang',
+        'btnUploadCemilanSore': 'cemilanSore',
+        'btnUploadMakanMalam': 'makanMalam'
     };
 
-    showToast('Menyimpan status ' + mealType + '...', 'info');
-
-    fetch(URL_APPS_SCRIPT_PROGRAM, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.success) {
-            showToast(result.message, 'success');
-            // Update input field
-            const inputField = document.getElementById(mealType);
-            if (inputField) {
-                inputField.value = 'OK - Status Tersimpan';
-            }
-            // Enable tombol simpan
-            const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
-            if (simpanBtn) {
-                simpanBtn.classList.remove('disabled');
-            }
-        } else {
-            showToast('Gagal: ' + result.message, 'error');
+    Object.keys(uploadButtons).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const mealType = uploadButtons[btnId];
+                
+                // Buat file input untuk pilih file
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.capture = 'environment'; // Untuk kamera di mobile
+                
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validasi file (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            showToast('File terlalu besar. Maksimal 5MB', 'error');
+                            return;
+                        }
+                        
+                        // Validasi tipe file
+                        if (!file.type.startsWith('image/')) {
+                            showToast('File harus berupa gambar', 'error');
+                            return;
+                        }
+                        
+                        uploadMealPlanImage(file, mealType);
+                    }
+                });
+                
+                fileInput.click();
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Terjadi kesalahan', 'error');
+    });
+
+    // Setup tombol simpan (untuk kasus tanpa upload file)
+    const simpanButtons = {
+        'btnSimpanSarapan': 'sarapan',
+        'btnSimpanCemilanPagi': 'cemilanPagi',
+        'btnSimpanMakanSiang': 'makanSiang',
+        'btnSimpanCemilanSore': 'cemilanSore',
+        'btnSimpanMakanMalam': 'makanMalam',
+        'btnSelesaiMealPlan': 'selesai'
+    };
+
+    Object.keys(simpanButtons).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const actionType = simpanButtons[btnId];
+                if (actionType === 'selesai') {
+                    simpanStatusMealPlan(1, 'OK');
+                } else {
+                    // Untuk simpan tanpa upload file
+                    const data = {
+                        action: 'uploadMealPlan',
+                        userId: localStorage.getItem('userId'),
+                        hariKe: 1,
+                        mealType: actionType
+                        // Tidak ada file, jadi hanya simpan status
+                    };
+                    
+                    fetch(URL_APPS_SCRIPT_PROGRAM, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('Status ' + actionType + ' disimpan', 'success');
+                        } else {
+                            showToast('Gagal: ' + result.message, 'error');
+                        }
+                    });
+                }
+            });
+        }
     });
 }
 
