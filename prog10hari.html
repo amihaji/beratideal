@@ -449,6 +449,32 @@ body { background-color: #f8f9fa; }
 .pdfjs-page-info { font-size: 14px; color: #666;}
 /***** Akhir PDF.js Viewer Styles *****/
 
+/* Style untuk tombol centang video */
+.complete-btn {
+  transition: all 0.3s ease;
+}
+.complete-btn:hover {
+  transform: scale(1.1);
+  background-color: #218838 !important;
+}
+
+/* Style untuk modul terkunci */
+.menu-header.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.status-lock {
+  color: #dc3545;
+  margin-left: 10px;
+}
+.status-unlock {
+  color: #28a745;
+  margin-left: 10px;
+}
+
+
+
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
   .navbar-collapse .mx-auto {
@@ -1197,11 +1223,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup MealPlan
   setupMealPlanUpload();
-
+  
   // Cek status perkenalan dan lock/unlock modul
   checkPerkenalanStatus();
 
-  console.log('✅ Program 10 Hari initialized');
+  console.log('✅ All functions initialized');
 
   // Load saved resistance data
   setTimeout(() => {
@@ -2452,43 +2478,59 @@ function hideSubmenu(targetId) {
 
 // 1.1 MATERI VIDEO - Tombol Centang
 function setupMateriCompletion() {
-  // Hanya tambah tombol centang di video yang perlu (video materi hari)
+  console.log('🔧 Setting up materi completion...');
+  
+  // Cari semua video container untuk materi hari
   document.querySelectorAll('.video-container').forEach(container => {
-    const videoLink = container.closest('.menu-content').querySelector('.video-link');
-    if (videoLink && videoLink.textContent.includes('Materi Hari')) {
-      const completeBtn = document.createElement('button');
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.className = 'btn btn-success btn-sm';
-      completeBtn.style.cssText = `
-        position: absolute; top: 10px; left: 10px; z-index: 25;
-        width: 35px; height: 35px; border-radius: 50%; padding: 0;
-      `;
+    const containerId = container.id;
+    
+    // Cek apakah ini video materi hari (bukan perkenalan)
+    if (containerId.includes('Pertemuan')) {
+      console.log('✅ Found video container for materi:', containerId);
       
-      completeBtn.onclick = function() {
-        const section = container.id.replace('videoContainer', '');
-        const hariKe = getHariKeFromSection(section);
-        simpanMateri(hariKe);
-      };
-      
-      const videoWrapper = container.querySelector('.video-wrapper');
-      if (videoWrapper) {
-        videoWrapper.style.position = 'relative';
-        videoWrapper.appendChild(completeBtn);
+      // Cek apakah tombol centang sudah ada
+      if (!container.querySelector('.complete-btn')) {
+        const completeBtn = document.createElement('button');
+        completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+        completeBtn.className = 'btn btn-success btn-sm complete-btn';
+        completeBtn.style.cssText = `
+          position: absolute; top: 10px; left: 10px; z-index: 25;
+          width: 35px; height: 35px; border-radius: 50%; padding: 0;
+          border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        `;
+        
+        completeBtn.onclick = function(e) {
+          e.stopPropagation();
+          const section = container.id.replace('videoContainer', '');
+          const hariKe = getHariKeFromSection(section);
+          console.log('🎯 Tombol centang diklik:', { section, hariKe });
+          simpanMateri(hariKe);
+        };
+        
+        const videoWrapper = container.querySelector('.video-wrapper');
+        if (videoWrapper) {
+          videoWrapper.style.position = 'relative';
+          videoWrapper.appendChild(completeBtn);
+          console.log('✅ Tombol centang ditambahkan ke:', containerId);
+        }
       }
     }
   });
 }
 
-// Tambahkan di JavaScript
 function setupPerkenalanCompletion() {
-  const selesaiPerkenalanBtn = document.querySelector('a[href="#"].menu-item:contains("Selesai Perkenalan")');
-  if (selesaiPerkenalanBtn) {
-    selesaiPerkenalanBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      selesaiPerkenalan();
-    });
-  }
+  // Cari link "Selesai Perkenalan" dengan selector yang lebih spesifik
+  const selesaiPerkenalanLinks = document.querySelectorAll('.menu-item');
+  selesaiPerkenalanLinks.forEach(link => {
+    if (link.textContent.includes('Selesai Perkenalan')) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        selesaiPerkenalan();
+      });
+    }
+  });
 }
+
 
 async function selesaiPerkenalan() {
   const userId = localStorage.getItem('userId');
@@ -2519,6 +2561,32 @@ async function selesaiPerkenalan() {
     }
   } catch (error) {
     showNotification('error', 'Gagal terhubung: ' + error.message);
+  }
+}
+
+function checkPerkenalanStatus() {
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+
+  // Cek apakah user sudah menyelesaikan perkenalan
+  // Untuk sementara, kita anggap belum selesai
+  // Nanti bisa diimplementasikan dengan API call
+  const perkenalanSelesai = localStorage.getItem('perkenalanSelesai');
+  
+  if (!perkenalanSelesai) {
+    // Lock Modul Hari Pertama
+    const modulPertamaHeader = document.querySelector('[data-hari="1"]');
+    if (modulPertamaHeader) {
+      modulPertamaHeader.classList.add('disabled');
+      modulPertamaHeader.style.pointerEvents = 'none';
+      modulPertamaHeader.style.opacity = '0.6';
+      
+      const lockIcon = modulPertamaHeader.querySelector('.status-lock');
+      if (lockIcon) {
+        lockIcon.className = 'status-lock';
+        lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+      }
+    }
   }
 }
 
@@ -2580,7 +2648,9 @@ async function simpanMateri(hariKe) {
 
 // 1.2 MEAL PLAN - Upload Foto
 function setupMealPlanUpload() {
-  // Setup tombol upload
+  console.log('🔧 Setting up meal plan upload...');
+  
+  // Setup tombol upload - HANYA upload, tanpa simpan individual
   const uploadConfig = {
     'btnUploadSarapan': 'sarapan',
     'btnUploadCemilanPagi': 'cemilanPagi',
@@ -2592,40 +2662,56 @@ function setupMealPlanUpload() {
   Object.entries(uploadConfig).forEach(([btnId, mealType]) => {
     const btn = document.getElementById(btnId);
     if (btn) {
-      btn.onclick = function() {
+      // Hapus event listener lama jika ada
+      btn.replaceWith(btn.cloneNode(true));
+      const newBtn = document.getElementById(btnId);
+      
+      newBtn.onclick = function(e) {
+        e.preventDefault();
+        console.log('📤 Upload button clicked:', mealType);
         uploadMealPhoto(mealType);
       };
+      console.log('✅ Upload button setup:', btnId);
+    } else {
+      console.log('❌ Upload button not found:', btnId);
     }
   });
 
-  // Setup tombol simpan
-  const simpanConfig = {
-    'btnSimpanSarapan': 'sarapan',
-    'btnSimpanCemilanPagi': 'cemilanPagi',
-    'btnSimpanMakanSiang': 'makanSiang',
-    'btnSimpanCemilanSore': 'cemilanSore',
-    'btnSimpanMakanMalam': 'makanMalam'
-  };
-
-  Object.entries(simpanConfig).forEach(([btnId, mealType]) => {
+  // HAPUS tombol simpan individual - nonaktifkan atau sembunyikan
+  const simpanButtons = [
+    'btnSimpanSarapan', 'btnSimpanCemilanPagi', 'btnSimpanMakanSiang',
+    'btnSimpanCemilanSore', 'btnSimpanMakanMalam'
+  ];
+  
+  simpanButtons.forEach(btnId => {
     const btn = document.getElementById(btnId);
     if (btn) {
-      btn.onclick = function() {
-        simpanMealItem(mealType);
-      };
+      btn.style.display = 'none'; // Sembunyikan tombol
+      console.log('❌ Hidden simpan button:', btnId);
     }
   });
 
-  // Tombol selesai meal plan
+  // Setup tombol selesai meal plan
   const btnSelesai = document.getElementById('btnSelesaiMealPlan');
   if (btnSelesai) {
-    btnSelesai.onclick = function() {
+    // Hapus event listener lama
+    btnSelesai.replaceWith(btnSelesai.cloneNode(true));
+    const newSelesaiBtn = document.getElementById('btnSelesaiMealPlan');
+    
+    newSelesaiBtn.onclick = function(e) {
+      e.preventDefault();
+      console.log('🎯 Selesai Meal Plan clicked');
       selesaiMealPlan();
     };
+    console.log('✅ Selesai button setup completed');
+  } else {
+    console.log('❌ Selesai button not found');
   }
 }
 
 function uploadMealPhoto(mealType) {
+  console.log('📸 Starting upload for:', mealType);
+  
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
@@ -2633,7 +2719,12 @@ function uploadMealPhoto(mealType) {
 
   fileInput.onchange = function(e) {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      console.log('❌ No file selected');
+      return;
+    }
+
+    console.log('📁 File selected:', file.name, file.size, file.type);
 
     // Validasi file
     if (file.size > 5 * 1024 * 1024) {
@@ -2646,29 +2737,40 @@ function uploadMealPhoto(mealType) {
       return;
     }
 
+    showNotification('info', 'Mengupload foto ' + mealType + '...');
+
     // Convert to base64
     const reader = new FileReader();
     reader.onload = function(e) {
       const base64Data = e.target.result.split(',')[1];
-      uploadMealPlanWithFile(mealType, base64Data);
+      console.log('📤 File converted to base64, length:', base64Data.length);
+      uploadMealPlanWithFile(mealType, base64Data, file.name);
     };
-    reader.onerror = function() {
+    
+    reader.onerror = function(error) {
+      console.error('❌ File reading error:', error);
       showNotification('error', 'Gagal membaca file');
     };
+    
     reader.readAsDataURL(file);
   };
 
   fileInput.click();
 }
 
-async function uploadMealPlanWithFile(mealType, fileData) {
+async function uploadMealPlanWithFile(mealType, fileData, fileName) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showNotification('error', 'Silakan login terlebih dahulu');
     return;
   }
 
-  console.log('🔧 uploadMealPlanWithFile called:', { userId, mealType, fileDataLength: fileData.length });
+  console.log('🔧 uploadMealPlanWithFile called:', { 
+    userId, 
+    mealType, 
+    fileDataLength: fileData.length,
+    fileName 
+  });
 
   try {
     const response = await fetch(URL_PROGRAM_APP, {
@@ -2695,22 +2797,24 @@ async function uploadMealPlanWithFile(mealType, fileData) {
         // Update input field
         const inputField = document.getElementById(mealType);
         if (inputField) {
-          inputField.value = '✓ Foto terupload';
+          inputField.value = '✓ ' + fileName;
         }
-        // Enable tombol simpan
-        const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
-        if (simpanBtn) {
-          simpanBtn.classList.remove('disabled');
-        }
+        console.log('✅ Upload successful for:', mealType);
       } else {
         showNotification('error', jsonResult.message || 'Upload gagal');
+        console.log('❌ Upload failed:', jsonResult.message);
       }
     } catch (e) {
       // Jika response bukan JSON
       if (result === "OK") {
         showNotification('success', 'Upload berhasil!');
+        const inputField = document.getElementById(mealType);
+        if (inputField) {
+          inputField.value = '✓ ' + fileName;
+        }
       } else {
         showNotification('error', 'Response tidak valid: ' + result);
+        console.log('❌ Invalid response:', result);
       }
     }
   } catch (error) {
@@ -2718,7 +2822,6 @@ async function uploadMealPlanWithFile(mealType, fileData) {
     showNotification('error', 'Gagal terhubung: ' + error.message);
   }
 }
-
 
 function simpanMealItem(mealType) {
   const userId = localStorage.getItem('userId');
