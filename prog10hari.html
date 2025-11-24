@@ -465,11 +465,11 @@ body { background-color: #f8f9fa; }
   cursor: not-allowed;
 }
 .status-lock {
-  color: #dc3545;
+  color: #000e3d;
   margin-left: 10px;
 }
 .status-unlock {
-  color: #28a745;
+  color: #ffffff;
   margin-left: 10px;
 }
 
@@ -647,7 +647,6 @@ body { background-color: #f8f9fa; }
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#perkenalanContent">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Perkenalan
-                <i class="fas fa-lock status-lock"></i>
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
@@ -692,7 +691,7 @@ body { background-color: #f8f9fa; }
                 </div>
                 
                 <a href="#" class="menu-item">
-                  <i class="fas fa-times"></i>Selesai Perkenalan
+                  <i class="fas fa-check-double"></i>Selesai Perkenalan
                 </a>      
               </div>
             </div>
@@ -2897,36 +2896,6 @@ function updateMealPlanUI() {
     btnSelesai.classList.remove('btn-secondary');
     btnSelesai.classList.add('btn-success');
   }
-}
-
-function BACKUP_selesaiMealPlan() {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
-    return;
-  }
-
-  const callbackName = 'cb_selesai_' + Date.now();
-  const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP}?action=updateMealPlan&userId=${encodeURIComponent(userId)}&hariKe=1&callback=${callbackName}`;
-
-  window[callbackName] = function(response) {
-    if (response === "OK") {
-      showNotification('success', 'Meal Plan selesai!');
-    } else {
-      showNotification('error', 'Gagal menyelesaikan meal plan');
-    }
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  script.onerror = function() {
-    showNotification('error', 'Gagal terhubung ke server');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  document.body.appendChild(script);
 }
 
 /****************
