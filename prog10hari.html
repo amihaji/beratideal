@@ -1011,7 +1011,6 @@ body { background-color: #f8f9fa; }
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthyRecept">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Resep Healthy Snacking
-                <i class="fas fa-lock status-lock"></i>
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
@@ -1055,7 +1054,6 @@ body { background-color: #f8f9fa; }
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dasboardFitTrack">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Dashboard Fit Track
-                <i class="fas fa-lock status-lock"></i>
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
@@ -1294,7 +1292,7 @@ function setupCekDisiniButtons() {
         });
     }
     
-    // Data Tracking Hari Pertama - PERBAIKAN: ID yang benar
+    // Data Tracking Hari Pertama 
     const btnDataTubuh = document.getElementById('btnCekDisiniDataTubuh');
     if (btnDataTubuh) {
         btnDataTubuh.addEventListener('click', function() {
@@ -2567,9 +2565,6 @@ function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
 
-  // Cek apakah user sudah menyelesaikan perkenalan
-  // Untuk sementara, kita anggap belum selesai
-  // Nanti bisa diimplementasikan dengan API call
   const perkenalanSelesai = localStorage.getItem('perkenalanSelesai');
   
   if (!perkenalanSelesai) {
@@ -3756,8 +3751,6 @@ function uploadMealPlanImage(file, mealType) {
     
     reader.readAsDataURL(file);
 }
-
-// Perbaiki setupMealPlanUpload untuk pilih file
 
 /*************************************************
 * Fungsi untuk simpan status meal item individual
