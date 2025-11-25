@@ -385,18 +385,6 @@ body { background-color: #f8f9fa; }
     justify-content: center;
     align-items: center;
 }
-/*
-.pdf-error {
-    padding: 30px 20px;
-    text-align: center;
-    color: #dc3545;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-*/
 
 .close-pdf {
     position: absolute;
@@ -450,30 +438,40 @@ body { background-color: #f8f9fa; }
 /***** Akhir PDF.js Viewer Styles *****/
 
 /* Style untuk tombol centang video */
-.complete-btn {
-  transition: all 0.3s ease;
-}
-.complete-btn:hover {
-  transform: scale(1.1);
-  background-color: #218838 !important;
-}
+.complete-btn { transition: all 0.3s ease; }
+.complete-btn:hover { transform: scale(1.1); background-color: #218838 !important; }
 
 /* Style untuk modul terkunci */
-.menu-header.disabled {
-  pointer-events: none;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.status-lock {
-  color: #000e3d;
-  margin-left: 10px;
-}
-.status-unlock {
-  color: #ffffff;
-  margin-left: 10px;
-}
+.menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
+.status-lock { color: #000e3d; margin-left: 10px; }
+.status-unlock { color: #ffffff; margin-left: 10px; }
 
+/***** STYLING UNTUK PESAN UNIVERSAL *****/
+.notification-message {
+    display: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.pesan-notif-icon { font-size: 18px; }
+.notification-error { background-color: #d9534f; color: white; border-color: #c9302c; }
+.notification-success { background-color: #0275d8; color: white; border-color: #025aa5; }
+.notification-warning { background-color: #f0ad4e; color: black; border-color: #eea236; }
+.notification-info { background-color: #5bc0de; color: white; border-color: #46b8da; }
 
+/* Untuk pesan toast */
+.toast-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    z-index: 1060;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -1406,7 +1404,8 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     // Validasi URL YouTube
     if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
         console.error('❌ Invalid YouTube URL:', videoUrl);
-        showToast('URL YouTube tidak valid', 'error');
+        //showToast('URL YouTube tidak valid', 'error');
+        showMessage('error', 'URL Youtube tidak valid');
         return;
     }
     
@@ -1774,7 +1773,8 @@ async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
     // Fallback ke proven videos
     const provenVideos = getProvenVideos();
     renderPlaylist(playlistContainer, provenVideos, 'healthyRecept');
-    showToast('⚠️ Menggunakan data lokal', 'info');
+    //showToast('⚠️ Menggunakan data lokal', 'info');
+    showMessage('info', 'Menggunakan data lokal', 3000, 'toast');
   }
 }
 
@@ -2531,7 +2531,8 @@ function setupPerkenalanCompletion() {
 async function selesaiPerkenalan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
+    //showNotification('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
 
@@ -2550,13 +2551,16 @@ async function selesaiPerkenalan() {
     const result = await response.text();
     
     if (result === "OK") {
-      showNotification('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.');
+      //showNotification('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.');
+      showMessage('success', 'Silakan login terlebih dahulu');
       unlockModulHariPertama();
     } else {
-      showNotification('error', 'Gagal: ' + result);
+      //showNotification('error', 'Gagal: ' + result);
+      showMessage('error', 'Gagal : ' + result);
     }
   } catch (error) {
-    showNotification('error', 'Gagal terhubung: ' + error.message);
+    //showNotification('error', 'Gagal terhubung: ' + error.message);
+    showMessage('error', 'Gagal terhubung : ' + error.message);
   }
 }
 
@@ -2627,14 +2631,17 @@ async function simpanMateri(hariKe) {
     console.log('📥 Response:', result);
 
     if (result === "OK") {
-      showNotification('success', 'Materi berhasil disimpan!');
+      //showNotification('success', 'Materi berhasil disimpan!');
+      showMessage('success', 'Materi berhasil tersimpan!');
       updateMateriStatusUI(hariKe);
     } else {
-      showNotification('error', 'Gagal: ' + result);
+      //showNotification('error', 'Gagal: ' + result);
+      showMessage('error', 'Gagal: ' + result);
     }
   } catch (error) {
     console.error('❌ Fetch error:', error);
-    showNotification('error', 'Gagal terhubung: ' + error.message);
+    // showNotification('error', 'Gagal terhubung: ' + error.message);
+    showMessage('error', 'Gagal terhubung: ' + error.message);
   }
 }
 
@@ -2721,16 +2728,19 @@ function uploadMealPhoto(mealType) {
 
     // Validasi file
     if (file.size > 5 * 1024 * 1024) {
-      showNotification('error', 'File terlalu besar (maks 5MB)');
+      //showNotification('error', 'File terlalu besar (maks 5MB)');
+      showMessage('error', 'File terlalu besar (maks 5MB)');
       return;
     }
 
     if (!file.type.startsWith('image/')) {
-      showNotification('error', 'File harus berupa gambar');
+      //showNotification('error', 'File harus berupa gambar');
+      showMessage('error', 'File harus berupa gambar');
       return;
     }
 
-    showNotification('info', 'Mengupload foto ' + mealType + '...');
+    //showNotification('info', 'Mengupload foto ' + mealType + '...');
+    showMessage('info', 'Mengupload foto ' + mealType + '...');
 
     // Convert to base64
     const reader = new FileReader();
@@ -2742,7 +2752,8 @@ function uploadMealPhoto(mealType) {
     
     reader.onerror = function(error) {
       console.error('❌ File reading error:', error);
-      showNotification('error', 'Gagal membaca file');
+      //showNotification('error', 'Gagal membaca file');
+      showMessage('error', 'Gagal membaca file');
     };
     
     reader.readAsDataURL(file);
@@ -2754,7 +2765,8 @@ function uploadMealPhoto(mealType) {
 async function uploadMealPlanWithFile(mealType, fileData, fileName) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
+    //showNotification('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
 
@@ -2786,7 +2798,8 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
     try {
       const jsonResult = JSON.parse(result);
       if (jsonResult.success) {
-        showNotification('success', jsonResult.message);
+        //showNotification('success', jsonResult.message);
+        showMessage('success', jsonResult.message);
         // Update input field
         const inputField = document.getElementById(mealType);
         if (inputField) {
@@ -2794,32 +2807,37 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
         }
         console.log('✅ Upload successful for:', mealType);
       } else {
-        showNotification('error', jsonResult.message || 'Upload gagal');
+        //showNotification('error', jsonResult.message || 'Upload gagal');
+        showMessage('error', jsonResult.message || 'Upload gagal');
         console.log('❌ Upload failed:', jsonResult.message);
       }
     } catch (e) {
       // Jika response bukan JSON
       if (result === "OK") {
-        showNotification('success', 'Upload berhasil!');
+        // showNotification('success', 'Upload berhasil!');
+        showMessage('success', 'Upload berhasil!');
         const inputField = document.getElementById(mealType);
         if (inputField) {
           inputField.value = '✓ ' + fileName;
         }
       } else {
-        showNotification('error', 'Response tidak valid: ' + result);
+        //showNotification('error', 'Response tidak valid: ' + result);
+        showMessage('error', 'Response tidak valid: ' + result);
         console.log('❌ Invalid response:', result);
       }
     }
   } catch (error) {
     console.error('❌ Upload fetch error:', error);
-    showNotification('error', 'Gagal terhubung: ' + error.message);
+    // showNotification('error', 'Gagal terhubung: ' + error.message);
+    showMessage('error', 'Gagal terhubung : ' + error.message);
   }
 }
 
 function simpanMealItem(mealType) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
+    // showNotification('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
 
@@ -2829,9 +2847,11 @@ function simpanMealItem(mealType) {
 
   window[callbackName] = function(response) {
     if (response === "OK") {
-      showNotification('success', `Status ${mealType} berhasil disimpan`);
+      // showNotification('success', `Status ${mealType} berhasil disimpan`);
+      showMessage('success', `Status ${mealType} berhasil disimpan`);
     } else {
-      showNotification('error', `Gagal menyimpan status ${mealType}`);
+      //showNotification('error', `Gagal menyimpan status ${mealType}`);
+      showMessage('error', `Gagal menyimpan status ${mealType}`);
     }
     document.body.removeChild(script);
     delete window[callbackName];
@@ -2839,6 +2859,7 @@ function simpanMealItem(mealType) {
 
   script.onerror = function() {
     showNotification('error', 'Gagal terhubung ke server');
+    showMessage('error', 'Gagal terhubung ke server');
     document.body.removeChild(script);
     delete window[callbackName];
   };
@@ -2849,7 +2870,8 @@ function simpanMealItem(mealType) {
 async function selesaiMealPlan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    showNotification('error', 'Silakan login terlebih dahulu');
+    // showNotification('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
 
@@ -2870,15 +2892,18 @@ async function selesaiMealPlan() {
     console.log('Selesai Meal Plan response:', result);
     
     if (result === "OK") {
-      showNotification('success', 'Meal Plan hari pertama selesai! ✅');
+      //showNotification('success', 'Meal Plan hari pertama selesai! ✅');
+      showMessage('success', 'Meal Plan hari pertama selesai!');
       // Update UI atau beri feedback
       updateMealPlanUI();
     } else {
-      showNotification('error', 'Gagal menyelesaikan meal plan: ' + result);
+      //showNotification('error', 'Gagal menyelesaikan meal plan: ' + result);
+      showMessage('error', 'Gagal menyelesaikan meal plan : ' + result);
     }
   } catch (error) {
     console.error('Selesai Meal Plan error:', error);
-    showNotification('error', 'Gagal terhubung: ' + error.message);
+    //showNotification('error', 'Gagal terhubung: ' + error.message);
+    showMessage('error', 'Gagal terhubung : ' + error.message);
   }
 }
 
@@ -2920,33 +2945,6 @@ function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function showNotification(type, message) {
-  // Gunakan notifikasi yang sudah ada di loginFC.txt
-  const notificationBox = document.getElementById('notificationBox');
-  const icon = document.getElementById('pesanNotifIcon');
-  const text = document.getElementById('pesanNotifText');
-  
-  if (notificationBox && icon && text) {
-    notificationBox.className = 'notification-message w-100 mb-2';
-    icon.className = 'pesan-notif-icon me-2';
-    
-    if (type === 'error') {
-      notificationBox.classList.add('notification-error');
-      icon.classList.add('fas', 'fa-times-circle');
-    } else if (type === 'success') {
-      notificationBox.classList.add('notification-success');
-      icon.classList.add('fas', 'fa-check-circle');
-    }
-    
-    text.textContent = message;
-    notificationBox.style.display = 'flex';
-    setTimeout(() => { notificationBox.style.display = 'none'; }, 3000);
-  } else {
-    // Fallback simple alert
-    alert(message);
-  }
-}
-
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -2980,12 +2978,16 @@ async function simpanMealPlan(mealType, fileData = null) {
     const result = await response.json();
     
     if (result.success) {
-      showToast(`${mealType} berhasil disimpan!`, 'success');
+      // showToast(`${mealType} berhasil disimpan!`, 'success');
+      showMessage('success', `${mealType} berhasil disimpan`, 3000,'toast');
+
     } else {
-      showToast('Gagal: ' + result.message, 'error');
+      // showToast('Gagal: ' + result.message, 'error');
+      showMessage('error', 'Gagal: ' + result.message, 3000, 'toast');
     }
   } catch (error) {
-    showToast('Error: ' + error.message, 'error');
+    // showToast('Error: ' + error.message, 'error');
+    showMessage('error', 'Error : ' + error.message, 3000, 'toast');
   }
 }
 
@@ -3000,21 +3002,6 @@ function updateLockIcon(hariKe, type) {
     }
   }
 }
-
-function showToast(message, type = 'info') {
-  // Simple toast notification
-  const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
-    background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-    color: white; border-radius: 4px; z-index: 10000;
-  `;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  
-  setTimeout(() => toast.remove(), 3000);
-}
-
 
 /*****************************
 * Ekstrak ID Playlist dari URL
@@ -3167,7 +3154,8 @@ function addResistanceExercise(exerciseName) {
   
   // Cek apakah exercise sudah dipilih
   if (document.getElementById(`resistance-${exerciseId}`)) {
-    showFormMessage('Olahraga ini sudah terpilih', 'warning', 'resistance-message');
+    // showFormMessage('Olahraga ini sudah terpilih', 'warning', 'resistance-message');
+    showMessage('warning', 'Olahraga ini sudah terpilih', 5000, 'inline', 'resistance-message');
     return;
   }
   
@@ -3237,7 +3225,8 @@ function removeResistanceExercise(exerciseId) {
   const exerciseElement = document.getElementById(`resistance-${exerciseId}`);
   if (exerciseElement) {
     exerciseElement.remove();
-    showFormMessage('Batalkan pilihan...', 'danger', 'resistance-message');
+    // showFormMessage('Batalkan pilihan...', 'danger', 'resistance-message');
+    showMessage('warning', 'Batalkan pilihan...', 5000, 'inline', 'resistance-message');
     localStorage.removeItem(`resistance-${exerciseId}`);
   }
 }
@@ -3252,7 +3241,8 @@ function simpanResistanceData(exerciseId) {
   
   // Validasi: minimal satu field harus diisi
   if (!setValue && !repetisiValue && !durasiValue) {
-    showFormMessage('Isi minimal satu field data', 'warning', 'resistance-message');
+    //showFormMessage('Isi minimal satu field data', 'warning', 'resistance-message');
+    showMessage('warning', 'Isi minimal satu field data', 5000, 'inline', 'resistance-message');
     return;
   }
   
@@ -3265,7 +3255,8 @@ function simpanResistanceData(exerciseId) {
   };
   
   localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
-  showFormMessage('Data resistance berhasil disimpan', 'primary', 'resistance-message');
+  // showFormMessage('Data resistance berhasil disimpan', 'primary', 'resistance-message');
+  showMessage('success', 'Data resistance berhasil disimpan', 5000, 'inline', 'resistance-message');
 }
 
 /***********************************************
@@ -3285,8 +3276,8 @@ function resetResistanceData() {
   resistanceExercises.forEach(exercise => {
     localStorage.removeItem(`resistance-${exercise}`);
   });
-  
-  showFormMessage('Data resistance berhasil direset', 'info', 'resistance-message');
+  //showFormMessage('Data resistance berhasil direset', 'info', 'resistance-message');
+  showMessage('info', 'Data resistance berhasil direset', 5000, 'inline', 'resistance-message');
 }
 
 /******************************************
@@ -3483,111 +3474,142 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }                 
 
-// ******************************
-// *** FUNGSI PESAN FLEKSIBEL ***
-// ******************************
+// **************************************
+// ***** FUNGSI PESAN UNIVERSAL *****
+// **************************************
+/**
+ * Fungsi universal untuk menampilkan pesan - menggantikan semua fungsi pesan lainnya
+ * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
+ * @param {string} message - Pesan yang akan ditampilkan
+ * @param {number} duration - Durasi tampil (ms), 0 = tidak auto-hide, default: 3000
+ * @param {string} position - Posisi: 'inline', 'toast', default: 'inline'
+ * @param {string} containerId - ID container spesifik untuk menampilkan pesan
+ */
+function showMessage(type, message, duration = 3000, position = 'inline', containerId = null) {
+    // Konfigurasi tipe pesan
+    const typeConfig = {
+        success: {
+            cssClass: 'notification-success',
+            icon: 'fas fa-check-circle'
+        },
+        error: {
+            cssClass: 'notification-error', 
+            icon: 'fas fa-times-circle'
+        },
+        warning: {
+            cssClass: 'notification-warning',
+            icon: 'fas fa-exclamation-circle'
+        },
+        info: {
+            cssClass: 'notification-info',
+            icon: 'fas fa-info-circle'
+        }
+    };
 
-/******************************************
-* Tampilkan Pesan dalam Form (Simple Fixed)
-*******************************************/
-function showFormMessage(message, type = 'info', containerId = 'form-message') {
-    // Cari atau buat container pesan
-    let messageContainer = document.getElementById(containerId);
+    const config = typeConfig[type] || typeConfig.info;
+
+    // Buat element pesan
+    const messageElement = document.createElement('div');
+    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass}`;
     
+    if (position === 'toast') {
+        messageElement.classList.add('toast-message');
+    }
+
+    messageElement.innerHTML = `
+        <i class="pesan-notif-icon me-2 ${config.icon}"></i>
+        <span class="flex-grow-1" id="pesanNotifText">${message}</span>
+        <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
+    `;
+
+    // Tentukan target container
+    let targetContainer;
+    if (containerId && document.getElementById(containerId)) {
+        targetContainer = document.getElementById(containerId);
+    } else {
+        switch (position) {
+            case 'toast':
+                targetContainer = document.body;
+                break;
+            default:
+                // Untuk inline, cari container yang sesuai atau gunakan body
+                targetContainer = document.querySelector('.card-body') || document.querySelector('main') || document.body;
+                break;
+        }
+    }
+
+    // Tambahkan pesan ke container
+    if (position === 'toast') {
+        targetContainer.appendChild(messageElement);
+    } else if (containerId) {
+        targetContainer.appendChild(messageElement);
+    } else {
+        // Untuk inline, tambahkan di atas konten utama
+        targetContainer.insertBefore(messageElement, targetContainer.firstChild);
+    }
+
+    // Tampilkan pesan
+    messageElement.style.display = 'flex';
+
+    // Auto-hide jika duration > 0
+    if (duration > 0) {
+        setTimeout(() => {
+            if (messageElement.parentElement) {
+                messageElement.remove();
+            }
+        }, duration);
+    }
+
+    return messageElement;
+}
+
+// Fungsi showNotification - sekarang menggunakan showMessage
+function showNotification(type, message, duration = 3000) {
+    return showMessage(type, message, duration, 'inline');
+}
+
+// Fungsi showToast - sekarang menggunakan showMessage
+function showToast(message, type = 'info') {
+    return showMessage(type, message, 3000, 'toast');
+}
+
+// Fungsi showAlert- sekarang menggunakan showMessage
+function showAlert(message, type = 'info') {
+    return showMessage(type, message, {
+        duration: 0 // Tidak auto-hide
+    });
+}
+
+// Fungsi showFormMessage - sekarang menggunakan showMessage
+function showFormMessage(message, type = 'info', containerId = 'form-message') {
+    // Buat container jika belum ada
+    let messageContainer = document.getElementById(containerId);
     if (!messageContainer) {
         messageContainer = document.createElement('div');
         messageContainer.id = containerId;
         messageContainer.className = 'mt-2';
         
-        const selesaiButton = document.querySelector('#btnSelesaiWorkout');
-        if (selesaiButton && selesaiButton.parentNode) {
-            selesaiButton.parentNode.insertBefore(messageContainer, selesaiButton);
-        } else {
-            const resistanceContainer = document.getElementById('selectedResistanceContainer');
-            if (resistanceContainer) {
-                resistanceContainer.parentNode.appendChild(messageContainer);
-            }
+        // Tempatkan di lokasi yang sesuai
+        const targetElement = document.querySelector('#btnSelesaiWorkout') || 
+                             document.getElementById('selectedResistanceContainer');
+        if (targetElement && targetElement.parentNode) {
+            targetElement.parentNode.insertBefore(messageContainer, targetElement);
         }
     }
     
-    // Buat alert Bootstrap
-    const messageElement = document.createElement('div');
-    messageElement.className = `alert alert-${type} alert-dismissible py-2 px-3 fade show`;
-    messageElement.style.fontSize = '0.9rem';
-    messageElement.style.lineHeight = '1.5';
-    messageElement.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"
-          style="transform: scale(0.7); align-items:end; margin-top:1px; padding-top:10px ; padding-bottom:10px">
-        </button>
-    `;
-
-    // Hapus pesan sebelumnya dan tambahkan yang baru
+    // Hapus pesan sebelumnya
     messageContainer.innerHTML = '';
-    messageContainer.appendChild(messageElement);
     
-    // Auto-hide setelah 5 detik
-    if (type === 'success' || type === 'info') {
-        setTimeout(() => {
-            if (messageElement.parentNode) {
-                const bsAlert = new bootstrap.Alert(messageElement);
-                bsAlert.close();
-            }
-        }, 5000);
-    }
+    // Tampilkan pesan baru
+    return showMessage(type, message, 5000, 'inline', containerId);
 }
 
-/***********************
-* Hapus Pesan dari Form
-************************/
+// clearFormMessage dengan:
 function clearFormMessage(containerId = 'form-message') {
     const messageContainer = document.getElementById(containerId);
     if (messageContainer) {
         messageContainer.innerHTML = '';
     }
-}
-
-/****************************************
-* Pesan Toast Global (Bootstrap Standard)
-****************************************/
-function showToast(message, type = 'info') {
-    // Buat toast container jika belum ada
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-        toastContainer.style.zIndex = '1100';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Buat toast element
-    const toastId = 'toast-' + Date.now();
-    const toastElement = document.createElement('div');
-    toastElement.id = toastId;
-    toastElement.className = `toast align-items-center text-bg-${type} border-0`;
-    toastElement.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                ${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    toastContainer.appendChild(toastElement);
-    
-    // Inisialisasi dan tampilkan toast
-    const toast = new bootstrap.Toast(toastElement, {
-        autohide: true,
-        delay: 3000
-    });
-    toast.show();
-    
-    // Hapus element setelah toast disembunyikan
-    toastElement.addEventListener('hidden.bs.toast', function () {
-        toastElement.remove();
-    });
 }
 
 /************************************
@@ -3600,7 +3622,8 @@ function simpanStatusMateri(hariKe, status) {
     console.log('🔧 DEBUG simpanStatusMateri:', { userId, hariKe, status, userToken });
     
     if (!userToken || !userId) {
-        showToast('Silakan login terlebih dahulu', 'error');
+        // showToast('Silakan login terlebih dahulu', 'error');
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
         console.log('❌ User not logged in');
         return;
     }
@@ -3637,25 +3660,30 @@ function simpanStatusMateri(hariKe, status) {
             console.log('📥 Parsed JSON:', jsonResult);
             
             if (jsonResult.success) {
-                showToast('Status materi berhasil disimpan', 'success');
+                //showToast('Status materi berhasil disimpan', 'success');
+                showMessage('success', 'Status Materi disimpan', 3000, 'toast');
                 updateMateriStatusUI(hariKe, status);
             } else {
-                showToast('Gagal menyimpan status materi: ' + (jsonResult.message || 'Unknown error'), 'error');
+                // showToast('Gagal menyimpan status materi: ' + (jsonResult.message || 'Unknown error'), 'error');
+                showMessage('error', 'Gagal menyimpan status materi : ' + (jsonResult.message || 'Unknown error'), 3000, 'toast');
             }
         } catch (e) {
             // Jika response bukan JSON
             if (result === 'OK') {
-                showToast('Status materi berhasil disimpan', 'success');
+                //showToast('Status materi berhasil disimpan', 'success');
+                showMessage('success', 'Status Materi disimpan', 3000, 'toast');
                 updateMateriStatusUI(hariKe, status);
             } else {
                 console.log('❌ Unexpected response:', result);
-                showToast('Response tidak dikenali: ' + result, 'error');
+                // showToast('Response tidak dikenali: ' + result, 'error');
+                showMessage('error', 'Response tidak dikenal: ' + result, 3000, 'toast');
             }
         }
     })
     .catch(error => {
         console.error('❌ Fetch error:', error);
-        showToast('Terjadi kesalahan jaringan: ' + error.message, 'error');
+        // showToast('Terjadi kesalahan jaringan: ' + error.message, 'error');
+        showMessage('error', 'Terjasi kesalahan jaringan: ' + error.message, 3000, 'toast');
     });
 }
 
@@ -3685,7 +3713,8 @@ function triggerMealPlanUpload(mealType) {
 function uploadMealPlanImage(file, mealType) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
-        showToast('Silakan login terlebih dahulu', 'error');
+        // showToast('Silakan login terlebih dahulu', 'error');
+        showMessage('error', 'Silahkan login terlebih dahulu' , 3000, 'toast');
         return;
     }
 
@@ -3710,8 +3739,8 @@ function uploadMealPlanImage(file, mealType) {
             fileName: fileName
         };
 
-        showToast('Mengupload foto ' + mealType + '...', 'info');
-
+        // showToast('Mengupload foto ' + mealType + '...', 'info');
+        showMessage('info', 'Mengupload foto ' + mealType + '...', 3000, 'toast');
         fetch(URL_APPS_SCRIPT_PROGRAM, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -3720,7 +3749,8 @@ function uploadMealPlanImage(file, mealType) {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                showToast(result.message, 'success');
+                // showToast(result.message, 'success');
+                showMessage('success', result.message, 3000, 'toast');
                 // Update input field dengan nama file
                 const inputField = document.getElementById(mealType);
                 if (inputField) {
@@ -3734,18 +3764,21 @@ function uploadMealPlanImage(file, mealType) {
                 
                 console.log('✅ Upload berhasil. File URL:', result.fileLink);
             } else {
-                showToast('Gagal: ' + result.message, 'error');
+                // showToast('Gagal: ' + result.message, 'error');
+                showMessage('error',+ result.message, 3000, 'toast');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Terjadi kesalahan upload', 'error');
+            // showToast('Terjadi kesalahan upload', 'error');
+            showMessage('error', 'Terjadi kesalahan upload', 3000, 'toast');
         });
     };
     
     reader.onerror = function(error) {
         console.error('Error reading file:', error);
-        showToast('Gagal membaca file', 'error');
+        //showToast('Gagal membaca file', 'error');
+        showMessage('error', 'Gagal membaca file', 3000, 'toast');
     };
     
     reader.readAsDataURL(file);
@@ -3757,7 +3790,8 @@ function uploadMealPlanImage(file, mealType) {
 function simpanStatusMealItem(hariKe, mealType, status) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
-        showToast('Silakan login terlebih dahulu', 'error');
+        // showToast('Silakan login terlebih dahulu', 'error');
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
         return;
     }
 
@@ -3778,14 +3812,17 @@ function simpanStatusMealItem(hariKe, mealType, status) {
     .then(response => response.text())
     .then(result => {
         if (result === 'OK') {
-            showToast(`Status ${mealType} berhasil disimpan`, 'success');
+            // showToast(`Status ${mealType} berhasil disimpan`, 'success');
+            showMessage('success', `Status ${mealType} berhasil disimpan`, 3000, 'toast');
         } else {
-            showToast(`Gagal menyimpan status ${mealType}`, 'error');
+            // showToast(`Gagal menyimpan status ${mealType}`, 'error');
+            showMessage('error', `Gagal menyimpan status ${mealType}`, 3000, 'toast');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('Terjadi kesalahan saat menyimpan', 'error');
+        //showToast('Terjadi kesalahan saat menyimpan', 'error');
+        showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
     });
 }
 
@@ -3795,7 +3832,8 @@ function simpanStatusMealItem(hariKe, mealType, status) {
 function simpanStatusMealPlan(hariKe, status) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
-        showToast('Silakan login terlebih dahulu', 'error');
+        // showToast('Silakan login terlebih dahulu', 'error');
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
         return;
     }
 
@@ -3815,14 +3853,17 @@ function simpanStatusMealPlan(hariKe, status) {
     .then(response => response.text())
     .then(result => {
         if (result === 'OK') {
-            showToast('Meal Plan hari ini selesai!', 'success');
+            // showToast('Meal Plan hari ini selesai!', 'success');
+            showMessage('success','Mela Paln hari ini selesai', 3000, 'toast');
         } else {
-            showToast('Gagal menyimpan status meal plan', 'error');
+            //showToast('Gagal menyimpan status meal plan', 'error');
+            showMessage('error', 'Gagal menyimpan status meal plan', 3000, 'toast');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('Terjadi kesalahan saat menyimpan', 'error');
+        // showToast('Terjadi kesalahan saat menyimpan', 'error');
+        showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
     });
 }
 
