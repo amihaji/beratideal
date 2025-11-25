@@ -1522,7 +1522,8 @@ function loadLocalVideo(videoPlayer, url) {
     if (videoElement) {
         videoElement.onerror = function() {
             console.error('Error loading local video:', url);
-            alert('Video tidak dapat dimuat. Pastikan file video ada di folder yang benar.');
+            // alert('Video tidak dapat dimuat. Pastikan file video ada di folder yang benar.');
+            showMessage('error', 'Video tidak dapat dimuat');
             if (currentVideoData.section) {
                 closeVideo(currentVideoData.section);
             }
@@ -2608,7 +2609,8 @@ function unlockModulHariPertama() {
 async function simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    alert('Silakan login terlebih dahulu');
+    // alert('Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
 
