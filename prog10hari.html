@@ -447,6 +447,28 @@ body { background-color: #f8f9fa; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
 
 /***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
+
+
+/* Untuk pesan toast */
+.toast-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    z-index: 1060;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+
+/*
+.message-for-panduan { border-left: 4px solid #002266; }
+.message-for-perkenalan { border-left: 4px solid #830000; }
+.message-for-pertemuan1 { border-left: 4px solid #dc3545; }
+.message-for-pertemuan2 { border-left: 4px solid #28a745; }
+**/
+
+/***** STYLING UNTUK PESAN UNIVERSAL *****/
 .notification-message {
     display: none;
     padding: 12px 16px;
@@ -461,8 +483,10 @@ body { background-color: #f8f9fa; }
 .notification-success { background-color: #0275d8; color: white; border-color: #025aa5; }
 .notification-warning { background-color: #f0ad4e; color: black; border-color: #eea236; }
 .notification-info { background-color: #5bc0de; color: white; border-color: #46b8da; }
+/* Pesan dalam menu content */
+.menu-content .notification-message { margin: 10px 0; border-radius: 6px; }
 
-/* Untuk pesan toast */
+/* Toast message */
 .toast-message {
     position: fixed;
     top: 20px;
@@ -472,15 +496,6 @@ body { background-color: #f8f9fa; }
     z-index: 1060;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-
-/* Pesan dalam menu content */
-.menu-content .notification-message { margin: 10px 0; border-radius: 6px; }
-
-/* Pesan untuk menu spesifik */
-.message-for-panduan { border-left: 4px solid #002266; }
-.message-for-perkenalan { border-left: 4px solid #830000; }
-.message-for-pertemuan1 { border-left: 4px solid #dc3545; }
-.message-for-pertemuan2 { border-left: 4px solid #28a745; }
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -721,7 +736,9 @@ body { background-color: #f8f9fa; }
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
-                  class="menu-item video-link"  style="max-width: 100%;" data-section="pertemuan1" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec"> 
+                  class="menu-item video-link" onclick="showMessage('info', 'Memuat video...', 2000, 'pertemuan1')" 
+                  style="max-width: 100%;" data-section="pertemuan1" 
+                  data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec"> 
                   <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan? 
                 </a>
                 
@@ -748,45 +765,44 @@ body { background-color: #f8f9fa; }
 
                 <!-- MEAL PLAN HARI PERTAMA -->
                 <a href="pdf/MealPlan_HariKe1.pdf" 
-                  class="menu-item submenu-trigger" data-target="mealPlanContent1">
+                  class="menu-item submenu-trigger" onclick="uploadMealPlan(1)" data-target="mealPlanContent1">
                   <i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama
                 </a>
 
                 <!-- WORKOUT HARI PERTAMA -->
                 <a href="pdf/Workout_HariKe1.pdf"
-                  class="menu-item submenu-trigger" data-target="workoutContent1">
+                  class="menu-item submenu-trigger" onclick="selesaiWorkout(1)" data-target="workoutContent1">
                   <i class="fas fa-dumbbell"></i>1.3 Workout - Hari Pertama
                 </a>
               
                 <!-- WATER REMINDER HARI PERTAMA -->
                 <a href="pdf/WaterReminder_HariKe1.pdf" 
-                  class="menu-item submenu-trigger" data-target="waterReminderContent1">
+                  class="menu-item submenu-trigger" onclick="waterReminder(1)" data-target="waterReminderContent1">
                   <i class="fas fa-prescription-bottle"></i>1.4 Water Reminder - Hari Pertama
                 </a>
               
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
                 <a href="pdf/Istirahat_HariKe1.pdf" 
-                  class="menu-item submenu-trigger" data-target="istirahatContent1">
+                  class="menu-item submenu-trigger" onclick="istirahat(1)" data-target="istirahatContent1">
                   <i class="fas fa-bed"></i>1.5 Waktu Istirahat - Hari Pertama
                 </a>
                 
                 <!-- DATA TRACKING HARI PERTAMA -->
                 <a href="/pdf/DataTracking_HariKe1.pdf" 
-                  class="menu-item submenu-trigger" data-target="dataTrackingContent1">
+                  class="menu-item submenu-trigger" onclick="simpanDataTracking(1)">
                   <i class="fas fa-user-friends"></i>1.6 Data Tracking - Hari Pertama
                 </a>
 
                 <!-- TANYA COACH HARI PERTAMA -->
                 <a href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+bertanya+materi+tentang+" 
-                  class="menu-item" target="_blank">
+                  class="menu-item" onclick="tanyaCoach(1)" target="_blank">
                   <i class="fa fa-whatsapp"></i>1.7 Tanya Coach? - Hari Pertama
                 </a>
 
                 <!-- SELESAI MODUL HARI PERTAMA -->
-                <a href="#" 
-                  class="menu-item">
-                  <i class="fas fa-check-double"></i>Selesai Modul Hari Pertama
-                </a>
+                <a href="#" class="menu-item" onclick="simpanMateri(1)">
+                   <i class="fas fa-check-double"></i>Selesai Modul hari Pertama
+                </a> 
               </div>
             </div>
           </div>
@@ -2537,8 +2553,200 @@ function setupPerkenalanCompletion() {
   });
 }
 
+// **************************************
+// ***** FUNGSI PESAN UNIVERSAL *****
+// **************************************
 
-async function selesaiPerkenalan() {
+/**
+ * Fungsi universal untuk menampilkan pesan
+ * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
+ * @param {string} message - Pesan yang akan ditampilkan
+ * @param {number} duration - Durasi tampil (ms), 0 = tidak auto-hide
+ * @param {string} menuTarget - Target menu (otomatis detect jika null)
+ */
+function showMessage(type, message, duration = 3000, menuTarget = null) {
+    // Auto-detect menu target jika tidak diberikan
+    if (!menuTarget) {
+        const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
+        if (activeMenu && activeMenu.hasAttribute('data-hari')) {
+            const hariKe = activeMenu.getAttribute('data-hari');
+            menuTarget = `pertemuan${hariKe}`;
+        }
+    }
+
+    // Konfigurasi tipe pesan
+    const typeConfig = {
+        success: { cssClass: 'notification-success', icon: 'fas fa-check-circle' },
+        error: { cssClass: 'notification-error', icon: 'fas fa-times-circle' },
+        warning: { cssClass: 'notification-warning', icon: 'fas fa-exclamation-circle' },
+        info: { cssClass: 'notification-info', icon: 'fas fa-info-circle' }
+    };
+
+    const config = typeConfig[type] || typeConfig.info;
+
+    // Buat element pesan
+    const messageElement = document.createElement('div');
+    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass}`;
+    
+    // Jika toast, tambahkan class khusus
+    if (menuTarget === 'toast') {
+        messageElement.classList.add('toast-message');
+        menuTarget = null; // Reset untuk toast
+    }
+
+    messageElement.innerHTML = `
+        <i class="pesan-notif-icon me-2 ${config.icon}"></i>
+        <span class="flex-grow-1">${message}</span>
+        <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
+    `;
+
+    // Tentukan target container
+    let targetContainer = document.body;
+    
+    if (menuTarget) {
+        const menuElement = document.getElementById(menuTarget + 'Content');
+        if (menuElement) {
+            const menuContent = menuElement.querySelector('.menu-content');
+            if (menuContent) {
+                targetContainer = menuContent;
+            }
+        }
+    } else {
+        // Untuk pesan general, cari container yang aktif
+        const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
+        if (activeMenu && activeMenu.hasAttribute('data-hari')) {
+            const hariKe = activeMenu.getAttribute('data-hari');
+            const menuElement = document.getElementById(`pertemuan${hariKe}Content`);
+            if (menuElement) {
+                const menuContent = menuElement.querySelector('.menu-content');
+                if (menuContent) {
+                    targetContainer = menuContent;
+                }
+            }
+        }
+    }
+
+    // Tambahkan pesan ke container
+    targetContainer.insertBefore(messageElement, targetContainer.firstChild);
+    messageElement.style.display = 'flex';
+
+    // Auto-hide jika duration > 0
+    if (duration > 0) {
+        setTimeout(() => {
+            if (messageElement.parentElement) {
+                messageElement.remove();
+            }
+        }, duration);
+    }
+
+    return messageElement;
+}
+
+// **************************************
+// ***** FUNGSI UTAMA UNTUK SEMUA HARI *****
+// **************************************
+
+/**
+ * Simpan materi untuk hari tertentu
+ */
+function simpanMateri(hariKe) {
+    console.log('💾 Menyimpan materi hari:', hariKe);
+    showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
+}
+
+/**
+ * Upload meal plan untuk hari tertentu  
+ */
+function uploadMealPlan(hariKe) {
+    console.log('📸 Upload meal plan hari:', hariKe);
+    showMessage('info', `Upload meal plan hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
+}
+
+/**
+ * Selesaikan workout untuk hari tertentu
+ */
+function selesaiWorkout(hariKe) {
+    console.log('💪 Workout selesai hari:', hariKe);
+    showMessage('success', `Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+
+/**
+ * Selesaikan water reminder untuk hari tertentu
+ */
+function waterReminder(hariKe) {
+    console.log('💪 Minum Air selesai hari:', hariKe);
+    showMessage('success', `Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+/**
+ * Selesaikan water reminder untuk hari tertentu
+ */
+function istirahat(hariKe) {
+    console.log('💪 Jadwal istrihat selesai hari:', hariKe);
+    showMessage('success', `Jadwal Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+/**
+ * Simpan data tracking untuk hari tertentu
+ */
+function simpanDataTracking(hariKe) {
+    console.log('📊 Simpan data tracking hari:', hariKe);
+    showMessage('success', `Data tracking hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
+}
+
+/**
+ * Tanya coach untuk hari tertentu
+ */
+function tanyaCoach(hariKe) {
+    console.log('💬 Tanya coach hari:', hariKe);
+    showMessage('info', `Mengirim pertanyaan untuk hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
+}
+
+// **************************************
+// ***** FUNGSI LAINNYA YANG DIPERLUKAN *****
+// **************************************
+
+/**
+ * Selesaikan perkenalan
+ */
+function selesaiPerkenalan() {
+    console.log('✅ Menyelesaikan perkenalan');
+    showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 5000, 'perkenalan');
+    // Unlock modul hari pertama
+    unlockModul(1);
+}
+
+/**
+ * Setup event listeners saat DOM ready
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Aplikasi FIT Challenge dimuat');
+    
+    // Event delegation untuk tombol-tombol aksi
+    document.addEventListener('click', function(e) {
+        // Auto-detect hari dari element yang diklik
+        const menuItem = e.target.closest('.menu-accordion-item');
+        if (menuItem) {
+            const menuHeader = menuItem.querySelector('.menu-header');
+            if (menuHeader && menuHeader.hasAttribute('data-hari')) {
+                const hariKe = menuHeader.getAttribute('data-hari');
+                
+                // Contoh: Jika klik link dengan class tertentu
+                if (e.target.classList.contains('video-link')) {
+                    showMessage('info', `Memuat video hari ${hariKe}...`, 2000, `pertemuan${hariKe}`);
+                }
+            }
+        }
+    });
+    
+    // Pesan welcome
+    setTimeout(() => {
+        showMessage('success', 'Selamat datang di FIT Challenge Program 10 Hari!', 4000);
+    }, 1000);
+});
+
+async function BACKUP_selesaiPerkenalan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     //showNotification('error', 'Silakan login terlebih dahulu');
@@ -2601,21 +2809,70 @@ function checkPerkenalanStatus() {
   }
 }
 
-function unlockModulHariPertama() {
-  // Buka kunci Modul Hari Pertama
-  const modulPertamaHeader = document.querySelector('[data-hari="1"]');
-  if (modulPertamaHeader) {
-    const lockIcon = modulPertamaHeader.querySelector('.status-lock');
-    if (lockIcon) {
-      lockIcon.className = 'status-unlock';
-      lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-    }
+/**
+ * Fungsi unlock universal untuk semua modul
+ * @param {number} hariKe - Hari yang akan di-unlock (1-10)
+ */
+function unlockModul(hariKe) {
+    console.log('🔓 Unlock modul hari:', hariKe);
     
-    // Enable accordion
-    modulPertamaHeader.classList.remove('disabled');
-    modulPertamaHeader.style.pointerEvents = 'auto';
-    modulPertamaHeader.style.opacity = '1';
-  }
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        const lockIcon = modulHeader.querySelector('.status-lock');
+        if (lockIcon) {
+            lockIcon.className = 'status-unlock';
+            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+        }
+        
+        modulHeader.classList.remove('disabled');
+        modulHeader.style.pointerEvents = 'auto';
+        modulHeader.style.opacity = '1';
+        
+        showMessage('success', `Modul Hari ${hariKe} berhasil di-unlock!`, 3000, `pertemuan${hariKe}`);
+    }
+}
+
+/**
+ * Unlock modul berikutnya secara otomatis
+ * @param {number} hariSelesai - Hari yang baru selesai
+ */
+function selesaiMateri(hariSelesai) {
+    console.log('✅ Menyelesaikan materi hari:', hariSelesai);
+    showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `pertemuan${hariSelesai}`);
+    
+    // Unlock modul berikutnya (jika masih dalam range 1-10)
+    const nextHari = hariSelesai + 1;
+    if (nextHari <= 10) {
+        unlockModul(nextHari);
+    }
+}
+
+/**
+ * Simpan progress dan unlock modul berikutnya
+ */
+function simpanProgress(hariKe, jenisProgress) {
+    console.log(`💾 Progress hari ${hariKe}:`, jenisProgress);
+    
+    // Simpan ke localStorage atau server
+    localStorage.setItem(`progress_hari_${hariKe}`, jenisProgress);
+    
+    // Tampilkan pesan
+    showMessage('success', `${jenisProgress} hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
+    
+    // Cek jika semua requirement terpenuhi, unlock modul berikutnya
+    if (isReadyForNextModule(hariKe)) {
+        unlockModul(hariKe + 1);
+    }
+}
+
+function isReadyForNextModule(hariKe) {
+    // Logic untuk cek apakah user sudah memenuhi semua requirement
+    // Contoh: sudah selesai materi, workout, meal plan, dll.
+    const materiDone = localStorage.getItem(`progress_hari_${hariKe}_materi`);
+    const workoutDone = localStorage.getItem(`progress_hari_${hariKe}_workout`);
+    const mealplanDone = localStorage.getItem(`progress_hari_${hariKe}_mealplan`);
+    
+    return materiDone && workoutDone && mealplanDone;
 }
 
 // Ganti fungsi simpanMateri dengan ini:
@@ -3500,90 +3757,6 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }                 
 
-// **************************************
-// ***** FUNGSI PESAN UNIVERSAL - REVISI POSISI *****
-// **************************************
-
-/**
- * Fungsi universal untuk menampilkan pesan - dengan posisi berdasarkan menu
- * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
- * @param {string} message - Pesan yang akan ditampilkan
- * @param {number} duration - Durasi tampil (ms), 0 = tidak auto-hide, default: 3000
- * @param {string} menuTarget - Target menu: 'panduan', 'perkenalan', 'pertemuan1', dll.
- */
-function showMessage(type, message, duration = 3000, menuTarget = null) {
-    // Konfigurasi tipe pesan
-    const typeConfig = {
-        success: {
-            cssClass: 'notification-success',
-            icon: 'fas fa-check-circle'
-        },
-        error: {
-            cssClass: 'notification-error', 
-            icon: 'fas fa-times-circle'
-        },
-        warning: {
-            cssClass: 'notification-warning',
-            icon: 'fas fa-exclamation-circle'
-        },
-        info: {
-            cssClass: 'notification-info',
-            icon: 'fas fa-info-circle'
-        }
-    };
-
-    const config = typeConfig[type] || typeConfig.info;
-
-    // Buat element pesan
-    const messageElement = document.createElement('div');
-    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass} message-for-${menuTarget || 'general'}`;
-
-    messageElement.innerHTML = `
-        <i class="pesan-notif-icon me-2 ${config.icon}"></i>
-        <span class="flex-grow-1">${message}</span>
-        <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
-    `;
-
-    // Tentukan target container berdasarkan menu
-    let targetContainer;
-    
-    if (menuTarget) {
-        // Cari container menu yang spesifik
-        const menuContainer = findMenuContainer(menuTarget);
-        if (menuContainer) {
-            targetContainer = menuContainer;
-        } else {
-            // Fallback ke container general
-            targetContainer = document.querySelector('.card-body') || document.body;
-        }
-    } else {
-        // Untuk pesan general, tampilkan di atas
-        targetContainer = document.querySelector('.card-body') || document.body;
-    }
-
-    // Tambahkan pesan ke container yang tepat
-    if (targetContainer === document.body) {
-        targetContainer.appendChild(messageElement);
-    } else {
-        // Untuk container menu, tambahkan di awal content
-        targetContainer.insertBefore(messageElement, targetContainer.firstChild);
-    }
-
-    // Tampilkan pesan
-    messageElement.style.display = 'flex';
-
-    // Auto-hide jika duration > 0
-    if (duration > 0) {
-        setTimeout(() => {
-            if (messageElement.parentElement) {
-                messageElement.remove();
-            }
-        }, duration);
-    }
-
-    return messageElement;
-}
-
 // *********************************************
 // * FUNGSI BANTU UNTUK MENCARI CONTAINER MENU *
 // *********************************************
@@ -3649,33 +3822,6 @@ function findMenuContainer(menuTarget) {
     }
     
     return null;
-}
-
-// *************************
-// * FUNGSI KOMPATIBILITAS * 
-// *************************
-
-// Fungsi showNotification - dengan support menu target
-function showNotification(type, message, duration = 3000, menuTarget = null) {
-    return showMessage(type, message, duration, menuTarget);
-}
-
-// Fungsi showToast - tetap untuk pesan global (toast)
-function showToast(message, type = 'info') {
-    return showMessage(type, message, 3000, null); // menuTarget null untuk toast
-}
-
-// Fungsi showFormMessage - untuk pesan dalam form dengan menu target
-function showFormMessage(message, type = 'info', menuTarget = null) {
-    return showMessage(type, message, 5000, menuTarget);
-}
-
-// clearFormMessage dengan:
-function clearFormMessage(containerId = 'form-message') {
-    const messageContainer = document.getElementById(containerId);
-    if (messageContainer) {
-        messageContainer.innerHTML = '';
-    }
 }
 
 /************************************
