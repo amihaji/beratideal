@@ -446,12 +446,12 @@ body { background-color: #f8f9fa; }
 .status-lock { color: #000e3d; margin-left: 10px; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
 
-/***** STYLING UNTUK PESAN UNIVERSAL *****/
+/***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
 .notification-message {
     display: none;
     padding: 12px 16px;
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: 1px solid rgba(0,0,0,0.1);
@@ -472,6 +472,15 @@ body { background-color: #f8f9fa; }
     z-index: 1060;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+/* Pesan dalam menu content */
+.menu-content .notification-message { margin: 10px 0; border-radius: 6px; }
+
+/* Pesan untuk menu spesifik */
+.message-for-panduan { border-left: 4px solid #002266; }
+.message-for-perkenalan { border-left: 4px solid #830000; }
+.message-for-pertemuan1 { border-left: 4px solid #dc3545; }
+.message-for-pertemuan2 { border-left: 4px solid #28a745; }
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -647,7 +656,7 @@ body { background-color: #f8f9fa; }
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
-
+            
             <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
                 <!-- Canva Link - Buka di tab baru -->
@@ -2533,7 +2542,8 @@ async function selesaiPerkenalan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     //showNotification('error', 'Silakan login terlebih dahulu');
-    showMessage('error', 'Silakan login terlebih dahulu');
+    //showMessage('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
     return;
   }
 
@@ -2553,15 +2563,18 @@ async function selesaiPerkenalan() {
     
     if (result === "OK") {
       //showNotification('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.');
-      showMessage('success', 'Perkenalan selesai! Modul Hari Pertama bisa diakses');
+      // showMessage('success', 'Perkenalan selesai! Modul Hari Pertama bisa diakses');
+      showMessage('success', 'Perkenalan selesai! Modul Hari Pertama bisa diakses.', 3000, 'perkenalan');
       unlockModulHariPertama();
     } else {
       //showNotification('error', 'Gagal: ' + result);
-      showMessage('error', 'Gagal : ' + result);
+      //showMessage('error', 'Gagal : ' + result);
+      showMessage('error', 'Gagal : ' + result, 3000, 'perkenalan');
     }
   } catch (error) {
     //showNotification('error', 'Gagal terhubung: ' + error.message);
-    showMessage('error', 'Gagal terhubung : ' + error.message);
+    // showMessage('error', 'Gagal terhubung : ' + error.message);
+    showMessage('error', 'Gagal terhubung :' + error.message, 3000, 'perkenalan');
   }
 }
 
@@ -2610,7 +2623,8 @@ async function simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     // alert('Silakan login terlebih dahulu');
-    showMessage('error', 'Silakan login terlebih dahulu');
+    // showMessage('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silahkan login terlebih dahulu', 3000);
     return;
   }
 
@@ -2634,16 +2648,19 @@ async function simpanMateri(hariKe) {
 
     if (result === "OK") {
       //showNotification('success', 'Materi berhasil disimpan!');
-      showMessage('success', 'Materi berhasil tersimpan!');
+      // showMessage('success', 'Materi berhasil tersimpan!');
+      showMessage('success', 'Materi berhasil disimpan!', 3000, 'pertemuan1');
       updateMateriStatusUI(hariKe);
     } else {
       //showNotification('error', 'Gagal: ' + result);
-      showMessage('error', 'Gagal: ' + result);
+      // showMessage('error', 'Gagal: ' + result);
+      showMessage('error', 'Gagal: ' + result , 3000);
     }
   } catch (error) {
     console.error('❌ Fetch error:', error);
     // showNotification('error', 'Gagal terhubung: ' + error.message);
-    showMessage('error', 'Gagal terhubung: ' + error.message);
+    // showMessage('error', 'Gagal terhubung: ' + error.message);
+    showMessage('error', 'Gagal Terhubung: ' + error.message , 3000);
   }
 }
 
@@ -2768,7 +2785,9 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     //showNotification('error', 'Silakan login terlebih dahulu');
-    showMessage('error', 'Silakan login terlebih dahulu');
+    //showMessage('error', 'Silakan login terlebih dahulu');
+    //showMessage('info', 'Mengupload foto ' + mealType + '...', 3000, 'pertemuan1');
+    showMessage('error', 'Silahkan login terlebih dahulu', 3000);
     return;
   }
 
@@ -2801,7 +2820,8 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
       const jsonResult = JSON.parse(result);
       if (jsonResult.success) {
         //showNotification('success', jsonResult.message);
-        showMessage('success', jsonResult.message);
+        // showMessage('success', jsonResult.message);
+        showMessage('success', jsonResult.message, 3000, 'pertemuan1');
         // Update input field
         const inputField = document.getElementById(mealType);
         if (inputField) {
@@ -2810,28 +2830,32 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
         console.log('✅ Upload successful for:', mealType);
       } else {
         //showNotification('error', jsonResult.message || 'Upload gagal');
-        showMessage('error', jsonResult.message || 'Upload gagal');
+        // showMessage('error', jsonResult.message || 'Upload gagal');
+        showMessage('error', jsonResult.message || 'Upload gagal' , 3000);
         console.log('❌ Upload failed:', jsonResult.message);
       }
     } catch (e) {
       // Jika response bukan JSON
       if (result === "OK") {
         // showNotification('success', 'Upload berhasil!');
-        showMessage('success', 'Upload berhasil!');
+        //showMessage('success', 'Upload berhasil!');
+        showMessage('success', 'Upload berhasil!', 3000, 'pertemuan1');
         const inputField = document.getElementById(mealType);
         if (inputField) {
           inputField.value = '✓ ' + fileName;
         }
       } else {
         //showNotification('error', 'Response tidak valid: ' + result);
-        showMessage('error', 'Response tidak valid: ' + result);
+        //showMessage('error', 'Response tidak valid: ' + result);
+        showMessage('error', 'Respone tidak valid: ' + result, 3000);
         console.log('❌ Invalid response:', result);
       }
     }
   } catch (error) {
     console.error('❌ Upload fetch error:', error);
     // showNotification('error', 'Gagal terhubung: ' + error.message);
-    showMessage('error', 'Gagal terhubung : ' + error.message);
+    // showMessage('error', 'Gagal terhubung : ' + error.message);
+    showMessage('error', 'Gagal terhubung : ' + error.message, 3000);
   }
 }
 
@@ -2839,7 +2863,7 @@ function simpanMealItem(mealType) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     // showNotification('error', 'Silakan login terlebih dahulu');
-    showMessage('error', 'Silakan login terlebih dahulu');
+    showMessage('error', 'Silakan login terlebih dahulu',3000);
     return;
   }
 
@@ -3477,17 +3501,17 @@ if (inputKondisiTubuh) {
 }                 
 
 // **************************************
-// ***** FUNGSI PESAN UNIVERSAL *****
+// ***** FUNGSI PESAN UNIVERSAL - REVISI POSISI *****
 // **************************************
+
 /**
- * Fungsi universal untuk menampilkan pesan - menggantikan semua fungsi pesan lainnya
+ * Fungsi universal untuk menampilkan pesan - dengan posisi berdasarkan menu
  * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
  * @param {string} message - Pesan yang akan ditampilkan
  * @param {number} duration - Durasi tampil (ms), 0 = tidak auto-hide, default: 3000
- * @param {string} position - Posisi: 'inline', 'toast', default: 'inline'
- * @param {string} containerId - ID container spesifik untuk menampilkan pesan
+ * @param {string} menuTarget - Target menu: 'panduan', 'perkenalan', 'pertemuan1', dll.
  */
-function showMessage(type, message, duration = 3000, position = 'inline', containerId = null) {
+function showMessage(type, message, duration = 3000, menuTarget = null) {
     // Konfigurasi tipe pesan
     const typeConfig = {
         success: {
@@ -3512,41 +3536,36 @@ function showMessage(type, message, duration = 3000, position = 'inline', contai
 
     // Buat element pesan
     const messageElement = document.createElement('div');
-    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass}`;
-    
-    if (position === 'toast') {
-        messageElement.classList.add('toast-message');
-    }
+    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass} message-for-${menuTarget || 'general'}`;
 
     messageElement.innerHTML = `
         <i class="pesan-notif-icon me-2 ${config.icon}"></i>
-        <span class="flex-grow-1" id="pesanNotifText">${message}</span>
+        <span class="flex-grow-1">${message}</span>
         <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
     `;
 
-    // Tentukan target container
+    // Tentukan target container berdasarkan menu
     let targetContainer;
-    if (containerId && document.getElementById(containerId)) {
-        targetContainer = document.getElementById(containerId);
-    } else {
-        switch (position) {
-            case 'toast':
-                targetContainer = document.body;
-                break;
-            default:
-                // Untuk inline, cari container yang sesuai atau gunakan body
-                targetContainer = document.querySelector('.card-body') || document.querySelector('main') || document.body;
-                break;
+    
+    if (menuTarget) {
+        // Cari container menu yang spesifik
+        const menuContainer = findMenuContainer(menuTarget);
+        if (menuContainer) {
+            targetContainer = menuContainer;
+        } else {
+            // Fallback ke container general
+            targetContainer = document.querySelector('.card-body') || document.body;
         }
+    } else {
+        // Untuk pesan general, tampilkan di atas
+        targetContainer = document.querySelector('.card-body') || document.body;
     }
 
-    // Tambahkan pesan ke container
-    if (position === 'toast') {
-        targetContainer.appendChild(messageElement);
-    } else if (containerId) {
+    // Tambahkan pesan ke container yang tepat
+    if (targetContainer === document.body) {
         targetContainer.appendChild(messageElement);
     } else {
-        // Untuk inline, tambahkan di atas konten utama
+        // Untuk container menu, tambahkan di awal content
         targetContainer.insertBefore(messageElement, targetContainer.firstChild);
     }
 
@@ -3565,45 +3584,90 @@ function showMessage(type, message, duration = 3000, position = 'inline', contai
     return messageElement;
 }
 
-// Fungsi showNotification - sekarang menggunakan showMessage
-function showNotification(type, message, duration = 3000) {
-    return showMessage(type, message, duration, 'inline');
+// *********************************************
+// * FUNGSI BANTU UNTUK MENCARI CONTAINER MENU *
+// *********************************************
+
+/**
+ * Mendeteksi menu aktif secara otomatis
+ */
+function getActiveMenu() {
+    // Cari menu yang sedang terbuka (tidak collapsed)
+    const openMenu = document.querySelector('.menu-header:not(.collapsed)');
+    if (openMenu) {
+        const target = openMenu.getAttribute('data-bs-target');
+        if (target) {
+            // Extract menu name from target ID
+            const menuName = target.replace('Content', '').replace('#', '');
+            const menuMap = {
+                'panduan': 'panduan',
+                'perkenalan': 'perkenalan',
+                'pertemuan1': 'pertemuan1',
+                'healthyRecept': 'healthyRecept',
+                'dasboardFitTrack': 'dasboardFitTrack'
+            };
+            return menuMap[menuName] || null;
+        }
+    }
+    return null;
 }
 
-// Fungsi showToast - sekarang menggunakan showMessage
-function showToast(message, type = 'info') {
-    return showMessage(type, message, 3000, 'toast');
+// Fungsi showMessage dengan auto-detect
+function showMessageAuto(type, message, duration = 3000) {
+    const activeMenu = getActiveMenu();
+    return showMessage(type, message, duration, activeMenu);
 }
 
-// Fungsi showAlert- sekarang menggunakan showMessage
-function showAlert(message, type = 'info') {
-    return showMessage(type, message, {
-        duration: 0 // Tidak auto-hide
-    });
-}
+/**
+ * Mencari container yang tepat berdasarkan target menu
+ */
+function findMenuContainer(menuTarget) {
+    const menuMap = {
+        'panduan': '#panduanContent',
+        'perkenalan': '#perkenalanContent', 
+        'pertemuan1': '#pertemuan1Content',
+        'pertemuan2': '#pertemuan2Content',
+        'pertemuan3': '#pertemuan3Content',
+        'pertemuan4': '#pertemuan4Content',
+        'pertemuan5': '#pertemuan5Content',
+        'pertemuan6': '#pertemuan6Content',
+        'pertemuan7': '#pertemuan7Content',
+        'pertemuan8': '#pertemuan8Content',
+        'pertemuan9': '#pertemuan9Content',
+        'pertemuan10': '#pertemuan10Content',
+        'healthyRecept': '#healthyRecept',
+        'dasboardFitTrack': '#dasboardFitTrack'
+    };
 
-// Fungsi showFormMessage - sekarang menggunakan showMessage
-function showFormMessage(message, type = 'info', containerId = 'form-message') {
-    // Buat container jika belum ada
-    let messageContainer = document.getElementById(containerId);
-    if (!messageContainer) {
-        messageContainer = document.createElement('div');
-        messageContainer.id = containerId;
-        messageContainer.className = 'mt-2';
-        
-        // Tempatkan di lokasi yang sesuai
-        const targetElement = document.querySelector('#btnSelesaiWorkout') || 
-                             document.getElementById('selectedResistanceContainer');
-        if (targetElement && targetElement.parentNode) {
-            targetElement.parentNode.insertBefore(messageContainer, targetElement);
+    const menuId = menuMap[menuTarget];
+    if (menuId) {
+        const menuElement = document.querySelector(menuId);
+        if (menuElement) {
+            // Cari .menu-content dalam menu tersebut
+            return menuElement.querySelector('.menu-content') || menuElement;
         }
     }
     
-    // Hapus pesan sebelumnya
-    messageContainer.innerHTML = '';
-    
-    // Tampilkan pesan baru
-    return showMessage(type, message, 5000, 'inline', containerId);
+    return null;
+}
+
+// *************************
+// * FUNGSI KOMPATIBILITAS * 
+// *************************
+
+// Fungsi showNotification - dengan support menu target
+function showNotification(type, message, duration = 3000, menuTarget = null) {
+    return showMessage(type, message, duration, menuTarget);
+}
+
+// Fungsi showToast - tetap untuk pesan global (toast)
+function showToast(message, type = 'info') {
+    return showMessage(type, message, 3000, null); // menuTarget null untuk toast
+}
+
+// Fungsi showFormMessage - untuk pesan dalam form dengan menu target
+function showFormMessage(message, type = 'info', menuTarget = null) {
+    return showMessage(type, message, 5000, menuTarget);
 }
 
 // clearFormMessage dengan:
