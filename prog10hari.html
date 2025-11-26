@@ -1408,7 +1408,7 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
     
     // Debug proses loading
-    debugVideoLoadProcess(section, videoType, videoUrl);
+    // debugVideoLoadProcess(section, videoType, videoUrl);
     
     // Untuk Canva, buka di tab baru
     if (videoType === 'canva') {
@@ -1667,19 +1667,6 @@ function validateYouTubeUrl(url) {
     
     console.log('✅ YouTube URL validation:', isValid);
     return isValid;
-}
-
-/**************************
-* Debug Video Load Process 
-***************************/
-function debugVideoLoadProcess(section, videoType, videoUrl) {
-    console.log('🔧 DEBUG VIDEO LOAD PROCESS:');
-    console.log('Section:', section);
-    console.log('Video Type:', videoType);
-    console.log('Video URL:', videoUrl);
-    console.log('Is YouTube URL:', validateYouTubeUrl(videoUrl));
-    console.log('YouTube ID:', extractYouTubeId(videoUrl));
-    console.log('Video Container exists:', !!document.getElementById(`videoContainer${capitalizeFirst(section)}`));
 }
 
 // ****************************
@@ -2716,37 +2703,6 @@ function selesaiPerkenalan() {
     unlockModul(1);
 }
 
-/***************************************
-* Setup event listeners saat DOM ready *
-****************************************/
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Aplikasi FIT Challenge dimuat');
-    
-    // Event delegation untuk tombol-tombol aksi
-    document.addEventListener('click', function(e) {
-        // Auto-detect hari dari element yang diklik
-        const menuItem = e.target.closest('.menu-accordion-item');
-        if (menuItem) {
-            const menuHeader = menuItem.querySelector('.menu-header');
-            if (menuHeader && menuHeader.hasAttribute('data-hari')) {
-                const hariKe = menuHeader.getAttribute('data-hari');
-                
-                // Contoh: Jika klik link dengan class tertentu
-                if (e.target.classList.contains('video-link')) {
-                    showMessage('info', `Memuat video hari ${hariKe}...`, 2000, `pertemuan${hariKe}`);
-                }
-            }
-        }
-    });
-    
-    // Pesan welcome
-    /* TIDAK AKTIF
-    setTimeout(() => {
-        showMessage('success', 'Selamat datang di FIT Challenge Program 10 Hari!', 4000);
-    }, 1000);
-    */
-});
-
 /*************************
 * Cek Status Perkenalana *
 **************************/
@@ -3067,39 +3023,6 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
   }
 }
 
-/*************************
-* Untuk Simpan Meal Plan *
-**************************/
-function simpanMealItem(mealType) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu',3000);
-    return;
-  }
-
-  const callbackName = 'cb_mealitem_' + Date.now();
-  const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP}?action=updateMealItem&userId=${encodeURIComponent(userId)}&hariKe=1&mealType=${mealType}&callback=${callbackName}`;
-
-  window[callbackName] = function(response) {
-    if (response === "OK") {
-      showMessage('success', `Status ${mealType} berhasil disimpan`);
-    } else {
-      showMessage('error', `Gagal menyimpan status ${mealType}`);
-    }
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  script.onerror = function() {
-    showNotification('error', 'Gagal terhubung ke server');
-    showMessage('error', 'Gagal terhubung ke server');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-
-  document.body.appendChild(script);
-}
 
 /**************************
 * Untuk Selesai Meal Plan *
@@ -3190,72 +3113,10 @@ function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-/*******************************
-* Konvers File Image ke base64 *
-********************************/
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = error => reject(error);
-  });
-}
-
-/**************************
-* Fungsi Simpan Meal Plan *
-***************************/
-async function simpanMealPlan(mealType, fileData = null) {
-  const userId = localStorage.getItem('userId');
-  
-  const data = {
-    action: 'uploadMealPlan',
-    userId: userId,
-    hariKe: 1,
-    mealType: mealType
-  };
-  
-  if (fileData) {
-    data.file = fileData;
-  }
-  
-  try {
-    const response = await fetch(PROGRAM_APP_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams(data)
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-      showMessage('success', `${mealType} berhasil disimpan`, 3000,'toast');
-  } else {
-      showMessage('error', 'Gagal: ' + result.message, 3000, 'toast');
-    }
-  } catch (error) {
-    showMessage('error', 'Error : ' + error.message, 3000, 'toast');
-  }
-}
-
-/**************************
-* Fungsi Update Lock Icon *
-***************************/
-function updateLockIcon(hariKe, type) {
-  const header = document.querySelector(`[data-hari="${hariKe}"]`);
-  if (header) {
-    const lockIcon = header.querySelector('.status-lock');
-    if (lockIcon) {
-      lockIcon.className = 'status-unlock';
-      lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-    }
-  }
-}
-
 /*****************************
 * Ekstrak ID Playlist dari URL
 ******************************/ 
-function extractPlaylistId(url) {
+function BACKUP_extractPlaylistId(url) {
     const match = url.match(/[&?]list=([^&]+)/);
     return match ? match[1] : null;
 }
@@ -3508,26 +3369,6 @@ function simpanResistanceData(exerciseId) {
   showMessage('success', 'Data resistance berhasil disimpan', 5000, 'inline', 'resistance-message');
 }
 
-/***********************************************
-* Fungsi Reset Data Resistance (untuk hari baru)
-************************************************/
-function resetResistanceData() {
-  const container = document.getElementById('selectedResistanceContainer');
-  if (container) {
-    container.innerHTML = '';
-  }
-  
-  // Hapus pesan
-  clearFormMessage('resistance-message');
-  
-  // Hapus semua data resistance dari localStorage
-  const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
-  resistanceExercises.forEach(exercise => {
-    localStorage.removeItem(`resistance-${exercise}`);
-  });
-  //showFormMessage('Data resistance berhasil direset', 'info', 'resistance-message');
-  showMessage('info', 'Data resistance berhasil direset', 5000, 'inline', 'resistance-message');
-}
 
 /******************************************
 * Fungsi Load Data Resistance yang Tersimpan
@@ -3730,7 +3571,7 @@ if (inputKondisiTubuh) {
 /****************************************
 * Mendeteksi menu aktif secara otomatis *
 *****************************************/
-function getActiveMenu() {
+function BACKUP_getActiveMenu() {
     // Cari menu yang sedang terbuka (tidak collapsed)
     const openMenu = document.querySelector('.menu-header:not(.collapsed)');
     if (openMenu) {
@@ -3751,18 +3592,10 @@ function getActiveMenu() {
     return null;
 }
 
-/****************************************
-* Fungsi showMessage dengan auto-detect *
-*****************************************/
-function showMessageAuto(type, message, duration = 3000) {
-    const activeMenu = getActiveMenu();
-    return showMessage(type, message, duration, activeMenu);
-}
-
 /*******************************************************
 * Mencari container yang tepat berdasarkan target menu *
 ********************************************************/
-function findMenuContainer(menuTarget) {
+function BACKUP_findMenuContainer(menuTarget) {
     const menuMap = {
         'panduan': '#panduanContent',
         'perkenalan': '#perkenalanContent', 
@@ -3789,253 +3622,6 @@ function findMenuContainer(menuTarget) {
         }
     }
     return null;
-}
-
-/************************************
-* Fungsi untuk simpan status materi *
-*************************************/
-function simpanStatusMateri(hariKe, status) {
-    const userToken = localStorage.getItem('userToken');
-    const userId = localStorage.getItem('userId');
-    
-    console.log('🔧 DEBUG simpanStatusMateri:', { userId, hariKe, status, userToken });
-    
-    if (!userToken || !userId) {
-        // showToast('Silakan login terlebih dahulu', 'error');
-        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
-        console.log('❌ User not logged in');
-        return;
-    }
-
-    const data = {
-        action: 'updateMateri',
-        userId: userId,
-        hariKe: hariKe,
-        statusMateri: status,
-        timestamp: new Date().toISOString()
-    };
-
-    console.log('📤 Sending data to server:', data);
-    console.log('📤 URL:', URL_APPS_SCRIPT_PROGRAM);
-
-    fetch(URL_APPS_SCRIPT_PROGRAM, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        },
-        body: new URLSearchParams(data)
-    })
-    .then(response => {
-        console.log('📥 Response status:', response.status);
-        console.log('📥 Response ok:', response.ok);
-        return response.text();
-    })
-    .then(result => {
-        console.log('📥 Raw response:', result);
-        
-        try {
-            const jsonResult = JSON.parse(result);
-            console.log('📥 Parsed JSON:', jsonResult);
-            
-            if (jsonResult.success) {
-                //showToast('Status materi berhasil disimpan', 'success');
-                showMessage('success', 'Status Materi disimpan', 3000, 'toast');
-                updateMateriStatusUI(hariKe, status);
-            } else {
-                // showToast('Gagal menyimpan status materi: ' + (jsonResult.message || 'Unknown error'), 'error');
-                showMessage('error', 'Gagal menyimpan status materi : ' + (jsonResult.message || 'Unknown error'), 3000, 'toast');
-            }
-        } catch (e) {
-            // Jika response bukan JSON
-            if (result === 'OK') {
-                //showToast('Status materi berhasil disimpan', 'success');
-                showMessage('success', 'Status Materi disimpan', 3000, 'toast');
-                updateMateriStatusUI(hariKe, status);
-            } else {
-                console.log('❌ Unexpected response:', result);
-                // showToast('Response tidak dikenali: ' + result, 'error');
-                showMessage('error', 'Response tidak dikenal: ' + result, 3000, 'toast');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('❌ Fetch error:', error);
-        // showToast('Terjadi kesalahan jaringan: ' + error.message, 'error');
-        showMessage('error', 'Terjasi kesalahan jaringan: ' + error.message, 3000, 'toast');
-    });
-}
-
-/***********************************
-* Fungsi untuk trigger upload file *
-***********************************/
-function triggerMealPlanUpload(mealType) {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.capture = 'environment'; // Untuk mobile camera
-    
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            uploadMealPlanImage(file, mealType);
-        }
-    });
-    
-    fileInput.click();
-}
-
-/*************************************************
-* Fungsi untuk upload image ke Google Apps Script *
-/*************************************************/
-function uploadMealPlanImage(file, mealType) {
-    const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
-        // showToast('Silakan login terlebih dahulu', 'error');
-        showMessage('error', 'Silahkan login terlebih dahulu' , 3000, 'toast');
-        return;
-    }
-
-    const userId = localStorage.getItem('userId');
-    const hariKe = 1;
-    
-    // Generate nama file sesuai format: UserID_MP1MealType.jpg
-    const fileName = `${userId}_MP${hariKe}${capitalizeFirst(mealType)}.jpg`;
-    
-    // Convert file to base64
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
-        
-        const data = {
-            action: 'uploadMealPlan',
-            userId: userId,
-            hariKe: hariKe,
-            mealType: mealType,
-            file: base64Data,
-            fileName: fileName
-        };
-
-        // showToast('Mengupload foto ' + mealType + '...', 'info');
-        showMessage('info', 'Mengupload foto ' + mealType + '...', 3000, 'toast');
-        fetch(URL_APPS_SCRIPT_PROGRAM, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                // showToast(result.message, 'success');
-                showMessage('success', result.message, 3000, 'toast');
-                // Update input field dengan nama file
-                const inputField = document.getElementById(mealType);
-                if (inputField) {
-                    inputField.value = fileName + ' ✓';
-                }
-                // Enable tombol simpan
-                const simpanBtn = document.getElementById(`btnSimpan${capitalizeFirst(mealType)}`);
-                if (simpanBtn) {
-                    simpanBtn.classList.remove('disabled');
-                }
-                
-                console.log('✅ Upload berhasil. File URL:', result.fileLink);
-            } else {
-                // showToast('Gagal: ' + result.message, 'error');
-                showMessage('error',+ result.message, 3000, 'toast');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // showToast('Terjadi kesalahan upload', 'error');
-            showMessage('error', 'Terjadi kesalahan upload', 3000, 'toast');
-        });
-    };
-    
-    reader.onerror = function(error) {
-        console.error('Error reading file:', error);
-        //showToast('Gagal membaca file', 'error');
-        showMessage('error', 'Gagal membaca file', 3000, 'toast');
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-/*************************************************
-* Fungsi untuk simpan status meal item individual
-**************************************************/
-function simpanStatusMealItem(hariKe, mealType, status) {
-    const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
-        // showToast('Silakan login terlebih dahulu', 'error');
-        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
-        return;
-    }
-
-    const data = {
-        action: 'updateMealItem',
-        userId: localStorage.getItem('userId'),
-        hariKe: hariKe,
-        mealType: mealType,
-        status: status,
-        timestamp: new Date().toISOString()
-    };
-
-    fetch(URL_APPS_SCRIPT_PROGRAM, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data)
-    })
-    .then(response => response.text())
-    .then(result => {
-        if (result === 'OK') {
-            showMessage('success', `Status ${mealType} berhasil disimpan`, 3000, 'toast');
-        } else {
-            showMessage('error', `Gagal menyimpan status ${mealType}`, 3000, 'toast');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
-    });
-}
-
-/***********************************************
-* Fungsi untuk simpan status meal plan lengkap
-************************************************/
-function simpanStatusMealPlan(hariKe, status) {
-    const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
-        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
-        return;
-    }
-
-    const data = {
-        action: 'updateMealPlan',
-        userId: localStorage.getItem('userId'),
-        hariKe: hariKe,
-        status: status,
-        timestamp: new Date().toISOString()
-    };
-
-    fetch(URL_APPS_SCRIPT_PROGRAM, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data)
-    })
-    .then(response => response.text())
-    .then(result => {
-        if (result === 'OK') {
-            showMessage('success','Mela Paln hari ini selesai', 3000, 'toast');
-        } else {
-            showMessage('error', 'Gagal menyimpan status meal plan', 3000, 'toast');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
-    });
 }
 
 </script>
