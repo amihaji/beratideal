@@ -2642,62 +2642,61 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
     return messageElement;
 }
 
-// **************************************
-// ***** FUNGSI UTAMA UNTUK SEMUA HARI *****
-// **************************************
+/********************************
+* FUNGSI UTAMA UNTUK SEMUA HARI *
+*********************************/
 
-/**
- * Simpan materi untuk hari tertentu
- */
+/************************************
+* Simpan materi untuk hari tertentu *
+*************************************/
 function simpanMateri(hariKe) {
     console.log('💾 Menyimpan materi hari:', hariKe);
     showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
 }
 
-/**
- * Upload meal plan untuk hari tertentu  
- */
+/***************************************
+* Upload meal plan untuk hari tertentu *
+****************************************/
 function uploadMealPlan(hariKe) {
     console.log('📸 Upload meal plan hari:', hariKe);
     showMessage('info', `Upload meal plan hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
 }
 
-/**
- * Selesaikan workout untuk hari tertentu
- */
+/*****************************************
+* Selesaikan workout untuk hari tertentu *
+******************************************/
 function selesaiWorkout(hariKe) {
     console.log('💪 Workout selesai hari:', hariKe);
     showMessage('success', `Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-
-/**
- * Selesaikan water reminder untuk hari tertentu
- */
+/************************************************
+* Selesaikan water reminder untuk hari tertentu *
+************************************************/
 function waterReminder(hariKe) {
     console.log('💪 Minum Air selesai hari:', hariKe);
     showMessage('success', `Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-/**
- * Selesaikan water reminder untuk hari tertentu
- */
+/************************************************
+* Selesaikan water reminder untuk hari tertentu *
+/************************************************/
 function istirahat(hariKe) {
     console.log('💪 Jadwal istrihat selesai hari:', hariKe);
     showMessage('success', `Jadwal Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-/**
- * Simpan data tracking untuk hari tertentu
- */
+/*******************************************
+* Simpan data tracking untuk hari tertentu *
+*******************************************/
 function simpanDataTracking(hariKe) {
     console.log('📊 Simpan data tracking hari:', hariKe);
     showMessage('success', `Data tracking hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
 }
 
-/**
- * Tanya coach untuk hari tertentu
- */
+/**********************************
+* Tanya coach untuk hari tertentu *
+**********************************/
 function tanyaCoach(hariKe) {
     console.log('💬 Tanya coach hari:', hariKe);
     showMessage('info', `Mengirim pertanyaan untuk hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
@@ -2717,9 +2716,9 @@ function selesaiPerkenalan() {
     unlockModul(1);
 }
 
-/**
- * Setup event listeners saat DOM ready
- */
+/***************************************
+* Setup event listeners saat DOM ready *
+****************************************/
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Aplikasi FIT Challenge dimuat');
     
@@ -2748,46 +2747,9 @@ document.addEventListener('DOMContentLoaded', function() {
     */
 });
 
-async function BACKUP_selesaiPerkenalan() {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    //showNotification('error', 'Silakan login terlebih dahulu');
-    //showMessage('error', 'Silakan login terlebih dahulu');
-    showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
-    return;
-  }
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        action: 'updatePerkenalan',
-        userId: userId
-      })
-    });
-
-    const result = await response.text();
-    
-    if (result === "OK") {
-      //showNotification('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.');
-      // showMessage('success', 'Perkenalan selesai! Modul Hari Pertama bisa diakses');
-      showMessage('success', 'Perkenalan selesai! Modul Hari Pertama bisa diakses.', 3000, 'perkenalan');
-      unlockModulHariPertama();
-    } else {
-      //showNotification('error', 'Gagal: ' + result);
-      //showMessage('error', 'Gagal : ' + result);
-      showMessage('error', 'Gagal : ' + result, 3000, 'perkenalan');
-    }
-  } catch (error) {
-    //showNotification('error', 'Gagal terhubung: ' + error.message);
-    // showMessage('error', 'Gagal terhubung : ' + error.message);
-    showMessage('error', 'Gagal terhubung :' + error.message, 3000, 'perkenalan');
-  }
-}
-
+/*************************
+* Cek Status Perkenalana *
+**************************/
 function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
@@ -2811,10 +2773,10 @@ function checkPerkenalanStatus() {
   }
 }
 
-/**
- * Fungsi unlock universal untuk semua modul
- * @param {number} hariKe - Hari yang akan di-unlock (1-10)
- */
+/************************************************************
+* Fungsi unlock universal untuk semua modul                 *
+* @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
+*************************************************************/
 function unlockModul(hariKe) {
     console.log('🔓 Unlock modul hari:', hariKe);
     
@@ -2834,10 +2796,10 @@ function unlockModul(hariKe) {
     }
 }
 
-/**
- * Unlock modul berikutnya secara otomatis
- * @param {number} hariSelesai - Hari yang baru selesai
- */
+/*******************************************************
+* Unlock modul berikutnya secara otomatis              * 
+* @param {number} hariSelesai - Hari yang baru selesai *
+********************************************************/
 function selesaiMateri(hariSelesai) {
     console.log('✅ Menyelesaikan materi hari:', hariSelesai);
     showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `pertemuan${hariSelesai}`);
@@ -2849,9 +2811,9 @@ function selesaiMateri(hariSelesai) {
     }
 }
 
-/**
- * Simpan progress dan unlock modul berikutnya
- */
+/**********************************************
+* Simpan progress dan unlock modul berikutnya *
+***********************************************/
 function simpanProgress(hariKe, jenisProgress) {
     console.log(`💾 Progress hari ${hariKe}:`, jenisProgress);
     
@@ -2867,26 +2829,28 @@ function simpanProgress(hariKe, jenisProgress) {
     }
 }
 
+/*********************************************************
+* Untuk cek apakah user sudah memenuhi semua requirement *
+**********************************************************/
 function isReadyForNextModule(hariKe) {
-    // Logic untuk cek apakah user sudah memenuhi semua requirement
     // Contoh: sudah selesai materi, workout, meal plan, dll.
-    const materiDone = localStorage.getItem(`progress_hari_${hariKe}_materi`);
-    const workoutDone = localStorage.getItem(`progress_hari_${hariKe}_workout`);
+    const materiDone   = localStorage.getItem(`progress_hari_${hariKe}_materi`);
     const mealplanDone = localStorage.getItem(`progress_hari_${hariKe}_mealplan`);
+    const workoutDone  = localStorage.getItem(`progress_hari_${hariKe}_workout`);
+    // tambahkan disini
     
     return materiDone && workoutDone && mealplanDone;
 }
 
-// Ganti fungsi simpanMateri dengan ini:
+/********************************
+* Fungsi untuk menyimpan materi * 
+*********************************/
 async function simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    // alert('Silakan login terlebih dahulu');
-    // showMessage('error', 'Silakan login terlebih dahulu');
     showMessage('error', 'Silahkan login terlebih dahulu', 3000);
     return;
   }
-
   console.log('🔧 simpanMateri called:', { userId, hariKe });
 
   try {
@@ -2906,25 +2870,20 @@ async function simpanMateri(hariKe) {
     console.log('📥 Response:', result);
 
     if (result === "OK") {
-      //showNotification('success', 'Materi berhasil disimpan!');
-      // showMessage('success', 'Materi berhasil tersimpan!');
       showMessage('success', 'Materi berhasil disimpan!', 3000, 'pertemuan1');
       updateMateriStatusUI(hariKe);
     } else {
-      //showNotification('error', 'Gagal: ' + result);
-      // showMessage('error', 'Gagal: ' + result);
       showMessage('error', 'Gagal: ' + result , 3000);
     }
   } catch (error) {
     console.error('❌ Fetch error:', error);
-    // showNotification('error', 'Gagal terhubung: ' + error.message);
-    // showMessage('error', 'Gagal terhubung: ' + error.message);
     showMessage('error', 'Gagal Terhubung: ' + error.message , 3000);
   }
 }
 
-
-// 1.2 MEAL PLAN - Upload Foto
+/*******************************
+* Untuk upload Image Meal Plan *
+*******************************/
 function setupMealPlanUpload() {
   console.log('🔧 Setting up meal plan upload...');
   
@@ -2955,6 +2914,7 @@ function setupMealPlanUpload() {
     }
   });
 
+  /***** TIDAK AKTIF **********
   // HAPUS tombol simpan individual - nonaktifkan atau sembunyikan
   const simpanButtons = [
     'btnSimpanSarapan', 'btnSimpanCemilanPagi', 'btnSimpanMakanSiang',
@@ -2968,6 +2928,7 @@ function setupMealPlanUpload() {
       console.log('❌ Hidden simpan button:', btnId);
     }
   });
+  ****************************/
 
   // Setup tombol selesai meal plan
   const btnSelesai = document.getElementById('btnSelesaiMealPlan');
@@ -2987,6 +2948,9 @@ function setupMealPlanUpload() {
   }
 }
 
+/*******************************
+* Untuk upload Image Meal Plan *
+*******************************/
 function uploadMealPhoto(mealType) {
   console.log('📸 Starting upload for:', mealType);
   
@@ -3006,18 +2970,14 @@ function uploadMealPhoto(mealType) {
 
     // Validasi file
     if (file.size > 5 * 1024 * 1024) {
-      //showNotification('error', 'File terlalu besar (maks 5MB)');
       showMessage('error', 'File terlalu besar (maks 5MB)');
       return;
     }
 
     if (!file.type.startsWith('image/')) {
-      //showNotification('error', 'File harus berupa gambar');
       showMessage('error', 'File harus berupa gambar');
       return;
     }
-
-    //showNotification('info', 'Mengupload foto ' + mealType + '...');
     showMessage('info', 'Mengupload foto ' + mealType + '...');
 
     // Convert to base64
@@ -3030,7 +2990,6 @@ function uploadMealPhoto(mealType) {
     
     reader.onerror = function(error) {
       console.error('❌ File reading error:', error);
-      //showNotification('error', 'Gagal membaca file');
       showMessage('error', 'Gagal membaca file');
     };
     
@@ -3040,12 +2999,12 @@ function uploadMealPhoto(mealType) {
   fileInput.click();
 }
 
+/*******************************
+* Untuk upload Image Meal Plan *
+*******************************/
 async function uploadMealPlanWithFile(mealType, fileData, fileName) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    //showNotification('error', 'Silakan login terlebih dahulu');
-    //showMessage('error', 'Silakan login terlebih dahulu');
-    //showMessage('info', 'Mengupload foto ' + mealType + '...', 3000, 'pertemuan1');
     showMessage('error', 'Silahkan login terlebih dahulu', 3000);
     return;
   }
@@ -3078,8 +3037,6 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
     try {
       const jsonResult = JSON.parse(result);
       if (jsonResult.success) {
-        //showNotification('success', jsonResult.message);
-        // showMessage('success', jsonResult.message);
         showMessage('success', jsonResult.message, 3000, 'pertemuan1');
         // Update input field
         const inputField = document.getElementById(mealType);
@@ -3088,40 +3045,34 @@ async function uploadMealPlanWithFile(mealType, fileData, fileName) {
         }
         console.log('✅ Upload successful for:', mealType);
       } else {
-        //showNotification('error', jsonResult.message || 'Upload gagal');
-        // showMessage('error', jsonResult.message || 'Upload gagal');
         showMessage('error', jsonResult.message || 'Upload gagal' , 3000);
         console.log('❌ Upload failed:', jsonResult.message);
       }
     } catch (e) {
       // Jika response bukan JSON
       if (result === "OK") {
-        // showNotification('success', 'Upload berhasil!');
-        //showMessage('success', 'Upload berhasil!');
         showMessage('success', 'Upload berhasil!', 3000, 'pertemuan1');
         const inputField = document.getElementById(mealType);
         if (inputField) {
           inputField.value = '✓ ' + fileName;
         }
       } else {
-        //showNotification('error', 'Response tidak valid: ' + result);
-        //showMessage('error', 'Response tidak valid: ' + result);
         showMessage('error', 'Respone tidak valid: ' + result, 3000);
         console.log('❌ Invalid response:', result);
       }
     }
   } catch (error) {
     console.error('❌ Upload fetch error:', error);
-    // showNotification('error', 'Gagal terhubung: ' + error.message);
-    // showMessage('error', 'Gagal terhubung : ' + error.message);
     showMessage('error', 'Gagal terhubung : ' + error.message, 3000);
   }
 }
 
+/*************************
+* Untuk Simpan Meal Plan *
+**************************/
 function simpanMealItem(mealType) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    // showNotification('error', 'Silakan login terlebih dahulu');
     showMessage('error', 'Silakan login terlebih dahulu',3000);
     return;
   }
@@ -3132,10 +3083,8 @@ function simpanMealItem(mealType) {
 
   window[callbackName] = function(response) {
     if (response === "OK") {
-      // showNotification('success', `Status ${mealType} berhasil disimpan`);
       showMessage('success', `Status ${mealType} berhasil disimpan`);
     } else {
-      //showNotification('error', `Gagal menyimpan status ${mealType}`);
       showMessage('error', `Gagal menyimpan status ${mealType}`);
     }
     document.body.removeChild(script);
@@ -3152,10 +3101,12 @@ function simpanMealItem(mealType) {
   document.body.appendChild(script);
 }
 
+/**************************
+* Untuk Selesai Meal Plan *
+***************************/
 async function selesaiMealPlan() {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    // showNotification('error', 'Silakan login terlebih dahulu');
     showMessage('error', 'Silakan login terlebih dahulu');
     return;
   }
@@ -3177,24 +3128,23 @@ async function selesaiMealPlan() {
     console.log('Selesai Meal Plan response:', result);
     
     if (result === "OK") {
-      //showNotification('success', 'Meal Plan hari pertama selesai! ✅');
       showMessage('success', 'Meal Plan hari pertama selesai!');
       // Update UI atau beri feedback
       updateMealPlanUI();
     } else {
-      //showNotification('error', 'Gagal menyelesaikan meal plan: ' + result);
       showMessage('error', 'Gagal menyelesaikan meal plan : ' + result);
     }
   } catch (error) {
     console.error('Selesai Meal Plan error:', error);
-    //showNotification('error', 'Gagal terhubung: ' + error.message);
     showMessage('error', 'Gagal terhubung : ' + error.message);
   }
 }
 
+/***********************************************
+* Beri feedback visual bahwa meal plan selesai *
+************************************************/
 function updateMealPlanUI() {
-  // Beri feedback visual bahwa meal plan selesai
-  const btnSelesai = document.getElementById('btnSelesaiMealPlan');
+   const btnSelesai = document.getElementById('btnSelesaiMealPlan');
   if (btnSelesai) {
     btnSelesai.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
     btnSelesai.classList.remove('btn-secondary');
@@ -3205,6 +3155,10 @@ function updateMealPlanUI() {
 /****************
 /* FUNGSI BANTU *
 /***************/
+
+/**************************
+* Mengambil Nilai hari ke *
+***************************/
 function getHariKeFromSection(section) {
   const map = {
     'Pertemuan1': 1, 'Pertemuan2': 2, 'Pertemuan3': 3,
@@ -3215,6 +3169,9 @@ function getHariKeFromSection(section) {
   return map[section] || 1;
 }
 
+/***************************
+* Mengupdate Status Materi *
+****************************/
 function updateMateriStatusUI(hariKe) {
   const header = document.querySelector(`[data-hari="${hariKe}"]`);
   if (header) {
@@ -3226,10 +3183,16 @@ function updateMateriStatusUI(hariKe) {
   }
 }
 
+/**********************************
+* Konvers Huruf Besar Awal String *
+***********************************/
 function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+/*******************************
+* Konvers File Image ke base64 *
+********************************/
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -3239,6 +3202,9 @@ function fileToBase64(file) {
   });
 }
 
+/**************************
+* Fungsi Simpan Meal Plan *
+***************************/
 async function simpanMealPlan(mealType, fileData = null) {
   const userId = localStorage.getItem('userId');
   
@@ -3263,20 +3229,18 @@ async function simpanMealPlan(mealType, fileData = null) {
     const result = await response.json();
     
     if (result.success) {
-      // showToast(`${mealType} berhasil disimpan!`, 'success');
       showMessage('success', `${mealType} berhasil disimpan`, 3000,'toast');
-
-    } else {
-      // showToast('Gagal: ' + result.message, 'error');
+  } else {
       showMessage('error', 'Gagal: ' + result.message, 3000, 'toast');
     }
   } catch (error) {
-    // showToast('Error: ' + error.message, 'error');
     showMessage('error', 'Error : ' + error.message, 3000, 'toast');
   }
 }
 
-
+/**************************
+* Fungsi Update Lock Icon *
+***************************/
 function updateLockIcon(hariKe, type) {
   const header = document.querySelector(`[data-hari="${hariKe}"]`);
   if (header) {
@@ -3759,13 +3723,13 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }                 
 
-// *********************************************
-// * FUNGSI BANTU UNTUK MENCARI CONTAINER MENU *
-// *********************************************
+// ***************************************************
+// **** FUNGSI BANTU UNTUK MENCARI CONTAINER MENU ****
+// ***************************************************
 
-/**
- * Mendeteksi menu aktif secara otomatis
- */
+/****************************************
+* Mendeteksi menu aktif secara otomatis *
+*****************************************/
 function getActiveMenu() {
     // Cari menu yang sedang terbuka (tidak collapsed)
     const openMenu = document.querySelector('.menu-header:not(.collapsed)');
@@ -3787,15 +3751,17 @@ function getActiveMenu() {
     return null;
 }
 
-// Fungsi showMessage dengan auto-detect
+/****************************************
+* Fungsi showMessage dengan auto-detect *
+*****************************************/
 function showMessageAuto(type, message, duration = 3000) {
     const activeMenu = getActiveMenu();
     return showMessage(type, message, duration, activeMenu);
 }
 
-/**
- * Mencari container yang tepat berdasarkan target menu
- */
+/*******************************************************
+* Mencari container yang tepat berdasarkan target menu *
+********************************************************/
 function findMenuContainer(menuTarget) {
     const menuMap = {
         'panduan': '#panduanContent',
@@ -3822,12 +3788,11 @@ function findMenuContainer(menuTarget) {
             return menuElement.querySelector('.menu-content') || menuElement;
         }
     }
-    
     return null;
 }
 
 /************************************
-* Fungsi untuk simpan status materi
+* Fungsi untuk simpan status materi *
 *************************************/
 function simpanStatusMateri(hariKe, status) {
     const userToken = localStorage.getItem('userToken');
@@ -3902,7 +3867,7 @@ function simpanStatusMateri(hariKe, status) {
 }
 
 /***********************************
-* Fungsi untuk trigger upload file
+* Fungsi untuk trigger upload file *
 ***********************************/
 function triggerMealPlanUpload(mealType) {
     const fileInput = document.createElement('input');
@@ -3921,9 +3886,8 @@ function triggerMealPlanUpload(mealType) {
 }
 
 /*************************************************
-* Fungsi untuk upload image ke Google Apps Script
+* Fungsi untuk upload image ke Google Apps Script *
 /*************************************************/
-// Fungsi untuk upload image yang sebenarnya
 function uploadMealPlanImage(file, mealType) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
@@ -4026,16 +3990,13 @@ function simpanStatusMealItem(hariKe, mealType, status) {
     .then(response => response.text())
     .then(result => {
         if (result === 'OK') {
-            // showToast(`Status ${mealType} berhasil disimpan`, 'success');
             showMessage('success', `Status ${mealType} berhasil disimpan`, 3000, 'toast');
         } else {
-            // showToast(`Gagal menyimpan status ${mealType}`, 'error');
             showMessage('error', `Gagal menyimpan status ${mealType}`, 3000, 'toast');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        //showToast('Terjadi kesalahan saat menyimpan', 'error');
         showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
     });
 }
@@ -4046,7 +4007,6 @@ function simpanStatusMealItem(hariKe, mealType, status) {
 function simpanStatusMealPlan(hariKe, status) {
     const userToken = localStorage.getItem('userToken');
     if (!userToken) {
-        // showToast('Silakan login terlebih dahulu', 'error');
         showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'toast');
         return;
     }
@@ -4067,16 +4027,13 @@ function simpanStatusMealPlan(hariKe, status) {
     .then(response => response.text())
     .then(result => {
         if (result === 'OK') {
-            // showToast('Meal Plan hari ini selesai!', 'success');
             showMessage('success','Mela Paln hari ini selesai', 3000, 'toast');
         } else {
-            //showToast('Gagal menyimpan status meal plan', 'error');
             showMessage('error', 'Gagal menyimpan status meal plan', 3000, 'toast');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // showToast('Terjadi kesalahan saat menyimpan', 'error');
         showMessage('error', 'Terjadi kesalahan saat menyimpan', 3000, 'toast');
     });
 }
