@@ -248,3 +248,100 @@ if (typeof module !== 'undefined' && module.exports) {
         displayConsoleReport
     };
 }
+
+/**
+ * 🎯 Check real-time deletion progress
+ * Menampilkan fungsi mana yang sudah/sudah dihapus
+ */
+function checkDeletionProgress() {
+    const allFunctions = getAllFunctionNames();
+    const unusedFunctions = UNUSED_FUNCTIONS.toBeDeleted;
+    const backupFunctions = UNUSED_FUNCTIONS.backupFunctions;
+    
+    // Check fungsi yang masih ada vs sudah dihapus
+    const stillExist = unusedFunctions.filter(func => {
+        return typeof window[func] !== 'undefined';
+    });
+    
+    const alreadyDeleted = unusedFunctions.filter(func => {
+        return typeof window[func] === 'undefined';
+    });
+    
+    // Check backup functions
+    const backupStillExist = backupFunctions.filter(func => {
+        return typeof window[func] !== 'undefined';
+    });
+    
+    const backupDeleted = backupFunctions.filter(func => {
+        return typeof window[func] === 'undefined';
+    });
+    
+    console.log('🎯 ==========================================');
+    console.log('🎯 PROGRESS PENGHAPUSAN FUNGSI - REAL TIME');
+    console.log('🎯 ==========================================');
+    
+    // Progress utama
+    const progressPercent = Math.round((alreadyDeleted.length / unusedFunctions.length) * 100);
+    console.log(`📊 PROGRESS: ${alreadyDeleted.length}/${unusedFunctions.length} fungsi (${progressPercent}%)`);
+    
+    // Fungsi sudah dihapus
+    if (alreadyDeleted.length > 0) {
+        console.log(`\n✅ SUDAH DIHAPUS (${alreadyDeleted.length}):`);
+        alreadyDeleted.forEach((func, index) => {
+            console.log(`   ${index + 1}. ${func}`);
+        });
+    } else {
+        console.log(`\n❌ BELUM ADA FUNGSI YANG DIHAPUS`);
+    }
+    
+    // Fungsi masih perlu dihapus
+    if (stillExist.length > 0) {
+        console.log(`\n🗑️  PERLU DIHAPUS (${stillExist.length}):`);
+        stillExist.forEach((func, index) => {
+            console.log(`   ${index + 1}. ${func}`);
+        });
+    }
+    
+    // Backup functions progress
+    console.log(`\n📁 BACKUP FUNCTIONS:`);
+    console.log(`   ✅ Dihapus: ${backupDeleted.length}/${backupFunctions.length}`);
+    if (backupStillExist.length > 0) {
+        console.log(`   ❌ Masih ada: ${backupStillExist.join(', ')}`);
+    }
+    
+    // Recommendations
+    console.log('\n💡 REKOMENDASI:');
+    if (stillExist.length > 0) {
+        console.log(`   Next: Hapus "${stillExist[0]}" - ${findFunctionModule(stillExist[0])} module`);
+    }
+    
+    if (progressPercent >= 50) {
+        console.log('   🎉 Progress bagus! Lanjutkan!');
+    } else if (progressPercent > 0) {
+        console.log('   👏 Good start! Tetap semangat!');
+    } else {
+        console.log('   🚀 Mulai hapus fungsi pertama!');
+    }
+    
+    console.log('==========================================\n');
+    
+    return {
+        alreadyDeleted,
+        stillExist, 
+        backupDeleted,
+        backupStillExist,
+        progressPercent
+    };
+}
+
+/**
+ * Quick progress check (simple version)
+ */
+function quickProgress() {
+    const unusedFunctions = UNUSED_FUNCTIONS.toBeDeleted;
+    const alreadyDeleted = unusedFunctions.filter(func => typeof window[func] === 'undefined');
+    const progressPercent = Math.round((alreadyDeleted.length / unusedFunctions.length) * 100);
+    
+    console.log(`🎯 Progress: ${alreadyDeleted.length}/${unusedFunctions.length} (${progressPercent}%)`);
+    return progressPercent;
+}
