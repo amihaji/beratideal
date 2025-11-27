@@ -3433,7 +3433,7 @@ function updateMealPlanCompletionUI(hariKe) {
     const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
     if (mealPlanItem) {
         mealPlanItem.innerHTML = `
-            <i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${hariKe} ✓
+            <i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ke ${hariKe} ✓
         `;
         mealPlanItem.style.color = '#28a745';
         mealPlanItem.style.fontWeight = 'bold';
@@ -3442,7 +3442,7 @@ function updateMealPlanCompletionUI(hariKe) {
     // ✅ UPDATE TOMBOL SELESAI JADI HIJAU
     const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
     if (selesaiBtn) {
-        selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
+        selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai Meal Plan';
         selesaiBtn.classList.remove('btn-secondary');
         selesaiBtn.classList.add('btn-success');
         selesaiBtn.disabled = true;
@@ -3536,7 +3536,7 @@ function createMealPlanFormHTML(hariKe) {
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-center mt-4">
             <button type="button" class="btn btn-secondary btn-sm" onclick="selesaiMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
-                <i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}
+                <i class="fa fa-check"></i> Selesai Meal Plan Hari ${hariKe}
             </button>
         </div>
     `;
