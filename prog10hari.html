@@ -3329,6 +3329,9 @@ function getMealTypeName(mealType) {
 /**
  * Selesaikan meal plan untuk hari tertentu dan update sheet
  */
+/**
+ * Selesaikan meal plan untuk hari tertentu dan update sheet
+ */
 async function selesaiMealPlan(hariKe) {
     console.log('✅ Menyelesaikan meal plan hari:', hariKe);
     
@@ -3345,34 +3348,36 @@ async function selesaiMealPlan(hariKe) {
         showMessage('info', 'Menyimpan status meal plan...', 3000, `pertemuan${hariKe}`);
         
         try {
-            // ✅ KIRIM KE SERVER UNTUK UPDATE KOLOM Q MENJADI "OK"
+            // ✅ PERBAIKI: Gunakan action yang sesuai dengan Google Apps Script
             const response = await fetch(URL_PROGRAM_APP, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'updateMealPlanStatus',
+                    action: 'updateMealPlan', // ✅ ACTION YANG SESUAI
                     userId: userId,
                     hariKe: hariKe,
-                    status: 'OK'
+                    status: 'OK' // ✅ KIRIM STATUS 'OK' UNTUK KOLOM Q
                 })
             });
 
             const result = await response.text();
             console.log('Update meal plan status response:', result);
 
-            if (result === "OK") {
+            if (result === "OK" || result.includes("success")) {
                 showMessage('success', `Meal plan hari ${hariKe} selesai! 🎉 Kolom Q updated ke "OK"`, 4000, `pertemuan${hariKe}`);
                 
                 // Simpan status
                 saveMealPlanStatus(hariKe, 'completed');
                 
-                // Update UI
+                // Update UI - tombol jadi hijau
                 updateMealPlanCompletionUI(hariKe);
                 
                 // Tutup submenu
-                hideSubmenu(`mealPlanContent${hariKe}`);
+                setTimeout(() => {
+                    hideSubmenu(`mealPlanContent${hariKe}`);
+                }, 2000);
                 
             } else {
                 showMessage('error', 'Gagal update status: ' + result, 3000, `pertemuan${hariKe}`);
@@ -3434,12 +3439,12 @@ function updateMealPlanCompletionUI(hariKe) {
         mealPlanItem.style.fontWeight = 'bold';
     }
     
-    // Update tombol selesai di form
+    // ✅ UPDATE TOMBOL SELESAI JADI HIJAU
     const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
     if (selesaiBtn) {
         selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
-        selesaiBtn.classList.remove('btn-success');
-        selesaiBtn.classList.add('btn-secondary');
+        selesaiBtn.classList.remove('btn-secondary');
+        selesaiBtn.classList.add('btn-success');
         selesaiBtn.disabled = true;
     }
 }
@@ -3530,7 +3535,7 @@ function createMealPlanFormHTML(hariKe) {
 
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-center mt-4">
-            <button type="button" class="btn btn-success btn-sm" onclick="selesaiMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaiMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
                 <i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}
             </button>
         </div>
