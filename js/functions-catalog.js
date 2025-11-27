@@ -168,3 +168,15 @@ function checkFunctionConflicts() {
         duplicates: [...new Set(duplicates)]
     };
 }
+
+// Export untuk penggunaan modular
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        FUNCTIONS_SUMMARY,
+        UNUSED_FUNCTIONS,
+        getAllFunctionNames,
+        findFunctionModule,
+        generateFunctionReport,
+        checkFunctionConflicts
+    };
+}
