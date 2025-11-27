@@ -1249,14 +1249,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup Materi Pertemuan
   setupMateriCompletion();
   
-  // Setup MealPlan
-  //setupMealPlanUpload();
-  
+  // Generate form meal plan untuk semua hari
+  generateMealPlanForms();
+
   // Cek status meal plan untuk semua hari
   for (let i = 1; i <= 10; i++) {
     checkMealPlanStatus(i);
   }
-    
+
   // Cek status perkenalan dan lock/unlock modul
   checkPerkenalanStatus();
 
@@ -2701,6 +2701,8 @@ function capitalizeFirst(string) {
 /*******************
 * Jadwal Meal Plan
 *******************/   
+
+/*****
 const jadwalMealplan = document.getElementById("jadwalMealplan-list");
 if (jadwalMealplan) {
   const wrapper = document.createElement("div");
@@ -2746,6 +2748,8 @@ if (jadwalMealplan) {
   `;
   jadwalMealplan.appendChild(wrapper);
 } 
+**************/
+
 
 /************************
 * Daftar Olahraga Kardio
@@ -3137,131 +3141,102 @@ if (inputKondisiTubuh) {
 }   
 
 // **************************************
-// ***** FUNGSI UPLOAD MEAL PLAN BARU ***
+// ***** FUNGSI UPLOAD MEAL PLAN FLEKSIBEL *****
 // **************************************
 
 /**
- * Upload meal plan untuk hari tertentu
+ * Upload meal plan untuk hari tertentu - langsung di form
  */
 function uploadMealPlan(hariKe) {
     console.log('🍽️ Upload meal plan hari:', hariKe);
     
-    // Tampilkan modal atau form upload
-    showMealPlanUploadModal(hariKe);
+    // Tampilkan form upload langsung
+    showMealPlanUploadForm(hariKe);
 }
 
 /**
- * Tampilkan modal untuk upload meal plan
+ * Tampilkan form upload langsung (tanpa modal)
  */
-function showMealPlanUploadModal(hariKe) {
-    // Buat modal untuk upload
-    const modalHTML = `
-        <div class="modal fade" id="mealPlanModal${hariKe}" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Upload Meal Plan Hari ${hariKe}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Pilih foto meal plan:</label>
-                            <input type="file" class="form-control" id="mealPlanFile${hariKe}" accept="image/*" capture="environment">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Keterangan:</label>
-                            <textarea class="form-control" id="mealPlanDesc${hariKe}" placeholder="Deskripsi meal plan..." rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary" onclick="processMealPlanUpload(${hariKe})">Upload</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Tambahkan modal ke body jika belum ada
-    if (!document.getElementById(`mealPlanModal${hariKe}`)) {
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
-    
-    // Tampilkan modal
-    const modal = new bootstrap.Modal(document.getElementById(`mealPlanModal${hariKe}`));
-    modal.show();
-}
-
-/**
- * Proses upload meal plan
- */
-async function processMealPlanUpload(hariKe) {
-    const fileInput = document.getElementById(`mealPlanFile${hariKe}`);
-    const description = document.getElementById(`mealPlanDesc${hariKe}`).value;
-    
-    if (!fileInput.files[0]) {
-        showMessage('warning', 'Pilih file foto terlebih dahulu', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    const file = fileInput.files[0];
-    
-    // Validasi file
-    if (file.size > 5 * 1024 * 1024) {
-        showMessage('error', 'File terlalu besar (maks 5MB)', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-        showMessage('error', 'File harus berupa gambar', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    showMessage('info', 'Mengupload meal plan...', 3000, `pertemuan${hariKe}`);
-
-    try {
-        // Convert to base64
-        const base64Data = await fileToBase64(file);
-        
-        // Upload ke server
-        const result = await uploadMealPlanToServer(hariKe, base64Data, file.name, description);
-        
-        if (result.success) {
-            showMessage('success', 'Meal plan berhasil diupload!', 3000, `pertemuan${hariKe}`);
-            
-            // Tutup modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById(`mealPlanModal${hariKe}`));
-            modal.hide();
-            
-            // Update UI
-            updateMealPlanUI(hariKe, file.name);
-            
-        } else {
-            showMessage('error', 'Upload gagal: ' + result.message, 3000, `pertemuan${hariKe}`);
-        }
-        
-    } catch (error) {
-        console.error('Upload error:', error);
-        showMessage('error', 'Gagal upload: ' + error.message, 3000, `pertemuan${hariKe}`);
-    }
-}
-
-/**
- * Convert file to base64
- */
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
+function showMealPlanUploadForm(hariKe) {
+    // Sembunyikan semua submenu lainnya
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
     });
+    
+    // Tampilkan meal plan content
+    const mealPlanContent = document.getElementById(`mealPlanContent${hariKe}`);
+    if (mealPlanContent) {
+        mealPlanContent.style.display = 'block';
+        
+        // Scroll ke form
+        setTimeout(() => {
+            mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        
+        showMessage('info', `Upload meal plan hari ${hariKe}`, 3000, `pertemuan${hariKe}`);
+    } else {
+        showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
+    }
 }
 
 /**
- * Upload meal plan ke server
+ * Process upload untuk meal type tertentu
  */
-async function uploadMealPlanToServer(hariKe, fileData, fileName, description) {
+function uploadMealItem(hariKe, mealType) {
+    console.log(`📸 Upload ${mealType} hari ${hariKe}`);
+    
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.capture = 'environment';
+
+    fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validasi file
+        if (file.size > 5 * 1024 * 1024) {
+            showMessage('error', 'File terlalu besar (maks 5MB)', 3000, `pertemuan${hariKe}`);
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            showMessage('error', 'File harus berupa gambar', 3000, `pertemuan${hariKe}`);
+            return;
+        }
+
+        showMessage('info', `Mengupload ${getMealTypeName(mealType)}...`, 3000, `pertemuan${hariKe}`);
+
+        try {
+            // Convert to base64
+            const base64Data = await fileToBase64(file);
+            
+            // Upload ke server
+            const result = await uploadToServer(hariKe, mealType, base64Data, file.name);
+            
+            if (result.success) {
+                showMessage('success', `${getMealTypeName(mealType)} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
+                
+                // Update input field
+                updateMealInputField(mealType, file.name);
+                
+            } else {
+                showMessage('error', `Upload ${getMealTypeName(mealType)} gagal: ${result.message}`, 3000, `pertemuan${hariKe}`);
+            }
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            showMessage('error', `Gagal upload ${getMealTypeName(mealType)}: ${error.message}`, 3000, `pertemuan${hariKe}`);
+        }
+    };
+
+    fileInput.click();
+}
+
+/**
+ * Upload ke server
+ */
+async function uploadToServer(hariKe, mealType, fileData, fileName) {
     const userId = localStorage.getItem('userId');
     
     if (!userId) {
@@ -3278,9 +3253,9 @@ async function uploadMealPlanToServer(hariKe, fileData, fileName, description) {
                 action: 'uploadMealPlan',
                 userId: userId,
                 hariKe: hariKe,
+                mealType: mealType,
                 file: fileData,
-                fileName: fileName,
-                description: description || 'Meal plan hari ' + hariKe
+                fileName: fileName
             })
         });
 
@@ -3291,7 +3266,6 @@ async function uploadMealPlanToServer(hariKe, fileData, fileName, description) {
         try {
             return JSON.parse(result);
         } catch (e) {
-            // Jika response bukan JSON
             if (result === "OK") {
                 return { success: true, message: 'Upload berhasil' };
             } else {
@@ -3306,32 +3280,155 @@ async function uploadMealPlanToServer(hariKe, fileData, fileName, description) {
 }
 
 /**
- * Update UI setelah upload berhasil
+ * Update input field setelah upload berhasil
  */
-function updateMealPlanUI(hariKe, fileName) {
-    // Update tampilan untuk menunjukkan meal plan sudah diupload
-    const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
-    if (mealPlanItem) {
-        mealPlanItem.innerHTML = `
-            <i class="fas fa-utensils"></i>Meal Plan - Hari ${hariKe} ✓
-            <span class="badge bg-success ms-2">Uploaded</span>
-        `;
+function updateMealInputField(mealType, fileName) {
+    const inputField = document.getElementById(mealType);
+    if (inputField) {
+        inputField.value = `✓ ${fileName}`;
+        inputField.style.color = '#28a745';
+        inputField.style.fontWeight = 'bold';
     }
-    
-    // Simpan status di localStorage
-    localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
-    localStorage.setItem(`mealplan_file_${hariKe}`, fileName);
 }
 
 /**
- * Cek status meal plan
+ * Get nama meal type yang user-friendly
+ */
+function getMealTypeName(mealType) {
+    const mealNames = {
+        'sarapan': 'Sarapan',
+        'cemilanPagi': 'Cemilan Pagi', 
+        'makanSiang': 'Makan Siang',
+        'cemilanSore': 'Cemilan Sore',
+        'makanMalam': 'Makan Malam'
+    };
+    return mealNames[mealType] || mealType;
+}
+
+/**
+ * Selesaikan meal plan untuk hari tertentu
+ */
+function selesaiMealPlan(hariKe) {
+    console.log('✅ Menyelesaikan meal plan hari:', hariKe);
+    
+    // Cek apakah semua meal sudah diupload
+    const allUploaded = checkAllMealsUploaded();
+    
+    if (allUploaded) {
+        showMessage('success', `Meal plan hari ${hariKe} selesai! 🎉`, 4000, `pertemuan${hariKe}`);
+        
+        // Simpan status
+        saveMealPlanStatus(hariKe, 'completed');
+        
+        // Update UI
+        updateMealPlanCompletionUI(hariKe);
+        
+    } else {
+        showMessage('warning', 'Lengkapi semua meal terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    }
+}
+
+/**
+ * Cek apakah semua meal sudah diupload
+ */
+function checkAllMealsUploaded() {
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    return mealTypes.every(mealType => {
+        const inputField = document.getElementById(mealType);
+        return inputField && inputField.value.startsWith('✓');
+    });
+}
+
+/**
+ * Simpan status meal plan
+ */
+function saveMealPlanStatus(hariKe, status) {
+    localStorage.setItem(`mealplan_hari_${hariKe}`, status);
+    localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
+}
+
+/**
+ * Update UI setelah meal plan selesai
+ */
+function updateMealPlanCompletionUI(hariKe) {
+    const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
+    if (mealPlanItem) {
+        mealPlanItem.innerHTML = `
+            <i class="fas fa-utensils"></i>${mealPlanItem.textContent.replace('Meal Plan', 'Meal Plan ✓')}
+        `;
+        mealPlanItem.style.color = '#28a745';
+    }
+}
+
+/**
+ * Cek status meal plan saat load
  */
 function checkMealPlanStatus(hariKe) {
     const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
     if (status === 'completed') {
-        const fileName = localStorage.getItem(`mealplan_file_${hariKe}`);
-        updateMealPlanUI(hariKe, fileName);
+        updateMealPlanCompletionUI(hariKe);
     }
+}
+
+/**
+ * Generate form meal plan untuk semua hari
+ */
+function generateMealPlanForms() {
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const containerId = `jadwalMealplan-list${hariKe > 1 ? hariKe : ''}`;
+        const container = document.getElementById(containerId);
+        
+        if (container) {
+            container.innerHTML = createMealPlanFormHTML(hariKe);
+        }
+    }
+}
+
+/**
+ * Create HTML untuk form meal plan
+ */
+function createMealPlanFormHTML(hariKe) {
+    return `
+        <div><label class="form-label">Sarapan (07:00 - 09:00)</label></div>
+        <div class="input-group mt-0 mb-2">
+            <input class="form-control" type="text" id="sarapan${hariKe}" placeholder="Upload Sarapan" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="uploadMealItem(${hariKe}, 'sarapan')">
+                <i class="fa fa-cloud-upload"></i>
+            </button>
+        </div>
+
+        <div><label class="form-label">Cemilan Pagi (10:00 - 10:30)</label></div>
+        <div class="input-group mt-0 mb-2">
+            <input class="form-control" type="text" id="cemilanPagi${hariKe}" placeholder="Upload Cemilan Pagi" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="uploadMealItem(${hariKe}, 'cemilanPagi')">
+                <i class="fa fa-cloud-upload"></i>
+            </button>
+        </div>
+
+        <div><label class="form-label">Makan Siang (12:00 - 14:00)</label></div>
+        <div class="input-group mt-0 mb-2">
+            <input class="form-control" type="text" id="makanSiang${hariKe}" placeholder="Upload Makan Siang" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="uploadMealItem(${hariKe}, 'makanSiang')">
+                <i class="fa fa-cloud-upload"></i>
+            </button>
+        </div>
+
+        <div><label class="form-label">Cemilan Sore (16:00 - 16:30)</label></div>
+        <div class="input-group mt-0 mb-2">
+            <input class="form-control" type="text" id="cemilanSore${hariKe}" placeholder="Upload Cemilan Sore" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="uploadMealItem(${hariKe}, 'cemilanSore')">
+                <i class="fa fa-cloud-upload"></i>
+            </button>
+        </div>
+
+        <div><label class="form-label">Makan Malam (18:00 - 20:00)</label></div>
+        <div class="input-group mt-0 mb-2">
+            <input class="form-control" type="text" id="makanMalam${hariKe}" placeholder="Upload Makan Malam" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="uploadMealItem(${hariKe}, 'makanMalam')">
+                <i class="fa fa-cloud-upload"></i>
+            </button>
+        </div>
+    `;
 }
 
 </script>
