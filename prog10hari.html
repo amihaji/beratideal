@@ -1861,18 +1861,6 @@ function renderPlaylist(container, items, section) {
   container.appendChild(footer);
 }
 
-/************************************************
-* Update fungsi showPlaylist untuk compatibility
-*************************************************/
-async function showPlaylist(section, playlistUrl) {
-  const playlistContainer = document.getElementById(`playlist${capitalizeFirst(section)}`);
-  const triggerElement = document.querySelector(`[data-target="playlist${capitalizeFirst(section)}"]`);
-  
-  if (playlistContainer && triggerElement) {
-    await showPlaylistInSection(`playlist${capitalizeFirst(section)}`, playlistUrl, triggerElement);
-  }
-}
-
 /**********************
 * Fungsi Hide Playlist
 ***********************/
@@ -2185,161 +2173,6 @@ function displayPDF(section, pdfUrl, title) {
         // Fallback ke iframe
         fallbackToIframe(section, pdfUrl);
     });
-}
-
-/******************************
-* Menampilkan PDF dengan PDF.js
-*******************************/
-function displayPDFWithPDFJS(section, pdfUrl, title) {
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    // Show loading
-    pdfContainer.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <div class="mt-2">Memuat PDF, tunggu...</div>
-        </div>
-    `;
-    
-    // Set up PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-    
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    const scale = 1.5;
-    
-    function renderPage(num) {
-        pageRendering = true;
-        
-        pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            
-            canvas.className = 'pdfjs-canvas';
-            
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            
-            const renderTask = page.render(renderContext);
-            
-            renderTask.promise.then(function() {
-                pageRendering = false;
-                
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
-            
-            // Clear container and add canvas
-            const viewer = document.getElementById(`pdfjsViewer${capitalizeFirst(section)}`);
-            viewer.innerHTML = '';
-            viewer.appendChild(canvas);
-            
-            // Update page info
-            document.getElementById(`pdfjsPageInfo${capitalizeFirst(section)}`).textContent = 
-                `Halaman ${num} dari ${pdfDoc.numPages}`;
-                
-        }).catch(function(error) {
-            console.error('Error rendering page:', error);
-            handlePDFError(section);
-        });
-    }
-    
-    function queueRenderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-        } else {
-            renderPage(num);
-        }
-    }
-    
-    function onPrevPage() {
-        if (pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    }
-    
-    function onNextPage() {
-        if (pageNum >= pdfDoc.numPages) return;
-        pageNum++;
-        queueRenderPage(pageNum);
-    }
-    
-    // Load the PDF
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
-        pdfDoc = pdfDoc_;
-        
-        // Update container with PDF.js viewer
-        pdfContainer.innerHTML = `
-            <div class="pdfjs-controls">
-                <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
-                    <i class="fas fa-chevron-left"></i> Sebelumnya
-                </button>
-                <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
-                    Halaman 1 dari ${pdfDoc.numPages}
-                </span>
-                <button class="btn btn-sm btn-outline-primary" onclick="onNextPage${capitalizeFirst(section)}()">
-                    Berikutnya <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
-        `;
-        
-        // Render first page
-        renderPage(1);
-        
-        // Store functions globally for button access
-        window[`onPrevPage${capitalizeFirst(section)}`] = onPrevPage;
-        window[`onNextPage${capitalizeFirst(section)}`] = onNextPage;
-        
-    }).catch(function(error) {
-        console.error('Error loading PDF with PDF.js:', error);
-        // Fallback ke metode sebelumnya
-        fallbackToIframe(section, pdfUrl);
-    });
-}
-
-/*********************************
-* Tampilkan Opsi PDF untuk Mobile
-*********************************/
-function showMobilePDFOptions(section, pdfUrl, title) {
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    pdfContainer.innerHTML = `
-        <div style="padding: 20px; text-align: center;">
-            <div class="mb-4">
-                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
-                <h5>${title}</h5>
-                <p class="text-muted">Pilih cara untuk melihat PDF:</p>
-            </div>
-            
-            <div class="d-grid gap-2">
-                <button class="btn btn-primary btn-lg" onclick="displayPDFWithPDFJS('${section}', '${pdfUrl}', '${title}')">
-                    <i class="fas fa-eye me-2"></i>Lihat di Aplikasi (PDF.js)
-                </button>
-                
-                <button class="btn btn-outline-primary btn-lg" onclick="openPDFInNewTab('${section}')">
-                    <i class="fas fa-external-link-alt me-2"></i>Buka di Browser
-                </button>
-            </div>
-            
-            <div class="mt-4 p-3 bg-light rounded">
-                <small class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
-                    <strong>File PDF</strong> mungkin membutuhkan waktu lebih lama untuk memuat, 
-                    tetapi dapat menampilkan PDF langsung di aplikasi.
-                </small>
-            </div>
-        </div>
-    `;
 }
 
 /*************************************
@@ -2767,37 +2600,6 @@ function selesaiMateri(hariSelesai) {
     }
 }
 
-/**********************************************
-* Simpan progress dan unlock modul berikutnya *
-***********************************************/
-function simpanProgress(hariKe, jenisProgress) {
-    console.log(`💾 Progress hari ${hariKe}:`, jenisProgress);
-    
-    // Simpan ke localStorage atau server
-    localStorage.setItem(`progress_hari_${hariKe}`, jenisProgress);
-    
-    // Tampilkan pesan
-    showMessage('success', `${jenisProgress} hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
-    
-    // Cek jika semua requirement terpenuhi, unlock modul berikutnya
-    if (isReadyForNextModule(hariKe)) {
-        unlockModul(hariKe + 1);
-    }
-}
-
-/*********************************************************
-* Untuk cek apakah user sudah memenuhi semua requirement *
-**********************************************************/
-function isReadyForNextModule(hariKe) {
-    // Contoh: sudah selesai materi, workout, meal plan, dll.
-    const materiDone   = localStorage.getItem(`progress_hari_${hariKe}_materi`);
-    const mealplanDone = localStorage.getItem(`progress_hari_${hariKe}_mealplan`);
-    const workoutDone  = localStorage.getItem(`progress_hari_${hariKe}_workout`);
-    // tambahkan disini
-    
-    return materiDone && workoutDone && mealplanDone;
-}
-
 /********************************
 * Fungsi untuk menyimpan materi * 
 *********************************/
@@ -3111,14 +2913,6 @@ function updateMateriStatusUI(hariKe) {
 ***********************************/
 function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-/*****************************
-* Ekstrak ID Playlist dari URL
-******************************/ 
-function BACKUP_extractPlaylistId(url) {
-    const match = url.match(/[&?]list=([^&]+)/);
-    return match ? match[1] : null;
 }
 
 // *********************************
@@ -3567,62 +3361,6 @@ if (inputKondisiTubuh) {
 // ***************************************************
 // **** FUNGSI BANTU UNTUK MENCARI CONTAINER MENU ****
 // ***************************************************
-
-/****************************************
-* Mendeteksi menu aktif secara otomatis *
-*****************************************/
-function BACKUP_getActiveMenu() {
-    // Cari menu yang sedang terbuka (tidak collapsed)
-    const openMenu = document.querySelector('.menu-header:not(.collapsed)');
-    if (openMenu) {
-        const target = openMenu.getAttribute('data-bs-target');
-        if (target) {
-            // Extract menu name from target ID
-            const menuName = target.replace('Content', '').replace('#', '');
-            const menuMap = {
-                'panduan': 'panduan',
-                'perkenalan': 'perkenalan',
-                'pertemuan1': 'pertemuan1',
-                'healthyRecept': 'healthyRecept',
-                'dasboardFitTrack': 'dasboardFitTrack'
-            };
-            return menuMap[menuName] || null;
-        }
-    }
-    return null;
-}
-
-/*******************************************************
-* Mencari container yang tepat berdasarkan target menu *
-********************************************************/
-function BACKUP_findMenuContainer(menuTarget) {
-    const menuMap = {
-        'panduan': '#panduanContent',
-        'perkenalan': '#perkenalanContent', 
-        'pertemuan1': '#pertemuan1Content',
-        'pertemuan2': '#pertemuan2Content',
-        'pertemuan3': '#pertemuan3Content',
-        'pertemuan4': '#pertemuan4Content',
-        'pertemuan5': '#pertemuan5Content',
-        'pertemuan6': '#pertemuan6Content',
-        'pertemuan7': '#pertemuan7Content',
-        'pertemuan8': '#pertemuan8Content',
-        'pertemuan9': '#pertemuan9Content',
-        'pertemuan10': '#pertemuan10Content',
-        'healthyRecept': '#healthyRecept',
-        'dasboardFitTrack': '#dasboardFitTrack'
-    };
-
-    const menuId = menuMap[menuTarget];
-    if (menuId) {
-        const menuElement = document.querySelector(menuId);
-        if (menuElement) {
-            // Cari .menu-content dalam menu tersebut
-            return menuElement.querySelector('.menu-content') || menuElement;
-        }
-    }
-    return null;
-}
 
 </script>
 </body>
