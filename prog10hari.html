@@ -1116,31 +1116,32 @@ body { background-color: #f8f9fa; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 <script src="js/functions-catalog.js"></script>
 <script>
+
 // *************************
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyArNF6VXv87ksnV7t55sAFgr4Et7YzmTn_Dte-EvULYQJub1qM9UtbT5Ka8DZ-0q6W/exec';
 // Deklarasi Global
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyArNF6VXv87ksnV7t55sAFgr4Et7YzmTn_Dte-EvULYQJub1qM9UtbT5Ka8DZ-0q6W/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
-* Show About form 
+* Show About form *
 *******************/
 function showAbout() {
   document.getElementById('aboutOverlay').style.display = 'flex';
 }
 
 /******************
-* Hide About form 
+* Hide About form *
 *******************/  
 function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-/*****************
-/ Logout function 
-******************/
+/******************
+* Logout function *
+*******************/
 function logout() {
   localStorage.removeItem('userId');
   localStorage.removeItem('userToken');
@@ -1149,9 +1150,9 @@ function logout() {
   window.location.reload();
 }
 
-// ***********************
-// ACCORDION TOGGLE FIX 
-// ************************
+/***********************
+* ACCORDION TOGGLE FIX *
+************************/
 document.addEventListener('DOMContentLoaded', function() {
     let currentOpenMenu = null;
     
@@ -1203,9 +1204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/***********************************
-* Event listener di DOMContentLoaded
-************************************/
+/*************************************
+* Event listener di DOMContentLoaded *
+**************************************/
 document.addEventListener('DOMContentLoaded', function() {
   // Submenu triggers
   document.querySelectorAll('.submenu-trigger').forEach(trigger => {
@@ -1283,9 +1284,9 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('✅ App initialized successfully');
 });
 
-/**
- * Cek status materi dan update UI
- */
+/**********************************
+* Cek status materi dan update UI *
+***********************************/
 function checkMateriStatus(hariKe) {
     const status = localStorage.getItem(`materi_hari_${hariKe}`);
     if (status === 'completed') {
@@ -1293,9 +1294,9 @@ function checkMateriStatus(hariKe) {
     }
 }
 
-/*************************
-* Setup Tombol Cek Disini
-**************************/
+/**************************
+* Setup Tombol Cek Disini *
+***************************/
 function setupCekDisiniButtons() {
     console.log('🔧 Setting up Cek Disini buttons...');
     
@@ -1352,9 +1353,9 @@ function setupCekDisiniButtons() {
 // ********************************
 let currentVideoData = {};
 
-/***********************************
-* Fungsi Initialisasi Seluruh video
-************************************/ 
+/************************************
+* Fungsi Initialisasi Seluruh video *
+*************************************/ 
 function initializeAllVideoPlayers() {
   console.log('Initializing video players...');
 
@@ -1374,9 +1375,9 @@ function initializeAllVideoPlayers() {
   });
 }
 
-/*******************************
-* Setup Semua Link Video dan PDF
-********************************/
+/*********************************
+* Setup Semua Link Video dan PDF *
+**********************************/
 function setupAllLinks() {
   // Setup video links
   document.querySelectorAll('.video-link').forEach(link => {
@@ -1422,15 +1423,12 @@ function setupAllLinks() {
   setupPDFLinks();
 }
 
-/****************************************
-* Fungsi Memuat Video Berdasarkan Section
-*****************************************/ 
+/******************************************
+* Fungsi Memuat Video Berdasarkan Section *
+*******************************************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
     console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
-    
-    // Debug proses loading
-    // debugVideoLoadProcess(section, videoType, videoUrl);
-    
+   
     // Untuk Canva, buka di tab baru
     if (videoType === 'canva') {
         window.open(videoUrl, '_blank');
@@ -1450,11 +1448,9 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     // Validasi URL YouTube
     if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
         console.error('❌ Invalid YouTube URL:', videoUrl);
-        //showToast('URL YouTube tidak valid', 'error');
         showMessage('error', 'URL Youtube tidak valid');
         return;
     }
-    
     // Close video di section lain
     closeAllVideos();
     
@@ -1476,7 +1472,7 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         const youtubeId = extractYouTubeId(videoUrl);
         placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
     } else if (videoType === 'local') {
-        placeholderText = 'Klik untuk memuat video lokal';
+        placeholderText = 'Klik untuk memuat video';
     }
     
     if (videoPlaceholder) {
@@ -1491,9 +1487,9 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     }, 500);
 }
 
-/*******************************
-* Memutar Video yang sudah dimuat
-********************************/
+/**********************************
+* Memutar Video yang sudah dimuat *
+***********************************/
 function playVideo(section) {
     console.log('playVideo called for section:', section);
     
@@ -1525,9 +1521,9 @@ function playVideo(section) {
     }, 1000);
 }
 
-/*********************
-* Memuat Video Youtube 
-**********************/
+/***********************
+* Memuat Video Youtube *
+************************/
 function loadYouTubeVideo(videoPlayer, url) {
     const videoId = extractYouTubeId(url);
     console.log('YouTube ID extracted:', videoId);
@@ -1551,9 +1547,9 @@ function loadYouTubeVideo(videoPlayer, url) {
     }
 }
 
-/*******************
-* Memuat Video Local
-********************/
+/*********************
+* Memuat Video Local *
+**********************/
 function loadLocalVideo(videoPlayer, url) {
     console.log('Creating local video element for:', url);
     videoPlayer.innerHTML = `
@@ -1568,7 +1564,6 @@ function loadLocalVideo(videoPlayer, url) {
     if (videoElement) {
         videoElement.onerror = function() {
             console.error('Error loading local video:', url);
-            // alert('Video tidak dapat dimuat. Pastikan file video ada di folder yang benar.');
             showMessage('error', 'Video tidak dapat dimuat');
             if (currentVideoData.section) {
                 closeVideo(currentVideoData.section);
@@ -1577,9 +1572,9 @@ function loadLocalVideo(videoPlayer, url) {
     }
 }
 
-/***************************
-* Ekstrak ID dari URL YouTube
-****************************/
+/******************************
+* Ekstrak ID dari URL YouTube *
+*******************************/
 function extractYouTubeId(url) {
     console.log('🔍 Extracting YouTube ID from:', url);
     
@@ -1630,9 +1625,9 @@ function extractYouTubeId(url) {
     return null;
 }
 
-/*********************************
-* Tutup Video di Section Tertentu
-**********************************/
+/**********************************
+* Tutup Video di Section Tertentu *
+***********************************/
 function closeVideo(section) {
     console.log('Closing video for section:', section);
     
@@ -1661,9 +1656,9 @@ function closeVideo(section) {
     currentVideoData = {};
 }
 
-/***************************************
-* Tutup Semua Video yang sedang diputar
-***************************************/
+/****************************************
+* Tutup Semua Video yang sedang diputar *
+*****************************************/
 function closeAllVideos() {
     console.log('Closing all videos');
     const videoContainers = document.querySelectorAll('.video-container');
@@ -1677,9 +1672,9 @@ function closeAllVideos() {
     closeAllPDFs();
 }
 
-/*******************************
-* Validasi URL YouTube - FUNGSI BARU
-********************************/
+/***********************
+* Validasi URL YouTube *
+************************/
 function validateYouTubeUrl(url) {
     console.log('🔍 Validating YouTube URL:', url);
     
@@ -1717,9 +1712,9 @@ async function loadPlaylistData() {
     }
 }
 
-/********************************
-* Fallback Video Jika JSon Error
-*********************************/
+/*********************************
+* Fallback Video Jika JSon Error *
+**********************************/
 function getProvenVideos() {
     return [
         {
@@ -1741,9 +1736,9 @@ function getProvenVideos() {
     ];
 }
 
-/***********************
-* Setup Trigger Playlist 
-************************/
+/*************************
+* Setup Trigger Playlist *
+**************************/
 function setupPlaylistTriggers() {
   document.querySelectorAll('.playlist-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
@@ -1755,9 +1750,9 @@ function setupPlaylistTriggers() {
   });
 }
 
-/******************************
-* Tampilkan Playlist di Section 
-*******************************/
+/********************************
+* Tampilkan Playlist di Section *
+*********************************/
 async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   const playlistContainer = document.getElementById(targetId);
   if (!playlistContainer) {
@@ -1795,25 +1790,21 @@ async function showPlaylistInSection(targetId, playlistUrl, triggerElement) {
   
   try {
     const playlistItems = await loadPlaylistData();
-    
     if (!playlistItems || playlistItems.length === 0) {
       throw new Error('Tidak ada data video');
     }
-    
     renderPlaylist(playlistContainer, playlistItems, 'healthyRecept');
-    
   } catch (error) {
     console.error('Error showing playlist:', error);
     // Fallback ke proven videos
     const provenVideos = getProvenVideos();
     renderPlaylist(playlistContainer, provenVideos, 'healthyRecept');
-    //showMessage('info', 'Menggunakan data lokal', 3000, 'toast');
   }
 }
 
-/******************************************
-* Render Playlist items dengan tombol close
-*******************************************/
+/********************************************
+* Render Playlist items dengan tombol close *
+*********************************************/
 function renderPlaylist(container, items, section) {
   container.innerHTML = '';
   
@@ -1881,9 +1872,9 @@ function renderPlaylist(container, items, section) {
   container.appendChild(footer);
 }
 
-/**********************
-* Fungsi Hide Playlist
-***********************/
+/***********************
+* Fungsi Hide Playlist *
+************************/
 function hidePlaylist(playlistId) {
   const playlistContainer = document.getElementById(playlistId);
   
@@ -1901,9 +1892,9 @@ function hidePlaylist(playlistId) {
   }
 }
 
-/**************************
-* Putar Video dari Playlist
-***************************/
+/****************************
+* Putar Video dari Playlist *
+*****************************/
 function playVideoFromPlaylist(section, videoId, title) {
     console.log('🎬 Playing video from playlist:', { section, videoId, title });
     
@@ -1918,10 +1909,8 @@ function playVideoFromPlaylist(section, videoId, title) {
     if (playlistContainer) {
         playlistContainer.style.display = 'none';
     }
-    
     // Show video container
     videoContainer.style.display = 'block';
-    
     // Set current video data
     currentVideoData = {
         section: section,
@@ -1931,14 +1920,10 @@ function playVideoFromPlaylist(section, videoId, title) {
     };
     
     // Auto play video setelah delay
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
+    setTimeout(() => { playVideo(section);}, 500);
     
     // Scroll ke video player
-    setTimeout(() => {
-        videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 600);
+    setTimeout(() => { videoContainer.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 600);
 }
 
 // *****************************
@@ -1946,9 +1931,9 @@ function playVideoFromPlaylist(section, videoId, title) {
 // *****************************
 let currentPDFData = {};
 
-/**********************
-* Fungsi Setup PDF Link
-***********************/
+/************************
+* Fungsi Setup PDF Link *
+*************************/
 function setupPDFLinks() {
   document.querySelectorAll('.pdf-link').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -1988,9 +1973,9 @@ function setupPDFLinks() {
   });
 }
 
-/****************************
-* Memuat dan Menampilkan PDF
-****************************/ 
+/*****************************
+* Memuat dan Menampilkan PDF *
+******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
@@ -2025,7 +2010,7 @@ function loadPDF(section, pdfUrl, title = '') {
     // Show PDF viewer
     pdfViewer.style.display = 'block';
     
-    // **PERBAIKAN: Tempatkan PDF viewer di posisi yang tepat**
+    // Tempatkan PDF viewer di posisi yang tepat
     if (section === 'panduan') {
         // Untuk menu Panduan: tempatkan setelah link PDF yang diklik
         const pdfLink = document.getElementById('pdfPanduanLink');
@@ -2051,22 +2036,18 @@ function loadPDF(section, pdfUrl, title = '') {
             console.error('❌ Cek Disini button not found for section:', section);
         }
     }
-    
     // Load PDF setelah ditampilkan
-    setTimeout(() => {
-        displayPDF(section, pdfUrl, title);
-    }, 500);
+    setTimeout(() => { displayPDF(section, pdfUrl, title); }, 500);
 }
 
-/*************************************
-* Setup link PDF - khusus Menu Panduan
-**************************************/
+/***************************************
+* Setup link PDF - khusus Menu Panduan *
+****************************************/
 function setupPanduanPDFLinks() {
     const panduanPDFLink = document.getElementById('pdfPanduanLink');
     if (panduanPDFLink) {
         // Hapus href yang menyebabkan navigasi
         panduanPDFLink.href = "#";
-        
         // Tambahkan event listener baru
         panduanPDFLink.addEventListener('click', function(e) {
             e.preventDefault();
@@ -2079,14 +2060,12 @@ function setupPanduanPDFLinks() {
     }
 }
 
-/****************
-* Menampilkan PDF
-*****************/
+/******************
+* Menampilkan PDF *
+*******************/
 function displayPDF(section, pdfUrl, title) {
     console.log('Displaying PDF with PDF.js:', pdfUrl);
-    
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
     if (!pdfContainer) return;
     
     // Set up PDF.js
@@ -2097,29 +2076,22 @@ function displayPDF(section, pdfUrl, title) {
     let pageRendering = false;
     let pageNumPending = null;
     const scale = 1.5;
-    
     function renderPage(num) {
         pageRendering = true;
-        
         pdfDoc.getPage(num).then(function(page) {
             const viewport = page.getViewport({ scale: scale });
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.height = viewport.height;
             canvas.width = viewport.width;
-            
             canvas.className = 'pdfjs-canvas';
-            
             const renderContext = {
                 canvasContext: ctx,
                 viewport: viewport
             };
-            
             const renderTask = page.render(renderContext);
-            
             renderTask.promise.then(function() {
                 pageRendering = false;
-                
                 if (pageNumPending !== null) {
                     renderPage(pageNumPending);
                     pageNumPending = null;
@@ -2140,7 +2112,7 @@ function displayPDF(section, pdfUrl, title) {
             handlePDFError(section);
         });
     }
-    
+    // Antrian render halaman
     function queueRenderPage(num) {
         if (pageRendering) {
             pageNumPending = num;
@@ -2148,13 +2120,13 @@ function displayPDF(section, pdfUrl, title) {
             renderPage(num);
         }
     }
-    
+    // Ke halaman sebelumnya 
     function onPrevPage() {
         if (pageNum <= 1) return;
         pageNum--;
         queueRenderPage(pageNum);
     }
-    
+    // ke halaman berikutnya
     function onNextPage() {
         if (pageNum >= pdfDoc.numPages) return;
         pageNum++;
@@ -2180,14 +2152,11 @@ function displayPDF(section, pdfUrl, title) {
                 </button>
             </div>
         `;
-        
         // Render first page
         renderPage(1);
-        
         // Store functions globally for button access
         window[`onPrevPage${capitalizeFirst(section)}`] = onPrevPage;
         window[`onNextPage${capitalizeFirst(section)}`] = onNextPage;
-        
     }).catch(function(error) {
         console.error('Error loading PDF with PDF.js:', error);
         // Fallback ke iframe
@@ -2195,12 +2164,11 @@ function displayPDF(section, pdfUrl, title) {
     });
 }
 
-/*************************************
-* Fallback ke Iframe Jika PDF.js Gagal
-**************************************/
+/***************************************
+* Fallback ke Iframe Jika PDF.js Gagal *
+****************************************/
 function fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
     pdfContainer.innerHTML = `
         <iframe 
             src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
@@ -2213,36 +2181,32 @@ function fallbackToIframe(section, pdfUrl) {
     `;
 }
 
-/*********************
-* Buka PDF di Tab Baru
-**********************/
+/***********************
+* Buka PDF di Tab Baru *
+************************/
 function openPDFInNewTab(section) {
     if (currentPDFData.url) {
         window.open(currentPDFData.url, '_blank');
     }
 }
 
-/******************
-* Tutup PDF Viewer
-*******************/
+/*******************
+* Tutup PDF Viewer *
+********************/
 function closePDF(section) {
     console.log('Closing PDF for section:', section);
-    
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
     if (!pdfViewer || !pdfContainer) return;
-    
     // Clear PDF content
     pdfContainer.innerHTML = '';
     pdfViewer.style.display = 'none';
-    
     currentPDFData = {};
 }
 
-/************************
-* Tutup Semua PDF Viewer
-*************************/
+/*************************
+* Tutup Semua PDF Viewer *
+**************************/
 function closeAllPDFs() {
     console.log('Closing all PDFs');
     const pdfViewers = document.querySelectorAll('.pdf-viewer');
@@ -2253,7 +2217,7 @@ function closeAllPDFs() {
         }
     });
     
-    // Untuk panaduan kembalikan pdf viewer ke posisi semula
+    // Untuk panduan kembalikan pdf viewer ke posisi semula
     const panduanPDFViewer = document.getElementById('pdfViewerPanduan');
     const panduanContent = document.getElementById('panduanContent');
     if (panduanPDFViewer && panduanContent) {
@@ -2284,9 +2248,9 @@ function closeAllPDFs() {
 // ***** FUNGSI SUMNEU DAN UI *****
 /**********************************
 
-/*******************
-* Tampilkan Submenu
-*******************/
+/********************
+* Tampilkan Submenu *
+*********************/
 function showSubmenu(targetId) {
   // Sembunyikan semua submenu content dan video player
   document.querySelectorAll('.submenu-content').forEach(content => {
@@ -2309,14 +2273,12 @@ function showSubmenu(targetId) {
     }
     
     // Scroll ke konten yang ditampilkan
-    setTimeout(() => {
-      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    setTimeout(() => { targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   }
 }
 
 /**********************
-* Sembunyikan Submenu
+* Sembunyikan Submenu *
 ***********************/
 function hideSubmenu(targetId) {
   const targetContent = document.getElementById(targetId);
@@ -2388,47 +2350,6 @@ function setupMateriCompletion() {
     });
 }
 
-function BACKUP_setupMateriCompletion() {
-  console.log('🔧 Setting up materi completion...');
-  
-  // Cari semua video container untuk materi hari
-  document.querySelectorAll('.video-container').forEach(container => {
-    const containerId = container.id;
-    
-    // Cek apakah ini video materi hari (bukan perkenalan)
-    if (containerId.includes('Pertemuan')) {
-      console.log('✅ Found video container for materi:', containerId);
-      
-      // Cek apakah tombol centang sudah ada
-      if (!container.querySelector('.complete-btn')) {
-        const completeBtn = document.createElement('button');
-        completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-        completeBtn.className = 'btn btn-success btn-sm complete-btn';
-        completeBtn.style.cssText = `
-          position: absolute; top: 10px; left: 10px; z-index: 25;
-          width: 35px; height: 35px; border-radius: 50%; padding: 0;
-          border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        `;
-        
-        completeBtn.onclick = function(e) {
-          e.stopPropagation();
-          const section = container.id.replace('videoContainer', '');
-          const hariKe = getHariKeFromSection(section);
-          console.log('🎯 Tombol centang diklik:', { section, hariKe });
-          simpanMateri(hariKe);
-        };
-        
-        const videoWrapper = container.querySelector('.video-wrapper');
-        if (videoWrapper) {
-          videoWrapper.style.position = 'relative';
-          videoWrapper.appendChild(completeBtn);
-          console.log('✅ Tombol centang ditambahkan ke:', containerId);
-        }
-      }
-    }
-  });
-}
-
 /*********************************************************************
 * Cari link "Selesai Perkenalan" dengan selector yang lebih spesifik *
 *********************************************************************/
@@ -2464,7 +2385,6 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
             menuTarget = `pertemuan${hariKe}`;
         }
     }
-
     // Konfigurasi tipe pesan
     const typeConfig = {
         success: { cssClass: 'notification-success', icon: 'fas fa-check-circle' },
@@ -2474,11 +2394,9 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
     };
 
     const config = typeConfig[type] || typeConfig.info;
-
     // Buat element pesan
     const messageElement = document.createElement('div');
     messageElement.className = `notification-message w-100 mb-2 ${config.cssClass}`;
-    
     // Jika toast, tambahkan class khusus
     if (menuTarget === 'toast') {
         messageElement.classList.add('toast-message');
@@ -2493,7 +2411,6 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
 
     // Tentukan target container
     let targetContainer = document.body;
-    
     if (menuTarget) {
         const menuElement = document.getElementById(menuTarget + 'Content');
         if (menuElement) {
@@ -2529,77 +2446,16 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
             }
         }, duration);
     }
-
     return messageElement;
-}
-
-/********************************
-* FUNGSI UTAMA UNTUK SEMUA HARI *
-*********************************/
-
-/************************************
-* Simpan materi untuk hari tertentu *
-*************************************/
-function BACKUP_simpanMateri(hariKe) {
-    console.log('💾 Menyimpan materi hari:', hariKe);
-    showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
-}
-
-/*******************************************
-* Selesaikan meal plan untuk hari tertentu *
-********************************************/
-function BACKUP_mealPlan(hariKe) {
-    console.log('📸 Selesai Meal plan hari:', hariKe);
-    showMessage('info', `Selesai Meal plan hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
-}
-
-/*****************************************
-* Selesaikan workout untuk hari tertentu *
-******************************************/
-function BACKUP_workout(hariKe) {
-    console.log('💪 Selesai Workout hari:', hariKe);
-    showMessage('success', `Selesai Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-}
-
-/************************************************
-* Selesaikan water reminder untuk hari tertentu *
-************************************************/
-function BACKUP_waterReminder(hariKe) {
-    console.log('💪 Selesai Minum Air hari:', hariKe);
-    showMessage('success', `Selesai Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-}
-
-/************************************************
-* Selesaikan water reminder untuk hari tertentu *
-/************************************************/
-function BACKUP_istirahat(hariKe) {
-    console.log('💪 Selesai Jadwal istrihat hari:', hariKe);
-    showMessage('success', `Selesai Jadwal Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-}
-
-/*******************************************
-* Simpan data tracking untuk hari tertentu *
-*******************************************/
-function BACKUP_simpanDataTracking(hariKe) {
-    console.log('📊 Simpan data tracking hari:', hariKe);
-    showMessage('success', `Simpan Data tracking hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
-}
-
-/**********************************
-* Tanya coach untuk hari tertentu *
-**********************************/
-function BACKUP_tanyaCoach(hariKe) {
-    console.log('💬 Tanya coach hari:', hariKe);
-    showMessage('info', `Mengirim pertanyaan untuk hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
 }
 
 // ******************************************
 // ***** FUNGSI LAINNYA YANG DIPERLUKAN *****
 // ******************************************
 
-/************************
-* Selesaikan perkenalan *
-*************************/
+/********************************************
+* Selesaikan perkenalan unlock Hari Pertama *
+********************************************/
 function selesaiPerkenalan() {
     console.log('✅ Menyelesaikan perkenalan');
     showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
@@ -2607,9 +2463,9 @@ function selesaiPerkenalan() {
     unlockModul(1);
 }
 
-/*************************
-* Cek Status Perkenalana *
-**************************/
+/************************
+* Cek Status Perkenalan *
+*************************/
 function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
@@ -2671,21 +2527,16 @@ function selesaiMateri(hariSelesai) {
     }
 }
 
-/********************************
-* Fungsi untuk menyimpan materi * 
-*********************************/
-/**
- * Simpan materi untuk hari tertentu
- */
+/************************************
+* Simpan materi untuk hari tertentu *
+************************************/
 async function simpanMateri(hariKe) {
     const userId = localStorage.getItem('userId');
     if (!userId) {
         showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
         return;
     }
-
     console.log('🔧 simpanMateri called:', { userId, hariKe });
-
     try {
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
@@ -2701,16 +2552,12 @@ async function simpanMateri(hariKe) {
 
         const result = await response.text();
         console.log('📥 Response:', result);
-
         if (result === "OK") {
             showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
-            
             // ✅ UPDATE: Tandai materi dengan centang di UI
             updateMateriCompletionUI(hariKe);
-            
             // Simpan status di localStorage
             saveMateriStatus(hariKe, 'completed');
-            
         } else {
             showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
         }
@@ -2720,57 +2567,17 @@ async function simpanMateri(hariKe) {
     }
 }
 
-/**
- * Simpan status materi di localStorage
- */
+/***************************************
+* Simpan status materi di localStorage *
+****************************************/
 function saveMateriStatus(hariKe, status) {
     localStorage.setItem(`materi_hari_${hariKe}`, status);
     localStorage.setItem(`materi_completed_${hariKe}`, new Date().toISOString());
 }
 
-async function BACKUP_simpanMateri(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    //showMessage('error', 'Silahkan login terlebih dahulu', 3000);
-    showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-  console.log('🔧 simpanMateri called:', { userId, hariKe });
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        action: 'updateMateri',
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Response:', result);
-
-    if (result === "OK") {
-      //showMessage('success', 'Materi berhasil disimpan!', 3000);
-      showMessage('success', 'Mater berhasil disimpan', 3000, `pertemuan${hariKe}`);
-      updateMateriStatusUI(hariKe);
-    } else {
-      //showMessage('error', 'Gagal: ' + result , 3000);
-      showMessage('error', 'Gagal: ' + result , 3000, `pertemuan${hariKe}`);
-    }
-  } catch (error) {
-    console.error('❌ Fetch error:', error);
-    //showMessage('error', 'Gagal Terhubung: ' + error.message , 3000);
-    showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
-  }
-}
-
-/**
- * Update UI materi dengan tanda centang
- */
+/****************************************
+* Update UI materi dengan tanda centang *
+*****************************************/
 function updateMateriCompletionUI(hariKe) {
     // Update link materi di menu
     const materiLink = document.getElementById(`materiLink${hariKe}`);
@@ -2794,13 +2601,13 @@ function updateMateriCompletionUI(hariKe) {
     }
 }
 
-/****************
-/* FUNGSI BANTU *
-/***************/
+/************************
+/***** FUNGSI BANTU *****
+/************************/
 
-/**
- * Convert file to base64 string
- */
+/********************************
+* Convert file to base64 string *
+*********************************/
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -2826,20 +2633,6 @@ function getHariKeFromSection(section) {
   return map[section] || 1;
 }
 
-/***************************
-* Mengupdate Status Materi *
-****************************/
-function updateMateriStatusUI(hariKe) {
-  const header = document.querySelector(`[data-hari="${hariKe}"]`);
-  if (header) {
-    const lockIcon = header.querySelector('.status-lock');
-    if (lockIcon) {
-      lockIcon.className = 'status-unlock';
-      lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-    }
-  }
-}
-
 /**********************************
 * Konvers Huruf Besar Awal String *
 ***********************************/
@@ -2851,58 +2644,19 @@ function capitalizeFirst(string) {
 // ***** FUNGSI - FUNGSI UTK TAMPILAN FORM  ****
 // *********************************************
 
-/*******************
-* Jadwal Meal Plan
-*******************/   
-
-/*****
-const jadwalMealplan = document.getElementById("jadwalMealplan-list");
-if (jadwalMealplan) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-1";
-  wrapper.innerHTML = `
-    <div><label class="form-label">Sarapan (07:00 - 09:00)</label></div>
-    <div class="input-group mt-0 mb-2">
-      <input class="form-control" type="text" id="sarapan" placeholder="Upload Sarapan" style="max-width: 100%;" readonly>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadSarapan" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-      </input>
-    </div>
-
-    <div><label class="form-label">Cemilan Pagi (10:00 - 10:30)</label></div>
-    <div class="input-group mt-0 mb-2">
-      <input class="form-control" type="text" id="cemilanPagi" placeholder="Upload Cemilan Pagi" style="max-width: 100%;" readonly>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadCemilanPagi" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-      </input>
-    </div>
-
-    <div><label class="form-label">Makan Siang (12:00 - 14:00)</label></div>
-    <div class="input-group mt-0 mb-2">
-      <input class="form-control" type="text" id="makanSiang" placeholder="Upload Makan Siang" style="max-width: 100%;" readonly>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadMakanSiang" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-      </input>
-    </div>
-
-    <div><label class="form-label">Cemilan Sore (16:00 - 16:30)</label></div>
-    <div class="input-group mt-0 mb-2">
-      <input class="form-control" type="text" id="cemilanSore" placeholder="Upload Cemilan Sore" style="max-width: 100%;" readonly>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadCemilanSore" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-      </input>
-    </div>
-
-    <div><label class="form-label">Makan Malam (18:00 - 20:00)</label></div>
-    <div class="input-group mt-0 mb-2">
-      <input class="form-control" type="text" id="makanMalam" placeholder="Upload Makan Malam" style="max-width: 100%;" readonly>
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadMakanMalam" data-bs-toggle="tooltip" title="upload"><i class="fa fa-cloud-upload"></i></button>
-      </input>
-    </div>
-    <div>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMealPlan" data-bs-toggle="tooltip" title="Selesai Mealplan"><i class="fa fa-check"></i> Selesai</button>
-    </div>  
-  `;
-  jadwalMealplan.appendChild(wrapper);
-} 
-**************/
-
+/**********************************
+* Mengupdate Status Materi Unlock *
+***********************************/
+function updateMateriStatusUI(hariKe) {
+  const header = document.querySelector(`[data-hari="${hariKe}"]`);
+  if (header) {
+    const lockIcon = header.querySelector('.status-lock');
+    if (lockIcon) {
+      lockIcon.className = 'status-unlock';
+      lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+    }
+  }
+}
 
 /************************
 * Daftar Olahraga Kardio
@@ -3293,13 +3047,13 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }   
 
-// **************************************
-// ***** FUNGSI UPLOAD MEAL PLAN FLEKSIBEL *****
-// **************************************
+// *******************************************
+// **** FUNGSI UPLOAD MEAL PLAN FLEKSIBEL ****
+// *******************************************
 
-/**
- * Upload meal plan untuk hari tertentu - langsung di form
- */
+/***********************************************
+* Upload meal plan untuk hari tertentu di form * 
+************************************************/
 function uploadMealPlan(hariKe) {
     console.log('🍽️ Upload meal plan hari:', hariKe);
     
@@ -3307,9 +3061,9 @@ function uploadMealPlan(hariKe) {
     showMealPlanUploadForm(hariKe);
 }
 
-/**
- * Tampilkan form upload langsung (tanpa modal)
- */
+/************************
+* Tampilkan upload file *
+*************************/
 function showMealPlanUploadForm(hariKe) {
     // Sembunyikan semua submenu lainnya
     document.querySelectorAll('.submenu-content').forEach(content => {
@@ -3320,12 +3074,8 @@ function showMealPlanUploadForm(hariKe) {
     const mealPlanContent = document.getElementById(`mealPlanContent${hariKe}`);
     if (mealPlanContent) {
         mealPlanContent.style.display = 'block';
-        
         // Scroll ke form
-        setTimeout(() => {
-            mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-        
+        setTimeout(() => { mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         showMessage('info', `Upload meal plan hari ${hariKe}`, 3000, `pertemuan${hariKe}`);
     } else {
         showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
@@ -3357,7 +3107,6 @@ async function uploadMealItem(hariKe, mealType) {
             showMessage('error', 'File harus berupa gambar', 3000, `pertemuan${hariKe}`);
             return;
         }
-
         showMessage('info', `Mengupload ${getMealTypeName(mealType)}...`, 3000, `pertemuan${hariKe}`);
         try {
             // ✅ PASTIKAN PANGGIL fileToBase64() DI SINI
@@ -3380,22 +3129,18 @@ async function uploadMealItem(hariKe, mealType) {
     fileInput.click();
 }
 
-/**
- * Upload ke server
- */
+/************************
+* Upload file ke server *
+*************************/
 async function uploadToServer(hariKe, mealType, fileData, fileName) {
     const userId = localStorage.getItem('userId');
-    
     if (!userId) {
         throw new Error('Silakan login terlebih dahulu');
     }
-
     try {
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded',},
             body: new URLSearchParams({
                 action: 'uploadMealPlan',
                 userId: userId,
@@ -3408,7 +3153,6 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
 
         const result = await response.text();
         console.log('Upload response:', result);
-
         // Handle response
         try {
             return JSON.parse(result);
@@ -3419,16 +3163,15 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
                 return { success: false, message: result };
             }
         }
-        
     } catch (error) {
         console.error('Server error:', error);
         return { success: false, message: 'Gagal terhubung ke server' };
     }
 }
 
-/**
- * Update input field setelah upload berhasil
- */
+/*********************************************
+* Update input field setelah upload berhasil *
+**********************************************/
 function updateMealInputField(mealType, fileName, hariKe) {
     // ✅ PERBAIKI: Gunakan ID yang konsisten dengan form
     const inputId = `${mealType}${hariKe}`;
@@ -3446,9 +3189,9 @@ function updateMealInputField(mealType, fileName, hariKe) {
     }
 }
 
-/**
- * Get nama meal type yang user-friendly
- */
+/****************************************
+* Get nama meal type yang user-friendly *
+*****************************************/
 function getMealTypeName(mealType) {
     const mealNames = {
         'sarapan': 'Sarapan',
@@ -3460,15 +3203,9 @@ function getMealTypeName(mealType) {
     return mealNames[mealType] || mealType;
 }
 
-/**
- * Selesaikan meal plan untuk hari tertentu
- */
-/**
- * Selesaikan meal plan untuk hari tertentu dan update sheet
- */
-/**
- * Selesaikan meal plan untuk hari tertentu dan update sheet
- */
+/************************************************************
+* Selesaikan meal plan untuk hari tertentu dan update sheet *
+*************************************************************/
 async function selesaiMealPlan(hariKe) {
     console.log('✅ Menyelesaikan meal plan hari:', hariKe);
     
@@ -3480,17 +3217,13 @@ async function selesaiMealPlan(hariKe) {
 
     // Cek apakah semua meal sudah diupload
     const allUploaded = checkAllMealsUploaded(hariKe);
-    
     if (allUploaded) {
         showMessage('info', 'Menyimpan status meal plan...', 3000, `pertemuan${hariKe}`);
-        
         try {
             // ✅ PERBAIKI: Gunakan action yang sesuai dengan Google Apps Script
             const response = await fetch(URL_PROGRAM_APP, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',},
                 body: new URLSearchParams({
                     action: 'updateMealPlan', // ✅ ACTION YANG SESUAI
                     userId: userId,
@@ -3504,38 +3237,31 @@ async function selesaiMealPlan(hariKe) {
 
             if (result === "OK" || result.includes("success")) {
                 showMessage('success', `Meal plan hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-                
                 // Simpan status
                 saveMealPlanStatus(hariKe, 'completed');
-                
                 // Update UI - tombol jadi hijau
                 updateMealPlanCompletionUI(hariKe);
-                
                 // Tutup submenu
                 setTimeout(() => {
                     hideSubmenu(`mealPlanContent${hariKe}`);
                 }, 2000);
-                
             } else {
                 showMessage('error', 'Gagal update status: ' + result, 3000, `pertemuan${hariKe}`);
             }
-            
         } catch (error) {
             console.error('Update status error:', error);
             showMessage('error', 'Gagal update status: ' + error.message, 3000, `pertemuan${hariKe}`);
         }
-        
     } else {
         showMessage('warning', 'Lengkapi semua meal terlebih dahulu!', 3000, `pertemuan${hariKe}`);
     }
 }
 
-/**
- * Cek apakah semua meal sudah diupload untuk hari tertentu
- */
+/***********************************************************
+* Cek apakah semua meal sudah diupload untuk hari tertentu *
+************************************************************/
 function checkAllMealsUploaded(hariKe) {
     const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
-    
     const allUploaded = mealTypes.every(mealType => {
         const inputField = document.getElementById(`${mealType}${hariKe}`);
         return inputField && inputField.value.startsWith('✓');
@@ -3548,23 +3274,22 @@ function checkAllMealsUploaded(hariKe) {
         });
         
         console.log('Meal yang belum diupload:', missingMeals);
-        showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 4000, `pertemuan${hariKe}`);
+        showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
     }
-    
     return allUploaded;
 }
 
-/**
- * Simpan status meal plan
- */
+/**************************
+* Simpan status meal plan *
+***************************/
 function saveMealPlanStatus(hariKe, status) {
     localStorage.setItem(`mealplan_hari_${hariKe}`, status);
     localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
 }
 
-/**
- * Update UI setelah meal plan selesai
-*/
+/**************************************
+* Update UI setelah meal plan selesai *
+***************************************/
 function updateMealPlanCompletionUI(hariKe) {
     // Update tombol di menu utama
     const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
@@ -3586,9 +3311,9 @@ function updateMealPlanCompletionUI(hariKe) {
     }
 }
 
-/**
- * Cek status meal plan saat load
- */
+/*********************************
+* Cek status meal plan saat load *
+**********************************/
 function checkMealPlanStatus(hariKe) {
     const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
     if (status === 'completed') {
@@ -3596,9 +3321,9 @@ function checkMealPlanStatus(hariKe) {
     }
 }
 
-/**
- * Generate form meal plan untuk semua hari
- */
+/*******************************************
+* Generate form meal plan untuk semua hari *
+********************************************/
 function generateMealPlanForms() {
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         const containerId = `jadwalMealplan-list${hariKe > 1 ? hariKe : ''}`;
@@ -3610,9 +3335,9 @@ function generateMealPlanForms() {
     }
 }
 
-/**
- * Load progress meal plan yang sudah diupload
- */
+/**********************************************
+* Load progress meal plan yang sudah diupload *
+***********************************************/
 function loadMealPlanProgress(hariKe) {
     const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
     
@@ -3625,9 +3350,9 @@ function loadMealPlanProgress(hariKe) {
     });
 }
 
-/**
- * Create HTML untuk form meal plan
- */
+/***********************************
+* Create HTML untuk form meal plan *
+************************************/
 function createMealPlanFormHTML(hariKe) {
     return `
         <div><label class="form-label">Sarapan (07:00 - 09:00)</label></div>
