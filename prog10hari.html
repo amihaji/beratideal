@@ -2088,7 +2088,7 @@ function displayPDF(section, pdfUrl, title) {
             
             // Update page info
             document.getElementById(`pdfjsPageInfo${capitalizeFirst(section)}`).textContent = 
-                `Halaman ${num} dari ${pdfDoc.numPages}`;
+                `Hal: ${num} dari ${pdfDoc.numPages}`;
                 
         }).catch(function(error) {
             console.error('Error rendering page:', error);
@@ -2125,13 +2125,14 @@ function displayPDF(section, pdfUrl, title) {
             <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
             <div class="pdfjs-controls">
                 <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
-                    <i class="fas fa-chevron-left"></i> Sebelumnya
+                    <!-- <i class="fas fa-chevron-left"></i> Sebelumnya -->
+                    <i class="fas fa-chevron-left"></i> Sebelum
                 </button>
                 <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
-                    Halaman 1 dari ${pdfDoc.numPages}
+                    Hal: 1 dari ${pdfDoc.numPages}
                 </span>
                 <button class="btn btn-sm btn-outline-primary" onclick="onNextPage${capitalizeFirst(section)}()">
-                    Berikutnya <i class="fas fa-chevron-right"></i>
+                    Berikut <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         `;
