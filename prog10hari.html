@@ -490,22 +490,13 @@ body { background-color: #f8f9fa; }
 }
 
 /* Styling untuk modal meal plan */
-.meal-plan-modal .modal-header {
-    background: linear-gradient(135deg, #105fff 0%, #cfdaff 100%);
-    color: white;
-}
+.meal-plan-modal .modal-header { background: linear-gradient(135deg, #105fff 0%, #cfdaff 100%); color: white; }
+.meal-plan-modal .modal-body { padding: 20px; }
+.meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
-.meal-plan-modal .modal-body {
-    padding: 20px;
-}
-
-.meal-plan-preview {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-top: 10px;
-    display: none;
-}
+/* Styling untuk badge centang materi */
+.menu-item .badge { font-size: 10px; padding: 2px 6px; }
+.menu-item.completed { color: #28a745 !important; font-weight: bold; }
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -748,7 +739,7 @@ body { background-color: #f8f9fa; }
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
                   class="menu-item video-link" onclick="showMessage('info', `Memuat video...`, 1000, `pertemuan${hariKe}`)"
                   style="max-width: 100%;" data-section="pertemuan1" 
-                  data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec"> 
+                  data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink1"></a>> 
                   <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan? 
                 </a>
                 
@@ -1248,7 +1239,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Setup Materi Pertemuan
   setupMateriCompletion();
-  
+
+  // Cek status materi untuk semua hari
+  for (let i = 1; i <= 10; i++) {
+    checkMateriStatus(i);
+  }
+
   // Generate form meal plan untuk semua hari
   generateMealPlanForms();
 
@@ -1286,6 +1282,16 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeAllVideoPlayers();
   console.log('✅ App initialized successfully');
 });
+
+/**
+ * Cek status materi dan update UI
+ */
+function checkMateriStatus(hariKe) {
+    const status = localStorage.getItem(`materi_hari_${hariKe}`);
+    if (status === 'completed') {
+        updateMateriCompletionUI(hariKe);
+    }
+}
 
 /*************************
 * Setup Tombol Cek Disini
@@ -2332,6 +2338,57 @@ function hideSubmenu(targetId) {
 * Memberikan tombol centang Centang Selain Video Perkenalan *
 *************************************************************/
 function setupMateriCompletion() {
+    console.log('🔧 Setting up materi completion...');
+    
+    document.querySelectorAll('.video-container').forEach(container => {
+        const containerId = container.id;
+        
+        if (containerId.includes('Pertemuan')) {
+            console.log('✅ Found video container for materi:', containerId);
+            
+            // Extract hariKe dari container ID
+            const hariKe = containerId.replace('videoContainerPertemuan', '');
+            
+            if (!container.querySelector('.complete-btn')) {
+                const completeBtn = document.createElement('button');
+                completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+                completeBtn.className = 'btn btn-success btn-sm complete-btn';
+                completeBtn.style.cssText = `
+                    position: absolute; top: 10px; left: 10px; z-index: 25;
+                    width: 35px; height: 35px; border-radius: 50%; padding: 0;
+                    border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                `;
+                
+                completeBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
+                    simpanMateri(parseInt(hariKe));
+                };
+                
+                const videoWrapper = container.querySelector('.video-wrapper');
+                if (videoWrapper) {
+                    videoWrapper.style.position = 'relative';
+                    videoWrapper.appendChild(completeBtn);
+                    console.log('✅ Tombol centang ditambahkan ke:', containerId);
+                }
+            }
+            
+            // ✅ CEK STATUS SUDAH COMPLETE ATAU BELUM
+            const status = localStorage.getItem(`materi_hari_${hariKe}`);
+            if (status === 'completed') {
+                const existingBtn = container.querySelector('.complete-btn');
+                if (existingBtn) {
+                    existingBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+                    existingBtn.classList.remove('btn-success');
+                    existingBtn.classList.add('btn-secondary');
+                    existingBtn.disabled = true;
+                }
+            }
+        }
+    });
+}
+
+function BACKUP_setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
   
   // Cari semua video container untuk materi hari
@@ -2483,7 +2540,7 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
 /************************************
 * Simpan materi untuk hari tertentu *
 *************************************/
-function simpanMateri(hariKe) {
+function BACKUP_simpanMateri(hariKe) {
     console.log('💾 Menyimpan materi hari:', hariKe);
     showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
 }
@@ -2491,7 +2548,7 @@ function simpanMateri(hariKe) {
 /*******************************************
 * Selesaikan meal plan untuk hari tertentu *
 ********************************************/
-function mealPlan(hariKe) {
+function BACKUP_mealPlan(hariKe) {
     console.log('📸 Selesai Meal plan hari:', hariKe);
     showMessage('info', `Selesai Meal plan hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
 }
@@ -2499,7 +2556,7 @@ function mealPlan(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
-function workout(hariKe) {
+function BACKUP_workout(hariKe) {
     console.log('💪 Selesai Workout hari:', hariKe);
     showMessage('success', `Selesai Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
@@ -2507,7 +2564,7 @@ function workout(hariKe) {
 /************************************************
 * Selesaikan water reminder untuk hari tertentu *
 ************************************************/
-function waterReminder(hariKe) {
+function BACKUP_waterReminder(hariKe) {
     console.log('💪 Selesai Minum Air hari:', hariKe);
     showMessage('success', `Selesai Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
@@ -2515,7 +2572,7 @@ function waterReminder(hariKe) {
 /************************************************
 * Selesaikan water reminder untuk hari tertentu *
 /************************************************/
-function istirahat(hariKe) {
+function BACKUP_istirahat(hariKe) {
     console.log('💪 Selesai Jadwal istrihat hari:', hariKe);
     showMessage('success', `Selesai Jadwal Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
@@ -2523,7 +2580,7 @@ function istirahat(hariKe) {
 /*******************************************
 * Simpan data tracking untuk hari tertentu *
 *******************************************/
-function simpanDataTracking(hariKe) {
+function BACKUP_simpanDataTracking(hariKe) {
     console.log('📊 Simpan data tracking hari:', hariKe);
     showMessage('success', `Simpan Data tracking hari ${hariKe} tersimpan!`, 3000, `pertemuan${hariKe}`);
 }
@@ -2531,7 +2588,7 @@ function simpanDataTracking(hariKe) {
 /**********************************
 * Tanya coach untuk hari tertentu *
 **********************************/
-function tanyaCoach(hariKe) {
+function BACKUP_tanyaCoach(hariKe) {
     console.log('💬 Tanya coach hari:', hariKe);
     showMessage('info', `Mengirim pertanyaan untuk hari ${hariKe}...`, 3000, `pertemuan${hariKe}`);
 }
@@ -2617,7 +2674,61 @@ function selesaiMateri(hariSelesai) {
 /********************************
 * Fungsi untuk menyimpan materi * 
 *********************************/
+/**
+ * Simpan materi untuk hari tertentu
+ */
 async function simpanMateri(hariKe) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    console.log('🔧 simpanMateri called:', { userId, hariKe });
+
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'updateMateri',
+                userId: userId,
+                hariKe: hariKe
+            })
+        });
+
+        const result = await response.text();
+        console.log('📥 Response:', result);
+
+        if (result === "OK") {
+            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
+            
+            // ✅ UPDATE: Tandai materi dengan centang di UI
+            updateMateriCompletionUI(hariKe);
+            
+            // Simpan status di localStorage
+            saveMateriStatus(hariKe, 'completed');
+            
+        } else {
+            showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+        }
+    } catch (error) {
+        console.error('❌ Fetch error:', error);
+        showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
+    }
+}
+
+/**
+ * Simpan status materi di localStorage
+ */
+function saveMateriStatus(hariKe, status) {
+    localStorage.setItem(`materi_hari_${hariKe}`, status);
+    localStorage.setItem(`materi_completed_${hariKe}`, new Date().toISOString());
+}
+
+async function BACKUP_simpanMateri(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     //showMessage('error', 'Silahkan login terlebih dahulu', 3000);
@@ -2655,6 +2766,32 @@ async function simpanMateri(hariKe) {
     //showMessage('error', 'Gagal Terhubung: ' + error.message , 3000);
     showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
   }
+}
+
+/**
+ * Update UI materi dengan tanda centang
+ */
+function updateMateriCompletionUI(hariKe) {
+    // Update link materi di menu
+    const materiLink = document.getElementById(`materiLink${hariKe}`);
+    if (materiLink) {
+        // Tambahkan tanda centang tanpa mengubah teks utama
+        const currentText = materiLink.innerHTML;
+        if (!currentText.includes('✓')) {
+            materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
+            materiLink.style.color = '#28a745';
+            materiLink.style.fontWeight = 'bold';
+        }
+    }
+    
+    // Juga update tombol centang di video player (jika ada)
+    const completeBtn = document.querySelector(`#videoContainerPertemuan${hariKe} .complete-btn`);
+    if (completeBtn) {
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+        completeBtn.disabled = true;
+    }
 }
 
 /****************
