@@ -1278,57 +1278,107 @@ function checkMateriStatus(hariKe) {
 }
 
 /**************************
-* Setup Tombol Cek Disini *
+* Setup Tombol Cek Disini - untuk semua hari
 ***************************/
 function setupCekDisiniButtons() {
-    console.log('🔧 Setting up Cek Disini buttons...');
+    console.log('🔧 Setting up Cek Disini buttons for all days...');
     
-    // Meal Plan hari pertama  
-    const btnMealPlan = document.getElementById('btnCekDisiniMealPlan');
-    if (btnMealPlan) {
-        btnMealPlan.addEventListener('click', function() {
-            console.log('📋 Meal Plan button clicked');
-            loadPDF('mealplan1', 'https://amihaji.github.io/beratideal/pdf/MealPlan_HariKe1.pdf', 'Meal Plan Hari Pertama');
+    // Setup event listeners untuk semua tombol Cek Disini yang ada
+    document.querySelectorAll('[id^="btnCekDisini"]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Deteksi jenis dan hari dari ID button
+            const buttonId = this.id;
+            let jenis, hariKe;
+            
+            // Extract informasi dari ID button
+            if (buttonId.includes('MealPlan')) {
+                jenis = 'MealPlan';
+                hariKe = buttonId.replace('btnCekDisiniMealPlan', '') || '1';
+            } else if (buttonId.includes('Workout')) {
+                jenis = 'WorkOut';
+                hariKe = buttonId.replace('btnCekDisiniWorkout', '') || '1';
+            } else if (buttonId.includes('AirMinum')) {
+                jenis = 'WaterReminder';
+                hariKe = buttonId.replace('btnCekDisiniAirMinum', '') || '1';
+            } else if (buttonId.includes('Istirihat')) {
+                jenis = 'Istirahat';
+                hariKe = buttonId.replace('btnCekDisiniIstirihat', '') || '1';
+            } else if (buttonId.includes('DataTubuh')) {
+                jenis = 'DataTracking';
+                hariKe = buttonId.replace('btnCekDisiniDataTubuh', '') || '1';
+            }
+            
+            if (jenis && hariKe) {
+                handleCekDisiniClick(jenis, hariKe);
+            }
         });
-    }
+    });
     
-    // Workout hari pertama
-    const btnWorkout = document.getElementById('btnCekDisiniWorkout');
-    if (btnWorkout) {
-        btnWorkout.addEventListener('click', function() {
-            console.log('💪 Workout button clicked');
-            loadPDF('workout1', 'https://amihaji.github.io/beratideal/pdf/WorkOut_HariKe1.pdf', 'Workout Hari Pertama');
-        });
-    }
+    console.log('✅ Cek Disini buttons setup completed for all days');
+}
+
+
+/**************************************
+* Handle klik tombol Cek Disini untuk semua jenis dan hari
+***************************************/
+function handleCekDisiniClick(jenis, hariKe) {
+    console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
     
-    // WaterReminder hari pertama
-    const btnAirMinum = document.getElementById('btnCekDisiniAirMinum');
-    if (btnAirMinum) {
-        btnAirMinum.addEventListener('click', function() {
-            console.log('💧 Water Reminder button clicked');
-            loadPDF('water1', 'https://amihaji.github.io/beratideal/pdf/WaterReminder_HariKe1.pdf', 'Water Reminder Hari Pertama');
-        });
-    }
+    // Mapping jenis ke section dan nama file
+    const config = {
+        'MealPlan': {
+            section: 'mealplan',
+            fileName: `MealPlan_HariKe${hariKe}.pdf`,
+            title: `Meal Plan Hari ${getDayName(hariKe)}`
+        },
+        'WorkOut': {
+            section: 'workout', 
+            fileName: `WorkOut_HariKe${hariKe}.pdf`,
+            title: `Workout Hari ${getDayName(hariKe)}`
+        },
+        'WaterReminder': {
+            section: 'water',
+            fileName: `WaterReminder_HariKe${hariKe}.pdf`,
+            title: `Water Reminder Hari ${getDayName(hariKe)}`
+        },
+        'Istirahat': {
+            section: 'istirahat',
+            fileName: `Istirahat_HariKe${hariKe}.pdf`,
+            title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
+        },
+        'DataTracking': {
+            section: 'datatracking',
+            fileName: `DataTracking_HariKe${hariKe}.pdf`,
+            title: `Data Tracking Hari ${getDayName(hariKe)}`
+        }
+    };
     
-    // Istirahat hari pertama
-    const btnIstirahat = document.getElementById('btnCekDisiniIstirihat');
-    if (btnIstirahat) {
-        btnIstirahat.addEventListener('click', function() {
-            console.log('😴 Istirahat button clicked');
-            loadPDF('istirahat1', 'https://amihaji.github.io/beratideal/pdf/Istirahat_HariKe1.pdf', 'Waktu Istirahat Hari Pertama');
-        });
+    const itemConfig = config[jenis];
+    if (itemConfig) {
+        const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${itemConfig.fileName}`;
+        const sectionId = `${itemConfig.section}${hariKe}`;
+        
+        loadPDF(sectionId, pdfUrl, itemConfig.title);
     }
-    
-    // Data Tracking Hari Pertama 
-    const btnDataTubuh = document.getElementById('btnCekDisiniDataTubuh');
-    if (btnDataTubuh) {
-        btnDataTubuh.addEventListener('click', function() {
-            console.log('📊 Data Tracking button clicked');
-            loadPDF('datatracking1', 'https://amihaji.github.io/beratideal/pdf/DataTracking_HariKe1.pdf', 'Data Tracking Hari Pertama');
-        });
-    }
-    
-    console.log('✅ Cek Disini buttons setup completed');
+}
+
+/*************************
+* Helper untuk nama hari *
+**************************/
+function getDayName(hariKe) {
+    const dayNames = {
+        1: 'Pertama',
+        2: 'Kedua', 
+        3: 'Ketiga',
+        4: 'Keempat',
+        5: 'Kelima',
+        6: 'Keenam',
+        7: 'Ketujuh',
+        8: 'Kedelapan',
+        9: 'Kesembilan',
+        10: 'Kesepuluh'
+    };
+    return dayNames[hariKe] || `ke-${hariKe}`;
 }
 
 // ********************************
