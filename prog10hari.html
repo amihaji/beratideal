@@ -2570,7 +2570,8 @@ function updateMateriCompletionUI(hariKe) {
         // Tambahkan tanda centang tanpa mengubah teks utama
         const currentText = materiLink.innerHTML;
         if (!currentText.includes('✓')) {
-            materiLink.innerHTML = currentText + ' <span class="bg-success ms-2">✓</span>';
+            //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
+            materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
             materiLink.style.color = '#28a745';
             materiLink.style.fontWeight = 'bold';
         }
@@ -3092,7 +3093,6 @@ async function uploadMealItem(hariKe, mealType) {
             showMessage('error', 'File harus berupa gambar', 3000, `pertemuan${hariKe}`);
             return;
         }
-        //showMessage('info', `Mengupload ${getMealTypeName(mealType)}...`, 3000, `pertemuan${hariKe}`);
         try {
             // ✅ PASTIKAN PANGGIL fileToBase64() DI SINI
             const base64Data = await fileToBase64(file);
@@ -3251,15 +3251,13 @@ function checkAllMealsUploaded(hariKe) {
         const inputField = document.getElementById(`${mealType}${hariKe}`);
         return inputField && inputField.value.startsWith('✓');
     });
-    
     if (!allUploaded) {
         const missingMeals = mealTypes.filter(mealType => {
             const inputField = document.getElementById(`${mealType}${hariKe}`);
             return !inputField || !inputField.value.startsWith('✓');
         });
-        
         console.log('Meal yang belum diupload:', missingMeals);
-        showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
+        // showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
     }
     return allUploaded;
 }
