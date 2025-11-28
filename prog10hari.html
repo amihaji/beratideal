@@ -443,11 +443,8 @@ body { background-color: #f8f9fa; }
 
 /* Style untuk modul terkunci */
 .menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
-
-/*******HAPUS
 .status-lock { color: #000e3d; margin-left: 10px; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
-**********/
 
 /***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
 .notification-message {
@@ -478,11 +475,9 @@ body { background-color: #f8f9fa; }
 }
 
 /* Styling untuk modal meal plan */
-/*******HAPUS
 .meal-plan-modal .modal-header { background: linear-gradient(135deg, #105fff 0%, #cfdaff 100%); color: white; }
 .meal-plan-modal .modal-body { padding: 20px; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
-***********/
 
 /***** Tampilan Mobile ******/
 @media (max-width: 591.98px) {
@@ -508,6 +503,7 @@ body { background-color: #f8f9fa; }
   }
   
   /* Untuk PDF.js viewer di mobile */
+  /*****HAPUS
   .pdfjs-viewer { 
       height: 350px; 
       overflow-x: hidden !important;
@@ -515,7 +511,7 @@ body { background-color: #f8f9fa; }
   }
     .pdfjs-canvas {
       max-width: 100% !important;
-      height: auto !important; /* Biarkan tinggi menyesuaikan */
+      height: auto !important; 
   }
     .pdfjs-controls {
       padding: 8px 5px;
@@ -525,6 +521,7 @@ body { background-color: #f8f9fa; }
       font-size: 12px;
       padding: 4px 8px;
   }
+**********/
 }
 /***** Akhir Tampilan Mobile *****/
 
@@ -1920,7 +1917,7 @@ let currentPDFData = {};
 /************************
 * Fungsi Setup PDF Link *
 *************************/
-function BACKUP_setupPDFLinks() {
+function setupPDFLinks() {
   document.querySelectorAll('.pdf-link').forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -2502,7 +2499,7 @@ function unlockModul(hariKe) {
 * Unlock modul berikutnya secara otomatis              * 
 * @param {number} hariSelesai - Hari yang baru selesai *
 ********************************************************/
-function BACKUP_selesaiMateri(hariSelesai) {
+function selesaiMateri(hariSelesai) {
     console.log('✅ Menyelesaikan materi hari:', hariSelesai);
     showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `pertemuan${hariSelesai}`);
     
@@ -2634,7 +2631,7 @@ function capitalizeFirst(string) {
 /**********************************
 * Mengupdate Status Materi Unlock *
 ***********************************/
-function BACKUP_updateMateriStatusUI(hariKe) {
+function updateMateriStatusUI(hariKe) {
   const header = document.querySelector(`[data-hari="${hariKe}"]`);
   if (header) {
     const lockIcon = header.querySelector('.status-lock');
