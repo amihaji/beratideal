@@ -186,7 +186,7 @@ body {
               
               <!-- Logo dan Nama Brand -->
               <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="images/logo-WETools.png" alt="Logo" width="80" class="me-2">
+                <img src="images/logo-beratidealku.png" alt="Logo" width="199" height="38" class="me-2">
                 <div class="d-none d-md-block">
                   <div class="brand-title">WE Tools</div>
                   <div class="brand-subtitle">Wellness Evaluation Tools</div>
@@ -208,7 +208,7 @@ body {
                 </ul>
                 <!-- Menu Navigasi Utama -->
                 <ul class="navbar-nav gap-2">
-                  <li class="nav-item"><a class="nav-link main-menu-link" href="https://amihaji.github.io/wetools/">Home</a></li>
+                  <li class="nav-item"><a class="nav-link main-menu-link" href="https://amihaji.github.io/beratideal">Home</a></li>
                   <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
                   <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
                 </ul>
@@ -236,53 +236,45 @@ body {
           <form id="fitnessForm" class="needs-validation" novalidate>
             <!-- HALAMAN 1 -->
             <div class="page active" id="page1">
-              <h5 class="mb-3"><i class="fa fa-database"></i> Data Survey (Wajib Isi)</h5>
+              <h5 class="mb-3"><i class="fas fa-user form-icon"></i> Data Survey (Wajib Isi)</h5>
               <p class="text-muted mb-4">Silahkan memasukkan data, Hasil Evaluasi Kebugaran melalui Whatsapp Anda</p>
               <div class="row g-3">
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"> <i class="fas fa-user-alt"> </i></span>
-                  <input type="text" id="mNama" class="form-control" placeholder="Input nama anda" oninput="this.value = this.value.toUpperCase().substring(0, 40)" maxlength="40" pattern="[A-Za-z ]+" required >
+                <div class="col-md-12">
+                  <label for="mNama" class="form-label">Nama Lengkap</label>
+                  <input type="text" id="mNama" class="form-control" required oninput="this.value = this.value.toUpperCase().substring(0, 40)">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"> <i class="fab fa-whatsapp"> </i></span>
-                  <input type="tel" id="mNomorHp" class="form-control" placeholder="Input nomor handphone" required pattern="[0-9]{10,14}">
+                <div class="col-md-12">
+                  <label for="mNomorHp" class="form-label">Nomor HP</label>
+                  <input type="tel" id="mNomorHp" class="form-control" required pattern="[0-9]{10,14}">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"> <i class="fas fa-envelope-open-text"> </i></span>
-                  <input type="email" id="mEmail" class="form-control" placeholder="Input alamat email (optional)" oninput="this.value = this.value.toLowerCase()">
+                <div class="col-md-12">
+                  <label for="mEmail" class="form-label">Email (opsional)</label>
+                  <input type="email" id="mEmail" class="form-control" oninput="this.value = this.value.toLowerCase()">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"> <i class="far fa-calendar-check"> </i></span>
-                  <input type="number" id="mUmur" class="form-control" placeholder="Input usia antara 18-80 tahun" required min="18" max="80">
+                <div class="col-md-12">
+                  <label for="mUmur" class="form-label">Umur</label>
+                  <input type="number" id="mUmur" class="form-control" required min="18" max="80">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                <div class="col-md-12">
+                  <label for="mJenisKelamin" class="form-label">Jenis Kelamin</label>
                   <select id="mJenisKelamin" class="form-select" required>
-                    <option value="">Pilih Gender...</option>
+                    <option value="">Pilih Gender</option>
                     <option value="Pria">Pria</option>
                     <option value="Wanita">Wanita</option>
                   </select>
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-weight"> </i></span>
-                  <input type="number" id="mBeratBadan" class="form-control" placeholder="Input berat badan (kg)" min="40" max="150">
+                <div class="col-md-12">
+                  <label for="mBeratBadan" class="form-label">Berat Badan (kg)</label>
+                  <input type="number" id="mBeratBadan" class="form-control" required min="40" max="150">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"> <i class="fas fa-ruler-vertical">  </i></span>
-                  <input type="number" id="mTinggiBadan" class="form-control" placeholder="Input tinggi badan (cm)" min="100" max="190">
+                <div class="col-md-12">
+                  <label for="mTinggiBadan" class="form-label">Tinggi Badan (cm)</label>
+                  <input type="number" id="mTinggiBadan" class="form-control" required min="100" max="190">
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-ribbon"> </i></span>
+                <div class="col-md-12">
+                  <label for="mLingkarPerut" class="form-label">Lingkar Perut (gunakan ukuran celana)</label>
                   <select id="mLingkarPerut" class="form-select" required>
-                    <option value="">Pilih Ukuran celana/Lingkar Perut...</option>
+                    <option value="">Pilih Ukuran Celana</option>
                     <option value="68">26 = Lingkar 68 cm</option>
                     <option value="70">27 = Lingkar 70 cm</option>
                     <option value="72">28 = Lingkar 72 cm</option>
@@ -307,11 +299,10 @@ body {
                     <option value="110">47 = Lingkar 110 cm</option>
                   </select>
                 </div>
-
-                <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-dumbbell"></i></span>
+                <div class="col-md-12">
+                  <label for="mAktivitasFisik" class="form-label">Aktivitas Fisik</label>
                   <select id="mAktivitasFisik" class="form-select" required>
-                    <option value="">Pilih aktifitas yang dijalani...</option>
+                    <option value="">Pilih aktifitas yang dijalani</option>
                     <option value="Sedikit/Tidak Olahraga">Sedikit/Tidak Olahraga</option>
                     <option value="Olahraga ringan 1-3 hari/minggu">Olahraga ringan 1-3 hari/minggu</option>
                     <option value="Olahraga moderat 3-5 hari/minggu">Olahraga moderat 3-5 hari/minggu</option>
@@ -328,10 +319,10 @@ body {
               <!-- Navigasi Hamalan1 -->
               <div id="formMessage1" class="mt-3"></div>
               <div class="d-flex flex-column flex-md-row justify-content-center gap-2 mt-2">
-                <button type="button" class="btn btn-primary btn-sm" style="width: 100%;" onclick="resetForm()">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="resetForm()">
                   <i class="fas fa-rotate-left me-2"></i> Reset
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" style="width: 100%;" onclick="validatePage1()">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="validatePage1()">
                   <i class="fas fa-arrow-right me-2"></i> Berikutnya
                 </button>
               </div>
@@ -487,10 +478,10 @@ body {
               <!-- Navigasi Halaman2 -->
               <div id="formMessage2" class="mt-3"></div>
               <div class="d-flex flex-column flex-md-row justify-content-center gap-2 mt-2">
-                <button type="button" class="btn btn-primary btn-sm" style="width: 100%;" onclick="navigate(2, 1)">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="navigate(2, 1)">
                   <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" style="width: 100%;" onclick="validatePage2()">
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="validatePage2()">
                   <i class="fas fa-paper-plane me-2"></i> Submit
                 </button>
               </div>
@@ -512,8 +503,8 @@ body {
               <!-- TAMPILKAN TOMBOL CTA -->
               <div id="tampilCTA" style="display: none;">
                 <div class="border p-3 rounded bg-light mt-4">    
-                  <h5 style="text-align: center; color:#009238;" >SELAMAT,</h5>
-                  <h6 style="text-align: center; color:#08af02;">Anda sudah berhasil menyelesaikan survey kebugaran Anda, <br>Silahkan lihat hasilnya di WA atau email Anda, dengan klik <strong>"KIRIM HASIL SURVEY"</strong></h6>
+                  <h5 style="text-align: center; color:#cc0000;" >SELAMAT,</h5>
+                  <h6 style="text-align: center; color:#cc0000;">Anda sudah berhasil menyelesaikan survey kebugaran Anda, <br>Silahkan lihat hasilnya di WA atau email Anda, dengan klik <strong>"KIRIM HASIL SURVEY"</strong></h6>
                   <div class="text-center text-muted mt-3"><small>Hasil Analisa ini hanya bersifat umum saja dan bukan merupakan pengganti diagnosa medis</small></div>
                   <div class="d-flex justify-content-center mt-3"><div style="max-width: 50%;"><button id="btnKirim" class="btn btn-success" onclick="handleKirimSurvey()"><i class="fas fa-share-square me-2"></i>KIRIM HASIL SURVEY</button></div></div>
                 </div>
@@ -523,8 +514,7 @@ body {
         </div>
         
         <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">
-          <!-- WETools Versi 5.0 © 2025 | <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a> - All rights reserved -->
-          WETools Versi 5.0 © 2025 | Power By : beratidealku - All rights reserved
+          WETools Versi 5.0 © 2025 | <a href="https://www.beratidealku.com" class="text-white">www.beratidealku.com</a> - All rights reserved
         </footer>
     </div>
   </div>
@@ -534,8 +524,8 @@ body {
 <div class="about-overlay" id="aboutOverlay">
   <div class="about-form">
     <h5 class="mb-2">Aplikasi WETools Versi 5.0</h5>
-    <!-- <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a> -->
-    <br>Power by : beratidealku - Allright Reserved
+    <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a>
+    <br>Allright Reserved
     <br>Wellness Evaluation Tools
     <div class="d-grid mt-4">
       <button id="btnCloseAbout" class="btn btn-primary">OK</button>
@@ -548,7 +538,7 @@ body {
 
 <script>
 //***********  Deklarasi variabel global ****************
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzEGilaK9s8M0j6b9JQm0PaRpy8KaHaXMaCkFYgMsLT3BaRVcnvgKgL1KMOcm7NeAUl/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyEtNW-NSqgJER7SWDcIgDKJHeROxkwG-dDyj-eNWRmFo1pv6ss-A51qGyUVkEQyRim/exec';
 // ******************************************************
 
 // ***************
@@ -582,6 +572,14 @@ document.addEventListener('DOMContentLoaded', function () {
 // ***********************
 // Untuk navigasi halaman
 // ***********************
+function BACKUP_navigate(from, to) {
+    if (from !== null) document.getElementById("page" + from).classList.remove("active");
+    document.getElementById("page" + to).classList.add("active");
+    updateProgressBar(to);
+    const msgBox = document.getElementById("formMessage" + to);
+    if (msgBox) msgBox.innerHTML = "";
+}
+
 function navigate(from, to) {
     if (from !== null) {
       document.getElementById("page" + from).classList.remove("active");
@@ -814,13 +812,9 @@ function tampilkanHasilEvaluasi(data) {
             <h5 class="mt-4"><i class="fas fa-clipboard-check me-2"></i>Kesimpulan & Rekomendasi</h5>
             <table class="table table-bordered">
               <tbody>
-
-                <!-- TIDAK DIAKTIFKAN ----
                 <tr><th style="background-color:#4d94ff; width:15%;">Skor</th>
                   <td style="width:85%;">Persentase kebugaran anda : <strong>${data.persen || "0%"}</strong></td>
                 </tr>
-                ------------------------->
-
                 <tr><th style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
                   <td style="width:85%;">${data.kesimpulan || "-"}</td>
                 </tr>
@@ -862,7 +856,12 @@ function handleKirimSurvey() {
     // Data berhasil terkirim
     showPesan('success', " SUKSES : Hasil survey telah terkirim! Silahkan periksa WA/Email Anda dalam beberapa saat");
     resetForm();
-    }, 3000);
+    // Setelah cek kebugaran, tampilkan program beratidealku
+    // window.location.href = 'program.html';
+
+    // Setelah cek kebugaran, tampilkan Form Daftar
+    window.location.href = 'formDaftar.html';
+  }, 3000);
   })
   .catch(error => {
     //console.error("Error:", error);
