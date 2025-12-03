@@ -1100,7 +1100,7 @@ body { background-color: #f8f9fa; }
 <!-- <script src="js/functions-catalog.js"></script> -->
 <script>
 
-// *************************
+// ************************* 
 // * FUNGSI UTAMA APLIKASI *
 // *************************                           
 
@@ -2621,7 +2621,7 @@ function updateMateriCompletionUI(hariKe) {
         if (!currentText.includes('✓')) {
             //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
             materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
-            materiLink.style.color = '#28a745';
+            materiLink.style.color = '#666666';
             materiLink.style.fontWeight = 'bold';
         }
     }
@@ -3203,14 +3203,14 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
 * Update input field setelah upload berhasil *
 **********************************************/
 function updateMealInputField(mealType, fileName, hariKe) {
-    // ✅ PERBAIKI: Gunakan ID yang konsisten dengan form
+    // Gunakan ID yang konsisten dengan form
     const inputId = `${mealType}${hariKe}`;
     const inputField = document.getElementById(inputId);
     
     if (inputField) {
         inputField.value = `✓ ${fileName}`;
-        inputField.style.color = '#28a745';
-        inputField.style.fontWeight = 'bold';
+        inputField.style.color = '#666666';
+        // inputField.style.fontWeight = 'bold';
         
         // Simpan status di localStorage
         localStorage.setItem(`meal_${hariKe}_${mealType}`, 'uploaded');
@@ -3250,7 +3250,7 @@ async function selesaiMealPlan(hariKe) {
     if (allUploaded) {
         showMessage('info', 'Menyimpan status meal plan...', 3000, `pertemuan${hariKe}`);
         try {
-            // ✅ PERBAIKI: Gunakan action yang sesuai dengan Google Apps Script
+            // Gunakan action yang sesuai dengan Google Apps Script
             const response = await fetch(URL_PROGRAM_APP, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded',},
@@ -3302,7 +3302,7 @@ function checkAllMealsUploaded(hariKe) {
             return !inputField || !inputField.value.startsWith('✓');
         });
         console.log('Meal yang belum diupload:', missingMeals);
-        // showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
+        showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
     }
     return allUploaded;
 }
@@ -3322,17 +3322,15 @@ function updateMealPlanCompletionUI(hariKe) {
     // Update tombol di menu utama
     const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
     if (mealPlanItem) {
-        mealPlanItem.innerHTML = `
-            <i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ke ${hariKe} ✓
-        `;
-        mealPlanItem.style.color = '#28a745';
-        mealPlanItem.style.fontWeight = 'bold';
+        mealPlanItem.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ke ${hariKe} ✓ `;
+        mealPlanItem.style.color = '#666666';    // Tulisan Abu-abu 
+        mealPlanItem.style.fontWeight = 'bold';  // Tulisan jadi tebal
     }
     
     // ✅ UPDATE TOMBOL SELESAI JADI HIJAU
     const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
     if (selesaiBtn) {
-        selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}';
+        selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}`;
         selesaiBtn.classList.remove('btn-secondary');
         selesaiBtn.classList.add('btn-success');
         selesaiBtn.disabled = true;
