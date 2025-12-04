@@ -111,8 +111,6 @@
       document.getElementById('btnLoginSubmit').addEventListener('click', function () {
         const userId     = document.getElementById('userId').value.trim().toLowerCase();
                            document.getElementById('userId').value = userId;
-        const namaUser   = document.getElementById('namaUser').value.trim().toLowerCase();
-                           document.getElementById('namaUser').value = namaUser;
         const userPass   = document.getElementById('userPass').value.trim();
         const btnText    = document.getElementById('loginBtnText');
         const btnSpinner = document.getElementById('loginBtnSpinner');
@@ -140,7 +138,7 @@
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
-            localStorage.setItem('namaUserId', response.namaUser);
+            localStorage.setItem('namaUser', response.namaUser);
             localStorage.setItem('userToken', response.token);
             localStorage.setItem('userLevel', response.level);
 
