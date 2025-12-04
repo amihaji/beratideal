@@ -1082,7 +1082,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz632r9_GM9U6SOMLUE71kc-BMFTi1BTeqEv_wDjP1-V_es-lYJctx280X-83sInyP0/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzxl_2-M123pzuNLtIt1xirU4jjyTPQi8Lg7zQHZNB20LYvYV27HQtda_I5R6h4i6jg/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1104,6 +1104,7 @@ function hideAbout() {
 *******************/
 function logout() {
   localStorage.removeItem('userId');
+  localStorage.removeItem('namaUser');
   localStorage.removeItem('userToken');
   localStorage.removeItem('userLevel');
   sessionStorage.removeItem('aksesList');
@@ -3142,7 +3143,8 @@ async function uploadMealItem(hariKe, mealType) {
 * Upload file ke server *
 *************************/
 async function uploadToServer(hariKe, mealType, fileData, fileName) {
-    const userId = localStorage.getItem('userId');
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
     if (!userId) {
         throw new Error('Silakan login terlebih dahulu');
     }
@@ -3153,6 +3155,7 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
             body: new URLSearchParams({
                 action: 'uploadMealPlan',
                 userId: userId,
+                namaUser: namaUser,
                 hariKe: hariKe,
                 mealType: mealType,
                 file: fileData,
@@ -3217,8 +3220,8 @@ function getMealTypeName(mealType) {
 *************************************************************/
 async function selesaiMealPlan(hariKe) {
     console.log('✅ Menyelesaikan meal plan hari:', hariKe);
-    
-    const userId = localStorage.getItem('userId');
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
     if (!userId) {
         showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
         return;
@@ -3236,6 +3239,7 @@ async function selesaiMealPlan(hariKe) {
                 body: new URLSearchParams({
                     action: 'updateMealPlan', // ✅ ACTION YANG SESUAI
                     userId: userId,
+                    userId: namaUser,
                     hariKe: hariKe,
                     status: 'OK' // ✅ KIRIM STATUS 'OK' UNTUK KOLOM Q
                 })
