@@ -70,6 +70,7 @@ body { background-color: #f8f9fa; }
   transform: translateY(-2px); 
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
 .menu-header .menu-icon { transition: transform 0.3s ease; }
 .menu-header.collapsed .menu-icon { transform: rotate(0deg); }
 .menu-header:not(.collapsed) .menu-icon { transform: rotate(180deg); }
@@ -104,6 +105,15 @@ body { background-color: #f8f9fa; }
 /* Status Icon Unlock */
 .status-unlock { color: #ffffff; margin-left: 10px; }
 /***** Akhir Menu Accordian *****/
+
+/* Style untuk modul terkunci */
+.menu-header.disabled { 
+    pointer-events: none; 
+    opacity: 0.6; 
+    cursor: not-allowed;
+    background-color: #e9ecef !important;
+}
+.menu-header.disabled .status-lock { color: #6c757d; }
 
 /***** Playlist Container di Menu Accordion *****/
 .menu-content .playlist-container {
@@ -687,6 +697,7 @@ body { background-color: #f8f9fa; }
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Modul Hari Pertama
                 <i class="fas fa-lock status-lock"></i>
+                <!-- INI AKAN DITAMBAHKAN OTOMATIS OLEH JAVASCRIPT -->
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
@@ -1082,7 +1093,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwvS_GlL2TR8kPC5ZlDX1bGuHeWVjB7bvubEyI0NN-JjEbtQ6oAfLZUbjOQKz3gjIumyA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwZR98-_WmSNoIlA4S9ppo_XouMsQl6Ueitkm6kH03lJNKGwulgZzxVRMvDOJjsOhcNQg/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1184,21 +1195,23 @@ document.addEventListener('DOMContentLoaded', function() {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 
+  // 1. INITIALIZE SEMUA ICON LOCK DULU
+  setTimeout(() => {
+    initializeLockIcons();
+    console.log('✅ Lock icons initialized');
+  }, 500);
+
+  // 2. Setup semua fungsi
   // Setup video links
   setupAllLinks();
-  
   // Setup PDF links khusus untuk menu Panduan
   setupPanduanPDFLinks();
-
   // Setup tombol "Cek Disini" untuk Modul Hari Pertama
   setupCekDisiniButtons();
-  
   // Setup playlist triggers
   setupPlaylistTriggers();
-  
   // Setup Materi Perkenalan
   setupPerkenalanCompletion();
-
   // Setup Materi Pertemuan
   setupMateriCompletion();
 
@@ -1207,15 +1220,28 @@ document.addEventListener('DOMContentLoaded', function() {
     checkMateriStatus(i);
   }
 
-  // CEK STATUS DARI DATABASE SAAT PAGE LOAD
+  // 3. CEK LOGIN STATUS DAN LOAD PROGRESS
   const userId = localStorage.getItem('userId');
   if (userId) {
-    console.log('👤 User logged in:', userId);
-    loadUserProgressFromServer();
-  } else {
-    console.log('⚠️ User not logged in, showing default state');
-    // Tampilkan state default (semua locked kecuali perkenalan)
-    checkPerkenalanStatus();
+      console.log('👤 User logged in:', userId);
+      // Set timeout untuk pastikan DOM sudah siap
+      setTimeout(() => {
+        // Reset dulu semua modul
+        resetAllModuls();
+           
+        // Kemudian load progress dari server
+        loadUserProgressFromServer();
+      }, 1000);
+    } else {
+      console.log('⚠️ User not logged in');
+      // Tampilkan state default (semua locked kecuali perkenalan)
+      checkPerkenalanStatus();
+        
+      // User tidak login: reset semua modul
+      setTimeout(() => {
+       resetAllModuls();
+        console.log('✅ All moduls locked for guest user');
+      }, 1000);
   }
 
   // Generate form meal plan untuk semua hari
@@ -1227,10 +1253,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMealPlanProgress(i); // ✅ LOAD PROGRESS YANG SUDAH DIUPLOAD
   }
 
-  // Cek status perkenalan dan lock/unlock modul
-  checkPerkenalanStatus();
-
-  console.log('✅ All functions initialized');
 
   // Load saved resistance data
   setTimeout(() => {
@@ -1255,6 +1277,37 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeAllVideoPlayers();
   console.log('✅ App initialized successfully');
 });
+
+/**********************************************
+* HANDLE USER BARU (FIRST TIME LOGIN)
+***********************************************/
+function handleNewUser() {
+    console.log('👶 Handling new user setup');
+    
+    // 1. Reset semua modul
+    resetAllModuls();
+    
+    // 2. Tampilkan pesan welcome
+    showMessage('info', 'Selamat datang! Silakan selesaikan Perkenalan terlebih dahulu.', 5000);
+    
+    // 3. Auto-expand perkenalan section
+    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+    if (perkenalanHeader) {
+        setTimeout(() => {
+            perkenalanHeader.click();
+            console.log('✅ Auto-expanded Perkenalan section for new user');
+        }, 1000);
+    }
+    
+    // 4. Clear localStorage untuk progress lama (jika ada)
+    for (let i = 1; i <= 10; i++) {
+        localStorage.removeItem(`materi_hari_${i}`);
+        localStorage.removeItem(`mealplan_hari_${i}`);
+    }
+    
+    console.log('✅ New user setup completed');
+}
+
 
 /**********************************
 * Cek status materi dan update UI *
@@ -2533,6 +2586,61 @@ async function selesaiPerkenalan() {
 * Cek Status Perkenalan *
 *************************/
 async function checkPerkenalanStatus() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.log('⚠️ User not logged in');
+        // Reset semua untuk tamu/anonymous
+        resetAllModuls();
+        return;
+    }
+
+    console.log('🔍 Checking perkenalan status for user:', userId);
+    
+    // Cek dari localStorage dulu (cached)
+    const perkenalanSelesaiLocal = localStorage.getItem('perkenalanSelesai');
+    
+    if (perkenalanSelesaiLocal === 'true') {
+        console.log('✅ Perkenalan selesai (from localStorage)');
+        unlockModul(1);
+        return;
+    }
+    
+    // Jika tidak ada di localStorage, cek dari database
+    try {
+        const response = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const result = await response.text();
+        console.log('📊 Perkenalan check response:', result);
+        
+        try {
+            const data = JSON.parse(result);
+            if (data.success && data.perkenalanSelesai) {
+                // Simpan di localStorage untuk cache
+                localStorage.setItem('perkenalanSelesai', 'true');
+                
+                // Unlock Modul Hari Pertama
+                unlockModul(1);
+                console.log('✅ Perkenalan selesai (from database)');
+            } else {
+                // User baru atau perkenalan belum selesai
+                console.log('👶 New user or perkenalan not completed');
+                resetAllModuls();
+            }
+        } catch (e) {
+            console.log('❌ Failed to parse perkenalan data');
+            resetAllModuls();
+        }
+    } catch (error) {
+        console.error('❌ Error checking perkenalan status:', error);
+        // Fallback: reset untuk keamanan
+        resetAllModuls();
+    }
+}
+
+async function BACKUP_checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
 
@@ -2570,7 +2678,122 @@ async function checkPerkenalanStatus() {
 * Fungsi unlock universal untuk semua modul                 *
 * @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
 *************************************************************/
+/************************************************************
+* Fungsi unlock universal untuk semua modul                 *
+* @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
+*************************************************************/
 function unlockModul(hariKe) {
+    console.log('🔓 Unlock modul hari:', hariKe);
+    
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        const lockIcon = modulHeader.querySelector('.status-lock');
+        if (lockIcon) {
+            // Ganti icon lock jadi unlock
+            lockIcon.className = 'status-unlock';
+            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+        } else {
+            // Jika tidak ada icon, buat baru
+            const span = modulHeader.querySelector('span');
+            if (span) {
+                const newIcon = document.createElement('i');
+                newIcon.className = 'status-unlock';
+                newIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+                span.appendChild(newIcon);
+            }
+        }
+        
+        // Hapus class disabled
+        modulHeader.classList.remove('disabled');
+        modulHeader.style.pointerEvents = 'auto';
+        modulHeader.style.opacity = '1';
+        modulHeader.style.cursor = 'pointer';
+        
+        console.log(`✅ Modul Hari ${hariKe} unlocked`);
+    } else {
+        console.log(`❌ Modul header not found for hari: ${hariKe}`);
+    }
+}
+
+/************************************************************
+* Fungsi lock modul                                         *
+* @param {number} hariKe - Hari yang akan di-lock (1-10)   * 
+*************************************************************/
+function lockModul(hariKe) {
+    console.log('🔒 Lock modul hari:', hariKe);
+    
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        const lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
+        if (lockIcon) {
+            // Ganti icon unlock jadi lock
+            lockIcon.className = 'status-lock';
+            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+        } else {
+            // Jika tidak ada icon, buat baru
+            const span = modulHeader.querySelector('span');
+            if (span) {
+                const newIcon = document.createElement('i');
+                newIcon.className = 'status-lock';
+                newIcon.innerHTML = '<i class="fas fa-lock"></i>';
+                span.appendChild(newIcon);
+            }
+        }
+        
+        // Tambah class disabled
+        modulHeader.classList.add('disabled');
+        modulHeader.style.pointerEvents = 'none';
+        modulHeader.style.opacity = '0.6';
+        modulHeader.style.cursor = 'not-allowed';
+        
+        console.log(`✅ Modul Hari ${hariKe} locked`);
+    } else {
+        console.log(`❌ Modul header not found for hari: ${hariKe}`);
+    }
+}
+
+/************************************************************
+* Reset semua modul ke state locked                        *
+*************************************************************/
+function resetAllModuls() {
+    console.log('🔄 Resetting all moduls to locked state');
+    
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        lockModul(hariKe);
+    }
+    
+    // Pastikan icon lock ada untuk semua modul
+    initializeLockIcons();
+}
+
+/************************************************************
+* Initialize lock icons untuk semua modul                  *
+*************************************************************/
+function initializeLockIcons() {
+    console.log('🔧 Initializing lock icons');
+    
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+        if (modulHeader) {
+            // Cek apakah sudah ada icon
+            let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
+            
+            if (!lockIcon) {
+                // Buat icon lock baru
+                const span = modulHeader.querySelector('span');
+                if (span) {
+                    lockIcon = document.createElement('i');
+                    lockIcon.className = 'status-lock';
+                    lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+                    span.appendChild(lockIcon);
+                    console.log(`✅ Added lock icon for hari ${hariKe}`);
+                }
+            }
+        }
+    }
+}
+
+function BACKUP_unlockModul(hariKe) {
     console.log('🔓 Unlock modul hari:', hariKe);
     
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
@@ -3517,15 +3740,83 @@ function createMealPlanFormHTML(hariKe) {
     `;
 }
 
-/******************************************
-* FUNGSI LOAD PROGRESS USER DARI DATABASE
-********************************************/
 /**********************************************
 * FUNGSI LOAD PROGRESS USER DARI DATABASE
 ***********************************************/
 
 // Load progress saat login
 async function loadUserProgressFromServer() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.log('❌ No user ID found');
+        return;
+    }
+    
+    console.log('📊 Loading progress for user:', userId);
+    
+    try {
+        // 1. Cek status perkenalan
+        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
+        
+        if (!perkenalanResponse.ok) {
+            throw new Error('Failed to fetch perkenalan status');
+        }
+        
+        const perkenalanText = await perkenalanResponse.text();
+        console.log('📊 Perkenalan response:', perkenalanText);
+        
+        let perkenalanSelesai = false;
+        try {
+            const parsed = JSON.parse(perkenalanText);
+            perkenalanSelesai = parsed.perkenalanSelesai || false;
+            
+            // USER BARU DETECTION
+            if (!parsed.success || !perkenalanSelesai) {
+                console.log('👶 Detected as new user');
+                handleNewUser();
+                return; // Stop here for new user
+            }
+        } catch (e) {
+            console.log('❌ Failed to parse perkenalan data');
+            handleNewUser();
+            return;
+        }
+        
+        // 2. Jika user lama, load progress
+        const progressResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
+        
+        if (!progressResponse.ok) {
+            throw new Error('Failed to fetch progress');
+        }
+        
+        const progressText = await progressResponse.text();
+        console.log('📊 Progress response:', progressText);
+        
+        let lastCompletedDay = 0;
+        let unlockedDays = 1;
+        
+        try {
+            const parsed = JSON.parse(progressText);
+            lastCompletedDay = parsed.lastCompletedDay || 0;
+            unlockedDays = parseInt(parsed.unlockedDays) || 1;
+            console.log('✅ Progress loaded from server:', { lastCompletedDay, unlockedDays });
+        } catch (e) {
+            console.log('❌ Failed to parse progress data');
+            unlockedDays = perkenalanSelesai ? 1 : 0;
+        }
+        
+        // 3. Update UI
+        updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays);
+        
+    } catch (error) {
+        console.error('❌ Error loading progress:', error);
+        // Fallback ke localStorage
+        loadProgressFromLocalStorage();
+    }
+}
+
+
+async function BACKUP_loadUserProgressFromServer() {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
     
@@ -3598,7 +3889,76 @@ function loadProgressFromLocalStorage() {
 /**********************************************
 * UPDATE UI BERDASARKAN PROGRESS
 ***********************************************/
+/**********************************************
+* UPDATE UI BERDASARKAN PROGRESS
+***********************************************/
 function updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays) {
+    console.log('🎨 Updating UI from progress:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
+    
+    // 1. INITIALIZE SEMUA ICON LOCK DULU
+    initializeLockIcons();
+    
+    // 2. RESET SEMUA MODUL KE LOCKED STATE (UNTUK USER BARU)
+    if (!perkenalanSelesai && lastCompletedDay === 0) {
+        console.log('👶 New user detected, locking all moduls');
+        resetAllModuls();
+        
+        // Hanya modul perkenalan yang unlocked untuk user baru
+        console.log('✅ Only Perkenalan is unlocked for new user');
+        return;
+    }
+    
+    // 3. Handle Perkenalan untuk user yang sudah selesai
+    if (perkenalanSelesai) {
+        console.log('✅ Perkenalan sudah selesai');
+        
+        // Update UI perkenalan
+        const selesaiPerkenalanLinks = document.querySelectorAll('.menu-item');
+        selesaiPerkenalanLinks.forEach(link => {
+            if (link.textContent.includes('Selesai Perkenalan')) {
+                link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
+                link.style.color = '#666666';
+                link.style.fontWeight = 'bold';
+                link.onclick = null;
+                console.log('✅ Updated Perkenalan menu item');
+            }
+        });
+        
+        // Unlock Modul Hari Pertama
+        unlockModul(1);
+    }
+    
+    // 4. Lock semua modul dulu, lalu unlock berdasarkan progress
+    console.log('🔒 Locking all moduls first...');
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        lockModul(hariKe);
+    }
+    
+    // 5. Unlock modul berdasarkan unlockedDays
+    console.log(`🔓 Unlocking moduls 1 to ${unlockedDays}...`);
+    for (let hariKe = 1; hariKe <= unlockedDays; hariKe++) {
+        if (hariKe <= 10) {
+            unlockModul(hariKe);
+        }
+    }
+    
+    // 6. Mark materi yang sudah selesai
+    for (let hariKe = 1; hariKe <= lastCompletedDay; hariKe++) {
+        markMateriCompleted(hariKe);
+        checkMealPlanStatusFromServer(hariKe);
+    }
+    
+    // 7. Auto-unlock next day jika lastCompletedDay > 0
+    if (lastCompletedDay > 0 && lastCompletedDay < 10) {
+        const nextDay = lastCompletedDay + 1;
+        unlockModul(nextDay);
+        console.log(`✅ Auto-unlock hari ${nextDay} karena hari ${lastCompletedDay} sudah selesai`);
+    }
+    
+    console.log('✅ UI update completed');
+}
+
+function BACKUP_pdateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays) {
     console.log('🎨 Updating UI from progress:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
     
     // 1. Handle Perkenalan
