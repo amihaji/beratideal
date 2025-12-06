@@ -1215,7 +1215,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup Materi Pertemuan
   setupMateriCompletion();
 
-
   // 3. CEK LOGIN STATUS DAN LOAD PROGRESS
   const userId = localStorage.getItem('userId');
   if (userId) {
@@ -1231,17 +1230,15 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       console.log('⚠️ User not logged in');
       
-  
       // User tidak login: reset semua modul
       setTimeout(() => {
-       resetAllModuls();
+        resetAllModuls();
         console.log('✅ All moduls locked for guest user');
       }, 1000);
   }
 
-  // Tampilkan state default (semua locked kecuali perkenalan)
-  checkPerkenalanStatus();
   
+
   // Cek status materi untuk semua hari
   for (let i = 1; i <= 10; i++) {
     checkMateriStatus(i);
@@ -1256,6 +1253,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMealPlanProgress(i); // ✅ LOAD PROGRESS YANG SUDAH DIUPLOAD
   }
 
+  // Tampilkan state default (semua locked kecuali perkenalan)
+  checkPerkenalanStatus();
 
   // Load saved resistance data
   setTimeout(() => {
