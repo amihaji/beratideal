@@ -1093,7 +1093,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwZR98-_WmSNoIlA4S9ppo_XouMsQl6Ueitkm6kH03lJNKGwulgZzxVRMvDOJjsOhcNQg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwMsFlovchgOQ97_BldVX49lpGqWO3sxZf7hiTv2wQ_sCPkNICH6h9F4F0Et4L7T2f02w/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1175,141 +1175,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-/*************************************
-* Event listener di DOMContentLoaded *
-**************************************/
-document.addEventListener('DOMContentLoaded', function() {
-  // Submenu triggers
-  document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-    trigger.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = this.getAttribute('data-target');
-      showSubmenu(target);
-    });
-  });
-  
-  // Initialize Bootstrap tooltips
-  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-  });
-
-  // 1. INITIALIZE SEMUA ICON LOCK DULU
-  setTimeout(() => {
-    initializeLockIcons();
-    console.log('✅ Lock icons initialized');
-  }, 500);
-
-  // 2. Setup semua fungsi
-  // Setup video links
-  setupAllLinks();
-  // Setup PDF links khusus untuk menu Panduan
-  setupPanduanPDFLinks();
-  // Setup tombol "Cek Disini" untuk Modul Hari Pertama
-  setupCekDisiniButtons();
-  // Setup playlist triggers
-  setupPlaylistTriggers();
-  // Setup Materi Perkenalan
-  setupPerkenalanCompletion();
-  // Setup Materi Pertemuan
-  setupMateriCompletion();
-
-  // 3. CEK LOGIN STATUS DAN LOAD PROGRESS
-  const userId = localStorage.getItem('userId');
-  if (userId) {
-      console.log('👤 User logged in:', userId);
-      // Set timeout untuk pastikan DOM sudah siap
-      setTimeout(() => {
-        // Reset dulu semua modul
-        resetAllModuls();
-           
-        // Kemudian load progress dari server
-        loadUserProgressFromServer();
-      }, 1000);
-    } else {
-      console.log('⚠️ User not logged in');
-      
-      // User tidak login: reset semua modul
-      setTimeout(() => {
-        resetAllModuls();
-        console.log('✅ All moduls locked for guest user');
-      }, 1000);
-  }
-
-  
-
-  // Cek status materi untuk semua hari
-  for (let i = 1; i <= 10; i++) {
-    checkMateriStatus(i);
-  }
-
-  // Generate form meal plan untuk semua hari
-  generateMealPlanForms();
-
-  // Cek status meal plan untuk semua hari
-  for (let i = 1; i <= 10; i++) {
-    checkMealPlanStatus(i);
-    loadMealPlanProgress(i); // ✅ LOAD PROGRESS YANG SUDAH DIUPLOAD
-  }
-
-  // Tampilkan state default (semua locked kecuali perkenalan)
-  checkPerkenalanStatus();
-
-  // Load saved resistance data
-  setTimeout(() => {
-    loadSavedResistanceData();
-  }, 1000);
-  
-  // About overlay
-  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-  
-  // Cek login status
-  const userToken = localStorage.getItem('userToken');
-  if (userToken) {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    loginMenuItem.innerHTML = `
-      <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
-    `;
-  }
-  
-  // Initialize video players
-  initializeAllVideoPlayers();
-  console.log('✅ App initialized successfully');
-});
-
-/**********************************************
-* HANDLE USER BARU (FIRST TIME LOGIN)
-***********************************************/
-function handleNewUser() {
-    console.log('👶 Handling new user setup');
-    
-    // 1. Reset semua modul
-    resetAllModuls();
-    
-    // 2. Tampilkan pesan welcome
-    showMessage('info', 'Selamat datang! Silakan selesaikan Perkenalan terlebih dahulu.', 5000);
-    
-    // 3. Auto-expand perkenalan section
-    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-    if (perkenalanHeader) {
-        setTimeout(() => {
-            perkenalanHeader.click();
-            console.log('✅ Auto-expanded Perkenalan section for new user');
-        }, 1000);
-    }
-    
-    // 4. Clear localStorage untuk progress lama (jika ada)
-    for (let i = 1; i <= 10; i++) {
-        localStorage.removeItem(`materi_hari_${i}`);
-        localStorage.removeItem(`mealplan_hari_${i}`);
-    }
-    
-    console.log('✅ New user setup completed');
-}
-
 
 /**********************************
 * Cek status materi dan update UI *
@@ -2531,218 +2396,74 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
 // ***** FUNGSI LAINNYA YANG DIPERLUKAN *****
 // ******************************************
 
-/********************************************
-* Selesaikan perkenalan unlock Hari Pertama *
-********************************************/
-async function selesaiPerkenalan() {
-    console.log('✅ Menyelesaikan perkenalan');
+/************************************************************
+* Fungsi lock/unlock yang scalable untuk semua modul       *
+*************************************************************/
+// Array untuk menyimpan modul yang ada
+let availableModules = [];
+
+/************************************************************
+* DETECT SEMUA MODUL YANG ADA DI PAGE                      *
+*************************************************************/
+function detectAvailableModules() {
+    console.log('🔍 Detecting available modules...');
     
-    const userId = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    availableModules = [];
     
-    if (!userId) {
-        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
-        return;
-    }
+    // Cari semua elemen dengan data-hari attribute
+    const modulElements = document.querySelectorAll('[data-hari]');
+    modulElements.forEach(el => {
+        const hariKe = parseInt(el.getAttribute('data-hari'));
+        if (!isNaN(hariKe) && hariKe >= 1 && hariKe <= 10) {
+            availableModules.push(hariKe);
+        }
+    });
     
-    try {
-        // Simpan status perkenalan ke database
-        const response = await fetch(URL_PROGRAM_APP, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: new URLSearchParams({
-                action: 'updatePerkenalan',
-                userId: userId,
-                namaUser: namaUser
-            })
+    // Jika tidak ada data-hari, cari berdasarkan teks
+    if (availableModules.length === 0) {
+        const allHeaders = document.querySelectorAll('.menu-header');
+        allHeaders.forEach((header, index) => {
+            const text = header.textContent.toLowerCase();
+            if (text.includes('hari pertama') || text.includes('hari 1')) {
+                availableModules.push(1);
+            } else if (text.includes('hari kedua') || text.includes('hari 2')) {
+                availableModules.push(2);
+            }
+            // ... dan seterusnya untuk hari 3-10
         });
-        
-        const result = await response.text();
-        console.log('Perkenalan response:', result);
-        
-        if (result === "OK") {
-            showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
-            
-            // Simpan di localStorage
-            localStorage.setItem('perkenalanSelesai', 'true');
-            
-            // Unlock modul hari pertama
-            unlockModul(1);
-            
-            // Update UI
-            const selesaiLink = document.querySelector('.menu-item:contains("Selesai Perkenalan")');
-            if (selesaiLink) {
-                selesaiLink.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
-                selesaiLink.style.color = '#666666';
-                selesaiLink.style.fontWeight = 'bold';
-                selesaiLink.onclick = null;
-            }
-        }
-    } catch (error) {
-        console.error('Error selesai perkenalan:', error);
-        showMessage('error', 'Gagal menyimpan perkenalan: ' + error.message, 3000, 'perkenalan');
-    }
-}
-
-/************************
-* Cek Status Perkenalan *
-*************************/
-async function checkPerkenalanStatus() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        console.log('⚠️ User not logged in');
-        // Reset semua untuk tamu/anonymous
-        resetAllModuls();
-        return;
-    }
-
-    console.log('🔍 Checking perkenalan status for user:', userId);
-    
-    // Cek dari localStorage dulu (cached)
-    const perkenalanSelesaiLocal = localStorage.getItem('perkenalanSelesai');
-    
-    if (perkenalanSelesaiLocal === 'true') {
-        console.log('✅ Perkenalan selesai (from localStorage)');
-        unlockModul(1);
-        return;
     }
     
-    // Jika tidak ada di localStorage, cek dari database
-    try {
-        const response = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        
-        const result = await response.text();
-        console.log('📊 Perkenalan check response:', result);
-        
-        try {
-            const data = JSON.parse(result);
-            if (data.success && data.perkenalanSelesai) {
-                // Simpan di localStorage untuk cache
-                localStorage.setItem('perkenalanSelesai', 'true');
-                
-                // Unlock Modul Hari Pertama
-                unlockModul(1);
-                console.log('✅ Perkenalan selesai (from database)');
-            } else {
-                // User baru atau perkenalan belum selesai
-                console.log('👶 New user or perkenalan not completed');
-                resetAllModuls();
-            }
-        } catch (e) {
-            console.log('❌ Failed to parse perkenalan data');
-            resetAllModuls();
-        }
-    } catch (error) {
-        console.error('❌ Error checking perkenalan status:', error);
-        // Fallback: reset untuk keamanan
-        resetAllModuls();
-    }
-}
-
-async function BACKUP_checkPerkenalanStatus() {
-  const userId = localStorage.getItem('userId');
-  if (!userId) return;
-
-  // Cek dari localStorage dulu (cached)
-  const perkenalanSelesaiLocal = localStorage.getItem('perkenalanSelesai');
-  
-  if (perkenalanSelesaiLocal === 'true') {
-    // Unlock Modul Hari Pertama
-    unlockModul(1);
-    return;
-  }
-  
-  // Jika tidak ada di localStorage, cek dari database
-  try {
-    const response = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
-    const result = await response.text();
+    // Sort ascending
+    availableModules.sort((a, b) => a - b);
     
-    try {
-      const data = JSON.parse(result);
-      if (data.perkenalanSelesai) {
-        // Simpan di localStorage untuk cache
-        localStorage.setItem('perkenalanSelesai', 'true');
-        // Unlock Modul Hari Pertama
-        unlockModul(1);
-      }
-    } catch (e) {
-      // Parsing gagal, lanjutkan dengan default
-    }
-  } catch (error) {
-    console.error('Error checking perkenalan status:', error);
-  }
+    console.log('✅ Available modules detected:', availableModules);
+    return availableModules;
 }
 
 /************************************************************
-* Fungsi unlock universal untuk semua modul                 *
-* @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
-*************************************************************/
-/************************************************************
-* Fungsi unlock universal untuk semua modul                 *
-* @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
-*************************************************************/
-function unlockModul(hariKe) {
-    console.log('🔓 Unlock modul hari:', hariKe);
-    
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        const lockIcon = modulHeader.querySelector('.status-lock');
-        if (lockIcon) {
-            // Ganti icon lock jadi unlock
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-        } else {
-            // Jika tidak ada icon, buat baru
-            const span = modulHeader.querySelector('span');
-            if (span) {
-                const newIcon = document.createElement('i');
-                newIcon.className = 'status-unlock';
-                newIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-                span.appendChild(newIcon);
-            }
-        }
-        
-        // Hapus class disabled
-        modulHeader.classList.remove('disabled');
-        modulHeader.style.pointerEvents = 'auto';
-        modulHeader.style.opacity = '1';
-        modulHeader.style.cursor = 'pointer';
-        
-        console.log(`✅ Modul Hari ${hariKe} unlocked`);
-    } else {
-        console.log(`❌ Modul header not found for hari: ${hariKe}`);
-    }
-}
-
-/************************************************************
-* Fungsi lock modul                                         *
-* @param {number} hariKe - Hari yang akan di-lock (1-10)   * 
+* Fungsi lock modul - SCALABLE VERSION                     *
 *************************************************************/
 function lockModul(hariKe) {
     console.log('🔒 Lock modul hari:', hariKe);
     
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    // Cek apakah modul ini ada
+    if (!isModuleAvailable(hariKe)) {
+        console.log(`ℹ️ Modul hari ${hariKe} tidak tersedia, skipping lock`);
+        return;
+    }
+    
+    let modulHeader = findModuleHeader(hariKe);
+    
     if (modulHeader) {
-        const lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
-        if (lockIcon) {
-            // Ganti icon unlock jadi lock
-            lockIcon.className = 'status-lock';
-            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
-        } else {
-            // Jika tidak ada icon, buat baru
-            const span = modulHeader.querySelector('span');
-            if (span) {
-                const newIcon = document.createElement('i');
-                newIcon.className = 'status-lock';
-                newIcon.innerHTML = '<i class="fas fa-lock"></i>';
-                span.appendChild(newIcon);
-            }
+        // Ensure data-hari attribute exists
+        if (!modulHeader.hasAttribute('data-hari')) {
+            modulHeader.setAttribute('data-hari', hariKe.toString());
         }
         
-        // Tambah class disabled
+        // Update or create lock icon
+        updateLockIcon(modulHeader, 'locked');
+        
+        // Apply disabled styles
         modulHeader.classList.add('disabled');
         modulHeader.style.pointerEvents = 'none';
         modulHeader.style.opacity = '0.6';
@@ -2755,17 +2476,96 @@ function lockModul(hariKe) {
 }
 
 /************************************************************
-* Reset semua modul ke state locked                        *
+* Fungsi unlock modul - SCALABLE VERSION                   *
 *************************************************************/
-function resetAllModuls() {
-    console.log('🔄 Resetting all moduls to locked state');
+function unlockModul(hariKe) {
+    console.log('🔓 Unlock modul hari:', hariKe);
     
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        lockModul(hariKe);
+    // Cek apakah modul ini ada
+    if (!isModuleAvailable(hariKe)) {
+        console.log(`ℹ️ Modul hari ${hariKe} tidak tersedia, skipping unlock`);
+        return;
     }
     
-    // Pastikan icon lock ada untuk semua modul
-    initializeLockIcons();
+    let modulHeader = findModuleHeader(hariKe);
+    
+    if (modulHeader) {
+        // Ensure data-hari attribute exists
+        if (!modulHeader.hasAttribute('data-hari')) {
+            modulHeader.setAttribute('data-hari', hariKe.toString());
+        }
+        
+        // Update or create unlock icon
+        updateLockIcon(modulHeader, 'unlocked');
+        
+        // Remove disabled styles
+        modulHeader.classList.remove('disabled');
+        modulHeader.style.pointerEvents = 'auto';
+        modulHeader.style.opacity = '1';
+        modulHeader.style.cursor = 'pointer';
+        
+        console.log(`✅ Modul Hari ${hariKe} unlocked`);
+    } else {
+        console.log(`❌ Modul header not found for hari: ${hariKe}`);
+    }
+}
+
+/************************************************************
+* HELPER FUNCTIONS                                         *
+*************************************************************/
+function isModuleAvailable(hariKe) {
+    // Jika availableModules belum didetect, detect dulu
+    if (availableModules.length === 0) {
+        detectAvailableModules();
+    }
+    
+    return availableModules.includes(hariKe);
+}
+
+function findModuleHeader(hariKe) {
+    // Try multiple selectors
+    let modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    
+    if (!modulHeader) {
+        // Try by ID
+        modulHeader = document.querySelector(`#pertemuan${hariKe}Content + .menu-header, 
+                                             [data-bs-target="#pertemuan${hariKe}Content"]`);
+    }
+    
+    if (!modulHeader) {
+        // Try by text content
+        const dayName = getDayName(hariKe);
+        const allHeaders = document.querySelectorAll('.menu-header');
+        for (const header of allHeaders) {
+            if (header.textContent.includes(`Hari ${dayName}`) || 
+                header.textContent.includes(`Hari ${hariKe}`)) {
+                modulHeader = header;
+                break;
+            }
+        }
+    }
+    
+    return modulHeader;
+}
+
+function updateLockIcon(headerElement, state) {
+    const iconClass = state === 'locked' ? 'status-lock' : 'status-unlock';
+    const iconHTML = state === 'locked' ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-unlock"></i>';
+    
+    let lockIcon = headerElement.querySelector('.status-lock, .status-unlock');
+    
+    if (lockIcon) {
+        lockIcon.className = iconClass;
+        lockIcon.innerHTML = iconHTML;
+    } else {
+        const span = headerElement.querySelector('span');
+        if (span) {
+            const newIcon = document.createElement('i');
+            newIcon.className = iconClass;
+            newIcon.innerHTML = iconHTML;
+            span.appendChild(newIcon);
+        }
+    }
 }
 
 /************************************************************
@@ -2795,25 +2595,6 @@ function initializeLockIcons() {
     }
 }
 
-function BACKUP_unlockModul(hariKe) {
-    console.log('🔓 Unlock modul hari:', hariKe);
-    
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        const lockIcon = modulHeader.querySelector('.status-lock');
-        if (lockIcon) {
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-        }
-        
-        modulHeader.classList.remove('disabled');
-        modulHeader.style.pointerEvents = 'auto';
-        modulHeader.style.opacity = '1';
-        
-        showMessage('success', `Modul Hari ${hariKe} berhasil di-unlock!`, 3000, `pertemuan${hariKe}`);
-    }
-}
-
 /*******************************************************
 * Unlock modul berikutnya secara otomatis              * 
 * @param {number} hariSelesai - Hari yang baru selesai *
@@ -2829,57 +2610,156 @@ function selesaiMateri(hariSelesai) {
     }
 }
 
-/************************************
-* Simpan materi untuk hari tertentu *
-************************************/
+/************************************************************
+* MAIN INITIALIZATION - SCALABLE VERSION                   *
+*************************************************************/
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOM Content Loaded - Scalable Version');
+    
+    // Initialize basic functions
+    setupAllLinks();
+    setupPanduanPDFLinks();
+    setupCekDisiniButtons();
+    setupPlaylistTriggers();
+    setupPerkenalanCompletion();
+    setupMateriCompletion();
+    
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Check login status
+    const userToken = localStorage.getItem('userToken');
+    const userId = localStorage.getItem('userId');
+    
+    if (userToken && userId) {
+        console.log('👤 User logged in:', userId);
+        
+        // Update logout menu
+        updateLogoutMenu();
+        
+        // Initialize Progress Manager
+        await progressManager.init();
+        
+    } else {
+        console.log('⚠️ User not logged in');
+        
+        // Show login menu
+        updateLoginMenu();
+        
+        // Lock everything for guest
+        setTimeout(() => {
+            detectAvailableModules();
+            availableModules.forEach(day => lockModul(day));
+            console.log('✅ All available modules locked for guest');
+        }, 500);
+    }
+    
+    // Initialize other components
+    setTimeout(() => {
+        initializeAllVideoPlayers();
+        generateMealPlanForms();
+        loadSavedResistanceData();
+        console.log('✅ App initialized successfully');
+    }, 1500);
+});
+
+/************************************************************
+* HELPER FUNCTIONS                                         *
+*************************************************************/
+function updateLogoutMenu() {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    if (loginMenuItem) {
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        `;
+    }
+}
+
+function updateLoginMenu() {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    if (loginMenuItem) {
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="loginFC.html">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        `;
+    }
+}
+
+/************************************************************
+* UPDATE FUNGSI YANG ADA UNTUK INTEGRASI                   *
+*************************************************************/
+// Update fungsi selesaiPerkenalan
+async function selesaiPerkenalan() {
+    console.log('✅ Menyelesaikan perkenalan');
+    
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
+        return;
+    }
+    
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: new URLSearchParams({
+                action: 'updatePerkenalan',
+                userId: userId,
+                namaUser: localStorage.getItem('namaUser') || ''
+            })
+        });
+        
+        if (response.ok) {
+            // Update progress manager
+            await progressManager.saveProgress('perkenalan');
+            showMessage('success', 'Perkenalan selesai! Modul sekarang dapat diakses.', 3000);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('error', 'Gagal menyimpan perkenalan', 3000);
+    }
+}
+
+// Update fungsi simpanMateri
 async function simpanMateri(hariKe) {
-    const userId   = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    const userId = localStorage.getItem('userId');
     if (!userId) {
         showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
         return;
     }
-    console.log('🔧 simpanMateri called:', { userId, hariKe });
+    
+    console.log('🔧 simpanMateri called for hari:', hariKe);
     
     try {
-        // 1. Simpan materi ke database
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
                 action: 'updateMateri',
                 userId: userId,
-                namaUser: namaUser,
+                namaUser: localStorage.getItem('namaUser') || '',
                 hariKe: hariKe
             })
         });
 
         const result = await response.text();
-        console.log('📥 Response:', result);
         
         if (result === "OK") {
-            // 2. Simpan progress terakhir
-            await saveProgressToServer(hariKe);
+            // Update progress manager
+            await progressManager.saveProgress('materi', hariKe);
             
-            // 3. Update UI lokal
-            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
-            updateMateriCompletionUI(hariKe);
-            saveMateriStatus(hariKe, 'completed');
+            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000);
+            markMateriCompleted(hariKe);
             
-            // 4. Auto-unlock next day
-            if (hariKe < 10) {
-                const nextDay = hariKe + 1;
-                unlockModul(nextDay);
-                showMessage('info', `Modul Hari ${nextDay} sekarang terbuka!`, 3000, `pertemuan${hariKe}`);
-            }
         } else {
-            showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+            showMessage('error', 'Gagal: ' + result, 3000);
         }
     } catch (error) {
-        console.error('❌ Fetch error:', error);
-        showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
+        console.error('❌ Error:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000);
     }
 }
 
@@ -3743,267 +3623,6 @@ function createMealPlanFormHTML(hariKe) {
 }
 
 /**********************************************
-* FUNGSI LOAD PROGRESS USER DARI DATABASE
-***********************************************/
-
-// Load progress saat login
-async function loadUserProgressFromServer() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        console.log('❌ No user ID found');
-        return;
-    }
-    
-    console.log('📊 Loading progress for user:', userId);
-    
-    try {
-        // 1. Cek status perkenalan
-        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
-        
-        if (!perkenalanResponse.ok) {
-            throw new Error('Failed to fetch perkenalan status');
-        }
-        
-        const perkenalanText = await perkenalanResponse.text();
-        console.log('📊 Perkenalan response:', perkenalanText);
-        
-        let perkenalanSelesai = false;
-        try {
-            const parsed = JSON.parse(perkenalanText);
-            perkenalanSelesai = parsed.perkenalanSelesai || false;
-            
-            // USER BARU DETECTION
-            if (!parsed.success || !perkenalanSelesai) {
-                console.log('👶 Detected as new user');
-                handleNewUser();
-                return; // Stop here for new user
-            }
-        } catch (e) {
-            console.log('❌ Failed to parse perkenalan data');
-            handleNewUser();
-            return;
-        }
-        
-        // 2. Jika user lama, load progress
-        const progressResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
-        
-        if (!progressResponse.ok) {
-            throw new Error('Failed to fetch progress');
-        }
-        
-        const progressText = await progressResponse.text();
-        console.log('📊 Progress response:', progressText);
-        
-        let lastCompletedDay = 0;
-        let unlockedDays = 1;
-        
-        try {
-            const parsed = JSON.parse(progressText);
-            lastCompletedDay = parsed.lastCompletedDay || 0;
-            unlockedDays = parseInt(parsed.unlockedDays) || 1;
-            console.log('✅ Progress loaded from server:', { lastCompletedDay, unlockedDays });
-        } catch (e) {
-            console.log('❌ Failed to parse progress data');
-            unlockedDays = perkenalanSelesai ? 1 : 0;
-        }
-        
-        // 3. Update UI
-        updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays);
-        
-    } catch (error) {
-        console.error('❌ Error loading progress:', error);
-        // Fallback ke localStorage
-        loadProgressFromLocalStorage();
-    }
-}
-
-
-async function BACKUP_loadUserProgressFromServer() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-    
-    console.log('📊 Loading progress for user:', userId);
-    
-    try {
-        // 1. Cek status perkenalan
-        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
-        const perkenalanText = await perkenalanResponse.text();
-        
-        let perkenalanSelesai = false;
-        try {
-            const parsed = JSON.parse(perkenalanText);
-            perkenalanSelesai = parsed.perkenalanSelesai || false;
-        } catch (e) {
-            console.log("Gagal parse perkenalan data:", perkenalanText);
-        }
-        
-        // 2. Cek progress umum
-        const progressResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
-        const progressText = await progressResponse.text();
-        
-        let lastCompletedDay = 0;
-        let unlockedDays = 1;
-        
-        try {
-            const parsed = JSON.parse(progressText);
-            lastCompletedDay = parsed.lastCompletedDay || 0;
-            unlockedDays = parseInt(parsed.unlockedDays) || 1;
-            console.log('✅ Progress loaded from server:', { lastCompletedDay, unlockedDays });
-        } catch (e) {
-            console.log("Gagal parse progress data:", progressText);
-        }
-        
-        // 3. Update UI berdasarkan progress
-        updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays);
-        
-    } catch (error) {
-        console.error('❌ Error loading progress:', error);
-        // Fallback: cek dari localStorage
-        loadProgressFromLocalStorage();
-    }
-}
-
-/**********************************************
-* LOAD PROGRESS DARI LOCALSTORAGE (FALLBACK)
-***********************************************/
-function loadProgressFromLocalStorage() {
-    console.log('📂 Loading progress from localStorage...');
-    
-    // Cek perkenalan dari localStorage
-    const perkenalanSelesai = localStorage.getItem('perkenalanSelesai') === 'true';
-    
-    // Cari lastCompletedDay dari localStorage
-    let lastCompletedDay = 0;
-    for (let i = 1; i <= 10; i++) {
-        if (localStorage.getItem(`materi_hari_${i}`) === 'completed') {
-            lastCompletedDay = i;
-        }
-    }
-    
-    // Hitung unlocked days
-    const unlockedDays = perkenalanSelesai ? Math.max(1, lastCompletedDay + 1) : 1;
-    
-    console.log('📂 Progress from localStorage:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
-    
-    updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays);
-}
-
-/**********************************************
-* UPDATE UI BERDASARKAN PROGRESS
-***********************************************/
-/**********************************************
-* UPDATE UI BERDASARKAN PROGRESS
-***********************************************/
-function updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays) {
-    console.log('🎨 Updating UI from progress:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
-    
-    // 1. INITIALIZE SEMUA ICON LOCK DULU
-    initializeLockIcons();
-    
-    // 2. RESET SEMUA MODUL KE LOCKED STATE (UNTUK USER BARU)
-    if (!perkenalanSelesai && lastCompletedDay === 0) {
-        console.log('👶 New user detected, locking all moduls');
-        resetAllModuls();
-        
-        // Hanya modul perkenalan yang unlocked untuk user baru
-        console.log('✅ Only Perkenalan is unlocked for new user');
-        return;
-    }
-    
-    // 3. Handle Perkenalan untuk user yang sudah selesai
-    if (perkenalanSelesai) {
-        console.log('✅ Perkenalan sudah selesai');
-        
-        // Update UI perkenalan
-        const selesaiPerkenalanLinks = document.querySelectorAll('.menu-item');
-        selesaiPerkenalanLinks.forEach(link => {
-            if (link.textContent.includes('Selesai Perkenalan')) {
-                link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
-                link.style.color = '#666666';
-                link.style.fontWeight = 'bold';
-                link.onclick = null;
-                console.log('✅ Updated Perkenalan menu item');
-            }
-        });
-        
-        // Unlock Modul Hari Pertama
-        unlockModul(1);
-    }
-    
-    // 4. Lock semua modul dulu, lalu unlock berdasarkan progress
-    console.log('🔒 Locking all moduls first...');
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        lockModul(hariKe);
-    }
-    
-    // 5. Unlock modul berdasarkan unlockedDays
-    console.log(`🔓 Unlocking moduls 1 to ${unlockedDays}...`);
-    for (let hariKe = 1; hariKe <= unlockedDays; hariKe++) {
-        if (hariKe <= 10) {
-            unlockModul(hariKe);
-        }
-    }
-    
-    // 6. Mark materi yang sudah selesai
-    for (let hariKe = 1; hariKe <= lastCompletedDay; hariKe++) {
-        markMateriCompleted(hariKe);
-        checkMealPlanStatusFromServer(hariKe);
-    }
-    
-    // 7. Auto-unlock next day jika lastCompletedDay > 0
-    if (lastCompletedDay > 0 && lastCompletedDay < 10) {
-        const nextDay = lastCompletedDay + 1;
-        unlockModul(nextDay);
-        console.log(`✅ Auto-unlock hari ${nextDay} karena hari ${lastCompletedDay} sudah selesai`);
-    }
-    
-    console.log('✅ UI update completed');
-}
-
-function BACKUP_pdateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays) {
-    console.log('🎨 Updating UI from progress:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
-    
-    // 1. Handle Perkenalan
-    if (perkenalanSelesai) {
-        console.log('✅ Perkenalan sudah selesai');
-        
-        // Update UI perkenalan
-        const selesaiPerkenalanLinks = document.querySelectorAll('.menu-item');
-        selesaiPerkenalanLinks.forEach(link => {
-            if (link.textContent.includes('Selesai Perkenalan')) {
-                link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
-                link.style.color = '#666666';
-                link.style.fontWeight = 'bold';
-                link.onclick = null;
-            }
-        });
-        
-        // Unlock Modul Hari Pertama
-        unlockModul(1);
-    }
-    
-    // 2. Mark materi yang sudah selesai
-    for (let hariKe = 1; hariKe <= lastCompletedDay; hariKe++) {
-        markMateriCompleted(hariKe);
-        checkMealPlanStatusFromServer(hariKe);
-    }
-    
-    // 3. Unlock modul berdasarkan unlockedDays
-    for (let hariKe = 1; hariKe <= unlockedDays; hariKe++) {
-        if (hariKe <= 10) {
-            unlockModul(hariKe);
-        }
-    }
-    
-    // 4. Auto-unlock next day jika lastCompletedDay > 0
-    if (lastCompletedDay > 0 && lastCompletedDay < 10) {
-        const nextDay = lastCompletedDay + 1;
-        unlockModul(nextDay);
-        console.log(`✅ Auto-unlock hari ${nextDay} karena hari ${lastCompletedDay} sudah selesai`);
-    }
-}
-
-/**********************************************
 * MARK MATERI SEBAGAI COMPLETED
 ***********************************************/
 function markMateriCompleted(hariKe) {
@@ -4052,100 +3671,6 @@ async function checkMealPlanStatusFromServer(hariKe) {
         }
     } catch (error) {
         console.error(`Error checking meal plan hari ${hariKe}:`, error);
-    }
-}
-
-
-
-// Load progress saat login
-async function BACKUP_loadUserProgressFromServer() {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-    
-    try {
-        // 1. Cek status perkenalan
-        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
-        const perkenalanData = await perkenalanResponse.text();
-        
-        let perkenalanSelesai = false;
-        try {
-            const parsed = JSON.parse(perkenalanData);
-            perkenalanSelesai = parsed.perkenalanSelesai || false;
-        } catch (e) {
-            console.log("Gagal parse perkenalan data");
-        }
-        
-        // 2. Cek progress umum
-        const progressResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
-        const progressData = await progressResponse.text();
-        
-        let lastCompletedDay = 0;
-        let unlockedDays = 1;
-        
-        try {
-            const parsed = JSON.parse(progressData);
-            lastCompletedDay = parsed.lastCompletedDay || 0;
-            unlockedDays = parseInt(parsed.unlockedDays) || 1;
-        } catch (e) {
-            console.log("Gagal parse progress data");
-        }
-        
-        console.log('📊 Progress loaded:', { 
-            perkenalanSelesai, 
-            lastCompletedDay, 
-            unlockedDays 
-        });
-        
-        // 3. Update UI berdasarkan progress
-        updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays);
-        
-    } catch (error) {
-        console.error('❌ Error loading progress:', error);
-    }
-}
-
-/*********************************
-* UPDATE UI BERDASARKAN PROGRESS
-*********************************/
-function BACKUP_updateUIFromProgress(perkenalanSelesai, lastCompletedDay, unlockedDays) {
-    console.log('🎨 Updating UI from progress:', { perkenalanSelesai, lastCompletedDay, unlockedDays });
-    
-    // 1. Handle Perkenalan
-    if (perkenalanSelesai) {
-        // Sembunyikan atau nonaktifkan tombol selesai perkenalan
-        const selesaiPerkenalanLinks = document.querySelectorAll('.menu-item');
-        selesaiPerkenalanLinks.forEach(link => {
-            if (link.textContent.includes('Selesai Perkenalan')) {
-                link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
-                link.style.color = '#666666';
-                link.style.fontWeight = 'bold';
-                link.onclick = null;
-            }
-        });
-        
-        // Unlock Modul Hari Pertama
-        unlockModul(1);
-    }
-    
-    // 2. Handle Modul yang sudah selesai
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        // Cek apakah materi hari ini sudah selesai
-        checkAndMarkCompletedMateri(hariKe);
-        
-        // Cek apakah meal plan sudah selesai
-        checkAndMarkCompletedMealPlan(hariKe);
-        
-        // Unlock modul berdasarkan unlockedDays
-        if (hariKe <= unlockedDays) {
-            unlockModul(hariKe);
-        }
-    }
-    
-    // 3. Auto-unlock next day jika lastCompletedDay > 0
-    if (lastCompletedDay > 0 && lastCompletedDay < 10) {
-        const nextDay = lastCompletedDay + 1;
-        unlockModul(nextDay);
-        console.log(`✅ Auto-unlock hari ${nextDay} karena hari ${lastCompletedDay} sudah selesai`);
     }
 }
 
@@ -4202,6 +3727,273 @@ async function checkAndMarkCompletedMealPlan(hariKe) {
         console.error(`Error checking meal plan hari ${hariKe}:`, error);
     }
 }
+
+
+/************************************************************
+* PROGRESS MANAGEMENT SYSTEM - SCALABLE                    *
+*************************************************************/
+
+class ProgressManager {
+    constructor() {
+        this.maxDays = 10;
+        this.availableDays = []; // Hari yang tersedia di UI
+        this.userProgress = {
+            perkenalanSelesai: false,
+            completedDays: [], // Hari yang sudah selesai materi
+            unlockedDays: 1, // Hari yang bisa diakses
+            lastCompletedDay: 0
+        };
+    }
+    
+    // Initialize progress system
+    async init() {
+        console.log('🔄 Initializing Progress Manager...');
+        
+        // 1. Detect available modules
+        this.availableDays = detectAvailableModules();
+        console.log('📋 Available days:', this.availableDays);
+        
+        // 2. Load user progress
+        await this.loadUserProgress();
+        
+        // 3. Apply UI based on progress
+        this.applyProgressToUI();
+        
+        console.log('✅ Progress Manager initialized');
+    }
+    
+    // Load progress from server and localStorage
+    async loadUserProgress() {
+        const userId = localStorage.getItem('userId');
+        
+        if (!userId) {
+            console.log('⚠️ No user ID, using default progress');
+            this.resetToDefault();
+            return;
+        }
+        
+        try {
+            // Try server first
+            const serverProgress = await this.loadFromServer(userId);
+            
+            if (serverProgress.success) {
+                this.userProgress = serverProgress.data;
+                console.log('✅ Progress loaded from server:', this.userProgress);
+            } else {
+                // Fallback to localStorage
+                this.loadFromLocalStorage();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading progress:', error);
+            this.loadFromLocalStorage();
+        }
+    }
+    
+    // Load from server
+    async loadFromServer(userId) {
+        const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
+        const text = await response.text();
+        
+        try {
+            const data = JSON.parse(text);
+            
+            // Process server data
+            const progress = {
+                perkenalanSelesai: data.perkenalanSelesai || false,
+                completedDays: [],
+                unlockedDays: data.unlockedDays || 1,
+                lastCompletedDay: data.lastCompletedDay || 0
+            };
+            
+            // Determine completed days from lastCompletedDay
+            for (let i = 1; i <= progress.lastCompletedDay; i++) {
+                progress.completedDays.push(i);
+            }
+            
+            return {
+                success: true,
+                data: progress
+            };
+            
+        } catch (e) {
+            return { success: false };
+        }
+    }
+    
+    // Load from localStorage
+    loadFromLocalStorage() {
+        console.log('📂 Loading progress from localStorage');
+        
+        this.userProgress.perkenalanSelesai = localStorage.getItem('perkenalanSelesai') === 'true';
+        
+        // Find completed days
+        this.userProgress.completedDays = [];
+        for (let i = 1; i <= this.maxDays; i++) {
+            if (localStorage.getItem(`materi_hari_${i}`) === 'completed') {
+                this.userProgress.completedDays.push(i);
+            }
+        }
+        
+        // Calculate last completed day
+        this.userProgress.lastCompletedDay = this.userProgress.completedDays.length > 0 
+            ? Math.max(...this.userProgress.completedDays) 
+            : 0;
+            
+        // Calculate unlocked days
+        if (this.userProgress.perkenalanSelesai) {
+            this.userProgress.unlockedDays = Math.max(1, this.userProgress.lastCompletedDay + 1);
+        } else {
+            this.userProgress.unlockedDays = 0; // No modules unlocked until perkenalan done
+        }
+        
+        console.log('📂 Progress from localStorage:', this.userProgress);
+    }
+    
+    // Reset to default (new user)
+    resetToDefault() {
+        this.userProgress = {
+            perkenalanSelesai: false,
+            completedDays: [],
+            unlockedDays: 0, // Nothing unlocked for new user
+            lastCompletedDay: 0
+        };
+    }
+    
+    // Apply progress to UI
+    applyProgressToUI() {
+        console.log('🎨 Applying progress to UI');
+        
+        // 1. Handle Perkenalan
+        this.updatePerkenalanUI();
+        
+        // 2. Lock/Unlock modules based on progress
+        this.updateModuleAccess();
+        
+        // 3. Mark completed modules
+        this.markCompletedModules();
+        
+        // 4. Show appropriate message
+        this.showWelcomeMessage();
+    }
+    
+    // Update perkenalan UI
+    updatePerkenalanUI() {
+        if (this.userProgress.perkenalanSelesai) {
+            const selesaiLinks = document.querySelectorAll('.menu-item');
+            selesaiLinks.forEach(link => {
+                if (link.textContent.includes('Selesai Perkenalan')) {
+                    link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
+                    link.style.color = '#666666';
+                    link.style.fontWeight = 'bold';
+                    link.onclick = null;
+                }
+            });
+        }
+    }
+    
+    // Update module access (lock/unlock)
+    updateModuleAccess() {
+        // Lock all available modules first
+        this.availableDays.forEach(day => {
+            lockModul(day);
+        });
+        
+        // Unlock modules based on unlockedDays
+        for (let day = 1; day <= this.userProgress.unlockedDays; day++) {
+            if (this.availableDays.includes(day)) {
+                unlockModul(day);
+            }
+        }
+        
+        // Special case: if perkenalan not done, only perkenalan is accessible
+        if (!this.userProgress.perkenalanSelesai) {
+            this.availableDays.forEach(day => {
+                if (day >= 1) lockModul(day); // Lock all modul hari
+            });
+        }
+    }
+    
+    // Mark completed modules
+    markCompletedModules() {
+        this.userProgress.completedDays.forEach(day => {
+            if (this.availableDays.includes(day)) {
+                markMateriCompleted(day);
+                // Also check meal plan status
+                checkMealPlanStatusFromServer(day);
+            }
+        });
+    }
+    
+    // Show welcome message based on progress
+    showWelcomeMessage() {
+        if (this.userProgress.lastCompletedDay > 0) {
+            showMessage('success', 
+                `Selamat datang kembali! Progress terakhir: Hari ${this.userProgress.lastCompletedDay} selesai.`, 
+                3000);
+        } else if (this.userProgress.perkenalanSelesai) {
+            showMessage('info', 'Selamat datang kembali! Silakan lanjutkan pembelajaran.', 3000);
+        } else {
+            // New user
+            showMessage('info', 'Selamat datang! Silakan selesaikan Perkenalan terlebih dahulu.', 5000);
+            
+            // Auto-expand perkenalan
+            setTimeout(() => {
+                const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+                if (perkenalanHeader && perkenalanHeader.classList.contains('collapsed')) {
+                    perkenalanHeader.click();
+                }
+            }, 1000);
+        }
+    }
+    
+    // Save progress when user completes something
+    async saveProgress(action, hariKe = null) {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+        
+        // Update local progress
+        switch(action) {
+            case 'perkenalan':
+                this.userProgress.perkenalanSelesai = true;
+                this.userProgress.unlockedDays = Math.max(1, this.userProgress.unlockedDays);
+                localStorage.setItem('perkenalanSelesai', 'true');
+                break;
+                
+            case 'materi':
+                if (hariKe && !this.userProgress.completedDays.includes(hariKe)) {
+                    this.userProgress.completedDays.push(hariKe);
+                    this.userProgress.lastCompletedDay = Math.max(...this.userProgress.completedDays);
+                    this.userProgress.unlockedDays = Math.max(this.userProgress.unlockedDays, hariKe + 1);
+                    
+                    localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+                }
+                break;
+        }
+        
+        // Save to server
+        try {
+            await fetch(URL_PROGRAM_APP, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: new URLSearchParams({
+                    action: 'saveUserProgress',
+                    userId: userId,
+                    lastCompletedDay: this.userProgress.lastCompletedDay,
+                    unlockedDays: this.userProgress.unlockedDays
+                })
+            });
+        } catch (error) {
+            console.error('Error saving progress to server:', error);
+        }
+        
+        // Update UI
+        this.applyProgressToUI();
+    }
+}
+
+// Global instance
+const progressManager = new ProgressManager();
 
 
 </script>
