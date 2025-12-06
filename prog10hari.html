@@ -735,31 +735,31 @@ body { background-color: #f8f9fa; }
                 </div>
   
                 <!-- MEAL PLAN HARI PERTAMA -->
-                <a href="pdf/MealPlan_HariKe1.pdf" 
+                <a href="#" 
                   class="menu-item submenu-trigger" onclick="uploadMealPlan(1)" data-target="mealPlanContent1">
                   <i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama
                 </a>
 
                 <!-- WORKOUT HARI PERTAMA -->
-                <a href="pdf/Workout_HariKe1.pdf"
+                <a href="#"
                   class="menu-item submenu-trigger" onclick="selesaiWorkout(1)" data-target="workoutContent1">
                   <i class="fas fa-dumbbell"></i>1.3 Workout - Hari Pertama
                 </a>
               
                 <!-- WATER REMINDER HARI PERTAMA -->
-                <a href="pdf/WaterReminder_HariKe1.pdf" 
+                <a href="#" 
                   class="menu-item submenu-trigger" onclick="waterReminder(1)" data-target="waterReminderContent1">
                   <i class="fas fa-prescription-bottle"></i>1.4 Water Reminder - Hari Pertama
                 </a>
               
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
-                <a href="pdf/Istirahat_HariKe1.pdf" 
+                <a href="#" 
                   class="menu-item submenu-trigger" onclick="istirahat(1)" data-target="istirahatContent1">
                   <i class="fas fa-bed"></i>1.5 Waktu Istirahat - Hari Pertama
                 </a>
                 
                 <!-- DATA TRACKING HARI PERTAMA -->
-                <a href="/pdf/DataTracking_HariKe1.pdf" 
+                <a href="#" 
                   class="menu-item submenu-trigger" onclick="dataTracking(1)" data-target="dataTrackingContent1">
                   <i class="fas fa-user-friends"></i>1.6 Data Tracking - Hari Pertama
                 </a>
@@ -1093,7 +1093,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwMsFlovchgOQ97_BldVX49lpGqWO3sxZf7hiTv2wQ_sCPkNICH6h9F4F0Et4L7T2f02w/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzl6-PQE4J4_Le2DwSdcEsyfMODY9UijFlTS6Z2DtrGIXv08nzMw_ZP2gXdXbWQXJSd5A/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /*****************************************
@@ -1114,21 +1114,77 @@ class ProgressManager {
     
     // Initialize progress system
     async init() {
-        console.log('🔄 Initializing Progress Manager...');
-        
-        // 1. Detect available modules
-        this.availableDays = detectAvailableModules();
-        console.log('📋 Available days:', this.availableDays);
-        
-        // 2. Load user progress
-        await this.loadUserProgress();
-        
-        // 3. Apply UI based on progress
-        this.applyProgressToUI();
-        
-        console.log('✅ Progress Manager initialized');
+      console.log('🔄 Initializing Progress Manager...');
+      
+      // 1. Detect available modules
+      this.detectAvailableModules();
+      console.log('📋 Available days:', this.availableDays);
+      
+      // 2. Quick check if user has any progress
+      const userId = localStorage.getItem('userId');
+      
+      if (userId) {
+          const quickCheck = await this.quickCheckProgress(userId);
+          console.log('⚡ Quick check result:', quickCheck);
+          
+          if (quickCheck.hasAnyProgress) {
+              console.log('👤 User has existing progress');
+              // Load full progress
+              await this.loadUserProgress();
+          } else {
+              console.log('👶 User appears to be new');
+              this.resetToDefault();
+          }
+      } else {
+          console.log('⚠️ No user ID, using default');
+          this.resetToDefault();
+      }
+      
+      // 3. Apply UI based on progress
+      this.applyProgressToUI();
+      console.log('✅ Progress Manager initialized');
     }
     
+    // Tambahkan method ini di ProgressManager class
+    async quickCheckProgress(userId) {
+        try {
+            console.log('⚡ Quick checking progress for user:', userId);
+            
+            // Check if user has ANY entry in the PROGRAM sheet
+            const quickResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
+            
+            if (!quickResponse.ok) {
+                return { hasAnyProgress: false };
+            }
+            
+            const quickText = await quickResponse.text();
+            
+            try {
+                const data = JSON.parse(quickText);
+                
+                // Check multiple indicators
+                const hasProgress = 
+                    data.lastCompletedDay > 0 ||
+                    data.unlockedDays > 1 ||
+                    (data.materi && data.materi === "OK") ||
+                    (data.mealPlan && data.mealPlan === "OK");
+                
+                return {
+                    hasAnyProgress: hasProgress,
+                    lastCompletedDay: data.lastCompletedDay || 0,
+                    unlockedDays: data.unlockedDays || 1
+                };
+                
+            } catch (e) {
+                return { hasAnyProgress: false };
+            }
+            
+        } catch (error) {
+            console.error('Quick check error:', error);
+            return { hasAnyProgress: false };
+        }
+    }
+
     // Load progress from server and localStorage
     async loadUserProgress() {
         const userId = localStorage.getItem('userId');
@@ -1159,35 +1215,88 @@ class ProgressManager {
     
     // Load from server
     async loadFromServer(userId) {
-        const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`);
-        const text = await response.text();
+    try {
+        console.log('📡 Loading progress from server for user:', userId);
         
-        try {
-            const data = JSON.parse(text);
-            
-            // Process server data
-            const progress = {
-                perkenalanSelesai: data.perkenalanSelesai || false,
-                completedDays: [],
-                unlockedDays: data.unlockedDays || 1,
-                lastCompletedDay: data.lastCompletedDay || 0
-            };
-            
-            // Determine completed days from lastCompletedDay
-            for (let i = 1; i <= progress.lastCompletedDay; i++) {
-                progress.completedDays.push(i);
-            }
-            
-            return {
-                success: true,
-                data: progress
-            };
-            
-        } catch (e) {
-            return { success: false };
+        // 1. Check perkenalan status
+        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
+        if (!perkenalanResponse.ok) {
+            throw new Error('Failed to fetch perkenalan status');
         }
+        
+        const perkenalanText = await perkenalanResponse.text();
+        console.log('📊 Perkenalan response:', perkenalanText);
+        
+        let perkenalanSelesai = false;
+        try {
+            const perkenalanData = JSON.parse(perkenalanText);
+            perkenalanSelesai = perkenalanData.perkenalanSelesai || false;
+            console.log('✅ Perkenalan status:', perkenalanSelesai ? 'SELESAI' : 'BELUM');
+        } catch (e) {
+            console.log('❌ Failed to parse perkenalan data');
+        }
+        
+        // 2. Check materi progress for all days
+        this.userProgress.completedDays = [];
+        this.userProgress.lastCompletedDay = 0;
+        
+        // Check day by day (1-10)
+        for (let day = 1; day <= this.maxDays; day++) {
+            try {
+                const materiResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${day}`);
+                if (materiResponse.ok) {
+                    const materiText = await materiResponse.text();
+                    
+                    try {
+                        const materiData = JSON.parse(materiText);
+                        
+                        // Check if materi is completed for this day
+                        if (materiData.materi === "OK") {
+                            this.userProgress.completedDays.push(day);
+                            this.userProgress.lastCompletedDay = Math.max(this.userProgress.lastCompletedDay, day);
+                            console.log(`✅ Hari ${day}: Materi SELESAI`);
+                        }
+                        
+                        // Also check meal plan if needed
+                        if (materiData.mealPlan === "OK") {
+                            console.log(`✅ Hari ${day}: Meal Plan SELESAI`);
+                        }
+                        
+                    } catch (parseError) {
+                        console.log(`❌ Failed to parse materi data for day ${day}`);
+                    }
+                }
+            } catch (error) {
+                console.log(`⚠️ Error checking day ${day}:`, error.message);
+            }
+        }
+        
+        // 3. Set user progress
+        this.userProgress.perkenalanSelesai = perkenalanSelesai;
+        
+        // Calculate unlocked days
+        if (this.userProgress.completedDays.length > 0) {
+            // User has completed some days
+            this.userProgress.unlockedDays = Math.max(1, this.userProgress.lastCompletedDay + 1);
+            console.log('👤 User HAS progress, unlocked days:', this.userProgress.unlockedDays);
+        } else if (perkenalanSelesai) {
+            // User completed perkenalan but no days yet
+            this.userProgress.unlockedDays = 1;
+            console.log('👤 User completed perkenalan only');
+        } else {
+            // New user
+            this.userProgress.unlockedDays = 0;
+            console.log('👶 User is NEW (no progress)');
+        }
+        
+        console.log('✅ Final progress loaded:', this.userProgress);
+        
+      } catch (error) {
+          console.error('❌ Error loading from server:', error);
+          throw error;
+      }
     }
-    
+
     // Load from localStorage
     loadFromLocalStorage() {
         console.log('📂 Loading progress from localStorage');
@@ -1229,19 +1338,36 @@ class ProgressManager {
     
     // Apply progress to UI
     applyProgressToUI() {
-        console.log('🎨 Applying progress to UI');
-        
-        // 1. Handle Perkenalan
-        this.updatePerkenalanUI();
-        
-        // 2. Lock/Unlock modules based on progress
-        this.updateModuleAccess();
-        
-        // 3. Mark completed modules
-        this.markCompletedModules();
-        
-        // 4. Show appropriate message
-        this.showWelcomeMessage();
+      console.log('🎨 Applying progress to UI');
+      console.log('📊 Current progress:', this.userProgress);
+      
+      // 1. Handle Perkenalan
+      this.updatePerkenalanUI();
+      
+      // 2. SPECIAL CASE: If user has completed days but perkenalan not marked
+      if (this.userProgress.completedDays.length > 0 && !this.userProgress.perkenalanSelesai) {
+          console.log('⚠️ User has completed days but perkenalan not marked. Auto-marking perkenalan...');
+          this.userProgress.perkenalanSelesai = true;
+          this.userProgress.unlockedDays = Math.max(1, this.userProgress.unlockedDays);
+          localStorage.setItem('perkenalanSelesai', 'true');
+      }
+      
+      // 3. Lock/Unlock modules
+      this.updateModuleAccess();
+      
+      // 4. Mark completed modules
+      this.markCompletedModules();
+      
+      // 5. Show welcome message
+      this.showWelcomeMessage();
+      
+      // 6. DEBUG: Log final state
+      console.log('🎯 Final UI state:', {
+          perkenalanSelesai: this.userProgress.perkenalanSelesai,
+          completedDays: this.userProgress.completedDays,
+          unlockedDays: this.userProgress.unlockedDays,
+          availableDays: this.availableDays
+      });
     }
     
     // Update perkenalan UI
@@ -1261,24 +1387,45 @@ class ProgressManager {
     
     // Update module access (lock/unlock)
     updateModuleAccess() {
-        // Lock all available modules first
-        this.availableDays.forEach(day => {
-            lockModul(day);
-        });
-        
-        // Unlock modules based on unlockedDays
-        for (let day = 1; day <= this.userProgress.unlockedDays; day++) {
-            if (this.availableDays.includes(day)) {
-                unlockModul(day);
-            }
-        }
-        
-        // Special case: if perkenalan not done, only perkenalan is accessible
-        if (!this.userProgress.perkenalanSelesai) {
-            this.availableDays.forEach(day => {
-                if (day >= 1) lockModul(day); // Lock all modul hari
-            });
-        }
+      console.log('🔓 Updating module access...');
+      
+      // Lock all available modules first
+      this.availableDays.forEach(day => {
+          lockModule(day);
+      });
+      
+      // SPECIAL RULE: If user has completed days, they should have access
+      if (this.userProgress.completedDays.length > 0) {
+          console.log('🔓 User has completed days, granting access...');
+          
+          // Unlock all completed days
+          this.userProgress.completedDays.forEach(day => {
+              if (this.availableDays.includes(day)) {
+                  unlockModule(day);
+                  console.log(`✅ Unlocked day ${day} (completed)`);
+              }
+          });
+          
+          // Also unlock next day if available
+          const nextDay = this.userProgress.lastCompletedDay + 1;
+          if (this.availableDays.includes(nextDay)) {
+              unlockModule(nextDay);
+              console.log(`✅ Unlocked day ${nextDay} (next after completed)`);
+          }
+          
+      } else if (this.userProgress.perkenalanSelesai) {
+          // User completed perkenalan but no days yet
+          console.log('🔓 User completed perkenalan, unlocking day 1');
+          if (this.availableDays.includes(1)) {
+              unlockModule(1);
+          }
+      } else {
+          // New user - lock everything
+          console.log('🔒 New user, locking all modules');
+          this.availableDays.forEach(day => {
+              lockModule(day);
+          });
+      }
     }
     
     // Mark completed modules
@@ -1415,13 +1562,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/************************************************************
-* MAIN INITIALIZATION - SCALABLE VERSION                   *
-*************************************************************/
+/*****************************************
+* MAIN INITIALIZATION - SCALABLE VERSION *
+******************************************/
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 DOM Content Loaded - Scalable Version');
+    console.log('🚀 DOM Content Loaded');
     
-    // Initialize basic functions
+    // DEBUG: Log user info
+    const userId = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    console.log('👤 User Info:', { userId, namaUser });
+    
+    // Basic setup
     setupAllLinks();
     setupPanduanPDFLinks();
     setupCekDisiniButtons();
@@ -1432,30 +1584,39 @@ document.addEventListener('DOMContentLoaded', async function() {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
-    // Check login status
+    // Check login
     const userToken = localStorage.getItem('userToken');
-    const userId = localStorage.getItem('userId');
     
     if (userToken && userId) {
-        console.log('👤 User logged in:', userId);
+        console.log('✅ User is logged in');
         
         // Update logout menu
-        updateLogoutMenu();
+        updateLoginLogoutMenu(true);
         
-        // Initialize Progress Manager
+        // DEBUG: Check localStorage for existing progress
+        console.log('📂 localStorage check:');
+        console.log('- perkenalanSelesai:', localStorage.getItem('perkenalanSelesai'));
+        for (let i = 1; i <= 10; i++) {
+            const materi = localStorage.getItem(`materi_hari_${i}`);
+            const mealplan = localStorage.getItem(`mealplan_hari_${i}`);
+            if (materi || mealplan) {
+                console.log(`- Hari ${i}: materi=${materi}, mealplan=${mealplan}`);
+            }
+        }
+        
+        // Initialize progress system
+        console.log('🔄 Starting Progress Manager...');
         await progressManager.init();
         
     } else {
         console.log('⚠️ User not logged in');
+        updateLoginLogoutMenu(false);
         
-        // Show login menu
-        updateLoginMenu();
-        
-        // Lock everything for guest
+        // Lock everything for guests
         setTimeout(() => {
-            detectAvailableModules();
-            availableModules.forEach(day => lockModul(day));
-            console.log('✅ All available modules locked for guest');
+            progressManager.detectAvailableModules();
+            progressManager.availableDays.forEach(day => lockModule(day));
+            console.log('🔒 All modules locked for guest');
         }, 500);
     }
     
