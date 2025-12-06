@@ -1093,7 +1093,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxPmT8fIC9pcejaVWvQoktZFoZfE2Lao9Dx7mAFk9f_ilMILq1Gh0suAyXXwTWRs3Y1/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxmSXpTOOcJr8R0IjrBGrVGVhIY34j9zr7iuPKNbxmbkBoNh4qG17Jd8awesDMzcB2sHA/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***********************
@@ -1308,6 +1308,238 @@ function unlockModule(hariKe) {
 }
 
 // *************************
+// * SISTEM PROGRESS DENGAN FALLBACK *
+// *************************
+
+async function checkUserProgress(userId) {
+    console.log('🔍 Checking progress for user:', userId);
+    
+    try {
+        // 1. Coba dari server (Google Sheet)
+        const serverProgress = await getProgressFromServer(userId);
+        
+        if (serverProgress.hasProgress) {
+            console.log('✅ Progress found on server:', serverProgress);
+            return serverProgress;
+        }
+        
+        // 2. Coba dari localStorage
+        const localProgress = getProgressFromLocalStorage();
+        
+        if (localProgress.hasProgress) {
+            console.log('✅ Progress found in localStorage:', localProgress);
+            return localProgress;
+        }
+        
+        // 3. User benar-benar baru
+        console.log('👶 User is completely new');
+        return {
+            hasProgress: false,
+            perkenalanSelesai: false,
+            completedDays: [],
+            lastCompletedDay: 0
+        };
+        
+    } catch (error) {
+        console.error('❌ Error checking progress:', error);
+        // Fallback ke localStorage
+        return getProgressFromLocalStorage();
+    }
+}
+
+async function getProgressFromServer(userId) {
+    try {
+        console.log('📡 Getting progress from server...');
+        
+        // 1. Cek perkenalan
+        const perkenalanResponse = await fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`);
+        const perkenalanText = await perkenalanResponse.text();
+        
+        let perkenalanSelesai = false;
+        try {
+            const data = JSON.parse(perkenalanText);
+            perkenalanSelesai = data.perkenalanSelesai || false;
+        } catch (e) {
+            console.log('Could not parse perkenalan response');
+        }
+        
+        // 2. Cek materi untuk hari 1-10
+        const completedDays = [];
+        
+        for (let day = 1; day <= 10; day++) {
+            try {
+                const materiResponse = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${day}`);
+                const materiText = await materiResponse.text();
+                
+                try {
+                    const data = JSON.parse(materiText);
+                    if (data.materi === "OK") {
+                        completedDays.push(day);
+                    }
+                } catch (e) {
+                    // Skip if can't parse
+                }
+            } catch (error) {
+                // Skip if error
+            }
+        }
+        
+        const lastCompletedDay = completedDays.length > 0 ? Math.max(...completedDays) : 0;
+        const hasProgress = perkenalanSelesai || completedDays.length > 0;
+        
+        return {
+            hasProgress: hasProgress,
+            perkenalanSelesai: perkenalanSelesai,
+            completedDays: completedDays,
+            lastCompletedDay: lastCompletedDay
+        };
+        
+    } catch (error) {
+        console.error('Server error:', error);
+        return { hasProgress: false };
+    }
+}
+
+function getProgressFromLocalStorage() {
+    console.log('📂 Getting progress from localStorage...');
+    
+    const perkenalanSelesai = localStorage.getItem('perkenalanSelesai') === 'true';
+    const completedDays = [];
+    
+    for (let i = 1; i <= 10; i++) {
+        if (localStorage.getItem(`materi_hari_${i}`) === 'completed') {
+            completedDays.push(i);
+        }
+    }
+    
+    const lastCompletedDay = completedDays.length > 0 ? Math.max(...completedDays) : 0;
+    const hasProgress = perkenalanSelesai || completedDays.length > 0;
+    
+    return {
+        hasProgress: hasProgress,
+        perkenalanSelesai: perkenalanSelesai,
+        completedDays: completedDays,
+        lastCompletedDay: lastCompletedDay
+    };
+}
+
+async function initializeUserProgress() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.log('⚠️ No user ID');
+        lockAllModules();
+        return;
+    }
+    
+    console.log('🔄 Initializing progress for user:', userId);
+    
+    // 1. Check user progress
+    const progress = await checkUserProgress(userId);
+    console.log('📊 Progress result:', progress);
+    
+    // 2. Apply to UI
+    applyProgressToUI(progress);
+    
+    // 3. Show appropriate message
+    showWelcomeMessage(progress);
+}
+
+function applyProgressToUI(progress) {
+    console.log('🎨 Applying progress to UI:', progress);
+    
+    // Reset semua ke locked state dulu
+    lockAllModules();
+    
+    // 1. Handle perkenalan
+    if (progress.perkenalanSelesai) {
+        console.log('✅ Perkenalan sudah selesai');
+        updatePerkenalanUI();
+        
+        // Unlock module 1 jika perkenalan selesai
+        unlockModule(1);
+    } else {
+        console.log('❌ Perkenalan belum selesai');
+        lockModule(1);
+    }
+    
+    // 2. Handle completed days
+    progress.completedDays.forEach(day => {
+        console.log(`✅ Hari ${day} sudah selesai`);
+        markMateriAsCompleted(day);
+        
+        // Unlock completed days
+        unlockModule(day);
+        
+        // Also unlock next day
+        const nextDay = day + 1;
+        if (nextDay <= 10) {
+            unlockModule(nextDay);
+        }
+    });
+    
+    // 3. Special case: jika ada completed days tapi perkenalan belum selesai
+    // (ini terjadi jika data tidak konsisten)
+    if (progress.completedDays.length > 0 && !progress.perkenalanSelesai) {
+        console.log('⚠️ Data inconsistent: has completed days but perkenalan not marked');
+        console.log('🔧 Auto-marking perkenalan as completed');
+        
+        // Auto-mark perkenalan
+        localStorage.setItem('perkenalanSelesai', 'true');
+        updatePerkenalanUI();
+        unlockModule(1);
+    }
+}
+
+function lockAllModules() {
+    console.log('🔒 Locking all modules...');
+    
+    for (let i = 1; i <= 10; i++) {
+        const moduleButton = document.querySelector(`[data-hari="${i}"]`);
+        if (moduleButton) {
+            moduleButton.disabled = true;
+            moduleButton.style.opacity = '0.6';
+            moduleButton.style.cursor = 'not-allowed';
+            
+            // Update icon
+            let icon = moduleButton.querySelector('.status-icon');
+            if (icon) {
+                icon.className = 'status-icon fas fa-lock';
+                icon.style.color = '#002266';
+            }
+        }
+    }
+}
+
+function updatePerkenalanUI() {
+    const selesaiLinks = document.querySelectorAll('.menu-item');
+    selesaiLinks.forEach(link => {
+        if (link.textContent.includes('Selesai Perkenalan')) {
+            link.innerHTML = '<i class="fas fa-check-double"></i> Perkenalan Selesai ✓';
+            link.style.color = '#666666';
+            link.style.fontWeight = 'bold';
+            link.onclick = null;
+        }
+    });
+}
+
+function showWelcomeMessage(progress) {
+    if (progress.lastCompletedDay > 0) {
+        showMessage('success', `Selamat datang kembali! Anda sudah menyelesaikan Hari ${progress.lastCompletedDay}.`, 3000);
+    } else if (progress.perkenalanSelesai) {
+        showMessage('info', 'Selamat datang kembali! Silakan lanjutkan ke modul berikutnya.', 3000);
+    } else {
+        showMessage('info', 'Selamat datang! Silakan selesaikan Perkenalan terlebih dahulu.', 5000);
+        
+        // Auto-expand perkenalan untuk user baru
+        setTimeout(() => {
+            const perkenalanButton = document.querySelector('[data-bs-target="#perkenalanContent"]');
+            if (perkenalanButton && perkenalanButton.classList.contains('collapsed')) {
+                perkenalanButton.click();
+            }
+        }, 1000);
+    }
+}
+// *************************
 // * FUNGSI UTAMA *
 // *************************
 
@@ -1427,11 +1659,10 @@ function markMateriAsCompleted(hariKe) {
 // *************************
 // * INITIALIZATION *
 // *************************
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM Content Loaded - Simple Version');
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOM Content Loaded');
     
-    // Setup basic functions
+    // Basic setup
     setupAllLinks();
     setupPanduanPDFLinks();
     setupCekDisiniButtons();
@@ -1442,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
-    // Check login status
+    // Check login
     const userId = localStorage.getItem('userId');
     const userToken = localStorage.getItem('userToken');
     
@@ -1459,28 +1690,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        // Load progress dan update UI
-        setTimeout(() => {
-            updateUIFromLocalProgress();
-            
-            // Cek jika user baru (no progress in localStorage)
-            const progress = loadProgressFromLocalStorage();
-            if (!progress.perkenalanSelesai && progress.completedDays.length === 0) {
-                console.log('👶 New user detected');
-                showMessage('info', 'Selamat datang! Silakan selesaikan Perkenalan terlebih dahulu.', 5000);
-                
-                // Auto-expand perkenalan
-                setTimeout(() => {
-                    const perkenalanButton = document.querySelector('[data-bs-target="#perkenalanContent"]');
-                    if (perkenalanButton && perkenalanButton.classList.contains('collapsed')) {
-                        perkenalanButton.click();
-                    }
-                }, 1000);
-            } else {
-                console.log('👤 Existing user with progress');
-                showMessage('success', 'Selamat datang kembali!', 3000);
-            }
-        }, 1000);
+        // Initialize user progress
+        await initializeUserProgress();
         
     } else {
         console.log('⚠️ User not logged in');
@@ -1495,10 +1706,9 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        // Lock everything for guest
+        // Lock everything for guests
         setTimeout(() => {
-            lockModule(1);
-            console.log('🔒 All modules locked for guest');
+            lockAllModules();
         }, 500);
     }
     
@@ -1511,18 +1721,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1500);
 });
 
+
 // *************************
 // * TAMBAHKAN CSS UNTUK LOCK/UNLOCK *
 // *************************
 
-// Tambahkan style ini di section CSS
+// Tambahkan CSS ini
 const lockStyles = `
-    /* Lock/Unlock styles */
-    .menu-header[disabled] {
+    /* Lock system - IMPORTANT */
+    button.menu-header[disabled] {
         pointer-events: none !important;
         opacity: 0.6 !important;
         cursor: not-allowed !important;
         background-color: #f8f9fa !important;
+        user-select: none !important;
+    }
+    
+    button.menu-header[disabled]:hover {
+        background-color: #f8f9fa !important;
+        transform: none !important;
+        box-shadow: none !important;
     }
     
     .status-icon {
@@ -1536,6 +1754,11 @@ const lockStyles = `
     
     .fa-unlock {
         color: #28a745 !important;
+    }
+    
+    /* Disable Bootstrap collapse for locked items */
+    button.menu-header[disabled][data-bs-toggle="collapse"] {
+        data-bs-toggle: none;
     }
 `;
 
