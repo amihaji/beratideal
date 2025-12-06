@@ -1176,6 +1176,60 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+/************************************************************
+* MAIN INITIALIZATION - SCALABLE VERSION                   *
+*************************************************************/
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 DOM Content Loaded - Scalable Version');
+    
+    // Initialize basic functions
+    setupAllLinks();
+    setupPanduanPDFLinks();
+    setupCekDisiniButtons();
+    setupPlaylistTriggers();
+    setupPerkenalanCompletion();
+    setupMateriCompletion();
+    
+    // About overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Check login status
+    const userToken = localStorage.getItem('userToken');
+    const userId = localStorage.getItem('userId');
+    
+    if (userToken && userId) {
+        console.log('👤 User logged in:', userId);
+        
+        // Update logout menu
+        updateLogoutMenu();
+        
+        // Initialize Progress Manager
+        await progressManager.init();
+        
+    } else {
+        console.log('⚠️ User not logged in');
+        
+        // Show login menu
+        updateLoginMenu();
+        
+        // Lock everything for guest
+        setTimeout(() => {
+            detectAvailableModules();
+            availableModules.forEach(day => lockModul(day));
+            console.log('✅ All available modules locked for guest');
+        }, 500);
+    }
+    
+    // Initialize other components
+    setTimeout(() => {
+        initializeAllVideoPlayers();
+        generateMealPlanForms();
+        loadSavedResistanceData();
+        console.log('✅ App initialized successfully');
+    }, 1500);
+});
+
+
 /**********************************
 * Cek status materi dan update UI *
 ***********************************/
@@ -2610,58 +2664,6 @@ function selesaiMateri(hariSelesai) {
     }
 }
 
-/************************************************************
-* MAIN INITIALIZATION - SCALABLE VERSION                   *
-*************************************************************/
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 DOM Content Loaded - Scalable Version');
-    
-    // Initialize basic functions
-    setupAllLinks();
-    setupPanduanPDFLinks();
-    setupCekDisiniButtons();
-    setupPlaylistTriggers();
-    setupPerkenalanCompletion();
-    setupMateriCompletion();
-    
-    // About overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    
-    // Check login status
-    const userToken = localStorage.getItem('userToken');
-    const userId = localStorage.getItem('userId');
-    
-    if (userToken && userId) {
-        console.log('👤 User logged in:', userId);
-        
-        // Update logout menu
-        updateLogoutMenu();
-        
-        // Initialize Progress Manager
-        await progressManager.init();
-        
-    } else {
-        console.log('⚠️ User not logged in');
-        
-        // Show login menu
-        updateLoginMenu();
-        
-        // Lock everything for guest
-        setTimeout(() => {
-            detectAvailableModules();
-            availableModules.forEach(day => lockModul(day));
-            console.log('✅ All available modules locked for guest');
-        }, 500);
-    }
-    
-    // Initialize other components
-    setTimeout(() => {
-        initializeAllVideoPlayers();
-        generateMealPlanForms();
-        loadSavedResistanceData();
-        console.log('✅ App initialized successfully');
-    }, 1500);
-});
 
 /************************************************************
 * HELPER FUNCTIONS                                         *
