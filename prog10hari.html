@@ -1082,8 +1082,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-// URL dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz649zG98EHHvKwtBx1EDTFJH-AxIzv5eBCEhDjDtWJ3YPDAcSZgpfh7LtO9EyF8gdByg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxD58gc-vaeeo0rKWTY85PJ5h7VohHej9JADNPiVoXv-ejfv0TA1I3fv0r_cDWNhfqwGw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1179,24 +1178,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // CEK PROGRESS TERAKHIR DARI LOCALSTORAGE
-  const lastProgress = localStorage.getItem('lastProgress');
-  const currentHari = localStorage.getItem('currentHari');
-  
-  if (lastProgress) {
-    const progressData = JSON.parse(lastProgress);
-    console.log('📊 Progress terakhir ditemukan:', progressData);
-    
-    // APPLY PROGRESS KE UI
-    applyProgressToUI(progressData);
-  } else {
-    // Jika tidak ada progress, coba ambil dari server
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      fetchLastProgressFromServer(userId);
-    }
-  }
-
   // Initialize Bootstrap tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -1263,226 +1244,6 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeAllVideoPlayers();
   console.log('✅ App initialized successfully');
 });
-
-/******************
-* Logout function *
-*******************/
-function logout() {
-  // Simpan progress sebelum logout (opsional)
-  const lastProgress = localStorage.getItem('lastProgress');
-  const userId = localStorage.getItem('userId');
-  
-  if (lastProgress && userId) {
-    // Bisa simpan ke server jika diperlukan
-    console.log('Logout - Progress terakhir:', JSON.parse(lastProgress));
-  }
-  
-  // Hapus semua data local
-  localStorage.removeItem('userId');
-  localStorage.removeItem('namaUser');
-  localStorage.removeItem('userToken');
-  localStorage.removeItem('userLevel');
-  localStorage.removeItem('lastProgress');
-  localStorage.removeItem('currentHari');
-  sessionStorage.removeItem('aksesList');
-  
-  // Redirect ke login
-  window.location.href = 'loginFC.html';
-}
-
-/************************************
-* Ambil progress dari server        *
-*************************************/
-async function fetchLastProgressFromServer(userId) {
-  try {
-    const callbackName = 'cb_fetch_progress_' + Date.now();
-    
-    const response = await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-      
-      window[callbackName] = function(data) {
-        resolve(data);
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
-      
-      script.onerror = () => {
-        reject(new Error('Gagal mengambil progress'));
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
-      
-      document.body.appendChild(script);
-    });
-    
-    if (response.success) {
-      localStorage.setItem('lastProgress', JSON.stringify(response));
-      applyProgressToUI(response);
-    }
-  } catch (error) {
-    console.error('Error fetching progress:', error);
-  }
-}
-
-/************************************
-* Terapkan progress ke UI           *
-*************************************/
-function applyProgressToUI(progressData) {
-  console.log('🎯 Menerapkan progress ke UI:', progressData);
-  
-  // 1. Handle Perkenalan
-  if (progressData.perkenalanSelesai) {
-    console.log('✅ Perkenalan sudah selesai');
-    // Unlock modul hari pertama
-    unlockModul(1);
-    
-    // Update UI perkenalan
-    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
-    perkenalanLinks.forEach(link => {
-      if (link.textContent.includes('Selesai Perkenalan')) {
-        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
-        link.style.color = '#666666';
-        link.style.fontWeight = 'bold';
-      }
-    });
-  } else {
-    console.log('⚠️ Perkenalan belum selesai');
-  }
-  
-  // 2. Handle progress per hari
-  if (progressData.lastHari > 0) {
-    console.log('📅 Last hari:', progressData.lastHari);
-    for (let hari = 1; hari <= progressData.lastHari; hari++) {
-      // Unlock modul ini
-      unlockModul(hari);
-      
-      // Check status materi dari server
-      checkMateriStatusFromServer(hari);
-      
-      // Check status meal plan dari server  
-      checkMealPlanStatusFromServer(hari);
-    }
-  }
-  
-  // 3. Unlock modul berikutnya (jika ada)
-  if (progressData.nextHari > 0 && progressData.nextHari <= 10) {
-    console.log('🔓 Unlock next hari:', progressData.nextHari);
-    unlockModul(progressData.nextHari);
-  }
-}
-
-/************************************
-* Check status materi dari server   *
-*************************************/
-async function checkMateriStatusFromServer(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) return;
-  
-  try {
-    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}&callback=cb${Date.now()}`, {
-      method: 'GET'
-    });
-    
-    // Handle JSONP response
-    const text = await response.text();
-    console.log(`📥 Response materi hari ${hariKe}:`, text);
-    
-    // Parse JSONP (remove callback wrapper)
-    if (text.includes('(') && text.includes(')')) {
-      const jsonStr = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
-      const data = JSON.parse(jsonStr);
-      
-      if (data && data.materi === 'OK') {
-        // Update UI
-        updateMateriCompletionUI(hariKe);
-        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-      }
-    }
-  } catch (error) {
-    console.error(`Error checking materi hari ${hariKe}:`, error);
-  }
-}
-
-/************************************
-* Check status meal plan dari server*
-*************************************/
-async function checkMealPlanStatusFromServer(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) return;
-  
-  try {
-    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}&callback=cb${Date.now()}`, {
-      method: 'GET'
-    });
-    
-    const text = await response.text();
-    console.log(`📥 Response meal plan hari ${hariKe}:`, text);
-    
-    if (text.includes('(') && text.includes(')')) {
-      const jsonStr = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
-      const data = JSON.parse(jsonStr);
-      
-      if (data && data.mealPlan === 'OK') {
-        // Update UI
-        updateMealPlanCompletionUI(hariKe);
-        localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
-      }
-    }
-  } catch (error) {
-    console.error(`Error checking meal plan hari ${hariKe}:`, error);
-  }
-}
-
-/************************************
-* Check & update status materi      *
-*************************************/
-async function checkAndUpdateMateriStatus(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) return;
-  
-  try {
-    // Ambil data dari server
-    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}`, {
-      method: 'GET'
-    });
-    
-    const data = await response.json();
-    
-    if (data && data.materi === 'OK') {
-      // Update UI
-      updateMateriCompletionUI(hariKe);
-      saveMateriStatus(hariKe, 'completed');
-    }
-  } catch (error) {
-    console.error('Error checking materi status:', error);
-  }
-}
-
-/************************************
-* Check & update status meal plan   *
-*************************************/
-async function checkAndUpdateMealPlanStatus(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) return;
-  
-  try {
-    // Ambil data dari server
-    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}`, {
-      method: 'GET'
-    });
-    
-    const data = await response.json();
-    
-    if (data && data.mealPlan === 'OK') {
-      // Update UI
-      updateMealPlanCompletionUI(hariKe);
-      saveMealPlanStatus(hariKe, 'completed');
-    }
-  } catch (error) {
-    console.error('Error checking meal plan status:', error);
-  }
-}
 
 /**********************************
 * Cek status materi dan update UI *
@@ -2721,37 +2482,21 @@ function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
 
-  // Cek dari localStorage dulu
-  const lastProgress = localStorage.getItem('lastProgress');
-  if (lastProgress) {
-    const progressData = JSON.parse(lastProgress);
-    if (!progressData.perkenalanSelesai) {
-      lockModul(1); // Lock modul pertama
-    }
-    return;
-  }
-  
-  // Fallback ke cara lama
   const perkenalanSelesai = localStorage.getItem('perkenalanSelesai');
+  
   if (!perkenalanSelesai) {
-    lockModul(1);
-  }
-}
-
-/************************
-* Fungsi lock modul     *
-*************************/
-function lockModul(hariKe) {
-  const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-  if (modulHeader) {
-    modulHeader.classList.add('disabled');
-    modulHeader.style.pointerEvents = 'none';
-    modulHeader.style.opacity = '0.6';
-    
-    const lockIcon = modulHeader.querySelector('.status-lock');
-    if (lockIcon) {
-      lockIcon.className = 'status-lock';
-      lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+    // Lock Modul Hari Pertama
+    const modulPertamaHeader = document.querySelector('[data-hari="1"]');
+    if (modulPertamaHeader) {
+      modulPertamaHeader.classList.add('disabled');
+      modulPertamaHeader.style.pointerEvents = 'none';
+      modulPertamaHeader.style.opacity = '0.6';
+      
+      const lockIcon = modulPertamaHeader.querySelector('.status-lock');
+      if (lockIcon) {
+        lockIcon.className = 'status-lock';
+        lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+      }
     }
   }
 }
@@ -2765,32 +2510,17 @@ function unlockModul(hariKe) {
     
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
     if (modulHeader) {
-        // Hapus kelas disabled
-        modulHeader.classList.remove('disabled');
-        modulHeader.style.pointerEvents = 'auto';
-        modulHeader.style.opacity = '1';
-        
-        // Update lock icon
         const lockIcon = modulHeader.querySelector('.status-lock');
         if (lockIcon) {
             lockIcon.className = 'status-unlock';
             lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
         }
         
-        // Jika ini modul pertama dan perkenalan belum selesai, tetap lock
-        const lastProgress = localStorage.getItem('lastProgress');
-        if (hariKe === 1 && lastProgress) {
-            const progressData = JSON.parse(lastProgress);
-            if (!progressData.perkenalanSelesai) {
-                modulHeader.classList.add('disabled');
-                modulHeader.style.pointerEvents = 'none';
-                modulHeader.style.opacity = '0.6';
-                if (lockIcon) {
-                    lockIcon.className = 'status-lock';
-                    lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
-                }
-            }
-        }
+        modulHeader.classList.remove('disabled');
+        modulHeader.style.pointerEvents = 'auto';
+        modulHeader.style.opacity = '1';
+        
+        showMessage('success', `Modul Hari ${hariKe} berhasil di-unlock!`, 3000, `pertemuan${hariKe}`);
     }
 }
 

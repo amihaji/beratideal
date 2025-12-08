@@ -105,11 +105,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // URL dbKitworks
-    const URL_LOGIN_SCRIPT    = 'https://script.google.com/macros/s/AKfycbz9p_96OA6GD27ofLcXVs4o_XCvIyjuDrKwSw6InqJpkLEojY6zvYmggCOPN9pU3-7yVA/exec';
-    // URL dbProgram 
-    const URL_PROGRESS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz649zG98EHHvKwtBx1EDTFJH-AxIzv5eBCEhDjDtWJ3YPDAcSZgpfh7LtO9EyF8gdByg/exec'; 
-    //const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz9p_96OA6GD27ofLcXVs4o_XCvIyjuDrKwSw6InqJpkLEojY6zvYmggCOPN9pU3-7yVA/exec';
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz9p_96OA6GD27ofLcXVs4o_XCvIyjuDrKwSw6InqJpkLEojY6zvYmggCOPN9pU3-7yVA/exec';
 
     document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('btnLoginSubmit').addEventListener('click', function () {
@@ -131,104 +127,49 @@
 
         const callbackName = 'cb_' + Date.now();
         const script = document.createElement('script');
-        script.src = `${URL_LOGIN_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
+        script.src = `${URL_APPS_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
 
-       window[callbackName] = function (response) {
-        // Sembunyikan spinner dan teks tunggu
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-        document.getElementById('loginWaitText').classList.add('d-none');
+        window[callbackName] = function (response) {
+          // Sembunyikan spinner dan teks tunggu
+          btnText.classList.remove('d-none');
+          btnSpinner.classList.add('d-none');
+          document.getElementById('loginWaitText').classList.add('d-none');
 
-        if (response.status === 'success' && response.loggedIn) {
-          // Simpan session
-          localStorage.setItem('userId', response.userId);
-          localStorage.setItem('namaUser', response.namaUser || response.userId);
-          localStorage.setItem('userToken', response.token);
-          localStorage.setItem('userLevel', response.level);
+          if (response.status === 'success' && response.loggedIn) {
+            // Simpan session
+            localStorage.setItem('userId', response.userId);
+            localStorage.setItem('namaUser', response.namaUser || response.userId); // ✅ SIMPAN NAMA USER
+            localStorage.setItem('userToken', response.token);
+            localStorage.setItem('userLevel', response.level);
 
-          console.log('✅ Login berhasil, userId:', response.userId);
-          
-          // ✅ AMBIL PROGRESS TERAKHIR
-          getLastUserProgress(response.userId, function(progressData) {
-            console.log('📊 Progress Data diterima:', progressData);
-            
-            // SELALU SIMPAN KE LOCALSTORAGE
-            const finalProgress = progressData.success ? progressData : {
-              success: true,
-              lastHari: 0,
-              perkenalanSelesai: false,
-              nextHari: 0
-            };
-            
-            localStorage.setItem('lastProgress', JSON.stringify(finalProgress));
-            
-            // Tentukan hari aktif
-            let currentHari = 0;
-            if (finalProgress.perkenalanSelesai) {
-              currentHari = finalProgress.lastHari > 0 ? finalProgress.lastHari : 1;
+            if (response.access) {
+              sessionStorage.setItem('aksesList', JSON.stringify(response.access));
             }
-            localStorage.setItem('currentHari', currentHari.toString());
-            
-            console.log('💾 Progress disimpan:', finalProgress);
-            console.log('📅 Current hari:', currentHari);
-            
+
             showNotification('success', 'Login berhasil! Mengarahkan...');
             setTimeout(() => {
               window.location.href = 'prog10hari.html';
             }, 1000);
-          });
-          
-        } else {
-          showNotification('error', response.message || 'ERROR : User ID atau Password salah!');
-        }
+          } else {
+            showNotification('error', response.message || 'ERROR : User ID atau Password salah!');
+          }
 
-        if (script.parentNode) {
           document.body.removeChild(script);
-        }
-        delete window[callbackName];
-      };
+          delete window[callbackName];
+        };
+
+        script.onerror = () => {
+          showNotification('error', 'ERROR : Gagal terhubung ke server!');
+          btnText.classList.remove('d-none');
+          btnSpinner.classList.add('d-none');
+          document.getElementById('loginWaitText').classList.add('d-none');
+          document.body.removeChild(script);
+          delete window[callbackName];
+        };
+
         document.body.appendChild(script);
       });
     });
-
-    /************************************
-    * Ambil Progress Terakhir dari Server *
-    *************************************/
-    function getLastUserProgress(userId, callback) {
-      const callbackName = 'cb_progress_' + Date.now();
-      const script = document.createElement('script');
-      
-      // GUNAKAN URL_PROGRESS_SCRIPT (dbProgram)
-      script.src = `${URL_PROGRESS_SCRIPT}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-      
-      console.log('🚀 Mengambil progress dari:', script.src);
-      
-      window[callbackName] = function(response) {
-        console.log('✅ Response getLastProgress:', response);
-        callback(response);
-        if (script.parentNode) {
-          document.body.removeChild(script);
-        }
-        delete window[callbackName];
-      };
-      
-      script.onerror = (error) => {
-        console.error('❌ Error getLastProgress:', error);
-        callback({ 
-          success: false, 
-          message: 'Gagal mengambil progress',
-          lastHari: 0,
-          perkenalanSelesai: false,
-          nextHari: 0
-        });
-        if (script.parentNode) {
-          document.body.removeChild(script);
-        }
-        delete window[callbackName];
-      };
-      
-      document.body.appendChild(script);
-    }
 
     function showNotification(type, message, duration = 3000) {
       const box = document.getElementById('notificationBox');
