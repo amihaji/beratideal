@@ -1082,7 +1082,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyW_9kFYLrpJYrmWhTgcPGBkRSQCiPgGoRWQSJsOSXd4YOV1J8tJlNy_1r2DGJ4X7pruQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwl6tVdKHH8NKUx6pD6YMg3A_E0BQrqa9JKqoqzbxAtjQvh2Txvjinm5dRLAmJUk68VxA/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -2542,42 +2542,40 @@ function selesaiMateri(hariSelesai) {
 /************************************
 * Simpan materi untuk hari tertentu *
 ************************************/
+// Di REVISI1-prog10hari.txt (fungsi simpanMateri)
 async function simpanMateri(hariKe) {
-    const userId   = localStorage.getItem('userId');
+    const userId = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
-    if (!userId) {
-        showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-    console.log('🔧 simpanMateri called:', { userId, hariKe });
+    
+    // AMBIL DATA PROGRAM DARI SHEET LAINNYA LEWAT API TAMBAHAN
+    const programData = await getUserProgramData(userId);
+    
     try {
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
                 action: 'updateMateri',
                 userId: userId,
                 namaUser: namaUser,
-                hariKe: hariKe
+                hariKe: hariKe,
+                targetProgram: programData.program || '', // KIRIM LANGSUNG DARI FRONTEND
+                namaKonsumen: programData.nama || ''
             })
         });
-
-        const result = await response.text();
-        console.log('📥 Response:', result);
-        if (result === "OK") {
-            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
-            // ✅ UPDATE: Tandai materi dengan centang di UI
-            updateMateriCompletionUI(hariKe);
-            // Simpan status di localStorage
-            saveMateriStatus(hariKe, 'completed');
-        } else {
-            showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
-        }
+        // ... sisanya sama
     } catch (error) {
-        console.error('❌ Fetch error:', error);
-        showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
+        // ... handle error
+    }
+}
+
+// Fungsi baru untuk ambil data program
+async function getUserProgramData(userId) {
+    try {
+        const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgram&userId=${userId}`);
+        return await response.json();
+    } catch (error) {
+        return { program: '', nama: '' };
     }
 }
 
