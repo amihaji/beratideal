@@ -2542,40 +2542,44 @@ function selesaiMateri(hariSelesai) {
 /************************************
 * Simpan materi untuk hari tertentu *
 ************************************/
-// Di REVISI1-prog10hari.txt (fungsi simpanMateri)
 async function simpanMateri(hariKe) {
-    const userId = localStorage.getItem('userId');
+    const userId   = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
     
-    // AMBIL DATA PROGRAM DARI SHEET LAINNYA LEWAT API TAMBAHAN
-    const programData = await getUserProgramData(userId);
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    console.log('🔧 simpanMateri called:', { userId, namaUser, hariKe });
     
     try {
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: new URLSearchParams({
                 action: 'updateMateri',
                 userId: userId,
-                namaUser: namaUser,
-                hariKe: hariKe,
-                targetProgram: programData.program || '', // KIRIM LANGSUNG DARI FRONTEND
-                namaKonsumen: programData.nama || ''
+                namaUser: namaUser, // ✅ PASTIKAN INI TERKIRIM
+                hariKe: hariKe
             })
         });
-        // ... sisanya sama
-    } catch (error) {
-        // ... handle error
-    }
-}
 
-// Fungsi baru untuk ambil data program
-async function getUserProgramData(userId) {
-    try {
-        const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgram&userId=${userId}`);
-        return await response.json();
+        const result = await response.text();
+        console.log('📥 Response:', result);
+        
+        if (result === "OK") {
+            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
+            updateMateriCompletionUI(hariKe);
+            saveMateriStatus(hariKe, 'completed');
+        } else {
+            showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+        }
     } catch (error) {
-        return { program: '', nama: '' };
+        console.error('❌ Fetch error:', error);
+        showMessage('error', 'Gagal terhubung : ' + error.message, 3000, `pertemuan${hariKe}`);
     }
 }
 

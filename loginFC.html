@@ -138,7 +138,7 @@
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
-            localStorage.setItem('namaUser', response.namaUser);
+            localStorage.setItem('namaUser', response.namaUser || response.userId); // ✅ SIMPAN NAMA USER
             localStorage.setItem('userToken', response.token);
             localStorage.setItem('userLevel', response.level);
 
