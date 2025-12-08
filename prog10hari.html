@@ -1093,7 +1093,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxmSXpTOOcJr8R0IjrBGrVGVhIY34j9zr7iuPKNbxmbkBoNh4qG17Jd8awesDMzcB2sHA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwCGiupu7amvKF0fP0noV2TA-xqwk5_uUcrEmK9Yvi2X1kzPET1JIT6bkMLywtrv6kMmw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***********************
@@ -1271,79 +1271,135 @@ function lockModule(hariKe) {
     };
 }
 
-function unlockModule(hariKe) {
-    console.log(`🔓 Unlocking module ${hariKe}`);
-    
-    const moduleButton = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (!moduleButton) {
-        console.log(`Module ${hariKe} not found`);
-        return;
-    }
-    
-    // Update icon
-    let lockIcon = moduleButton.querySelector('.status-icon');
-    if (!lockIcon) {
-        const span = moduleButton.querySelector('span');
-        if (span) {
-            lockIcon = document.createElement('i');
-            lockIcon.className = 'status-icon fas fa-unlock';
-            lockIcon.style.marginLeft = '10px';
-            lockIcon.style.color = '#28a745';
-            span.appendChild(lockIcon);
+function lockAllModules() {
+    // Instan lock tanpa async
+    const lockAll = () => {
+        for (let i = 1; i <= 10; i++) {
+            const moduleButton = document.querySelector(`[data-hari="${i}"]`);
+            if (moduleButton) {
+                moduleButton.disabled = true;
+                moduleButton.style.opacity = '0.6';
+                moduleButton.style.cursor = 'not-allowed';
+                
+                // Set data attribute untuk CSS
+                moduleButton.setAttribute('data-locked', 'true');
+            }
         }
+    };
+    
+    // Execute sekarang
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', lockAll);
     } else {
-        lockIcon.className = 'status-icon fas fa-unlock';
-        lockIcon.style.color = '#28a745';
+        lockAll();
     }
-    
-    // Enable button
-    moduleButton.disabled = false;
-    moduleButton.style.opacity = '1';
-    moduleButton.style.cursor = 'pointer';
-    moduleButton.style.backgroundColor = '';
-    
-    // Restore Bootstrap collapse
-    moduleButton.setAttribute('data-bs-toggle', 'collapse');
-    moduleButton.onclick = null;
+}
+
+function unlockModule(hariKe) {
+    const moduleButton = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (moduleButton) {
+        moduleButton.disabled = false;
+        moduleButton.style.opacity = '1';
+        moduleButton.style.cursor = 'pointer';
+        moduleButton.removeAttribute('data-locked');
+        
+        // Update icon dengan animation
+        setTimeout(() => {
+            let icon = moduleButton.querySelector('.status-icon');
+            if (icon) {
+                icon.className = 'status-icon fas fa-unlock';
+                icon.style.color = '#28a745';
+                icon.style.transition = 'all 0.3s ease';
+            }
+        }, 100);
+    }
 }
 
 // *************************
 // * SISTEM PROGRESS DENGAN FALLBACK *
 // *************************
-
 async function checkUserProgress(userId) {
-    console.log('🔍 Checking progress for user:', userId);
+    console.log('🔍 Checking user progress (optimized)...');
     
+    // 1. QUICK CHECK: Cek localStorage dulu (sangat cepat)
+    const localProgress = getProgressFromLocalStorage();
+    console.log('📂 Local progress:', localProgress);
+    
+    // Jika ada progress di localStorage, langsung return (optimization)
+    if (localProgress.hasProgress) {
+        console.log('⚡ Using local progress (fast)');
+        return localProgress;
+    }
+    
+    // 2. FULL CHECK: Cek server untuk data terbaru
+    console.log('📡 Checking server for latest data...');
+    const serverProgress = await getProgressFromServerOptimized(userId);
+    
+    // Combine local and server data
+    const combinedProgress = {
+        hasProgress: localProgress.hasProgress || serverProgress.hasProgress,
+        perkenalanSelesai: localProgress.perkenalanSelesai || serverProgress.perkenalanSelesai,
+        completedDays: [...new Set([...localProgress.completedDays, ...serverProgress.completedDays])],
+        lastCompletedDay: Math.max(localProgress.lastCompletedDay, serverProgress.lastCompletedDay)
+    };
+    
+    console.log('📊 Combined progress:', combinedProgress);
+    return combinedProgress;
+}
+
+async function getProgressFromServerOptimized(userId) {
     try {
-        // 1. Coba dari server (Google Sheet)
-        const serverProgress = await getProgressFromServer(userId);
+        // PARALLEL REQUESTS untuk lebih cepat
+        const [perkenalanPromise, materiPromise] = await Promise.allSettled([
+            fetch(`${URL_PROGRAM_APP}?action=checkPerkenalanStatus&userId=${userId}`),
+            fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}`)
+        ]);
         
-        if (serverProgress.hasProgress) {
-            console.log('✅ Progress found on server:', serverProgress);
-            return serverProgress;
+        let perkenalanSelesai = false;
+        let completedDays = [];
+        
+        // Process perkenalan
+        if (perkenalanPromise.status === 'fulfilled') {
+            try {
+                const text = await perkenalanPromise.value.text();
+                const data = JSON.parse(text);
+                perkenalanSelesai = data.perkenalanSelesai || false;
+            } catch (e) {
+                console.log('Could not parse perkenalan');
+            }
         }
         
-        // 2. Coba dari localStorage
-        const localProgress = getProgressFromLocalStorage();
-        
-        if (localProgress.hasProgress) {
-            console.log('✅ Progress found in localStorage:', localProgress);
-            return localProgress;
+        // Process materi (batch request untuk semua hari)
+        if (materiPromise.status === 'fulfilled') {
+            try {
+                const text = await materiPromise.value.text();
+                const data = JSON.parse(text);
+                
+                // Jika API support lastCompletedDay
+                if (data.lastCompletedDay > 0) {
+                    for (let i = 1; i <= data.lastCompletedDay; i++) {
+                        completedDays.push(i);
+                    }
+                }
+                // Fallback: cek individual materi jika ada
+                else if (data.materi === "OK") {
+                    completedDays.push(1);
+                }
+            } catch (e) {
+                console.log('Could not parse materi');
+            }
         }
         
-        // 3. User benar-benar baru
-        console.log('👶 User is completely new');
         return {
-            hasProgress: false,
-            perkenalanSelesai: false,
-            completedDays: [],
-            lastCompletedDay: 0
+            hasProgress: perkenalanSelesai || completedDays.length > 0,
+            perkenalanSelesai: perkenalanSelesai,
+            completedDays: completedDays,
+            lastCompletedDay: completedDays.length > 0 ? Math.max(...completedDays) : 0
         };
         
     } catch (error) {
-        console.error('❌ Error checking progress:', error);
-        // Fallback ke localStorage
-        return getProgressFromLocalStorage();
+        console.error('Server error:', error);
+        return { hasProgress: false, perkenalanSelesai: false, completedDays: [], lastCompletedDay: 0 };
     }
 }
 
@@ -1445,69 +1501,32 @@ async function initializeUserProgress() {
 }
 
 function applyProgressToUI(progress) {
-    console.log('🎨 Applying progress to UI:', progress);
+    console.log('🎨 Applying progress to UI (instant)...');
     
-    // Reset semua ke locked state dulu
-    lockAllModules();
+    // Show instant feedback
+    document.body.classList.add('loading-pulse');
     
-    // 1. Handle perkenalan
+    // Apply changes
     if (progress.perkenalanSelesai) {
-        console.log('✅ Perkenalan sudah selesai');
         updatePerkenalanUI();
-        
-        // Unlock module 1 jika perkenalan selesai
         unlockModule(1);
     } else {
-        console.log('❌ Perkenalan belum selesai');
         lockModule(1);
     }
     
-    // 2. Handle completed days
     progress.completedDays.forEach(day => {
-        console.log(`✅ Hari ${day} sudah selesai`);
         markMateriAsCompleted(day);
-        
-        // Unlock completed days
         unlockModule(day);
         
-        // Also unlock next day
-        const nextDay = day + 1;
-        if (nextDay <= 10) {
-            unlockModule(nextDay);
-        }
+        // Unlock next day
+        if (day < 10) unlockModule(day + 1);
     });
     
-    // 3. Special case: jika ada completed days tapi perkenalan belum selesai
-    // (ini terjadi jika data tidak konsisten)
-    if (progress.completedDays.length > 0 && !progress.perkenalanSelesai) {
-        console.log('⚠️ Data inconsistent: has completed days but perkenalan not marked');
-        console.log('🔧 Auto-marking perkenalan as completed');
-        
-        // Auto-mark perkenalan
-        localStorage.setItem('perkenalanSelesai', 'true');
-        updatePerkenalanUI();
-        unlockModule(1);
-    }
-}
-
-function lockAllModules() {
-    console.log('🔒 Locking all modules...');
-    
-    for (let i = 1; i <= 10; i++) {
-        const moduleButton = document.querySelector(`[data-hari="${i}"]`);
-        if (moduleButton) {
-            moduleButton.disabled = true;
-            moduleButton.style.opacity = '0.6';
-            moduleButton.style.cursor = 'not-allowed';
-            
-            // Update icon
-            let icon = moduleButton.querySelector('.status-icon');
-            if (icon) {
-                icon.className = 'status-icon fas fa-lock';
-                icon.style.color = '#002266';
-            }
-        }
-    }
+    // Show welcome message
+    setTimeout(() => {
+        showWelcomeMessage(progress);
+        document.body.classList.remove('loading-pulse');
+    }, 300);
 }
 
 function updatePerkenalanUI() {
@@ -1659,21 +1678,78 @@ function markMateriAsCompleted(hariKe) {
 // *************************
 // * INITIALIZATION *
 // *************************
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 DOM Content Loaded');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM Content Loaded - Optimized Version');
     
-    // Basic setup
+    // 1. SETUP UI DULU (tanpa menunggu progress)
+    setupBasicUI();
+    
+    // 2. CHECK LOGIN & LOAD PROGRESS (async, non-blocking)
+    setTimeout(() => {
+        checkLoginAndLoadProgress();
+    }, 100);
+    
+    // 3. INIT OTHER COMPONENTS (lazy load)
+    setTimeout(() => {
+        initializeOtherComponents();
+    }, 500);
+});
+
+function setupBasicUI() {
+    console.log('⚡ Setting up basic UI...');
+    
+    // Setup functions yang cepat
     setupAllLinks();
     setupPanduanPDFLinks();
     setupCekDisiniButtons();
     setupPlaylistTriggers();
-    setupPerkenalanCompletion();
-    setupMateriCompletion();
     
     // About overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
-    // Check login
+    // Update login/logout menu based on localStorage (instan)
+    updateLoginMenuFromCache();
+    
+    // Show loading state
+    showLoadingState();
+}
+
+function showLoadingState() {
+    // Tambahkan loading indicator
+    const loadingHtml = `
+        <div id="progressLoading" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #0077ff, #00ff88);
+            z-index: 9999;
+            animation: loading 2s infinite;
+        "></div>
+        <style>
+            @keyframes loading {
+                0% { width: 0%; left: 0%; }
+                50% { width: 70%; left: 15%; }
+                100% { width: 0%; left: 100%; }
+            }
+        </style>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', loadingHtml);
+}
+
+function hideLoadingState() {
+    const loadingElement = document.getElementById('progressLoading');
+    if (loadingElement) {
+        loadingElement.style.opacity = '0';
+        setTimeout(() => loadingElement.remove(), 300);
+    }
+}
+
+async function checkLoginAndLoadProgress() {
+    console.log('🔍 Checking login and loading progress...');
+    
     const userId = localStorage.getItem('userId');
     const userToken = localStorage.getItem('userToken');
     
@@ -1681,45 +1757,120 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('👤 User logged in:', userId);
         
         // Update logout menu
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        if (loginMenuItem) {
-            loginMenuItem.innerHTML = `
-                <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            `;
-        }
+        updateLoginMenu(true);
         
-        // Initialize user progress
-        await initializeUserProgress();
+        // Load progress dengan caching
+        await loadProgressWithCache(userId);
         
     } else {
         console.log('⚠️ User not logged in');
+        updateLoginMenu(false);
         
-        // Show login menu
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        if (loginMenuItem) {
-            loginMenuItem.innerHTML = `
-                <a class="nav-link main-menu-link" href="loginFC.html">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </a>
-            `;
-        }
-        
-        // Lock everything for guests
-        setTimeout(() => {
-            lockAllModules();
-        }, 500);
+        // Lock modules for guest (instan)
+        lockAllModules();
+        hideLoadingState();
+    }
+}
+
+function initializeOtherComponents() {
+    console.log('🔄 Initializing other components...');
+    
+    // Setup completion functions
+    setupPerkenalanCompletion();
+    setupMateriCompletion();
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    
+    // Generate forms
+    generateMealPlanForms();
+    
+    // Load resistance data
+    loadSavedResistanceData();
+    
+    console.log('✅ All components initialized');
+}
+
+// *********************
+// Cache object
+// *********************
+const progressCache = {
+    data: null,
+    timestamp: 0,
+    ttl: 5 * 60 * 1000, // 5 menit
+    userId: null
+};
+
+async function loadProgressWithCache(userId) {
+    console.log('💾 Loading progress with cache...');
+    
+    // 1. Cek cache dulu
+    if (isCacheValid(userId)) {
+        console.log('⚡ Using cached progress');
+        applyProgressToUI(progressCache.data);
+        hideLoadingState();
+        return;
     }
     
-    // Initialize other components
-    setTimeout(() => {
-        initializeAllVideoPlayers();
-        generateMealPlanForms();
-        loadSavedResistanceData();
-        console.log('✅ App initialized successfully');
-    }, 1500);
-});
+    // 2. Show loading
+    showLoadingState();
+    
+    // 3. Load from server (with timeout)
+    try {
+        const progress = await loadProgressWithTimeout(userId);
+        
+        // 4. Update cache
+        updateCache(userId, progress);
+        
+        // 5. Apply to UI
+        applyProgressToUI(progress);
+        
+    } catch (error) {
+        console.error('❌ Error loading progress:', error);
+        
+        // Fallback to localStorage
+        const localProgress = getProgressFromLocalStorage();
+        applyProgressToUI(localProgress);
+    }
+    
+    // 6. Hide loading
+    hideLoadingState();
+}
+
+async function loadProgressWithTimeout(userId, timeout = 5000) {
+    return new Promise(async (resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            reject(new Error('Progress loading timeout'));
+        }, timeout);
+        
+        try {
+            const progress = await checkUserProgress(userId);
+            clearTimeout(timeoutId);
+            resolve(progress);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
+        }
+    });
+}
+
+function isCacheValid(userId) {
+    if (!progressCache.data || progressCache.userId !== userId) {
+        return false;
+    }
+    
+    const now = Date.now();
+    const cacheAge = now - progressCache.timestamp;
+    
+    return cacheAge < progressCache.ttl;
+}
+
+function updateCache(userId, progress) {
+    progressCache.data = progress;
+    progressCache.userId = userId;
+    progressCache.timestamp = Date.now();
+    console.log('💾 Cache updated');
+}
 
 
 // *************************
@@ -1727,46 +1878,37 @@ document.addEventListener('DOMContentLoaded', async function() {
 // *************************
 
 // Tambahkan CSS ini
-const lockStyles = `
-    /* Lock system - IMPORTANT */
-    button.menu-header[disabled] {
+const instantStyles = `
+    /* Instant lock styles */
+    [data-locked="true"] {
         pointer-events: none !important;
         opacity: 0.6 !important;
         cursor: not-allowed !important;
         background-color: #f8f9fa !important;
-        user-select: none !important;
     }
     
-    button.menu-header[disabled]:hover {
+    [data-locked="true"]:hover {
         background-color: #f8f9fa !important;
         transform: none !important;
         box-shadow: none !important;
     }
     
-    .status-icon {
-        margin-left: 10px;
-        font-size: 14px;
+    /* Loading animation */
+    .loading-pulse {
+        animation: pulse 1.5s infinite;
     }
     
-    .fa-lock {
-        color: #002266 !important;
-    }
-    
-    .fa-unlock {
-        color: #28a745 !important;
-    }
-    
-    /* Disable Bootstrap collapse for locked items */
-    button.menu-header[disabled][data-bs-toggle="collapse"] {
-        data-bs-toggle: none;
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
     }
 `;
 
 // Inject CSS
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = lockStyles;
-document.head.appendChild(styleSheet);
+const styleElement = document.createElement('style');
+styleElement.textContent = instantStyles;
+document.head.appendChild(styleElement);
 
 /******************
 * Show About form *
