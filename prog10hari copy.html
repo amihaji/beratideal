@@ -1082,7 +1082,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyaSZDA01Sw7qlgNH_u8o63wNAdyG1BXYIlYJuk-tFwd6vJAWq-NfL-uCVakaTngXa12A/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxD58gc-vaeeo0rKWTY85PJ5h7VohHej9JADNPiVoXv-ejfv0TA1I3fv0r_cDWNhfqwGw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1168,149 +1168,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /*************************************
 * Event listener di DOMContentLoaded *
 **************************************/
-// Di DOMContentLoaded, bagian awal:
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Aplikasi dimulai...');
-  
-  // 1. LOAD PROGRESS DARI LOCALSTORAGE
-  loadProgressFromStorage();
-  
-  // 2. SETUP SEMUA KOMPONEN
-  setupAllComponents();
-  
-  console.log('✅ Aplikasi siap');
-});
-
-/************************************
-* Load progress dari localStorage   *
-*************************************/
-function loadProgressFromStorage() {
-  console.log('📂 Memuat progress dari storage...');
-  
-  // Ambil data progress
-  const progressData = localStorage.getItem('progressData');
-  const userId = localStorage.getItem('userId');
-  
-  if (progressData) {
-    const progress = JSON.parse(progressData);
-    console.log('📊 Progress ditemukan:', progress);
-    
-    // APLIKASIKAN KE UI
-    applyProgressToUI(progress);
-  } else if (userId) {
-    // Jika ada userId tapi tidak ada progress, coba ambil dari server
-    console.log('🔄 Ambil progress dari server...');
-    fetchProgressFromServer(userId);
-  }
-}
-
-/************************************
-* Ambil progress dari server        *
-*************************************/
-function fetchProgressFromServer(userId) {
-  const callbackName = 'cb_fetch_progress_' + Date.now();
-  const script = document.createElement('script');
-  
-  script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-  
-  window[callbackName] = function(response) {
-    console.log('📡 Progress dari server:', response);
-    
-    if (response.success) {
-      localStorage.setItem('progressData', JSON.stringify(response));
-      applyProgressToUI(response);
-    }
-    
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-  
-  script.onerror = () => {
-    console.warn('⚠️ Gagal ambil progress dari server');
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-  
-  document.body.appendChild(script);
-}
-
-/************************************
-* Terapkan progress ke UI - SIMPLE  *
-*************************************/
-function applyProgressToUI(progress) {
-  console.log('🎯 Menerapkan progress ke UI');
-  
-  // 1. PERKENALAN
-  if (progress.perkenalan) {
-    console.log('✅ Perkenalan sudah selesai');
-    
-    // Update link "Selesai Perkenalan"
-    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
-    perkenalanLinks.forEach(link => {
-      if (link.textContent.includes('Selesai Perkenalan')) {
-        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
-        link.style.color = '#666666';
-        link.style.fontWeight = 'bold';
-        link.style.pointerEvents = 'none';
-      }
-    });
-    
-    // Unlock Modul Hari 1
-    unlockModul(1);
-  }
-  
-  // 2. MATERI HARI 1
-  if (progress.materiHari1) {
-    console.log('✅ Materi Hari 1 sudah selesai');
-    
-    // Update link materi
-    const materiLink = document.getElementById('materiLink1');
-    if (materiLink) {
-      materiLink.innerHTML = materiLink.innerHTML + ' ✓';
-      materiLink.style.color = '#666666';
-      materiLink.style.fontWeight = 'bold';
-    }
-    
-    // Update tombol centang di video
-    const completeBtn = document.querySelector('#videoContainerPertemuan1 .complete-btn');
-    if (completeBtn) {
-      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-      completeBtn.classList.remove('btn-success');
-      completeBtn.classList.add('btn-secondary');
-      completeBtn.disabled = true;
-    }
-  }
-  
-  // 3. MEAL PLAN HARI 1
-  if (progress.mealplanHari1) {
-    console.log('✅ Meal Plan Hari 1 sudah selesai');
-    
-    // Update link meal plan
-    const mealPlanLinks = document.querySelectorAll('[onclick="uploadMealPlan(1)"]');
-    mealPlanLinks.forEach(link => {
-      link.innerHTML = '<i class="fas fa-utensils"></i>1.2 Meal Plan - Hari ke 1 ✓';
-      link.style.color = '#666666';
-      link.style.fontWeight = 'bold';
-    });
-    
-    // Update tombol selesai meal plan
-    const selesaiBtn = document.getElementById('btnSelesaiMealPlan1');
-    if (selesaiBtn) {
-      selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai Meal Plan Hari 1';
-      selesaiBtn.classList.remove('btn-secondary');
-      selesaiBtn.classList.add('btn-success');
-      selesaiBtn.disabled = true;
-    }
-  }
-  
-  console.log('✅ Progress berhasil diterapkan');
-}
-
-/************************************
-* Setup semua komponen              *
-*************************************/
-function setupAllComponents() {
-  // Setup yang sudah ada di kode Anda
+  // Submenu triggers
   document.querySelectorAll('.submenu-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
       e.preventDefault();
@@ -1319,36 +1178,56 @@ function setupAllComponents() {
     });
   });
   
-  // Setup video links
-  setupAllLinks();
-  
-  // Setup PDF links
-  setupPanduanPDFLinks();
-  setupCekDisiniButtons();
-  
-  // Setup playlist
-  setupPlaylistTriggers();
-  
-  // Setup Materi Perkenalan
-  //setupPerkenalanCompletion();
+  // Initialize Bootstrap tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
 
-  // Setup materi completion
-  setupMateriCompletion();
+  // 1. LOAD PROGRESS DARI LOCALSTORAGE
+  loadProgressFromStorage();
   
+  // 2. SETUP SEMUA KOMPONEN
+  setupAllComponents();
+
+  // Setup video links
+  //setupAllLinks();
+    // Setup PDF links khusus untuk menu Panduan
+  //setupPanduanPDFLinks();
+  // Setup tombol "Cek Disini" untuk Modul Hari Pertama
+  //setupCekDisiniButtons();
+    // Setup playlist triggers
+  //setupPlaylistTriggers();
+    // Setup Materi Perkenalan
+  //setupPerkenalanCompletion();
+  // Setup Materi Pertemuan
+ // setupMateriCompletion();
+  // Cek status materi untuk semua hari
+
   for (let i = 1; i <= 10; i++) {
     checkMateriStatus(i);
   }
 
-  // Setup meal plan forms
+  // Generate form meal plan untuk semua hari
   generateMealPlanForms();
-  
+
   // Cek status meal plan untuk semua hari
   for (let i = 1; i <= 10; i++) {
     checkMealPlanStatus(i);
     loadMealPlanProgress(i); // ✅ LOAD PROGRESS YANG SUDAH DIUPLOAD
   }
 
-  // Setup tentang overlay
+  // Cek status perkenalan dan lock/unlock modul
+  checkPerkenalanStatus();
+
+  console.log('✅ All functions initialized');
+
+  // Load saved resistance data
+  setTimeout(() => {
+    loadSavedResistanceData();
+  }, 1000);
+  
+  // About overlay
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
   
   // Cek login status
@@ -1364,7 +1243,8 @@ function setupAllComponents() {
   
   // Initialize video players
   initializeAllVideoPlayers();
-}
+  console.log('✅ App initialized successfully');
+});
 
 /**********************************
 * Cek status materi dan update UI *

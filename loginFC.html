@@ -129,35 +129,71 @@
         const script = document.createElement('script');
         script.src = `${URL_APPS_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
 
+        // Di loginFC.html, setelah login berhasil:
         window[callbackName] = function (response) {
-          // Sembunyikan spinner dan teks tunggu
-          btnText.classList.remove('d-none');
-          btnSpinner.classList.add('d-none');
-          document.getElementById('loginWaitText').classList.add('d-none');
-
+          // ... login success handling ...
+          
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
-            localStorage.setItem('namaUser', response.namaUser || response.userId); // ✅ SIMPAN NAMA USER
+            localStorage.setItem('namaUser', response.namaUser || response.userId);
             localStorage.setItem('userToken', response.token);
             localStorage.setItem('userLevel', response.level);
-
-            if (response.access) {
-              sessionStorage.setItem('aksesList', JSON.stringify(response.access));
-            }
-
-            showNotification('success', 'Login berhasil! Mengarahkan...');
-            setTimeout(() => {
-              window.location.href = 'prog10hari.html';
-            }, 1000);
+            
+            console.log('✅ Login berhasil, ambil progress...');
+            
+            // AMBIL PROGRESS DARI SERVER
+            const progressCallback = 'cb_progress_' + Date.now();
+            const progressScript = document.createElement('script');
+            
+            // GUNAKAN URL YANG SAMA DENGAN ACTION LAINNYA
+            progressScript.src = `${URL_APPS_SCRIPT}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
+            
+            window[progressCallback] = function(progressData) {
+              console.log('📥 Progress dari server:', progressData);
+              
+              // SIMPAN KE LOCALSTORAGE
+              localStorage.setItem('progressData', JSON.stringify(progressData));
+              
+              // SIMPAN STATUS PER ITEM
+              if (progressData.perkenalan) {
+                localStorage.setItem('perkenalanSelesai', 'true');
+              }
+              if (progressData.materiHari1) {
+                localStorage.setItem('materi_hari_1', 'completed');
+              }
+              if (progressData.mealplanHari1) {
+                localStorage.setItem('mealplan_hari_1', 'completed');
+              }
+              
+              showNotification('success', 'Login berhasil! Mengarahkan...');
+              setTimeout(() => {
+                window.location.href = 'prog10hari.html';
+              }, 1000);
+              
+              document.body.removeChild(progressScript);
+              delete window[progressCallback];
+            };
+            
+            progressScript.onerror = () => {
+              console.warn('⚠️ Gagal ambil progress, lanjut tanpa progress');
+              showNotification('success', 'Login berhasil! Mengarahkan...');
+              setTimeout(() => {
+                window.location.href = 'prog10hari.html';
+              }, 1000);
+              document.body.removeChild(progressScript);
+              delete window[progressCallback];
+            };
+            
+            document.body.appendChild(progressScript);
+            
           } else {
-            showNotification('error', response.message || 'ERROR : User ID atau Password salah!');
+            showNotification('error', response.message || 'Login gagal!');
           }
-
+          
           document.body.removeChild(script);
           delete window[callbackName];
         };
-
         script.onerror = () => {
           showNotification('error', 'ERROR : Gagal terhubung ke server!');
           btnText.classList.remove('d-none');
