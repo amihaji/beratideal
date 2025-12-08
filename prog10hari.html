@@ -1082,7 +1082,8 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw1HERIJ98fvtGYlvcv6yeHLANrAPZV0WmcxTXvSgaYmCKlgbKXDPt_0ZtnSIaBCOze_g/exec';
+// URL dbProgram
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz649zG98EHHvKwtBx1EDTFJH-AxIzv5eBCEhDjDtWJ3YPDAcSZgpfh7LtO9EyF8gdByg/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1327,12 +1328,16 @@ async function fetchLastProgressFromServer(userId) {
 /************************************
 * Terapkan progress ke UI           *
 *************************************/
+/************************************
+* Terapkan progress ke UI           *
+*************************************/
 function applyProgressToUI(progressData) {
   console.log('🎯 Menerapkan progress ke UI:', progressData);
   
   // 1. Handle Perkenalan
   if (progressData.perkenalanSelesai) {
-    // Jika perkenalan sudah selesai, unlock modul hari pertama
+    console.log('✅ Perkenalan sudah selesai');
+    // Unlock modul hari pertama
     unlockModul(1);
     
     // Update UI perkenalan
@@ -1344,35 +1349,92 @@ function applyProgressToUI(progressData) {
         link.style.fontWeight = 'bold';
       }
     });
+  } else {
+    console.log('⚠️ Perkenalan belum selesai');
   }
   
   // 2. Handle progress per hari
-  for (let hari = 1; hari <= progressData.lastHari; hari++) {
-    // Unlock modul ini
-    unlockModul(hari);
-    
-    // Check dan update status materi
-    checkAndUpdateMateriStatus(hari);
-    
-    // Check dan update status meal plan
-    checkAndUpdateMealPlanStatus(hari);
+  if (progressData.lastHari > 0) {
+    console.log('📅 Last hari:', progressData.lastHari);
+    for (let hari = 1; hari <= progressData.lastHari; hari++) {
+      // Unlock modul ini
+      unlockModul(hari);
+      
+      // Check status materi dari server
+      checkMateriStatusFromServer(hari);
+      
+      // Check status meal plan dari server  
+      checkMealPlanStatusFromServer(hari);
+    }
   }
   
   // 3. Unlock modul berikutnya (jika ada)
   if (progressData.nextHari > 0 && progressData.nextHari <= 10) {
+    console.log('🔓 Unlock next hari:', progressData.nextHari);
     unlockModul(progressData.nextHari);
   }
+}
+
+/************************************
+* Check status materi dari server   *
+*************************************/
+async function checkMateriStatusFromServer(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
   
-  // 4. Auto-expand modul aktif
-  setTimeout(() => {
-    const activeHari = progressData.perkenalanSelesai ? progressData.nextHari : 0;
-    if (activeHari > 0) {
-      const header = document.querySelector(`[data-hari="${activeHari}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click(); // Auto-expand modul aktif
+  try {
+    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}&callback=cb${Date.now()}`, {
+      method: 'GET'
+    });
+    
+    // Handle JSONP response
+    const text = await response.text();
+    console.log(`📥 Response materi hari ${hariKe}:`, text);
+    
+    // Parse JSONP (remove callback wrapper)
+    if (text.includes('(') && text.includes(')')) {
+      const jsonStr = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+      const data = JSON.parse(jsonStr);
+      
+      if (data && data.materi === 'OK') {
+        // Update UI
+        updateMateriCompletionUI(hariKe);
+        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
       }
     }
-  }, 500);
+  } catch (error) {
+    console.error(`Error checking materi hari ${hariKe}:`, error);
+  }
+}
+
+/************************************
+* Check status meal plan dari server*
+*************************************/
+async function checkMealPlanStatusFromServer(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+  
+  try {
+    const response = await fetch(`${URL_PROGRAM_APP}?action=getUserProgress&userId=${userId}&hariKe=${hariKe}&callback=cb${Date.now()}`, {
+      method: 'GET'
+    });
+    
+    const text = await response.text();
+    console.log(`📥 Response meal plan hari ${hariKe}:`, text);
+    
+    if (text.includes('(') && text.includes(')')) {
+      const jsonStr = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+      const data = JSON.parse(jsonStr);
+      
+      if (data && data.mealPlan === 'OK') {
+        // Update UI
+        updateMealPlanCompletionUI(hariKe);
+        localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking meal plan hari ${hariKe}:`, error);
+  }
 }
 
 /************************************
