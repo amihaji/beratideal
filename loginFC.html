@@ -138,18 +138,31 @@
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
-            localStorage.setItem('namaUser', response.namaUser || response.userId); // ✅ SIMPAN NAMA USER
+            localStorage.setItem('namaUser', response.namaUser || response.userId);
             localStorage.setItem('userToken', response.token);
             localStorage.setItem('userLevel', response.level);
 
-            if (response.access) {
-              sessionStorage.setItem('aksesList', JSON.stringify(response.access));
-            }
-
-            showNotification('success', 'Login berhasil! Mengarahkan...');
-            setTimeout(() => {
-              window.location.href = 'prog10hari.html';
-            }, 1000);
+            // ✅ AMBIL PROGRESS TERAKHIR SETELAH LOGIN
+            getLastUserProgress(response.userId, function(progressData) {
+              if (progressData.success) {
+                // Simpan progress ke localStorage
+                localStorage.setItem('lastProgress', JSON.stringify(progressData));
+                
+                if (!progressData.perkenalanSelesai) {
+                  localStorage.setItem('currentHari', '0'); // Mulai dari perkenalan
+                } else {
+                  localStorage.setItem('currentHari', progressData.lastHari.toString());
+                }
+                
+                showNotification('success', 'Login berhasil! Mengarahkan...');
+                setTimeout(() => {
+                  window.location.href = 'prog10hari.html';
+                }, 1000);
+              } else {
+                showNotification('error', 'Gagal mengambil progress');
+              }
+            });
+            
           } else {
             showNotification('error', response.message || 'ERROR : User ID atau Password salah!');
           }
@@ -158,18 +171,30 @@
           delete window[callbackName];
         };
 
-        script.onerror = () => {
-          showNotification('error', 'ERROR : Gagal terhubung ke server!');
-          btnText.classList.remove('d-none');
-          btnSpinner.classList.add('d-none');
-          document.getElementById('loginWaitText').classList.add('d-none');
-          document.body.removeChild(script);
-          delete window[callbackName];
-        };
-
         document.body.appendChild(script);
       });
     });
+
+    function getLastUserProgress(userId, callback) {
+      const callbackName = 'cb_progress_' + Date.now();
+      const script = document.createElement('script');
+      
+      script.src = `${URL_APPS_SCRIPT}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+      
+      window[callbackName] = function(response) {
+        callback(response);
+        document.body.removeChild(script);
+        delete window[callbackName];
+      };
+      
+      script.onerror = () => {
+        callback({ success: false, message: 'Gagal mengambil progress' });
+        document.body.removeChild(script);
+        delete window[callbackName];
+      };
+      
+      document.body.appendChild(script);
+    }
 
     function showNotification(type, message, duration = 3000) {
       const box = document.getElementById('notificationBox');
