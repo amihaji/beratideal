@@ -1146,6 +1146,36 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Accordion toggle logic...
             // ... (sama seperti sebelumnya)
+            console.log('🔄 Menu diklik:', targetId);
+            
+            // Jika klik menu yang sama yang sedang terbuka
+            if (currentOpenMenu === targetId) {
+                // TUTUP menu
+                targetContent.style.display = 'none';
+                targetContent.classList.remove('show');
+                this.classList.add('collapsed');
+                currentOpenMenu = null;
+                console.log('✅ Menu DITUTUP');
+            } else {
+                // BUKA menu baru
+                // Tutup menu yang sebelumnya terbuka
+                if (currentOpenMenu) {
+                    const previousContent = document.querySelector(currentOpenMenu);
+                    const previousHeader = document.querySelector(`[data-bs-target="${currentOpenMenu}"]`);
+                    if (previousContent && previousHeader) {
+                        previousContent.style.display = 'none';
+                        previousContent.classList.remove('show');
+                        previousHeader.classList.add('collapsed');
+                    }
+                }
+                
+                // Buka menu baru
+                targetContent.style.display = 'block';
+                targetContent.classList.add('show');
+                this.classList.remove('collapsed');
+                currentOpenMenu = targetId;
+                console.log('✅ Menu DIBUKA');
+            }
         });
     });
     
