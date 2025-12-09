@@ -1085,6 +1085,8 @@ body { background-color: #f8f9fa; }
 const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyaSZDA01Sw7qlgNH_u8o63wNAdyG1BXYIlYJuk-tFwd6vJAWq-NfL-uCVakaTngXa12A/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
+
+
 /******************
 * Show About form *
 *******************/
@@ -1111,10 +1113,15 @@ function logout() {
   window.location.reload();
 }
 
-/***********************
-* ACCORDION TOGGLE FIX *
-************************/
+/*************************************
+* SINGLE DOMContentLoaded Event     *
+**************************************/
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Aplikasi dimulai...');
+    
+    // ========================================
+    // 1. ACCORDION TOGGLE FIX (PERTAMA)
+    // ========================================
     let currentOpenMenu = null;
     
     document.querySelectorAll('.menu-header').forEach(header => {
@@ -1131,7 +1138,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!targetContent) return;
             
             console.log('🔄 Menu diklik:', targetId);
-            console.log('Current open:', currentOpenMenu);
             
             // Jika klik menu yang sama yang sedang terbuka
             if (currentOpenMenu === targetId) {
@@ -1163,23 +1169,218 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // ========================================
+    // 2. LOAD PROGRESS & APPLY LOCK SYSTEM
+    // ========================================
+    console.log('📂 Memuat progress dari storage...');
+    
+    const userId = localStorage.getItem('userId');
+    const progressData = localStorage.getItem('progressData');
+    
+    if (progressData) {
+        const progress = JSON.parse(progressData);
+        console.log('📊 Progress ditemukan:', progress);
+        
+        // APLIKASIKAN LOCK/UNLOCK SYSTEM
+        applyLockSystem(progress);
+    } else if (userId) {
+        console.log('🔄 Ambil progress dari server...');
+        fetchProgressFromServer(userId);
+    } else {
+        // USER BARU: LOCK SEMUA MODUL KECUALI PERKENALAN
+        console.log('👤 User baru, lock semua modul');
+        applyLockForNewUser();
+    }
+    
+    // ========================================
+    // 3. SETUP SEMUA KOMPONEN LAINNYA
+    // ========================================
+    setupAllComponents();
+    
+    console.log('✅ Aplikasi siap');
 });
 
-/*************************************
-* Event listener di DOMContentLoaded *
-**************************************/
-// Di DOMContentLoaded, bagian awal:
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Aplikasi dimulai...');
-  
-  // 1. LOAD PROGRESS DARI LOCALSTORAGE
-  loadProgressFromStorage();
-  
-  // 2. SETUP SEMUA KOMPONEN
-  setupAllComponents();
-  
-  console.log('✅ Aplikasi siap');
-});
+/************************************
+* Apply Lock System berdasarkan progress *
+*************************************/
+function applyLockSystem(progress) {
+    console.log('🔒 Menerapkan lock system berdasarkan progress');
+    
+    // 1. PERKENALAN
+    if (progress.perkenalan) {
+        console.log('✅ Perkenalan sudah selesai');
+        
+        // Update UI perkenalan
+        updatePerkenalanUI();
+        
+        // UNLOCK Modul Hari 1
+        unlockModul(1);
+    } else {
+        console.log('🔐 Perkenalan belum selesai');
+        
+        // LOCK Modul Hari 1
+        lockModul(1);
+        
+        // Juga lock hari 2-10 jika ada
+        for (let i = 2; i <= 10; i++) {
+            lockModul(i);
+        }
+    }
+    
+    // 2. MATERI HARI 1
+    if (progress.materiHari1) {
+        console.log('✅ Materi Hari 1 sudah selesai');
+        // UI sudah diupdate oleh setupMateriCompletion
+    }
+    
+    // 3. MEAL PLAN HARI 1  
+    if (progress.mealplanHari1) {
+        console.log('✅ Meal Plan Hari 1 sudah selesai');
+        // UI sudah diupdate oleh checkMealPlanStatus
+    }
+}
+
+/************************************
+* Lock semua modul untuk user baru  *
+*************************************/
+function applyLockForNewUser() {
+    console.log('🔐 Lock semua modul untuk user baru');
+    
+    // Lock semua modul hari 1-10
+    for (let i = 1; i <= 10; i++) {
+        lockModul(i);
+    }
+    
+    // Perkenalan tetap terbuka
+    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+    if (perkenalanHeader) {
+        perkenalanHeader.classList.remove('disabled');
+        perkenalanHeader.style.pointerEvents = 'auto';
+        perkenalanHeader.style.opacity = '1';
+    }
+}
+
+/************************************
+* Lock modul tertentu              *
+*************************************/
+function lockModul(hariKe) {
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        modulHeader.classList.add('disabled');
+        modulHeader.style.pointerEvents = 'none';
+        modulHeader.style.opacity = '0.6';
+        modulHeader.style.cursor = 'not-allowed';
+        
+        // Update lock icon
+        const lockIcon = modulHeader.querySelector('.status-lock');
+        if (lockIcon) {
+            lockIcon.className = 'status-lock';
+            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+        }
+        
+        console.log(`🔒 Modul Hari ${hariKe} dikunci`);
+    }
+}
+
+/************************************
+* Unlock modul tertentu            *
+*************************************/
+function unlockModul(hariKe) {
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        modulHeader.classList.remove('disabled');
+        modulHeader.style.pointerEvents = 'auto';
+        modulHeader.style.opacity = '1';
+        modulHeader.style.cursor = 'pointer';
+        
+        // Update lock icon
+        const lockIcon = modulHeader.querySelector('.status-lock');
+        if (lockIcon) {
+            lockIcon.className = 'status-unlock';
+            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
+        }
+        
+        console.log(`🔓 Modul Hari ${hariKe} dibuka`);
+    }
+}
+
+/************************************
+* Update UI Perkenalan             *
+*************************************/
+function updatePerkenalanUI() {
+    // Cari link "Selesai Perkenalan"
+    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
+    perkenalanLinks.forEach(link => {
+        if (link.textContent.includes('Selesai Perkenalan')) {
+            link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
+            link.style.color = '#666666';
+            link.style.fontWeight = 'bold';
+            link.style.pointerEvents = 'none';
+            
+            // Hapus onclick event
+            link.onclick = null;
+            link.href = '#';
+        }
+    });
+}
+
+/************************************
+* Setup semua komponen             *
+*************************************/
+function setupAllComponents() {
+    console.log('🔧 Setting up all components...');
+    
+    // Setup video links
+    setupAllLinks();
+    
+    // Setup playlist
+    setupPlaylistTriggers();
+    
+    // Setup Materi Perkenalan
+    setupPerkenalanCompletion();
+    
+    // Setup PDF links
+    setupPanduanPDFLinks();
+    setupCekDisiniButtons();
+    
+    // Setup materi completion
+    setupMateriCompletion();
+    
+    // Check materi status
+    for (let i = 1; i <= 10; i++) {
+        checkMateriStatus(i);
+    }
+    
+    // Setup meal plan forms
+    generateMealPlanForms();
+    
+    // Cek status meal plan
+    for (let i = 1; i <= 10; i++) {
+        checkMealPlanStatus(i);
+        loadMealPlanProgress(i);
+    }
+    
+    // Setup tentang overlay
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    
+    // Cek login status untuk tombol logout
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        if (loginMenuItem) {
+            loginMenuItem.innerHTML = `
+                <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            `;
+        }
+    }
+    
+    // Initialize video players
+    initializeAllVideoPlayers();
+    console.log('✅ All components setup complete');
+}
 
 /************************************
 * Load progress dari localStorage   *
@@ -1304,68 +1505,6 @@ function applyProgressToUI(progress) {
   }
   
   console.log('✅ Progress berhasil diterapkan');
-}
-
-/************************************
-* Setup semua komponen              *
-*************************************/
-function setupAllComponents() {
-  // Setup yang sudah ada di kode Anda
-  document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-    trigger.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = this.getAttribute('data-target');
-      showSubmenu(target);
-    });
-  });
-  
-  // Setup video links
-  setupAllLinks();
-  
-  // Setup playlist
-  setupPlaylistTriggers();
-  
-  // Setup Materi Perkenalan
-  setupPerkenalanCompletion();
-
-  // Setup PDF links
-  setupPanduanPDFLinks();
-
-  // Setup PDF links
-  setupCekDisiniButtons();
-  
-  // Setup materi completion
-  setupMateriCompletion();
-  
-  for (let i = 1; i <= 10; i++) {
-    checkMateriStatus(i);
-  }
-
-  // Setup meal plan forms
-  generateMealPlanForms();
-  
-  // Cek status meal plan untuk semua hari
-  for (let i = 1; i <= 10; i++) {
-    checkMealPlanStatus(i);
-    loadMealPlanProgress(i); // ✅ LOAD PROGRESS YANG SUDAH DIUPLOAD
-  }
-
-  // Setup tentang overlay
-  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-  
-  // Cek login status
-  const userToken = localStorage.getItem('userToken');
-  if (userToken) {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    loginMenuItem.innerHTML = `
-      <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
-    `;
-  }
-  
-  // Initialize video players
-  initializeAllVideoPlayers();
 }
 
 /**********************************
@@ -2591,11 +2730,70 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
 /********************************************
 * Selesaikan perkenalan unlock Hari Pertama *
 ********************************************/
-function selesaiPerkenalan() {
+async function selesaiPerkenalan() {
     console.log('✅ Menyelesaikan perkenalan');
-    showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
-    // Unlock modul hari pertama
-    unlockModul(1);
+    
+    const userId = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser') || userId;
+    
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
+        return;
+    }
+    
+    // 1. SIMPAN KE SERVER
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: new URLSearchParams({
+                action: 'updatePerkenalan',
+                userId: userId,
+                namaUser: namaUser
+            })
+        });
+
+        const result = await response.text();
+        console.log('📥 Response updatePerkenalan:', result);
+        
+        if (result.includes("OK")) {
+            // 2. UPDATE PROGRESS DATA
+            let progressData = {success: true, perkenalan: true, materiHari1: false, mealplanHari1: false};
+            const existingProgress = localStorage.getItem('progressData');
+            if (existingProgress) {
+                progressData = JSON.parse(existingProgress);
+                progressData.perkenalan = true;
+            }
+            localStorage.setItem('progressData', JSON.stringify(progressData));
+            localStorage.setItem('perkenalanSelesai', 'true');
+            
+            // 3. UPDATE UI
+            updatePerkenalanUI();
+            
+            // 4. UNLOCK MODUL HARI 1
+            unlockModul(1);
+            
+            // 5. TAMPILKAN PESAN
+            showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
+            
+            // 6. CLOSE VIDEO
+            closeVideo('perkenalan');
+            
+            // 7. AUTO-EXPAND MODUL HARI 1
+            setTimeout(() => {
+                const header = document.querySelector('[data-hari="1"]');
+                if (header && header.classList.contains('collapsed')) {
+                    header.click();
+                }
+            }, 1000);
+            
+        } else {
+            showMessage('error', 'Gagal menyimpan: ' + result, 3000, 'perkenalan');
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, 'perkenalan');
+    }
 }
 
 /************************
@@ -2622,29 +2820,6 @@ function checkPerkenalanStatus() {
       }
     }
   }
-}
-
-/************************************************************
-* Fungsi unlock universal untuk semua modul                 *
-* @param {number} hariKe - Hari yang akan di-unlock (1-10)  * 
-*************************************************************/
-function unlockModul(hariKe) {
-    console.log('🔓 Unlock modul hari:', hariKe);
-    
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        const lockIcon = modulHeader.querySelector('.status-lock');
-        if (lockIcon) {
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-        }
-        
-        modulHeader.classList.remove('disabled');
-        modulHeader.style.pointerEvents = 'auto';
-        modulHeader.style.opacity = '1';
-        
-        showMessage('success', `Modul Hari ${hariKe} berhasil di-unlock!`, 3000, `pertemuan${hariKe}`);
-    }
 }
 
 /*******************************************************
