@@ -1513,7 +1513,6 @@ function fetchProgressFromServer(userId) {
     const script = document.createElement('script');
     
     script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-    
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server:', response);
         
@@ -1528,7 +1527,6 @@ function fetchProgressFromServer(userId) {
                 applyLockForNewUser();
             }
         }
-        
         document.body.removeChild(script);
         delete window[callbackName];
     };
@@ -1538,7 +1536,6 @@ function fetchProgressFromServer(userId) {
         document.body.removeChild(script);
         delete window[callbackName];
     };
-    
     document.body.appendChild(script);
 }
 
