@@ -1465,6 +1465,14 @@ function updatePerkenalanUI() {
 function setupAllComponents() {
     console.log('🔧 Setting up all components...');
     
+    // Setup tombol close di semua submenu
+    document.querySelectorAll('.btn-close-header').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.closest('.submenu-content').id;
+            hideSubmenu(targetId);
+        });
+    });
+
     // Setup video links
     setupAllLinks();
     
