@@ -1464,13 +1464,22 @@ function updatePerkenalanUI() {
 *************************************/
 function setupAllComponents() {
     console.log('🔧 Setting up all components...');
+
+    // Submenu triggers
+    document.querySelectorAll('.submenu-trigger').forEach(trigger => {
+      trigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        showSubmenu(target);
+      });
+    });
     
     // Setup tombol close di semua submenu
     document.querySelectorAll('.btn-close-header').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const targetId = this.closest('.submenu-content').id;
-            hideSubmenu(targetId);
-        });
+      btn.addEventListener('click', function() {
+        const targetId = this.closest('.submenu-content').id;
+        hideSubmenu(targetId);
+      });
     });
 
     // Setup video links
@@ -1484,6 +1493,8 @@ function setupAllComponents() {
     
     // Setup PDF links
     setupPanduanPDFLinks();
+
+    // Setup tombol "Cek Disini" untuk Modul 
     setupCekDisiniButtons();
     
     // Setup materi completion
@@ -1491,7 +1502,7 @@ function setupAllComponents() {
     
     // Check materi status
     for (let i = 1; i <= 10; i++) {
-        checkMateriStatus(i);
+      checkMateriStatus(i);
     }
     
     // Setup meal plan forms
@@ -1499,8 +1510,8 @@ function setupAllComponents() {
     
     // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
-        checkMealPlanStatus(i);
-        loadMealPlanProgress(i);
+      checkMealPlanStatus(i);
+      loadMealPlanProgress(i);
     }
     
     // Setup tentang overlay
