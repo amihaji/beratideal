@@ -105,6 +105,15 @@ body { background-color: #f8f9fa; }
 .status-unlock { color: #ffffff; margin-left: 10px; }
 /***** Akhir Menu Accordian *****/
 
+
+/***** FIX POSITIONING UNTUK SUBMENU *****/
+
+/* Pastikan submenu tidak keluar dari container */
+.menu-accordion {
+  position: relative;
+  overflow: visible;
+}
+
 /***** Playlist Container di Menu Accordion *****/
 .menu-content .playlist-container {
     margin: 10px 0;
@@ -112,10 +121,18 @@ body { background-color: #f8f9fa; }
     border-radius: 8px;
     overflow: hidden;
     max-height: 400px;
+    position : relative;
 }
 
 /***** Submenu Content Styles *****/
-.submenu-content { border-radius: 8px; margin: 10px 0; display: none; }
+.submenu-content { 
+  position: relative;
+  z-index: 10 ;
+  border-radius: 8px; 
+  margin: 10px 0; 
+  display: none;
+  width:100% 
+}
 .submenu-trigger { cursor: pointer; }
 .submenu-trigger:hover { background-color: #e7e7e7; color: #830000; }
 /***** akhir Sebmenu *****/ 
@@ -468,6 +485,13 @@ body { background-color: #f8f9fa; }
     width: 50%; 
    }
  
+  /* Pastikan submenu tidak terlalu lebar */
+  .submenu-content {
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+  }
+
   /* PDF Viewer untuk Mobile */
   .pdf-container { 
       height: 400px;                 /* Sedikit lebih pendek untuk mobile */
@@ -478,27 +502,6 @@ body { background-color: #f8f9fa; }
       overflow-x: hidden !important;
       -webkit-overflow-scrolling: touch; /* Smooth scroll untuk iOS */
   }
-  
-  /* Untuk PDF.js viewer di mobile */
-  /*****HAPUS
-  .pdfjs-viewer { 
-      height: 350px; 
-      overflow-x: hidden !important;
-      overflow-y: auto;
-  }
-    .pdfjs-canvas {
-      max-width: 100% !important;
-      height: auto !important; 
-  }
-    .pdfjs-controls {
-      padding: 8px 5px;
-      font-size: 12px;
-  }
-    .pdfjs-controls .btn {
-      font-size: 12px;
-      padding: 4px 8px;
-  }
-**********/
 }
 /***** Akhir Tampilan Mobile *****/
 
@@ -2068,7 +2071,9 @@ function closeVideo(section) {
 * Tutup Semua Video yang sedang diputar *
 *****************************************/
 function closeAllVideos() {
-    console.log('Closing all videos');
+    console.log('Closing all videos and submenus');
+    
+    // Tutup semua video
     const videoContainers = document.querySelectorAll('.video-container');
     videoContainers.forEach(container => {
         const section = container.id.replace('videoContainer', '');
@@ -2076,7 +2081,19 @@ function closeAllVideos() {
             closeVideo(section);
         }
     });
-    // Close all PDFs
+    
+    // Tutup semua submenu
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+        
+        // Kembalikan ke posisi semula
+        const menuAccordion = document.getElementById('menuAccordion');
+        if (menuAccordion && menuAccordion.parentNode) {
+            menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
+        }
+    });
+    
+    // Tutup semua PDF
     closeAllPDFs();
 }
 
@@ -2660,11 +2677,22 @@ function closeAllPDFs() {
 /********************
 * Tampilkan Submenu *
 *********************/
+/********************
+* Tampilkan Submenu - FIX POSISI *
+*********************/
 function showSubmenu(targetId) {
+  console.log('🔍 Menampilkan submenu:', targetId);
+  
   // Sembunyikan semua submenu content dan video player
   document.querySelectorAll('.submenu-content').forEach(content => {
     content.style.display = 'none';
+    // KEMBALIKAN KE POSISI SEMULA (di dalam menu accordion)
+    const menuAccordion = document.getElementById('menuAccordion');
+    if (menuAccordion) {
+      menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
+    }
   });
+  
   document.querySelectorAll('.video-container').forEach(video => {
     video.style.display = 'none';
   });
@@ -2672,31 +2700,75 @@ function showSubmenu(targetId) {
   // Tampilkan submenu yang dipilih
   const targetContent = document.getElementById(targetId);
   if (targetContent) {
-    targetContent.style.display = 'block';
-    
-    // Cari posisi yang tepat untuk menampilkan konten
+    // TEMUKAN TRIGGER ELEMENT YANG DITEKAN
     const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
+    
     if (triggerElement) {
-      // Sisipkan konten setelah trigger element
-      triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
+      console.log('✅ Trigger ditemukan:', triggerElement);
+      
+      // TEMUKAN PARENT MENU CONTENT (di dalam accordion)
+      const parentMenuContent = triggerElement.closest('.menu-content');
+      
+      if (parentMenuContent) {
+        console.log('✅ Menu content parent ditemukan');
+        
+        // Tempatkan content TEPAT SETELAH TRIGGER ELEMENT di dalam menu content
+        parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
+        
+        // Tampilkan content
+        targetContent.style.display = 'block';
+        
+        console.log('✅ Submenu ditempatkan di posisi yang benar');
+        
+      } else {
+        console.warn('⚠️ Menu content parent tidak ditemukan');
+        
+        // Fallback: tempatkan setelah trigger element
+        triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
+        targetContent.style.display = 'block';
+      }
+    } else {
+      console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
+      targetContent.style.display = 'block';
     }
     
     // Scroll ke konten yang ditampilkan
-    setTimeout(() => { targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    setTimeout(() => { 
+      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+      console.log('📜 Scroll ke submenu');
+    }, 100);
+  } else {
+    console.error('❌ Target content tidak ditemukan:', targetId);
   }
 }
 
 /**********************
 * Sembunyikan Submenu *
 ***********************/
+/**********************
+* Sembunyikan Submenu - FIX POSISI *
+***********************/
 function hideSubmenu(targetId) {
+  console.log('🔍 Menyembunyikan submenu:', targetId);
+  
   const targetContent = document.getElementById(targetId);
   if (targetContent) {
+    // Sembunyikan content
     targetContent.style.display = 'none';
-    // Kembalikan ke posisi semula (setelah accordion)
+    
+    // KEMBALIKAN KE POSISI SEMULA (setelah menu accordion)
     const menuAccordion = document.getElementById('menuAccordion');
-    if (menuAccordion) {
+    if (menuAccordion && menuAccordion.parentNode) {
       menuAccordion.parentNode.insertBefore(targetContent, menuAccordion.nextSibling);
+      console.log('✅ Submenu dikembalikan ke posisi semula');
+    }
+    
+    // Scroll kembali ke menu yang aktif
+    const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
+    if (activeMenu) {
+      setTimeout(() => {
+        activeMenu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   }
 }
