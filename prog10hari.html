@@ -861,9 +861,16 @@ body { background-color: #f8f9fa; }
                   <!-- Pilihan olahraga resisten dimuat di sini -->
                 </div>
               </div>
-              <!---
-              <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout" data-bs-toggle="tooltip" title="Selesai Workout"><i class="fa fa-check"></i> Selesai</button>
-              --->
+
+              <div class="mt-3">
+                <button type="button" class="btn btn-primary btn-sm me-2" id="btnSimpanWorkout${hariKe}">
+                  <i class="fa fa-pencil-square-o"></i> Simpan Workout
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
+                  <i class="fa fa-check"></i> Selesai Workout
+                </button>
+              </div>
+            
             </div>
           </div>
    
@@ -3248,6 +3255,7 @@ if (kardioExercises) {
 /*********************************************
 * Daftar Olahraga Resisten - DROPDOWN VERSION
 *********************************************/   
+/*********TIDAK AKTIF
 const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
 const listEl = document.getElementById("olahragaResisten-list");
 
@@ -3281,10 +3289,12 @@ if (listEl) {
     }
   });
 }
+*********/
 
 /************************************
 * Fungsi Tambah Olahraga Resistance
 *************************************/
+/***********TIDAK AKTIF 
 function addResistanceExercise(exerciseName) {
   const container = document.getElementById('selectedResistanceContainer');
   const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
@@ -3353,10 +3363,12 @@ function addResistanceExercise(exerciseName) {
     });
   });
 }
+*************/
 
 /*********************************
 * Fungsi Hapus Olahraga Resistance
 **********************************/
+/*********************
 function removeResistanceExercise(exerciseId) {
   const exerciseElement = document.getElementById(`resistance-${exerciseId}`);
   if (exerciseElement) {
@@ -3365,10 +3377,13 @@ function removeResistanceExercise(exerciseId) {
     localStorage.removeItem(`resistance-${exerciseId}`);
   }
 }
+******************/
 
 /******************************
 * Fungsi Simpan Data Resistance
 *******************************/
+
+/*********************
 function simpanResistanceData(exerciseId) {
   const setValue = document.getElementById(`jmlSet-${exerciseId}`)?.value;
   const repetisiValue = document.getElementById(`jmlRepetisi-${exerciseId}`)?.value;
@@ -3391,10 +3406,13 @@ function simpanResistanceData(exerciseId) {
   localStorage.setItem(`resistance-${exerciseId}`, JSON.stringify(exerciseData));
   showMessage('success', 'Data resistance berhasil disimpan', 2000, 'inline', 'resistance-message');
 }
+***************/
 
 /*********************************************
 * Fungsi Load Data Resistance yang Tersimpan *
 **********************************************/
+
+/********************
 function loadSavedResistanceData() {
   const resistanceExercises = ["squat", "lunge", "push-up", "sit-up", "plank", "pilates", "yoga"];
   
@@ -3417,6 +3435,7 @@ function loadSavedResistanceData() {
     }
   });
 }
+*******************/
 
 /***************************
 * Minum Air Putih per hari *
@@ -4380,6 +4399,7 @@ function createWorkoutFormHTML(hariKe) {
             <input class="form-control" type="time" id="stopOlahraga${hariKe}" style="max-width: 100%;">  
         </div>
         
+        <!---- 
         <div class="mt-3">
             <button type="button" class="btn btn-primary btn-sm me-2" id="btnSimpanWorkout${hariKe}">
                 <i class="fa fa-pencil-square-o"></i> Simpan Workout
@@ -4388,6 +4408,7 @@ function createWorkoutFormHTML(hariKe) {
                 <i class="fa fa-check"></i> Selesai Workout
             </button>
         </div>
+        ---->
     `;
 }
 
