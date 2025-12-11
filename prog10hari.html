@@ -1514,10 +1514,10 @@ function setupAllComponents() {
       loadMealPlanProgress(i);
     }
     
-    // Setup workout forms
+    // Setup workout forms dan resistance
     generateWorkoutForms();
     initializeAllWorkoutDays();
-
+    
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
@@ -4069,6 +4069,9 @@ function setStopTimeKardio(hariKe) {
 /******************************************
 * Simpan data workout ke server *
 *******************************************/
+/******************************************
+* Simpan data workout ke server - UPDATED *
+*******************************************/
 async function simpanWorkoutData(hariKe) {
     const userId = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
@@ -4078,47 +4081,34 @@ async function simpanWorkoutData(hariKe) {
         return;
     }
     
-    // Collect workout data
+    // Collect kardio data
+    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    
+    if (!kardioType) {
+        showMessage('warning', 'Pilih jenis olahraga kardio terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    // Collect resistance data
+    const resistanceData = getResistanceDataForServer(hariKe);
+    
     const workoutData = {
-        kardioType: document.getElementById(`olahragaKardio${hariKe}`)?.value || '',
-        startTime: document.getElementById(`startOlahraga${hariKe}`)?.value || '',
-        stopTime: document.getElementById(`stopOlahraga${hariKe}`)?.value || '',
-        resistenExercises: '',
-        totalSets: 0,
-        totalReps: 0,
-        totalMinutes: 0
+        kardioType: kardioType,
+        startTime: startTime,
+        stopTime: stopTime,
+        resistenExercises: resistanceData.resistenExercises,
+        totalSets: resistanceData.totalSets,
+        totalReps: resistanceData.totalReps,
+        totalMinutes: resistanceData.totalMinutes
     };
     
-    // Collect resistance exercises data
-    const resistanceItems = document.querySelectorAll(`#selectedResistanceContainer${hariKe} .resistance-exercise-item`);
-    const exercises = [];
-    let totalSets = 0;
-    let totalReps = 0;
-    let totalMinutes = 0;
-    
-    resistanceItems.forEach(item => {
-        const exerciseName = item.querySelector('.card-title')?.textContent || '';
-        const setValue = parseInt(item.querySelector(`[data-type="set"]`)?.value) || 0;
-        const repValue = parseInt(item.querySelector(`[data-type="repetisi"]`)?.value) || 0;
-        const minuteValue = parseInt(item.querySelector(`[data-type="durasi"]`)?.value) || 0;
-        
-        if (exerciseName) {
-            exercises.push(exerciseName);
-            totalSets += setValue;
-            totalReps += repValue;
-            totalMinutes += minuteValue;
-        }
-    });
-    
-    workoutData.resistenExercises = exercises.join(', ');
-    workoutData.totalSets = totalSets;
-    workoutData.totalReps = totalReps;
-    workoutData.totalMinutes = totalMinutes;
+    console.log('📤 Sending workout data for day', hariKe, ':', workoutData);
     
     // Get kardio file data
     const kardioFile = localStorage.getItem(`workout_kardio_file_${hariKe}`);
-    
-    console.log('📤 Sending workout data:', workoutData);
+    const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
     
     try {
         showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
@@ -4132,7 +4122,8 @@ async function simpanWorkoutData(hariKe) {
                 namaUser: namaUser,
                 hariKe: hariKe,
                 workoutData: JSON.stringify(workoutData),
-                kardioFile: kardioFile || ''
+                kardioFile: kardioFile || '',
+                kardioFilename: kardioFilename || ''
             })
         });
 
@@ -4142,11 +4133,11 @@ async function simpanWorkoutData(hariKe) {
         if (result === "OK" || result.includes("success")) {
             showMessage('success', 'Data workout berhasil disimpan!', 3000, `pertemuan${hariKe}`);
             
-            // Clear localStorage setelah berhasil disimpan
-            localStorage.removeItem(`workout_kardio_file_${hariKe}`);
-            localStorage.removeItem(`workout_kardio_filename_${hariKe}`);
-            localStorage.removeItem(`workout_start_time_${hariKe}`);
-            localStorage.removeItem(`workout_stop_time_${hariKe}`);
+            // Simpan kardio type ke localStorage
+            localStorage.setItem(`workout_kardio_type_${hariKe}`, kardioType);
+            localStorage.setItem(`workout_start_time_${hariKe}`, startTime);
+            localStorage.setItem(`workout_stop_time_${hariKe}`, stopTime);
+            localStorage.setItem(`workout_saved_${hariKe}`, 'true');
             
             // Save workout status
             saveWorkoutStatus(hariKe, 'saved');
@@ -4257,32 +4248,38 @@ function updateWorkoutCompletionUI(hariKe) {
 * Load saved workout data *
 **********************************/
 function loadSavedWorkoutData(hariKe) {
+    console.log(`📂 Loading saved workout data for day ${hariKe}`);
+    
     // Load kardio type
     const kardioType = localStorage.getItem(`workout_kardio_type_${hariKe}`);
-    if (kardioType && document.getElementById(`olahragaKardio${hariKe}`)) {
-        document.getElementById(`olahragaKardio${hariKe}`).value = kardioType;
+    const kardioSelect = document.getElementById(`olahragaKardio${hariKe}`);
+    if (kardioType && kardioSelect) {
+        kardioSelect.value = kardioType;
     }
     
     // Load kardio filename
     const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
-    if (kardioFilename && document.getElementById(`kegiatanKardio${hariKe}`)) {
-        document.getElementById(`kegiatanKardio${hariKe}`).value = `✓ ${kardioFilename}`;
+    const kardioInput = document.getElementById(`kegiatanKardio${hariKe}`);
+    if (kardioFilename && kardioInput) {
+        kardioInput.value = `✓ ${kardioFilename}`;
     }
     
     // Load start time
     const startTime = localStorage.getItem(`workout_start_time_${hariKe}`);
-    if (startTime && document.getElementById(`startOlahraga${hariKe}`)) {
-        document.getElementById(`startOlahraga${hariKe}`).value = startTime;
+    const startInput = document.getElementById(`startOlahraga${hariKe}`);
+    if (startTime && startInput) {
+        startInput.value = startTime;
     }
     
     // Load stop time
     const stopTime = localStorage.getItem(`workout_stop_time_${hariKe}`);
-    if (stopTime && document.getElementById(`stopOlahraga${hariKe}`)) {
-        document.getElementById(`stopOlahraga${hariKe}`).value = stopTime;
+    const stopInput = document.getElementById(`stopOlahraga${hariKe}`);
+    if (stopTime && stopInput) {
+        stopInput.value = stopTime;
     }
     
-    // Load resistance exercises
-    loadSavedResistanceData(hariKe);
+    // Setup resistance exercises untuk hari ini
+    setupResistanceExercises(hariKe);
     
     // Check if already completed
     const status = localStorage.getItem(`workout_status_${hariKe}`);
@@ -4303,23 +4300,23 @@ function setupWorkoutForDay(hariKe) {
     const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
     
     if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => uploadKardioFile(hariKe));
+        uploadBtn.onclick = () => uploadKardioFile(hariKe);
     }
     
     if (startBtn) {
-        startBtn.addEventListener('click', () => setStartTimeKardio(hariKe));
+        startBtn.onclick = () => setStartTimeKardio(hariKe);
     }
     
     if (stopBtn) {
-        stopBtn.addEventListener('click', () => setStopTimeKardio(hariKe));
+        stopBtn.onclick = () => setStopTimeKardio(hariKe);
     }
     
     if (simpanBtn) {
-        simpanBtn.addEventListener('click', () => simpanWorkoutData(hariKe));
+        simpanBtn.onclick = () => simpanWorkoutData(hariKe);
     }
     
     if (selesaiBtn) {
-        selesaiBtn.addEventListener('click', () => completeWorkoutFinal(hariKe));
+        selesaiBtn.onclick = () => completeWorkoutFinal(hariKe);
     }
 }
 
@@ -4392,6 +4389,241 @@ function createWorkoutFormHTML(hariKe) {
             </button>
         </div>
     `;
+}
+
+/*********************************************
+* Daftar Olahraga Resisten - MULTIPLE DAYS VERSION
+*********************************************/   
+function setupResistanceExercises(hariKe) {
+    const containerId = `olahragaResisten-list${hariKe > 1 ? hariKe : ''}`;
+    const container = document.getElementById(containerId);
+    
+    if (!container) return;
+    
+    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "mb-3";
+    wrapper.innerHTML = `  
+        <div class="mb-3">
+            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
+                <option value="">Pilihan Olahraga Resistance...</option>
+                ${resistanceExercises.map(exercise => 
+                    `<option value="${exercise}">${exercise}</option>`
+                ).join('')}
+            </select>
+        </div>
+        
+        <div id="selectedResistanceContainer${hariKe}">
+            <!-- Selected exercises will appear here -->
+        </div>
+    `;
+    
+    container.innerHTML = '';
+    container.appendChild(wrapper);
+    
+    // Event listener untuk dropdown
+    const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+    dropdown.addEventListener('change', function() {
+        const selectedValue = this.value;
+        if (selectedValue) {
+            addResistanceExercise(hariKe, selectedValue);
+            this.value = ''; // Reset dropdown
+        }
+    });
+    
+    // Load saved data untuk hari ini
+    loadSavedResistanceData(hariKe);
+}
+
+/************************************
+* Fungsi Tambah Olahraga Resistance (per hari)
+*************************************/
+function addResistanceExercise(hariKe, exerciseName) {
+    const containerId = `selectedResistanceContainer${hariKe}`;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
+    const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
+    
+    // Cek apakah exercise sudah dipilih
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    const exerciseElement = document.createElement("div");
+    exerciseElement.id = fullExerciseId;
+    exerciseElement.className = "resistance-exercise-item card mb-3";
+    exerciseElement.innerHTML = `  
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="card-title mb-0 text-primary">${exerciseName}</h6>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-danger btn-sm" 
+                            onclick="removeResistanceExercise(${hariKe}, '${exerciseId}')"
+                            data-bs-toggle="tooltip" title="Hapus"> 
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">	
+                        <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
+                        <input type="number" min="0" id="jmlSet-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Jumlah set" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="set">
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
+                        <input type="number" min="0" id="jmlRepetisi-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="repetisi">
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
+                        <input type="number" min="0" id="jmlDurasi-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="durasi">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(exerciseElement);
+    
+    // Auto-save ketika input berubah
+    const inputs = exerciseElement.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const exerciseId = this.getAttribute('data-exercise');
+            const hariKe = this.getAttribute('data-hari');
+            saveResistanceData(hariKe, exerciseId);
+        });
+    });
+}
+
+/*********************************
+* Fungsi Hapus Olahraga Resistance (per hari)
+**********************************/
+function removeResistanceExercise(hariKe, exerciseId) {
+    const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
+    const exerciseElement = document.getElementById(fullExerciseId);
+    if (exerciseElement) {
+        exerciseElement.remove();
+        showMessage('warning', 'Olahraga dihapus', 3000, `pertemuan${hariKe}`);
+        
+        // Hapus dari localStorage
+        localStorage.removeItem(`resistance-${hariKe}-${exerciseId}`);
+    }
+}
+
+/******************************
+* Fungsi Simpan Data Resistance (per hari)
+*******************************/
+function saveResistanceData(hariKe, exerciseId) {
+    const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
+    const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
+    const durasiValue = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
+    
+    // Validasi: minimal satu field harus diisi
+    if (!setValue && !repetisiValue && !durasiValue) {
+        showMessage('warning', 'Isi minimal satu field data', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    const exerciseElement = document.getElementById(`resistance-${hariKe}-${exerciseId}`);
+    const exerciseName = exerciseElement?.querySelector('.card-title')?.textContent || exerciseId.replace(/-/g, ' ');
+    
+    const exerciseData = {
+        name: exerciseName,
+        set: setValue || 0,
+        repetisi: repetisiValue || 0,
+        durasi: durasiValue || 0,
+        timestamp: new Date().toISOString()
+    };
+    
+    localStorage.setItem(`resistance-${hariKe}-${exerciseId}`, JSON.stringify(exerciseData));
+    console.log(`💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`, exerciseData);
+}
+
+/*********************************************
+* Fungsi Load Data Resistance yang Tersimpan (per hari)
+**********************************************/
+function loadSavedResistanceData(hariKe) {
+    // Get all resistance keys for this day
+    const allKeys = Object.keys(localStorage);
+    const resistanceKeys = allKeys.filter(key => key.startsWith(`resistance-${hariKe}-`));
+    
+    console.log(`📂 Loading saved resistance data for day ${hariKe}:`, resistanceKeys);
+    
+    resistanceKeys.forEach(key => {
+        try {
+            const savedData = JSON.parse(localStorage.getItem(key));
+            if (savedData) {
+                // Extract exerciseId from key
+                const exerciseId = key.replace(`resistance-${hariKe}-`, '');
+                const exerciseName = savedData.name || exerciseId.replace(/-/g, ' ');
+                
+                // Add exercise to UI
+                setTimeout(() => {
+                    addResistanceExercise(hariKe, exerciseName);
+                    
+                    // Set values after element is created
+                    setTimeout(() => {
+                        const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
+                        const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
+                        const durasiInput = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
+                        
+                        if (setInput && savedData.set) setInput.value = savedData.set;
+                        if (repetisiInput && savedData.repetisi) repetisiInput.value = savedData.repetisi;
+                        if (durasiInput && savedData.durasi) durasiInput.value = savedData.durasi;
+                    }, 200);
+                }, 100);
+            }
+        } catch (error) {
+            console.error('Error loading resistance data:', error);
+        }
+    });
+}
+
+/******************************************
+* Get resistance data untuk dikirim ke server
+*******************************************/
+function getResistanceDataForServer(hariKe) {
+    const allKeys = Object.keys(localStorage);
+    const resistanceKeys = allKeys.filter(key => key.startsWith(`resistance-${hariKe}-`));
+    
+    const exercises = [];
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalMinutes = 0;
+    
+    resistanceKeys.forEach(key => {
+        try {
+            const savedData = JSON.parse(localStorage.getItem(key));
+            if (savedData) {
+                exercises.push(savedData.name);
+                totalSets += parseInt(savedData.set) || 0;
+                totalReps += parseInt(savedData.repetisi) || 0;
+                totalMinutes += parseInt(savedData.durasi) || 0;
+            }
+        } catch (error) {
+            console.error('Error getting resistance data:', error);
+        }
+    });
+    
+    return {
+        resistenExercises: exercises.join(', '),
+        totalSets: totalSets,
+        totalReps: totalReps,
+        totalMinutes: totalMinutes
+    };
 }
 
 </script>
