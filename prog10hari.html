@@ -1512,10 +1512,12 @@ function setupAllComponents() {
       loadMealPlanProgress(i);
     }
     
-    // Setup workout forms dan resistance
+    // Setup workout forms (generate HTML terlebih dahulu)
     generateWorkoutForms();
-    initializeAllWorkoutDays();
     
+    // Setup semua komponen workout
+    initializeAllWorkoutDays();
+
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
@@ -3732,9 +3734,11 @@ async function selesaiWorkout(hariKe) {
 }
 
 /*************************
-* Tampilkan form workout dengan resistance yang benar *
+* Tampilkan form workout dengan struktur yang benar *
 **************************/
 function showWorkoutForm(hariKe) {
+    console.log(`👟 Showing workout form for day ${hariKe}`);
+    
     // Sembunyikan semua submenu lainnya
     document.querySelectorAll('.submenu-content').forEach(content => {
         content.style.display = 'none';
@@ -3745,8 +3749,18 @@ function showWorkoutForm(hariKe) {
     if (workoutContent) {
         workoutContent.style.display = 'block';
         
-        // Setup resistance exercises untuk hari ini
+        // Pastikan form workout sudah digenerate
+        const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
+        if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
+            console.log(`⚙️ Generating workout form for day ${hariKe}`);
+            workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
+        }
+        
+        // Setup resistance exercises (termasuk tombol)
         setupResistanceExercises(hariKe);
+        
+        // Setup event listeners untuk workout form
+        setupWorkoutForDay(hariKe);
         
         // Load saved workout data
         loadSavedWorkoutData(hariKe);
@@ -3754,9 +3768,10 @@ function showWorkoutForm(hariKe) {
         // Scroll ke form
         setTimeout(() => { 
             workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
-        }, 100);
+        }, 200);
         
     } else {
+        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
         showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
     }
 }
@@ -4108,9 +4123,11 @@ function loadSavedWorkoutData(hariKe) {
 }
 
 /*****************************************
-* Fungsi khusus untuk hari tertentu *
+* Fungsi khusus untuk hari tertentu - FIXED *
 ******************************************/
 function setupWorkoutForDay(hariKe) {
+    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+    
     // Setup event listeners untuk hari tertentu
     const uploadBtn = document.getElementById(`btnUploadKardio${hariKe}`);
     const startBtn = document.getElementById(`btnStartOlahraga${hariKe}`);
@@ -4119,23 +4136,34 @@ function setupWorkoutForDay(hariKe) {
     const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
     
     if (uploadBtn) {
+        console.log(`✅ Found upload button for day ${hariKe}`);
         uploadBtn.onclick = () => uploadKardioFile(hariKe);
+    } else {
+        console.error(`❌ Upload button not found for day ${hariKe}`);
     }
     
     if (startBtn) {
+        console.log(`✅ Found start button for day ${hariKe}`);
         startBtn.onclick = () => setStartTimeKardio(hariKe);
     }
     
     if (stopBtn) {
+        console.log(`✅ Found stop button for day ${hariKe}`);
         stopBtn.onclick = () => setStopTimeKardio(hariKe);
     }
     
     if (simpanBtn) {
+        console.log(`✅ Found simpan button for day ${hariKe}`);
         simpanBtn.onclick = () => simpanWorkoutData(hariKe);
+    } else {
+        console.error(`❌ Simpan button not found for day ${hariKe}`);
     }
     
     if (selesaiBtn) {
+        console.log(`✅ Found selesai button for day ${hariKe}`);
         selesaiBtn.onclick = () => completeWorkoutFinal(hariKe);
+    } else {
+        console.error(`❌ Selesai button not found for day ${hariKe}`);
     }
 }
 
@@ -4150,14 +4178,21 @@ function initializeAllWorkoutDays() {
     }
 }
 
-// Update generate workout form di bagian yang sesuai
+/**********************************
+* Generate form workout untuk semua hari - FIXED *
+***********************************/
 function generateWorkoutForms() {
+    console.log('🏋️‍♂️ Generating workout forms for all days...');
+    
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         const containerId = `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`;
         const container = document.getElementById(containerId);
         
         if (container) {
+            console.log(`✅ Found container for day ${hariKe}: ${containerId}`);
             container.innerHTML = createWorkoutFormHTML(hariKe);
+        } else {
+            console.error(`❌ Container not found for day ${hariKe}: ${containerId}`);
         }
     }
 }
@@ -4199,9 +4234,50 @@ function createWorkoutFormHTML(hariKe) {
             <input class="form-control" type="time" id="stopOlahraga${hariKe}" style="max-width: 100%;">  
         </div>
         
-        <!-- TEMPAT UNTUK OLAHRAGA RESISTANCE -->
-        <div id="olahragaResisten-list${hariKe > 1 ? hariKe : ''}">
-            <!-- Resistance form akan diisi oleh setupResistanceExercises() -->
+        <!-- Resistance Section akan ditambahkan oleh setupResistanceExercises -->
+        <div id="resistance-section${hariKe}">
+            <!-- Tempat untuk dropdown dan selected resistance exercises -->
+        </div>
+    `;
+}
+
+/*********************************************
+* Daftar Olahraga Resisten - MULTIPLE DAYS VERSION
+*********************************************/   
+/*********************************************
+* Daftar Olahraga Resisten - FIXED VERSION *
+*********************************************/   
+function setupResistanceExercises(hariKe) {
+    console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
+    
+    const containerId = `resistance-section${hariKe}`;
+    const container = document.getElementById(containerId);
+    
+    if (!container) {
+        console.error(`❌ Resistance container not found: ${containerId}`);
+        return;
+    }
+    
+    // Clear container terlebih dahulu
+    container.innerHTML = '';
+    
+    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "mb-3";
+    wrapper.innerHTML = `  
+        <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
+        <div class="mb-3">
+            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
+                <option value="">Pilih Olahraga Resistance...</option>
+                ${resistanceExercises.map(exercise => 
+                    `<option value="${exercise}">${exercise}</option>`
+                ).join('')}
+            </select>
+        </div>
+        
+        <div id="selectedResistanceContainer${hariKe}">
+            <!-- Selected exercises will appear here -->
         </div>
         
         <!-- TOMBOL SIMPAN DAN SELESAI WORKOUT -->
@@ -4216,56 +4292,22 @@ function createWorkoutFormHTML(hariKe) {
             </div>
         </div>
     `;
-}
-
-/*********************************************
-* Daftar Olahraga Resisten - MULTIPLE DAYS VERSION
-*********************************************/   
-function setupResistanceExercises(hariKe) {
-    const containerId = `olahragaResisten-list${hariKe > 1 ? hariKe : ''}`;
-    const container = document.getElementById(containerId);
-    
-    if (!container) return;
-    
-    // Jika sudah ada konten, jangan buat ulang
-    if (container.innerHTML.trim() !== '') {
-        console.log(`⚡ Resistance container for day ${hariKe} already exists`);
-        return;
-    }
-    
-    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
-    
-    const wrapper = document.createElement("div");
-    wrapper.className = "mb-3";
-    wrapper.innerHTML = `  
-        <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
-        <div class="mb-3">
-            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
-                <option value="">Pilihan Olahraga Resistance...</option>
-                ${resistanceExercises.map(exercise => 
-                    `<option value="${exercise}">${exercise}</option>`
-                ).join('')}
-            </select>
-        </div>
-        
-        <div id="selectedResistanceContainer${hariKe}">
-            <!-- Selected exercises will appear here -->
-        </div>
-    `;
     
     container.appendChild(wrapper);
     
-    // Event listener untuk dropdown
-    const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-    if (dropdown) {
-        dropdown.addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue) {
-                addResistanceExercise(hariKe, selectedValue);
-                this.value = ''; // Reset dropdown
-            }
-        });
-    }
+    // Setup event listener untuk dropdown
+    setTimeout(() => {
+        const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+        if (dropdown) {
+            dropdown.addEventListener('change', function() {
+                const selectedValue = this.value;
+                if (selectedValue) {
+                    addResistanceExercise(hariKe, selectedValue);
+                    this.value = ''; // Reset dropdown
+                }
+            });
+        }
+    }, 100);
     
     // Load saved data untuk hari ini
     loadSavedResistanceData(hariKe);
@@ -4274,10 +4316,18 @@ function setupResistanceExercises(hariKe) {
 /************************************
 * Fungsi Tambah Olahraga Resistance (per hari)
 *************************************/
+/************************************
+* Fungsi Tambah Olahraga Resistance - FIXED *
+*************************************/
 function addResistanceExercise(hariKe, exerciseName) {
+    console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
+    
     const containerId = `selectedResistanceContainer${hariKe}`;
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!container) {
+        console.error(`❌ Resistance container not found: ${containerId}`);
+        return;
+    }
     
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
@@ -4341,6 +4391,8 @@ function addResistanceExercise(hariKe, exerciseName) {
             saveResistanceData(hariKe, exerciseId);
         });
     });
+    
+    console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
 }
 
 /*********************************
