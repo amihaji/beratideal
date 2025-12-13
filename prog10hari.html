@@ -1316,14 +1316,66 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tidak ada user ID (belum login)
         console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
     }
+    // Setup accordion toggle
+    setupAccordionToggle();
     
-    // ========================================
-    // 3. SETUP SEMUA KOMPONEN LAINNYA
-    // ========================================
+    // SEetup semua komponen
     setupAllComponents();
     
     console.log('✅ Aplikasi siap');
 });
+
+function setupAccordionToggle() {
+    let currentOpenMenu = null;
+    
+    document.querySelectorAll('.menu-header').forEach(header => {
+        header.setAttribute('data-bs-toggle', '');
+        
+        header.addEventListener('click', function(e) {
+            // CEK APAKAH DISABLED
+            if (this.classList.contains('disabled')) {
+                e.preventDefault();
+                e.stopPropagation();
+                showMessage('warning', 'Selesaikan Perkenalan terlebih dahulu!', 3000);
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const targetId = this.getAttribute('data-bs-target');
+            const targetContent = document.querySelector(targetId);
+            
+            if (!targetContent) return;
+            
+            // Accordion toggle logic...
+            if (currentOpenMenu === targetId) {
+                // TUTUP menu
+                targetContent.style.display = 'none';
+                targetContent.classList.remove('show');
+                this.classList.add('collapsed');
+                currentOpenMenu = null;
+            } else {
+                // BUKA menu baru
+                if (currentOpenMenu) {
+                    const previousContent = document.querySelector(currentOpenMenu);
+                    const previousHeader = document.querySelector(`[data-bs-target="${currentOpenMenu}"]`);
+                    if (previousContent && previousHeader) {
+                        previousContent.style.display = 'none';
+                        previousContent.classList.remove('show');
+                        previousHeader.classList.add('collapsed');
+                    }
+                }
+                
+                // Buka menu baru
+                targetContent.style.display = 'block';
+                targetContent.classList.add('show');
+                this.classList.remove('collapsed');
+                currentOpenMenu = targetId;
+            }
+        });
+    });
+}
 
 /************************************
 * Apply Lock System yang lebih strict*
@@ -1455,33 +1507,68 @@ function strictLockModul(hariKe) {
 /************************************
 * Unlock modul dengan icon benar   *
 *************************************/
+/************************************
+* Unlock modul dengan icon benar - IMPROVED *
+*************************************/
 function unlockModul(hariKe) {
+    console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
+    
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        // 1. Remove disabled class
-        modulHeader.classList.remove('disabled');
-        
-        // 2. Restore style
-        modulHeader.style.pointerEvents = 'auto';
-        modulHeader.style.opacity = '1';
-        modulHeader.style.cursor = 'pointer';
-        modulHeader.style.backgroundColor = '';
-        
-        // 3. Update lock icon ke UNLOCK
-        const lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
-        if (lockIcon) {
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-unlock"></i>';
-            lockIcon.style.color = '#ffffff;            // #28a745'; // Warna hijau
-        }
-        
-        // 4. Remove tooltip
-        modulHeader.removeAttribute('title');
-        modulHeader.removeAttribute('data-bs-toggle');
-        modulHeader.removeAttribute('data-bs-placement');
-        
-        console.log(`🔓 Modul Hari ${hariKe} UNLOCKED dengan icon benar`);
+    if (!modulHeader) {
+        console.error(`❌ Modul header not found for hari ${hariKe}`);
+        return;
     }
+    
+    console.log('📌 Modul header found:', modulHeader);
+    
+    // 1. Remove disabled class
+    modulHeader.classList.remove('disabled');
+    
+    // 2. Restore style
+    modulHeader.style.pointerEvents = 'auto';
+    modulHeader.style.opacity = '1';
+    modulHeader.style.cursor = 'pointer';
+    modulHeader.style.backgroundColor = ''; // Reset background color
+    
+    // 3. Update lock icon ke UNLOCK
+    let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
+    
+    if (!lockIcon) {
+        // Cari icon di dalam span
+        const iconSpan = modulHeader.querySelector('span');
+        if (iconSpan) {
+            lockIcon = iconSpan.querySelector('i.fa-lock, i.fa-unlock, i.fa-check-circle');
+        }
+    }
+    
+    if (lockIcon) {
+        console.log('🔑 Found lock icon:', lockIcon.className);
+        lockIcon.className = 'fas fa-unlock status-unlock';
+        lockIcon.style.color = '#ffffff'; // Warna putih
+    } else {
+        console.warn('⚠️ No lock icon found, creating new one');
+        // Buat icon baru
+        const iconContainer = modulHeader.querySelector('span');
+        if (iconContainer) {
+            const newIcon = document.createElement('i');
+            newIcon.className = 'fas fa-unlock status-unlock';
+            newIcon.style.color = '#ffffff';
+            newIcon.style.marginLeft = '10px';
+            iconContainer.appendChild(newIcon);
+        }
+    }
+    
+    // 4. Remove tooltip
+    modulHeader.removeAttribute('title');
+    modulHeader.removeAttribute('data-bs-toggle');
+    modulHeader.removeAttribute('data-bs-placement');
+    
+    // 5. Remove any Bootstrap tooltip instance
+    if (modulHeader._tooltip) {
+        modulHeader._tooltip.dispose();
+    }
+    
+    console.log(`✅ Modul Hari ${hariKe} UNLOCKED successfully`);
 }
 
 /************************************
@@ -1501,6 +1588,13 @@ function applyLockForNewUser() {
         perkenalanHeader.classList.remove('disabled');
         perkenalanHeader.style.pointerEvents = 'auto';
         perkenalanHeader.style.opacity = '1';
+        
+        // Update lock icon untuk perkenalan
+        const lockIcon = perkenalanHeader.querySelector('.status-lock, .status-unlock');
+        if (lockIcon) {
+            lockIcon.className = 'fas fa-lock status-lock';
+            lockIcon.style.color = '#ffffff';
+        }
     }
 }
 
@@ -1510,19 +1604,38 @@ function applyLockForNewUser() {
 function lockModul(hariKe) {
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
     if (modulHeader) {
-        modulHeader.classList.add('disabled');
-        modulHeader.style.pointerEvents = 'none';
-        modulHeader.style.opacity = '0.6';
-        modulHeader.style.cursor = 'not-allowed';
-        
-        // Update lock icon
-        const lockIcon = modulHeader.querySelector('.status-lock');
-        if (lockIcon) {
-            lockIcon.className = 'status-lock';
-            lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+        // Skip jika sudah unlocked
+        if (!modulHeader.classList.contains('disabled')) {
+            modulHeader.classList.add('disabled');
+            modulHeader.style.pointerEvents = 'none';
+            modulHeader.style.opacity = '0.6';
+            modulHeader.style.cursor = 'not-allowed';
+            
+            // Update lock icon
+            let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
+            if (lockIcon) {
+                lockIcon.className = 'fas fa-lock status-lock';
+                lockIcon.style.color = '#000e3d';
+            } else {
+                // Cari atau buat icon
+                const iconContainer = modulHeader.querySelector('span');
+                if (iconContainer) {
+                    const existingIcon = iconContainer.querySelector('i');
+                    if (existingIcon) {
+                        existingIcon.className = 'fas fa-lock status-lock';
+                        existingIcon.style.color = '#000e3d';
+                    } else {
+                        const newIcon = document.createElement('i');
+                        newIcon.className = 'fas fa-lock status-lock';
+                        newIcon.style.color = '#000e3d';
+                        newIcon.style.marginLeft = '10px';
+                        iconContainer.appendChild(newIcon);
+                    }
+                }
+            }
+            
+            console.log(`🔒 Modul Hari ${hariKe} dikunci`);
         }
-        
-        console.log(`🔒 Modul Hari ${hariKe} dikunci`);
     }
 }
 
@@ -1565,23 +1678,57 @@ function updatePerkenalanUI() {
 ************************/
 function setupAllComponents() {
     console.log('🔧 Setting up all components...');
+    
     const userId = localStorage.getItem('userId');
+    const userToken = localStorage.getItem('userToken');
+    
+    // ========================================
+    // 1. ACCORDION TOGGLE FIX
+    // ========================================
+    // ... existing accordion code ...
+    
+    // ========================================
+    // 2. CEK USER LOGIN DAN APPLY UNLOCK
+    // ========================================
+    if (userId && userToken) {
+        console.log('👤 User is logged in:', userId);
+        
+        // Check progress dan unlock modules
+        checkAndUnlockModulesForUser(userId);
+        
+        // Update navbar untuk show logout
+        updateNavbarForLoggedInUser(userId);
+        
+    } else {
+        console.log('⚠️ No user logged in or session expired');
+        // Lock semua modul untuk non-logged in users
+        applyLockForNewUser();
+    }
+    
+    // ========================================
+    // 3. SETUP SEMUA KOMPONEN LAINNYA
+    // ========================================
+    setupAllComponentsInternal();
+    
+    console.log('✅ All components setup complete');
+}
 
-    // Submenu triggers untuk menampilkan form dari submenu
+function setupAllComponentsInternal() {
+    // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-      trigger.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = this.getAttribute('data-target');
-        showSubmenu(target);
-      });
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-target');
+            showSubmenu(target);
+        });
     });
     
     // Setup tombol close di semua submenu
     document.querySelectorAll('.btn-close-header').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const targetId = this.closest('.submenu-content').id;
-        hideSubmenu(targetId);
-      });
+        btn.addEventListener('click', function() {
+            const targetId = this.closest('.submenu-content').id;
+            hideSubmenu(targetId);
+        });
     });
 
     // Setup video links
@@ -1602,9 +1749,9 @@ function setupAllComponents() {
     // Setup materi completion
     setupMateriCompletion();
     
-    // Check materi status
+    // Check materi status dari localStorage
     for (let i = 1; i <= 10; i++) {
-      checkMateriStatus(i);
+        checkMateriStatus(i);
     }
     
     // Setup meal plan forms
@@ -1612,51 +1759,35 @@ function setupAllComponents() {
     
     // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
-      checkMealPlanStatus(i);
-      loadMealPlanProgress(i);
+        checkMealPlanStatus(i);
+        loadMealPlanProgress(i);
     }
     
-    // Setup workout forms (generate HTML terlebih dahulu)
-    generateWorkoutForms();
-    
-    // Setup semua komponen workout
-    initializeAllWorkoutDays();
-
-    // Jika ada user yang login, check progress dan apply button status
-    if (userId) {
-        console.log('👤 User logged in:', userId);
-        
-        // Check progress dari server
-        fetchProgressFromServer(userId);
-        
-        // Juga check dari localStorage sebagai fallback
-        setTimeout(() => {
-            for (let hariKe = 1; hariKe <= 10; hariKe++) {
-                checkAndApplyButtonStatus(userId, hariKe);
-            }
-        }, 1000);
-    }
-
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
-    // Cek login status untuk tombol logout
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        if (loginMenuItem) {
-            loginMenuItem.innerHTML = `
-                <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            `;
-        }
-    }
+    // Setup workout forms
+    generateWorkoutForms();
+    initializeAllWorkoutDays();
     
     // Initialize video players
     initializeAllVideoPlayers();
-    console.log('✅ All components setup complete');
 }
+
+/********************************
+* Update navbar untuk user yang login *
+*********************************/
+function updateNavbarForLoggedInUser(userId) {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    if (loginMenuItem) {
+        loginMenuItem.innerHTML = `
+            <a class="nav-link main-menu-link" href="#" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout (${userId})
+            </a>
+        `;
+    }
+}
+
 
 // Di dalam generate HTML untuk submenu
 function createSubmenuHTML(hariKe) {
@@ -2898,43 +3029,6 @@ function closeAllPDFs() {
     console.log('✅ All PDFs closed');
 }
 
-function BACKUP_closeAllPDFs() {
-    console.log('Closing all PDFs');
-    const pdfViewers = document.querySelectorAll('.pdf-viewer');
-    pdfViewers.forEach(viewer => {
-        const section = viewer.id.replace('pdfViewer', '');
-        if (section) {
-            closePDF(section.toLowerCase());
-        }
-    });
-    
-    // Untuk panduan kembalikan pdf viewer ke posisi semula
-    const panduanPDFViewer = document.getElementById('pdfViewerPanduan');
-    const panduanContent = document.getElementById('panduanContent');
-    if (panduanPDFViewer && panduanContent) {
-        const menuContent = panduanContent.querySelector('.menu-content');
-        if (menuContent) {
-            // Tempatkan sebelum "Selesai Panduan"
-            const selesaiLink = menuContent.querySelector('a[href="#"]:last-child');
-            if (selesaiLink) {
-                menuContent.insertBefore(panduanPDFViewer, selesaiLink);
-            } else {
-                menuContent.appendChild(panduanPDFViewer);
-            }
-        }
-    }
-    
-    // Untuk submenu lainnya, kembalikan ke submenu content masing-masing
-    const submenuSections = ['mealplan1', 'workout1', 'water1', 'istirahat1', 'datatracking1'];
-    submenuSections.forEach(section => {
-        const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-        const submenuContent = document.getElementById(`${section}Content1`);
-        if (pdfViewer && submenuContent) {
-            submenuContent.appendChild(pdfViewer);
-        }
-    });
-}
-
 // ********************************
 // ***** FUNGSI SUMNEU DAN UI *****
 /**********************************
@@ -3628,6 +3722,132 @@ function saveMateriStatus(hariKe, status) {
     
     // Apply button disable
     disableButtonsAfterCompletion(hariKe, 'materi');
+}
+
+/************************************
+* Check dan apply unlock untuk user existing *
+*************************************/
+async function checkAndUnlockModulesForUser(userId) {
+    console.log('🔓 Checking and unlocking modules for user:', userId);
+    
+    try {
+        // Ambil progress dari server
+        const progress = await fetchUserProgressFromServer(userId);
+        
+        if (progress && progress.success) {
+            console.log('📊 Progress from server:', progress);
+            
+            // 1. Jika perkenalan sudah selesai, unlock modul hari 1
+            if (progress.perkenalan) {
+                console.log('✅ Perkenalan sudah selesai - unlocking modul hari 1');
+                unlockModul(1);
+                
+                // Update UI perkenalan
+                updatePerkenalanUI();
+            }
+            
+            // 2. Check progress untuk setiap submenu
+            const progressChecks = [
+                { type: 'materi', field: 'materiHari1' },
+                { type: 'mealplan', field: 'mealplanHari1' },
+                { type: 'workout', field: 'workoutHari1' },
+                { type: 'water', field: 'waterHari1' },
+                { type: 'istirahat', field: 'istirahatHari1' },
+                { type: 'datatracking', field: 'datatrackingHari1' }
+            ];
+            
+            progressChecks.forEach(item => {
+                if (progress[item.field]) {
+                    console.log(`✅ ${item.type} sudah selesai - updating UI`);
+                    updateSubmenuLinkUI(1, item.type);
+                    disableButtonsAfterCompletion(1, item.type);
+                }
+            });
+            
+            // 3. Auto-expand Modul Hari 1 jika sudah ada progress
+            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1) {
+                setTimeout(() => {
+                    const header = document.querySelector('[data-hari="1"]');
+                    if (header && header.classList.contains('collapsed')) {
+                        console.log('📖 Auto-expanding Modul Hari 1');
+                        header.click();
+                    }
+                }, 1000);
+            }
+            
+        } else {
+            console.log('⚠️ No progress found or user is new');
+            // Untuk user baru, lock modul hari 1
+            lockModul(1);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error checking user progress:', error);
+        // Fallback: cek dari localStorage
+        checkProgressFromLocalStorage(userId);
+    }
+}
+
+/************************************
+* Fetch progress dari server dengan Promise *
+*************************************/
+function fetchUserProgressFromServer(userId) {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'cb_user_progress_' + Date.now();
+        const script = document.createElement('script');
+        
+        script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+        
+        window[callbackName] = function(response) {
+            console.log('📡 Server progress response:', response);
+            resolve(response);
+            document.body.removeChild(script);
+            delete window[callbackName];
+        };
+        
+        script.onerror = () => {
+            console.warn('⚠️ Failed to fetch progress from server');
+            reject(new Error('Failed to fetch progress'));
+            document.body.removeChild(script);
+            delete window[callbackName];
+        };
+        
+        document.body.appendChild(script);
+    });
+}
+
+/************************************
+* Check progress dari localStorage sebagai fallback *
+*************************************/
+function checkProgressFromLocalStorage(userId) {
+    console.log('📂 Checking progress from localStorage for user:', userId);
+    
+    // Cek progress data user-specific
+    const userProgressKey = `progressData_${userId}`;
+    const userProgress = JSON.parse(localStorage.getItem(userProgressKey) || '{}');
+    
+    if (userProgress.success) {
+        console.log('📊 Found user progress in localStorage:', userProgress);
+        
+        // Jika perkenalan sudah selesai, unlock modul hari 1
+        if (userProgress.perkenalan) {
+            unlockModul(1);
+            updatePerkenalanUI();
+        }
+        
+        // Check submenu progress
+        if (userProgress.materiHari1 || userProgress.mealplanHari1 || userProgress.workoutHari1) {
+            unlockModul(1);
+        }
+        
+    } else {
+        // Cek general progress data
+        const generalProgress = JSON.parse(localStorage.getItem('progressData') || '{}');
+        if (generalProgress.success && generalProgress.perkenalan) {
+            unlockModul(1);
+            updatePerkenalanUI();
+        }
+    }
 }
 
 /****************************************
