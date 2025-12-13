@@ -1538,27 +1538,85 @@ function setupAllComponents() {
     console.log('✅ All components setup complete');
 }
 
+// Di dalam generate HTML untuk submenu
+function createSubmenuHTML(hariKe) {
+    return `
+        <!-- Materi Video -->
+        <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
+          class="menu-item video-link" onclick="showSubmenuWithStatus('videoContainerPertemuan${hariKe}', ${hariKe}, 'materi')"
+          style="max-width: 100%;" data-section="pertemuan${hariKe}" 
+          data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink${hariKe}">
+          <i class="fas fa-video"></i>${hariKe}.1 Materi Hari ${getDayName(hariKe)} - Dari Mana Saja Sumber Protein Bisa Didapatkan? 
+        </a>
+        
+        <!-- Meal Plan -->
+        <a href="#" 
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('mealPlanContent${hariKe}', ${hariKe}, 'mealplan')" 
+          data-target="mealPlanContent${hariKe}" id="mealPlanLink${hariKe}">
+          <i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)}
+        </a>
+        
+        <!-- Workout -->
+        <a href="#"
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('workoutContent${hariKe}', ${hariKe}, 'workout')" 
+          data-target="workoutContent${hariKe}" id="workoutLink${hariKe}">
+          <i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)}
+        </a>
+        
+        <!-- Water Reminder -->
+        <a href="#"
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('waterReminderContent${hariKe}', ${hariKe}, 'water')" 
+          data-target="waterReminderContent${hariKe}" id="waterLink${hariKe}">
+          <i class="fas fa-prescription-bottle"></i>${hariKe}.4 Water Reminder - Hari ${getDayName(hariKe)}
+        </a>
+        
+        <!-- Waktu Istirahat -->
+        <a href="#"
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('istirahatContent${hariKe}', ${hariKe}, 'istirahat')" 
+          data-target="istirahatContent${hariKe}" id="istirahatLink${hariKe}">
+          <i class="fas fa-bed"></i>${hariKe}.5 Waktu Istirahat - Hari ${getDayName(hariKe)}
+        </a>
+        
+        <!-- Data Tracking -->
+        <a href="#"
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('dataTrackingContent${hariKe}', ${hariKe}, 'datatracking')" 
+          data-target="dataTrackingContent${hariKe}" id="trackingLink${hariKe}">
+          <i class="fas fa-user-friends"></i>${hariKe}.6 Data Tracking - Hari ${getDayName(hariKe)}
+        </a>
+        
+        <!-- Selesai Modul -->
+        <a href="#" class="menu-item" onclick="selesaiModul(${hariKe})" id="selesaiModulLink${hariKe}">
+           <i class="fas fa-check-double"></i>Selesai Modul hari ${getDayName(hariKe)}
+        </a>
+    `;
+}
+
 /************************************
-* Load progress dari localStorage   *
+* Load progress dari localStorage dan apply button status *
 *************************************/
 function loadProgressFromStorage() {
-  console.log('📂 Memuat progress dari storage...');
-  
-  // Ambil data progress
-  const progressData = localStorage.getItem('progressData');
-  const userId = localStorage.getItem('userId');
-  
-  if (progressData) {
-    const progress = JSON.parse(progressData);
-    console.log('📊 Progress ditemukan:', progress);
+    console.log('📂 Memuat progress dari storage...');
     
-    // APLIKASIKAN KE UI
-    applyProgressToUI(progress);
-  } else if (userId) {
-    // Jika ada userId tapi tidak ada progress, coba ambil dari server
-    console.log('🔄 Ambil progress dari server...');
-    fetchProgressFromServer(userId);
-  }
+    // Ambil data progress
+    const progressData = localStorage.getItem('progressData');
+    const userId = localStorage.getItem('userId');
+    
+    if (progressData) {
+        const progress = JSON.parse(progressData);
+        console.log('📊 Progress ditemukan:', progress);
+        
+        // APLIKASIKAN KE UI
+        applyProgressToUI(progress);
+        
+        // Apply button status untuk semua hari
+        for (let hariKe = 1; hariKe <= 10; hariKe++) {
+            checkAndApplyButtonStatus(hariKe);
+        }
+    } else if (userId) {
+        // Jika ada userId tapi tidak ada progress, coba ambil dari server
+        console.log('🔄 Ambil progress dari server...');
+        fetchProgressFromServer(userId);
+    }
 }
 
 /************************************
@@ -2847,6 +2905,142 @@ function hideSubmenu(targetId) {
 // *****************************
 // ***** UTILITY FUNCTIONS *****
 // *****************************
+/***************************************
+* Fungsi untuk disable tombol setelah selesai *
+****************************************/
+function disableButtonsAfterCompletion(hariKe, submenuType) {
+    console.log(`🔒 Disabling buttons for ${submenuType} day ${hariKe}`);
+    
+    const buttonConfigs = {
+        'materi': {
+            selector: '#videoContainerPertemuan' + hariKe + ' .complete-btn',
+            elements: ['#materiLink' + hariKe]
+        },
+        'mealplan': {
+            selector: '#btnSelesaiMealPlan' + hariKe,
+            elements: [
+                '#btnCekDisiniMealPlan' + (hariKe > 1 ? hariKe : ''),
+                '#btnUploadKardio' + hariKe,
+                '#btnStartOlahraga' + hariKe,
+                '#btnStopOlahraga' + hariKe,
+                '#btnSimpanWorkout' + hariKe,
+                '#btnSelesaiWorkout' + hariKe
+            ].filter(id => document.querySelector(id))
+        },
+        'workout': {
+            selector: '#btnSelesaiWorkout' + hariKe,
+            elements: [
+                '#btnCekDisiniWorkout' + (hariKe > 1 ? hariKe : ''),
+                '#btnUploadKardio' + hariKe,
+                '#btnStartOlahraga' + hariKe,
+                '#btnStopOlahraga' + hariKe,
+                '#btnSimpanWorkout' + hariKe
+            ].filter(id => document.querySelector(id))
+        },
+        'water': {
+            selector: '#btnSelesaiMinumAir',
+            elements: [
+                '#btnCekDisiniAirMinum' + (hariKe > 1 ? hariKe : ''),
+                '#btnSimpanMinumAir',
+                '#btnSelesaiMinumAir'
+            ].filter(id => document.querySelector(id))
+        },
+        'istirahat': {
+            selector: '#btnSelesaiIstirahat',
+            elements: [
+                '#btnCekDisiniIstirihat' + (hariKe > 1 ? hariKe : ''),
+                '#btnStartIstirahat',
+                '#btnSimpanIstirahat',
+                '#btnSelesaiIstirahat'
+            ].filter(id => document.querySelector(id))
+        },
+        'datatracking': {
+            selector: '#btnSelesaiDataTubuh',
+            elements: [
+                '#btnCekDisiniDataTubuh' + (hariKe > 1 ? hariKe : ''),
+                '#btnSimpanDataTubuh',
+                '#btnSelesaiDataTubuh'
+            ].filter(id => document.querySelector(id))
+        }
+    };
+    
+    const config = buttonConfigs[submenuType];
+    if (!config) return;
+    
+    // Disable tombol utama
+    const mainButton = document.querySelector(config.selector);
+    if (mainButton) {
+        mainButton.disabled = true;
+        mainButton.classList.remove('btn-primary', 'btn-success');
+        mainButton.classList.add('btn-secondary');
+        mainButton.style.opacity = '0.6';
+        mainButton.style.cursor = 'not-allowed';
+    }
+    
+    // Disable semua tombol terkait
+    config.elements.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.disabled = true;
+            if (element.classList.contains('btn-primary') || element.classList.contains('btn-success')) {
+                element.classList.remove('btn-primary', 'btn-success');
+                element.classList.add('btn-secondary');
+            }
+            element.style.opacity = '0.6';
+            element.style.cursor = 'not-allowed';
+            element.title = 'Sudah selesai';
+        }
+    });
+    
+    // Untuk upload file, disable juga input fields
+    if (submenuType === 'mealplan') {
+        ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'].forEach(mealType => {
+            const inputField = document.getElementById(mealType + hariKe);
+            if (inputField) {
+                inputField.readOnly = true;
+                inputField.style.backgroundColor = '#f8f9fa';
+                inputField.style.cursor = 'not-allowed';
+            }
+        });
+    }
+}
+
+/***************************************
+* Fungsi untuk check status dan apply disable *
+****************************************/
+function checkAndApplyButtonStatus(hariKe) {
+    console.log(`🔍 Checking button status for day ${hariKe}`);
+    
+    // Check materi status
+    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'materi');
+    }
+    
+    // Check mealplan status
+    if (localStorage.getItem(`mealplan_hari_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'mealplan');
+    }
+    
+    // Check workout status
+    if (localStorage.getItem(`workout_status_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'workout');
+    }
+    
+    // Check water status
+    if (localStorage.getItem(`water_status_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'water');
+    }
+    
+    // Check istirahat status
+    if (localStorage.getItem(`istirahat_status_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'istirahat');
+    }
+    
+    // Check datatracking status
+    if (localStorage.getItem(`datatracking_status_${hariKe}`) === 'completed') {
+        disableButtonsAfterCompletion(hariKe, 'datatracking');
+    }
+}
 
 /************************************************************
 * Memberikan tombol centang Centang Selain Video Perkenalan *
@@ -3165,34 +3359,14 @@ async function simpanMateri(hariKe) {
 function saveMateriStatus(hariKe, status) {
     localStorage.setItem(`materi_hari_${hariKe}`, status);
     localStorage.setItem(`materi_completed_${hariKe}`, new Date().toISOString());
+    
+    // Apply button disable
+    disableButtonsAfterCompletion(hariKe, 'materi');
 }
 
 /****************************************
 * Update UI materi dengan tanda centang *
 *****************************************/
-function updateMateriCompletionUI(hariKe) {
-    // Update link materi di menu
-    const materiLink = document.getElementById(`materiLink${hariKe}`);
-    if (materiLink) {
-        // Tambahkan tanda centang tanpa mengubah teks utama
-        const currentText = materiLink.innerHTML;
-        if (!currentText.includes('✓')) {
-            //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
-            materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
-            materiLink.style.color = '#666666';
-            materiLink.style.fontWeight = 'bold';
-        }
-    }
-    
-    // Juga update tombol centang di video player (jika ada)
-    const completeBtn = document.querySelector(`#videoContainerPertemuan${hariKe} .complete-btn`);
-    if (completeBtn) {
-        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-        completeBtn.classList.remove('btn-success');
-        completeBtn.classList.add('btn-secondary');
-        completeBtn.disabled = true;
-    }
-}
 
 /************************
 /***** FUNGSI BANTU *****
@@ -3656,27 +3830,75 @@ function checkAllMealsUploaded(hariKe) {
 function saveMealPlanStatus(hariKe, status) {
     localStorage.setItem(`mealplan_hari_${hariKe}`, status);
     localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
+    
+    // Apply button disable
+    disableButtonsAfterCompletion(hariKe, 'mealplan');
 }
 
 /**************************************
 * Update UI setelah meal plan selesai *
+***************************************/
+/**************************************
+* Update UI setelah meal plan selesai dengan disable tombol *
 ***************************************/
 function updateMealPlanCompletionUI(hariKe) {
     // Update tombol di menu utama
     const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
     if (mealPlanItem) {
         mealPlanItem.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ke ${hariKe} ✓ `;
-        mealPlanItem.style.color = '#666666';    // Tulisan Abu-abu 
-        mealPlanItem.style.fontWeight = 'bold';  // Tulisan jadi tebal
+        mealPlanItem.style.color = '#666666';
+        mealPlanItem.style.fontWeight = 'bold';
+        
+        // Ubah onclick untuk tetap bisa buka form tapi tidak bisa upload
+        mealPlanItem.onclick = function(e) {
+            e.preventDefault();
+            showMealPlanUploadForm(hariKe);
+            checkAndApplyButtonStatus(hariKe);
+        };
     }
     
-    // ✅ UPDATE TOMBOL SELESAI JADI HIJAU
+    // Update tombol selesai di form
     const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
     if (selesaiBtn) {
         selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}`;
         selesaiBtn.classList.remove('btn-secondary');
         selesaiBtn.classList.add('btn-success');
         selesaiBtn.disabled = true;
+        selesaiBtn.style.opacity = '0.6';
+        selesaiBtn.style.cursor = 'not-allowed';
+    }
+    
+    // Disable semua tombol upload
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    mealTypes.forEach(mealType => {
+        const inputField = document.getElementById(`${mealType}${hariKe}`);
+        const uploadBtn = inputField?.nextElementSibling;
+        
+        if (inputField) {
+            inputField.readOnly = true;
+            inputField.style.backgroundColor = '#f8f9fa';
+            inputField.style.cursor = 'not-allowed';
+        }
+        
+        if (uploadBtn && uploadBtn.tagName === 'BUTTON') {
+            uploadBtn.disabled = true;
+            uploadBtn.classList.remove('btn-outline-secondary');
+            uploadBtn.classList.add('btn-secondary');
+            uploadBtn.style.opacity = '0.6';
+            uploadBtn.style.cursor = 'not-allowed';
+            uploadBtn.title = 'Upload sudah selesai';
+        }
+    });
+    
+    // Disable tombol cek disini
+    const cekDisiniBtn = document.getElementById(`btnCekDisiniMealPlan${hariKe > 1 ? hariKe : ''}`);
+    if (cekDisiniBtn) {
+        cekDisiniBtn.disabled = true;
+        cekDisiniBtn.classList.remove('btn-primary');
+        cekDisiniBtn.classList.add('btn-secondary');
+        cekDisiniBtn.style.opacity = '0.6';
+        cekDisiniBtn.style.cursor = 'not-allowed';
+        cekDisiniBtn.title = 'Sudah selesai';
     }
 }
 
@@ -4107,11 +4329,104 @@ function saveWorkoutStatus(hariKe, status) {
         localStorage.setItem(`workout_saved_${hariKe}`, 'true');
     } else if (status === 'completed') {
         localStorage.setItem(`workout_completed_${hariKe}`, new Date().toISOString());
+        disableButtonsAfterCompletion(hariKe, 'workout');
     }
+}
+
+/***************************************
+* Selesaikan Water Reminder dan disable tombol *
+****************************************/
+async function selesaiWaterReminder(hariKe) {
+    // Simpan status
+    localStorage.setItem(`water_status_${hariKe}`, 'completed');
+    localStorage.setItem(`water_completed_${hariKe}`, new Date().toISOString());
+    
+    // Disable tombol
+    disableButtonsAfterCompletion(hariKe, 'water');
+    
+    // Update UI
+    const waterItem = document.querySelector(`[onclick="waterReminder(${hariKe})"]`);
+    if (waterItem) {
+        waterItem.innerHTML = `<i class="fas fa-prescription-bottle"></i>${hariKe}.4 Water Reminder - Hari ke ${hariKe} ✓`;
+        waterItem.style.color = '#666666';
+        waterItem.style.fontWeight = 'bold';
+    }
+    
+    showMessage('success', `Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+/***************************************
+* Selesaikan Istirahat dan disable tombol *
+****************************************/
+async function selesaiIstirahat(hariKe) {
+    // Simpan status
+    localStorage.setItem(`istirahat_status_${hariKe}`, 'completed');
+    localStorage.setItem(`istirahat_completed_${hariKe}`, new Date().toISOString());
+    
+    // Disable tombol
+    disableButtonsAfterCompletion(hariKe, 'istirahat');
+    
+    // Update UI
+    const istirahatItem = document.querySelector(`[onclick="istirahat(${hariKe})"]`);
+    if (istirahatItem) {
+        istirahatItem.innerHTML = `<i class="fas fa-bed"></i>${hariKe}.5 Waktu Istirahat - Hari ke ${hariKe} ✓`;
+        istirahatItem.style.color = '#666666';
+        istirahatItem.style.fontWeight = 'bold';
+    }
+    
+    showMessage('success', `Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+/***************************************
+* Selesaikan Data Tracking dan disable tombol *
+****************************************/
+async function selesaiDataTracking(hariKe) {
+    // Simpan status
+    localStorage.setItem(`datatracking_status_${hariKe}`, 'completed');
+    localStorage.setItem(`datatracking_completed_${hariKe}`, new Date().toISOString());
+    
+    // Disable tombol
+    disableButtonsAfterCompletion(hariKe, 'datatracking');
+    
+    // Update UI
+    const trackingItem = document.querySelector(`[onclick="dataTracking(${hariKe})"]`);
+    if (trackingItem) {
+        trackingItem.innerHTML = `<i class="fas fa-user-friends"></i>${hariKe}.6 Data Tracking - Hari ke ${hariKe} ✓`;
+        trackingItem.style.color = '#666666';
+        trackingItem.style.fontWeight = 'bold';
+    }
+    
+    showMessage('success', `Data Tracking hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+}
+
+/*************************
+* Tampilkan form dengan pengecekan status tombol *
+**************************/
+function showSubmenuWithStatus(targetId, hariKe, submenuType) {
+    // Tampilkan submenu seperti biasa
+    showSubmenu(targetId);
+    
+    // Check dan apply button status
+    setTimeout(() => {
+        checkAndApplyButtonStatus(hariKe);
+        
+        // Untuk mealplan, juga check upload status
+        if (submenuType === 'mealplan') {
+            loadMealPlanProgress(hariKe);
+        }
+        
+        // Untuk workout, juga check resistance data
+        if (submenuType === 'workout') {
+            loadSavedResistanceData(hariKe);
+        }
+    }, 500);
 }
 
 /************************************
 * Update UI setelah workout selesai *
+*************************************/
+/************************************
+* Update UI setelah workout selesai dengan disable tombol *
 *************************************/
 function updateWorkoutCompletionUI(hariKe) {
     // Update tombol di menu utama
@@ -4120,6 +4435,13 @@ function updateWorkoutCompletionUI(hariKe) {
         workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ke ${hariKe} ✓ `;
         workoutItem.style.color = '#666666';
         workoutItem.style.fontWeight = 'bold';
+        
+        // Ubah onclick untuk tetap bisa buka form tapi tidak bisa simpan
+        workoutItem.onclick = function(e) {
+            e.preventDefault();
+            showWorkoutForm(hariKe);
+            checkAndApplyButtonStatus(hariKe);
+        };
     }
     
     // Update tombol selesai di form
@@ -4129,6 +4451,50 @@ function updateWorkoutCompletionUI(hariKe) {
         selesaiBtn.classList.remove('btn-secondary');
         selesaiBtn.classList.add('btn-success');
         selesaiBtn.disabled = true;
+        selesaiBtn.style.opacity = '0.6';
+        selesaiBtn.style.cursor = 'not-allowed';
+    }
+    
+    // Disable semua tombol terkait workout
+    const buttonsToDisable = [
+        `#olahragaKardio${hariKe}`,
+        `#btnUploadKardio${hariKe}`,
+        `#btnStartOlahraga${hariKe}`,
+        `#btnStopOlahraga${hariKe}`,
+        `#btnSimpanWorkout${hariKe}`,
+        `#resistanceDropdown${hariKe}`
+    ];
+    
+    buttonsToDisable.forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.disabled = true;
+            if (element.classList.contains('btn-primary') || element.classList.contains('btn-outline-secondary')) {
+                element.classList.add('btn-secondary');
+                element.classList.remove('btn-primary', 'btn-outline-secondary');
+            }
+            element.style.opacity = '0.6';
+            element.style.cursor = 'not-allowed';
+            element.title = 'Workout sudah selesai';
+        }
+    });
+    
+    // Disable semua input resistance
+    document.querySelectorAll(`input[data-hari="${hariKe}"]`).forEach(input => {
+        input.disabled = true;
+        input.style.backgroundColor = '#f8f9fa';
+        input.style.cursor = 'not-allowed';
+    });
+    
+    // Disable tombol cek disini
+    const cekDisiniBtn = document.getElementById(`btnCekDisiniWorkout${hariKe > 1 ? hariKe : ''}`);
+    if (cekDisiniBtn) {
+        cekDisiniBtn.disabled = true;
+        cekDisiniBtn.classList.remove('btn-primary');
+        cekDisiniBtn.classList.add('btn-secondary');
+        cekDisiniBtn.style.opacity = '0.6';
+        cekDisiniBtn.style.cursor = 'not-allowed';
+        cekDisiniBtn.title = 'Sudah selesai';
     }
 }
 
