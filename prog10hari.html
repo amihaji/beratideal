@@ -493,7 +493,7 @@ body { background-color: #f8f9fa; }
   
   /* 3. CARD BODY PADDING */
   .card-body { padding: 12px !important; }
-  
+
   /* 4. SUBMENU CONTENT - FIX OVERFLOW */
   .submenu-content { 
     margin-left: -10px !important;
@@ -522,10 +522,30 @@ body { background-color: #f8f9fa; }
   }
   
   /* 7. INPUT GROUPS */
-  .input-group { flex-wrap: wrap !important; }
-  .input-group .form-control { flex: 1 1 auto !important; min-width: 0 !important; }
-  .input-group .btn { flex: 0 0 auto !important; margin-top: 5px; }
-  
+  .input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Kunci agar tidak turun baris */
+    align-items: stretch !important; /* Samakan tinggi anak elemen */
+  }
+  .input-group > .form-control,
+  .input-group > .form-select {
+      flex: 1 1 auto !important;
+      min-width: 0 !important; /* Penting agar input bisa menyusut */
+  }
+  .input-group > .btn {
+      flex-shrink: 0; /* Cegah tombol menyusut */
+      padding-left: 12px;
+      padding-right: 12px;
+  }
+  /* Untuk grup tombol aksi seperti Simpan & Selesai */
+  .d-flex.justify-content-between {
+      flex-wrap: nowrap !important;
+      gap: 10px !important;
+  }
+  .d-flex.justify-content-between .btn {
+      flex: 1 1 0px !important; /* Bagi rata lebar tombol */
+  }
+ 
   /* 8. RESISTANCE EXERCISE ITEMS */
   .resistance-exercise-item .row.g-2 { flex-direction: column !important; }
   .resistance-exercise-item .col-12 { width: 100% !important; margin-bottom: 10px !important; }
@@ -533,7 +553,13 @@ body { background-color: #f8f9fa; }
   /* 9. BUTTON GROUPS */
   .btn-group { flex-wrap: wrap !important; gap: 5px !important; }
   .btn-group .btn { flex: 1 1 auto !important; min-width: 80px !important; font-size: 13px !important; padding: 6px 10px !important; }
-  
+  .btn-group-horizontal-container {
+      display: flex !important;
+      flex-direction: row !important; /* Pastikan sejajar */
+      flex-wrap: nowrap !important;   /* Cegah turun ke baris baru */
+      gap: 10px; /* Atur jarak */
+  }
+
   /* 10. MEAL PLAN FORM RESPONSIVE */
   #jadwalMealplan-list .input-group { display: flex !important; flex-direction: column !important; }
   #jadwalMealplan-list .input-group .form-control { width: 100% !important; margin-bottom: 5px !important; }
@@ -572,21 +598,49 @@ body { background-color: #f8f9fa; }
     width: 100% !important;
     max-width: 100% !important;
   }
-  
+  .pdfjs-controls {
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Pastikan tombol tetap sejajar */
+    justify-content: center !important;
+    gap: 8px !important; /* Beri jarak yang pas */
+    padding: 8px !important;
+  }
+  .pdfjs-controls .btn, 
+  .pdfjs-controls .pdfjs-page-info {
+      font-size: 12px !important; /* Perkecil font agar muat */
+      padding: 6px 10px !important;
+      white-space: nowrap !important; /* Hindari teks terpotong */
+  }
+
   /* 16. VIDEO CONTAINER MOBILE */
   .video-container { max-width: 100% !important; margin: 10px auto !important; border-width: 2px !important; }
-  
+  /* Pastikan tombol centang di video player bulat sempurna */
+  .video-wrapper .complete-btn {
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% !important; /* Ini kunci untuk lingkaran sempurna */
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+  }
+
   /* 17. PLAYLIST CONTAINER MOBILE */
   .playlist-container { max-height: 300px !important; }
   .playlist-thumbnail { width: 80px !important; height: 45px !important; }
   .playlist-title { font-size: 12px !important; -webkit-line-clamp: 2 !important; line-clamp: 2 !important; }
   
   /* 18. CARD TITLE HEADERS */
-  .card-title.p-1.mb-2 { padding: 10px 5px !important; font-size: 14px !important; }
-  .card-title h6 { font-size: 13px !important; margin: 5px 0 !important; }
+  /*.card-title.p-1.mb-2 { padding: 10px 5px !important; font-size: 14px !important; }
+  /*.card-title h6 { font-size: 13px !important; margin: 5px 0 !important; }
   
   /* 19. H6 HEADINGS IN FORMS */
-  .submenu-content h6 { font-size: 13px !important; margin: 8px 0 5px 0 !important; }
+  /* Perkecil font judul form dan sub-judul */
+  .card-title.p-1.mb-2 h6,
+  .submenu-content h6 {
+      font-size: 14px !important;
+      font-weight: 600;
+  }
   
   /* 20. PARAGRAPHS AND TEXT */
   .submenu-content p { font-size: 12px !important; line-height: 1.4 !important; margin-bottom: 8px !important; }
