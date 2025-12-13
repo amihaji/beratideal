@@ -5500,7 +5500,155 @@ function createWorkoutFormHTML(hariKe) {
 /*********************************************
 * Daftar Olahraga Resisten - FIXED VERSION *
 *********************************************/   
+/*********************************************
+* Daftar Olahraga Resisten - FIXED VERSION (Mencegah penghapusan) *
+*********************************************/   
 function setupResistanceExercises(hariKe) {
+    console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
+    
+    const containerId = `resistance-section${hariKe}`;
+    const container = document.getElementById(containerId);
+    
+    if (!container) {
+        console.error(`❌ Resistance container not found: ${containerId}`);
+        return;
+    }
+    
+    // ⚠️ HAPUS BARIS INI: container.innerHTML = '';
+    // JANGAN HAPUS KONTEN YANG SUDAH ADA!
+    
+    // Cek apakah konten sudah ada (mungkin sudah dibuat oleh createWorkoutFormHTML)
+    // Jika sudah ada, kita hanya perlu men-disable elemennya, bukan membuat ulang.
+    const existingDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+    const existingContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    
+    if (existingDropdown && existingContainer) {
+        console.log(`✅ Resistance form sudah ada untuk hari ${hariKe}, hanya apply status.`);
+        // Elemen sudah ada, langsung load data dan apply disable jika diperlukan
+        loadSavedResistanceData(hariKe);
+        applyWorkoutReadOnlyMode(hariKe); // Fungsi baru untuk nonaktifkan form
+        return; // HENTIKAN eksekusi, jangan buat ulang form
+    }
+    
+    // --- KODE DI BAWAH INI HANYA DIEKSEKUSI JIKA FORM BELUM ADA ---
+    console.log(`⚙️ Membuat form resistance baru untuk hari ${hariKe}`);
+    
+    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "mb-3";
+    wrapper.innerHTML = `  
+        <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
+        <div class="mb-3">
+            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
+                <option value="">Pilih Olahraga Resistance...</option>
+                ${resistanceExercises.map(exercise => 
+                    `<option value="${exercise}">${exercise}</option>`
+                ).join('')}
+            </select>
+        </div>
+        
+        <div id="selectedResistanceContainer${hariKe}">
+            <!-- Selected exercises will appear here -->
+        </div>
+        
+        <!-- TOMBOL SIMPAN DAN SELESAI WORKOUT -->
+        <div class="mt-4 mb-3 p-3 border-top">
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
+                    <i class="fa fa-pencil-square-o"></i> Simpan Workout
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
+                    <i class="fa fa-check"></i> Selesai Workout
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Hapus konten lama hanya jika benar-benar diperlukan (saat membuat pertama kali)
+    container.innerHTML = '';
+    container.appendChild(wrapper);
+    
+    // Setup event listener untuk dropdown
+    setTimeout(() => {
+        const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+        if (dropdown) {
+            dropdown.addEventListener('change', function() {
+                const selectedValue = this.value;
+                if (selectedValue) {
+                    addResistanceExercise(hariKe, selectedValue);
+                    this.value = ''; // Reset dropdown
+                }
+            });
+        }
+    }, 100);
+    
+    // Load saved data untuk hari ini
+    loadSavedResistanceData(hariKe);
+    
+    // Setup event listeners untuk tombol
+    setupWorkoutForDay(hariKe);
+}
+
+/*********************************************************************
+* Fungsi Baru: Apply Read-Only Mode untuk Workout yang Sudah Selesai *
+**********************************************************************/
+function applyWorkoutReadOnlyMode(hariKe) {
+    console.log(`🔒 Applying read-only mode for workout day ${hariKe}`);
+    
+    // 1. Nonaktifkan dropdown utama
+    const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+    if (dropdown) {
+        dropdown.disabled = true;
+        dropdown.style.backgroundColor = '#f8f9fa';
+        dropdown.style.cursor = 'not-allowed';
+        dropdown.title = 'Workout sudah selesai';
+    }
+    
+    // 2. Nonaktifkan tombol aksi
+    const buttonsToDisable = [
+        `#btnSimpanWorkout${hariKe}`,
+        `#btnSelesaiWorkout${hariKe}`
+    ];
+    
+    buttonsToDisable.forEach(selector => {
+        const btn = document.querySelector(selector);
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.remove('btn-primary', 'btn-success');
+            btn.classList.add('btn-secondary');
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+            btn.title = 'Workout sudah selesai';
+            
+            // Update teks untuk tombol selesai
+            if (selector.includes('SelesaiWorkout')) {
+                btn.innerHTML = '<i class="fas fa-check-double"></i> Workout Selesai ✓';
+            }
+        }
+    });
+    
+    // 3. Nonaktifkan semua input di resistance container
+    const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    if (resistanceContainer) {
+        resistanceContainer.querySelectorAll('input').forEach(input => {
+            input.disabled = true;
+            input.readOnly = true;
+            input.style.backgroundColor = '#f8f9fa';
+            input.style.cursor = 'not-allowed';
+        });
+        
+        // Nonaktifkan tombol hapus di setiap item
+        resistanceContainer.querySelectorAll('button.btn-danger').forEach(btn => {
+            btn.disabled = true;
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-secondary');
+            btn.title = 'Tidak dapat dihapus - sudah selesai';
+        });
+    }
+}
+
+function BACKUP_setupResistanceExercises(hariKe) {
     console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
     
     const containerId = `resistance-section${hariKe}`;
