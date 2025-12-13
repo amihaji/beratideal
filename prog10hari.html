@@ -723,7 +723,8 @@ body { background-color: #f8f9fa; }
                 </div>
   
                 <!-- MEAL PLAN HARI PERTAMA -->
-                <a href="pdf/MealPlan_HariKe1.pdf"
+                <!-- <a href="pdf/MealPlan_HariKe1.pdf" -->
+                <a href="#" 
                   class="menu-item submenu-trigger" onclick="uploadMealPlan(1)" data-target="mealPlanContent1">
                   <i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama
                 </a>
@@ -1679,12 +1680,22 @@ function checkMateriStatus(hariKe) {
 /**************************
 * Setup Tombol Cek Disini - untuk semua hari
 ***************************/
+/**************************
+* Setup Tombol Cek Disini - FIXED untuk semua hari
+***************************/
 function setupCekDisiniButtons() {
     console.log('🔧 Setting up Cek Disini buttons for all days...');
     
     // Setup event listeners untuk semua tombol Cek Disini yang ada
     document.querySelectorAll('[id^="btnCekDisini"]').forEach(button => {
-        button.addEventListener('click', function() {
+        // Hapus event listener lama jika ada
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling ke parent
+            
             // Deteksi jenis dan hari dari ID button
             const buttonId = this.id;
             let jenis, hariKe;
@@ -1708,6 +1719,7 @@ function setupCekDisiniButtons() {
             }
             
             if (jenis && hariKe) {
+                console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
                 handleCekDisiniClick(jenis, hariKe);
             }
         });
@@ -1716,9 +1728,11 @@ function setupCekDisiniButtons() {
     console.log('✅ Cek Disini buttons setup completed for all days');
 }
 
-
 /**************************************
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
+***************************************/
+/************************************** 
+* Handle klik tombol Cek Disini untuk semua jenis dan hari - FIXED *
 ***************************************/
 function handleCekDisiniClick(jenis, hariKe) {
     console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
@@ -1757,7 +1771,25 @@ function handleCekDisiniClick(jenis, hariKe) {
         const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${itemConfig.fileName}`;
         const sectionId = `${itemConfig.section}${hariKe}`;
         
+        // TUTUP SEMUA KONTEN LAIN KECUALI SUBMENU YANG SEDANG AKTIF
+        const currentSubmenu = document.querySelector(`#${jenis}Content${hariKe}`);
+        
+        // Hanya sembunyikan konten yang tidak relevan
+        document.querySelectorAll('.video-container').forEach(video => {
+            video.style.display = 'none';
+        });
+        
+        document.querySelectorAll('.playlist-container').forEach(playlist => {
+            playlist.style.display = 'none';
+        });
+        
+        // Tampilkan PDF viewer
         loadPDF(sectionId, pdfUrl, itemConfig.title);
+        
+        // Tampilkan submenu jika belum terbuka
+        if (currentSubmenu && currentSubmenu.style.display === 'none') {
+            currentSubmenu.style.display = 'block';
+        }
     }
 }
 
@@ -2091,8 +2123,11 @@ function closeVideo(section) {
 /****************************************
 * Tutup Semua Video yang sedang diputar *
 *****************************************/
+/****************************************
+* Tutup Semua Video yang sedang diputar - TIDAK MENUTUP PDF *
+*****************************************/
 function closeAllVideos() {
-    console.log('Closing all videos and submenus');
+    console.log('Closing all videos and playlists (not PDFs)');
     
     // Tutup semua video
     const videoContainers = document.querySelectorAll('.video-container');
@@ -2103,19 +2138,28 @@ function closeAllVideos() {
         }
     });
     
-    // Tutup semua submenu
-    document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-        
-        // Kembalikan ke posisi semula
-        const menuAccordion = document.getElementById('menuAccordion');
-        if (menuAccordion && menuAccordion.parentNode) {
-            menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
-        }
+    // Tutup semua playlist
+    document.querySelectorAll('.playlist-container').forEach(playlist => {
+        playlist.style.display = 'none';
     });
     
-    // Tutup semua PDF
-    closeAllPDFs();
+    // HANYA tutup submenu yang tidak sedang menampilkan PDF
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        // Cek apakah di dalam submenu ini ada PDF yang sedang ditampilkan
+        const pdfViewersInside = content.querySelectorAll('.pdf-viewer');
+        let hasVisiblePDF = false;
+        
+        pdfViewersInside.forEach(pdf => {
+            if (pdf.style.display === 'block') {
+                hasVisiblePDF = true;
+            }
+        });
+        
+        // Jika tidak ada PDF yang terlihat di submenu ini, sembunyikan
+        if (!hasVisiblePDF) {
+            content.style.display = 'none';
+        }
+    });
 }
 
 /***********************
@@ -2422,6 +2466,9 @@ function setupPDFLinks() {
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
+/*****************************
+* Memuat dan Menampilkan PDF - FIXED *
+******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
@@ -2433,9 +2480,10 @@ function loadPDF(section, pdfUrl, title = '') {
         return;
     }
     
-    // Close video dan PDF lain
-    closeAllVideos();
-    closeAllPDFs();
+    // TUTUP SEMUA PDF LAIN TERLEBIH DAHULU
+    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+    });
     
     // Reset previous PDF
     pdfContainer.innerHTML = '';
@@ -2457,31 +2505,22 @@ function loadPDF(section, pdfUrl, title = '') {
     pdfViewer.style.display = 'block';
     
     // Tempatkan PDF viewer di posisi yang tepat
-    if (section === 'panduan') {
-        // Untuk menu Panduan: tempatkan setelah link PDF yang diklik
-        const pdfLink = document.getElementById('pdfPanduanLink');
-        if (pdfLink && pdfLink.parentNode) {
-            pdfLink.parentNode.insertBefore(pdfViewer, pdfLink.nextSibling);
-            console.log('✅ PDF Panduan placed after link');
+    const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(section)}`);
+    if (cekDisiniBtn && cekDisiniBtn.parentNode) {
+        // Tempatkan PDF viewer setelah parent paragraph dari tombol
+        const parentParagraph = cekDisiniBtn.closest('p');
+        if (parentParagraph && parentParagraph.parentNode) {
+            parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
+            console.log('✅ PDF placed after button paragraph');
+        } else {
+            // Fallback: tempatkan setelah tombol langsung
+            cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
+            console.log('✅ PDF placed after button');
         }
     } else {
-        // Untuk tombol "Cek Disini": tempatkan setelah tombol yang diklik
-        const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(section)}`);
-        if (cekDisiniBtn && cekDisiniBtn.parentNode) {
-            // Tempatkan PDF viewer setelah parent paragraph dari tombol
-            const parentParagraph = cekDisiniBtn.closest('p');
-            if (parentParagraph && parentParagraph.parentNode) {
-                parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
-                console.log('✅ PDF placed after button paragraph');
-            } else {
-                // Fallback: tempatkan setelah tombol langsung
-                cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
-                console.log('✅ PDF placed after button');
-            }
-        } else {
-            console.error('❌ Cek Disini button not found for section:', section);
-        }
+        console.error('❌ Cek Disini button not found for section:', section);
     }
+    
     // Load PDF setelah ditampilkan
     setTimeout(() => { displayPDF(section, pdfUrl, title); }, 500);
 }
@@ -2638,23 +2677,43 @@ function openPDFInNewTab(section) {
 }
 
 /*******************
-* Tutup PDF Viewer *
+* Tutup PDF Viewer - TIDAK MENUTUP SUBMENU *
 ********************/
 function closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     if (!pdfViewer || !pdfContainer) return;
+    
     // Clear PDF content
     pdfContainer.innerHTML = '';
     pdfViewer.style.display = 'none';
+    
+    // JANGAN kembalikan ke posisi semula, biarkan tetap di submenu
     currentPDFData = {};
+    
+    console.log('✅ PDF closed (submenu remains open)');
 }
 
 /*************************
-* Tutup Semua PDF Viewer *
+* Tutup Semua PDF Viewer - FIXED *
 **************************/
 function closeAllPDFs() {
+    console.log('Closing all PDFs');
+    const pdfViewers = document.querySelectorAll('.pdf-viewer');
+    pdfViewers.forEach(viewer => {
+        viewer.style.display = 'none';
+        const container = viewer.querySelector('.pdf-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+    });
+    
+    currentPDFData = {};
+    console.log('✅ All PDFs closed');
+}
+
+function BACKUP_closeAllPDFs() {
     console.log('Closing all PDFs');
     const pdfViewers = document.querySelectorAll('.pdf-viewer');
     pdfViewers.forEach(viewer => {
@@ -2696,23 +2755,21 @@ function closeAllPDFs() {
 /**********************************
 
 /********************
-* Tampilkan Submenu *
+* Tampilkan Submenu - TIDAK MENYEMBUNYIKAN PDF *
 *********************/
 function showSubmenu(targetId) {
   console.log('🔍 Menampilkan submenu:', targetId);
   
-  // Sembunyikan semua submenu content dan video player
+  // TUTUP SEMUA SUBMENU LAIN TAPI BIARKAN PDF TERBUKA
   document.querySelectorAll('.submenu-content').forEach(content => {
-    content.style.display = 'none';
-    // KEMBALIKAN KE POSISI SEMULA (di dalam menu accordion)
-    const menuAccordion = document.getElementById('menuAccordion');
-    if (menuAccordion) {
-      menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
+    if (content.id !== targetId) {
+      content.style.display = 'none';
+      // Kembalikan ke posisi semula
+      const menuAccordion = document.getElementById('menuAccordion');
+      if (menuAccordion && menuAccordion.parentNode) {
+        menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
+      }
     }
-  });
-  
-  document.querySelectorAll('.video-container').forEach(video => {
-    video.style.display = 'none';
   });
   
   // Tampilkan submenu yang dipilih
@@ -2761,14 +2818,14 @@ function showSubmenu(targetId) {
 }
 
 /**********************
-* Sembunyikan Submenu *
+* Sembunyikan Submenu - TIDAK MENYEMBUNYIKAN PDF *
 ***********************/
 function hideSubmenu(targetId) {
   console.log('🔍 Menyembunyikan submenu:', targetId);
   
   const targetContent = document.getElementById(targetId);
   if (targetContent) {
-    // Sembunyikan content
+    // Hanya sembunyikan submenu content itu sendiri
     targetContent.style.display = 'none';
     
     // KEMBALIKAN KE POSISI SEMULA (setelah menu accordion)
@@ -2787,7 +2844,6 @@ function hideSubmenu(targetId) {
     }
   }
 }
-
 // *****************************
 // ***** UTILITY FUNCTIONS *****
 // *****************************
