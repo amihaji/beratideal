@@ -1084,7 +1084,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyELoL0fZaYRYiwcV-i1hhBM0dhDzH8l_LqUuNK0t4zJrFIaEJHMDon-WCuehuK75pRrQ/exec'
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxE045rowzhZPfNr3hBG31Z1UXywULZQVCdnp5VrEGgyM0QR595yDoLL9XVEVhjKx96Jg/exec'
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -1967,48 +1967,130 @@ function applyCompleteProgressToUI(progress, hariKe) {
 /********************************************
 /* LOAD SAVED WORKOUT DATA DARI PROGRESS *
 /********************************************/
+/********************************************
+/* LOAD SAVED WORKOUT DATA DARI PROGRESS - FIXED *
+/********************************************/
 function loadWorkoutSavedData(hariKe, workoutData) {
-  console.log('💾 Loading saved workout data:', workoutData);
-  
-  // 1. Set kardio type
-  if (workoutData.kardio && document.getElementById(`olahragaKardio${hariKe}`)) {
-    document.getElementById(`olahragaKardio${hariKe}`).value = workoutData.kardio;
-    document.getElementById(`olahragaKardio${hariKe}`).disabled = true;
-    document.getElementById(`olahragaKardio${hariKe}`).style.backgroundColor = '#f8f9fa';
-  }
-  
-  // 2. Set kardio file name jika ada
-  if (workoutData.linkKardio) {
-    const fileName = workoutData.linkKardio.split('/').pop() || 'File_terupload.jpg';
-    const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
-    if (inputField) {
-      inputField.value = `✓ ${fileName}`;
-      inputField.readOnly = true;
-      inputField.style.backgroundColor = '#f8f9fa';
+    console.log('💾 Loading saved workout data:', workoutData);
+    
+    // 1. Set kardio type
+    if (workoutData.kardio && document.getElementById(`olahragaKardio${hariKe}`)) {
+        document.getElementById(`olahragaKardio${hariKe}`).value = workoutData.kardio;
+        document.getElementById(`olahragaKardio${hariKe}`).disabled = true;
+        document.getElementById(`olahragaKardio${hariKe}`).style.backgroundColor = '#f8f9fa';
     }
-  }
-  
-  // 3. Set waktu start & stop
-  if (workoutData.startTime && document.getElementById(`startOlahraga${hariKe}`)) {
-    document.getElementById(`startOlahraga${hariKe}`).value = workoutData.startTime;
-    document.getElementById(`startOlahraga${hariKe}`).disabled = true;
-  }
-  
-  if (workoutData.stopTime && document.getElementById(`stopOlahraga${hariKe}`)) {
-    document.getElementById(`stopOlahraga${hariKe}`).value = workoutData.stopTime;
-    document.getElementById(`stopOlahraga${hariKe}`).disabled = true;
-  }
-  
-  // 4. Load resistance exercises jika ada
-  if (workoutData.resisten) {
-    const exercises = workoutData.resisten.split(',').map(e => e.trim()).filter(e => e);
-    exercises.forEach(exercise => {
-      // Tambahkan exercise ke UI
-      setTimeout(() => {
-        addResistanceExerciseFromSaved(hariKe, exercise);
-      }, 500);
-    });
-  }
+    
+    // 2. FIX: Ekstrak nama file yang benar dari Google Drive URL
+    if (workoutData.linkKardio) {
+        const fileName = extractFileNameFromDriveUrl(workoutData.linkKardio);
+        const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
+        if (inputField) {
+            inputField.value = `✓ ${fileName}`;
+            inputField.readOnly = true;
+            inputField.style.backgroundColor = '#f8f9fa';
+        }
+    }
+    
+    // 3. Set waktu start & stop
+    if (workoutData.startTime && document.getElementById(`startOlahraga${hariKe}`)) {
+        document.getElementById(`startOlahraga${hariKe}`).value = workoutData.startTime;
+        document.getElementById(`startOlahraga${hariKe}`).disabled = true;
+    }
+    
+    if (workoutData.stopTime && document.getElementById(`stopOlahraga${hariKe}`)) {
+        document.getElementById(`stopOlahraga${hariKe}`).value = workoutData.stopTime;
+        document.getElementById(`stopOlahraga${hariKe}`).disabled = true;
+    }
+    
+    // 4. Load resistance exercises jika ada
+    if (workoutData.resisten) {
+        const exercises = workoutData.resisten.split(',').map(e => e.trim()).filter(e => e);
+        exercises.forEach(exercise => {
+            // Tambahkan exercise ke UI
+            setTimeout(() => {
+                addResistanceExerciseFromSaved(hariKe, exercise);
+            }, 500);
+        });
+    }
+}
+
+/************************************************
+/* FUNGSI BARU: Extract File Name dari Drive URL *
+*************************************************/
+function extractFileNameFromDriveUrl(driveUrl) {
+    console.log('🔗 Extracting filename from Drive URL:', driveUrl);
+    
+    if (!driveUrl) return 'File_terupload.jpg';
+    
+    try {
+        // Format 1: https://drive.google.com/file/d/FILE_ID/view?usp=drivesdk
+        if (driveUrl.includes('drive.google.com/file/d/')) {
+            // Ekstrak FILE_ID dari URL
+            const startIndex = driveUrl.indexOf('/d/') + 3;
+            const endIndex = driveUrl.indexOf('/', startIndex);
+            
+            if (startIndex > 2 && endIndex > startIndex) {
+                const fileId = driveUrl.substring(startIndex, endIndex);
+                
+                // Coba ambil nama file dari localStorage jika tersimpan sebelumnya
+                const savedFileName = localStorage.getItem(`drive_filename_${fileId}`);
+                if (savedFileName) {
+                    return savedFileName;
+                }
+                
+                // Jika tidak ada di localStorage, buat nama berdasarkan pola
+                // Format: amihaji_KA1Sepeda.jpg
+                const userId = localStorage.getItem('userId') || 'user';
+                const kardioType = document.getElementById('olahragaKardio1')?.value || 'Kardio';
+                const kardioCode = getKardioCode(kardioType);
+                
+                return `${userId}_KA1${kardioCode}.jpg`;
+            }
+        }
+        
+        // Format 2: Direct link (https://drive.google.com/uc?id=FILE_ID&export=download)
+        if (driveUrl.includes('drive.google.com/uc?')) {
+            const urlParams = new URLSearchParams(driveUrl.split('?')[1]);
+            const fileId = urlParams.get('id');
+            
+            if (fileId) {
+                const savedFileName = localStorage.getItem(`drive_filename_${fileId}`);
+                if (savedFileName) {
+                    return savedFileName;
+                }
+                return `GoogleDrive_File_${fileId.substring(0, 8)}.jpg`;
+            }
+        }
+        
+        // Format 3: Sudah berupa nama file (fallback)
+        const parts = driveUrl.split('/');
+        const lastPart = parts.pop();
+        
+        // Jika masih mengandung query parameters (view?usp=drivesdk)
+        if (lastPart.includes('?')) {
+            const fileName = lastPart.split('?')[0];
+            if (fileName && fileName !== 'view' && fileName !== 'preview') {
+                return fileName;
+            }
+        }
+        
+        // Default fallback
+        return lastPart || 'File_terupload.jpg';
+        
+    } catch (error) {
+        console.error('Error extracting filename:', error);
+        return 'File_terupload.jpg';
+    }
+}
+
+/**********************************************
+/* FUNGSI BARU: Save filename saat upload *
+***********************************************/
+function saveDriveFileInfo(fileId, fileName) {
+    if (fileId && fileName) {
+        localStorage.setItem(`drive_filename_${fileId}`, fileName);
+        console.log(`💾 Saved filename mapping: ${fileId} -> ${fileName}`);
+    }
 }
 
 /********************************************
@@ -4959,7 +5041,7 @@ function showWorkoutForm(hariKe) {
 }
 
 /*******************************
-* Upload file kardio olahraga dengan format nama yang benar *
+* Upload file kardio olahraga - UPDATED *
 ********************************/
 async function uploadKardioFile(hariKe) {
     console.log(`📸 Upload kardio file hari ${hariKe}`);
@@ -5008,12 +5090,17 @@ async function uploadKardioFile(hariKe) {
             // Konversi ke base64
             const base64Data = await fileToBase64(file);
             
+            // Simpan nama file asli untuk referensi
+            const originalFileName = file.name;
+            localStorage.setItem(`original_filename_${hariKe}`, originalFileName);
+            
             // Simpan di localStorage untuk sementara
             localStorage.setItem(`workout_kardio_file_${hariKe}`, base64Data);
             localStorage.setItem(`workout_kardio_filename_${hariKe}`, formattedFileName);
             localStorage.setItem(`workout_kardio_type_${hariKe}`, kardioType);
+            localStorage.setItem(`workout_kardio_originalname_${hariKe}`, originalFileName);
             
-            // Update input field
+            // Update input field dengan nama file yang benar
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
                 inputField.value = `✓ ${formattedFileName}`;
