@@ -1322,6 +1322,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // SEetup semua komponen
     setupAllComponents();
     
+    // Cek login status
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+      const loginMenuItem = document.getElementById('loginMenuItem');
+      loginMenuItem.innerHTML = `
+        <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      `;
+    }
     console.log('✅ Aplikasi siap');
 });
 
@@ -1772,6 +1782,7 @@ function setupAllComponentsInternal() {
     
     // Initialize video players
     initializeAllVideoPlayers();
+    
 }
 
 /********************************
