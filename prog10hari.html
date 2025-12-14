@@ -859,7 +859,7 @@ body { background-color: #f8f9fa; }
                   <i class="fas fa-times"></i>
                 </button>
               </div>
-             
+
               <h6><b>PANDUAN WATER REMINDER</b></h6>
               <p><b>Rekomendasi Asupan Air : </b>Minum air putih 8-15 gelas air perhari, dengan jumlah air putih yang cukup untuk mendukung aktivitas tubuh dan kesehatan</br>
               <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniAirMinum">
@@ -1657,46 +1657,6 @@ function updatePerkenalanUI() {
     console.log('✅ Perkenalan UI updated');
 }
 
-/***********************
-* Setup semua komponen *
-************************/
-function BACKUP_setupAllComponents() {
-    console.log('🔧 Setting up all components...');
-    
-    const userId = localStorage.getItem('userId');
-    const userToken = localStorage.getItem('userToken');
-    
-    // ========================================
-    // 1. ACCORDION TOGGLE FIX
-    // ========================================
-    // ... existing accordion code ...
-    
-    // ========================================
-    // 2. CEK USER LOGIN DAN APPLY UNLOCK
-    // ========================================
-    if (userId && userToken) {
-        console.log('👤 User is logged in:', userId);
-        
-        // Check progress dan unlock modules
-        checkAndUnlockModulesForUser(userId);
-        
-        // Update navbar untuk show logout
-        updateNavbarForLoggedInUser(userId);
-        
-    } else {
-        console.log('⚠️ No user logged in or session expired');
-        // Lock semua modul untuk non-logged in users
-        applyLockForNewUser();
-    }
-
-    // ========================================
-    // 3. SETUP SEMUA KOMPONEN LAINNYA
-    // ========================================
-    setupAllComponentsInternal();
-    
-    console.log('✅ All components setup complete');
-}
-
 function setupAllComponentsInternal() {
     // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
@@ -1754,6 +1714,21 @@ function setupAllComponentsInternal() {
     generateWorkoutForms();
     initializeAllWorkoutDays();
     
+    // Tambahkan styles
+    addWaterReminderStyles(); 
+    // Generate semua form
+    initializeAllWaterReminderForms(); 
+    // Update onclick handlers untuk water reminder links
+    for (let i = 1; i <= 10; i++) {
+        const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
+        if (waterLink) {
+            waterLink.onclick = function(e) {
+                e.preventDefault();
+                showWaterReminderForm(i);
+            };
+        }
+    }
+
     // Initialize video players
     initializeAllVideoPlayers();
     
@@ -6069,6 +6044,481 @@ function getResistanceDataForServer(hariKe) {
         totalReps: totalReps,
         totalMinutes: totalMinutes
     };
+}
+
+/****************************************************
+/* FUNGSI REUSABLE: Generate Water Reminder Form HTML *
+/****************************************************/
+function generateWaterReminderForm(hariKe, containerId = null) {
+    console.log(`💧 Generating water reminder form for day ${hariKe}`);
+    
+    // Jika containerId tidak diberikan, gunakan default
+    const container = containerId ? 
+        document.getElementById(containerId) : 
+        document.getElementById("airputihRadioBtn");
+    
+    if (!container) {
+        console.error(`❌ Container not found for water reminder day ${hariKe}`);
+        return;
+    }
+    
+    // Clear container terlebih dahulu
+    container.innerHTML = '';
+    
+    // Buat form HTML
+    const wrapper = document.createElement("div");
+    wrapper.className = "water-reminder-form";
+    wrapper.dataset.hari = hariKe;
+    wrapper.id = `waterReminderForm${hariKe}`;
+    
+    wrapper.innerHTML = `
+        <div class="water-form-header mb-3">
+            <h6 class="mb-2"><b>ASUPAN AIR PUTIH PERHARI</b></h6>
+            <p class="text-muted" style="font-size: 12px;">Pilih jumlah air yang sudah anda minum hari ini</p>
+        </div>
+        
+        <div class="water-options mb-4">
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input type="radio" name="asupanAir${hariKe}" id="kurang1Ltr${hariKe}" value="Kurang dari 1 ltr" class="water-radio">
+                </div>
+                <label for="kurang1Ltr${hariKe}" class="form-control water-option-label">
+                    Kurang dari 1 ltr air putih
+                </label>
+            </div>  
+            
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input type="radio" name="asupanAir${hariKe}" id="pas1Ltr${hariKe}" value="1 ltr" class="water-radio">
+                </div>
+                <label for="pas1Ltr${hariKe}" class="form-control water-option-label">
+                    1 ltr air putih
+                </label>
+            </div>  
+            
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input type="radio" name="asupanAir${hariKe}" id="pas2Ltr${hariKe}" value="2 ltr" class="water-radio">
+                </div>
+                <label for="pas2Ltr${hariKe}" class="form-control water-option-label">
+                    2 ltr air putih
+                </label>
+            </div>  
+            
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input type="radio" name="asupanAir${hariKe}" id="lebih2Ltr${hariKe}" value="Lebih dari 2 ltr" class="water-radio">
+                </div>
+                <label for="lebih2Ltr${hariKe}" class="form-control water-option-label">
+                    Lebih dari 2 ltr air putih
+                </label>
+            </div>
+        </div>
+
+        <div class="water-actions mt-4">
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir${hariKe}">
+                    <i class="fa fa-pencil-square-o"></i> Simpan Pilihan
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir${hariKe}">
+                    <i class="fa fa-check"></i> Selesai Water Reminder
+                </button>
+            </div>
+            
+            <div class="mt-2" id="waterStatus${hariKe}">
+                <!-- Status akan ditampilkan di sini -->
+            </div>
+        </div>
+        
+        <div class="water-saved-info mt-3" id="waterSavedInfo${hariKe}" style="display: none;">
+            <div class="alert alert-success p-2 mb-2">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="waterSelectedText${hariKe}"></span>
+                <small class="d-block mt-1" id="waterSavedTime${hariKe}"></small>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(wrapper);
+    
+    // Setup event listeners setelah form dibuat
+    setTimeout(() => {
+        setupWaterReminderEvents(hariKe);
+        loadSavedWaterReminderData(hariKe);
+    }, 100);
+    
+    return wrapper;
+}
+
+/****************************************************
+/* FUNGSI REUSABLE: Setup Water Reminder Events *
+/****************************************************/
+function setupWaterReminderEvents(hariKe) {
+    console.log(`🔧 Setting up water reminder events for day ${hariKe}`);
+    
+    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
+    const selesaiBtn = document.getElementById(`btnSelesaiMinumAir${hariKe}`);
+    const radioButtons = document.querySelectorAll(`input[name="asupanAir${hariKe}"]`);
+    
+    if (simpanBtn) {
+        // Hapus event listener lama jika ada
+        const newSimpanBtn = simpanBtn.cloneNode(true);
+        simpanBtn.parentNode.replaceChild(newSimpanBtn, simpanBtn);
+        
+        newSimpanBtn.onclick = () => simpanWaterReminder(hariKe);
+    }
+    
+    if (selesaiBtn) {
+        // Hapus event listener lama jika ada
+        const newSelesaiBtn = selesaiBtn.cloneNode(true);
+        selesaiBtn.parentNode.replaceChild(newSelesaiBtn, selesaiBtn);
+        
+        newSelesaiBtn.onclick = () => selesaiWaterReminder(hariKe);
+    }
+    
+    // Auto-save ketika radio button dipilih (opsional)
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Tampilkan feedback visual
+            document.querySelectorAll(`.water-option-label`).forEach(label => {
+                label.style.backgroundColor = '';
+                label.style.fontWeight = 'normal';
+            });
+            
+            const selectedLabel = document.querySelector(`label[for="${this.id}"]`);
+            if (selectedLabel) {
+                selectedLabel.style.backgroundColor = '#e8f4fd';
+                selectedLabel.style.fontWeight = '500';
+            }
+        });
+    });
+    
+    console.log(`✅ Water reminder events setup for day ${hariKe}`);
+}
+
+/****************************************************
+/* FUNGSI REUSABLE: Load Saved Water Reminder Data *
+/****************************************************/
+function loadSavedWaterReminderData(hariKe) {
+    console.log(`💧 Loading saved water data for day ${hariKe}`);
+    
+    const userId = localStorage.getItem('userId');
+    const savedKey = userId ? `water_asupan_${userId}_${hariKe}` : `water_asupan_${hariKe}`;
+    const savedAsupan = localStorage.getItem(savedKey);
+    const savedStatus = userId ? 
+        localStorage.getItem(`water_status_${userId}_${hariKe}`) : 
+        localStorage.getItem(`water_status_${hariKe}`);
+    
+    if (savedAsupan) {
+        // Set radio button yang sesuai
+        const radioIdMap = {
+            'Kurang dari 1 ltr': `kurang1Ltr${hariKe}`,
+            '1 ltr': `pas1Ltr${hariKe}`,
+            '2 ltr': `pas2Ltr${hariKe}`,
+            'Lebih dari 2 ltr': `lebih2Ltr${hariKe}`
+        };
+        
+        const radioId = radioIdMap[savedAsupan];
+        if (radioId) {
+            const radioBtn = document.getElementById(radioId);
+            if (radioBtn) {
+                radioBtn.checked = true;
+                
+                // Tampilkan label yang dipilih
+                const selectedLabel = document.querySelector(`label[for="${radioId}"]`);
+                if (selectedLabel) {
+                    selectedLabel.style.backgroundColor = '#e8f4fd';
+                    selectedLabel.style.fontWeight = '500';
+                }
+                
+                // Tampilkan info saved
+                const savedInfo = document.getElementById(`waterSavedInfo${hariKe}`);
+                const selectedText = document.getElementById(`waterSelectedText${hariKe}`);
+                const savedTime = document.getElementById(`waterSavedTime${hariKe}`);
+                
+                if (savedInfo && selectedText) {
+                    selectedText.textContent = `Dipilih: ${savedAsupan} air putih`;
+                    savedInfo.style.display = 'block';
+                    
+                    // Tampilkan waktu penyimpanan jika ada
+                    const savedTimeKey = userId ? `water_saved_time_${userId}_${hariKe}` : `water_saved_time_${hariKe}`;
+                    const savedTimestamp = localStorage.getItem(savedTimeKey);
+                    if (savedTimestamp && savedTime) {
+                        const savedDate = new Date(savedTimestamp);
+                        savedTime.textContent = `Disimpan: ${savedDate.toLocaleDateString('id-ID')} ${savedDate.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
+                    }
+                }
+                
+                // Jika sudah disimpan, disable radio buttons
+                const savedFlagKey = userId ? `water_saved_${userId}_${hariKe}` : `water_saved_${hariKe}`;
+                if (localStorage.getItem(savedFlagKey)) {
+                    disableWaterRadioButtons(hariKe);
+                }
+            }
+        }
+    }
+    
+    // Jika sudah selesai, apply completion UI
+    if (savedStatus === 'completed') {
+        updateWaterReminderCompletionUI(hariKe);
+        disableAllWaterButtons(hariKe);
+    }
+}
+
+/****************************************************
+/* FUNGSI REUSABLE: Water Reminder Actions *
+/****************************************************/
+async function simpanWaterReminder(hariKe) {
+    console.log('💧 Menyimpan pilihan asupan air untuk hari:', hariKe);
+    
+    const userId = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    
+    if (!userId) {
+        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    // Ambil pilihan radio button yang dipilih
+    const selectedRadio = document.querySelector(`input[name="asupanAir${hariKe}"]:checked`);
+    if (!selectedRadio) {
+        showMessage('warning', 'Pilih asupan air terlebih dahulu!', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    const asupanAir = selectedRadio.value;
+    console.log('📝 Pilihan asupan air:', asupanAir);
+    
+    try {
+        showMessage('info', 'Menyimpan pilihan asupan air...', 3000, `pertemuan${hariKe}`);
+        
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'updateWaterReminder',
+                userId: userId,
+                namaUser: namaUser,
+                hariKe: hariKe,
+                asupanAir: asupanAir
+            })
+        });
+
+        const result = await response.text();
+        console.log('📥 Response simpan water:', result);
+        
+        if (result === "OK" || result.includes("success")) {
+            showMessage('success', 'Pilihan asupan air berhasil disimpan!', 3000, `pertemuan${hariKe}`);
+            
+            // Simpan di localStorage dengan user prefix
+            const userPrefix = userId ? `${userId}_` : '';
+            localStorage.setItem(`water_asupan_${userPrefix}${hariKe}`, asupanAir);
+            localStorage.setItem(`water_saved_${userPrefix}${hariKe}`, 'true');
+            localStorage.setItem(`water_saved_time_${userPrefix}${hariKe}`, new Date().toISOString());
+            
+            // Update UI
+            updateWaterSaveUI(hariKe, asupanAir);
+            
+            // Nonaktifkan radio buttons setelah disimpan
+            disableWaterRadioButtons(hariKe);
+            
+        } else {
+            showMessage('error', 'Gagal menyimpan: ' + result, 3000, `pertemuan${hariKe}`);
+        }
+    } catch (error) {
+        console.error('❌ Error simpan water:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
+    }
+}
+
+function updateWaterSaveUI(hariKe, asupanAir) {
+    // Tampilkan info saved
+    const savedInfo = document.getElementById(`waterSavedInfo${hariKe}`);
+    const selectedText = document.getElementById(`waterSelectedText${hariKe}`);
+    const savedTime = document.getElementById(`waterSavedTime${hariKe}`);
+    
+    if (savedInfo && selectedText) {
+        selectedText.textContent = `Dipilih: ${asupanAir} air putih`;
+        savedInfo.style.display = 'block';
+        
+        if (savedTime) {
+            savedTime.textContent = `Disimpan: ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
+        }
+    }
+    
+    // Update tombol simpan
+    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
+    if (simpanBtn) {
+        simpanBtn.innerHTML = '<i class="fas fa-check"></i> Sudah Disimpan';
+        simpanBtn.disabled = true;
+        simpanBtn.classList.remove('btn-primary');
+        simpanBtn.classList.add('btn-success');
+        simpanBtn.style.opacity = '0.8';
+    }
+}
+
+function disableWaterRadioButtons(hariKe) {
+    const radioButtons = document.querySelectorAll(`input[name="asupanAir${hariKe}"]`);
+    radioButtons.forEach(radio => {
+        radio.disabled = true;
+        radio.parentElement.style.opacity = '0.6';
+        radio.parentElement.style.cursor = 'not-allowed';
+    });
+}
+
+function disableAllWaterButtons(hariKe) {
+    // Nonaktifkan tombol simpan
+    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
+    if (simpanBtn) {
+        simpanBtn.disabled = true;
+        simpanBtn.classList.remove('btn-primary');
+        simpanBtn.classList.add('btn-secondary');
+        simpanBtn.style.opacity = '0.6';
+        simpanBtn.style.cursor = 'not-allowed';
+        simpanBtn.title = 'Sudah disimpan';
+    }
+    
+    // Update tombol selesai
+    const selesaiBtn = document.getElementById(`btnSelesaiMinumAir${hariKe}`);
+    if (selesaiBtn) {
+        selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
+        selesaiBtn.classList.remove('btn-secondary');
+        selesaiBtn.classList.add('btn-success');
+        selesaiBtn.disabled = true;
+        selesaiBtn.style.opacity = '0.8';
+        selesaiBtn.style.cursor = 'not-allowed';
+        selesaiBtn.title = 'Water reminder selesai';
+    }
+    
+    // Nonaktifkan semua radio buttons
+    disableWaterRadioButtons(hariKe);
+}
+
+/****************************************************
+/* FUNGSI UTAMA: Initialize Water Reminder Forms *
+/****************************************************/
+function initializeAllWaterReminderForms() {
+    console.log('🚀 Initializing all water reminder forms...');
+    
+    // Generate form untuk semua hari (1-10)
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        // Cari container untuk hari ini
+        const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
+        const container = document.getElementById(containerId);
+        
+        if (container) {
+            // Generate form jika container ditemukan
+            generateWaterReminderForm(hariKe, containerId);
+        } else {
+            console.log(`⚠️ Water container not found for day ${hariKe}: ${containerId}`);
+        }
+    }
+    
+    console.log('✅ All water reminder forms initialized');
+}
+
+/****************************************************
+/* CSS STYLING UNTUK WATER REMINDER FORM *
+/****************************************************/
+function addWaterReminderStyles() {
+    const styleId = 'water-reminder-styles';
+    
+    // Hapus style lama jika ada
+    const oldStyle = document.getElementById(styleId);
+    if (oldStyle) oldStyle.remove();
+    
+    // Tambahkan style baru
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+        .water-reminder-form {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .water-form-header h6 {
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 5px;
+        }
+        
+        .water-option-label {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: none !important;
+        }
+        
+        .water-option-label:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .input-group:has(.water-radio:checked) .water-option-label {
+            background-color: #e8f4fd !important;
+            font-weight: 500 !important;
+            color: #0a58ca;
+        }
+        
+        .input-group-text:has(.water-radio:disabled) {
+            background-color: #e9ecef;
+            opacity: 0.6;
+        }
+        
+        .water-actions {
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+        }
+        
+        .water-saved-info .alert {
+            border-radius: 8px;
+            border: 1px solid #d1e7dd;
+        }
+        
+        /* Responsive styles for mobile */
+        @media (max-width: 768px) {
+            .water-reminder-form {
+                padding: 10px;
+            }
+            
+            .water-actions .d-flex {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 10px;
+            }
+            
+            .water-actions .btn {
+                flex: 1 1 0px;
+                font-size: 13px;
+                padding: 8px 5px;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
+    console.log('🎨 Water reminder styles added');
+}
+
+function showWaterReminderForm(hariKe) {
+    console.log(`💧 Showing water reminder form for day ${hariKe}`);
+    
+    // Tampilkan submenu
+    showSubmenu(`waterReminderContent${hariKe}`);
+    
+    // Generate form jika belum ada
+    const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
+    const container = document.getElementById(containerId);
+    
+    if (container && container.innerHTML.trim() === '') {
+        generateWaterReminderForm(hariKe, containerId);
+    } else {
+        // Jika sudah ada, load saved data
+        setTimeout(() => {
+            loadSavedWaterReminderData(hariKe);
+        }, 300);
+    }
+    
+    // Setup events
+    setTimeout(() => {
+        setupWaterReminderEvents(hariKe);
+    }, 500);
 }
 
 </script>
