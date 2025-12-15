@@ -6135,7 +6135,6 @@ function generateWaterReminderForm(hariKe, containerId = null) {
         </div>
 
         <div class="water-actions mt-4">
-            <!-- <div class="d-flex justify-content-between"> -->
             <div class="text-left">
                 <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWater${hariKe}">
                     <i class="fa fa-pencil-square-o"></i> Simpan
@@ -6149,7 +6148,8 @@ function generateWaterReminderForm(hariKe, containerId = null) {
                 <!-- Status akan ditampilkan di sini -->
             </div>
         </div>
-        
+
+        <!--- TIDAK AKTIFKAN
         <div class="water-saved-info mt-3" id="waterSavedInfo${hariKe}" style="display: none;">
             <div class="alert alert-success p-2 mb-2">
                 <i class="fas fa-check-circle me-2"></i>
@@ -6157,6 +6157,7 @@ function generateWaterReminderForm(hariKe, containerId = null) {
                 <small class="d-block mt-1" id="waterSavedTime${hariKe}"></small>
             </div>
         </div>
+        --->
     `;
     
     container.appendChild(wrapper);
@@ -6222,8 +6223,8 @@ function setupWaterReminderEvents(hariKe) {
 function loadSavedWaterReminderData(hariKe) {
     console.log(`💧 Loading saved water data for day ${hariKe}`);
     
-    const userId = localStorage.getItem('userId');
-    const savedKey = userId ? `water_asupan_${userId}_${hariKe}` : `water_asupan_${hariKe}`;
+    const userId      = localStorage.getItem('userId');
+    const savedKey    = userId ? `water_asupan_${userId}_${hariKe}` : `water_asupan_${hariKe}`;
     const savedAsupan = localStorage.getItem(savedKey);
     const savedStatus = userId ? 
         localStorage.getItem(`water_status_${userId}_${hariKe}`) : 
