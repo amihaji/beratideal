@@ -1068,7 +1068,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxT07tvMFIKb0x59-viS3fR8mjPAFHIX8D_66ngYhervRrWgqcJ89WY7a0v-T6SgI8kZw/exec'
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbygMe8Q3RVtxkY_ZEgsfJgcT68skWFpj2twRiq7qWB8DqWQk6fYarCqtajHq4eqy4d2kg/exec'
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -6148,27 +6148,17 @@ function generateWaterReminderForm(hariKe, containerId = null) {
                 <!-- Status akan ditampilkan di sini -->
             </div>
         </div>
-
-        <!--- TIDAK AKTIFKAN
-        <div class="water-saved-info mt-3" id="waterSavedInfo${hariKe}" style="display: none;">
-            <div class="alert alert-success p-2 mb-2">
-                <i class="fas fa-check-circle me-2"></i>
-                <span id="waterSelectedText${hariKe}"></span>
-                <small class="d-block mt-1" id="waterSavedTime${hariKe}"></small>
-            </div>
-        </div>
-        --->
     `;
     
     container.appendChild(wrapper);
-    
-    // Setup event listeners setelah form dibuat
+    // ⭐⭐ PENTING: Setup event listeners setelah form dibuat
     setTimeout(() => {
-        // setupWaterReminderEvents(hariKe);
-        loadSavedWaterReminderData(hariKe);
+        setupWaterButtons(hariKe);       // ⬅️ INI YANG HARUS DIPANGGIL
+        loadSavedWaterData(hariKe);
+        
+        console.log(`✅ Water form day ${hariKe} generated with event listeners`);
     }, 100);
-    
-    return wrapper;
+    return wrapper;    
 }
 
 /**
