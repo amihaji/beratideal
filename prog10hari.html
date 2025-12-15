@@ -1068,7 +1068,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxIyGw3BEh0KD8_TY8v5y5rcQnAOM4je4w_TcltaLHf0al-PzHI37CFpITlHUGXfm5x1w/exec'
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyUwGGwShGE5z_RefaFdBeaSWWijxzhfRmVC5ywGy7J1Aw9nDlfHOXPhy_KYHQWujkY/exec'
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -5292,13 +5292,13 @@ function simpanAsupanAir() {
 * Fungsi untuk tandai selesai
 *******************************/
 function selesaiWaterReminder() {
-  const userId = localStorage.getItem('userId');
+  const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
-  const hariKe = getCurrentDay();
+  const hariKe   = getCurrentDay();
   
   // Cari tombol dengan berbagai kemungkinan ID
   const btnSelesai = document.getElementById('btnSelesaiWater') || 
-                    document.getElementById('btnSelesai') ||
+                    // document.getElementById('btnSelesai') ||
                     document.querySelector('button[onclick*="selesaiWaterReminder"]');
   
   if (!btnSelesai) {
