@@ -2140,8 +2140,8 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     },
     'water': {
       elements: [
-        '#btnSimpanMinumAir',
-        '#btnSelesaiMinumAir'
+        '#btnSimpanWater',
+        '#btnSelesaiWater'
       ].filter(id => document.querySelector(id))
     },
     'istirahat': {
@@ -6136,10 +6136,10 @@ function generateWaterReminderForm(hariKe, containerId = null) {
         <div class="water-actions mt-4">
             <!-- <div class="d-flex justify-content-between"> -->
             <div class="text-left">
-                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir${hariKe}">
+                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWater${hariKe}">
                     <i class="fa fa-pencil-square-o"></i> Simpan
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir${hariKe}">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWater${hariKe}">
                     <i class="fa fa-check"></i> Selesai
                 </button>
             </div>
@@ -6175,8 +6175,8 @@ function generateWaterReminderForm(hariKe, containerId = null) {
 function setupWaterReminderEvents(hariKe) {
     console.log(`🔧 Setting up water reminder events for day ${hariKe}`);
     
-    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
-    const selesaiBtn = document.getElementById(`btnSelesaiMinumAir${hariKe}`);
+    const simpanBtn = document.getElementById(`btnSimpanWater${hariKe}`);
+    const selesaiBtn = document.getElementById(`btnSelesaiWater${hariKe}`);
     const radioButtons = document.querySelectorAll(`input[name="asupanAir${hariKe}"]`);
     
     if (simpanBtn) {
@@ -6366,7 +6366,7 @@ function updateWaterSaveUI(hariKe, asupanAir) {
     }
     
     // Update tombol simpan
-    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
+    const simpanBtn = document.getElementById(`btnSimpanWater${hariKe}`);
     if (simpanBtn) {
         simpanBtn.innerHTML = '<i class="fas fa-check"></i> Sudah Disimpan';
         simpanBtn.disabled = true;
@@ -6387,7 +6387,7 @@ function disableWaterRadioButtons(hariKe) {
 
 function disableAllWaterButtons(hariKe) {
     // Nonaktifkan tombol simpan
-    const simpanBtn = document.getElementById(`btnSimpanMinumAir${hariKe}`);
+    const simpanBtn = document.getElementById(`btnSimpanWater${hariKe}`);
     if (simpanBtn) {
         simpanBtn.disabled = true;
         simpanBtn.classList.remove('btn-primary');
@@ -6398,7 +6398,7 @@ function disableAllWaterButtons(hariKe) {
     }
     
     // Update tombol selesai
-    const selesaiBtn = document.getElementById(`btnSelesaiMinumAir${hariKe}`);
+    const selesaiBtn = document.getElementById(`btnSelesaiWater${hariKe}`);
     if (selesaiBtn) {
         selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai ✓';
         selesaiBtn.classList.remove('btn-secondary');
