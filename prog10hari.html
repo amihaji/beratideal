@@ -4782,12 +4782,9 @@ function saveMealPlanStatus(hariKe, status) {
     disableButtonsAfterCompletion(hariKe, 'mealplan');
 }
 
-/**************************************
-* Update UI setelah meal plan selesai *
-***************************************/
-/**************************************
+/************************************************************
 * Update UI setelah meal plan selesai dengan disable tombol *
-***************************************/
+*************************************************************/
 function updateMealPlanCompletionUI(hariKe) {
     // Update tombol di menu utama
     const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
@@ -4946,9 +4943,9 @@ function createMealPlanFormHTML(hariKe) {
 // ***** FUNGSI WORKOUT COMPLETE FLEKSIBEL *****
 // *********************************************
 
-/***************************************
+/*****************************************
 * Selesaikan workout untuk hari tertentu *
-****************************************/
+******************************************/
 async function selesaiWorkout(hariKe) {
     console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
     
@@ -4956,9 +4953,9 @@ async function selesaiWorkout(hariKe) {
     showWorkoutForm(hariKe);
 }
 
-/*************************
+/****************************************************
 * Tampilkan form workout dengan struktur yang benar *
-**************************/
+*****************************************************/
 function showWorkoutForm(hariKe) {
     console.log(`👟 Showing workout form for day ${hariKe}`);
     
@@ -5000,7 +4997,7 @@ function showWorkoutForm(hariKe) {
 }
 
 /*******************************
-* Upload file kardio olahraga - UPDATED *
+* Upload file kardio olahraga  *
 ********************************/
 async function uploadKardioFile(hariKe) {
     console.log(`📸 Upload kardio file hari ${hariKe}`);
@@ -5076,9 +5073,9 @@ async function uploadKardioFile(hariKe) {
     fileInput.click();
 }
 
-/************************
+/****************************************
 * Helper: Konversi jenis kardio ke kode *
-*************************/
+*****************************************/
 function getKardioCode(kardioType) {
     const kardioMapping = {
         'Lari': 'Lari',
@@ -5128,12 +5125,9 @@ function setStopTimeKardio(hariKe) {
     }
 }
 
-/******************************************
+/********************************
 * Simpan data workout ke server *
-*******************************************/
-/******************************************
-* Simpan data workout ke server - UPDATED *
-*******************************************/
+*********************************/
 async function simpanWorkoutData(hariKe) {
     const userId = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
@@ -5301,9 +5295,9 @@ function saveWorkoutStatus(hariKe, status) {
   }
 }
 
-/***************************************
+/***********************************************
 * Selesaikan Water Reminder dan disable tombol *
-****************************************/
+************************************************/
 async function selesaiWaterReminder(hariKe) {
     // Simpan status
     localStorage.setItem(`water_status_${hariKe}`, 'completed');
@@ -5323,9 +5317,9 @@ async function selesaiWaterReminder(hariKe) {
     showMessage('success', `Water Reminder hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-/***************************************
+/******************************************
 * Selesaikan Istirahat dan disable tombol *
-****************************************/
+*******************************************/
 async function selesaiIstirahat(hariKe) {
     // Simpan status
     localStorage.setItem(`istirahat_status_${hariKe}`, 'completed');
@@ -5345,9 +5339,9 @@ async function selesaiIstirahat(hariKe) {
     showMessage('success', `Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-/***************************************
+/**********************************************
 * Selesaikan Data Tracking dan disable tombol *
-****************************************/
+***********************************************/
 async function selesaiDataTracking(hariKe) {
     // Simpan status
     localStorage.setItem(`datatracking_status_${hariKe}`, 'completed');
@@ -5367,9 +5361,9 @@ async function selesaiDataTracking(hariKe) {
     showMessage('success', `Data Tracking hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
 
-/*************************
+/*************************************************
 * Tampilkan form dengan pengecekan status tombol *
-**************************/
+**************************************************/
 function showSubmenuWithStatus(targetId, hariKe, submenuType) {
     // Tampilkan submenu seperti biasa
     showSubmenu(targetId);
@@ -5392,12 +5386,6 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 
 /************************************
 * Update UI setelah workout selesai *
-*************************************/
-/************************************
-* Update UI setelah workout selesai dengan disable tombol *
-*************************************/
-/************************************
-* Update UI setelah workout selesai - COMPLETE *
 *************************************/
 function updateWorkoutCompletionUI(hariKe) {
   console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
@@ -5448,12 +5436,9 @@ function updateWorkoutCompletionUI(hariKe) {
   }
 }
 
-/*********************************
+/**************************
 * Load saved workout data *
-**********************************/
-/*********************************
-* Load saved workout data - IMPROVED *
-**********************************/
+***************************/
 function loadSavedWorkoutData(hariKe) {
     console.log(`📂 Loading saved workout data for day ${hariKe}`);
     
@@ -5492,9 +5477,9 @@ function loadSavedWorkoutData(hariKe) {
     }
 }
 
-/*****************************************
-* Fungsi khusus untuk hari tertentu - FIXED *
-******************************************/
+/************************************
+* Fungsi khusus untuk hari tertentu *
+*************************************/
 function setupWorkoutForDay(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
     
@@ -5549,9 +5534,9 @@ function setupWorkoutForDay(hariKe) {
     }
 }
 
-/******************************************
+/**************************************
 * Initialize workout untuk semua hari *
-*******************************************/
+***************************************/
 function initializeAllWorkoutDays() {
     console.log('🏋️‍♂️ Initializing workout for all days...');
     
@@ -5560,9 +5545,9 @@ function initializeAllWorkoutDays() {
     }
 }
 
-/**********************************
-* Generate form workout untuk semua hari - FIXED *
-***********************************/
+/*****************************************
+* Generate form workout untuk semua hari *
+*****************************************/
 function generateWorkoutForms() {
     console.log('🏋️‍♂️ Generating workout forms for all days...');
     
@@ -5578,7 +5563,9 @@ function generateWorkoutForms() {
         }
     }
 }
-
+/************************
+ * Membuat Form Workout 
+ * **********************/
 function createWorkoutFormHTML(hariKe) {
     return `
         <div class="form-group mb-2"> 
@@ -5623,15 +5610,9 @@ function createWorkoutFormHTML(hariKe) {
     `;
 }
 
-/*********************************************
-* Daftar Olahraga Resisten - MULTIPLE DAYS VERSION
-*********************************************/   
-/*********************************************
-* Daftar Olahraga Resisten - FIXED VERSION *
-*********************************************/   
-/*********************************************
-* Daftar Olahraga Resisten - FIXED VERSION (Mencegah penghapusan) *
-*********************************************/   
+/****************************
+* Daftar Olahraga Resisten  *
+*****************************/   
 function setupResistanceExercises(hariKe) {
     console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
     
@@ -5643,10 +5624,6 @@ function setupResistanceExercises(hariKe) {
         return;
     }
     
-    // ⚠️ HAPUS BARIS INI: container.innerHTML = '';
-    // JANGAN HAPUS KONTEN YANG SUDAH ADA!
-    
-    // Cek apakah konten sudah ada (mungkin sudah dibuat oleh createWorkoutFormHTML)
     // Jika sudah ada, kita hanya perlu men-disable elemennya, bukan membuat ulang.
     const existingDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
     const existingContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
@@ -5720,9 +5697,9 @@ function setupResistanceExercises(hariKe) {
     setupWorkoutForDay(hariKe);
 }
 
-/*********************************************************************
-* Fungsi Baru: Apply Read-Only Mode untuk Workout yang Sudah Selesai *
-**********************************************************************/
+/********************************************************
+* Apply Read-Only Mode untuk Workout yang Sudah Selesai *
+*********************************************************/
 function applyWorkoutReadOnlyMode(hariKe) {
     console.log(`🔒 Applying read-only mode for workout day ${hariKe}`);
     
@@ -5778,75 +5755,8 @@ function applyWorkoutReadOnlyMode(hariKe) {
     }
 }
 
-function BACKUP_setupResistanceExercises(hariKe) {
-    console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
-    
-    const containerId = `resistance-section${hariKe}`;
-    const container = document.getElementById(containerId);
-    
-    if (!container) {
-        console.error(`❌ Resistance container not found: ${containerId}`);
-        return;
-    }
-    
-    // Clear container terlebih dahulu
-    container.innerHTML = '';
-    
-    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
-    
-    const wrapper = document.createElement("div");
-    wrapper.className = "mb-3";
-    wrapper.innerHTML = `  
-        <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
-        <div class="mb-3">
-            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
-                <option value="">Pilih Olahraga Resistance...</option>
-                ${resistanceExercises.map(exercise => 
-                    `<option value="${exercise}">${exercise}</option>`
-                ).join('')}
-            </select>
-        </div>
-        
-        <div id="selectedResistanceContainer${hariKe}">
-            <!-- Selected exercises will appear here -->
-        </div>
-        
-        <!-- TOMBOL SIMPAN DAN SELESAI WORKOUT -->
-        <div class="mt-4 mb-3 p-1">
-            <!-- <div class="d-flex justify-content-between"> -->
-            <div class="text-left">
-                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
-                    <i class="fa fa-pencil-square-o"></i> Simpan
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
-                    <i class="fa fa-check"></i> Selesai
-                </button>
-            </div>
-        </div>
-    `;
-    
-    container.appendChild(wrapper);
-    
-    // Setup event listener untuk dropdown
-    setTimeout(() => {
-        const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-        if (dropdown) {
-            dropdown.addEventListener('change', function() {
-                const selectedValue = this.value;
-                if (selectedValue) {
-                    addResistanceExercise(hariKe, selectedValue);
-                    this.value = ''; // Reset dropdown
-                }
-            });
-        }
-    }, 100);
-    
-    // Load saved data untuk hari ini
-    loadSavedResistanceData(hariKe);
-}
-
 /************************************
-* Fungsi Tambah Olahraga Resistance - FIXED *
+* Fungsi Tambah Olahraga Resistance *
 *************************************/
 function addResistanceExercise(hariKe, exerciseName) {
     console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
@@ -5924,9 +5834,9 @@ function addResistanceExercise(hariKe, exerciseName) {
     console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
 }
 
-/*********************************
+/**********************************************
 * Fungsi Hapus Olahraga Resistance (per hari)
-**********************************/
+**********************************************/
 function removeResistanceExercise(hariKe, exerciseId) {
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
     const exerciseElement = document.getElementById(fullExerciseId);
@@ -5939,9 +5849,9 @@ function removeResistanceExercise(hariKe, exerciseId) {
     }
 }
 
-/******************************
+/*******************************************
 * Fungsi Simpan Data Resistance (per hari)
-*******************************/
+********************************************/
 function saveResistanceData(hariKe, exerciseId) {
     const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
@@ -5968,9 +5878,9 @@ function saveResistanceData(hariKe, exerciseId) {
     console.log(`💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`, exerciseData);
 }
 
-/*********************************************
+/*******************************************************
 * Fungsi Load Data Resistance yang Tersimpan (per hari)
-**********************************************/
+********************************************************/
 function loadSavedResistanceData(hariKe) {
     // Get all resistance keys for this day
     const allKeys = Object.keys(localStorage);
@@ -6008,9 +5918,9 @@ function loadSavedResistanceData(hariKe) {
     });
 }
 
-/******************************************
+/*********************************************
 * Get resistance data untuk dikirim ke server
-*******************************************/
+**********************************************/
 function getResistanceDataForServer(hariKe) {
     const allKeys = Object.keys(localStorage);
     const resistanceKeys = allKeys.filter(key => key.startsWith(`resistance-${hariKe}-`));
@@ -6042,9 +5952,9 @@ function getResistanceDataForServer(hariKe) {
     };
 }
 
-/****************************************************
+/******************************************************
 /* FUNGSI REUSABLE: Generate Water Reminder Form HTML *
-/****************************************************/
+/******************************************************/
 function generateWaterReminderForm(hariKe, containerId = null) {
     console.log(`💧 Generating water reminder form for day ${hariKe}`);
     
@@ -6146,9 +6056,9 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     return wrapper;
 }
 
-/****************************************************
+/************************************************
 /* FUNGSI REUSABLE: Setup Water Reminder Events *
-/****************************************************/
+/************************************************/
 function setupWaterReminderEvents(hariKe) {
     console.log(`🔧 Setting up water reminder events for day ${hariKe}`);
     
@@ -6261,9 +6171,9 @@ function loadSavedWaterReminderData(hariKe) {
     }
 }
 
-/****************************************************
+/*******************************************
 /* FUNGSI REUSABLE: Water Reminder Actions *
-/****************************************************/
+/*******************************************/
 async function simpanWaterReminder(hariKe) {
     console.log('💧 Menyimpan pilihan asupan air untuk hari:', hariKe);
     
@@ -6413,9 +6323,9 @@ function initializeAllWaterReminderForms() {
     console.log('✅ All water reminder forms initialized');
 }
 
-/****************************************************
+/*****************************************
 /* CSS STYLING UNTUK WATER REMINDER FORM *
-/****************************************************/
+/*****************************************/
 function addWaterReminderStyles() {
     const styleId = 'water-reminder-styles';
     
