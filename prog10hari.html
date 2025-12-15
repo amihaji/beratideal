@@ -1068,7 +1068,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw0HP673m1ybF-NPmdvCo4jSCkwewxPnBt4ZuOFohfY0lLyiZFbNOxCeXtTFMgI_m2nSg/exec'
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbymETPDUJE924ChzxFBUXIrrJd_pqwo5wNCVJd0Ksgc9yEYhh_FF2VS8iLrf_bv--yA_g/exec'
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -5220,15 +5220,17 @@ function saveWorkoutStatus(hariKe, status) {
 /*********************************
 *  Fungsi untuk simpan asupan air
 **********************************/
+// Fungsi untuk simpan asupan air (TANPA ALERT yang mengganggu)
 function simpanAsupanAir() {
   const userId = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
-  const hariKe = 1; // atau sesuai hari
+  const hariKe = 1;
   
   // Ambil nilai yang dipilih
   const selectedValue = document.querySelector('input[name="asupanAir"]:checked');
   
   if (!selectedValue) {
+    // Hanya alert jika belum memilih (boleh)
     alert('Pilih asupan air terlebih dahulu!');
     return;
   }
@@ -5236,8 +5238,9 @@ function simpanAsupanAir() {
   const asupanAir = selectedValue.value;
   
   // Tampilkan loading
-  document.getElementById('btnSimpan').disabled = true;
-  document.getElementById('btnSimpan').innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+  const btnSimpan = document.getElementById('btnSimpan');
+  btnSimpan.disabled = true;
+  btnSimpan.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
   
   // Kirim ke Google Apps Script
   const callbackName = 'cb_' + Date.now();
@@ -5246,20 +5249,26 @@ function simpanAsupanAir() {
   
   window[callbackName] = function(response) {
     if (response.success) {
-      alert('Data asupan air berhasil disimpan!');
+      // HAPUS ALERT INI jika tidak diperlukan:
+      // alert('Data asupan air berhasil disimpan!');
+      
       // Simpan status di localStorage
       localStorage.setItem('asupanAir_hari_' + hariKe, asupanAir);
+      
+      // Tampilkan feedback minimal (opsional)
+      console.log('Data asupan air berhasil disimpan:', asupanAir);
+      
+      // Kembalikan tombol dengan status tersimpan
+      btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
       
       // Aktifkan tombol selesai
       document.getElementById('btnSelesai').disabled = false;
       
-      // Kembalikan tombol simpan
-      document.getElementById('btnSimpan').disabled = true;
-      document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-check"></i> Tersimpan';
     } else {
+      // Tampilkan error jika perlu
       alert('Gagal menyimpan: ' + response.message);
-      document.getElementById('btnSimpan').disabled = false;
-      document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-save"></i> Simpan';
+      btnSimpan.disabled = false;
+      btnSimpan.innerHTML = '<i class="fas fa-save"></i> Simpan';
     }
     
     document.body.removeChild(script);
@@ -5268,8 +5277,8 @@ function simpanAsupanAir() {
   
   script.onerror = function() {
     alert('Gagal terhubung ke server');
-    document.getElementById('btnSimpan').disabled = false;
-    document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-save"></i> Simpan';
+    btnSimpan.disabled = false;
+    btnSimpan.innerHTML = '<i class="fas fa-save"></i> Simpan';
     document.body.removeChild(script);
     delete window[callbackName];
   };
@@ -5286,8 +5295,9 @@ function selesaiWaterReminder() {
   const hariKe = 1;
   
   // Tampilkan loading
-  document.getElementById('btnSelesai').disabled = true;
-  document.getElementById('btnSelesai').innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyelesaikan...';
+  const btnSelesai = document.getElementById('btnSelesai');
+  btnSelesai.disabled = true;
+  btnSelesai.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
   
   // Kirim ke Google Apps Script
   const callbackName = 'cb_' + Date.now();
@@ -5295,26 +5305,32 @@ function selesaiWaterReminder() {
   script.src = `${URL_APPS_SCRIPT}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&callback=${callbackName}`;
   
   window[callbackName] = function(response) {
-    if (response.success) {
+    console.log('Response dari server:', response);
+    
+    if (response && response.success) {
       // Simpan status di localStorage
       localStorage.setItem('waterReminder_hari_' + hariKe, 'completed');
       
       // Nonaktifkan semua tombol
       document.getElementById('btnSimpan').disabled = true;
-      document.getElementById('btnSelesai').disabled = true;
-      document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check"></i> Selesai';
+      btnSelesai.disabled = true;
+      btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
       
-      // Tampilkan simbol centang
+      // Tampilkan simbol centang di menu/daftar
       const waterItem = document.getElementById('waterReminderItem');
       if (waterItem) {
         waterItem.innerHTML += ' <span class="badge bg-success"><i class="fas fa-check"></i></span>';
       }
       
-      alert('Water reminder hari ' + hariKe + ' selesai!');
+      // Feedback minimal (opsional)
+      console.log('Water reminder selesai');
+      
     } else {
-      alert('Gagal: ' + response.message);
-      document.getElementById('btnSelesai').disabled = false;
-      document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check-circle"></i> Selesai';
+      // Tampilkan error
+      const errorMsg = response ? response.message : 'Tidak ada respon dari server';
+      alert('Gagal menyelesaikan: ' + errorMsg);
+      btnSelesai.disabled = false;
+      btnSelesai.innerHTML = '<i class="fas fa-check-circle"></i> Selesai';
     }
     
     document.body.removeChild(script);
@@ -5322,9 +5338,10 @@ function selesaiWaterReminder() {
   };
   
   script.onerror = function() {
-    alert('Gagal terhubung ke server');
-    document.getElementById('btnSelesai').disabled = false;
-    document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check-circle"></i> Selesai';
+    console.error('Script load error');
+    alert('Gagal terhubung ke server. Cek koneksi internet.');
+    btnSelesai.disabled = false;
+    btnSelesai.innerHTML = '<i class="fas fa-check-circle"></i> Selesai';
     document.body.removeChild(script);
     delete window[callbackName];
   };
