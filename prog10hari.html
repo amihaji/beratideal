@@ -1068,7 +1068,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyaycCnWZXbj2tAbXTdxulDbXC2XuRFku9jVNKE0czDhxngrHPJ3DoHS3mV1_AKRZQXPQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwkd0bsMvV8Xwp9UrSUWva-9L5OmriAFBbwy7s818YVtF4QoEExrGNRUoeH8tDNZLzzwQ/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -6089,6 +6089,7 @@ function simpanAsupanAir(hariKe) {
   const callbackName = 'cb_simpan_' + Date.now();
   const script = document.createElement('script');
   
+  // Encode URL dengan benar
   const params = new URLSearchParams({
     action: 'updateWaterReminder',
     userId: encodeURIComponent(userId),
@@ -6098,10 +6099,19 @@ function simpanAsupanAir(hariKe) {
     callback: callbackName
   });
   
-  script.src = `${URL_PROGRAM_APP }?${params}`;
+  script.src = `${URL_APPS_SCRIPT}?${params}`;
   
   window[callbackName] = function(response) {
     console.log('📥 Response simpanAsupanAir:', response);
+    
+    // ⭐⭐ PERBAIKAN: Handle jika response adalah string "OK"
+    if (typeof response === 'string') {
+      console.warn('⚠️ Server mengembalikan string, bukan JSON');
+      response = {
+        success: response === 'OK' || response.includes('OK'),
+        message: response
+      };
+    }
     
     if (response && response.success) {
       // 1. Simpan di localStorage
@@ -6134,7 +6144,7 @@ function simpanAsupanAir(hariKe) {
         `;
       }
       
-      // 5. Tampilkan notifikasi sukses (tanpa popup mengganggu)
+      // 5. Tampilkan notifikasi sukses
       showMessage('success', `Pilihan asupan air hari ${hariKe} tersimpan`, 2000);
       
     } else {
@@ -6144,6 +6154,8 @@ function simpanAsupanAir(hariKe) {
       
       btnSimpan.disabled = originalDisabled;
       btnSimpan.innerHTML = originalHTML;
+      btnSimpan.classList.remove('btn-outline-success');
+      btnSimpan.classList.add('btn-primary');
       
       showMessage('error', 'Gagal menyimpan: ' + errorMsg, 4000);
     }
