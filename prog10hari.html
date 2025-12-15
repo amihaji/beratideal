@@ -6354,10 +6354,11 @@ async function simpanWaterReminder(hariKe) {
 
 function updateWaterSaveUI(hariKe, asupanAir) {
     // Tampilkan info saved
-    const savedInfo = document.getElementById(`waterSavedInfo${hariKe}`);
+    const savedInfo    = document.getElementById(`waterSavedInfo${hariKe}`);
     const selectedText = document.getElementById(`waterSelectedText${hariKe}`);
-    const savedTime = document.getElementById(`waterSavedTime${hariKe}`);
+    // const savedTime    = document.getElementById(`waterSavedTime${hariKe}`);
     
+    /** TIDAK DIGUNAKAN
     if (savedInfo && selectedText) {
         selectedText.textContent = `Dipilih: ${asupanAir} air putih`;
         savedInfo.style.display = 'block';
@@ -6366,7 +6367,8 @@ function updateWaterSaveUI(hariKe, asupanAir) {
             savedTime.textContent = `Disimpan: ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
         }
     }
-    
+    ****/
+
     // Update tombol simpan
     const simpanBtn = document.getElementById(`btnSimpanWater${hariKe}`);
     if (simpanBtn) {
