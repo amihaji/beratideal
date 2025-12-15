@@ -6251,6 +6251,7 @@ function loadSavedWaterReminderData(hariKe) {
                 }
                 
                 // Tampilkan info saved
+                /** TIDAK DIGUNAKAN
                 const savedInfo = document.getElementById(`waterSavedInfo${hariKe}`);
                 const selectedText = document.getElementById(`waterSelectedText${hariKe}`);
                 const savedTime = document.getElementById(`waterSavedTime${hariKe}`);
@@ -6267,7 +6268,8 @@ function loadSavedWaterReminderData(hariKe) {
                         savedTime.textContent = `Disimpan: ${savedDate.toLocaleDateString('id-ID')} ${savedDate.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}`;
                     }
                 }
-                
+                ****/
+
                 // Jika sudah disimpan, disable radio buttons
                 const savedFlagKey = userId ? `water_saved_${userId}_${hariKe}` : `water_saved_${hariKe}`;
                 if (localStorage.getItem(savedFlagKey)) {
@@ -6333,7 +6335,7 @@ async function simpanWaterReminder(hariKe) {
             const userPrefix = userId ? `${userId}_` : '';
             localStorage.setItem(`water_asupan_${userPrefix}${hariKe}`, asupanAir);
             localStorage.setItem(`water_saved_${userPrefix}${hariKe}`, 'true');
-            localStorage.setItem(`water_saved_time_${userPrefix}${hariKe}`, new Date().toISOString());
+            // localStorage.setItem(`water_saved_time_${userPrefix}${hariKe}`, new Date().toISOString());
             
             // Update UI
             updateWaterSaveUI(hariKe, asupanAir);
