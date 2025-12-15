@@ -5249,7 +5249,7 @@ function BACKUP_simpanAsupanAir() {
   // Kirim ke Google Apps Script
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=${callbackName}`;
+  script.src = `${URL_PROGRAM_APP }?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=${callbackName}`;
   
   window[callbackName] = function(response) {
     if (response && response.success) {
@@ -5318,7 +5318,7 @@ function BACKUP_selesaiWaterReminder() {
   // Kirim ke Google Apps Script
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&callback=${callbackName}`;
+  script.src = `${URL_PROGRAM_APP }?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&callback=${callbackName}`;
   
   window[callbackName] = function(response) {
     console.log('✅ Response dari server:', response);
@@ -6318,7 +6318,7 @@ function simpanAsupanAir(hariKe) {
     callback: callbackName
   });
   
-  script.src = `${URL_APPS_SCRIPT}?${params}`;
+  script.src = `${URL_PROGRAM_APP }?${params}`;
   
   window[callbackName] = function(response) {
     console.log('📥 Response simpanAsupanAir:', response);
@@ -6432,7 +6432,7 @@ function selesaiWaterReminder(hariKe) {
     callback: callbackName
   });
   
-  script.src = `${URL_APPS_SCRIPT}?${params}`;
+  script.src = `${URL_PROGRAM_APP }?${params}`;
   
   window[callbackName] = function(response) {
     console.log('📥 Response selesaiWaterReminder:', response);
@@ -6827,7 +6827,7 @@ function simpanWaterReminderModul(modul, hariKe) {
     callback: callbackName
   });
   
-  script.src = `${URL_APPS_SCRIPT}?${params}`;
+  script.src = `${URL_PROGRAM_APP }?${params}`;
   
   window[callbackName] = function(response) {
     console.log(`📥 Response simpanWaterReminderModul M${modul}D${hariKe}:`, response);
