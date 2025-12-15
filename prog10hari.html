@@ -924,7 +924,6 @@ body { background-color: #f8f9fa; }
 
               <!-- Waktu Istirahat -->
               <div class="mt-3 mb-2" id="istirahat-container">
-                <!-- <h6><b>BERAPA JAM ISTIRAHAT</b></h6> --> 
                 <div id="istirahatBtn">
                   <!-- Pilihan jadwal istirahat dimuat di sini -->
                 </div>
@@ -1086,9 +1085,9 @@ function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
 
-/******************
+/*****************************************
 * Logout function dengan clear user data *
-*******************/
+******************************************/
 function logout() {
     const userId = localStorage.getItem('userId');
     
@@ -1119,9 +1118,9 @@ function logout() {
     window.location.reload();
 }
 
-/***************************************
+/**********************************************
 * Simpan status completion dengan user prefix *
-****************************************/
+***********************************************/
 function saveCompletionStatus(submenuType, hariKe, status) {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
@@ -1169,9 +1168,9 @@ function saveCompletionStatus(submenuType, hariKe, status) {
     updateSubmenuLinkUI(hariKe, submenuType);
 }
 
-/***************************************
+/**********************************************
 * Check status completion untuk user tertentu *
-****************************************/
+***********************************************/
 function checkCompletionStatus(userId, submenuType, hariKe) {
     // Cek dari localStorage user-specific
     const key = `${submenuType}_${userId}_hari_${hariKe}`;
@@ -1208,9 +1207,7 @@ function checkCompletionStatus(userId, submenuType, hariKe) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Aplikasi dimulai...');
     
-    // ========================================
     // 1. ACCORDION TOGGLE FIX (PERTAMA)
-    // ========================================
     let currentOpenMenu = null;
     
     document.querySelectorAll('.menu-header').forEach(header => {
@@ -1233,8 +1230,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!targetContent) return;
             
-            // Accordion toggle logic...
-            // ... (sama seperti sebelumnya)
             console.log('🔄 Menu diklik:', targetId);
             
             // Jika klik menu yang sama yang sedang terbuka
@@ -1268,9 +1263,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ========================================
     // 2. CEK STATUS USER DAN APPLY LOCK
-    // ========================================
     const userId = localStorage.getItem('userId');
     const progressData = localStorage.getItem('progressData');
     
@@ -1360,9 +1353,9 @@ function setupAccordionToggle() {
     });
 }
 
-/************************************
-* Apply Lock System yang lebih strict*
-*************************************/
+/**************************************
+* Apply Lock System yang lebih strict *
+***************************************/
 function applyLockSystem(progress) {
     console.log('🔒 Menerapkan lock system STRICT');
     
@@ -1405,9 +1398,9 @@ function applyLockSystem(progress) {
     }
 }
 
-/************************************
-* Apply progress untuk user yang sudah ada progress*
-*************************************/
+/****************************************************
+* Apply progress untuk user yang sudah ada progress *
+*****************************************************/
 function applyExistingUserProgress(progress) {
     console.log('👤 Apply progress untuk user existing:', progress);
     
@@ -1448,9 +1441,9 @@ function applyExistingUserProgress(progress) {
     }, 500);
 }
 
-/************************************
-* Strict Lock Modul (benar-benar lock)*
-*************************************/
+/***************************************
+* Strict Lock Modul (benar-benar lock) *
+****************************************/
 function strictLockModul(hariKe) {
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
     if (modulHeader) {
@@ -1487,12 +1480,9 @@ function strictLockModul(hariKe) {
     }
 }
 
-/************************************
-* Unlock modul dengan icon benar   *
-*************************************/
-/************************************
-* Unlock modul dengan icon benar - IMPROVED *
-*************************************/
+/*********************************
+* Unlock modul dengan icon benar *
+**********************************/
 function unlockModul(hariKe) {
     console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
     
@@ -1581,9 +1571,9 @@ function applyLockForNewUser() {
     }
 }
 
-/************************************
-* Lock modul tertentu              *
-*************************************/
+/***********************
+* Lock modul tertentu  *
+************************/
 function lockModul(hariKe) {
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
     if (modulHeader) {
@@ -1622,9 +1612,9 @@ function lockModul(hariKe) {
     }
 }
 
-/************************************
-* Update UI Perkenalan lengkap     *
-*************************************/
+/*******************************
+* Update UI Perkenalan lengkap *
+********************************/
 function updatePerkenalanUI() {
     console.log('🔄 Updating Perkenalan UI...');
     
@@ -1733,9 +1723,9 @@ function setupAllComponentsInternal() {
     
 }
 
-/********************************
+/**************************************
 * Update navbar untuk user yang login *
-*********************************/
+***************************************/
 function updateNavbarForLoggedInUser(userId) {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (loginMenuItem) {
@@ -1800,9 +1790,9 @@ function createSubmenuHTML(hariKe) {
     `;
 }
 
-/************************************
+/**********************************************************
 * Load progress dari localStorage dan apply button status *
-*************************************/
+***********************************************************/
 function loadProgressFromStorage() {
     console.log('📂 Memuat progress dari storage...');
     
@@ -1923,12 +1913,9 @@ function applyCompleteProgressToUI(progress, hariKe) {
   }
 }
 
-/********************************************
+/*****************************************
 /* LOAD SAVED WORKOUT DATA DARI PROGRESS *
-/********************************************/
-/********************************************
-/* LOAD SAVED WORKOUT DATA DARI PROGRESS - FIXED *
-/********************************************/
+/*****************************************/
 function loadWorkoutSavedData(hariKe, workoutData) {
     console.log('💾 Loading saved workout data:', workoutData);
     
@@ -2042,9 +2029,9 @@ function extractFileNameFromDriveUrl(driveUrl) {
     }
 }
 
-/**********************************************
-/* FUNGSI BARU: Save filename saat upload *
-***********************************************/
+/****************************
+* Save filename saat upload *
+*****************************/
 function saveDriveFileInfo(fileId, fileName) {
     if (fileId && fileName) {
         localStorage.setItem(`drive_filename_${fileId}`, fileName);
@@ -2117,9 +2104,9 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
   container.appendChild(exerciseElement);
 }
 
-/********************************************
-/* UPDATE DISABLE BUTTONS FUNCTION - IMPROVED *
-/********************************************/
+/***********************************
+/* UPDATE DISABLE BUTTONS FUNCTION *
+/***********************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disabling action buttons for ${submenuType} day ${hariKe}`);
   
@@ -2248,9 +2235,9 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   }
 }
 
-/********************************************
+/*************************************
 /* UPDATE SUBMENU LINK UI - COMPLETE *
-/********************************************/
+/*************************************/
 function updateSubmenuLinkUI(hariKe, submenuType) {
   console.log(`🔄 Updating submenu link UI for ${submenuType} day ${hariKe}`);
   
@@ -2319,9 +2306,9 @@ function updateSubmenuLinkUI(hariKe, submenuType) {
   });
 }
 
-/******************************************
-/* SHOW SUBMENU READ-ONLY - FIXED VERSION *
-/******************************************/
+/***************************
+/* SHOW SUBMENU READ-ONLY  *
+/**************************/
 function showSubmenuReadOnly(targetId) {
     console.log(`👁️ Showing submenu ${targetId} in READ-ONLY mode`);
     
@@ -2467,14 +2454,10 @@ function setupAllComponents() {
   const userId = localStorage.getItem('userId');
   const userToken = localStorage.getItem('userToken');
   
-  // ========================================
   // 1. ACCORDION TOGGLE FIX
-  // ========================================
   setupAccordionToggle();
   
-  // ========================================
   // 2. CEK USER LOGIN DAN LOAD PROGRESS
-  // ========================================
   if (userId && userToken) {
     console.log('👤 User is logged in:', userId);
     
@@ -2498,17 +2481,15 @@ function setupAllComponents() {
     applyLockForNewUser();
   }
   
-  // ========================================
   // 3. SETUP SEMUA KOMPONEN LAINNYA
-  // ========================================
   setupAllComponentsInternal();
   
   console.log('✅ All components setup complete');
 }
 
-/********************************************
+/***************************
 /* CHECK PROGRESS FALLBACK *
-/********************************************/
+/***************************/
 function checkProgressFallback(userId) {
   console.log('🔄 Using fallback progress check for user:', userId);
   
@@ -2524,12 +2505,9 @@ function checkProgressFallback(userId) {
   }
 }
 
-/************************************
-* Ambil progress dari server        *
-*************************************/
-/************************************
+/*************************************************
 * Ambil progress dari server untuk user tertentu *
-*************************************/
+**************************************************/
 function fetchProgressFromServer(userId) {
     const callbackName = 'cb_fetch_progress_' + Date.now();
     const script = document.createElement('script');
@@ -2647,12 +2625,9 @@ function checkMateriStatus(hariKe) {
     }
 }
 
-/**************************
+/********************************************
 * Setup Tombol Cek Disini - untuk semua hari
-***************************/
-/**************************
-* Setup Tombol Cek Disini - FIXED untuk semua hari
-***************************/
+********************************************/
 function setupCekDisiniButtons() {
     console.log('🔧 Setting up Cek Disini buttons for all days...');
     
@@ -2698,12 +2673,9 @@ function setupCekDisiniButtons() {
     console.log('✅ Cek Disini buttons setup completed for all days');
 }
 
-/**************************************
+/**********************************************************
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
-***************************************/
-/************************************** 
-* Handle klik tombol Cek Disini untuk semua jenis dan hari - FIXED *
-***************************************/
+***********************************************************/
 function handleCekDisiniClick(jenis, hariKe) {
     console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
     
@@ -3090,12 +3062,9 @@ function closeVideo(section) {
     currentVideoData = {};
 }
 
-/****************************************
-* Tutup Semua Video yang sedang diputar *
-*****************************************/
-/****************************************
-* Tutup Semua Video yang sedang diputar - TIDAK MENUTUP PDF *
-*****************************************/
+/************************************************************
+* Tutup Semua Video yang sedang diputar - Tidak Menutup PDF *
+*************************************************************/
 function closeAllVideos() {
     console.log('Closing all videos and playlists (not PDFs)');
     
@@ -3436,9 +3405,6 @@ function setupPDFLinks() {
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
-/*****************************
-* Memuat dan Menampilkan PDF - FIXED *
-******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
@@ -3646,9 +3612,9 @@ function openPDFInNewTab(section) {
     }
 }
 
-/*******************
-* Tutup PDF Viewer - TIDAK MENUTUP SUBMENU *
-********************/
+/*******************************************
+* Tutup PDF Viewer & Tidak menutup submenu *
+********************************************/
 function closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
@@ -3666,7 +3632,7 @@ function closePDF(section) {
 }
 
 /*************************
-* Tutup Semua PDF Viewer - FIXED *
+* Tutup Semua PDF Viewer *
 **************************/
 function closeAllPDFs() {
     console.log('Closing all PDFs');
@@ -3687,9 +3653,9 @@ function closeAllPDFs() {
 // ***** FUNGSI SUMNEU DAN UI *****
 /**********************************
 
-/********************
-* Tampilkan Submenu - TIDAK MENYEMBUNYIKAN PDF *
-*********************/
+/***********************************************
+* Tampilkan Submenu & Tidak menyembunyikan PDF *
+***********************************************/
 function showSubmenu(targetId) {
   console.log('🔍 Menampilkan submenu:', targetId);
   
@@ -3750,9 +3716,9 @@ function showSubmenu(targetId) {
   }
 }
 
-/**********************
-* Sembunyikan Submenu - TIDAK MENYEMBUNYIKAN PDF *
-***********************/
+/**************************************************
+* Sembunyikan Submenu dan tidak meyembunyikan PDF *
+***************************************************/
 function hideSubmenu(targetId) {
   console.log('🔍 Menyembunyikan submenu:', targetId);
   
@@ -3781,9 +3747,9 @@ function hideSubmenu(targetId) {
 // ***** UTILITY FUNCTIONS *****
 // *****************************
 
-/***************************************
+/***************************************************************
 * Fungsi untuk check status dan apply disable berdasarkan user *
-****************************************/
+****************************************************************/
 function checkAndApplyButtonStatus(userId, hariKe) {
     console.log(`🔍 Checking button status for user ${userId}, day ${hariKe}`);
     
@@ -3811,9 +3777,9 @@ function checkAndApplyButtonStatus(userId, hariKe) {
     });
 }
 
-/********************************
+/****************************************************
 * Tampilkan submenu hanya untuk melihat (read-only) *
-*********************************/
+*****************************************************/
 function showSubmenuOnly(targetId) {
     console.log(`👁️ Showing submenu ${targetId} in read-only mode`);
     
@@ -4371,50 +4337,6 @@ function updateMateriStatusUI(hariKe) {
     }
   }
 }
-
-/***************************
-* Minum Air Putih per hari *
-****************************/   
-const minumAirPutih = document.getElementById("airputihRadioBtn");
-if (minumAirPutih) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-1"; /* "input-group mb-1 align-items-start"; */
-  wrapper.innerHTML = `
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio">
-      </div>
-      <input type="text" class="form-control" id="kurang1LtrAir" placeholder="Kurang dari 1 ltr air putih" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio">
-      </div>
-      <input type="text" class="form-control" id="pas1LtrAir" placeholder="1 ltr air putih" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio">
-      </div>
-      <input type="text" class="form-control" id="pas2LtrAir" placeholder="2 ltr air putih" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio"> 
-      </div>
-      <input type="text" class="form-control" id="lebih2LtrAir" placeholder="Lebih dari 2 ltr air putih" readonly>
-    </div>
-
-    <div>
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanMinumAir" data-bs-toggle="tooltip" title="Simpan Minum"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiMinumAir" data-bs-toggle="tooltip" title="Selesai Minum"><i class="fa fa-check"></i> Selesai</button>
-    </div>  
-`;
-  minumAirPutih.appendChild(wrapper);
-}    
 
 /************************
 * Jadwal Waktu Istrihat *
