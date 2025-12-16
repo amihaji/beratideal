@@ -6198,16 +6198,24 @@ function generateWaterRadioButtons(hariKe) {
    AMBIL NILAI WATER REMINDER (HARI KE-x)
    ================================================= */
 function getWaterHari(hariKe) {
-  const radios = document.getElementsByName('waterHari' + hariKe);
-  if (!radios || radios.length === 0) return '';
+
+  const container = document.getElementById('waterReminderContent' + hariKe);
+  if (!container) {
+    console.warn('❌ Container water tidak ditemukan hari', hariKe);
+    return '';
+  }
+
+  const radios = container.querySelectorAll('input[type="radio"]');
 
   for (let i = 0; i < radios.length; i++) {
     if (radios[i].checked) {
       return radios[i].value;
     }
   }
+
   return '';
 }
+
 
 /* =================================================
    ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
