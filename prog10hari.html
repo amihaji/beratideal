@@ -1068,7 +1068,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwjpARD45Yvnck1moUyIfbAPvewuhNwBWIjMPWTae1KWinOLdPHyFQlwG5KbzTL7i6J/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/library/d/1HuTxFhRYQ8PD_PlnqW6b6InnTZd_bhG7GPQhmqrAz4EbNTUp2mFC-rCh/4';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -6081,6 +6081,13 @@ function simpanAsupanAir(hariKe) {
   const originalHTML = btnSimpan.innerHTML;
   const originalDisabled = btnSimpan.disabled;
   
+  console.log('📤 Mengirim data ke server:', {
+    userId: userId,
+    hariKe: hariKe,
+    asupanAir: asupanAir,
+    URL: `${URL_APPS_SCRIPT}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}`
+  });
+
   // Tampilkan loading
   btnSimpan.disabled = true;
   btnSimpan.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
@@ -6103,6 +6110,7 @@ function simpanAsupanAir(hariKe) {
   
   window[callbackName] = function(response) {
     console.log('📥 Response simpanAsupanAir:', response);
+    console.log('🔍 Response type:', typeof response);
     
     // ⭐⭐ PERBAIKAN: Handle jika response adalah string "OK"
     if (typeof response === 'string') {
