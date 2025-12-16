@@ -1063,7 +1063,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycby82MmL_yp4verh0QKcql_N_gYkou-82ZnrV7QTGAlgKoLmz799jUJriRGUGaB0jelOww/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzTKUyDCjwMpRKO16FPQv1-dVCWOgf_18ZBOsC5wZonxPtAT-8OXOGoECZJ5KlbZ1yGFQ/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -7655,6 +7655,42 @@ function showWaterReminderForm(hariKe) {
     setTimeout(() => {
         //setupWaterReminderEvents(hariKe);
     }, 500);
+}
+
+function testWaterReminder() {
+  const userId = localStorage.getItem('userId');
+  const hariKe = 1;
+  const asupanAir = "2 ltr";
+  
+  console.log('🧪 Testing Water Reminder Data Structure:');
+  
+  // Buat data seperti yang dikirim oleh fungsi asli
+  const testData = {
+    action: 'updateWaterReminder',
+    userId: userId,
+    namaUser: 'Test User',
+    hariKe: hariKe,
+    asupanAir: asupanAir,
+    callback: 'test_callback_' + Date.now()
+  };
+  
+  console.log('📤 Data yang akan dikirim:', testData);
+  
+  // Test langsung ke server
+  const testUrl = `${URL_PROGRAM_APP}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=Test%20User&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=test123`;
+  console.log('🔗 Test URL:', testUrl);
+  
+  // Jalankan test
+  const script = document.createElement('script');
+  script.src = testUrl;
+  
+  window.test123 = function(response) {
+    console.log('📥 Response from test:', response);
+    document.body.removeChild(script);
+    delete window.test123;
+  };
+  
+  document.body.appendChild(script);
 }
 
 </script>
