@@ -1063,7 +1063,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwjpARD45Yvnck1moUyIfbAPvewuhNwBWIjMPWTae1KWinOLdPHyFQlwG5KbzTL7i6J/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxqlUlsjY2V40J6o5metuOYC0hzcqQnE17x1InPBUV1Rvt_UiXrR9EWCujwgIeN7IFxig/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -5922,7 +5922,7 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     wrapper.innerHTML = `
         <div class="water-form-header mb-3">
             <h6 class="mb-2"><b>ASUPAN AIR PUTIH PERHARI</b></h6>
-            <p class="text-muted" style="font-size: 12px;">Pilih jumlah air yang sudah anda minum hari ini</p>
+            <p class="text-muted" style="font-size: 14px;">Pilih jumlah air yang sudah anda minum hari ini</p>
         </div>
         
         <div class="water-options mb-4">
@@ -6195,8 +6195,11 @@ function enableWaterSaveButton(hariKe) {
  * SIMPAN PILIHAN AIR MINUM
  * @param {number} hariKe - Nomor hari (1-10)
  */
+/**
+ * SIMPAN WATER REMINDER - POLA SAMA DENGAN MEAL PLAN
+ */
 function simpanWaterReminder(hariKe) {
-    console.log(`💧 Simpan water reminder hari ${hariKe}`);
+    console.log(`💧 simpanWaterReminder hari ${hariKe}`);
     
     const userId = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
@@ -6206,7 +6209,7 @@ function simpanWaterReminder(hariKe) {
         return;
     }
     
-    // Ambil nilai radio yang dipilih
+    // Ambil nilai radio
     const radioName = 'asupanAir' + hariKe;
     const selectedRadio = document.querySelector(`input[name="${radioName}"]:checked`);
     
@@ -6219,41 +6222,39 @@ function simpanWaterReminder(hariKe) {
     const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
     
     if (!btnSimpan) {
-        console.error(`❌ Tombol Simpan tidak ditemukan untuk hari ${hariKe}`);
+        console.error(`❌ Tombol Simpan tidak ditemukan`);
         return;
     }
     
     // Simpan state asli
     const originalHTML = btnSimpan.innerHTML;
-    const originalDisabled = btnSimpan.disabled;
     
     // Tampilkan loading
     btnSimpan.disabled = true;
     btnSimpan.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
     
-    // Kirim ke Google Apps Script
-    const callbackName = 'cb_water_save_' + Date.now();
+    // Kirim ke server - URL SAMA DENGAN MEAL PLAN STYLE
+    const callbackName = 'cb_water_' + Date.now();
     const script = document.createElement('script');
     
-    script.src = `${URL_PROGRAM_APP}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=${callbackName}`;
+    // ⭐⭐ PERHATIAN: Format URL harus sama dengan meal plan
+    script.src = `${URL_PROGRAM_APP}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser || '')}&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=${callbackName}`;
+    
+    console.log('📤 Mengirim ke:', script.src);
     
     window[callbackName] = function(response) {
-        console.log(`📥 Response simpan water hari ${hariKe}:`, response);
+        console.log(`📥 Response water hari ${hariKe}:`, response);
+        console.log('🔍 Type response:', typeof response);
         
-        // Handle jika response string atau object
-        let responseObj = response;
-        if (typeof response === 'string') {
-            responseObj = { success: response === 'OK', message: response };
-        }
-        
-        if (responseObj && responseObj.success) {
-            // 1. Update tombol Simpan
+        // ⭐⭐ POLA SAMA DENGAN MEAL PLAN: Response adalah string "OK"
+        if (response === "OK" || (response && response.success === true)) {
+            // SUCCESS - Update UI
             btnSimpan.disabled = true;
             btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
             btnSimpan.classList.remove('btn-primary');
             btnSimpan.classList.add('btn-outline-success');
             
-            // 2. Aktifkan tombol Selesai
+            // Aktifkan tombol selesai
             const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
             if (btnSelesai) {
                 btnSelesai.disabled = false;
@@ -6261,7 +6262,7 @@ function simpanWaterReminder(hariKe) {
                 btnSelesai.classList.add('btn-success');
             }
             
-            // 3. Tampilkan status
+            // Tampilkan status
             const statusDiv = document.getElementById('waterStatus' + hariKe);
             if (statusDiv) {
                 statusDiv.innerHTML = `
@@ -6272,98 +6273,86 @@ function simpanWaterReminder(hariKe) {
                 `;
             }
             
-            // 4. Simpan di localStorage
+            // Simpan di localStorage
             localStorage.setItem(`water_hari_${hariKe}_asupan`, asupanAir);
             localStorage.setItem(`water_hari_${hariKe}_saved`, 'true');
             
-            // 5. Notifikasi
-            showMessage('success', `Pilihan asupan air hari ${hariKe} tersimpan`, 2000);
+            showMessage('success', `Pilihan asupan air tersimpan`, 2000);
             
         } else {
-            // Jika gagal, restore tombol
-            const errorMsg = responseObj ? responseObj.message : 'Terjadi kesalahan';
-            console.error(`❌ Gagal menyimpan hari ${hariKe}:`, errorMsg);
+            // ERROR
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = '<i class="fa fa-pencil-square-o"></i> Simpan';
             
-            btnSimpan.disabled = originalDisabled;
-            btnSimpan.innerHTML = originalHTML;
-            btnSimpan.classList.remove('btn-outline-success');
-            btnSimpan.classList.add('btn-primary');
+            const errorMsg = (typeof response === 'string') ? response : 
+                            (response && response.message) ? response.message : 
+                            'Terjadi kesalahan';
             
-            showMessage('error', 'Gagal menyimpan: ' + errorMsg, 4000);
+            showMessage('error', 'Gagal: ' + errorMsg, 4000);
         }
         
         // Cleanup
-        cleanUpScript(script, callbackName);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
     };
     
     script.onerror = function() {
-        console.error(`❌ Gagal koneksi hari ${hariKe}`);
+        console.error('❌ Script load error');
         
-        // Restore tombol
-        btnSimpan.disabled = originalDisabled;
-        btnSimpan.innerHTML = originalHTML;
-        
+        btnSimpan.disabled = false;
+        btnSimpan.innerHTML = '<i class="fa fa-pencil-square-o"></i> Simpan';
         showMessage('error', 'Gagal terhubung ke server', 4000);
         
-        cleanUpScript(script, callbackName);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
     };
     
     document.body.appendChild(script);
 }
 
 /**
- * TANDAI WATER REMINDER SELESAI
- * @param {number} hariKe - Nomor hari (1-10)
+ * SELESAI WATER REMINDER - POLA SAMA
  */
 function selesaiWaterReminder(hariKe) {
-    console.log(`✅ Selesai water reminder hari ${hariKe}`);
+    console.log(`✅ selesaiWaterReminder hari ${hariKe}`);
     
     const userId = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
     const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
     
-    if (!btnSelesai || !userId) {
-        showMessage('error', 'Data tidak lengkap', 3000);
-        return;
-    }
+    if (!btnSelesai || !userId) return;
     
     // Simpan state asli
     const originalHTML = btnSelesai.innerHTML;
-    const originalDisabled = btnSelesai.disabled;
     
-    // Tampilkan loading
+    // Loading
     btnSelesai.disabled = true;
     btnSelesai.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
     
-    // Kirim ke Google Apps Script
+    // Kirim ke server
     const callbackName = 'cb_water_complete_' + Date.now();
     const script = document.createElement('script');
     
-    script.src = `${URL_PROGRAM_APP}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser)}&hariKe=${hariKe}&callback=${callbackName}`;
+    script.src = `${URL_PROGRAM_APP}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser || '')}&hariKe=${hariKe}&callback=${callbackName}`;
     
     window[callbackName] = function(response) {
         console.log(`📥 Response selesai water hari ${hariKe}:`, response);
         
-        // Handle jika response string atau object
-        let responseObj = response;
-        if (typeof response === 'string') {
-            responseObj = { success: response === 'OK', message: response };
-        }
-        
-        if (responseObj && responseObj.success) {
-            // 1. Update tombol Selesai
+        // ⭐⭐ POLA SAMA: Response adalah string "OK"
+        if (response === "OK" || (response && response.success === true)) {
+            // SUCCESS
             btnSelesai.disabled = true;
             btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
             btnSelesai.classList.remove('btn-success');
             btnSelesai.classList.add('btn-outline-success');
             
-            // 2. Nonaktifkan tombol Simpan juga
+            // Nonaktifkan tombol simpan juga
             const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
             if (btnSimpan) {
                 btnSimpan.disabled = true;
             }
             
-            // 3. Update status display
+            // Update status
             const statusDiv = document.getElementById('waterStatus' + hariKe);
             if (statusDiv) {
                 statusDiv.innerHTML = `
@@ -6374,42 +6363,41 @@ function selesaiWaterReminder(hariKe) {
                 `;
             }
             
-            // 4. Update menu dengan centang
-            updateWaterMenuIcon(hariKe);
+            // Update menu icon
+            const menuItem = document.querySelector(`[onclick*="waterReminder(${hariKe})"]`);
+            if (menuItem && !menuItem.querySelector('.badge')) {
+                menuItem.innerHTML += ' <span class="badge bg-success"><i class="fas fa-check"></i></span>';
+            }
             
-            // 5. Simpan status di localStorage
+            // Simpan status
             localStorage.setItem(`water_hari_${hariKe}_completed`, 'true');
             
-            // 6. Notifikasi
-            showMessage('success', `Water reminder hari ${hariKe} selesai!`, 3000);
+            showMessage('success', 'Water reminder selesai!', 2000);
             
         } else {
-            // Jika gagal, restore tombol
-            const errorMsg = responseObj ? responseObj.message : 'Terjadi kesalahan';
-            console.error(`❌ Gagal menyelesaikan hari ${hariKe}:`, errorMsg);
+            // ERROR
+            btnSelesai.disabled = false;
+            btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai';
             
-            btnSelesai.disabled = originalDisabled;
-            btnSelesai.innerHTML = originalHTML;
-            btnSelesai.classList.remove('btn-outline-success');
-            btnSelesai.classList.add('btn-success');
+            const errorMsg = (typeof response === 'string') ? response : 
+                            (response && response.message) ? response.message : 
+                            'Terjadi kesalahan';
             
             showMessage('error', 'Gagal: ' + errorMsg, 5000);
         }
         
         // Cleanup
-        cleanUpScript(script, callbackName);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
     };
     
     script.onerror = function() {
-        console.error(`❌ Gagal koneksi hari ${hariKe}`);
-        
-        // Restore tombol
-        btnSelesai.disabled = originalDisabled;
-        btnSelesai.innerHTML = originalHTML;
-        
+        btnSelesai.disabled = false;
+        btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai';
         showMessage('error', 'Gagal terhubung ke server', 5000);
         
-        cleanUpScript(script, callbackName);
+        if (script.parentNode) script.parentNode.removeChild(script);
+        delete window[callbackName];
     };
     
     document.body.appendChild(script);
