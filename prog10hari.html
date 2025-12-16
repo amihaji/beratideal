@@ -1063,7 +1063,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzTKUyDCjwMpRKO16FPQv1-dVCWOgf_18ZBOsC5wZonxPtAT-8OXOGoECZJ5KlbZ1yGFQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxctR4UaEMeDanw7bcCL8HW17CYqXrseEyQRDDeGX7BXwlOHODyvqJ-GwzQpLQqHCSTgw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -6369,95 +6369,147 @@ function simpanAsupanAir(hariKe) {
     script.src = `${URL_PROGRAM_APP}?${params}`;
     
     window[callbackName] = function(response) {
-        console.log('📥 Response simpanAsupanAir (RAW):', response, 'Type:', typeof response);
-        
-        let isSuccess = false;
-        let message = '';
-        
-        // 1. Handle jika server mengembalikan JSON object yang valid {success: true}
-        if (response && typeof response === 'object' && response.success === true) {
-            isSuccess = true;
-            message = response.message || 'Data tersimpan';
-        }
-        // 2. Handle jika server mengembalikan string JSON "OK" (dengan tanda petik)
-        else if (response === '"OK"') {
+      console.log('📥 RAW Response from server:', response);
+      console.log('🔍 Response Type:', typeof response);
+      console.log('🔍 Is response === "OK"?', response === 'OK');
+      console.log('🔍 Is response === \'"OK"\'?', response === '"OK"');
+      
+      // ======================================================
+      // ✅ PERBAIKAN: HANDLE SEMUA JENIS RESPONSE DENGAN AMAN
+      // ======================================================
+      
+      let isSuccess = false;
+      let message = '';
+      let responseData = null;
+      
+      // SCENARIO 1: Response adalah string JSON yang valid (misal: "OK" dengan tanda petik)
+      if (typeof response === 'string' && response.startsWith('"') && response.endsWith('"')) {
+        try {
+          // Coba parse string JSON
+          const parsed = JSON.parse(response);
+          if (parsed === 'OK' || parsed.success === true) {
             isSuccess = true;
             message = 'OK';
-        }
-        // 3. Handle jika server mengembalikan string mentah OK (tanpa petik - penyebab error)
-        else if (typeof response === 'string' && response.includes('OK')) {
-            console.warn('⚠️ Server returned raw string "OK". Fixing...');
+          } else if (typeof parsed === 'object' && parsed.success === true) {
             isSuccess = true;
-            message = 'OK';
+            message = parsed.message || 'Success';
+            responseData = parsed.data;
+          }
+        } catch (parseError) {
+          console.warn('⚠️ Failed to parse string as JSON:', parseError);
         }
-        // 4. Handle error lainnya
-        else {
-            message = (response && response.message) || 'Terjadi kesalahan yang tidak diketahui';
-        }
-        
-        // Lanjutkan dengan logika UI berdasarkan isSuccess
-        if (isSuccess) {
-            // 1. Simpan di localStorage
-            localStorage.setItem('asupanAir_hari_' + hariKe, asupanAir);
-            localStorage.setItem('water_saved_hari_' + hariKe, 'true');
-            
-            // 2. Update tombol Simpan
-            btnSimpan.disabled = true;
-            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
-            btnSimpan.classList.remove('btn-primary');
-            btnSimpan.classList.add('btn-outline-success');
-            
-            // 3. Aktifkan tombol Selesai
-            const btnSelesaiId = 'btnSelesaiWater' + hariKe;
-            const btnSelesai = document.getElementById(btnSelesaiId);
-            if (btnSelesai) {
-                btnSelesai.disabled = false;
-                btnSelesai.classList.remove('btn-secondary');
-                btnSelesai.classList.add('btn-success');
-            }
-            
-            // 4. Update status display
-            const statusDiv = document.getElementById('waterStatus' + hariKe);
-            if (statusDiv) {
-                statusDiv.innerHTML = `
-                    <div class="alert alert-success alert-sm p-2 mb-0">
-                        <i class="fas fa-check-circle"></i> 
-                        Pilihan tersimpan: <strong>${asupanAir}</strong>
-                    </div>
-                `;
-            }
-            
-            // 5. Tampilkan notifikasi sukses
-            showMessage('success', `Pilihan asupan air hari ${hariKe} tersimpan`, 2000);
-            
-            console.log('✅ Simpan berhasil:', message);
+      }
+      
+      // SCENARIO 2: Response adalah object JSON
+      else if (typeof response === 'object' && response !== null) {
+        if (response.success === true) {
+          isSuccess = true;
+          message = response.message || 'Success';
+          responseData = response.data;
         } else {
-            // Jika gagal, restore tombol ke state semula
-            btnSimpan.disabled = originalDisabled;
-            btnSimpan.innerHTML = originalHTML;
-            btnSimpan.classList.remove('btn-outline-success');
-            btnSimpan.classList.add('btn-primary');
-            
-            showMessage('error', 'Gagal menyimpan: ' + message, 4000);
-            console.error('❌ Simpan gagal:', message);
+          message = response.message || 'Unknown error';
+        }
+      }
+      
+      // SCENARIO 3: Response adalah string mentah "OK" (TANPA tanda petik - INI ERROR!)
+      else if (typeof response === 'string' && response === 'OK') {
+        console.error('❌❌❌ SERVER ERROR: Received raw string "OK" without quotes!');
+        console.error('❌ This causes "OK is not defined" error in browser');
+        
+        // Force success but log warning
+        isSuccess = true;
+        message = 'OK (raw string - FIX SERVER SIDE!)';
+        
+        showMessage('warning', 'Server response format needs fixing', 3000);
+      }
+      
+      // SCENARIO 4: Response adalah string lainnya
+      else if (typeof response === 'string') {
+        message = response;
+        console.log('ℹ️ Server returned string:', response);
+      }
+      
+      // SCENARIO 5: Response tidak valid
+      else {
+        message = 'Invalid response from server';
+        console.error('❌ Invalid response type:', typeof response, response);
+      }
+      
+      // ======================================================
+      // ✅ LOGIKA UI BERDASARKAN STATUS
+      // ======================================================
+      
+      if (isSuccess) {
+        console.log('✅ Operation SUCCESS:', message);
+        
+        // 1. Update tombol Simpan
+        btnSimpan.disabled = true;
+        btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
+        btnSimpan.classList.remove('btn-primary');
+        btnSimpan.classList.add('btn-outline-success');
+        
+        // 2. Aktifkan tombol Selesai
+        const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
+        if (btnSelesai) {
+          btnSelesai.disabled = false;
+          btnSelesai.classList.remove('btn-secondary');
+          btnSelesai.classList.add('btn-success');
         }
         
-        // Cleanup
-        cleanUpScript(script, callbackName);
-    };
-    
-    script.onerror = function() {
-        console.error('❌ Gagal memuat script');
+        // 3. Update status display
+        const statusDiv = document.getElementById('waterStatus' + hariKe);
+        if (statusDiv) {
+          const asupanAir = selectedRadio ? selectedRadio.value : '';
+          statusDiv.innerHTML = `
+            <div class="alert alert-success alert-sm p-2 mb-0">
+              <i class="fas fa-check-circle"></i> 
+              Pilihan tersimpan: <strong>${asupanAir}</strong>
+            </div>
+          `;
+        }
+        
+        // 4. Simpan di localStorage
+        if (selectedRadio) {
+          localStorage.setItem('asupanAir_hari_' + hariKe, selectedRadio.value);
+        }
+        localStorage.setItem('water_saved_hari_' + hariKe, 'true');
+        
+        // 5. Show success message
+        showMessage('success', 'Data berhasil disimpan', 2000);
+        
+      } else {
+        console.error('❌ Operation FAILED:', message);
         
         // Restore tombol ke state semula
         btnSimpan.disabled = originalDisabled;
         btnSimpan.innerHTML = originalHTML;
         
-        showMessage('error', 'Gagal terhubung ke server', 4000);
-        
-        cleanUpScript(script, callbackName);
+        // Show error message
+        showMessage('error', 'Gagal: ' + message, 4000);
+      }
+      
+      // ✅ CLEANUP
+      // Hapus script element
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      
+      // Hapus callback function dari window object
+      if (window[callbackName]) {
+        delete window[callbackName];
+      }
+      
+      console.log('🧹 Cleanup completed');
     };
     
+    script.onerror = function() {
+        console.error('❌ Gagal memuat script');
+        // Restore tombol ke state semula
+        btnSimpan.disabled = originalDisabled;
+        btnSimpan.innerHTML = originalHTML;
+        showMessage('error', 'Gagal terhubung ke server', 4000);
+        cleanUpScript(script, callbackName);
+    };
     document.body.appendChild(script);
 }
 
@@ -7655,42 +7707,6 @@ function showWaterReminderForm(hariKe) {
     setTimeout(() => {
         //setupWaterReminderEvents(hariKe);
     }, 500);
-}
-
-function testWaterReminder() {
-  const userId = localStorage.getItem('userId');
-  const hariKe = 1;
-  const asupanAir = "2 ltr";
-  
-  console.log('🧪 Testing Water Reminder Data Structure:');
-  
-  // Buat data seperti yang dikirim oleh fungsi asli
-  const testData = {
-    action: 'updateWaterReminder',
-    userId: userId,
-    namaUser: 'Test User',
-    hariKe: hariKe,
-    asupanAir: asupanAir,
-    callback: 'test_callback_' + Date.now()
-  };
-  
-  console.log('📤 Data yang akan dikirim:', testData);
-  
-  // Test langsung ke server
-  const testUrl = `${URL_PROGRAM_APP}?action=updateWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=Test%20User&hariKe=${hariKe}&asupanAir=${encodeURIComponent(asupanAir)}&callback=test123`;
-  console.log('🔗 Test URL:', testUrl);
-  
-  // Jalankan test
-  const script = document.createElement('script');
-  script.src = testUrl;
-  
-  window.test123 = function(response) {
-    console.log('📥 Response from test:', response);
-    document.body.removeChild(script);
-    delete window.test123;
-  };
-  
-  document.body.appendChild(script);
 }
 
 </script>
