@@ -1063,7 +1063,7 @@ body { background-color: #f8f9fa; }
 // *************************                           
 
 // Deklarasi Global
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxoUeXJsR_3Hygb_L-KeHkw7KP-0A8k5c17XhjzdZG2iTcg8XNaWQKvkHcyIHSRlVfSNA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwfPV_IcoM8396L35-lKN9k2GhqO3_MXRe8L3coYYQVUQkkILF5UVnK39naxzDwVDhn8A/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /******************
@@ -7528,6 +7528,58 @@ function showWaterReminderForm(hariKe) {
     setTimeout(() => {
         //setupWaterReminderEvents(hariKe);
     }, 500);
+}
+
+/* =====================================================
+   KIRIM DATA KE GOOGLE APPS SCRIPT (JSONP)
+   ===================================================== */
+function kirimKeServer(data, callback = null) {
+
+  if (!data || !data.action) {
+    console.error('❌ Data atau action tidak valid:', data);
+    return;
+  }
+
+  // const URL_PROGRAM_APP  = 'https://script.google.com/macros/s/AKfycbz9p_96OA6GD27ofLcXVs4o_XCvIyjuDrKwSw6InqJpkLEojY6zvYmggCOPN9pU3-7yVA/exec';
+
+  // Buat callback unik (JSONP)
+  const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  data.callback = callbackName;
+
+  // Bangun query string
+  const params = Object.keys(data)
+    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+    .join('&');
+
+  const script = document.createElement('script');
+  script.src = `${URL_PROGRAM_APP }?${params}`;
+
+  console.log('🚀 Mengirim request ke server:', script.src);
+
+  // JSONP callback
+  window[callbackName] = function (response) {
+    console.log('📥 Respon dari server:', response);
+
+    if (typeof callback === 'function') {
+      callback(response);
+    }
+
+    // Cleanup
+    delete window[callbackName];
+    document.body.removeChild(script);
+  };
+
+  // Error handling
+  script.onerror = function () {
+    console.error('❌ Gagal terhubung ke server');
+    if (typeof callback === 'function') {
+      callback({ status: 'error', message: 'Gagal terhubung ke server' });
+    }
+    delete window[callbackName];
+    document.body.removeChild(script);
+  };
+
+  document.body.appendChild(script);
 }
 
 </script>
