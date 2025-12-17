@@ -4058,6 +4058,48 @@ function setupPerkenalanCompletion() {
   });
 }
 
+/************************************
+* Simpan materi untuk hari tertentu *
+************************************/
+async function simpanMateri(hariKe) {
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    console.log('🔧 simpanMateri called:', { userId, namaUser, hariKe });
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'updateMateri',
+                userId: userId,
+                namaUser: namaUser,
+                hariKe: hariKe
+            })
+        });
+
+        const result = await response.text();
+        console.log('📥 Response:', result);
+        
+        if (result === "OK") {
+            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
+            // Simpan status dengan user prefix
+            saveCompletionStatus('materi', hariKe, 'completed');
+            // Update UI
+            updateMateriCompletionUI(hariKe);
+        } else {
+            showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+        }
+    } catch (error) {
+        console.error('❌ Fetch error:', error);
+        // showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
+    }
+}
 
 
 // ******************************************
