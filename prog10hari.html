@@ -2805,6 +2805,33 @@ function checkMateriStatus(hariKe) {
     }
 }
 
+/****************************************
+* Update UI materi dengan tanda centang *
+*****************************************/
+function updateMateriCompletionUI(hariKe) {
+    // Update link materi di menu
+    const materiLink = document.getElementById(`materiLink${hariKe}`);
+    if (materiLink) {
+        // Tambahkan tanda centang tanpa mengubah teks utama
+        const currentText = materiLink.innerHTML;
+        if (!currentText.includes('✓')) {
+            //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
+            materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
+            materiLink.style.color = '#28a745';
+            materiLink.style.fontWeight = 'bold';
+        }
+    }
+    
+    // Juga update tombol centang di video player (jika ada)
+    const completeBtn = document.querySelector(`#videoContainerPertemuan${hariKe} .complete-btn`);
+    if (completeBtn) {
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+        completeBtn.disabled = true;
+    }
+}
+
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
 ********************************************/
