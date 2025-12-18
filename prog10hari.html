@@ -2825,20 +2825,32 @@ function checkMateriStatus(hariKe) {
 * Update UI materi dengan tanda centang *
 *****************************************/
 function updateMateriCompletionUI(hariKe) {
-  const status = getCompletionStatus('materi', hariKe);
-  if (status !== 'completed') return;
-  // 1️⃣ Disable tombol ✓ video saja
-  const section = document.getElementById(`materiContent${hariKe}`);
-  if (section) {
-    const btn = section.querySelector('.btn-check, a, button');
-    if (btn) {
+  console.log(`🔄 Updating Materi Completion UI for day ${hariKe}`);
+  //  1️⃣ Disable HANYA tombol centang (✓) video materi
+
+  // Container materi hari ke-n
+  const container = document.getElementById(`materiContent${hariKe}`);
+  if (!container) return;
+
+  // Cari tombol / link centang (biasanya tombol selesai video)
+  const actionButtons = container.querySelectorAll('button, a');
+  actionButtons.forEach(btn => {
+    // Hanya disable tombol aksi, bukan link video
+    if (
+      btn.textContent.includes('✓') ||
+      btn.classList.contains('btn-check') ||
+      btn.classList.contains('btn-selesai')
+    ) {
       btn.style.pointerEvents = 'none';
       btn.style.opacity = '0.5';
+      btn.classList.add('disabled');
     }
-  }
-  // 2️⃣ Tandai submenu
-  tandaiSubmenuSelesai(hariKe, 'Materi Hari');
+  });
+  //   2️⃣ Update submenu → icon centang BULAT hijau
+  updateSubmenuLinkUI(hariKe, 'materi');
+  console.log(`✅ Materi Hari ${hariKe} UI updated successfully`);
 }
+
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
