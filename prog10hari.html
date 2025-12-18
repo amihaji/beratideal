@@ -6093,18 +6093,15 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     setTimeout(() => {
         console.log('🔧 Setup water buttons untuk hari', hariKe);
         setupWaterButtons(hariKe); // ⬅️ INI YANG HARUS DIPANGGIL
-        loadSavedWaterData(hariKe);
-        
-        //console.log(`✅ Water form day ${hariKe} generated with event listeners`);
+        //loadSavedWaterData(hariKe);
     }, 100);
     
     return wrapper;
 }
 
-/**
+/*********************************************************
  * LOAD SAVED STATUS - Dipanggil saat buka water reminder
- * @param {number} hariKe - Nomor hari
- */
+ ********************************************************/
 function loadWaterReminderStatus(hariKe) {
     console.log(`💧 Load status water hari ${hariKe}`);
     
@@ -6176,10 +6173,9 @@ function loadWaterReminderStatus(hariKe) {
     }
 }
 
-/**
+/**************************************************
  * BUKA WATER REMINDER SUBMENU
- * @param {number} hariKe - Nomor hari (1-10)
- */
+ *************************************************/
 function waterReminder(hariKe) {
     console.log(`💧 Buka water reminder hari ${hariKe}`);
     
@@ -6209,10 +6205,9 @@ function waterReminder(hariKe) {
     }
 }
 
-/**
+/**************************************************
  * GENERATE RADIO BUTTONS UNTUK PILIHAN AIR MINUM
- * @param {number} hariKe - Nomor hari
- */
+ *************************************************/
 function generateWaterRadioButtons(hariKe) {
     console.log(`💧 Generate radio buttons hari ${hariKe}`);
     
@@ -6289,11 +6284,10 @@ function generateWaterRadioButtons(hariKe) {
     console.log(`✅ Radio buttons hari ${hariKe} generated`);
 }
 
-/* =================================================
-   AMBIL NILAI WATER REMINDER (HARI KE-x)
-   ================================================= */
+/********************************************
+ *  AMBIL NILAI WATER REMINDER (HARI KE-x)
+ *******************************************/
 function getWaterHari(hariKe) {
-
   const container = document.getElementById('waterReminderContent' + hariKe);
   if (!container) {
     console.warn('❌ Container water tidak ditemukan hari', hariKe);
@@ -6301,20 +6295,18 @@ function getWaterHari(hariKe) {
   }
 
   const radios = container.querySelectorAll('input[type="radio"]');
-
   for (let i = 0; i < radios.length; i++) {
     if (radios[i].checked) {
       return radios[i].value;
     }
   }
-
   return '';
 }
 
 
-/* =================================================
-   ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
-   ================================================= */
+/**************************************************
+ * ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
+ ************************************************/
 function setWaterComponentsDisabled(hariKe, isDisabled) {
 
   // Radio button
@@ -6331,10 +6323,10 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
 }
 
 
-/**
+/*******************************************
  * ENABLE TOMBOL SIMPAN SAAT RADIO DIPILIH
  * @param {number} hariKe - Nomor hari
- */
+ ******************************************/
 function enableWaterSaveButton(hariKe) {
     const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
     if (btnSimpan) {
@@ -6342,9 +6334,9 @@ function enableWaterSaveButton(hariKe) {
     }
 }
 
-/* =====================================
-   SIMPAN WATER REMINDER (MANDIRI)
-   ===================================== */
+/**************************************
+*  SIMPAN WATER REMINDER (MANDIRI)
+***************************************/
 function simpanWaterReminder(hariKe) {
 
   const water = getWaterHari(hariKe);
@@ -6366,9 +6358,9 @@ function simpanWaterReminder(hariKe) {
   showMessage('success', 'Water Reminder berhasil disimpan', 2000);
 }
   
-/* =====================================
-   SIMPAN ASUPAN AIR (MANDIRI)
-   ===================================== */
+/*******************************
+*  SIMPAN ASUPAN AIR (MANDIRI)
+********************************/
 function simpanAsupanAir(hariKe) {
   const asupanAir = getWaterHari(hariKe);
 
@@ -6393,7 +6385,11 @@ function simpanAsupanAir(hariKe) {
   showMessage('success', 'Asupan air berhasil disimpan', 2000);
 }
 
-// Fungsi helper untuk cleanup script
+/***************************************************
+ * FUNGSI HELPER UNTUK CLEANUP SCRIPT
+ * @param {object} script - Objek script DOM
+ * @param {string} callbackName - Nama callback
+ ***************************************************/
 function cleanUpScript(script, callbackName) {
     try {
         if (script && script.parentNode) {
@@ -6406,10 +6402,11 @@ function cleanUpScript(script, callbackName) {
         console.error('Error cleanup script:', e);
     }
 }
-/**
+
+/***************************************************
  * TANDAI WATER REMINDER SELESAI (MANDIRI)
  * @param {number} hariKe - Nomor hari
- */
+ ***************************************************/
 function selesaiWater(hariKe) {
 
   const data = {
@@ -6438,13 +6435,12 @@ function selesaiWater(hariKe) {
 }
 
 
-/* =====================================================
-   TANDAI SUBMENU SELESAI (GENERIC & REUSABLE)
-   =====================================================
-   @param {number} hariKe           - Hari ke (1–10)
-   @param {string} submenuKeyword  - Kata kunci submenu
-     Contoh: 'Water Reminder','Materi', 'Meal Plan', 'Workout'
-*/
+/***************************************************
+ * TANDAI SUBMENU SELESAI (GENERIC & REUSABLE)
+ * @param {number} hariKe - Nomor hari
+ * @param {string} submenuKeyword - Kata kunci submenu
+ *   Contoh: 'Water Reminder','Materi', 'Meal Plan', 'Workout'
+ ***************************************************/
 function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
   if (!hariKe || !submenuKeyword) return;
   const menuItems = document.querySelectorAll('.menu-item');
@@ -6486,12 +6482,11 @@ function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
   });
 }
 
-/* =====================================================
-   AMBIL CONTAINER SUBMENU BERDASARKAN HARI
-   =====================================================
-   @param {number} hariKe
-   @param {string} prefix bisa : materiContent ,mealPlanContent, workoutContent, dst
-*/
+/***************************************************
+ * AMBIL CONTAINER SUBMENU BERDASARKAN HARI
+ * @param {number} hariKe - Nomor hari
+ * @param {string} prefix - Prefix container
+ ***************************************************/
 function getSubmenuContainer(hariKe, prefix) {
   if (!prefix) return null;
   return hariKe != null
@@ -6499,13 +6494,12 @@ function getSubmenuContainer(hariKe, prefix) {
     : document.getElementById(prefix);
 }
 
-/* =====================================================
-   ENABLE / DISABLE SEMUA KOMPONEN DI SUBMENU
-   =====================================================
-   @param {number} hariKe
-   @param {string} containerPrefix
-   @param {boolean} disabled
-*/
+/***************************************************
+ * ENABLE / DISABLE SEMUA KOMPONEN DI SUBMENU
+ * @param {number} hariKe - Nomor hari
+ * @param {string} containerPrefix - Prefix container
+ * @param {boolean} disabled - Apakah disabled (default: true)
+ ***************************************************/
 function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
   const container = getSubmenuContainer(hariKe, containerPrefix);
   if (!container) return;
@@ -6520,10 +6514,10 @@ function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
 }
 
 
-/**
+/***************************************************
  * SETUP RADIO BUTTONS UNTUK WATER REMINDER
  * @param {number} hariKe - Nomor hari
- */
+ ***************************************************/
 function setupWaterRadioButtons(hariKe) {
     const radioName = 'asupanAir' + hariKe;
     const radios = document.querySelectorAll(`input[name="${radioName}"]`);
@@ -6543,11 +6537,10 @@ function setupWaterRadioButtons(hariKe) {
         };
     });
 }
-
-/**
+/***************************************************
  * CEK STATUS WATER REMINDER
  * @param {number} hariKe - Nomor hari
- */
+ ***************************************************/
 function checkWaterStatus(hariKe) {
   const saved = localStorage.getItem('water_saved_hari_' + hariKe);
   const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
@@ -6559,10 +6552,10 @@ function checkWaterStatus(hariKe) {
   }
 }
 
-/**
+/***************************************************
  * LOAD DATA YANG SUDAH DISIMPAN
  * @param {number} hariKe - Nomor hari
- */
+ ***************************************************/
 function loadWaterReminderData(hariKe) {
     console.log(`💾 Load water data hari ${hariKe}`);
     
@@ -6642,6 +6635,10 @@ function loadWaterReminderData(hariKe) {
     }
 }
 
+/***************************************************
+ * Selesai WATER REMINDER UNTUK HARI TERTENTU
+ * @param {number} hariKe - Nomor hari
+ ***************************************************/
 function selesaiWaterReminder(hariKe) {
     console.log(`✅ selesaiWaterReminder() untuk hari: ${hariKe}`);
     
@@ -6800,11 +6797,11 @@ function updateWaterMenuIcon(hariKe) {
     }
 }
 
-/**
+/***************************************************
  * UPDATE PROGRESS COUNTER DI DASHBOARD
  * @param {string} type - Jenis progress ('water', 'meal', 'workout', dll)
  * @param {number} hariKe - Nomor hari
- */
+ ***************************************************/
 function updateProgressCounter(type, hariKe) {
   // Implementasi sesuai kebutuhan dashboard Anda
   console.log(`📊 Progress ${type} hari ${hariKe} diupdate`);
@@ -6816,10 +6813,10 @@ function updateProgressCounter(type, hariKe) {
   }
 }
 
-/**
+/***************************************************
  * GET HARI AKTIF
  * @returns {number} - Nomor hari aktif
- */
+ ***************************************************/
 function getHariAktif() {
   // Cek dari URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -6840,11 +6837,11 @@ function getHariAktif() {
   return parseInt(hariKe);
 }
 
-/**
+/***************************************************
  * WATER REMINDER UNTUK MODUL 2-10
  * @param {number} modul - Nomor modul (2-10)
  * @param {number} hariKe - Nomor hari dalam modul
- */
+ ***************************************************/
 function waterReminderModul(modul, hariKe) {
   console.log(`💧 Water Reminder - Modul ${modul}, Hari ${hariKe}`);
   
@@ -6944,11 +6941,11 @@ function setupWaterButtons(hariKe) {
   };
 }
 
-/**
+/***************************************************
  * SIMPAN ASUPAN AIR UNTUK MODUL 2-10
  * @param {number} modul - Nomor modul (2-10)
  * @param {number} hariKe - Nomor hari dalam modul (1-10)
- */
+ ***************************************************/
 function simpanWaterReminderModul(modul, hariKe) {
   console.log(`💧 simpanWaterReminderModul() - Modul ${modul}, Hari ${hariKe}`);
   
@@ -7111,12 +7108,12 @@ function simpanWaterReminderModul(modul, hariKe) {
   document.body.appendChild(script);
 }
 
-/**
+/***************************************
  * UPDATE PROGRESS TRACKER UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {string} type - Jenis progress ('water_saved', 'water_completed', dll)
  * @param {number} hariKe - Nomor hari
- */
+ ****************************************/
 function updateModulProgress(modul, type, hariKe) {
   console.log(`📊 Update progress M${modul}: ${type} hari ${hariKe}`);
   
@@ -7146,11 +7143,11 @@ function updateModulProgress(modul, type, hariKe) {
   updateModulProgressUI(modul, progress);
 }
 
-/**
+/***************************************
  * UPDATE PROGRESS UI UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {object} progress - Data progress
- */
+ ****************************************/
 function updateModulProgressUI(modul, progress) {
   // Cari progress bar untuk modul ini
   const progressBarId = `progressBarModul${modul}`;
@@ -7175,11 +7172,11 @@ function updateModulProgressUI(modul, progress) {
   }
 }
 
-/**
+/***************************************
  * LOAD SAVED DATA UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- */
+ ****************************************/
 function loadSavedWaterDataModul(modul, hariKe) {
   console.log(`💾 Load saved water data M${modul}D${hariKe}`);
   
@@ -7263,11 +7260,11 @@ function loadSavedWaterDataModul(modul, hariKe) {
   }
 }
 
-/**
+/***************************************
  * UPDATE MENU ICON UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- */
+ ****************************************/
 function updateWaterMenuIconModul(modul, hariKe) {
   console.log(`🎯 Update menu icon M${modul}D${hariKe}`);
   
@@ -7303,11 +7300,11 @@ function updateWaterMenuIconModul(modul, hariKe) {
   }
 }
 
-/**
+/***************************************
  * CHECK STATUS UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- */
+ ****************************************/
 function checkWaterStatusModul(modul, hariKe) {
   const prefix = `M${modul}D${hariKe}`;
   const savedKey = `water_M${modul}_D${hariKe}_saved`;
