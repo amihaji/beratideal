@@ -2421,7 +2421,7 @@ function updateSubmenuLinkUI(hariKe, submenuType) {
     },
     'mealplan': {
       selector: `[onclick*="uploadMealPlan(${hariKe})"]`,
-      icon: 'fas fa-utensils', 
+      icon: 'fas fa-utensils',
       text: `${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)}`
     },
     'workout': {
@@ -2443,34 +2443,59 @@ function updateSubmenuLinkUI(hariKe, submenuType) {
       selector: `[onclick*="dataTracking(${hariKe})"]`,
       icon: 'fas fa-user-friends',
       text: `${hariKe}.6 Data Tracking - Hari ${getDayName(hariKe)}`
+    },
+    'perkenalan': {
+      selector: `[onclick*="selesaikanPerkenalan"]`,
+      icon: 'fas fa-info-circle',
+      text: `Selesai Perkenalan`
     }
   };
   
   const config = linkConfigs[submenuType];
   if (!config) return;
-  
-  // Cari semua link yang sesuai
+
   const links = document.querySelectorAll(config.selector);
-  
+  if (!links.length) return;
+
   links.forEach(link => {
-    // Update teks dengan tanda centang
-    const currentText = link.innerHTML;
-    if (!currentText.includes('✓')) {
-      link.innerHTML = `<i class="${config.icon}"></i>${config.text} ✓`;
-      link.style.color = '#666666';
-      link.style.fontWeight = 'bold';
-    }
-    
-    // Update onclick handler untuk tetap bisa akses konten
+
+    // Hindari update berulang
+    if (link.querySelector('.status-done')) return;
+
+    // Reset isi link (tanpa ✓ teks)
+    link.innerHTML = `<i class="${config.icon}"></i> ${config.text}`;
+
+    // Tambahkan icon centang BULAT hijau
+    const checkIcon = document.createElement('i');
+    checkIcon.className = 'fas fa-check-circle status-done';
+    checkIcon.style.color = 'green';
+    checkIcon.style.marginLeft = '6px';
+    checkIcon.style.fontSize = '0.9em';
+
+    link.appendChild(checkIcon);
+
+    // Styling selesai
+    link.style.color = '#666666';
+    link.style.fontWeight = 'bold';
+
+    // Tetap bisa membuka konten (read-only)
     if (submenuType === 'materi') {
-      link.onclick = function(e) {
+      link.onclick = function (e) {
         e.preventDefault();
-        loadVideo('pertemuan' + hariKe, 'youtube', 
-                  'https://www.youtube.com/watch?v=Zg_badTE2Ec', 
-                  this.textContent.trim());
+        loadVideo(
+          'pertemuan' + hariKe,
+          'youtube',
+          'https://www.youtube.com/watch?v=Zg_badTE2Ec',
+          config.text
+        );
+      };
+    } else if (submenuType === 'perkenalan') {
+      link.onclick = function (e) {
+        e.preventDefault();
+        showSubmenuReadOnly('perkenalanContent');
       };
     } else {
-      link.onclick = function(e) {
+      link.onclick = function (e) {
         e.preventDefault();
         showSubmenuReadOnly(`${submenuType}Content${hariKe}`);
       };
@@ -4104,7 +4129,9 @@ async function selesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
   if (!userId) return;
+
   console.log('✅ Menyelesaikan perkenalan');
+
   const response = await fetch(URL_PROGRAM_APP, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -4117,15 +4144,40 @@ async function selesaikanPerkenalan() {
 
   const result = await response.text();
   console.log('📥 Response updatePerkenalan:', result);
+
   if (result && result.includes('OK')) {
-    // simpan status (ini sudah ada di sistem Anda)
-    saveCompletionStatus('perkenalan', 0, 'completed');
-    // UNLOCK modul hari pertama (FUNCTION YANG MEMANG ADA)
+
+    // 🔓 unlock modul hari pertama (function asli Anda)
     unlockModul(1);
-    // UPDATE UI (INI YANG PENTING)
-    updatePerkenalanUI();
+
+    // 🔒 disable tombol aksi perkenalan (PAKAI YANG SUDAH ADA)
+    disableActionButtons('perkenalan', 0);
+
+    // ✅ update tampilan submenu (akan kita revisi icon-nya)
+    updateSubmenuLinkUI('perkenalan', 0);
   }
 }
+
+function disableActionButtons(type, hariKe) {
+  console.log(`🔒 Disabling action buttons for ${type} day ${hariKe}`);
+
+  const containerId =
+    type === 'perkenalan'
+      ? 'perkenalanContent'
+      : `${type}Content${hariKe}`;
+
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // 🔑 TARGET SEMUA TOMBOL AKSI (✓ / Selesai)
+  const buttons = container.querySelectorAll('button, a');
+
+  buttons.forEach(btn => {
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.5';
+  });
+}
+
 
 /************************
 * Cek Status Perkenalan *
