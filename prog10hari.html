@@ -1059,7 +1059,7 @@ body { background-color: #f8f9fa; }
 <script>
 
 // DEKLARASI GLOBAL
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyockd1fyKLlNmRN4D5-MxRG4HyPTZa18EiNDN6kuIXojHkvq5froi__LC0RWg1MXj_MQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwTDPDdrthrYosFVS_0b4bZpssVhZbnn8UWeH-Rz95taiOFWzFe6nvLZIhrRNcKjYuwCQ/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -4119,19 +4119,17 @@ async function simpanMateri(hariKe) {
             saveCompletionStatus('materi', hariKe, 'completed');
             // Update UI
             updateMateriCompletionUI(hariKe);
-        //} else {
-        //    showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+            
+            // 1️⃣ Kunci seluruh submenu Materi hari ini
+            setSubmenuDisabled(hariKe, 'materiContent', true);
+
+            // 2️⃣ Tandai submenu Materi selesai (icon centang bulat hijau)
+            tandaiSubmenuSelesai(hariKe, 'Materi Hari');
         }
     } catch (error) {
         console.error('❌ Fetch error:', error);
-        // showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
     }
 }
-
-
-// ******************************************
-// ***** FUNGSI LAINNYA YANG DIPERLUKAN *****
-// ******************************************
 
 /********************************************
 * Selesaikan perkenalan unlock Hari Pertama *
@@ -4172,20 +4170,26 @@ async function selesaiPerkenalan() {
             }
             localStorage.setItem('progressData', JSON.stringify(progressData));
             localStorage.setItem('perkenalanSelesai', 'true');
-            
-            // 3. UPDATE UI
+          
+            // UPDATE UI
             updatePerkenalanUI();
             
-            // 4. UNLOCK MODUL HARI 1
+            // 1️⃣ Disable seluruh submenu Perkenalan
+            setSubmenuDisabled(null, 'perkenalanContent', true);
+
+            // 2️⃣ Tandai submenu selesai
+            tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
+
+            // UNLOCK MODUL HARI 1
             unlockModul(1);
             
-            // 5. TAMPILKAN PESAN
+            // TAMPILKAN PESAN
             showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
             
-            // 6. CLOSE VIDEO
+            // CLOSE VIDEO
             closeVideo('perkenalan');
             
-            // 7. AUTO-EXPAND MODUL HARI 1
+            // AUTO-EXPAND MODUL HARI 1
             setTimeout(() => {
                 const header = document.querySelector('[data-hari="1"]');
                 if (header && header.classList.contains('collapsed')) {
@@ -4193,12 +4197,12 @@ async function selesaiPerkenalan() {
                 }
             }, 1000);
             
-        } else {
+        // } else {
             showMessage('error', 'Gagal menyimpan: ' + result, 3000, 'perkenalan');
         }
     } catch (error) {
         console.error('❌ Error:', error);
-        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, 'perkenalan');
+        //showMessage('error', 'Gagal terhubung: ' + error.message, 3000, 'perkenalan');
     }
 }
 
@@ -4665,7 +4669,7 @@ async function uploadMealItem(hariKe, mealType) {
             
         } catch (error) {
             console.error('Upload error:', error);
-            showMessage('error', `Gagal upload ${getMealTypeName(mealType)}: ${error.message}`, 3000, `pertemuan${hariKe}`);
+            //showMessage('error', `Gagal upload ${getMealTypeName(mealType)}: ${error.message}`, 3000, `pertemuan${hariKe}`);
         }
     };
     fileInput.click();
@@ -6460,11 +6464,18 @@ function selesaiWater(hariKe) {
 
   kirimKeServer(data);
 
+  // 1️⃣ Disable seluruh isi Water Reminder (termasuk radio)
+  setSubmenuDisabled(hariKe, 'waterReminderContent', true);
+
+  // 2️⃣ Tandai submenu Water selesai
+  tandaiSubmenuSelesai(hariKe, 'Water Reminder');
+
+
   // 🔒 DISABLE semua komponen Water
-  setWaterComponentsDisabled(hariKe, true);
+  //setWaterComponentsDisabled(hariKe, true);
 
   // ✔️ Update menu
-  tandaiWaterSelesai(hariKe);
+  //tandaiWaterSelesai(hariKe);
 
   showMessage('success', 'Water Reminder selesai', 2000);
 }
@@ -6537,17 +6548,20 @@ function getSubmenuContainer(hariKe, prefix) {
    @param {boolean} disabled
 */
 function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
-
   const container = getSubmenuContainer(hariKe, containerPrefix);
   if (!container) return;
 
-  // Disable semua input
-  const inputs = container.querySelectorAll(
-    'input, select, textarea, button'
-  );
+  container.querySelectorAll(
+    'button, input, select, textarea, a'
+  ).forEach(el => {
+    // disable native
+    if ('disabled' in el) {
+      el.disabled = disabled;
+    }
+    // cegah klik / tap (untuk <a>, label, dll)
+    el.style.pointerEvents = disabled ? 'none' : '';
+    el.style.opacity = disabled ? '0.6' : '';
 
-  inputs.forEach(el => {
-    el.disabled = disabled;
   });
 }
 
@@ -6943,6 +6957,9 @@ function setupWaterButtons(hariKe) {
         btnSelesai.disabled = false;
         showMessage('success', 'Asupan air berhasil disimpan', 2000);
         updateWaterSaveUI(hariKe, asupanAir);
+        // ✅ INI TEMPATNYA
+        setSubmenuDisabled(hariKe, 'waterReminderContent', true);
+        tandaiSubmenuSelesai(hariKe, 'Water Reminder');
       } else {
         showMessage('error', 'Gagal menyimpan asupan air', 2000);
       }
