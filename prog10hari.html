@@ -1206,8 +1206,6 @@ function logout() {
     window.location.reload();
 }
 
-// ===== UI GENERIC HELPERS =====
-
 /***************************************************************
    Tandai Submenu Selesai (Generic & Reusable)
    @param {number} hariKe           - Hari ke (1–10)
@@ -6409,14 +6407,12 @@ function cleanUpScript(script, callbackName) {
  * @param {number} hariKe - Nomor hari
  ***************************************************/
 function selesaiWater(hariKe) {
-
   const data = {
     action: 'simpanAir',
     userId: localStorage.getItem('userId'),
     hariKe: hariKe,
     water: 'OK'
   };
-
   kirimKeServer(data);
 
   // 1️⃣ Disable seluruh isi Water Reminder (termasuk radio)
@@ -6424,14 +6420,6 @@ function selesaiWater(hariKe) {
 
   // 2️⃣ Tandai submenu Water selesai
   tandaiSubmenuSelesai(hariKe, 'Water Reminder');
-
-
-  // 🔒 DISABLE semua komponen Water
-  //setWaterComponentsDisabled(hariKe, true);
-
-  // ✔️ Update menu
-  //tandaiWaterSelesai(hariKe);
-
   showMessage('success', 'Water Reminder selesai', 2000);
 }
 
