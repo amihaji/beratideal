@@ -1059,7 +1059,7 @@ body { background-color: #f8f9fa; }
 <script>
 
 // DEKLARASI GLOBAL
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzzWHxfASuYgE6CZqW_zpRbl3p7bikkYz-yPLXTNo67SX8zX2Yy0LnJaGc-vsKwsqIi4Q/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwNyjCrMKsuFDlBmijW-mJxSTCBE3v776QPWk8qk190WUNo6UNcJbSdProEDHDVTjB8dg/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -4086,21 +4086,24 @@ async function simpanMateri(hariKe) {
   }
 
   console.log('🔧 simpanMateri called:', { userId, namaUser, hariKe });
+
   try {
     const response = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         action: 'updateMateri',
-        userId: userId,
-        namaUser: namaUser,
-        hariKe: hariKe
+        userId,
+        namaUser,
+        hariKe
       })
     });
 
     const result = await response.text();
-    console.log('📥 Response:', result);
-    if (result === 'OK') {
+    console.log('📥 Response updateMateri:', result);
+
+    if (result && result.includes('OK')) {
+
       showMessage(
         'success',
         `Materi Hari ${hariKe} berhasil disimpan!`,
@@ -4108,13 +4111,13 @@ async function simpanMateri(hariKe) {
         `pertemuan${hariKe}`
       );
 
-      saveCompletionStatus('materi', hariKe, 'completed');
-      updateMateriCompletionUI(hariKe);
-      // 🔒 KUNCI SUBMENU MATERI
+      // 🔒 Disable submenu materi
       setSubmenuDisabled(hariKe, 'materiContent', true);
-      // ✅ TANDAI SUBMENU
+
+      // ✅ Tandai submenu selesai
       tandaiSubmenuSelesai(hariKe, 'Materi Hari');
     }
+
   } catch (error) {
     console.error('❌ Fetch error:', error);
   }
@@ -4133,27 +4136,36 @@ async function selesaikanPerkenalan() {
   }
 
   console.log('✅ Menyelesaikan perkenalan');
+
   try {
     const response = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         action: 'updatePerkenalan',
-        userId: userId,
-        namaUser: namaUser
+        userId,
+        namaUser
       })
     });
 
     const result = await response.text();
     console.log('📥 Response updatePerkenalan:', result);
 
-    if (result === 'OK') {
+    // 🔑 INI KUNCINYA
+    if (result && result.includes('OK')) {
+
       showMessage('success', 'Perkenalan berhasil diselesaikan', 3000, 'perkenalan');
-      // 🔒 KUNCI UI
+
+      // 🔒 Disable submenu perkenalan
       setSubmenuDisabled(null, 'perkenalanContent', true);
-      // ✅ TANDAI SUBMENU
+
+      // ✅ Tandai submenu selesai
       tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
+
+      // 🔓 UNLOCK Modul Hari Pertama (PAKAI FUNCTION YANG SUDAH ADA)
+      unlockNextModule(1);
     }
+
   } catch (err) {
     console.error('❌ Error perkenalan:', err);
   }
