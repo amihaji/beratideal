@@ -4146,17 +4146,29 @@ async function selesaikanPerkenalan() {
   console.log('📥 Response updatePerkenalan:', result);
 
   if (result && result.includes('OK')) {
-
     // 🔓 unlock modul hari pertama (function asli Anda)
     unlockModul(1);
-
-    // 🔒 disable tombol aksi perkenalan (PAKAI YANG SUDAH ADA)
-    disableActionButtons('perkenalan', 0);
-
+    // 🔒 DISABLE HANYA tombol "Selesai Perkenalan"
+    disableSelesaiPerkenalanButton();
     // ✅ update tampilan submenu (akan kita revisi icon-nya)
     updateSubmenuLinkUI('perkenalan', 0);
   }
 }
+
+function disableSelesaiPerkenalanButton() {
+  const container = document.getElementById('perkenalanContent');
+  if (!container) return;
+  // Cari link dengan teks "Selesai Perkenalan"
+  const links = container.querySelectorAll('a.menu-item');
+  links.forEach(link => {
+    if (link.textContent.trim().includes('Selesai Perkenalan')) {
+      link.style.pointerEvents = 'none';
+      link.style.opacity = '0.5';
+      link.classList.add('disabled');
+    }
+  });
+}
+
 
 function disableActionButtons(type, hariKe) {
   console.log(`🔒 Disabling action buttons for ${type} day ${hariKe}`);
@@ -4177,7 +4189,6 @@ function disableActionButtons(type, hariKe) {
     btn.style.opacity = '0.5';
   });
 }
-
 
 /************************
 * Cek Status Perkenalan *
