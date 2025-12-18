@@ -1270,6 +1270,19 @@ function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
   });
 }
 
+function disableCentangDiSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+
+  const btn = section.querySelector('a, button');
+  if (btn) {
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.5';
+    btn.classList.add('disabled');
+  }
+}
+
+
 /**************************************************************************
  * Fungsi universal untuk menampilkan pesan
  * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
@@ -1765,35 +1778,25 @@ function lockModul(hariKe) {
 * Update UI Perkenalan lengkap *
 ********************************/
 function updatePerkenalanUI() {
-    console.log('🔄 Updating Perkenalan UI...');
-    
-    // 1. Update link "Selesai Perkenalan"
-    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
-    perkenalanLinks.forEach(link => {
-        if (link.textContent.includes('Selesai Perkenalan')) {
-            const newLink = link.cloneNode(true);
-            newLink.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
-            newLink.style.color = '#666666';
-            newLink.style.fontWeight = 'bold';
-            newLink.style.pointerEvents = 'none';
-            newLink.onclick = null;
-            newLink.href = '#';
-            link.parentNode.replaceChild(newLink, link);
-        }
-    });
-    
-    // 2. Update header perkenalan (jika ada icon)
-    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-    if (perkenalanHeader) {
-        const lockIcon = perkenalanHeader.querySelector('.status-lock, .status-unlock');
-        if (lockIcon) {
-            lockIcon.className = 'status-unlock';
-            lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-            lockIcon.style.color = '#28a745';
-        }
+  console.log('🔄 Updating Perkenalan UI...');
+  const status = getCompletionStatus('perkenalan', 0);
+  if (status === 'completed') {
+    // 1️⃣ Disable tombol ✓ video SAJA
+    const section = document.getElementById('perkenalanContent');
+    if (section) {
+      const btn = section.querySelector('.btn-check, a, button');
+      if (btn) {
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+      }
     }
-    console.log('✅ Perkenalan UI updated');
+    // 2️⃣ Tandai submenu selesai
+    tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
+  }
+
+  console.log('✅ Perkenalan UI updated');
 }
+
 
 function setupAllComponentsInternal() {
     // Submenu triggers
@@ -2798,27 +2801,19 @@ function checkMateriStatus(hariKe) {
 * Update UI materi dengan tanda centang *
 *****************************************/
 function updateMateriCompletionUI(hariKe) {
-    // Update link materi di menu
-    const materiLink = document.getElementById(`materiLink${hariKe}`);
-    if (materiLink) {
-        // Tambahkan tanda centang tanpa mengubah teks utama
-        const currentText = materiLink.innerHTML;
-        if (!currentText.includes('✓')) {
-            //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
-            materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
-            materiLink.style.color = '#28a745';
-            materiLink.style.fontWeight = 'bold';
-        }
+  const status = getCompletionStatus('materi', hariKe);
+  if (status !== 'completed') return;
+  // 1️⃣ Disable tombol ✓ video saja
+  const section = document.getElementById(`materiContent${hariKe}`);
+  if (section) {
+    const btn = section.querySelector('.btn-check, a, button');
+    if (btn) {
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
     }
-    
-    // Juga update tombol centang di video player (jika ada)
-    const completeBtn = document.querySelector(`#videoContainerPertemuan${hariKe} .complete-btn`);
-    if (completeBtn) {
-        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-        completeBtn.classList.remove('btn-success');
-        completeBtn.classList.add('btn-secondary');
-        completeBtn.disabled = true;
-    }
+  }
+  // 2️⃣ Tandai submenu
+  tandaiSubmenuSelesai(hariKe, 'Materi Hari');
 }
 
 /********************************************
@@ -4080,7 +4075,6 @@ function setupPerkenalanCompletion() {
 async function simpanMateri(hariKe) {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
-
   if (!userId) return;
   console.log('🔧 simpanMateri called:', hariKe);
   const response = await fetch(URL_PROGRAM_APP, {
@@ -4098,10 +4092,8 @@ async function simpanMateri(hariKe) {
   console.log('📥 Response updateMateri:', result);
 
   if (result && result.includes('OK')) {
-    // ✅ Disable tombol ✓ saja
-    disableCheckButton(`materiContent${hariKe}`);
-    // ✅ Tanda centang submenu
-    tandaiSubmenuSelesai(hariKe, 'Materi Hari');
+    saveCompletionStatus('materi', hariKe, 'completed');
+    updateMateriCompletionUI(hariKe);
   }
 }
 
@@ -4111,7 +4103,6 @@ async function simpanMateri(hariKe) {
 async function selesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
-
   if (!userId) return;
   console.log('✅ Menyelesaikan perkenalan');
   const response = await fetch(URL_PROGRAM_APP, {
@@ -4127,16 +4118,14 @@ async function selesaikanPerkenalan() {
   const result = await response.text();
   console.log('📥 Response updatePerkenalan:', result);
   if (result && result.includes('OK')) {
-    // 🔓 Unlock modul hari pertama (sudah benar)
+    // simpan status (ini sudah ada di sistem Anda)
+    saveCompletionStatus('perkenalan', 0, 'completed');
+    // UNLOCK modul hari pertama (FUNCTION YANG MEMANG ADA)
     unlockModul(1);
-    // ❌ JANGAN disable submenu
-    // ✅ Disable tombol ✓ saja
-    disableCheckButton('perkenalanContent');
-    // ✅ Tanda centang di menu
-    tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
+    // UPDATE UI (INI YANG PENTING)
+    updatePerkenalanUI();
   }
 }
-
 
 /************************
 * Cek Status Perkenalan *
@@ -4144,10 +4133,8 @@ async function selesaikanPerkenalan() {
 function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
-
   const perkenalanSelesai = localStorage.getItem('perkenalanSelesai');
-  
-  if (!perkenalanSelesai) {
+   if (!perkenalanSelesai) {
     // Lock Modul Hari Pertama
     const modulPertamaHeader = document.querySelector('[data-hari="1"]');
     if (modulPertamaHeader) {
