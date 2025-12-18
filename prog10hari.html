@@ -745,7 +745,8 @@ body { background-color: #f8f9fa; }
                 </a>
 
                 <!-- SELESAI MODUL HARI PERTAMA -->
-                <a href="#" class="menu-item" onclick="simpanMateri(1)">
+                <!-- <a href="#" class="menu-item" onclick="simpanMateri(1)">-->
+                <a data-hari="1" onclick="simpanMateri(this.dataset.hari)">✓</a>
                    <i class="fas fa-check-double"></i>Selesai Modul hari Pertama
                 </a> 
               </div>
@@ -1059,7 +1060,7 @@ body { background-color: #f8f9fa; }
 <script>
 
 // DEKLARASI GLOBAL
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwNyjCrMKsuFDlBmijW-mJxSTCBE3v776QPWk8qk190WUNo6UNcJbSdProEDHDVTjB8dg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbysNaqUM4-QWwToRPm5ZeqyYRi4zRT0hh7BonGTd0Ts6y3qsqAZ6HYUQLz6qppbrHBzsw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -4080,46 +4081,27 @@ async function simpanMateri(hariKe) {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
 
-  if (!userId) {
-    showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return;
-  }
+  if (!userId) return;
+  console.log('🔧 simpanMateri called:', hariKe);
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateMateri',
+      userId,
+      namaUser,
+      hariKe
+    })
+  });
 
-  console.log('🔧 simpanMateri called:', { userId, namaUser, hariKe });
+  const result = await response.text();
+  console.log('📥 Response updateMateri:', result);
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updateMateri',
-        userId,
-        namaUser,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Response updateMateri:', result);
-
-    if (result && result.includes('OK')) {
-
-      showMessage(
-        'success',
-        `Materi Hari ${hariKe} berhasil disimpan!`,
-        3000,
-        `pertemuan${hariKe}`
-      );
-
-      // 🔒 Disable submenu materi
-      setSubmenuDisabled(hariKe, 'materiContent', true);
-
-      // ✅ Tandai submenu selesai
-      tandaiSubmenuSelesai(hariKe, 'Materi Hari');
-    }
-
-  } catch (error) {
-    console.error('❌ Fetch error:', error);
+  if (result && result.includes('OK')) {
+    // ✅ Disable tombol ✓ saja
+    disableCheckButton(`materiContent${hariKe}`);
+    // ✅ Tanda centang submenu
+    tandaiSubmenuSelesai(hariKe, 'Materi Hari');
   }
 }
 
@@ -4130,44 +4112,28 @@ async function selesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
 
-  if (!userId) {
-    showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
-    return;
-  }
-
+  if (!userId) return;
   console.log('✅ Menyelesaikan perkenalan');
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updatePerkenalan',
+      userId,
+      namaUser
+    })
+  });
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updatePerkenalan',
-        userId,
-        namaUser
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Response updatePerkenalan:', result);
-
-    // 🔑 INI KUNCINYA
-    if (result && result.includes('OK')) {
-
-      showMessage('success', 'Perkenalan berhasil diselesaikan', 3000, 'perkenalan');
-
-      // 🔒 Disable submenu perkenalan
-      setSubmenuDisabled(null, 'perkenalanContent', true);
-
-      // ✅ Tandai submenu selesai
-      tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
-
-      // 🔓 UNLOCK Modul Hari Pertama (PAKAI FUNCTION YANG SUDAH ADA)
-      unlockModul(1);
-    }
-
-  } catch (err) {
-    console.error('❌ Error perkenalan:', err);
+  const result = await response.text();
+  console.log('📥 Response updatePerkenalan:', result);
+  if (result && result.includes('OK')) {
+    // 🔓 Unlock modul hari pertama (sudah benar)
+    unlockModul(1);
+    // ❌ JANGAN disable submenu
+    // ✅ Disable tombol ✓ saja
+    disableCheckButton('perkenalanContent');
+    // ✅ Tanda centang di menu
+    tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
   }
 }
 
@@ -4197,6 +4163,17 @@ function checkPerkenalanStatus() {
     }
   }
 }
+
+function disableCheckButton(sectionId) {
+  const btn = document.querySelector(
+    `#${sectionId} .btn-check, #${sectionId} .btn-selesai, #${sectionId} a[onclick*="simpan"]`
+  );
+  if (btn) {
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.5';
+  }
+}
+
 
 /*******************************************************
 * Unlock modul berikutnya secara otomatis              * 
@@ -4721,37 +4698,19 @@ function getMealTypeName(mealType) {
 * Selesaikan meal plan untuk hari tertentu dan update sheet *
 *************************************************************/
 async function selesaikanMealPlan(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('error', 'Silahkan login terlebih dahulu', 3000, `mealPlan${hariKe}`);
-    return;
-  }
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateMealPlan',
+      hariKe
+    })
+  });
 
-  console.log('✅ Menyelesaikan meal plan hari:', hariKe);
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'simpanProgram',
-        userId: userId,
-        hariKe: hariKe,
-        mealPlan: 'OK'
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Response meal plan:', result);
-    if (result === 'OK') {
-      showMessage( 'success', `Meal Plan Hari ${hariKe} selesai`, 3000, `mealPlan${hariKe}` );
-      // 🔒 KUNCI SUBMENU MEAL PLAN
-      setSubmenuDisabled(hariKe, 'mealPlanContent', true);
-      // ✅ TANDAI SUBMENU
-      tandaiSubmenuSelesai(hariKe, 'Meal Plan');
-    }
-
-  } catch (err) {
-    console.error('❌ Error meal plan:', err);
+  const result = await response.text();
+  if (result && result.includes('OK')) {
+    disableCheckButton(`mealPlanContent${hariKe}`);
+    tandaiSubmenuSelesai(hariKe, 'Meal Plan');
   }
 }
 
