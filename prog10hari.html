@@ -4720,25 +4720,33 @@ function checkAllMealsUploaded(hariKe) {
 /******************************************
 * Process upload untuk meal type tertentu 
 *******************************************/
-async function uploadMealItem(hariKe, mealType) {
+function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
   const fileInput = document.getElementById(`${mealType}File${hariKe}`);
-  if (!fileInput || !fileInput.files.length) return;
-  const file = fileInput.files[0];
-  const result = await uploadToServer(
-    hariKe,
-    mealType,
-    file,
-    file.name
-  );
+  if (!fileInput) return;
 
-  console.log('📦 Parsed upload result:', result);
-  // ⬇⬇⬇ INI YANG SEBELUMNYA ERROR ⬇⬇⬇
-  if (result && result.success) {
-    updateMealInputField(mealType, file.name, hariKe);
-  } else {
-    showMessage('error', 'Upload gagal', 3000);
-  }
+  // 🔥 INI YANG HILANG SEBELUMNYA
+  fileInput.click();
+  // Pastikan onchange hanya dipasang SEKALI
+  fileInput.onchange = async function () {
+    if (!fileInput.files || !fileInput.files.length) return;
+      const file   = fileInput.files[0];
+      const result = await uploadToServer(
+      hariKe,
+      mealType,
+      file,
+      file.name
+    );
+
+    console.log('📦 Parsed upload result:', result);
+    if (result && result.success) {
+      updateMealInputField(mealType, file.name, hariKe);
+    } else {
+      showMessage('error', 'Upload gagal', 3000);
+    }
+    // reset input supaya bisa upload ulang jika perlu
+    fileInput.value = '';
+  };
 }
 
 /*********************************************
