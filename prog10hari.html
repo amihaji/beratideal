@@ -4709,8 +4709,16 @@ function checkAllMealsUploaded(hariKe) {
 async function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
   const fileInput = document.getElementById(`${mealType}File${hariKe}`);
-  
-  if (!fileInput || !fileInput.files.length) return;
+  if (!fileInput) {
+    console.error('❌ File input tidak ditemukan:', `${mealType}File${hariKe}`);
+    return;
+  }
+  // 🔑 JIKA BELUM ADA FILE → BUKA FILE PICKER
+  if (!fileInput.files || fileInput.files.length === 0) {
+    fileInput.click();
+    return;
+  }
+
   const file = fileInput.files[0];
   const response = await uploadToServer(
     hariKe,
@@ -4719,7 +4727,6 @@ async function uploadMealItem(hariKe, mealType) {
     file.name
   );
   console.log('📥 Upload response:', response);
-  // ===== TAMBAHAN UI SAJA (AMAN) =====
   if (response && response.success) {
     updateMealInputField(mealType, file.name, hariKe);
   }
