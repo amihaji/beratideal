@@ -4616,9 +4616,8 @@ function getMealTypeName(mealType) {
 * Upload meal plan untuk hari tertentu di form * 
 ************************************************/
 function uploadMealPlan(hariKe) {
-    console.log('🍽️ Upload meal plan hari:', hariKe);
-    // Tampilkan form upload langsung
-    showMealPlanUploadForm(hariKe);
+  console.log('🍽️ Upload meal plan hari:', hariKe);
+  showMealPlanUploadForm(hariKe);
 }
 
 /***********************************
@@ -4675,26 +4674,14 @@ function createMealPlanFormHTML(hariKe) {
     `;
 }
 
-/************************
-* Tampilkan upload file 
-*************************/
+/******************************************************
+* Hanya menampilkan form meal plan untuk hari tertentu
+*******************************************************/
 function showMealPlanUploadForm(hariKe) {
-    // Sembunyikan semua submenu lainnya
-    document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    // Tampilkan meal plan content
-    const mealPlanContent = document.getElementById(`mealPlanContent${hariKe}`);
-    if (mealPlanContent) {
-        mealPlanContent.style.display = 'block';
-        // Scroll ke form
-        setTimeout(() => { mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        // showMessage('info', `Upload meal plan hari ${hariKe}`, 3000, `pertemuan${hariKe}`);
-    } else {
-        showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
-    }
+  const containerId = `mealPlanContent${hariKe}`;
+  showSubmenu(containerId);
 }
+
 
 /***********************************************************
 * Cek apakah semua meal sudah diupload untuk hari tertentu 
@@ -4716,37 +4703,26 @@ function checkAllMealsUploaded(hariKe) {
   });
 }
 
-
 /******************************************
 * Process upload untuk meal type tertentu 
 *******************************************/
-function uploadMealItem(hariKe, mealType) {
+async function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
   const fileInput = document.getElementById(`${mealType}File${hariKe}`);
-  if (!fileInput) return;
-
-  // 🔥 INI YANG HILANG SEBELUMNYA
-  fileInput.click();
-  // Pastikan onchange hanya dipasang SEKALI
-  fileInput.onchange = async function () {
-    if (!fileInput.files || !fileInput.files.length) return;
-      const file   = fileInput.files[0];
-      const result = await uploadToServer(
-      hariKe,
-      mealType,
-      file,
-      file.name
-    );
-
-    console.log('📦 Parsed upload result:', result);
-    if (result && result.success) {
-      updateMealInputField(mealType, file.name, hariKe);
-    } else {
-      showMessage('error', 'Upload gagal', 3000);
-    }
-    // reset input supaya bisa upload ulang jika perlu
-    fileInput.value = '';
-  };
+  
+  if (!fileInput || !fileInput.files.length) return;
+  const file = fileInput.files[0];
+  const response = await uploadToServer(
+    hariKe,
+    mealType,
+    file,
+    file.name
+  );
+  console.log('📥 Upload response:', response);
+  // ===== TAMBAHAN UI SAJA (AMAN) =====
+  if (response && response.success) {
+    updateMealInputField(mealType, file.name, hariKe);
+  }
 }
 
 /*********************************************
@@ -4759,12 +4735,13 @@ function updateMealInputField(mealType, fileName, hariKe) {
     input.value = fileName;
   }
   if (check) {
-    check.className = 'fas fa-check-circle';
     check.style.display = 'inline-block';
+    check.className = 'fas fa-check-circle';
     check.style.color = 'green';
     check.style.marginLeft = '6px';
   }
 }
+
 
 /**********************************
 * Hanya simpan ke Sheet (kolom Q) 
@@ -4797,21 +4774,24 @@ async function saveMealPlanStatus(hariKe, status) {
 async function selesaikanMealPlan(hariKe) {
   console.log('🍽️ Menyelesaikan Meal Plan hari', hariKe);
   if (!checkAllMealsUploaded(hariKe)) {
-    showMessage(
-      'warning',
-      'Masih ada yang belum diupload meal plannya',
-      3000
-    );
+    showMessage('warning', 'Masih ada yang belum diupload meal plannya', 3000 );
     return;
   }
-  await saveMealPlanStatus(hariKe, 'OK');
+  await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateMealPlan',
+      userId: localStorage.getItem('userId'),
+      namaUser: localStorage.getItem('namaUser'),
+      hariKe: hariKe,
+      status: 'OK'
+    })
+  });
   updateMealPlanCompletionUI(hariKe);
-  showMessage(
-    'success',
-    'Meal Plan berhasil disimpan',
-    3000
-  );
+  showMessage( 'success', 'Meal Plan berhasil disimpan', 3000);
 }
+
 
 /***********************************************
 * Update UI setelah meal plan selesai dengan : 
@@ -4820,41 +4800,13 @@ async function selesaikanMealPlan(hariKe) {
 *  - Update submenu dengan centang bulat hijau
 ************************************************/
 function updateMealPlanCompletionUI(hariKe) {
-  console.log(`🔄 Updating Meal Plan Completion UI for day ${hariKe}`);
-  //  1️⃣ Disable tombol "Selesai Meal Plan"
   const btn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
   if (btn) {
     btn.disabled = true;
     btn.style.pointerEvents = 'none';
     btn.style.opacity = '0.6';
-    btn.classList.add('disabled');
   }
-  // 2️⃣ Disable seluruh input upload Meal
-  const mealTypes = [
-    'sarapan',
-    'cemilanPagi',
-    'makanSiang',
-    'cemilanSore',
-    'makanMalam'
-  ];
-
-  mealTypes.forEach(type => {
-    const input = document.getElementById(`${type}Input${hariKe}`);
-    const uploadBtn = document.getElementById(`${type}UploadBtn${hariKe}`);
-    if (input) {
-      input.disabled = true;
-      input.style.opacity = '0.6';
-    }
-    if (uploadBtn) {
-      uploadBtn.disabled = true;
-      uploadBtn.style.pointerEvents = 'none';
-      uploadBtn.style.opacity = '0.6';
-    }
-  });
-
-  // 3️⃣ Update submenu → centang BULAT hijau
   updateSubmenuLinkUI(hariKe, 'mealplan');
-console.log(`✅ Meal Plan Hari ${hariKe} UI completed`);
 }
 
 /************************
@@ -4871,21 +4823,13 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
   formData.append('mealType', mealType);
   formData.append('file', fileData);
   formData.append('fileName', fileName);
+
   const response = await fetch(URL_PROGRAM_APP, {
     method: 'POST',
     body: formData
   });
-
   const text = await response.text();
-  console.log('📥 Raw upload response:', text);
-
-  // ⬇⬇⬇ PENTING: PARSE & RETURN ⬇⬇⬇
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error('❌ Gagal parse JSON upload response');
-    return null;
-  }
+  return JSON.parse(text);
 }
 
 /*********************************
