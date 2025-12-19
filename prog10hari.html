@@ -4708,17 +4708,24 @@ function checkAllMealsUploaded(hariKe) {
 *******************************************/
 async function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
-  const fileInput = document.getElementById(`${mealType}File${hariKe}`);
-  if (!fileInput) {
-    console.error('❌ File input tidak ditemukan:', `${mealType}File${hariKe}`);
+  // 🔍 Cari input file di dalam mealPlanContent (AMAN, TANPA ASUMSI ID)
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) {
+    console.error('❌ Container meal plan tidak ditemukan');
     return;
   }
-  // 🔑 JIKA BELUM ADA FILE → BUKA FILE PICKER
+  const fileInput = container.querySelector(
+    `input[type="file"][data-meal="${mealType}"]`
+  );
+  if (!fileInput) {
+    console.error(`❌ File input tidak ditemukan untuk mealType: ${mealType}`);
+    return;
+  }
+  // 👉 Jika belum ada file, buka file picker
   if (!fileInput.files || fileInput.files.length === 0) {
     fileInput.click();
     return;
   }
-
   const file = fileInput.files[0];
   const response = await uploadToServer(
     hariKe,
@@ -4731,6 +4738,7 @@ async function uploadMealItem(hariKe, mealType) {
     updateMealInputField(mealType, file.name, hariKe);
   }
 }
+
 
 /*********************************************
 * Update input field setelah upload berhasil 
