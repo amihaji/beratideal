@@ -1061,7 +1061,7 @@ body { background-color: #f8f9fa; }
 <script>
 
 // DEKLARASI GLOBAL
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyMCnGF6wykT2FvjS-LRLLwtzyoXZrS24ogHk7wwAxFMaSMqx3V8GOmcBq6FIRli-nhXw/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyC4mrTzrSgPKuAH2utzfVVePKm_eEnKb2sVlZJBihNh66frQ_BySBLS6Z7KF6zBOXC/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -2410,6 +2410,20 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
 function updateSubmenuLinkUI(hariKe, submenuType) {
+  const link = document.querySelector(`[onclick*="uploadMealPlan(${hariKe})"]`);
+  if (!link || link.dataset.done) return;
+
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-check-circle';
+  icon.style.color = 'green';
+  icon.style.marginLeft = '6px';
+
+  link.appendChild(icon);
+  link.dataset.done = 'true';
+}
+
+
+function BACKUP_updateSubmenuLinkUI(hariKe, submenuType) {
   console.log(`🔄 Updating submenu link UI for ${submenuType} day ${hariKe}`);
   
   const linkConfigs = {
@@ -4637,6 +4651,53 @@ function showMealPlanUploadForm(hariKe) {
 * Process upload untuk meal type tertentu *
 *******************************************/
 async function uploadMealItem(hariKe, mealType) {
+  console.log(`📸 Upload ${mealType} hari ${hariKe}`);
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+
+  fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1];
+
+      const response = await fetch(URL_PROGRAM_APP, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          action: 'uploadMealPlan',
+          userId: localStorage.getItem('userId'),
+          namaUser: localStorage.getItem('namaUser'),
+          hariKe,
+          mealType,
+          file: base64
+        })
+      });
+
+      const text = await response.text();
+      console.log('📥 Upload response:', text);
+
+      const result = parseJSONP(text);
+      if (!result || !result.success) {
+        showMessage('error', 'Upload gagal', 3000, `mealPlanContent${hariKe}`);
+        return;
+      }
+
+      // ✅ UPDATE UI
+      updateMealInputField(mealType, file.name, hariKe);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  fileInput.click();
+}
+
+async function BACKUP_uploadMealItem(hariKe, mealType) {
     console.log(`📸 Upload ${mealType} hari ${hariKe}`);
     
     const fileInput = document.createElement('input');
@@ -4725,6 +4786,23 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
 * Update input field setelah upload berhasil *
 **********************************************/
 function updateMealInputField(mealType, fileName, hariKe) {
+  const input = document.getElementById(`${mealType}${hariKe}`);
+  if (!input) return;
+
+  input.value = fileName;
+  input.style.fontWeight = 'bold';
+
+  if (!input.dataset.done) {
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle';
+    icon.style.color = 'green';
+    icon.style.marginLeft = '8px';
+    input.parentNode.appendChild(icon);
+    input.dataset.done = 'true';
+  }
+}
+
+function BACKUP_updateMealInputField(mealType, fileName, hariKe) {
     // Gunakan ID yang konsisten dengan form
     const inputId = `${mealType}${hariKe}`;
     const inputField = document.getElementById(inputId);
@@ -4759,6 +4837,39 @@ function getMealTypeName(mealType) {
 * Selesaikan meal plan untuk hari tertentu dan update sheet *
 *************************************************************/
 async function selesaikanMealPlan(hariKe) {
+  console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
+
+  if (!checkAllMealsUploaded(hariKe)) {
+    showMessage('warning', 'Masih ada yang belum diupload meal plannya', 3000, `mealPlanContent${hariKe}`);
+    return;
+  }
+
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateMealPlan',
+      userId: localStorage.getItem('userId'),
+      namaUser: localStorage.getItem('namaUser'),
+      hariKe
+    })
+  });
+
+  const text = await response.text();
+  console.log('📥 Update Meal Plan:', text);
+
+  const result = parseJSONP(text);
+  if (result !== 'OK') return;
+
+  // ✅ Disable tombol
+  const btn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  if (btn) btn.disabled = true;
+
+  // ✅ Centang submenu
+  updateSubmenuLinkUI(hariKe, 'mealplan');
+}
+
+async function BACKUP_selesaikanMealPlan(hariKe) {
   const response = await fetch(URL_PROGRAM_APP, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -4779,6 +4890,14 @@ async function selesaikanMealPlan(hariKe) {
 * Cek apakah semua meal sudah diupload untuk hari tertentu *
 ************************************************************/
 function checkAllMealsUploaded(hariKe) {
+  const meals = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+  return meals.every(m => {
+    const el = document.getElementById(`${m}${hariKe}`);
+    return el && el.value.trim() !== '';
+  });
+}
+
+function BACKUP_checkAllMealsUploaded(hariKe) {
     const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
     const allUploaded = mealTypes.every(mealType => {
         const inputField = document.getElementById(`${mealType}${hariKe}`);
@@ -7659,6 +7778,18 @@ function kirimKeServer(data, callback = null) {
   };
 
   document.body.appendChild(script);
+}
+
+function parseJSONP(text) {
+  if (!text) return null;
+  const match = text.match(/\((.*)\)/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[1]);
+  } catch (e) {
+    console.error('❌ Gagal parse JSONP:', e);
+    return null;
+  }
 }
 
 </script>
