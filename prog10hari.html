@@ -4689,54 +4689,58 @@ function showMealPlanUploadForm(hariKe) {
 * - Dipakai oleh selesaikanMealPlan                        
 ************************************************************/
 function checkAllMealsUploaded(hariKe) {
-  const mealTypes = [
-    'sarapan',
-    'cemilanPagi',
-    'makanSiang',
-    'cemilanSore',
-    'makanMalam'
-  ];
+  const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
 
   return mealTypes.every(type => {
-    const input = document.getElementById(`${type}Input${hariKe}`);
+    const input = document.getElementById(`${type}${hariKe}`);
     return input && input.value && input.value.trim() !== '';
   });
 }
+
 
 /******************************************
 * Process upload untuk meal type tertentu 
 *******************************************/
 async function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
-  // 🔍 Cari input file di dalam mealPlanContent (AMAN, TANPA ASUMSI ID)
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
-  if (!container) {
-    console.error('❌ Container meal plan tidak ditemukan');
-    return;
-  }
-  const fileInput = container.querySelector(
-    `input[type="file"][data-meal="${mealType}"]`
-  );
+
+  // 🔹 Buat ID unik file input
+  const fileInputId = `file_${mealType}_${hariKe}`;
+
+  // 🔍 Cari file input, kalau belum ada → buat
+  let fileInput = document.getElementById(fileInputId);
+
   if (!fileInput) {
-    console.error(`❌ File input tidak ditemukan untuk mealType: ${mealType}`);
-    return;
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = fileInputId;
+    fileInput.style.display = 'none';
+
+    // 🔁 Saat file dipilih
+    fileInput.onchange = async function () {
+      if (!this.files || !this.files.length) return;
+
+      const file = this.files[0];
+
+      const response = await uploadToServer(
+        hariKe,
+        mealType,
+        file,
+        file.name
+      );
+
+      console.log('📥 Upload response:', response);
+
+      if (response && response.success) {
+        updateMealInputField(mealType, file.name, hariKe);
+      }
+    };
+
+    document.body.appendChild(fileInput);
   }
-  // 👉 Jika belum ada file, buka file picker
-  if (!fileInput.files || fileInput.files.length === 0) {
-    fileInput.click();
-    return;
-  }
-  const file = fileInput.files[0];
-  const response = await uploadToServer(
-    hariKe,
-    mealType,
-    file,
-    file.name
-  );
-  console.log('📥 Upload response:', response);
-  if (response && response.success) {
-    updateMealInputField(mealType, file.name, hariKe);
-  }
+
+  // 👉 BUKA FILE PICKER
+  fileInput.click();
 }
 
 
@@ -4744,16 +4748,18 @@ async function uploadMealItem(hariKe, mealType) {
 * Update input field setelah upload berhasil 
 **********************************************/
 function updateMealInputField(mealType, fileName, hariKe) {
-  const input = document.getElementById(`${mealType}Input${hariKe}`);
-  const check = document.getElementById(`${mealType}Check${hariKe}`);
-  if (input) {
-    input.value = fileName;
-  }
-  if (check) {
-    check.style.display = 'inline-block';
-    check.className = 'fas fa-check-circle';
-    check.style.color = 'green';
-    check.style.marginLeft = '6px';
+  const input = document.getElementById(`${mealType}${hariKe}`);
+  if (!input) return;
+
+  input.value = fileName;
+
+  // Tambah centang hijau jika belum ada
+  if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('fa-check-circle')) {
+    const checkIcon = document.createElement('i');
+    checkIcon.className = 'fas fa-check-circle';
+    checkIcon.style.color = 'green';
+    checkIcon.style.marginLeft = '8px';
+    input.parentElement.appendChild(checkIcon);
   }
 }
 
