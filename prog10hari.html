@@ -745,10 +745,8 @@ body { background-color: #f8f9fa; }
                 </a>
 
                 <!-- SELESAI MODUL HARI PERTAMA -->
-                <!-- <a data-hari="1" onclick="simpanMateri(this.dataset.hari)"> -->
-                <!-- <a href="#" class="menu-item" onclick="simpanMateri(1)">-->
-                <a href="#" class="menu-item">
-                   <i class="fas fa-check-double"></i> Selesai Modul hari Pertama
+                <a href="#" class="menu-item" onclick="simpanMateri(1)">
+                   <i class="fas fa-check-double"></i>Selesai Modul hari Pertama
                 </a> 
               </div>
             </div>
@@ -1061,7 +1059,7 @@ body { background-color: #f8f9fa; }
 <script>
 
 // DEKLARASI GLOBAL
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyNJpsReizWs8mx-62Z7MgXspbTVthFw6eDPVZb_hSjS7jR6G35QdP5wwt-JvQRZ622Rw/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwfw8YHowHfyjQbUvK6sanvNrGRvfp1Z4gir1CxgRV4BVe4ChrFh-14Lqflfkutj4X5AA/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -1206,6 +1204,8 @@ function logout() {
     window.location.reload();
 }
 
+// ===== UI GENERIC HELPERS =====
+
 /***************************************************************
    Tandai Submenu Selesai (Generic & Reusable)
    @param {number} hariKe           - Hari ke (1–10)
@@ -1213,28 +1213,40 @@ function logout() {
      Contoh: 'Water Reminder','Materi', 'Meal Plan', 'Workout'
 ***************************************************************/
 function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
-  document.querySelectorAll('.menu-item').forEach(item => {
+  if (!hariKe || !submenuKeyword) return;
+  const menuItems = document.querySelectorAll('.menu-item');
+  menuItems.forEach(item => {
     const text = item.textContent || '';
-    const cocokHari = hariKe == null || text.includes(`Hari ${hariKe}`);
-    const cocokSub = text.includes(submenuKeyword);
-
-    if (cocokHari && cocokSub) {
+    // Cocokkan submenu + hari
+    if (
+      text.includes(submenuKeyword) &&
+      text.includes(`Hari ${hariKe}`)
+    ) {
+      // Tebalkan teks menu
       item.style.fontWeight = 'bold';
+      // Cegah duplikasi icon
       if (!item.querySelector('.submenu-done')) {
+
         const icon = document.createElement('span');
         icon.className = 'submenu-done';
+        icon.setAttribute('aria-label', 'Selesai');
+        icon.setAttribute('title', 'Selesai');
+
         icon.innerHTML = '✓';
-        icon.style.cssText = `
-          display:inline-flex;
-          align-items:center;
-          justify-content:center;
-          width:14px;height:14px;
-          border-radius:50%;
-          border:1.5px solid #2ecc71;
-          color:#2ecc71;
-          font-size:10px;
-          margin-left:6px;
-        `;
+
+        // Styling icon lingkaran kecil
+        icon.style.display = 'inline-flex';
+        icon.style.alignItems = 'center';
+        icon.style.justifyContent = 'center';
+        icon.style.width = '14px';
+        icon.style.height = '14px';
+        icon.style.borderRadius = '50%';
+        icon.style.border = '1.5px solid #2ecc71';
+        icon.style.color = '#2ecc71';
+        icon.style.fontSize = '10px';
+        icon.style.marginLeft = '6px';
+        icon.style.lineHeight = '1';
+
         item.appendChild(icon);
       }
     }
@@ -1268,19 +1280,6 @@ function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
     el.disabled = disabled;
   });
 }
-
-function disableCentangDiSection(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-
-  const btn = section.querySelector('a, button');
-  if (btn) {
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.5';
-    btn.classList.add('disabled');
-  }
-}
-
 
 /**************************************************************************
  * Fungsi universal untuk menampilkan pesan
@@ -1777,25 +1776,35 @@ function lockModul(hariKe) {
 * Update UI Perkenalan lengkap *
 ********************************/
 function updatePerkenalanUI() {
-  console.log('🔄 Updating Perkenalan UI...');
-  const status = getCompletionStatus('perkenalan', 0);
-  if (status === 'completed') {
-    // 1️⃣ Disable tombol ✓ video SAJA
-    const section = document.getElementById('perkenalanContent');
-    if (section) {
-      const btn = section.querySelector('.btn-check, a, button');
-      if (btn) {
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.5';
-      }
+    console.log('🔄 Updating Perkenalan UI...');
+    
+    // 1. Update link "Selesai Perkenalan"
+    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
+    perkenalanLinks.forEach(link => {
+        if (link.textContent.includes('Selesai Perkenalan')) {
+            const newLink = link.cloneNode(true);
+            newLink.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
+            newLink.style.color = '#666666';
+            newLink.style.fontWeight = 'bold';
+            newLink.style.pointerEvents = 'none';
+            newLink.onclick = null;
+            newLink.href = '#';
+            link.parentNode.replaceChild(newLink, link);
+        }
+    });
+    
+    // 2. Update header perkenalan (jika ada icon)
+    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+    if (perkenalanHeader) {
+        const lockIcon = perkenalanHeader.querySelector('.status-lock, .status-unlock');
+        if (lockIcon) {
+            lockIcon.className = 'status-unlock';
+            lockIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            lockIcon.style.color = '#28a745';
+        }
     }
-    // 2️⃣ Tandai submenu selesai
-    tandaiSubmenuSelesai(null, 'Selesai Perkenalan');
-  }
-
-  console.log('✅ Perkenalan UI updated');
+    console.log('✅ Perkenalan UI updated');
 }
-
 
 function setupAllComponentsInternal() {
     // Submenu triggers
@@ -2420,7 +2429,7 @@ function updateSubmenuLinkUI(hariKe, submenuType) {
     },
     'mealplan': {
       selector: `[onclick*="uploadMealPlan(${hariKe})"]`,
-      icon: 'fas fa-utensils',
+      icon: 'fas fa-utensils', 
       text: `${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)}`
     },
     'workout': {
@@ -2442,59 +2451,34 @@ function updateSubmenuLinkUI(hariKe, submenuType) {
       selector: `[onclick*="dataTracking(${hariKe})"]`,
       icon: 'fas fa-user-friends',
       text: `${hariKe}.6 Data Tracking - Hari ${getDayName(hariKe)}`
-    },
-    'perkenalan': {
-      selector: `[onclick*="selesaikanPerkenalan"]`,
-      icon: 'fas fa-info-circle',
-      text: `Selesai Perkenalan`
     }
   };
   
   const config = linkConfigs[submenuType];
   if (!config) return;
-
+  
+  // Cari semua link yang sesuai
   const links = document.querySelectorAll(config.selector);
-  if (!links.length) return;
-
+  
   links.forEach(link => {
-
-    // Hindari update berulang
-    if (link.querySelector('.status-done')) return;
-
-    // Reset isi link (tanpa ✓ teks)
-    link.innerHTML = `<i class="${config.icon}"></i> ${config.text}`;
-
-    // Tambahkan icon centang BULAT hijau
-    const checkIcon = document.createElement('i');
-    checkIcon.className = 'fas fa-check-circle status-done';
-    checkIcon.style.color = 'green';
-    checkIcon.style.marginLeft = '6px';
-    checkIcon.style.fontSize = '0.9em';
-
-    link.appendChild(checkIcon);
-
-    // Styling selesai
-    link.style.color = '#666666';
-    link.style.fontWeight = 'bold';
-
-    // Tetap bisa membuka konten (read-only)
+    // Update teks dengan tanda centang
+    const currentText = link.innerHTML;
+    if (!currentText.includes('✓')) {
+      link.innerHTML = `<i class="${config.icon}"></i>${config.text} ✓`;
+      link.style.color = '#666666';
+      link.style.fontWeight = 'bold';
+    }
+    
+    // Update onclick handler untuk tetap bisa akses konten
     if (submenuType === 'materi') {
-      link.onclick = function (e) {
+      link.onclick = function(e) {
         e.preventDefault();
-        loadVideo(
-          'pertemuan' + hariKe,
-          'youtube',
-          'https://www.youtube.com/watch?v=Zg_badTE2Ec',
-          config.text
-        );
-      };
-    } else if (submenuType === 'perkenalan') {
-      link.onclick = function (e) {
-        e.preventDefault();
-        showSubmenuReadOnly('perkenalanContent');
+        loadVideo('pertemuan' + hariKe, 'youtube', 
+                  'https://www.youtube.com/watch?v=Zg_badTE2Ec', 
+                  this.textContent.trim());
       };
     } else {
-      link.onclick = function (e) {
+      link.onclick = function(e) {
         e.preventDefault();
         showSubmenuReadOnly(`${submenuType}Content${hariKe}`);
       };
@@ -2825,32 +2809,28 @@ function checkMateriStatus(hariKe) {
 * Update UI materi dengan tanda centang *
 *****************************************/
 function updateMateriCompletionUI(hariKe) {
-  console.log(`🔄 Updating Materi Completion UI for day ${hariKe}`);
-  //  1️⃣ Disable HANYA tombol centang (✓) video materi
-
-  // Container materi hari ke-n
-  const container = document.getElementById(`materiContent${hariKe}`);
-  if (!container) return;
-
-  // Cari tombol / link centang (biasanya tombol selesai video)
-  const actionButtons = container.querySelectorAll('button, a');
-  actionButtons.forEach(btn => {
-    // Hanya disable tombol aksi, bukan link video
-    if (
-      btn.textContent.includes('✓') ||
-      btn.classList.contains('btn-check') ||
-      btn.classList.contains('btn-selesai')
-    ) {
-      btn.style.pointerEvents = 'none';
-      btn.style.opacity = '0.5';
-      btn.classList.add('disabled');
+    // Update link materi di menu
+    const materiLink = document.getElementById(`materiLink${hariKe}`);
+    if (materiLink) {
+        // Tambahkan tanda centang tanpa mengubah teks utama
+        const currentText = materiLink.innerHTML;
+        if (!currentText.includes('✓')) {
+            //materiLink.innerHTML = currentText + ' <span class="badge bg-success ms-2">✓</span>';
+            materiLink.innerHTML = currentText + ' <span class="ms-2">✓</span>';
+            materiLink.style.color = '#28a745';
+            materiLink.style.fontWeight = 'bold';
+        }
     }
-  });
-  //   2️⃣ Update submenu → icon centang BULAT hijau
-  updateSubmenuLinkUI(hariKe, 'materi');
-  console.log(`✅ Materi Hari ${hariKe} UI updated successfully`);
+    
+    // Juga update tombol centang di video player (jika ada)
+    const completeBtn = document.querySelector(`#videoContainerPertemuan${hariKe} .complete-btn`);
+    if (completeBtn) {
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+        completeBtn.disabled = true;
+    }
 }
-
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
@@ -3685,8 +3665,8 @@ function setupPanduanPDFLinks() {
         });
         
         console.log('✅ PDF Panduan link setup completed');
-    // } else {
-       // console.error('❌ PDF Panduan link not found');
+    } else {
+        console.error('❌ PDF Panduan link not found');
     }
 }
 
@@ -3859,7 +3839,7 @@ function closeAllPDFs() {
 }
 
 // ********************************
-// ***** FUNGSI SUBNEU DAN UI *****
+// ***** FUNGSI SUMNEU DAN UI *****
 /**********************************
 
 /***********************************************
@@ -4099,7 +4079,7 @@ function setupPerkenalanCompletion() {
     if (link.textContent.includes('Selesai Perkenalan')) {
       link.addEventListener('click', function(e) {
         e.preventDefault();
-        selesaikanPerkenalan();
+        selesaiPerkenalan();
       });
     }
   });
@@ -4109,96 +4089,117 @@ function setupPerkenalanCompletion() {
 * Simpan materi untuk hari tertentu *
 ************************************/
 async function simpanMateri(hariKe) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  if (!userId) return;
-  console.log('🔧 simpanMateri called:', hariKe);
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateMateri',
-      userId,
-      namaUser,
-      hariKe
-    })
-  });
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    console.log('🔧 simpanMateri called:', { userId, namaUser, hariKe });
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'updateMateri',
+                userId: userId,
+                namaUser: namaUser,
+                hariKe: hariKe
+            })
+        });
 
-  const result = await response.text();
-  console.log('📥 Response updateMateri:', result);
-
-  if (result && result.includes('OK')) {
-    saveCompletionStatus('materi', hariKe, 'completed');
-    updateMateriCompletionUI(hariKe);
-  }
+        const result = await response.text();
+        console.log('📥 Response:', result);
+        
+        if (result === "OK") {
+            showMessage('success', `Materi Hari ${hariKe} berhasil disimpan!`, 3000, `pertemuan${hariKe}`);
+            // Simpan status dengan user prefix
+            saveCompletionStatus('materi', hariKe, 'completed');
+            // Update UI
+            updateMateriCompletionUI(hariKe);
+        //} else {
+        //    showMessage('error', 'Gagal: ' + result, 3000, `pertemuan${hariKe}`);
+        }
+    } catch (error) {
+        console.error('❌ Fetch error:', error);
+        // showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
+    }
 }
+
+
+// ******************************************
+// ***** FUNGSI LAINNYA YANG DIPERLUKAN *****
+// ******************************************
 
 /********************************************
 * Selesaikan perkenalan unlock Hari Pertama *
 ********************************************/
-async function selesaikanPerkenalan() {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  if (!userId) return;
-
-  console.log('✅ Menyelesaikan perkenalan');
-
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updatePerkenalan',
-      userId,
-      namaUser
-    })
-  });
-
-  const result = await response.text();
-  console.log('📥 Response updatePerkenalan:', result);
-
-  if (result && result.includes('OK')) {
-    // 🔓 unlock modul hari pertama (function asli Anda)
-    unlockModul(1);
-    // 🔒 DISABLE HANYA tombol "Selesai Perkenalan"
-    disableSelesaiPerkenalanButton();
-    // ✅ update tampilan submenu (akan kita revisi icon-nya)
-    updateSubmenuLinkUI('perkenalan', 0);
-  }
-}
-
-function disableSelesaiPerkenalanButton() {
-  const container = document.getElementById('perkenalanContent');
-  if (!container) return;
-  // Cari link dengan teks "Selesai Perkenalan"
-  const links = container.querySelectorAll('a.menu-item');
-  links.forEach(link => {
-    if (link.textContent.trim().includes('Selesai Perkenalan')) {
-      link.style.pointerEvents = 'none';
-      link.style.opacity = '0.5';
-      link.classList.add('disabled');
+async function selesaiPerkenalan() {
+    console.log('✅ Menyelesaikan perkenalan');
+    
+    const userId = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser') || userId;
+    
+    if (!userId) {
+        showMessage('error', 'Silahkan login terlebih dahulu', 3000, 'perkenalan');
+        return;
     }
-  });
-}
+    
+    // 1. SIMPAN KE SERVER
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: new URLSearchParams({
+                action: 'updatePerkenalan',
+                userId: userId,
+                namaUser: namaUser
+            })
+        });
 
-
-function disableActionButtons(type, hariKe) {
-  console.log(`🔒 Disabling action buttons for ${type} day ${hariKe}`);
-
-  const containerId =
-    type === 'perkenalan'
-      ? 'perkenalanContent'
-      : `${type}Content${hariKe}`;
-
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  // 🔑 TARGET SEMUA TOMBOL AKSI (✓ / Selesai)
-  const buttons = container.querySelectorAll('button, a');
-
-  buttons.forEach(btn => {
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.5';
-  });
+        const result = await response.text();
+        console.log('📥 Response updatePerkenalan:', result);
+        
+        if (result.includes("OK")) {
+            // 2. UPDATE PROGRESS DATA
+            let progressData = {success: true, perkenalan: true, materiHari1: false, mealplanHari1: false};
+            const existingProgress = localStorage.getItem('progressData');
+            if (existingProgress) {
+                progressData = JSON.parse(existingProgress);
+                progressData.perkenalan = true;
+            }
+            localStorage.setItem('progressData', JSON.stringify(progressData));
+            localStorage.setItem('perkenalanSelesai', 'true');
+            
+            // 3. UPDATE UI
+            updatePerkenalanUI();
+            
+            // 4. UNLOCK MODUL HARI 1
+            unlockModul(1);
+            
+            // 5. TAMPILKAN PESAN
+            showMessage('success', 'Perkenalan selesai! Modul Hari Pertama sekarang dapat diakses.', 3000, 'perkenalan');
+            
+            // 6. CLOSE VIDEO
+            closeVideo('perkenalan');
+            
+            // 7. AUTO-EXPAND MODUL HARI 1
+            setTimeout(() => {
+                const header = document.querySelector('[data-hari="1"]');
+                if (header && header.classList.contains('collapsed')) {
+                    header.click();
+                }
+            }, 1000);
+            
+        } else {
+            showMessage('error', 'Gagal menyimpan: ' + result, 3000, 'perkenalan');
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, 'perkenalan');
+    }
 }
 
 /************************
@@ -4207,8 +4208,10 @@ function disableActionButtons(type, hariKe) {
 function checkPerkenalanStatus() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
+
   const perkenalanSelesai = localStorage.getItem('perkenalanSelesai');
-   if (!perkenalanSelesai) {
+  
+  if (!perkenalanSelesai) {
     // Lock Modul Hari Pertama
     const modulPertamaHeader = document.querySelector('[data-hari="1"]');
     if (modulPertamaHeader) {
@@ -4224,17 +4227,6 @@ function checkPerkenalanStatus() {
     }
   }
 }
-
-function disableCheckButton(sectionId) {
-  const btn = document.querySelector(
-    `#${sectionId} .btn-check, #${sectionId} .btn-selesai, #${sectionId} a[onclick*="simpan"]`
-  );
-  if (btn) {
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.5';
-  }
-}
-
 
 /*******************************************************
 * Unlock modul berikutnya secara otomatis              * 
@@ -4412,6 +4404,10 @@ function checkProgressFromLocalStorage(userId) {
         }
     }
 }
+
+/****************************************
+* Update UI materi dengan tanda centang *
+*****************************************/
 
 /************************
 /***** FUNGSI BANTU *****
@@ -4594,12 +4590,151 @@ if (inputKondisiTubuh) {
   inputKondisiTubuh.appendChild(wrapper);
 }   
 
-/**************************************
-*** KUMPULAN FUNGSI UNTUK MEAL PLAN ***
-***************************************/
+// *******************************************
+// **** FUNGSI UPLOAD MEAL PLAN FLEKSIBEL ****
+// *******************************************
+
+/***********************************************
+* Upload meal plan untuk hari tertentu di form * 
+************************************************/
+function uploadMealPlan(hariKe) {
+    console.log('🍽️ Upload meal plan hari:', hariKe);
+    
+    // Tampilkan form upload langsung
+    showMealPlanUploadForm(hariKe);
+}
+
+/************************
+* Tampilkan upload file *
+*************************/
+function showMealPlanUploadForm(hariKe) {
+    // Sembunyikan semua submenu lainnya
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Tampilkan meal plan content
+    const mealPlanContent = document.getElementById(`mealPlanContent${hariKe}`);
+    if (mealPlanContent) {
+        mealPlanContent.style.display = 'block';
+        // Scroll ke form
+        setTimeout(() => { mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        // showMessage('info', `Upload meal plan hari ${hariKe}`, 3000, `pertemuan${hariKe}`);
+    } else {
+        showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
+    }
+}
+
+/******************************************
+* Process upload untuk meal type tertentu *
+*******************************************/
+async function uploadMealItem(hariKe, mealType) {
+    console.log(`📸 Upload ${mealType} hari ${hariKe}`);
+    
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.capture = 'environment';
+
+    fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validasi file
+        if (file.size > 5 * 1024 * 1024) {
+            showMessage('error', 'File terlalu besar (maks 5MB)', 3000, `pertemuan${hariKe}`);
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            showMessage('error', 'File harus berupa gambar', 3000, `pertemuan${hariKe}`);
+            return;
+        }
+        try {
+            // ✅ PASTIKAN PANGGIL fileToBase64() DI SINI
+            const base64Data = await fileToBase64(file);
+            // Upload ke server
+            const result = await uploadToServer(hariKe, mealType, base64Data, file.name);
+            if (result.success) {
+                showMessage('success', `${getMealTypeName(mealType)} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
+                // Update input field
+                updateMealInputField(mealType, file.name, hariKe);
+            //} else {
+            //    showMessage('error', `Upload ${getMealTypeName(mealType)} gagal: ${result.message}`, 3000, `pertemuan${hariKe}`);
+            }
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            showMessage('error', `Gagal upload ${getMealTypeName(mealType)}: ${error.message}`, 3000, `pertemuan${hariKe}`);
+        }
+    };
+    fileInput.click();
+}
+
+/************************
+* Upload file ke server *
+*************************/
+async function uploadToServer(hariKe, mealType, fileData, fileName) {
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    if (!userId) {
+        throw new Error('Silakan login terlebih dahulu');
+    }
+    try {
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded',},
+            body: new URLSearchParams({
+                action: 'uploadMealPlan',
+                userId: userId,
+                namaUser: namaUser,
+                hariKe: hariKe,
+                mealType: mealType,
+                file: fileData,
+                fileName: fileName
+            })
+        });
+
+        const result = await response.text();
+        console.log('Upload response:', result);
+        // Handle response
+        try {
+            return JSON.parse(result);
+        } catch (e) {
+            if (result === "OK") {
+                return { success: true, message: 'Upload berhasil' };
+            //} else {
+            //    return { success: false, message: result };
+            }
+        }
+    } catch (error) {
+        console.error('Server error:', error);
+        return { success: false, message: 'Gagal terhubung ke server' };
+    }
+}
+
+/*********************************************
+* Update input field setelah upload berhasil *
+**********************************************/
+function updateMealInputField(mealType, fileName, hariKe) {
+    // Gunakan ID yang konsisten dengan form
+    const inputId = `${mealType}${hariKe}`;
+    const inputField = document.getElementById(inputId);
+    
+    if (inputField) {
+        inputField.value = `✓ ${fileName}`;
+        inputField.style.color = '#666666';
+        // inputField.style.fontWeight = 'bold';
+        
+        // Simpan status di localStorage
+        localStorage.setItem(`meal_${hariKe}_${mealType}`, 'uploaded');
+    } else {
+        console.error('Input field tidak ditemukan:', inputId);
+    }
+}
 
 /****************************************
-* Get nama meal type yang user-friendly 
+* Get nama meal type yang user-friendly *
 *****************************************/
 function getMealTypeName(mealType) {
     const mealNames = {
@@ -4612,16 +4747,196 @@ function getMealTypeName(mealType) {
     return mealNames[mealType] || mealType;
 }
 
-/***********************************************
-* Upload meal plan untuk hari tertentu di form * 
-************************************************/
-function uploadMealPlan(hariKe) {
-  console.log('🍽️ Upload meal plan hari:', hariKe);
-  showMealPlanUploadForm(hariKe);
+/************************************************************
+* Selesaikan meal plan untuk hari tertentu dan update sheet *
+*************************************************************/
+async function selesaiMealPlan(hariKe) {
+    console.log('✅ Menyelesaikan meal plan hari:', hariKe);
+    const userId   = localStorage.getItem('userId');
+    //const namaUser = localStorage.getItem('namaUser');
+    if (!userId) {
+        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    // Cek apakah semua meal sudah diupload
+    const allUploaded = checkAllMealsUploaded(hariKe);
+    if (allUploaded) {
+        showMessage('info', 'Menyimpan status meal plan...', 3000, `pertemuan${hariKe}`);
+        try {
+            // Gunakan action yang sesuai dengan Google Apps Script
+            const response = await fetch(URL_PROGRAM_APP, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',},
+                body: new URLSearchParams({
+                    action: 'updateMealPlan', // ✅ ACTION YANG SESUAI
+                    userId: userId,
+                    hariKe: hariKe,
+                    status: 'OK' // ✅ KIRIM STATUS 'OK' UNTUK KOLOM Q
+                })
+            });
+
+            const result = await response.text();
+            console.log('Update meal plan status response:', result);
+
+            if (result === "OK" || result.includes("success")) {
+                showMessage('success', `Meal plan hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+                // Simpan status
+                saveMealPlanStatus(hariKe, 'completed');
+                // Update UI - tombol jadi hijau
+                updateMealPlanCompletionUI(hariKe);
+                // Tutup submenu
+                setTimeout(() => {
+                    hideSubmenu(`mealPlanContent${hariKe}`);
+                }, 2000);
+            } else {
+                showMessage('error', 'Gagal update status: ' + result, 3000, `pertemuan${hariKe}`);
+            }
+        } catch (error) {
+            console.error('Update status error:', error);
+            showMessage('error', 'Gagal update status: ' + error.message, 3000, `pertemuan${hariKe}`);
+        }
+    } else {
+        showMessage('warning', 'Lengkapi semua meal terlebih dahulu!', 3000, `pertemuan${hariKe}`);
+    }
+}
+
+/***********************************************************
+* Cek apakah semua meal sudah diupload untuk hari tertentu *
+************************************************************/
+function checkAllMealsUploaded(hariKe) {
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    const allUploaded = mealTypes.every(mealType => {
+        const inputField = document.getElementById(`${mealType}${hariKe}`);
+        return inputField && inputField.value.startsWith('✓');
+    });
+    if (!allUploaded) {
+        const missingMeals = mealTypes.filter(mealType => {
+            const inputField = document.getElementById(`${mealType}${hariKe}`);
+            return !inputField || !inputField.value.startsWith('✓');
+        });
+        console.log('Meal yang belum diupload:', missingMeals);
+        // showMessage('warning', `Masih ada yang belum diupload: ${missingMeals.map(m => getMealTypeName(m)).join(', ')}`, 3000, `pertemuan${hariKe}`);
+    }
+    return allUploaded;
+}
+
+/**************************
+* Simpan status meal plan *
+***************************/
+function saveMealPlanStatus(hariKe, status) {
+    localStorage.setItem(`mealplan_hari_${hariKe}`, status);
+    localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
+    
+    // Apply button disable
+    disableButtonsAfterCompletion(hariKe, 'mealplan');
+}
+
+/************************************************************
+* Update UI setelah meal plan selesai dengan disable tombol *
+*************************************************************/
+function updateMealPlanCompletionUI(hariKe) {
+    // Update tombol di menu utama
+    const mealPlanItem = document.querySelector(`[onclick="uploadMealPlan(${hariKe})"]`);
+    if (mealPlanItem) {
+        mealPlanItem.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ke ${hariKe} ✓ `;
+        mealPlanItem.style.color = '#666666';
+        mealPlanItem.style.fontWeight = 'bold';
+        
+        // Ubah onclick untuk tetap bisa buka form tapi tidak bisa upload
+        mealPlanItem.onclick = function(e) {
+            e.preventDefault();
+            showMealPlanUploadForm(hariKe);
+            checkAndApplyButtonStatus(hariKe);
+        };
+    }
+    
+    // Update tombol selesai di form
+    const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+    if (selesaiBtn) {
+        selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Selesai Meal Plan Hari ${hariKe}`;
+        selesaiBtn.classList.remove('btn-secondary');
+        selesaiBtn.classList.add('btn-success');
+        selesaiBtn.disabled = true;
+        selesaiBtn.style.opacity = '0.6';
+        selesaiBtn.style.cursor = 'not-allowed';
+    }
+    
+    // Disable semua tombol upload
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    mealTypes.forEach(mealType => {
+        const inputField = document.getElementById(`${mealType}${hariKe}`);
+        const uploadBtn = inputField?.nextElementSibling;
+        
+        if (inputField) {
+            inputField.readOnly = true;
+            inputField.style.backgroundColor = '#f8f9fa';
+            inputField.style.cursor = 'not-allowed';
+        }
+        
+        if (uploadBtn && uploadBtn.tagName === 'BUTTON') {
+            uploadBtn.disabled = true;
+            uploadBtn.classList.remove('btn-outline-secondary');
+            uploadBtn.classList.add('btn-secondary');
+            uploadBtn.style.opacity = '0.6';
+            uploadBtn.style.cursor = 'not-allowed';
+            uploadBtn.title = 'Upload sudah selesai';
+        }
+    });
+    
+    // Disable tombol cek disini
+    const cekDisiniBtn = document.getElementById(`btnCekDisiniMealPlan${hariKe > 1 ? hariKe : ''}`);
+    if (cekDisiniBtn) {
+        cekDisiniBtn.disabled = true;
+        cekDisiniBtn.classList.remove('btn-primary');
+        cekDisiniBtn.classList.add('btn-secondary');
+        cekDisiniBtn.style.opacity = '0.6';
+        cekDisiniBtn.style.cursor = 'not-allowed';
+        cekDisiniBtn.title = 'Sudah selesai';
+    }
+}
+
+/*********************************
+* Cek status meal plan saat load *
+**********************************/
+function checkMealPlanStatus(hariKe) {
+    const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
+    if (status === 'completed') {
+        updateMealPlanCompletionUI(hariKe);
+    }
+}
+
+/*******************************************
+* Generate form meal plan untuk semua hari *
+********************************************/
+function generateMealPlanForms() {
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const containerId = `jadwalMealplan-list${hariKe > 1 ? hariKe : ''}`;
+        const container = document.getElementById(containerId);
+        
+        if (container) {
+            container.innerHTML = createMealPlanFormHTML(hariKe);
+        }
+    }
+}
+
+/**********************************************
+* Load progress meal plan yang sudah diupload *
+***********************************************/
+function loadMealPlanProgress(hariKe) {
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    
+    mealTypes.forEach(mealType => {
+        const status = localStorage.getItem(`meal_${hariKe}_${mealType}`);
+        if (status === 'uploaded') {
+            const fileName = localStorage.getItem(`meal_${hariKe}_${mealType}_file`) || 'File terupload';
+            updateMealInputField(mealType, fileName, hariKe);
+        }
+    });
 }
 
 /***********************************
-* Create HTML untuk form meal plan  
+* Create HTML untuk form meal plan *
 ************************************/
 function createMealPlanFormHTML(hariKe) {
     return `
@@ -4667,231 +4982,12 @@ function createMealPlanFormHTML(hariKe) {
 
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-left mt-4">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaiMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
                 <i class="fa fa-check"></i> Selesai Meal Plan Hari ${hariKe}
             </button>
         </div>
     `;
 }
-
-/******************************************************
-* Hanya menampilkan form meal plan untuk hari tertentu
-*******************************************************/
-function showMealPlanUploadForm(hariKe) {
-  const containerId = `mealPlanContent${hariKe}`;
-  showSubmenu(containerId);
-}
-
-
-/***********************************************************
-* Cek apakah semua meal sudah diupload untuk hari tertentu 
-* - Validasi tunggal & resmi                                 
-* - Dipakai oleh selesaikanMealPlan                        
-************************************************************/
-function checkAllMealsUploaded(hariKe) {
-  const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
-
-  return mealTypes.every(type => {
-    const input = document.getElementById(`${type}${hariKe}`);
-    return input && input.value && input.value.trim() !== '';
-  });
-}
-
-
-/******************************************
-* Process upload untuk meal type tertentu 
-*******************************************/
-async function uploadMealItem(hariKe, mealType) {
-  console.log(`📸 Upload ${mealType} hari ${hariKe}`);
-
-  // 🔹 Buat ID unik file input
-  const fileInputId = `file_${mealType}_${hariKe}`;
-
-  // 🔍 Cari file input, kalau belum ada → buat
-  let fileInput = document.getElementById(fileInputId);
-
-  if (!fileInput) {
-    fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.id = fileInputId;
-    fileInput.style.display = 'none';
-
-    // 🔁 Saat file dipilih
-    fileInput.onchange = async function () {
-      if (!this.files || !this.files.length) return;
-
-      const file = this.files[0];
-
-      const response = await uploadToServer(
-        hariKe,
-        mealType,
-        file,
-        file.name
-      );
-
-      console.log('📥 Upload response:', response);
-
-      if (response && response.success) {
-        updateMealInputField(mealType, file.name, hariKe);
-      }
-    };
-
-    document.body.appendChild(fileInput);
-  }
-
-  // 👉 BUKA FILE PICKER
-  fileInput.click();
-}
-
-
-/*********************************************
-* Update input field setelah upload berhasil 
-**********************************************/
-function updateMealInputField(mealType, fileName, hariKe) {
-  const input = document.getElementById(`${mealType}${hariKe}`);
-  if (!input) return;
-
-  input.value = fileName;
-
-  // Tambah centang hijau jika belum ada
-  if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('fa-check-circle')) {
-    const checkIcon = document.createElement('i');
-    checkIcon.className = 'fas fa-check-circle';
-    checkIcon.style.color = 'green';
-    checkIcon.style.marginLeft = '8px';
-    input.parentElement.appendChild(checkIcon);
-  }
-}
-
-
-/**********************************
-* Hanya simpan ke Sheet (kolom Q) 
-***********************************/
-async function saveMealPlanStatus(hariKe, status) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  const params   = new URLSearchParams({
-    action: 'updateMealPlan',
-    userId,
-    namaUser,
-    hariKe,
-    status
-  });
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params
-  });
-  const result = await response.text();
-  console.log('📥 Response updateMealPlan:', result);
-}
-
-/*************************************************************
-* Selesaikan meal plan untuk hari tertentu dan update sheet  
-*  - Validasi                                                
-*  - Simpan "OK" ke kolom Q                                   
-*  - Trigger UI completion                                   
-**************************************************************/
-async function selesaikanMealPlan(hariKe) {
-  console.log('🍽️ Menyelesaikan Meal Plan hari', hariKe);
-  if (!checkAllMealsUploaded(hariKe)) {
-    showMessage('warning', 'Masih ada yang belum diupload meal plannya', 3000 );
-    return;
-  }
-  await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateMealPlan',
-      userId: localStorage.getItem('userId'),
-      namaUser: localStorage.getItem('namaUser'),
-      hariKe: hariKe,
-      status: 'OK'
-    })
-  });
-  updateMealPlanCompletionUI(hariKe);
-  showMessage( 'success', 'Meal Plan berhasil disimpan', 3000);
-}
-
-
-/***********************************************
-* Update UI setelah meal plan selesai dengan : 
-*  - Disable tombol “Selesai Meal Plan”
-*  - Disable upload input
-*  - Update submenu dengan centang bulat hijau
-************************************************/
-function updateMealPlanCompletionUI(hariKe) {
-  const btn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
-  if (btn) {
-    btn.disabled = true;
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.6';
-  }
-  updateSubmenuLinkUI(hariKe, 'mealplan');
-}
-
-/************************
-* Upload file ke server 
-*************************/
-async function uploadToServer(hariKe, mealType, fileData, fileName) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  const formData = new FormData();
-  formData.append('action', 'uploadMealPlan');
-  formData.append('userId', userId);
-  formData.append('namaUser', namaUser);
-  formData.append('hariKe', hariKe);
-  formData.append('mealType', mealType);
-  formData.append('file', fileData);
-  formData.append('fileName', fileName);
-
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    body: formData
-  });
-  const text = await response.text();
-  return JSON.parse(text);
-}
-
-/*********************************
-* Cek status meal plan saat load 
-**********************************/
-function checkMealPlanStatus(hariKe) {
-    const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
-    if (status === 'completed') {
-        updateMealPlanCompletionUI(hariKe);
-    }
-}
-
-/*******************************************
-* Generate form meal plan untuk semua hari 
-********************************************/
-function generateMealPlanForms() {
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        const containerId = `jadwalMealplan-list${hariKe > 1 ? hariKe : ''}`;
-        const container = document.getElementById(containerId);
-        
-        if (container) {
-            container.innerHTML = createMealPlanFormHTML(hariKe);
-        }
-    }
-}
-
-/**********************************************
-* Load progress meal plan yang sudah diupload 
-***********************************************/
-function loadMealPlanProgress(hariKe) {
-    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
-    
-    mealTypes.forEach(mealType => {
-        const status = localStorage.getItem(`meal_${hariKe}_${mealType}`);
-        if (status === 'uploaded') {
-            const fileName = localStorage.getItem(`meal_${hariKe}_${mealType}_file`) || 'File terupload';
-            updateMealInputField(mealType, fileName, hariKe);
-        }
-    });
-}
-/***********AKHIR DARI FUNGSI MEAL PLAN ******/
 
 // *********************************************
 // ***** FUNGSI WORKOUT COMPLETE FLEKSIBEL *****
@@ -5943,6 +6039,8 @@ function selesaiWaterHariAktif() {
   }
 }
 
+
+
 /******************************************************
 /* FUNGSI REUSABLE: Generate Water Reminder Form HTML *
 /******************************************************/
@@ -6034,15 +6132,18 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     setTimeout(() => {
         console.log('🔧 Setup water buttons untuk hari', hariKe);
         setupWaterButtons(hariKe); // ⬅️ INI YANG HARUS DIPANGGIL
-        //loadSavedWaterData(hariKe);
+        loadSavedWaterData(hariKe);
+        
+        console.log(`✅ Water form day ${hariKe} generated with event listeners`);
     }, 100);
     
     return wrapper;
 }
 
-/*********************************************************
+/**
  * LOAD SAVED STATUS - Dipanggil saat buka water reminder
- ********************************************************/
+ * @param {number} hariKe - Nomor hari
+ */
 function loadWaterReminderStatus(hariKe) {
     console.log(`💧 Load status water hari ${hariKe}`);
     
@@ -6114,9 +6215,10 @@ function loadWaterReminderStatus(hariKe) {
     }
 }
 
-/**************************************************
+/**
  * BUKA WATER REMINDER SUBMENU
- *************************************************/
+ * @param {number} hariKe - Nomor hari (1-10)
+ */
 function waterReminder(hariKe) {
     console.log(`💧 Buka water reminder hari ${hariKe}`);
     
@@ -6146,9 +6248,10 @@ function waterReminder(hariKe) {
     }
 }
 
-/**************************************************
+/**
  * GENERATE RADIO BUTTONS UNTUK PILIHAN AIR MINUM
- *************************************************/
+ * @param {number} hariKe - Nomor hari
+ */
 function generateWaterRadioButtons(hariKe) {
     console.log(`💧 Generate radio buttons hari ${hariKe}`);
     
@@ -6225,10 +6328,11 @@ function generateWaterRadioButtons(hariKe) {
     console.log(`✅ Radio buttons hari ${hariKe} generated`);
 }
 
-/********************************************
- *  AMBIL NILAI WATER REMINDER (HARI KE-x)
- *******************************************/
+/* =================================================
+   AMBIL NILAI WATER REMINDER (HARI KE-x)
+   ================================================= */
 function getWaterHari(hariKe) {
+
   const container = document.getElementById('waterReminderContent' + hariKe);
   if (!container) {
     console.warn('❌ Container water tidak ditemukan hari', hariKe);
@@ -6236,18 +6340,20 @@ function getWaterHari(hariKe) {
   }
 
   const radios = container.querySelectorAll('input[type="radio"]');
+
   for (let i = 0; i < radios.length; i++) {
     if (radios[i].checked) {
       return radios[i].value;
     }
   }
+
   return '';
 }
 
 
-/**************************************************
- * ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
- ************************************************/
+/* =================================================
+   ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
+   ================================================= */
 function setWaterComponentsDisabled(hariKe, isDisabled) {
 
   // Radio button
@@ -6264,10 +6370,10 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
 }
 
 
-/*******************************************
+/**
  * ENABLE TOMBOL SIMPAN SAAT RADIO DIPILIH
  * @param {number} hariKe - Nomor hari
- ******************************************/
+ */
 function enableWaterSaveButton(hariKe) {
     const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
     if (btnSimpan) {
@@ -6275,9 +6381,9 @@ function enableWaterSaveButton(hariKe) {
     }
 }
 
-/**************************************
-*  SIMPAN WATER REMINDER (MANDIRI)
-***************************************/
+/* =====================================
+   SIMPAN WATER REMINDER (MANDIRI)
+   ===================================== */
 function simpanWaterReminder(hariKe) {
 
   const water = getWaterHari(hariKe);
@@ -6299,9 +6405,9 @@ function simpanWaterReminder(hariKe) {
   showMessage('success', 'Water Reminder berhasil disimpan', 2000);
 }
   
-/*******************************
-*  SIMPAN ASUPAN AIR (MANDIRI)
-********************************/
+/* =====================================
+   SIMPAN ASUPAN AIR (MANDIRI)
+   ===================================== */
 function simpanAsupanAir(hariKe) {
   const asupanAir = getWaterHari(hariKe);
 
@@ -6326,11 +6432,7 @@ function simpanAsupanAir(hariKe) {
   showMessage('success', 'Asupan air berhasil disimpan', 2000);
 }
 
-/***************************************************
- * FUNGSI HELPER UNTUK CLEANUP SCRIPT
- * @param {object} script - Objek script DOM
- * @param {string} callbackName - Nama callback
- ***************************************************/
+// Fungsi helper untuk cleanup script
 function cleanUpScript(script, callbackName) {
     try {
         if (script && script.parentNode) {
@@ -6343,35 +6445,38 @@ function cleanUpScript(script, callbackName) {
         console.error('Error cleanup script:', e);
     }
 }
-
-/***************************************************
+/**
  * TANDAI WATER REMINDER SELESAI (MANDIRI)
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ */
 function selesaiWater(hariKe) {
+
   const data = {
     action: 'simpanAir',
     userId: localStorage.getItem('userId'),
     hariKe: hariKe,
     water: 'OK'
   };
+
   kirimKeServer(data);
 
-  // 1️⃣ Disable seluruh isi Water Reminder (termasuk radio)
-  setSubmenuDisabled(hariKe, 'waterReminderContent', true);
+  // 🔒 DISABLE semua komponen Water
+  setWaterComponentsDisabled(hariKe, true);
 
-  // 2️⃣ Tandai submenu Water selesai
-  tandaiSubmenuSelesai(hariKe, 'Water Reminder');
+  // ✔️ Update menu
+  tandaiWaterSelesai(hariKe);
+
   showMessage('success', 'Water Reminder selesai', 2000);
 }
 
 
-/***************************************************
- * TANDAI SUBMENU SELESAI (GENERIC & REUSABLE)
- * @param {number} hariKe - Nomor hari
- * @param {string} submenuKeyword - Kata kunci submenu
- *   Contoh: 'Water Reminder','Materi', 'Meal Plan', 'Workout'
- ***************************************************/
+/* =====================================================
+   TANDAI SUBMENU SELESAI (GENERIC & REUSABLE)
+   =====================================================
+   @param {number} hariKe           - Hari ke (1–10)
+   @param {string} submenuKeyword  - Kata kunci submenu
+     Contoh: 'Water Reminder','Materi', 'Meal Plan', 'Workout'
+*/
 function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
   if (!hariKe || !submenuKeyword) return;
   const menuItems = document.querySelectorAll('.menu-item');
@@ -6413,42 +6518,44 @@ function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
   });
 }
 
-/***************************************************
- * AMBIL CONTAINER SUBMENU BERDASARKAN HARI
- * @param {number} hariKe - Nomor hari
- * @param {string} prefix - Prefix container
- ***************************************************/
+/* =====================================================
+   AMBIL CONTAINER SUBMENU BERDASARKAN HARI
+   =====================================================
+   @param {number} hariKe
+   @param {string} prefix bisa : materiContent ,mealPlanContent, workoutContent, dst
+*/
 function getSubmenuContainer(hariKe, prefix) {
-  if (!prefix) return null;
-  return hariKe != null
-    ? document.getElementById(prefix + hariKe)
-    : document.getElementById(prefix);
+  if (!hariKe || !prefix) return null;
+  return document.getElementById(prefix + hariKe);
 }
 
-/***************************************************
- * ENABLE / DISABLE SEMUA KOMPONEN DI SUBMENU
- * @param {number} hariKe - Nomor hari
- * @param {string} containerPrefix - Prefix container
- * @param {boolean} disabled - Apakah disabled (default: true)
- ***************************************************/
+/* =====================================================
+   ENABLE / DISABLE SEMUA KOMPONEN DI SUBMENU
+   =====================================================
+   @param {number} hariKe
+   @param {string} containerPrefix
+   @param {boolean} disabled
+*/
 function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
+
   const container = getSubmenuContainer(hariKe, containerPrefix);
   if (!container) return;
 
-  container.querySelectorAll(
-    'button, input, select, textarea, a'
-  ).forEach(el => {
-    if ('disabled' in el) el.disabled = disabled;
-    el.style.pointerEvents = disabled ? 'none' : '';
-    el.style.opacity = disabled ? '0.6' : '';
+  // Disable semua input
+  const inputs = container.querySelectorAll(
+    'input, select, textarea, button'
+  );
+
+  inputs.forEach(el => {
+    el.disabled = disabled;
   });
 }
 
 
-/***************************************************
+/**
  * SETUP RADIO BUTTONS UNTUK WATER REMINDER
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ */
 function setupWaterRadioButtons(hariKe) {
     const radioName = 'asupanAir' + hariKe;
     const radios = document.querySelectorAll(`input[name="${radioName}"]`);
@@ -6468,10 +6575,11 @@ function setupWaterRadioButtons(hariKe) {
         };
     });
 }
-/***************************************************
+
+/**
  * CEK STATUS WATER REMINDER
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ */
 function checkWaterStatus(hariKe) {
   const saved = localStorage.getItem('water_saved_hari_' + hariKe);
   const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
@@ -6483,10 +6591,10 @@ function checkWaterStatus(hariKe) {
   }
 }
 
-/***************************************************
+/**
  * LOAD DATA YANG SUDAH DISIMPAN
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ */
 function loadWaterReminderData(hariKe) {
     console.log(`💾 Load water data hari ${hariKe}`);
     
@@ -6566,10 +6674,6 @@ function loadWaterReminderData(hariKe) {
     }
 }
 
-/***************************************************
- * Selesai WATER REMINDER UNTUK HARI TERTENTU
- * @param {number} hariKe - Nomor hari
- ***************************************************/
 function selesaiWaterReminder(hariKe) {
     console.log(`✅ selesaiWaterReminder() untuk hari: ${hariKe}`);
     
@@ -6728,11 +6832,11 @@ function updateWaterMenuIcon(hariKe) {
     }
 }
 
-/***************************************************
+/**
  * UPDATE PROGRESS COUNTER DI DASHBOARD
  * @param {string} type - Jenis progress ('water', 'meal', 'workout', dll)
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ */
 function updateProgressCounter(type, hariKe) {
   // Implementasi sesuai kebutuhan dashboard Anda
   console.log(`📊 Progress ${type} hari ${hariKe} diupdate`);
@@ -6744,10 +6848,10 @@ function updateProgressCounter(type, hariKe) {
   }
 }
 
-/***************************************************
+/**
  * GET HARI AKTIF
  * @returns {number} - Nomor hari aktif
- ***************************************************/
+ */
 function getHariAktif() {
   // Cek dari URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -6768,11 +6872,11 @@ function getHariAktif() {
   return parseInt(hariKe);
 }
 
-/***************************************************
+/**
  * WATER REMINDER UNTUK MODUL 2-10
  * @param {number} modul - Nomor modul (2-10)
  * @param {number} hariKe - Nomor hari dalam modul
- ***************************************************/
+ */
 function waterReminderModul(modul, hariKe) {
   console.log(`💧 Water Reminder - Modul ${modul}, Hari ${hariKe}`);
   
@@ -6839,9 +6943,6 @@ function setupWaterButtons(hariKe) {
         btnSelesai.disabled = false;
         showMessage('success', 'Asupan air berhasil disimpan', 2000);
         updateWaterSaveUI(hariKe, asupanAir);
-        // ✅ INI TEMPATNYA
-        setSubmenuDisabled(hariKe, 'waterReminderContent', true);
-        tandaiSubmenuSelesai(hariKe, 'Water Reminder');
       } else {
         showMessage('error', 'Gagal menyimpan asupan air', 2000);
       }
@@ -6872,11 +6973,11 @@ function setupWaterButtons(hariKe) {
   };
 }
 
-/***************************************************
+/**
  * SIMPAN ASUPAN AIR UNTUK MODUL 2-10
  * @param {number} modul - Nomor modul (2-10)
  * @param {number} hariKe - Nomor hari dalam modul (1-10)
- ***************************************************/
+ */
 function simpanWaterReminderModul(modul, hariKe) {
   console.log(`💧 simpanWaterReminderModul() - Modul ${modul}, Hari ${hariKe}`);
   
@@ -7039,12 +7140,12 @@ function simpanWaterReminderModul(modul, hariKe) {
   document.body.appendChild(script);
 }
 
-/***************************************
+/**
  * UPDATE PROGRESS TRACKER UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {string} type - Jenis progress ('water_saved', 'water_completed', dll)
  * @param {number} hariKe - Nomor hari
- ****************************************/
+ */
 function updateModulProgress(modul, type, hariKe) {
   console.log(`📊 Update progress M${modul}: ${type} hari ${hariKe}`);
   
@@ -7074,11 +7175,11 @@ function updateModulProgress(modul, type, hariKe) {
   updateModulProgressUI(modul, progress);
 }
 
-/***************************************
+/**
  * UPDATE PROGRESS UI UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {object} progress - Data progress
- ****************************************/
+ */
 function updateModulProgressUI(modul, progress) {
   // Cari progress bar untuk modul ini
   const progressBarId = `progressBarModul${modul}`;
@@ -7103,11 +7204,11 @@ function updateModulProgressUI(modul, progress) {
   }
 }
 
-/***************************************
+/**
  * LOAD SAVED DATA UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- ****************************************/
+ */
 function loadSavedWaterDataModul(modul, hariKe) {
   console.log(`💾 Load saved water data M${modul}D${hariKe}`);
   
@@ -7191,11 +7292,11 @@ function loadSavedWaterDataModul(modul, hariKe) {
   }
 }
 
-/***************************************
+/**
  * UPDATE MENU ICON UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- ****************************************/
+ */
 function updateWaterMenuIconModul(modul, hariKe) {
   console.log(`🎯 Update menu icon M${modul}D${hariKe}`);
   
@@ -7231,11 +7332,11 @@ function updateWaterMenuIconModul(modul, hariKe) {
   }
 }
 
-/***************************************
+/**
  * CHECK STATUS UNTUK MODUL
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- ****************************************/
+ */
 function checkWaterStatusModul(modul, hariKe) {
   const prefix = `M${modul}D${hariKe}`;
   const savedKey = `water_M${modul}_D${hariKe}_saved`;
