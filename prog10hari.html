@@ -682,7 +682,7 @@ body { background-color: #f8f9fa; }
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
-                  class="menu-item video-link" onclick="showMessage('info', `Memuat video...`, 1000, `pertemuan${hariKe}`)"
+                  class="menu-item video-link" onclick="showMessage('info', 'Memuat video...', 1000, 'pertemuan1')"
                   style="max-width: 100%;" data-section="pertemuan1" 
                   data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink1">
                   <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan? 
@@ -2410,6 +2410,34 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
 function updateSubmenuLinkUI(hariKe, submenuType) {
+  let selector;
+
+  switch (submenuType) {
+    case 'materi':
+      selector = `#materiLink${hariKe}`;
+      break;
+    case 'mealplan':
+      selector = `[onclick*="uploadMealPlan(${hariKe})"]`;
+      break;
+    default:
+      return;
+  }
+
+  const link = document.querySelector(selector);
+  if (!link || link.dataset.done === 'true') return;
+
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-check-circle';
+  icon.style.color = 'green';
+  icon.style.marginLeft = '6px';
+
+  link.appendChild(icon);
+  link.dataset.done = 'true';
+  link.style.color = '#666';
+  link.style.fontWeight = 'bold';
+}
+
+function BACKUP_updateSubmenuLinkUI(hariKe, submenuType) {
   console.log(`🔄 Updating submenu link UI for ${submenuType} day ${hariKe}`);
 
   const linkConfigs = {
@@ -4108,6 +4136,43 @@ function setupPerkenalanCompletion() {
 * Simpan materi untuk hari tertentu *
 ************************************/
 async function simpanMateri(hariKe) {
+  const userId = localStorage.getItem('userId');
+  const namaUser = localStorage.getItem('namaUser');
+
+  if (!userId) return;
+  // ⛔ cegah double klik
+  const btn = document.querySelector(`#btnCompleteMateri${hariKe}`);
+  if (btn && btn.dataset.done === 'true') return;
+
+  try {
+    const res = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateMateri',
+        userId,
+        namaUser,
+        hariKe
+      })
+    });
+
+    const result = await res.text();
+    if (result !== 'OK') return;
+    // ✅ disable tombol centang
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.done = 'true';
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.6';
+    }
+    // ✅ submenu 1.1 dapat 🟢
+    updateSubmenuLinkUI(hariKe, 'materi');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function BACKUP_simpanMateri(hariKe) {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
   if (!userId) return;
@@ -4784,15 +4849,26 @@ function updateMealInputField(mealType, fileName, hariKe) {
   if (!input) return;
 
   input.value = fileName;
-  input.style.fontWeight = 'bold';
+  input.readOnly = true;
 
-  // 🟢 centang DI DALAM INPUT (CSS)
-  input.style.backgroundImage = "url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/check-circle.svg')";
-  input.style.backgroundRepeat = 'no-repeat';
-  input.style.backgroundPosition = 'right 10px center';
-  input.style.backgroundSize = '16px';
-  input.style.paddingRight = '30px';
+  // bungkus input jika belum
+  let wrapper = input.parentElement;
+  wrapper.style.position = 'relative';
+
+  // cegah dobel icon
+  if (wrapper.querySelector('.meal-done-icon')) return;
+
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-check-circle meal-done-icon';
+  icon.style.color = 'green';
+  icon.style.position = 'absolute';
+  icon.style.right = '10px';
+  icon.style.top = '50%';
+  icon.style.transform = 'translateY(-50%)';
+
+  wrapper.appendChild(icon);
 }
+
 
 function BACKUP_updateMealInputField(mealType, fileName, hariKe) {
   const input = document.getElementById(`${mealType}${hariKe}`);
@@ -4801,20 +4877,12 @@ function BACKUP_updateMealInputField(mealType, fileName, hariKe) {
   input.value = fileName;
   input.style.fontWeight = 'bold';
 
-  // ❌ Jangan tempel ke parent
-  // ✅ Tempel DI DALAM input-group, setelah input
-  const group = input.closest('.input-group');
-  if (!group) return;
-
-  // Cegah dobel icon
-  if (group.querySelector('.meal-check')) return;
-
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-check-circle meal-check';
-  icon.style.color = 'green';
-  icon.style.marginLeft = '6px';
-  icon.style.alignSelf = 'center';
-  group.insertBefore(icon, group.children[1]); // tepat setelah input
+  // 🟢 centang DI DALAM INPUT (CSS)
+  input.style.backgroundImage = "url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/check-circle.svg')";
+  input.style.backgroundRepeat = 'no-repeat';
+  input.style.backgroundPosition = 'right 10px center';
+  input.style.backgroundSize = '16px';
+  input.style.paddingRight = '30px';
 }
 
 /****************************************
@@ -4837,52 +4905,76 @@ function getMealTypeName(mealType) {
 async function selesaikanMealPlan(hariKe) {
   console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
-  if (!checkAllMealsUploaded(hariKe)) {
-    showMessage('warning', 'Masih ada yang belum diupload meal plannya', 3000, `mealPlanContent${hariKe}`);
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+
+  const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  if (btnSelesai && btnSelesai.dataset.done === 'true') return;
+
+  // 🔎 VALIDASI: pastikan semua input sudah terisi
+  const mealTypes = [
+    'sarapan',
+    'cemilanPagi',
+    'makanSiang',
+    'cemilanSore',
+    'makanMalam'
+  ];
+
+  const belumLengkap = mealTypes.filter(type => {
+    const input = document.getElementById(`${type}${hariKe}`);
+    return !input || !input.value || input.value.trim() === '';
+  });
+
+  if (belumLengkap.length > 0) {
+    showMessage( 'warning', 'Masih ada yang belum diupload meal plannya', 3000, `mealPlanContent${hariKe}`);
     return;
   }
 
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateMealPlan',
-      userId: localStorage.getItem('userId'),
-      namaUser: localStorage.getItem('namaUser'),
-      hariKe
-    })
-  });
+  try {
+    // 📤 SIMPAN OK KE KOLOM Q
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateMealPlan',
+        userId,
+        hariKe,
+        status: 'OK'
+      })
+    });
 
-  const text = await response.text();
-  console.log('📥 Update Meal Plan:', text);
+    const result = await response.text();
+    console.log('📥 Update Meal Plan:', result);
 
-  const result = parseJSONP(text);
-  if (result !== 'OK') return;
+    if (result !== 'OK') return;
 
-  // ✅ Disable tombol
-  const btn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
-  if (btn) btn.disabled = true;
+    // 🔒 DISABLE tombol selesai
+    if (btnSelesai) {
+      btnSelesai.disabled = true;
+      btnSelesai.dataset.done = 'true';
+      btnSelesai.style.pointerEvents = 'none';
+      btnSelesai.style.opacity = '0.6';
+    }
 
-  // ✅ Centang submenu
-  updateSubmenuLinkUI(hariKe, 'mealplan');
-}
+    // 🔒 DISABLE semua tombol upload
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (container) {
+      container.querySelectorAll('button').forEach(btn => {
+        btn.disabled = true;
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.6';
+      });
+    }
 
-async function BACKUP_selesaikanMealPlan(hariKe) {
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateMealPlan',
-      hariKe
-    })
-  });
+    // ✅ SUBMENU 1.2 DAPAT 🟢
+    updateSubmenuLinkUI(hariKe, 'mealplan');
+    showMessage( 'success', `Meal Plan Hari ${hariKe} berhasil diselesaikan`, 3000, `mealPlanContent${hariKe}` );
 
-  const result = await response.text();
-  if (result && result.includes('OK')) {
-    disableCheckButton(`mealPlanContent${hariKe}`);
-    tandaiSubmenuSelesai(hariKe, 'Meal Plan');
+  } catch (error) {
+    console.error('❌ Error selesaikanMealPlan:', error);
   }
 }
+
 
 /***********************************************************
 * Cek apakah semua meal sudah diupload untuk hari tertentu *
