@@ -4136,16 +4136,38 @@ function setupPerkenalanCompletion() {
 * Simpan materi untuk hari tertentu *
 ************************************/
 async function simpanMateri(hariKe) {
-  const userId = localStorage.getItem('userId');
+  console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
+
+  const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
 
-  if (!userId) return;
-  // ⛔ cegah double klik
-  const btn = document.querySelector(`#btnCompleteMateri${hariKe}`);
-  if (btn && btn.dataset.done === 'true') return;
+  if (!userId) {
+    alert('Silakan login terlebih dahulu');
+    return;
+  }
+
+  // 🔒 Ambil tombol centang aktif di video
+  const completeBtn = document.querySelector(
+    `#videoContainerPertemuan${hariKe} .complete-video-btn`
+  );
+
+  // ⛔ Cegah klik dua kali
+  if (completeBtn && completeBtn.dataset.locked === 'true') {
+    console.warn('⛔ Tombol sudah dikunci, klik diabaikan');
+    return;
+  }
+
+  // 🔐 KUNCI LANGSUNG (sebelum fetch)
+  if (completeBtn) {
+    completeBtn.dataset.locked = 'true';
+    completeBtn.disabled = true;
+    completeBtn.style.pointerEvents = 'none';
+    completeBtn.style.opacity = '0.6';
+    completeBtn.style.cursor = 'not-allowed';
+  }
 
   try {
-    const res = await fetch(URL_PROGRAM_APP, {
+    const response = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -4156,53 +4178,40 @@ async function simpanMateri(hariKe) {
       })
     });
 
-    const result = await res.text();
-    if (result !== 'OK') return;
-    // ✅ disable tombol centang
-    if (btn) {
-      btn.disabled = true;
-      btn.dataset.done = 'true';
-      btn.style.pointerEvents = 'none';
-      btn.style.opacity = '0.6';
-    }
-    // ✅ submenu 1.1 dapat 🟢
-    updateSubmenuLinkUI(hariKe, 'materi');
-  } catch (e) {
-    console.error(e);
-  }
-}
+    const result = await response.text();
+    console.log('📥 Response updateMateri:', result);
 
-async function BACKUP_simpanMateri(hariKe) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  if (!userId) return;
-  console.log('🔧 simpanMateri called:', hariKe);
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateMateri',
-      userId,
-      namaUser,
-      hariKe
-    })
-  });
+    if (result === 'OK') {
 
-  const result = await response.text();
-  console.log('📥 Response updateMateri:', result);
+      // ✅ TANDAI SUBMENU 1.1 (PASTI KE MATERI, BUKAN MEAL PLAN)
+      updateSubmenuLinkUI(hariKe, 'materi');
 
-  if (result === "OK") {
-    // 🔒 Disable tombol centang video (TOTAL)
-    const btn = document.getElementById(`completeMateriBtn${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.onclick = null;
-      btn.style.pointerEvents = 'none';
-      btn.style.opacity = '0.5';
+      // 🧼 Tutup video setelah selesai
+      closeVideo('pertemuan' + hariKe);
+
+    } else {
+      // ❌ Jika gagal → buka kembali tombol
+      console.error('❌ Gagal simpan materi:', result);
+      if (completeBtn) {
+        completeBtn.dataset.locked = 'false';
+        completeBtn.disabled = false;
+        completeBtn.style.pointerEvents = '';
+        completeBtn.style.opacity = '';
+        completeBtn.style.cursor = '';
+      }
     }
 
-    // ✅ Tandai submenu MATERI (BUKAN MEAL PLAN)
-    updateSubmenuLinkUI(hariKe, 'materi');
+  } catch (error) {
+    console.error('❌ Error simpanMateri:', error);
+
+    // ❌ Jika error → buka kembali tombol
+    if (completeBtn) {
+      completeBtn.dataset.locked = 'false';
+      completeBtn.disabled = false;
+      completeBtn.style.pointerEvents = '';
+      completeBtn.style.opacity = '';
+      completeBtn.style.cursor = '';
+    }
   }
 }
 
