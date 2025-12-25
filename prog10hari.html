@@ -4764,7 +4764,6 @@ function getMealTypeName(mealType) {
 *************************************************************/
 async function selesaikanMealPlan(hariKe) {
   console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
-
   if (!checkAllMealsUploaded(hariKe)) {
     showMessage('error', 'Masih ada yang belum diupload meal plannya', 3000);
     return;
@@ -4784,11 +4783,9 @@ async function selesaikanMealPlan(hariKe) {
 
     const result = await response.text();
     console.log('📥 Update Meal Plan:', result);
-
     // Disable tombol selesai
     const btn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
     if (btn) btn.disabled = true;
-
     // Disable semua input & upload
     ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'].forEach(meal => {
       const input = document.getElementById(`${meal}${hariKe}`);
@@ -4797,8 +4794,7 @@ async function selesaikanMealPlan(hariKe) {
       const uploadBtn = input?.parentElement.querySelector('button');
       if (uploadBtn) uploadBtn.disabled = true;
     });
-
-    // Tandai submenu 🟢
+   // Tandai submenu 🟢
     updateSubmenuLinkUI(hariKe, 'mealplan');
 
   } catch (err) {
