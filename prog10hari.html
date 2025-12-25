@@ -4080,6 +4080,56 @@ function setupMateriCompletion() {
             
             if (!container.querySelector('.complete-btn')) {
                 const completeBtn = document.createElement('button');
+                completeBtn.className = 'btn btn-success btn-sm';
+                completeBtn.id = `btnMateriDone${hariKe}`;   // ✅ INI KUNCI
+                completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+
+                completeBtn.onclick = () => {
+                  if (completeBtn.dataset.done === 'true') {
+                    console.warn('⛔ Materi sudah diselesaikan');
+                    return;
+                  }
+                  simpanMateri(hariKe);
+                };
+          
+                const videoWrapper = container.querySelector('.video-wrapper');
+                if (videoWrapper) {
+                    videoWrapper.style.position = 'relative';
+                    videoWrapper.appendChild(completeBtn);
+                    console.log('✅ Tombol centang ditambahkan ke:', containerId);
+                }
+            }
+            
+            // ✅ CEK STATUS SUDAH COMPLETE ATAU BELUM
+            const status = localStorage.getItem(`materi_hari_${hariKe}`);
+            if (status === 'completed') {
+                const existingBtn = container.querySelector('.complete-btn');
+                if (existingBtn) {
+                    existingBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+                    existingBtn.classList.remove('btn-success');
+                    existingBtn.classList.add('btn-secondary');
+                    existingBtn.disabled = true;
+                }
+            }
+        }
+    });
+}
+
+
+function BACKUP_setupMateriCompletion() {
+    console.log('🔧 Setting up materi completion...');
+    
+    document.querySelectorAll('.video-container').forEach(container => {
+        const containerId = container.id;
+        
+        if (containerId.includes('Pertemuan')) {
+            console.log('✅ Found video container for materi:', containerId);
+            
+            // Extract hariKe dari container ID
+            const hariKe = containerId.replace('videoContainerPertemuan', '');
+            
+            if (!container.querySelector('.complete-btn')) {
+                const completeBtn = document.createElement('button');
                 completeBtn.innerHTML = '<i class="fas fa-check"></i>';
                 completeBtn.className = 'btn btn-success btn-sm complete-btn';
                 completeBtn.style.cssText = `
@@ -4136,6 +4186,51 @@ function setupPerkenalanCompletion() {
 * Simpan materi untuk hari tertentu *
 ************************************/
 async function simpanMateri(hariKe) {
+  console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
+  const btn = document.getElementById(`btnMateriDone${hariKe}`);
+  if (!btn || btn.dataset.done === 'true') {
+    console.warn('⛔ Tombol sudah diselesaikan');
+    return;
+  }
+  const userId = localStorage.getItem('userId');
+  const namaUser = localStorage.getItem('namaUser');
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateMateri',
+        userId,
+        namaUser,
+        hariKe
+      })
+    });
+    const text = await response.text();
+    console.log('📥 Response updateMateri:', text);
+
+    // ✅ FIX PENTING: cek mengandung OK
+    if (text.includes('OK')) {
+      // 1️⃣ LOCK tombol (ANTI DOUBLE CLICK)
+      btn.disabled = true;
+      btn.dataset.done = 'true';
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.6';
+      // 2️⃣ Tutup video
+      closeVideo('pertemuan' + hariKe);
+      // 3️⃣ Update submenu → 🟢
+      updateSubmenuLinkUI(hariKe, 'materi');
+      console.log('✅ Materi hari', hariKe, 'berhasil disimpan & dikunci');
+    } else {
+      console.error('❌ Gagal simpan materi:', text);
+    }
+  } catch (err) {
+    console.error('❌ Error simpanMateri:', err);
+  }
+}
+
+ 
+async function BACKUP_simpanMateri(hariKe) {
   console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
 
   const userId   = localStorage.getItem('userId');
