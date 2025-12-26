@@ -4592,102 +4592,45 @@ function showMealPlanUploadForm(hariKe) {
     }
 }
 
+function handleMealUploadResponse(result) {
+  console.log('📥 Upload callback result:', result);
+
+  if (!result || !result.success) return;
+
+  const { hariKe, mealType, fileName } = window.__lastMealUpload || {};
+  if (!hariKe || !mealType) return;
+
+  updateMealInputField(mealType, fileName, hariKe);
+}
+
+
 /******************************************
 * Process upload untuk meal type tertentu *
 *******************************************/
 async function uploadMealItem(hariKe, mealType) {
   console.log(`📸 Upload ${mealType} hari ${hariKe}`);
-
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
 
-  fileInput.onchange = async () => {
+  fileInput.onchange = () => {
     const file = fileInput.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const responseText = await uploadToServer(
-          hariKe,
-          mealType,
-          reader.result,
-          file.name
-        );
+    reader.onload = () => {
 
-        console.log('📥 Upload response:', responseText);
-
-        // 🔑 PENTING: parse STRING → OBJECT
-        let result;
-        try {
-          result = JSON.parse(responseText.replace(/^.*?\(/, '').replace(/\);?$/, ''));
-        } catch (e) {
-          console.error('❌ Gagal parse response', e);
-          return;
-        }
-
-        if (result.success) {
-          // ✅ INI YANG SELAMA INI TIDAK PERNAH TERJALAN
-          updateMealInputField(mealType, file.name, hariKe);
-        }
-
-      } catch (err) {
-        console.error('❌ Upload error:', err);
-      }
+      // 🔑 SIMPAN CONTEXT UNTUK CALLBACK
+      window.__lastMealUpload = { hariKe, mealType, fileName: file.name };
+      uploadToServer(
+        hariKe,
+        mealType,
+        reader.result,
+        file.name
+      );
     };
-
     reader.readAsDataURL(file);
   };
-
-  fileInput.click();
-}
-
-
-async function BACKUP_uploadMealItem(hariKe, mealType) {
-  console.log(`📸 Upload ${mealType} hari ${hariKe}`);
-
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-
-  fileInput.onchange = async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result.split(',')[1];
-
-      const response = await fetch(URL_PROGRAM_APP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          action: 'uploadMealPlan',
-          userId: localStorage.getItem('userId'),
-          namaUser: localStorage.getItem('namaUser'),
-          hariKe,
-          mealType,
-          file: base64
-        })
-      });
-
-      const text = await response.text();
-      console.log('📥 Upload response:', text);
-
-      const result = parseJSONP(text);
-      if (!result || !result.success) {
-        showMessage('error', 'Upload gagal', 3000, `mealPlanContent${hariKe}`);
-        return;
-      }
-
-      // ✅ UPDATE UI
-      updateMealInputField(mealType, fileName, hariKe);
-    };
-
-    reader.readAsDataURL(file);
-  };
-
   fileInput.click();
 }
 
@@ -4695,6 +4638,67 @@ async function BACKUP_uploadMealItem(hariKe, mealType) {
 * Upload file ke server *
 *************************/
 async function uploadToServer(hariKe, mealType, fileData, fileName) {
+  const userId   = localStorage.getItem('userId');
+  const namaUser = localStorage.getItem('namaUser');
+  if (!userId) {
+    console.error('❌ User belum login');
+    return { success: false, message: 'Silakan login terlebih dahulu' };
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        action: 'uploadMealPlan',
+        userId,
+        namaUser,
+        hariKe,
+        mealType,
+        file: fileData,
+        fileName
+      })
+    });
+
+    let raw = await response.text();
+    console.log('📥 Upload response RAW:', raw);
+    if (!raw) {
+      return { success: false, message: 'Response kosong dari server' };
+    }
+
+    // 🔥 BERSIHKAN RESPONSE (kasus undefined({...}))
+    let clean = raw.trim();
+    if (clean.startsWith('undefined')) {
+      clean = clean.replace(/^undefined/, '');
+    }
+    if (clean.startsWith('(') && clean.endsWith(')')) {
+      clean = clean.slice(1, -1);
+    }
+
+    // 🧠 PARSE JSON
+    try {
+      const parsed = JSON.parse(clean);
+      return parsed;
+    } catch (err) {
+      console.error('❌ JSON parse gagal:', clean);
+      return {
+        success: false,
+        message: 'Format response server tidak valid'
+      };
+    }
+
+  } catch (error) {
+    console.error('❌ Server error:', error);
+    return {
+      success: false,
+      message: 'Gagal terhubung ke server'
+    };
+  }
+}
+
+async function BACKUP_uploadToServer(hariKe, mealType, fileData, fileName) {
     const userId   = localStorage.getItem('userId');
     const namaUser = localStorage.getItem('namaUser');
     if (!userId) {
@@ -4727,6 +4731,9 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
             //    return { success: false, message: result };
             }
         }
+
+
+
     } catch (error) {
         console.error('Server error:', error);
         return { success: false, message: 'Gagal terhubung ke server' };
