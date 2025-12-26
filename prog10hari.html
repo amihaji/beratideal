@@ -4730,41 +4730,38 @@ function updateMealInputField(mealType, fileName, hariKe) {
 }
 
 /*********************************
- * Kunci seluruh meal plan UI    *
- *********************************/
-/*********************************
  * Kunci meal plan (kecuali PDF) *
  *********************************/
 function lockMealPlanUI(hariKe) {
-  const mealTypes = [
-    'sarapan',
-    'cemilanPagi',
-    'makanSiang',
-    'cemilanSore',
-    'makanMalam'
-  ];
-
-  // 🔒 Disable input text
-  mealTypes.forEach(meal => {
-    const input = document.getElementById(`${meal}${hariKe}`);
-    if (input) input.disabled = true;
-  });
+  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
 
   const container = document.getElementById(`mealPlanContent${hariKe}`);
   if (!container) return;
 
-  // 🔒 Disable semua tombol
+  // 1️⃣ Disable semua tombol UPLOAD
   container.querySelectorAll('button').forEach(btn => {
+    // Biarkan tombol PDF tetap aktif
+    if (btn.id === 'btnCekDisiniMealPlan') return;
     btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.6';
   });
 
-  // ✅ WAJIB: AKTIFKAN KEMBALI tombol PDF
+  // 2️⃣ Disable semua input text (nama file)
+  container.querySelectorAll('input').forEach(input => {
+    input.readOnly = true;
+    input.style.backgroundColor = '#f8f9fa';
+  });
+
+  // 3️⃣ Pastikan tombol PDF AKTIF
   const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
   if (pdfBtn) {
     pdfBtn.disabled = false;
+    pdfBtn.style.pointerEvents = 'auto';
+    pdfBtn.style.opacity = '1';
   }
-  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
 }
+
 
 function BACKUP_lockMealPlanUI(hariKe) {
   const mealTypes = [
@@ -4829,8 +4826,8 @@ async function selesaikanMealPlan(hariKe) {
         action: 'updateMealPlan',   // 🔑 INI HARUS PERSIS SAMA DI doPost
         userId,
         namaUser,
-        hariKe
-        // status: 'OK'
+        hariKe,
+        status: 'OK'
       })
     });
 
