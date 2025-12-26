@@ -4733,6 +4733,40 @@ function updateMealInputField(mealType, fileName, hariKe) {
  * Kunci meal plan (kecuali PDF) *
  *********************************/
 function lockMealPlanUI(hariKe) {
+  console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
+
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) return;
+
+  //   1️⃣ Disable SEMUA tombol upload
+  container.querySelectorAll('button').forEach(btn => {
+    // BIARKAN tombol PDF TETAP AKTIF
+    if (btn.id === 'btnCekDisiniMealPlan') return;
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.5';
+  });
+
+  //   2️⃣ Disable SEMUA input file & text
+  container.querySelectorAll('input').forEach(input => {
+    input.disabled = true;
+    input.readOnly = true;
+    input.style.backgroundColor = '#f8f9fa';
+    input.style.cursor = 'not-allowed';
+  });
+
+  //   3️⃣ Pastikan tombol PDF AKTIF
+  const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
+  if (pdfBtn) {
+    pdfBtn.disabled = false;
+    pdfBtn.style.pointerEvents = 'auto';
+    pdfBtn.style.opacity = '1';
+  }
+  console.log(`✅ Meal Plan hari ${hariKe} berhasil dikunci (upload OFF, PDF ON)`);
+}
+
+
+function BACKUP_lockMealPlanUI(hariKe) {
   console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
 
   const container = document.getElementById(`mealPlanContent${hariKe}`);
@@ -4762,32 +4796,6 @@ function lockMealPlanUI(hariKe) {
   }
 }
 
-
-function BACKUP_lockMealPlanUI(hariKe) {
-  const mealTypes = [
-    'sarapan',
-    'cemilanPagi',
-    'makanSiang',
-    'cemilanSore',
-    'makanMalam'
-  ];
-
-  // 🔒 Disable input text
-  mealTypes.forEach(meal => {
-    const input = document.getElementById(`${meal}${hariKe}`);
-    if (input) input.disabled = true;
-  });
-
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
-  if (!container) return;
-
-  // 🔒 Disable semua tombol KECUALI "Cek Disini"
-  container.querySelectorAll('button').forEach(btn => {
-    if (btn.id === 'btnCekDisiniMealPlan') return; // ✅ BIARKAN AKTIF
-    btn.disabled = true;
-  });
-  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
-}
 
 /****************************************
 * Get nama meal type yang user-friendly *
