@@ -4741,6 +4741,33 @@ function lockMealPlanUI(hariKe) {
     'makanMalam'
   ];
 
+  // 🔒 Disable input text
+  mealTypes.forEach(meal => {
+    const input = document.getElementById(`${meal}${hariKe}`);
+    if (input) input.disabled = true;
+  });
+
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) return;
+
+  // 🔒 Disable semua tombol KECUALI "Cek Disini"
+  container.querySelectorAll('button').forEach(btn => {
+    if (btn.id === 'btnCekDisiniMealPlan') return; // ✅ BIARKAN AKTIF
+    btn.disabled = true;
+  });
+  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
+}
+
+
+function BACKUP_lockMealPlanUI(hariKe) {
+  const mealTypes = [
+    'sarapan',
+    'cemilanPagi',
+    'makanSiang',
+    'cemilanSore',
+    'makanMalam'
+  ];
+
   mealTypes.forEach(meal => {
     const input = document.getElementById(`${meal}${hariKe}`);
     if (input) input.disabled = true;
