@@ -4732,7 +4732,41 @@ function updateMealInputField(mealType, fileName, hariKe) {
 /*********************************
  * Kunci seluruh meal plan UI    *
  *********************************/
+/*********************************
+ * Kunci meal plan (kecuali PDF) *
+ *********************************/
 function lockMealPlanUI(hariKe) {
+  const mealTypes = [
+    'sarapan',
+    'cemilanPagi',
+    'makanSiang',
+    'cemilanSore',
+    'makanMalam'
+  ];
+
+  // 🔒 Disable input text
+  mealTypes.forEach(meal => {
+    const input = document.getElementById(`${meal}${hariKe}`);
+    if (input) input.disabled = true;
+  });
+
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) return;
+
+  // 🔒 Disable semua tombol
+  container.querySelectorAll('button').forEach(btn => {
+    btn.disabled = true;
+  });
+
+  // ✅ WAJIB: AKTIFKAN KEMBALI tombol PDF
+  const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
+  if (pdfBtn) {
+    pdfBtn.disabled = false;
+  }
+  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
+}
+
+function BACKUP_lockMealPlanUI(hariKe) {
   const mealTypes = [
     'sarapan',
     'cemilanPagi',
@@ -4758,32 +4792,6 @@ function lockMealPlanUI(hariKe) {
   console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
 }
 
-
-function BACKUP_lockMealPlanUI(hariKe) {
-  const mealTypes = [
-    'sarapan',
-    'cemilanPagi',
-    'makanSiang',
-    'cemilanSore',
-    'makanMalam'
-  ];
-
-  mealTypes.forEach(meal => {
-    const input = document.getElementById(`${meal}${hariKe}`);
-    if (input) input.disabled = true;
-  });
-
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
-  if (container) {
-    container.querySelectorAll('button').forEach(btn => {
-      btn.disabled = true;
-    });
-  }
-
-  console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
-}
-
-
 /****************************************
 * Get nama meal type yang user-friendly *
 *****************************************/
@@ -4804,8 +4812,52 @@ function getMealTypeName(mealType) {
 async function selesaikanMealPlan(hariKe) {
   console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
+  // 1️⃣ Validasi semua meal sudah diupload
   if (!checkAllMealsUploaded(hariKe)) {
-    alert('Masih ada yang belum diupload meal plannya');
+    showMessage( 'error', 'Masih ada yang belum diupload meal plannya', 3000, `mealPlanContent${hariKe}` );
+    return;
+  }
+
+  const userId   = localStorage.getItem('userId');
+  const namaUser = localStorage.getItem('namaUser');
+  try {
+    // 2️⃣ SIMPAN STATUS MEAL PLAN (kolom Q = OK)
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateMealPlan',   // 🔑 INI HARUS PERSIS SAMA DI doPost
+        userId,
+        namaUser,
+        hariKe,
+        status: 'OK'
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 Update Meal Plan:', result);
+    if (result === 'OK') {
+      // 3️⃣ Kunci UI (upload + selesai), PDF tetap aktif
+      lockMealPlanUI(hariKe);
+      // 4️⃣ Tampilkan 🟢 di submenu 1.2
+      updateSubmenuLinkUI(hariKe, 'mealplan');
+      showMessage('success','Meal Plan hari ini berhasil diselesaikan',3000, `mealPlanContent${hariKe}` );
+    } else {
+      console.warn('⚠️ Response bukan OK:', result);
+    }
+
+  } catch (error) {
+    console.error('❌ Gagal menyelesaikan Meal Plan:', error);
+  }
+}
+
+
+async function BACKUP_selesaikanMealPlan(hariKe) {
+  console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
+
+  if (!checkAllMealsUploaded(hariKe)) {
+    //alert('Masih ada yang belum diupload meal plannya');
+    showMessage('warning', 'Masih ada yang belum diupload meal plannya', 500, `pertemuan${hariKe}`);
     return;
   }
 
@@ -4844,7 +4896,8 @@ async function selesaikanMealPlan(hariKe) {
 
   } catch (err) {
     console.error('❌ Gagal selesaikan meal plan:', err);
-    alert('Gagal menyimpan status meal plan');
+    //alert('Gagal menyimpan status meal plan');
+    showMessage('error', 'Gagal menyimpan status meal plan', 500, `pertemuan${hariKe}`);
   }
 }
 
@@ -6651,7 +6704,6 @@ function loadWaterReminderData(hariKe) {
                 </div>
             `;
         }
-        
         // Update menu icon
         updateWaterMenuIcon(hariKe);
         return;
