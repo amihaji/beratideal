@@ -4738,6 +4738,41 @@ function lockMealPlanUI(hariKe) {
   const container = document.getElementById(`mealPlanContent${hariKe}`);
   if (!container) return;
 
+  // 1️⃣ Disable SEMUA tombol upload
+  container.querySelectorAll('button').forEach(btn => {
+    // BIARKAN tombol PDF TETAP AKTIF
+    if (btn.id === 'btnCekDisiniMealPlan') return;
+
+    btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.5';
+  });
+
+  // 2️⃣ Disable SEMUA input file & text
+  container.querySelectorAll('input').forEach(input => {
+    input.disabled = true;
+    input.readOnly = true;
+    input.style.backgroundColor = '#f8f9fa';
+    input.style.cursor = 'not-allowed';
+  });
+
+  // 3️⃣ Pastikan tombol PDF AKTIF 
+  const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
+  if (pdfBtn) {
+    pdfBtn.disabled = false;
+    pdfBtn.style.pointerEvents = 'auto';
+    pdfBtn.style.opacity = '1';
+  }
+
+  console.log(`✅ Meal Plan hari ${hariKe} berhasil dikunci (upload OFF, PDF ON)`);
+}
+
+function BACKUP_lockMealPlanUI(hariKe) {
+  console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
+
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) return;
+
   //   1️⃣ Disable SEMUA tombol upload
   container.querySelectorAll('button').forEach(btn => {
     // BIARKAN tombol PDF TETAP AKTIF
@@ -4764,38 +4799,6 @@ function lockMealPlanUI(hariKe) {
   }
   console.log(`✅ Meal Plan hari ${hariKe} berhasil dikunci (upload OFF, PDF ON)`);
 }
-
-
-function BACKUP_lockMealPlanUI(hariKe) {
-  console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
-
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
-  if (!container) return;
-
-  // 1️⃣ Disable semua tombol UPLOAD
-  container.querySelectorAll('button').forEach(btn => {
-    // Biarkan tombol PDF tetap aktif
-    if (btn.id === 'btnCekDisiniMealPlan') return;
-    btn.disabled = true;
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.6';
-  });
-
-  // 2️⃣ Disable semua input text (nama file)
-  container.querySelectorAll('input').forEach(input => {
-    input.readOnly = true;
-    input.style.backgroundColor = '#f8f9fa';
-  });
-
-  // 3️⃣ Pastikan tombol PDF AKTIF
-  const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
-  if (pdfBtn) {
-    pdfBtn.disabled = false;
-    pdfBtn.style.pointerEvents = 'auto';
-    pdfBtn.style.opacity = '1';
-  }
-}
-
 
 /****************************************
 * Get nama meal type yang user-friendly *
@@ -4841,13 +4844,9 @@ async function selesaikanMealPlan(hariKe) {
     const result = await response.text();
     console.log('📥 Update Meal Plan:', result);
     if (result === 'OK') {
-      // 3️⃣ Kunci UI (upload + selesai), PDF tetap aktif
-      lockMealPlanUI(hariKe);
-      // 4️⃣ Tampilkan 🟢 di submenu 1.2
-      updateSubmenuLinkUI(hariKe, 'mealplan');
+      lockMealPlanUI(hariKe);                      // 🔒 KUNCI UI
+      updateSubmenuLinkUI(hariKe, 'mealplan');     // 🟢 SUBMENU
       showMessage('success','Meal Plan hari ini berhasil diselesaikan',3000, `mealPlanContent${hariKe}` );
-    } else {
-      console.warn('⚠️ Response bukan OK:', result);
     }
 
   } catch (error) {
