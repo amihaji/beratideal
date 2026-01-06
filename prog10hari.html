@@ -1575,6 +1575,52 @@ function applyLockSystem(progress) {
 * Apply progress untuk user yang sudah ada progress *
 *****************************************************/
 function applyExistingUserProgress(progress) {
+    console.log('♻️ Apply progress ke UI:', progress);
+
+    // PERKENALAN
+    if (progress.perkenalan === true) {
+        // Unlock hari pertama
+        unlockModul(1);
+
+        // Disable tombol selesai perkenalan
+        disableSelesaiPerkenalanButton();
+
+        // Tampilkan centang hijau submenu Perkenalan
+        updateSubmenuLinkUI('perkenalan', 0);
+    }
+
+    // MATERI HARIAN (1.1 dst)
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const materiKey = `materi${hariKe}`;
+
+        if (progress[materiKey] === 'OK') {
+            console.log(`✅ Restore materi hari ${hariKe}`);
+
+            // Tandai submenu 1.1
+            updateSubmenuLinkUI('materi', hariKe);
+
+            // Kunci tombol centang video
+            localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+        }
+    }
+
+    //   MEAL PLAN
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const mealKey = `mealplan${hariKe}`;
+
+        if (progress[mealKey] === 'OK') {
+            console.log(`✅ Restore meal plan hari ${hariKe}`);
+           // Submenu 1.2 🟢
+            updateSubmenuLinkUI('mealplan', hariKe);
+           // Kunci semua upload & tombol selesai
+            lockMealPlanUI(hariKe);
+        }
+    }
+    //    AKTIFKAN ULANG KOMPONEN
+    setupMateriCompletion();
+}
+
+function BACKUP_applyExistingUserProgress(progress) {
     console.log('👤 Apply progress untuk user existing:', progress);
     
     // 1. Perkenalan sudah selesai
@@ -1612,6 +1658,23 @@ function applyExistingUserProgress(progress) {
             header.click();
         }
     }, 500);
+}
+
+function lockMealPlanUI(hariKe) {
+    // Disable semua upload button
+    document
+      .querySelectorAll(`#mealPlanContent${hariKe} button`)
+      .forEach(btn => {
+          if (!btn.id?.includes('btnCekDisiniMealPlan')) {
+              btn.disabled = true;
+              btn.style.pointerEvents = 'none';
+              btn.style.opacity = '0.6';
+          }
+      });
+
+    // Disable tombol selesai
+    const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+    if (selesaiBtn) selesaiBtn.disabled = true;
 }
 
 /***************************************
