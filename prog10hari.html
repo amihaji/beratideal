@@ -2487,43 +2487,52 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 function updateSubmenuLinkUI(type, hariKe) {
     console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
 
-    let selector = null;
+    let link = null;
 
-    switch (type) {
-        case 'perkenalan':
-            selector = '#perkenalanContent a.menu-item';
-            break;
+    if (type === 'perkenalan') {
+        // ✅ KHUSUS perkenalan
+        const container = document.getElementById('perkenalanContent');
+        if (!container) return;
 
-        case 'materi':
-            // 🔥 INI KUNCI UTAMA (REVISI11)
-            selector = `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`;
-            break;
-
-        case 'mealplan':
-            selector = `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`;
-            break;
-
-        default:
-            return;
+        link = [...container.querySelectorAll('a.menu-item')]
+            .find(a => a.textContent.includes('Selesai Perkenalan'));
     }
-    const link = document.querySelector(selector);
+
+    if (type === 'materi') {
+        // ✅ KHUSUS Materi Hari X (ANTI SALAH TARGET)
+        const container = document.getElementById(`pertemuan${hariKe}Content`);
+        if (!container) return;
+
+        link = container.querySelector(
+            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
+        );
+    }
+
+    if (type === 'mealplan') {
+        link = document.querySelector(
+            `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`
+        );
+    }
+
     if (!link) {
-        console.warn('❌ Submenu tidak ditemukan:', selector);
+        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
         return;
     }
-    // Hindari dobel centang
-    if (link.querySelector('.status-done')) return;
-    const checkIcon = document.createElement('i');
-    checkIcon.className = 'fas fa-check-circle status-done';
-    checkIcon.style.color = 'green';
-    checkIcon.style.marginLeft = '8px';
-    checkIcon.style.fontSize = '0.9em';
 
-    link.appendChild(checkIcon);
+    // ❌ Cegah dobel centang
+    if (link.querySelector('.status-done')) return;
+
+    // ✅ Tambah centang BULAT HIJAU
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle status-done';
+    icon.style.color = 'green';
+    icon.style.marginLeft = '8px';
+    icon.style.fontSize = '0.9em';
+
+    link.appendChild(icon);
     link.style.fontWeight = 'bold';
     link.style.color = '#666';
 }
-
 
 function BACKUP_updateSubmenuLinkUI(submenuType, hariKe) {
   console.log(`🔄 Updating submenu UI: ${submenuType}`, hariKe);
