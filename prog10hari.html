@@ -244,6 +244,15 @@ body { background-color: #f8f9fa; }
 .close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
 /***** Akhir Video Player Styles *****/
 
+.video-locked {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+.video-locked * {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
 /***** Playlist Container Styles Video Youtube *****/
 .playlist-container {
     display: none;
@@ -1564,14 +1573,15 @@ function applyExistingUserProgress(progress) {
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         if (progress[`materiHari${hariKe}`] === true) {
             console.log(`🟢 Materi hari ${hariKe} sudah selesai`);
-
-            // 🟢 submenu centang
-            updateSubmenuLinkUI('materi', hariKe);
+            
+            lockMateriVideo(hariKe);
 
             // 🔒 kunci tombol centang video
             const btn = document.getElementById(`btnMateriDone${hariKe}`);
             if (btn) {
                 disableButtonFully(btn);
+                // 🟢 submenu centang
+                updateSubmenuLinkUI('materi', hariKe);
             }
 
             // pastikan localStorage sinkron
@@ -4170,6 +4180,10 @@ async function simpanMateri(hariKe) {
         // ✅ simpan status lokal
         localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
 
+        // 🔒 KUNCI VIDEO TOTAL
+        lockMateriVideo(hariKe);
+        
+        const btn = document.getElementById(`btnMateriDone${hariKe}`);
         // 🔒 KUNCI TOTAL TOMBOL
         disableButtonFully(btn);
 
@@ -4178,53 +4192,6 @@ async function simpanMateri(hariKe) {
 
         console.log(`✅ Materi hari ${hariKe} berhasil disimpan & dikunci`);
     }
-}
-
-async function BACKUP_simpanMateri(hariKe) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-  if (!userId) return;
-
-  console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updateMateri',
-        userId,
-        namaUser,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Response updateMateri:', result);
-
-    if (result && result.includes('OK')) {
-
-      // 1️⃣ DISABLE tombol centang materi video
-      const btn = document.getElementById(`btnMateriDone${hariKe}`);
-      if (btn) {
-          btn.disabled = true;
-          btn.dataset.done = 'true';
-          btn.classList.remove('btn-success');
-          btn.classList.add('btn-secondary');
-
-          btn.style.cursor = 'not-allowed';
-          btn.style.pointerEvents = 'none';
-          btn.onclick = null;
-      }
-
-      // 2️⃣ Tambahkan 🟢 ke submenu 1.1
-      updateSubmenuLinkUI('materi', hariKe);
-      console.log(`✅ Materi hari ${hariKe} berhasil disimpan & dikunci`);
-    }
-
-  } catch (error) {
-    console.error('❌ Gagal simpan materi:', error);
-  }
 }
 
 /********************************************
@@ -4261,6 +4228,16 @@ async function selesaikanPerkenalan() {
     // ✅ 3️⃣ BARU update UI submenu (SETELAH unlock)
     updateSubmenuLinkUI('perkenalan', 0);
   }
+}
+
+function lockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+
+    container.classList.add('video-locked');
+    container.style.opacity = '0.8';
+
+    console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
 }
 
 function disableSelesaiPerkenalanButton() {
