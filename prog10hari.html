@@ -1551,32 +1551,32 @@ function applyExistingUserProgress(progress) {
     console.log('📊 Apply existing user progress:', progress);
 
     //   PERKENALAN
-    if (progress.perkenalan === true) {
+    if (progress.perkenalan === true || progress.perkenalan === 'OK') {
         updateSubmenuLinkUI('perkenalan', 0);
         disableSelesaiPerkenalanButton();
         unlockModul(1);
     }
 
-    // MATERI HARI 1–10
-    if (progress.materi && typeof progress.materi === 'object') {
-        Object.keys(progress.materi).forEach(hariKe => {
-            if (progress.materi[hariKe] === true) {
-                console.log(`✅ Apply materi selesai hari ${hariKe}`);
+    //   MATERI HARI 1 – 10
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const materiKey = `materiHari${hariKe}`;
 
-                // 🟢 SUBMENU
-                updateSubmenuLinkUI('materi', hariKe);
+        if (progress[materiKey] === 'OK') {
+            console.log(`✅ Materi hari ${hariKe} sudah selesai (server)`);
 
-                // 🔒 tombol centang video
-                const btn = document.getElementById(`btnMateriDone${hariKe}`);
-                if (btn) {
-                    btn.disabled = true;
-                    btn.dataset.done = 'true';
-                    btn.innerHTML = '<i class="fas fa-check-double"></i>';
-                    btn.classList.remove('btn-success');
-                    btn.classList.add('btn-secondary');
-                }
+            // 🟢 submenu
+            updateSubmenuLinkUI('materi', hariKe);
+
+            // 🔒 tombol centang di video
+            const btn = document.getElementById(`btnMateriDone${hariKe}`);
+            if (btn) {
+                btn.disabled = true;
+                btn.dataset.done = 'true';
+                btn.innerHTML = '<i class="fas fa-check-double"></i>';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-secondary');
             }
-        });
+        }
     }
 
     // MEAL PLAN 
