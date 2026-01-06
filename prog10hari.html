@@ -4032,7 +4032,75 @@ function showSubmenuOnly(targetId) {
 /************************************************************
 * Memberikan tombol centang Centang Selain Video Perkenalan *
 *************************************************************/
+/************************************************************
+* Memberikan tombol centang Materi (Hari 1–10)
+*************************************************************/
 function setupMateriCompletion() {
+  console.log('🔧 Setting up materi completion...');
+
+  document.querySelectorAll('.video-container').forEach(container => {
+    const containerId = container.id;
+
+    if (!containerId.includes('Pertemuan')) return;
+
+    const hariKe = containerId.replace('videoContainerPertemuan', '');
+    const videoWrapper = container.querySelector('.video-wrapper');
+    if (!videoWrapper) return;
+
+    videoWrapper.style.position = 'relative';
+
+    let completeBtn = container.querySelector('.complete-btn');
+
+    // === BUAT TOMBOL JIKA BELUM ADA ===
+    if (!completeBtn) {
+      completeBtn = document.createElement('button');
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.className = 'btn btn-success btn-sm complete-btn';
+      completeBtn.id = `btnMateriDone${hariKe}`;
+      completeBtn.style.cssText = `
+        position: absolute; top: 10px; left: 10px; z-index: 25;
+        width: 35px; height: 35px; border-radius: 50%; padding: 0;
+        border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      `;
+
+      completeBtn.onclick = () => {
+        if (completeBtn.dataset.done === 'true') {
+          console.warn('⛔ Materi sudah diselesaikan');
+          return;
+        }
+
+        simpanMateri(hariKe);
+
+        // 🔒 KUNCI LANGSUNG DI UI
+        completeBtn.dataset.done = 'true';
+        completeBtn.disabled = true;
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+
+        // 💾 SIMPAN STATUS
+        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+
+        // ✅ UPDATE SUBMENU
+        updateSubmenuLinkUI('materi', hariKe);
+      };
+
+      videoWrapper.appendChild(completeBtn);
+      console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
+    }
+
+    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
+    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
+      completeBtn.dataset.done = 'true';
+      completeBtn.disabled = true;
+      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.classList.remove('btn-success');
+      completeBtn.classList.add('btn-secondary');
+    }
+  });
+}
+
+function BACKUP_setupMateriCompletion() {
     console.log('🔧 Setting up materi completion...');
     
     document.querySelectorAll('.video-container').forEach(container => {
