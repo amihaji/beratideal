@@ -2484,7 +2484,48 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /*************************************
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
-function updateSubmenuLinkUI(submenuType, hariKe) {
+function updateSubmenuLinkUI(type, hariKe) {
+    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
+
+    let selector = null;
+
+    switch (type) {
+        case 'perkenalan':
+            selector = '#perkenalanContent a.menu-item';
+            break;
+
+        case 'materi':
+            // 🔥 INI KUNCI UTAMA (REVISI11)
+            selector = `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`;
+            break;
+
+        case 'mealplan':
+            selector = `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`;
+            break;
+
+        default:
+            return;
+    }
+    const link = document.querySelector(selector);
+    if (!link) {
+        console.warn('❌ Submenu tidak ditemukan:', selector);
+        return;
+    }
+    // Hindari dobel centang
+    if (link.querySelector('.status-done')) return;
+    const checkIcon = document.createElement('i');
+    checkIcon.className = 'fas fa-check-circle status-done';
+    checkIcon.style.color = 'green';
+    checkIcon.style.marginLeft = '8px';
+    checkIcon.style.fontSize = '0.9em';
+
+    link.appendChild(checkIcon);
+    link.style.fontWeight = 'bold';
+    link.style.color = '#666';
+}
+
+
+function BACKUP_updateSubmenuLinkUI(submenuType, hariKe) {
   console.log(`🔄 Updating submenu UI: ${submenuType}`, hariKe);
   let selector = '';
 
