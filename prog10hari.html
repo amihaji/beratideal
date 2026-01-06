@@ -1069,7 +1069,7 @@ const PLAYLIST_JSON_URL = './data/playlist.json';
 ***************************************/
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Aplikasi dimulai...');
-    
+
     // 1. ACCORDION TOGGLE FIX (PERTAMA)
     let currentOpenMenu = null;
     document.querySelectorAll('.menu-header').forEach(header => {
@@ -1123,11 +1123,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // 2. CEK STATUS USER DAN APPLY LOCK
-    //const userId = localStorage.getItem('userId');
-    //const progressData = localStorage.getItem('progressData');
-    
+ 
+    // Setup Menu Accordian toggle
+    setupAccordionToggle();
+    // Seetup semua komponen
+    setupAllComponents();
+    // SetUp Materi
+    setupMateriCompletion();
+
     // 2. CEK STATUS USER DAN APPLY LOCK
     const userId = localStorage.getItem('userId');
     if (userId) {
@@ -1137,10 +1140,6 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
     }
 
-    // Setup accordion toggle
-    setupAccordionToggle();
-    // SEetup semua komponen
-    setupAllComponents();
     console.log('✅ Aplikasi siap');
 });
 
@@ -1547,39 +1546,40 @@ function applyLockSystem(progress) {
 /****************************************************
 * Apply progress untuk user yang sudah ada progress *
 *****************************************************/
+/*****************************************
+* APPLY PROGRESS USER SAAT LOGIN ULANG *
+*****************************************/
 function applyExistingUserProgress(progress) {
     console.log('📊 Apply existing user progress:', progress);
 
-    //   PERKENALAN
-    if (progress.perkenalan === true || progress.perkenalan === 'OK') {
+    // ======================
+    // PERKENALAN
+    // ======================
+    if (progress.perkenalan) {
         updateSubmenuLinkUI('perkenalan', 0);
-        disableSelesaiPerkenalanButton();
         unlockModul(1);
+        disableSelesaiPerkenalanButton();
     }
 
-    // MATERI HARI 1 – 10
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        const materiKey = `materiHari${hariKe}`;
+    // ======================
+    // MATERI HARI PERTAMA
+    // ======================
+    if (progress.materiHari1 === true) {
+        console.log('✅ Apply centang Materi Hari 1');
+        updateSubmenuLinkUI('materi', 1);
 
-        if (progress[materiKey] === 'OK') {
-            console.log(`✅ Materi hari ${hariKe} sudah selesai (server)`);
-
-            // 🟢 submenu
-            updateSubmenuLinkUI('materi', hariKe);
-
-            // 🔒 tombol centang di video
-            const btn = document.getElementById(`btnMateriDone${hariKe}`);
-            if (btn) {
-                btn.disabled = true;
-                btn.dataset.done = 'true';
-                btn.innerHTML = '<i class="fas fa-check-double"></i>';
-                btn.classList.remove('btn-success');
-                btn.classList.add('btn-secondary');
-            }
+        // kunci tombol centang di video (kalau sudah ada)
+        const btn = document.getElementById('btnMateriDone1');
+        if (btn) {
+            btn.disabled = true;
+            btn.dataset.done = 'true';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-secondary');
         }
     }
 
-    // MEAL PLAN 
+    // MEAL PLAN belum digunakan
+    /*
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         const mealKey = `mealplan${hariKe}`;
 
@@ -1593,6 +1593,7 @@ function applyExistingUserProgress(progress) {
     }
     // AKTIFKAN ULANG KOMPONEN
     setupMateriCompletion();
+    */
 }
 
 function BACKUP_applyExistingUserProgress(progress) {
@@ -2514,64 +2515,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     link.style.fontWeight = 'bold';
     link.style.color = '#666';
 }
-
-function BACKUP_updateSubmenuLinkUI(submenuType, hariKe) {
-  console.log(`🔄 Updating submenu UI: ${submenuType}`, hariKe);
-  let selector = '';
-
-  // ✅ KHUSUS PERKENALAN
-  if (submenuType === 'perkenalan') {
-    selector = '#perkenalanContent a.menu-item';
-
-    const links = document.querySelectorAll(selector);
-    links.forEach(link => {
-      if (!link.textContent.includes('Selesai Perkenalan')) return;
-
-      // ⛔ JANGAN sentuh onclick / accordion / collapse
-      // ✅ HANYA tambahkan icon centang jika belum ada
-      if (link.querySelector('.status-done')) return;
-
-      const icon = document.createElement('i');
-      icon.className = 'fas fa-check-circle status-done';
-      icon.style.color = 'green';
-      icon.style.marginLeft = '6px';
-      icon.style.fontSize = '0.9em';
-
-      link.appendChild(icon);
-    });
-
-    return; // ⛔ STOP di sini, JANGAN lanjut logic lain
-  }
-
-  // 🔁 SUBMENU HARIAN (materi, mealplan, dll)
-  const configMap = {
-    materi: `#materiLink${hariKe}`,
-    mealplan: `[onclick*="uploadMealPlan(${hariKe})"]`,
-    workout: `[onclick*="selesaiWorkout(${hariKe})"]`,
-    water: `[onclick*="waterReminder(${hariKe})"]`,
-    istirahat: `[onclick*="istirahat(${hariKe})"]`,
-    datatracking: `[onclick*="dataTracking(${hariKe})"]`
-  };
-
-  selector = configMap[submenuType];
-  if (!selector) return;
-
-  const links = document.querySelectorAll(selector);
-  links.forEach(link => {
-    if (link.querySelector('.status-done')) return;
-
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle status-done';
-    icon.style.color = 'green';
-    icon.style.marginLeft = '6px';
-    icon.style.fontSize = '0.9em';
-
-    link.appendChild(icon);
-    link.style.fontWeight = 'bold';
-    link.style.color = '#666';
-  });
-}
-
 
 function BACKUP_updateSubmenuLinkUI(hariKe, submenuType) {
   let selector;
