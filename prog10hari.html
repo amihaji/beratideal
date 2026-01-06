@@ -2409,7 +2409,65 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /*************************************
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
-function updateSubmenuLinkUI(hariKe, submenuType) {
+function updateSubmenuLinkUI(submenuType, hariKe) {
+  console.log(`🔄 Updating submenu UI: ${submenuType}`, hariKe);
+  let selector = '';
+
+  // ✅ KHUSUS PERKENALAN
+  if (submenuType === 'perkenalan') {
+    selector = '#perkenalanContent a.menu-item';
+
+    const links = document.querySelectorAll(selector);
+    links.forEach(link => {
+      if (!link.textContent.includes('Selesai Perkenalan')) return;
+
+      // ⛔ JANGAN sentuh onclick / accordion / collapse
+      // ✅ HANYA tambahkan icon centang jika belum ada
+      if (link.querySelector('.status-done')) return;
+
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-check-circle status-done';
+      icon.style.color = 'green';
+      icon.style.marginLeft = '6px';
+      icon.style.fontSize = '0.9em';
+
+      link.appendChild(icon);
+    });
+
+    return; // ⛔ STOP di sini, JANGAN lanjut logic lain
+  }
+
+  // 🔁 SUBMENU HARIAN (materi, mealplan, dll)
+  const configMap = {
+    materi: `#materiLink${hariKe}`,
+    mealplan: `[onclick*="uploadMealPlan(${hariKe})"]`,
+    workout: `[onclick*="selesaiWorkout(${hariKe})"]`,
+    water: `[onclick*="waterReminder(${hariKe})"]`,
+    istirahat: `[onclick*="istirahat(${hariKe})"]`,
+    datatracking: `[onclick*="dataTracking(${hariKe})"]`
+  };
+
+  selector = configMap[submenuType];
+  if (!selector) return;
+
+  const links = document.querySelectorAll(selector);
+  links.forEach(link => {
+    if (link.querySelector('.status-done')) return;
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle status-done';
+    icon.style.color = 'green';
+    icon.style.marginLeft = '6px';
+    icon.style.fontSize = '0.9em';
+
+    link.appendChild(icon);
+    link.style.fontWeight = 'bold';
+    link.style.color = '#666';
+  });
+}
+
+
+function BACKUP_updateSubmenuLinkUI(hariKe, submenuType) {
   let selector;
 
   switch (submenuType) {
@@ -4139,45 +4197,39 @@ async function BACKUP_simpanMateri(hariKe) {
 * Selesaikan perkenalan unlock Hari Pertama *
 ********************************************/
 async function selesaikanPerkenalan() {
-  console.log('✅ Menyelesaikan perkenalan');
-
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
+  if (!userId) return;
 
-  try {
-    const res = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updatePerkenalan',
-        userId,
-        namaUser
-      })
-    });
+  console.log('✅ Menyelesaikan perkenalan');
 
-    const result = await res.text();
-    console.log('📥 Response updatePerkenalan:', result);
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updatePerkenalan',
+      userId,
+      namaUser
+    })
+  });
 
-    if (result === 'OK') {
+  const result = await response.text();
+  console.log('📥 Response updatePerkenalan:', result);
 
-      // 🔓 Unlock Modul Hari 1
-      unlockModul(1);
+  if (result && result.includes('OK')) {
 
-      // 🔒 Disable tombol "Selesai Perkenalan"
-      const btn = document.querySelector('[onclick*="selesaikanPerkenalan"]');
-      if (btn) {
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.6';
-        btn.classList.add('disabled');
-      }
-    }
+    // 🔓 1️⃣ UNLOCK DULU (INI PALING PENTING)
+    unlockModul(1);
 
-  } catch (err) {
-    console.error('❌ Gagal selesaikan perkenalan:', err);
+    // 🔒 2️⃣ DISABLE tombol "Selesai Perkenalan" saja
+    disableSelesaiPerkenalanButton();
+
+    // ✅ 3️⃣ BARU update UI submenu (SETELAH unlock)
+    updateSubmenuLinkUI('perkenalan', 0);
   }
 }
 
-async function BACKUP_selesaikanPerkenalan() {
+async function BACKUP_elesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
   if (!userId) return;
@@ -4206,13 +4258,6 @@ async function BACKUP_selesaikanPerkenalan() {
     updateSubmenuLinkUI('perkenalan', 0);
   }
 
-  // KUNCI TOMBOL SELESAI PERKENALAN
-  const btn = document.querySelector('[onclick*="selesaikanPerkenalan"]');
-  if (btn) {
-    btn.classList.add('disabled');
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.6';
-  }
 }
 
 function disableSelesaiPerkenalanButton() {
