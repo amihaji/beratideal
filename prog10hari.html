@@ -1137,33 +1137,6 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
     }
 
-    /* TIDAK AKTIFKAN **
-    if (userId && progressData) {
-        const progress = JSON.parse(progressData);
-        console.log('📊 Progress ditemukan untuk user:', userId);
-        
-        if (progress.success) {
-            if (progress.perkenalan) {
-                // User sudah selesai perkenalan
-                applyExistingUserProgress(progress);
-            } else {
-                // User belum selesai perkenalan
-                console.log('🔐 User belum selesai perkenalan');
-                applyLockForNewUser();
-            }
-        }
-    } else if (userId) {
-        // User baru login, belum ada progress data
-        console.log('👤 User baru atau progress belum diambil');
-        applyLockForNewUser();
-        // Coba ambil progress dari server
-        fetchProgressFromServer(userId);
-    } else {
-        // Tidak ada user ID (belum login)
-        console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
-    }
-    **/
-
     // Setup accordion toggle
     setupAccordionToggle();
     // SEetup semua komponen
@@ -1575,6 +1548,54 @@ function applyLockSystem(progress) {
 * Apply progress untuk user yang sudah ada progress *
 *****************************************************/
 function applyExistingUserProgress(progress) {
+    console.log('📊 Apply existing user progress:', progress);
+
+    //   PERKENALAN
+    if (progress.perkenalan === true) {
+        updateSubmenuLinkUI('perkenalan', 0);
+        disableSelesaiPerkenalanButton();
+        unlockModul(1);
+    }
+
+    // MATERI HARI 1–10
+    if (progress.materi && typeof progress.materi === 'object') {
+        Object.keys(progress.materi).forEach(hariKe => {
+            if (progress.materi[hariKe] === true) {
+                console.log(`✅ Apply materi selesai hari ${hariKe}`);
+
+                // 🟢 SUBMENU
+                updateSubmenuLinkUI('materi', hariKe);
+
+                // 🔒 tombol centang video
+                const btn = document.getElementById(`btnMateriDone${hariKe}`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.dataset.done = 'true';
+                    btn.innerHTML = '<i class="fas fa-check-double"></i>';
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-secondary');
+                }
+            }
+        });
+    }
+
+    // MEAL PLAN 
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        const mealKey = `mealplan${hariKe}`;
+
+        if (progress[mealKey] === 'OK') {
+            console.log(`✅ Restore meal plan hari ${hariKe}`);
+           // Submenu 1.2 🟢
+            updateSubmenuLinkUI('mealplan', hariKe);
+           // Kunci semua upload & tombol selesai
+            lockMealPlanUI(hariKe);
+        }
+    }
+    // AKTIFKAN ULANG KOMPONEN
+    setupMateriCompletion();
+}
+
+function BACKUP_applyExistingUserProgress(progress) {
     console.log('♻️ Apply progress ke UI:', progress);
 
     // PERKENALAN
@@ -1618,46 +1639,6 @@ function applyExistingUserProgress(progress) {
     }
     //    AKTIFKAN ULANG KOMPONEN
     setupMateriCompletion();
-}
-
-function BACKUP_applyExistingUserProgress(progress) {
-    console.log('👤 Apply progress untuk user existing:', progress);
-    
-    // 1. Perkenalan sudah selesai
-    updatePerkenalanUI();
-    
-    // 2. Modul Hari 1 UNLOCK dengan icon benar
-    unlockModul(1);
-    
-    // 3. Update materi jika sudah selesai
-    if (progress.materiHari1) {
-        console.log('📚 Materi Hari 1 sudah selesai');
-        const materiLink = document.getElementById('materiLink1');
-        if (materiLink) {
-            materiLink.innerHTML = materiLink.innerHTML.replace('Materi Hari Pertama', 'Materi Hari Pertama ✓');
-            materiLink.style.color = '#666666';
-            materiLink.style.fontWeight = 'bold';
-        }
-    }
-    
-    // 4. Update meal plan jika sudah selesai
-    if (progress.mealplanHari1) {
-        console.log('🍽️ Meal Plan Hari 1 sudah selesai');
-        const mealPlanLinks = document.querySelectorAll('[onclick="uploadMealPlan(1)"]');
-        mealPlanLinks.forEach(link => {
-            link.innerHTML = '<i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama ✓';
-            link.style.color = '#666666';
-            link.style.fontWeight = 'bold';
-        });
-    }
-    
-    // 5. Auto-expand Modul Hari 1
-    setTimeout(() => {
-        const header = document.querySelector('[data-hari="1"]');
-        if (header && header.classList.contains('collapsed')) {
-            header.click();
-        }
-    }, 500);
 }
 
 function lockMealPlanUI(hariKe) {
