@@ -1125,9 +1125,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // 2. CEK STATUS USER DAN APPLY LOCK
-    const userId = localStorage.getItem('userId');
-    const progressData = localStorage.getItem('progressData');
+    //const userId = localStorage.getItem('userId');
+    //const progressData = localStorage.getItem('progressData');
     
+    // 2. CEK STATUS USER DAN APPLY LOCK
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      console.log('🔄 Ambil progress dari server untuk user:', userId);
+      fetchProgressFromServer(userId);
+    } else {
+      console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
+    }
+
+    /* TIDAK AKTIFKAN **
     if (userId && progressData) {
         const progress = JSON.parse(progressData);
         console.log('📊 Progress ditemukan untuk user:', userId);
@@ -1152,6 +1162,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tidak ada user ID (belum login)
         console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
     }
+    **/
+
     // Setup accordion toggle
     setupAccordionToggle();
     // SEetup semua komponen
@@ -2717,6 +2729,8 @@ function fetchProgressFromServer(userId) {
             
             // Juga simpan di key umum untuk backward compatibility
             localStorage.setItem('progressData', JSON.stringify(response));
+            // ⬇️⬇️⬇️ INI YANG KURANG DI REVISI11 ⬇️⬇️⬇️
+            applyExistingUserProgress(response); // 🔑 KUNCI UTAMA
         }
         
         document.body.removeChild(script);
@@ -4029,12 +4043,9 @@ function showSubmenuOnly(targetId) {
     }, 300);
 }
 
-/************************************************************
-* Memberikan tombol centang Centang Selain Video Perkenalan *
-*************************************************************/
-/************************************************************
+/**********************************************
 * Memberikan tombol centang Materi (Hari 1–10)
-*************************************************************/
+***********************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
 
