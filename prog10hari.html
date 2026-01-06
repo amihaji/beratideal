@@ -1598,33 +1598,22 @@ function applyExistingUserProgress(progress) {
 /************************************
 * Disable button secara TOTAL (UX) *
 ************************************/
-function disableButtonFully(btn) {
-    if (!btn) return;
+function disableButtonFully(el) {
+    if (!el) return;
 
-    // Logic
-    btn.disabled = true;
-    btn.dataset.done = 'true';
-    btn.onclick = null;
+    el.disabled = true;
+    el.dataset.done = 'true';
+    el.style.pointerEvents = 'none';
+    el.style.cursor = 'default';
+    el.onclick = null;
 
-    // Visual
-    btn.classList.remove('btn-success');
-    btn.classList.add('btn-secondary');
-
-    // Pointer
-    btn.style.pointerEvents = 'none';
-    btn.style.cursor = 'not-allowed';
-
-    // Child elements (icon, span, dll)
-    btn.querySelectorAll('*').forEach(el => {
-        el.style.pointerEvents = 'none';
-        el.style.cursor = 'not-allowed';
-    });
-
-    // Parent wrapper (video / card)
-    const wrapper = btn.closest('.video-wrapper, .input-group, .menu-content');
-    if (wrapper) {
-        wrapper.style.cursor = 'default';
+    if (el.classList.contains('btn-success')) {
+        el.classList.remove('btn-success');
+        el.classList.add('btn-secondary');
     }
+
+    const parent = el.parentElement;
+    if (parent) parent.style.cursor = 'default';
 }
 
 /************************************
