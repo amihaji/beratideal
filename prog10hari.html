@@ -1654,6 +1654,28 @@ function lockMealPlanUI(hariKe) {
 
     container.querySelectorAll('button').forEach(btn => {
 
+        // ❌ JANGAN kunci tombol Close (X)
+        const isCloseButton =
+            btn.innerText.trim() === 'X' ||
+            btn.classList.contains('close-video') ||
+            btn.getAttribute('aria-label') === 'Close';
+
+        if (isCloseButton) return;
+
+        // 🔒 Kunci semua tombol lain (Upload, Selesai, dll)
+        disableButtonFully(btn);
+    });
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close tetap aktif)`);
+}
+
+
+function BACKUP_lockMealPlanUI(hariKe) {
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (!container) return;
+
+    container.querySelectorAll('button').forEach(btn => {
+
         // ✅ JANGAN KUNCI TOMBOL CLOSE (X)
         const isCloseButton =
             btn.innerText.trim() === 'X' ||
@@ -1681,23 +1703,6 @@ function lockMealPlanUI(hariKe) {
     });
 
     console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close & PDF tetap aktif)`);
-}
-
-
-function BACKUP_lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    // 🔒 Disable semua tombol UPLOAD
-    container.querySelectorAll('button').forEach(btn => {
-        // ❗ KECUALI tombol CLOSE (X)
-        if (btn.classList.contains('btn-close')) return;
-        if (btn.id === 'btnCekDisiniMealPlan') return;
-
-        disableButtonFully(btn);
-    });
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (close & PDF tetap aktif)`);
 }
 
 /***************************************
