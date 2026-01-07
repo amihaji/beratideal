@@ -244,14 +244,15 @@ body { background-color: #f8f9fa; }
 .close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
 /***** Akhir Video Player Styles *****/
 
-.video-locked {
-    pointer-events: none !important;
-    cursor: default !important;
-}
-.video-locked * {
-    pointer-events: none !important;
-    cursor: default !important;
-}
+/***** Kunci Materi Video *****/  
+/* Kunci seluruh video */
+.video-locked { pointer-events: none !important; cursor: default !important; }
+/* Semua isi video ikut terkunci */
+.video-locked * { pointer-events: none !important; cursor: default !important; }
+/* ❗ KECUALI tombol close */
+.video-locked .close-video, 
+.video-locked .close-video * { pointer-events: auto !important; cursor: pointer !important; }
+/***** Akhir Kunci Materi Video *****/  
 
 /***** Playlist Container Styles Video Youtube *****/
 .playlist-container {
