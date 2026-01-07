@@ -1629,49 +1629,6 @@ function BACKUP_lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
     if (!container) return;
 
-    // 🔒 Kunci SEMUA tombol upload
-    container.querySelectorAll('button').forEach(btn => {
-
-        const text = btn.textContent.trim();
-
-        // ✅ BIARKAN TOMBOL CLOSE (X)
-        if (
-            text === 'X' ||
-            btn.classList.contains('close-video') ||
-            btn.getAttribute('aria-label') === 'Close'
-        ) {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // ✅ BIARKAN TOMBOL PDF
-        if (btn.id === 'btnCekDisiniMealPlan') {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // 🔒 KUNCI YANG LAIN (Upload + Selesai)
-        disableButtonFully(btn);
-    });
-
-    // ❗ PENTING: JANGAN PERNAH kunci container
-    container.style.pointerEvents = 'auto';
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close & PDF tetap aktif)`);
-}
-
-
-function lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    // 🚨 JANGAN SENTUH CONTAINER
-    // ❌ container.style.pointerEvents = 'none';
-
     //   1️⃣ DISABLE TOMBOL UPLOAD
     container.querySelectorAll('button').forEach(btn => {
         const label = btn.textContent.trim().toLowerCase();
@@ -1715,6 +1672,51 @@ function lockMealPlanUI(hariKe) {
 
     console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close X & PDF AMAN)`);
 }
+
+/***************************************
+* Kunci UI Meal Plan (X & PDF TETAP HIDUP) baru
+****************************************/
+function lockMealPlanUI(hariKe) {
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (!container) return;
+
+    container.querySelectorAll('button').forEach(btn => {
+
+        // ==============================
+        // ❌ JANGAN KUNCI TOMBOL CLOSE (X)
+        // ==============================
+        const isCloseButton =
+            btn.innerText.trim() === 'X' ||
+            btn.classList.contains('close-video') ||
+            btn.getAttribute('aria-label') === 'Close';
+
+        if (isCloseButton) {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // ==============================
+        // ❌ JANGAN KUNCI TOMBOL PDF
+        // ==============================
+        if (btn.id === 'btnCekDisiniMealPlan') {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // ==============================
+        // 🔒 KUNCI SEMUA TOMBOL LAIN
+        // ==============================
+        disableButtonFully(btn);
+    });
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close & PDF tetap aktif)`);
+}
+
+
 
 /***************************************
 * Strict Lock Modul (benar-benar lock) *
