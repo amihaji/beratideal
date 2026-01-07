@@ -1587,13 +1587,15 @@ function applyExistingUserProgress(progress) {
 
     // MEAL PLAN Hari 1 - 10
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        const mealKey = `mealplan${hariKe}`;
+        const mealKey = `mealplanHari${hariKe}`;
 
-        if (progress[mealKey] === 'OK') {
+        if (progress[mealKey] === true || progress[mealKey] === 'OK') {
             console.log(`✅ Restore meal plan hari ${hariKe}`);
-           // Submenu 1.2 🟢
+
+            // 🟢 SUBMENU CENTANG (INI YANG SEBELUMNYA KELEWAT)
             updateSubmenuLinkUI('mealplan', hariKe);
-           // Kunci semua upload & tombol selesai
+
+            // 🔒 Kunci UI meal plan
             lockMealPlanUI(hariKe);
         }
     }
