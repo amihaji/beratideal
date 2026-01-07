@@ -4890,10 +4890,72 @@ function getMealTypeName(mealType) {
     return mealNames[mealType] || mealType;
 }
 
-/*****************************
- * Selesai Meal Plan Hari X *
- *****************************/
+/*********************************
+* Selesaikan Meal Plan Hari X *
+*********************************/
+/*********************************
+* Selesaikan Meal Plan Hari Ke-X *
+*********************************/
 async function selesaikanMealPlan(hariKe) {
+    console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
+
+    // 1️⃣ VALIDASI: semua meal harus sudah upload
+    if (!checkAllMealsUploaded(hariKe)) {
+        showMessage('warning', 'Masih ada meal plan yang belum diupload');
+        return;
+    }
+
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    if (!userId) return;
+
+    // 2️⃣ KIRIM STATUS KE SERVER
+    const response = await fetch(URL_PROGRAM_APP, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'updateMealPlan',
+            userId,
+            namaUser,
+            hariKe
+        })
+    });
+
+    const result = await response.text();
+    console.log('📥 Update Meal Plan:', result);
+
+    if (!result || !result.includes('OK')) {
+        showMessage('error', 'Gagal menyelesaikan Meal Plan');
+        return;
+    }
+
+    // 3️⃣ SIMPAN STATE LOKAL
+    localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
+
+    // 4️⃣ DISABLE SEMUA TOMBOL UPLOAD (HANYA MEAL PLAN)
+    document
+        .querySelectorAll(`#mealPlanContent${hariKe} button`)
+        .forEach(btn => {
+            if (
+                btn.id !== 'btnCekDisiniMealPlan' &&   // ❗ PDF TETAP AKTIF
+                !btn.id.includes('btnCekDisini')
+            ) {
+                disableButtonFully(btn);
+            }
+        });
+
+    // 5️⃣ DISABLE TOMBOL SELESAI
+    const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+    disableButtonFully(btnSelesai);
+
+    // 6️⃣ UPDATE SUBMENU (🟢)
+    updateSubmenuLinkUI('mealplan', hariKe);
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
+}
+
+
+async function BACKUP_selesaikanMealPlan(hariKe) {
   console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
   if (!checkAllMealsUploaded(hariKe)) {
