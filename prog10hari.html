@@ -1622,38 +1622,65 @@ function disableButtonFully(el) {
     if (parent) parent.style.cursor = 'default';
 }
 
-/************************************
-* Enable button kembali (opsional) *
-************************************/
-function enableButtonFully(btn) {
-    if (!btn) return;
-
-    btn.disabled = false;
-    btn.dataset.done = 'false';
-
-    btn.style.pointerEvents = '';
-    btn.style.cursor = 'pointer';
-
-    btn.querySelectorAll('*').forEach(el => {
-        el.style.pointerEvents = '';
-        el.style.cursor = '';
-    });
-
-    const wrapper = btn.closest('.video-wrapper, .input-group, .menu-content');
-    if (wrapper) {
-        wrapper.style.cursor = '';
-    };
-}
-
 /***************************************
-* Kunci UI Meal Plan (REVISI_13 – FINAL)
+* Lock Meal Plan UI – FINAL REVISI_13
 * - Upload & Selesai dikunci
-* - Submenu tetap 🟢
-* - Tombol Close (X) FORM tetap aktif
-* - Tombol Close (X) PDF tetap aktif
-* - Tombol "Cek Disini" tetap aktif
+* - Close X Form & PDF TETAP HIDUP
 ****************************************/
 function lockMealPlanUI(hariKe) {
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (!container) return;
+
+    // 🔓 PASTIKAN CONTAINER TIDAK TERKUNCI
+    container.style.pointerEvents = 'auto';
+
+    // 1️⃣ KUNCI BUTTON UPLOAD & SELESAI
+    container.querySelectorAll('button').forEach(btn => {
+        const text = btn.textContent.trim().toLowerCase();
+
+        // ❌ JANGAN KUNCI TOMBOL CLOSE (X)
+        const isCloseButton =
+            text === 'x' ||
+            btn.classList.contains('close-video') ||
+            btn.getAttribute('aria-label') === 'Close' ||
+            btn.getAttribute('onclick')?.includes('close');
+
+        if (isCloseButton) {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // ❌ JANGAN KUNCI TOMBOL PDF
+        if (btn.id === 'btnCekDisiniMealPlan') {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // 🔒 HANYA KUNCI: Upload & Selesai
+        if (
+            text.includes('upload') ||
+            text.includes('selesai')
+        ) {
+            disableButtonFully(btn);
+        }
+    });
+
+    // 2️⃣ KUNCI INPUT FILE / TEXT
+    container.querySelectorAll('input').forEach(input => {
+        input.disabled = true;
+        input.style.pointerEvents = 'none';
+        input.style.cursor = 'default';
+    });
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close X & PDF tetap aktif)`);
+}
+
+
+function BACKUP_lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
     if (!container) return;
 
@@ -1700,30 +1727,6 @@ function lockMealPlanUI(hariKe) {
     // - Mengubah tombol Close (X)
 
     console.log(`🔒 Meal Plan hari ${hariKe} dikunci (X & PDF tetap aktif)`);
-}
-
-function BACKUP_lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    container.querySelectorAll('button').forEach(btn => {
-
-        // ✅ BIARKAN tombol CLOSE (X) TETAP AKTIF
-        const isCloseButton =
-            btn.innerText.trim() === 'X' ||
-            btn.classList.contains('close-video') ||
-            btn.getAttribute('aria-label') === 'Close';
-
-        if (isCloseButton) return;
-
-        // ✅ BIARKAN tombol PDF "Cek Disini" TETAP AKTIF
-        if (btn.id === 'btnCekDisiniMealPlan') return;
-
-        // 🔒 KUNCI SEMUA BUTTON LAIN
-        disableButtonFully(btn);
-    });
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close & PDF tetap aktif)`);
 }
 
 /***************************************
