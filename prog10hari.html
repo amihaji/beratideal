@@ -4858,44 +4858,6 @@ function updateMealInputField(mealType, fileName, hariKe) {
   input.style.backgroundSize     = '16px';
 }
 
-/*********************************
- * Kunci meal plan (kecuali PDF) *
- *********************************/
-function BACKUP2_lockMealPlanUI(hariKe) {
-  console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
-
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
-  if (!container) return;
-
-  // 1️⃣ Disable SEMUA tombol upload
-  container.querySelectorAll('button').forEach(btn => {
-    // BIARKAN tombol PDF TETAP AKTIF
-    if (btn.id === 'btnCekDisiniMealPlan') return;
-
-    btn.disabled = true;
-    btn.style.pointerEvents = 'none';
-    btn.style.opacity = '0.5';
-  });
-
-  // 2️⃣ Disable SEMUA input file & text
-  container.querySelectorAll('input').forEach(input => {
-    input.disabled = true;
-    input.readOnly = true;
-    input.style.backgroundColor = '#f8f9fa';
-    input.style.cursor = 'not-allowed';
-  });
-
-  // 3️⃣ Pastikan tombol PDF AKTIF 
-  const pdfBtn = document.getElementById('btnCekDisiniMealPlan');
-  if (pdfBtn) {
-    pdfBtn.disabled = false;
-    pdfBtn.style.pointerEvents = 'auto';
-    pdfBtn.style.opacity = '1';
-  }
-
-  console.log(`✅ Meal Plan hari ${hariKe} berhasil dikunci (upload OFF, PDF ON)`);
-}
-
 /****************************************
 * Get nama meal type yang user-friendly *
 *****************************************/
