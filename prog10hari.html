@@ -1643,8 +1643,26 @@ function enableButtonFully(btn) {
     };
 }
 
-
+/************************************
+* Kunci UI Meal Plan (kecuali Close) *
+*************************************/
 function lockMealPlanUI(hariKe) {
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (!container) return;
+
+    // 🔒 Disable semua tombol UPLOAD
+    container.querySelectorAll('button').forEach(btn => {
+        // ❗ KECUALI tombol CLOSE (X)
+        if (btn.classList.contains('btn-close')) return;
+        if (btn.id === 'btnCekDisiniMealPlan') return;
+
+        disableButtonFully(btn);
+    });
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (close & PDF tetap aktif)`);
+}
+
+function BACKUP_lockMealPlanUI(hariKe) {
     // Disable semua upload button
     document
       .querySelectorAll(`#mealPlanContent${hariKe} button`)
@@ -4841,7 +4859,7 @@ function updateMealInputField(mealType, fileName, hariKe) {
 /*********************************
  * Kunci meal plan (kecuali PDF) *
  *********************************/
-function lockMealPlanUI(hariKe) {
+function BACKUP2_lockMealPlanUI(hariKe) {
   console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
 
   const container = document.getElementById(`mealPlanContent${hariKe}`);
@@ -4891,9 +4909,6 @@ function getMealTypeName(mealType) {
 }
 
 /*********************************
-* Selesaikan Meal Plan Hari X *
-*********************************/
-/*********************************
 * Selesaikan Meal Plan Hari Ke-X *
 *********************************/
 async function selesaikanMealPlan(hariKe) {
@@ -4932,17 +4947,21 @@ async function selesaikanMealPlan(hariKe) {
     // 3️⃣ SIMPAN STATE LOKAL
     localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
 
-    // 4️⃣ DISABLE SEMUA TOMBOL UPLOAD (HANYA MEAL PLAN)
+    // 4️⃣ DISABLE SEMUA TOMBOL UPLOAD (KECUALI CLOSE & PDF)
     document
-        .querySelectorAll(`#mealPlanContent${hariKe} button`)
-        .forEach(btn => {
-            if (
-                btn.id !== 'btnCekDisiniMealPlan' &&   // ❗ PDF TETAP AKTIF
-                !btn.id.includes('btnCekDisini')
-            ) {
-                disableButtonFully(btn);
-            }
-        });
+      .querySelectorAll(`#mealPlanContent${hariKe} button`)
+      .forEach(btn => {
+        // ❌ JANGAN disable tombol close (X)
+        if (btn.classList.contains('btn-close')) return;
+
+        // ❌ JANGAN disable tombol PDF
+        if (btn.id === 'btnCekDisiniMealPlan') return;
+
+        // ❌ JANGAN disable tombol header
+        if (btn.dataset.role === 'header-close') return;
+
+        disableButtonFully(btn);
+      });
 
     // 5️⃣ DISABLE TOMBOL SELESAI
     const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
