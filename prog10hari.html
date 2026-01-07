@@ -1623,11 +1623,61 @@ function disableButtonFully(el) {
 }
 
 /***************************************
-* Lock Meal Plan UI – FINAL REVISI_13
-* - Upload & Selesai dikunci
-* - Close X Form & PDF TETAP HIDUP
+* LOCK MEAL PLAN UI – FINAL FIX (REVISI_13)
+* Aman untuk USER BARU & USER LAMA
 ****************************************/
 function lockMealPlanUI(hariKe) {
+    const container = document.getElementById(`mealPlanContent${hariKe}`);
+    if (!container) return;
+
+    // 🚨 JANGAN SENTUH CONTAINER
+    // ❌ container.style.pointerEvents = 'none';
+
+    //   1️⃣ DISABLE TOMBOL UPLOAD
+    container.querySelectorAll('button').forEach(btn => {
+        const label = btn.textContent.trim().toLowerCase();
+
+        // ❌ LEWATI CLOSE (X)
+        if (
+            label === 'x' ||
+            btn.classList.contains('close-video') ||
+            btn.getAttribute('aria-label') === 'Close' ||
+            btn.getAttribute('onclick')?.includes('close')
+        ) {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // ❌ LEWATI PDF
+        if (btn.id === 'btnCekDisiniMealPlan') {
+            btn.disabled = false;
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            return;
+        }
+
+        // 🔒 KUNCI HANYA UPLOAD & SELESAI
+        if (
+            label.includes('upload') ||
+            label.includes('selesai')
+        ) {
+            disableButtonFully(btn);
+        }
+    });
+
+    //   2️⃣ DISABLE INPUT FIELD
+    container.querySelectorAll('input').forEach(input => {
+        input.disabled = true;
+        input.style.pointerEvents = 'none';
+        input.style.cursor = 'default';
+    });
+
+    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close X & PDF AMAN)`);
+}
+
+function BACKUP_lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
     if (!container) return;
 
@@ -1677,56 +1727,6 @@ function lockMealPlanUI(hariKe) {
     });
 
     console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close X & PDF tetap aktif)`);
-}
-
-
-function BACKUP_lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    // ===============================
-    // 1️⃣ KUNCI TOMBOL UPLOAD & SELESAI
-    // ===============================
-    container.querySelectorAll('button').forEach(btn => {
-        const label = btn.textContent.toLowerCase();
-
-        // ❌ JANGAN sentuh tombol Close (X)
-        const isCloseButton =
-            btn.innerText.trim() === 'X' ||
-            btn.classList.contains('close-video') ||
-            btn.getAttribute('aria-label') === 'Close' ||
-            btn.getAttribute('onclick')?.includes('close');
-
-        if (isCloseButton) return;
-
-        // ❌ JANGAN kunci tombol PDF
-        if (btn.id === 'btnCekDisiniMealPlan') return;
-
-        // 🔒 HANYA kunci Upload & Selesai
-        if (
-            label.includes('upload') ||
-            label.includes('selesai meal plan')
-        ) {
-            disableButtonFully(btn);
-        }
-    });
-
-    // ===============================
-    // 2️⃣ KUNCI INPUT (READONLY TOTAL)
-    // ===============================
-    container.querySelectorAll('input').forEach(input => {
-        input.disabled = true;
-        input.style.pointerEvents = 'none';
-        input.style.cursor = 'default';
-    });
-
-    // ❗ SENGAJA TIDAK:
-    // - Mengubah container parent
-    // - Mengubah overlay / modal
-    // - Mengubah PDF viewer
-    // - Mengubah tombol Close (X)
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (X & PDF tetap aktif)`);
 }
 
 /***************************************
