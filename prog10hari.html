@@ -1646,7 +1646,7 @@ function enableButtonFully(btn) {
 }
 
 /***************************************
-* Kunci UI Meal Plan (Close tetap aktif)
+* Kunci UI Meal Plan (X & PDF tetap aktif)
 ****************************************/
 function lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
@@ -1654,7 +1654,7 @@ function lockMealPlanUI(hariKe) {
 
     container.querySelectorAll('button').forEach(btn => {
 
-        // ❌ JANGAN kunci tombol Close (X)
+        // ✅ BIARKAN tombol CLOSE (X) TETAP AKTIF
         const isCloseButton =
             btn.innerText.trim() === 'X' ||
             btn.classList.contains('close-video') ||
@@ -1662,43 +1662,10 @@ function lockMealPlanUI(hariKe) {
 
         if (isCloseButton) return;
 
-        // 🔒 Kunci semua tombol lain (Upload, Selesai, dll)
-        disableButtonFully(btn);
-    });
+        // ✅ BIARKAN tombol PDF "Cek Disini" TETAP AKTIF
+        if (btn.id === 'btnCekDisiniMealPlan') return;
 
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Close tetap aktif)`);
-}
-
-
-function BACKUP_lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    container.querySelectorAll('button').forEach(btn => {
-
-        // ✅ JANGAN KUNCI TOMBOL CLOSE (X)
-        const isCloseButton =
-            btn.innerText.trim() === 'X' ||
-            btn.classList.contains('close-video') ||
-            btn.getAttribute('onclick')?.includes('close') ||
-            btn.getAttribute('aria-label') === 'Close';
-
-        if (isCloseButton) {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // ✅ JANGAN KUNCI TOMBOL PDF
-        if (btn.id === 'btnCekDisiniMealPlan') {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // 🔒 KUNCI SEMUA YANG LAIN
+        // 🔒 KUNCI SEMUA BUTTON LAIN
         disableButtonFully(btn);
     });
 
@@ -4959,64 +4926,6 @@ async function selesaikanMealPlan(hariKe) {
     updateSubmenuLinkUI('mealplan', hariKe);
 
     console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
-}
-
-
-async function BACKUP_selesaikanMealPlan(hariKe) {
-  console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
-
-  if (!checkAllMealsUploaded(hariKe)) {
-    showMessage('error', 'Masih ada yang belum diupload meal plannya', 3000, `mealPlanContent${hariKe}` );
-    return;
-  }
-
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-
-  try {
-    const res = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updateMealPlan',
-        userId,
-        namaUser,
-        hariKe,
-        status: 'OK'
-      })
-    });
-
-    const result = await res.text();
-    console.log('📥 Update Meal Plan:', result);
-
-    if (result === 'OK') {
-
-      // 🔒 Disable SEMUA tombol upload
-      document.querySelectorAll(`#mealPlanContent${hariKe} button`)
-        .forEach(btn => {
-          if (btn.id !== 'btnCekDisiniMealPlan') {
-            btn.disabled = true;
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.6';
-          }
-        });
-
-      // 🔒 Disable tombol selesai
-      const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
-      if (btnSelesai) {
-        btnSelesai.disabled = true;
-        btnSelesai.style.pointerEvents = 'none';
-        btnSelesai.style.opacity = '0.6';
-      }
-
-      // 🟢 Tandai submenu Meal Plan
-      updateSubmenuLinkUI(hariKe, 'mealplan');
-      console.log(`🔒 Meal Plan hari ${hariKe} dikunci`);
-    }
-
-  } catch (err) {
-    console.error('❌ Gagal selesaikan Meal Plan:', err);
-  }
 }
 
 /*****************************************
