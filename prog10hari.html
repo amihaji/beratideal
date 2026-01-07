@@ -1559,18 +1559,14 @@ function applyLockSystem(progress) {
 function applyExistingUserProgress(progress) {
     console.log('📊 Apply existing user progress:', progress);
 
-    /* ======================
-       PERKENALAN
-    ====================== */
+    // PERKENALAN
     if (progress.perkenalan === true) {
         updateSubmenuLinkUI('perkenalan', 0);
         disableSelesaiPerkenalanButton();
         unlockModul(1);
     }
 
-    /* ======================
-       MATERI HARI 1 – 10
-    ====================== */
+    // MATERI HARI 1 – 10
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         if (progress[`materiHari${hariKe}`] === true) {
             console.log(`🟢 Materi hari ${hariKe} sudah selesai`);
@@ -1584,14 +1580,12 @@ function applyExistingUserProgress(progress) {
                 // 🟢 submenu centang
                 updateSubmenuLinkUI('materi', hariKe);
             }
-
             // pastikan localStorage sinkron
             localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
         }
     }
 
-    // MEAL PLAN belum digunakan
-    /*
+    // MEAL PLAN Hari 1 - 10
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         const mealKey = `mealplan${hariKe}`;
 
@@ -1603,7 +1597,6 @@ function applyExistingUserProgress(progress) {
             lockMealPlanUI(hariKe);
         }
     }
-    */
 }
 
 /************************************
