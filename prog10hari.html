@@ -1625,7 +1625,7 @@ function disableButtonFully(el) {
 /***************************************
 * Kunci UI Meal Plan (Close & PDF AKTIF)
 ****************************************/
-function BACKUP_lockMealPlanUI(hariKe) {
+function lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
     if (!container) return;
 
@@ -1674,9 +1674,9 @@ function BACKUP_lockMealPlanUI(hariKe) {
 }
 
 /***************************************
-* Kunci UI Meal Plan (X & PDF TETAP HIDUP) baru
+* Kunci UI Meal Plan (X & PDF TETAP HIDUP)
 ****************************************/
-function lockMealPlanUI(hariKe) {
+function BACKUP_lockMealPlanUI(hariKe) {
     const container = document.getElementById(`mealPlanContent${hariKe}`);
     if (!container) return;
 
@@ -4909,10 +4909,61 @@ function getMealTypeName(mealType) {
     return mealNames[mealType] || mealType;
 }
 
-/*********************************
-* Selesaikan Meal Plan Hari Ke-X *
-*********************************/
+/*************************************
+* Selesaikan Meal Plan – FINAL FIX
+* (TIDAK menyentuh container)
+*************************************/
 async function selesaikanMealPlan(hariKe) {
+    console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
+
+    // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
+    if (!checkAllMealsUploaded(hariKe)) {
+        showMessage(
+            'warning',
+            'Masih ada meal plan yang belum diupload',
+            3000,
+            `mealPlanContent${hariKe}`
+        );
+        return;
+    }
+
+    const userId   = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    if (!userId) return;
+
+    // 2️⃣ SIMPAN STATUS OK KE SHEET (KOLOM Q)
+    const response = await fetch(URL_PROGRAM_APP, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'updateMealPlan',
+            userId,
+            namaUser,
+            hariKe
+        })
+    });
+
+    const result = await response.text();
+    console.log('📥 Update Meal Plan:', result);
+
+    if (result && result.includes('OK')) {
+
+        // 3️⃣ SIMPAN STATUS LOKAL
+        localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
+
+        // 4️⃣ KUNCI UI (PAKAI lockMealPlanUI VERSI REVISI_14 ANDA)
+        lockMealPlanUI(hariKe);
+
+        // 5️⃣ CENTANG SUBMENU
+        updateSubmenuLinkUI('mealplan', hariKe);
+
+        // ❌ PENTING: TIDAK ADA KODE YANG MENYENTUH CONTAINER
+        console.log(`✅ Meal Plan hari ${hariKe} selesai (X & PDF aman)`);
+    }
+}
+
+
+async function BACKUP_selesaikanMealPlan(hariKe) {
     console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
     // 1️⃣ VALIDASI: semua meal harus sudah upload
