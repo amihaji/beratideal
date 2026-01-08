@@ -2300,10 +2300,24 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
   container.appendChild(exerciseElement);
 }
 
-/***********************************
-/* UPDATE DISABLE BUTTONS FUNCTION *
-/***********************************/
+/****************************************
+ * Disable Buttons After Completion
+ ****************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
+  if (submenuType !== 'workout') return;
+
+  const section = document.getElementById(`workoutContent${hariKe}`);
+  if (!section) return;
+
+  section.querySelectorAll('input, select, button').forEach(el => {
+    el.disabled = true;
+  });
+
+  console.log(`🔒 Workout Hari ${hariKe} dikunci`);
+}
+
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disabling action buttons for ${submenuType} day ${hariKe}`);
   
   const buttonConfigs = {
@@ -5748,7 +5762,34 @@ function createWorkoutFormHTML(hariKe) {
 /****************************
 * Daftar Olahraga Resisten  *
 *****************************/   
+/****************************************
+ * Setup Resistance Exercises (FINAL)
+ ****************************************/
 function setupResistanceExercises(hariKe) {
+  console.log(`🏋️ Setup Resistance Exercises Hari ${hariKe}`);
+
+  const select = document.getElementById(`resistanceSelect${hariKe}`);
+  const container = document.getElementById(`resistanceContainer${hariKe}`);
+
+  if (!select || !container) {
+    console.warn(`⚠️ Resistance select/container tidak ditemukan untuk hari ${hariKe}`);
+    return;
+  }
+
+  // reset container saat ganti pilihan
+  select.addEventListener('change', function () {
+    const exerciseName = this.value;
+    container.innerHTML = '';
+
+    if (!exerciseName) return;
+
+    // ⬇️ PAKAI FUNGSI YANG SUDAH ADA
+    addResistanceExercise(hariKe, exerciseName);
+  });
+}
+
+
+function BACKUP_setupResistanceExercises(hariKe) {
     console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
     
     const containerId = `resistance-section${hariKe}`;
@@ -5892,7 +5933,63 @@ function applyWorkoutReadOnlyMode(hariKe) {
 /************************************
 * Fungsi Tambah Olahraga Resistance *
 *************************************/
+/****************************************
+ * Add Resistance Exercise (FINAL)
+ ****************************************/
 function addResistanceExercise(hariKe, exerciseName) {
+  const container = document.getElementById(`resistanceContainer${hariKe}`);
+  if (!container) return;
+
+  const exerciseId = `res_${hariKe}_${Date.now()}`;
+
+  container.innerHTML = `
+    <div class="card mt-3 p-3" id="${exerciseId}">
+      <h6>${exerciseName}</h6>
+
+      <div class="row">
+        <div class="col">
+          <input type="number" class="form-control" placeholder="Set"
+                 id="set_${exerciseId}">
+        </div>
+        <div class="col">
+          <input type="number" class="form-control" placeholder="Repetisi"
+                 id="reps_${exerciseId}">
+        </div>
+        <div class="col">
+          <input type="number" class="form-control" placeholder="Durasi (menit)"
+                 id="dur_${exerciseId}">
+        </div>
+      </div>
+
+      <small class="text-muted d-block mt-2">
+        Timestamp: ${new Date().toLocaleTimeString()}
+      </small>
+
+      <button class="btn btn-primary btn-sm mt-3"
+              id="btnSave_${exerciseId}"
+              onclick="saveResistanceData(${hariKe}, '${exerciseId}')"
+              disabled>
+        Simpan
+      </button>
+    </div>
+  `;
+
+  // validasi input → enable tombol simpan
+  const fields = [
+    `set_${exerciseId}`,
+    `reps_${exerciseId}`,
+    `dur_${exerciseId}`
+  ];
+
+  fields.forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const filled = fields.every(fid => document.getElementById(fid).value);
+      document.getElementById(`btnSave_${exerciseId}`).disabled = !filled;
+    });
+  });
+}
+
+function BACKUP_addResistanceExercise(hariKe, exerciseName) {
     console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
     
     const containerId = `selectedResistanceContainer${hariKe}`;
@@ -5986,7 +6083,39 @@ function removeResistanceExercise(hariKe, exerciseId) {
 /*******************************************
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
+/****************************************
+ * Save Resistance Data (FINAL)
+ ****************************************/
 function saveResistanceData(hariKe, exerciseId) {
+  console.log(`💾 Simpan Resistance Hari ${hariKe}`, exerciseId);
+
+  const setVal  = document.getElementById(`set_${exerciseId}`).value;
+  const repsVal = document.getElementById(`reps_${exerciseId}`).value;
+  const durVal  = document.getElementById(`dur_${exerciseId}`).value;
+
+  if (!setVal || !repsVal || !durVal) {
+    showMessage('warning', 'Lengkapi semua data resistance', 3000);
+    return;
+  }
+
+  // 🔒 kunci input setelah simpan
+  ['set_', 'reps_', 'dur_'].forEach(prefix => {
+    document.getElementById(`${prefix}${exerciseId}`).disabled = true;
+  });
+
+  document.getElementById(`btnSave_${exerciseId}`).disabled = true;
+
+  // ✅ enable tombol Workout Selesai
+  const btnFinish = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (btnFinish) {
+    btnFinish.disabled = false;
+  }
+
+  showMessage('success', 'Resistance berhasil disimpan', 2000);
+}
+
+
+function BACKUP_saveResistanceData(hariKe, exerciseId) {
     const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
     const durasiValue = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
