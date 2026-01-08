@@ -5778,22 +5778,27 @@ function setupResistanceExercises(hariKe) {
     const existingContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
     
     if (existingDropdown && existingContainer) {
-        console.log(`🔄 Resistance form sudah ada, re-bind event untuk hari ${hariKe}`);
+    console.log(`🔄 Resistance form sudah ada untuk hari ${hariKe}`);
 
-        // 🔑 PENTING: re-bind event dropdown
-        existingDropdown.onchange = null;
-        existingDropdown.addEventListener('change', function () {
-            const selectedValue = this.value;
-            if (selectedValue) {
-                addResistanceExercise(hariKe, selectedValue);
-                this.value = '';
-            }
-        });
-        loadSavedResistanceData(hariKe);
+    // 🔑 SELALU re-bind event dropdown
+    existingDropdown.onchange = null;
+    existingDropdown.addEventListener('change', function () {
+        const selectedValue = this.value;
+        if (selectedValue) {
+            addResistanceExercise(hariKe, selectedValue);
+            this.value = '';
+        }
+    });
+
+    loadSavedResistanceData(hariKe);
+
+    // ❗ HANYA LOCK JIKA WORKOUT MEMANG SUDAH SELESAI
+    if (isWorkoutCompleted(hariKe)) {
         applyWorkoutReadOnlyMode(hariKe);
-        return;
     }
-    
+      return;
+    }
+
     // --- KODE DI BAWAH INI HANYA DIEKSEKUSI JIKA FORM BELUM ADA ---
     console.log(`⚙️ Membuat form resistance baru untuk hari ${hariKe}`);
     
@@ -5853,6 +5858,18 @@ function setupResistanceExercises(hariKe) {
     // Setup event listeners untuk tombol
     setupWorkoutForDay(hariKe);
 }
+
+function isWorkoutCompleted(hariKe) {
+    // Prioritas 1: data dari server
+    if (window.userProgress && window.userProgress[`workoutHari${hariKe}`] === true) {
+        return true;
+    }
+
+    // Prioritas 2: localStorage fallback
+    const localStatus = localStorage.getItem(`workoutHari${hariKe}`);
+    return localStatus === 'completed';
+}
+
 
 function BACKUP_setupResistanceExercises(hariKe) {
     console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
