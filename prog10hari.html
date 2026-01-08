@@ -6110,35 +6110,6 @@ function removeResistanceExercise(hariKe, exerciseId) {
 /*******************************************
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
-function BACKUP_saveResistanceData(hariKe, exerciseId) {
-  console.log(`💾 Simpan Resistance Hari ${hariKe}`, exerciseId);
-
-  const setVal  = document.getElementById(`set_${exerciseId}`).value;
-  const repsVal = document.getElementById(`reps_${exerciseId}`).value;
-  const durVal  = document.getElementById(`dur_${exerciseId}`).value;
-
-  if (!setVal || !repsVal || !durVal) {
-    showMessage('warning', 'Lengkapi semua data resistance', 3000);
-    return;
-  }
-
-  // 🔒 kunci input setelah simpan
-  ['set_', 'reps_', 'dur_'].forEach(prefix => {
-    document.getElementById(`${prefix}${exerciseId}`).disabled = true;
-  });
-
-  document.getElementById(`btnSave_${exerciseId}`).disabled = true;
-
-  // ✅ enable tombol Workout Selesai
-  const btnFinish = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (btnFinish) {
-    btnFinish.disabled = false;
-  }
-
-  showMessage('success', 'Resistance berhasil disimpan', 2000);
-}
-
-
 function saveResistanceData(hariKe, exerciseId) {
     const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
