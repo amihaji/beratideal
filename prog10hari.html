@@ -6016,11 +6016,13 @@ function applyWorkoutReadOnlyMode(hariKe) {
 /************************************
 * Fungsi Tambah Olahraga Resistance *
 *************************************/
-/****************************************
- * Add Resistance Exercise (FINAL)
- ****************************************/
 function addResistanceExercise(hariKe, exerciseName) {
-  const container = document.getElementById(`resistanceContainer${hariKe}`);
+  // const container = document.getElementById(`resistanceContainer${hariKe}`);
+  const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    if (!container) {
+        console.error('❌ selectedResistanceContainer tidak ditemukan');
+        return;
+    }
   if (!container) return;
 
   const exerciseId = `res_${hariKe}_${Date.now()}`;
