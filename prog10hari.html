@@ -1633,10 +1633,8 @@ function lockMealPlanUI(hariKe) {
   const container = document.getElementById(`mealPlanContent${hariKe}`);
   if (!container) return;
 
-  /* =====================================
-   * 1️⃣ DISABLE TOMBOL UPLOAD MEAL PLAN
-   *    (BERDASARKAN onclick)
-   * ===================================== */
+  
+  //* 1️⃣ DISABLE TOMBOL UPLOAD MEAL PLAN (BERDASARKAN onclick)
   container.querySelectorAll('button[onclick]').forEach(btn => {
     const onclick = btn.getAttribute('onclick') || '';
 
@@ -1646,24 +1644,19 @@ function lockMealPlanUI(hariKe) {
     }
   });
 
-  /* =====================================
-   * 2️⃣ DISABLE INPUT TEXT (VISUAL LOCK)
-   * ===================================== */
+  // 2️⃣ DISABLE INPUT TEXT (VISUAL LOCK)
   container.querySelectorAll('input.form-control').forEach(input => {
     input.readOnly = true;
     input.style.pointerEvents = 'none';
     input.style.opacity = '0.6';
   });
 
-  /* =====================================
-   * 3️⃣ DISABLE TOMBOL SELESAI
-   * ===================================== */
+  // 3️⃣ DISABLE TOMBOL SELESAI
   const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
   if (btnSelesai) {
     disableButtonFully(btnSelesai);
   }
-
-  console.log(`✅ Meal Plan hari ${hariKe} terkunci (X & PDF tetap aktif)`);
+   console.log(`✅ Meal Plan hari ${hariKe} terkunci (X & PDF tetap aktif)`);
 }
 
 function BACKUP_lockMealPlanUI(hariKe) {
@@ -1809,6 +1802,26 @@ function unlockModul(hariKe) {
 * Lock semua modul untuk user baru  *
 *************************************/
 function applyLockForNewUser() {
+    console.log('🔐 STRICT lock semua modul untuk user baru');
+
+    // 🔒 STRICT LOCK modul hari 1–10
+    for (let i = 1; i <= 10; i++) {
+        strictLockModul(i); // ✅ PAKAI YANG BENAR
+    }
+
+    // ✅ Perkenalan tetap terbuka
+    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+    if (perkenalanHeader) {
+        perkenalanHeader.classList.remove('disabled');
+        perkenalanHeader.style.pointerEvents = 'auto';
+        perkenalanHeader.style.opacity = '1';
+        perkenalanHeader.style.cursor = 'pointer';
+    }
+
+    console.log('✅ User baru: hanya Perkenalan yang aktif');
+}
+
+function BACKUP_applyLockForNewUser() {
     console.log('🔐 Lock semua modul untuk user baru');
     
     // Lock semua modul hari 1-10
