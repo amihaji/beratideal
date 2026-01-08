@@ -1511,37 +1511,29 @@ function setupAccordionToggle() {
 /**************************************
 * Apply Lock System yang lebih strict *
 ***************************************/
-/**************************************
- * Apply Lock System (FINAL & BENAR)
- **************************************/
 function applyLockSystem(progress) {
-  console.log('🔒 Apply Lock System FINAL');
+  console.log('🔒 Apply Lock System (USER BARU SAJA)');
 
-  // Simpan global (WAJIB untuk guard)
-  window.userProgress = progress;
+  // hanya lock jika perkenalan BELUM selesai
+  if (progress.perkenalan === true) return;
 
-  if (progress.perkenalan === true) {
-    console.log('✅ Perkenalan selesai → Unlock Hari 1');
+  for (let i = 1; i <= 10; i++) {
+    const header = document.querySelector(`[data-hari="${i}"]`);
+    if (!header) continue;
 
-    updatePerkenalanUI();
-    unlockModul(1);
+    header.classList.add('disabled');
+    header.style.pointerEvents = 'none';
+    header.style.cursor = 'not-allowed';
+  }
 
-  } else {
-    console.log('🔐 Perkenalan BELUM selesai → LOCK TOTAL');
+  // perkenalan tetap aktif
+  const perkenalanHeader =
+    document.querySelector('[data-bs-target="#perkenalanContent"]');
 
-    // STRICT LOCK hari 1–10
-    for (let i = 1; i <= 10; i++) {
-      strictLockModul(i);
-    }
-
-    // Pastikan Perkenalan tetap bisa diklik
-    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-    if (perkenalanHeader) {
-      perkenalanHeader.classList.remove('disabled');
-      perkenalanHeader.style.pointerEvents = 'auto';
-      perkenalanHeader.style.opacity = '1';
-      perkenalanHeader.style.cursor = 'pointer';
-    }
+  if (perkenalanHeader) {
+    perkenalanHeader.classList.remove('disabled');
+    perkenalanHeader.style.pointerEvents = 'auto';
+    perkenalanHeader.style.cursor = 'pointer';
   }
 }
 
@@ -2852,21 +2844,24 @@ function fetchProgressFromServer(userId) {
     
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
-       
         if (response.success) {
-            // 🔑 1. SIMPAN KE GLOBAL (INI YANG PALING PENTING)
+
+            // 🔑 simpan global
             window.userProgress = response;
-            // 2. Simpan ke localStorage dengan key spesifik user
+
+            // simpan storage (biarkan)
             localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
-            // 3. Apply status tombol berdasarkan progress
-            for (let hariKe = 1; hariKe <= 10; hariKe++) {
-                checkAndApplyButtonStatus(userId, hariKe);
-            }
-            // 4. Backward compatibility
             localStorage.setItem('progressData', JSON.stringify(response));
-            // 5. APPLY LOCK SYSTEM (INI YANG SELAMA INI HILANG)
-            applyLockSystem(response);
-            // 6. Restore existing progress (materi, mealplan, dll)
+
+            // 🔍 TENTUKAN USER BARU / LAMA
+            const isUserBaru = response.perkenalan !== true;
+
+            if (isUserBaru) {
+                // 🔒 HANYA USER BARU → apply lock
+                applyLockSystem(response);
+            }
+
+            // ✅ SEMUA USER → restore progress
             applyExistingUserProgress(response);
         }
         document.body.removeChild(script);
