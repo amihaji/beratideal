@@ -1537,54 +1537,9 @@ function applyLockSystem(progress) {
   }
 }
 
-function BACKUP_applyLockSystem(progress) {
-    console.log('🔒 Menerapkan lock system STRICT');
-    
-    // 1. PERKENALAN
-    if (progress.perkenalan) {
-        console.log('✅ Perkenalan sudah selesai');
-        
-        // Update UI perkenalan
-        updatePerkenalanUI();
-        
-        // UNLOCK Modul Hari 1
-        unlockModul(1);
-        
-        // Jika materi/mealplan sudah selesai, unlock berikutnya
-        if (progress.materiHari1 || progress.mealplanHari1) {
-            // User sudah progress, unlock modul yang sudah selesai
-            if (progress.materiHari1) {
-                updateMateriCompletionUI(1);
-            }
-            if (progress.mealplanHari1) {
-                updateMealPlanCompletionUI(1);
-            }
-        }
-        
-    } else {
-        console.log('🔐 Perkenalan belum selesai - LOCK SEMUA');
-        
-        // LOCK Modul Hari 1-10 dengan STRICT
-        for (let i = 1; i <= 10; i++) {
-            strictLockModul(i);
-        }
-        
-        // Pastikan perkenalan bisa diakses
-        const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-        if (perkenalanHeader) {
-            perkenalanHeader.classList.remove('disabled');
-            perkenalanHeader.style.pointerEvents = 'auto';
-            perkenAnchor.style.opacity = '1';
-        }
-    }
-}
-
 /*************************************
 * Terapkan Progress User dari Server *
 **************************************/
-/**************************************
- * Apply Existing User Progress (FINAL)
- **************************************/
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
 
@@ -1617,51 +1572,6 @@ function applyExistingUserProgress(progress) {
       updateSubmenuLinkUI('mealplan', hariKe);
     }
   }
-}
-
-function BACKUP_applyExistingUserProgress(progress) {
-    console.log('📊 Apply existing user progress:', progress);
-
-    // PERKENALAN
-    if (progress.perkenalan === true) {
-        updateSubmenuLinkUI('perkenalan', 0);
-        disableSelesaiPerkenalanButton();
-        unlockModul(1);
-    }
-
-    // MATERI HARI 1 – 10
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        if (progress[`materiHari${hariKe}`] === true) {
-            console.log(`🟢 Materi hari ${hariKe} sudah selesai`);
-            
-            lockMateriVideo(hariKe);
-
-            // 🔒 kunci tombol centang video
-            const btn = document.getElementById(`btnMateriDone${hariKe}`);
-            if (btn) {
-                disableButtonFully(btn);
-                // 🟢 submenu centang
-                updateSubmenuLinkUI('materi', hariKe);
-            }
-            // pastikan localStorage sinkron
-            localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-        }
-    }
-
-    // MEAL PLAN Hari 1 - 10
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        const mealKey = `mealplanHari${hariKe}`;
-
-        if (progress[mealKey] === true || progress[mealKey] === 'OK') {
-            console.log(`✅ Restore meal plan hari ${hariKe}`);
-
-            // 🟢 SUBMENU CENTANG (INI YANG SEBELUMNYA KELEWAT)
-            updateSubmenuLinkUI('mealplan', hariKe);
-
-            // 🔒 Kunci UI meal plan
-            lockMealPlanUI(hariKe);
-        }
-    }
 }
 
 /************************************
@@ -1720,42 +1630,6 @@ function lockMealPlanUI(hariKe) {
     disableButtonFully(btnSelesai);
   }
    console.log(`✅ Meal Plan hari ${hariKe} terkunci (X & PDF tetap aktif)`);
-}
-
-function BACKUP_lockMealPlanUI(hariKe) {
-    const container = document.getElementById(`mealPlanContent${hariKe}`);
-    if (!container) return;
-
-    container.querySelectorAll('button').forEach(btn => {
-
-        const text = btn.textContent.trim();
-
-        // ✅ BIARKAN tombol Close (X)
-        if (
-            text === 'X' ||
-            btn.classList.contains('close-video') ||
-            btn.getAttribute('aria-label') === 'Close'
-        ) {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // ✅ BIARKAN tombol PDF
-        if (btn.id === 'btnCekDisiniMealPlan') {
-            btn.disabled = false;
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            return;
-        }
-
-        // 🔒 SEMUA BUTTON LAIN = MATI
-        // (INI TERMASUK tombol UPLOAD & tombol SELESAI)
-        disableButtonFully(btn);
-    });
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (Upload mati, X & PDF hidup)`);
 }
 
 /***************************************
@@ -1881,30 +1755,6 @@ function applyLockForNewUser() {
         perkenalanHeader.style.cursor = 'pointer';
     }
     console.log('✅ User baru: hanya Perkenalan yang aktif');
-}
-
-function BACKUP_applyLockForNewUser() {
-    console.log('🔐 Lock semua modul untuk user baru');
-    
-    // Lock semua modul hari 1-10
-    for (let i = 1; i <= 10; i++) {
-        lockModul(i);
-    }
-    
-    // Perkenalan tetap terbuka
-    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-    if (perkenalanHeader) {
-        perkenalanHeader.classList.remove('disabled');
-        perkenalanHeader.style.pointerEvents = 'auto';
-        perkenalanHeader.style.opacity = '1';
-        
-        // Update lock icon untuk perkenalan
-        const lockIcon = perkenalanHeader.querySelector('.status-lock, .status-unlock');
-        if (lockIcon) {
-            lockIcon.className = 'fas fa-lock status-lock';
-            lockIcon.style.color = '#ffffff';
-        }
-    }
 }
 
 /***********************
@@ -2864,43 +2714,6 @@ function fetchProgressFromServer(userId) {
             // ✅ SEMUA USER → restore progress
             applyExistingUserProgress(response);
         }
-        document.body.removeChild(script);
-        delete window[callbackName];
-    };
-    
-    script.onerror = () => {
-        console.warn('⚠️ Gagal ambil progress dari server untuk user', userId);
-        document.body.removeChild(script);
-        delete window[callbackName];
-    };
-    
-    document.body.appendChild(script);
-}
-
-function BACKUP_fetchProgressFromServer(userId) {
-    const callbackName = 'cb_fetch_progress_' + Date.now();
-    const script = document.createElement('script');
-    
-    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-    
-    window[callbackName] = function(response) {
-        console.log('📡 Progress dari server untuk user', userId, ':', response);
-        
-        if (response.success) {
-            // Simpan ke localStorage dengan key spesifik user
-            localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
-            
-            // Apply status tombol berdasarkan progress
-            for (let hariKe = 1; hariKe <= 10; hariKe++) {
-                checkAndApplyButtonStatus(userId, hariKe);
-            }
-            
-            // Juga simpan di key umum untuk backward compatibility
-            localStorage.setItem('progressData', JSON.stringify(response));
-            // ⬇️⬇️⬇️ INI YANG KURANG DI REVISI11 ⬇️⬇️⬇️
-            applyExistingUserProgress(response); // 🔑 KUNCI UTAMA
-        }
-        
         document.body.removeChild(script);
         delete window[callbackName];
     };
@@ -5060,70 +4873,6 @@ async function selesaikanMealPlan(hariKe) {
         // ❌ PENTING: TIDAK ADA KODE YANG MENYENTUH CONTAINER
         console.log(`✅ Meal Plan hari ${hariKe} selesai (X & PDF aman)`);
     }
-}
-
-
-async function BACKUP_selesaikanMealPlan(hariKe) {
-    console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
-
-    // 1️⃣ VALIDASI: semua meal harus sudah upload
-    if (!checkAllMealsUploaded(hariKe)) {
-        showMessage('warning', 'Masih ada meal plan yang belum diupload');
-        return;
-    }
-
-    const userId   = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
-    if (!userId) return;
-
-    // 2️⃣ KIRIM STATUS KE SERVER
-    const response = await fetch(URL_PROGRAM_APP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            action: 'updateMealPlan',
-            userId,
-            namaUser,
-            hariKe
-        })
-    });
-
-    const result = await response.text();
-    console.log('📥 Update Meal Plan:', result);
-
-    if (!result || !result.includes('OK')) {
-        showMessage('error', 'Gagal menyelesaikan Meal Plan');
-        return;
-    }
-
-    // 3️⃣ SIMPAN STATE LOKAL
-    localStorage.setItem(`mealplan_hari_${hariKe}`, 'completed');
-
-    // 4️⃣ DISABLE SEMUA TOMBOL UPLOAD (KECUALI CLOSE & PDF)
-    document
-      .querySelectorAll(`#mealPlanContent${hariKe} button`)
-      .forEach(btn => {
-        // ❌ JANGAN disable tombol close (X)
-        if (btn.classList.contains('btn-close')) return;
-
-        // ❌ JANGAN disable tombol PDF
-        if (btn.id === 'btnCekDisiniMealPlan') return;
-
-        // ❌ JANGAN disable tombol header
-        if (btn.dataset.role === 'header-close') return;
-
-        disableButtonFully(btn);
-      });
-
-    // 5️⃣ DISABLE TOMBOL SELESAI
-    const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
-    disableButtonFully(btnSelesai);
-
-    // 6️⃣ UPDATE SUBMENU (🟢)
-    updateSubmenuLinkUI('mealplan', hariKe);
-    lockMealPlanUI(hariKe);
-
-    console.log(`🔒 Meal Plan hari ${hariKe} dikunci (PDF tetap aktif)`);
 }
 
 /*****************************************
