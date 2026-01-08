@@ -2852,6 +2852,44 @@ function fetchProgressFromServer(userId) {
     
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
+       
+        if (response.success) {
+            // 🔑 1. SIMPAN KE GLOBAL (INI YANG PALING PENTING)
+            window.userProgress = response;
+            // 2. Simpan ke localStorage dengan key spesifik user
+            localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
+            // 3. Apply status tombol berdasarkan progress
+            for (let hariKe = 1; hariKe <= 10; hariKe++) {
+                checkAndApplyButtonStatus(userId, hariKe);
+            }
+            // 4. Backward compatibility
+            localStorage.setItem('progressData', JSON.stringify(response));
+            // 5. APPLY LOCK SYSTEM (INI YANG SELAMA INI HILANG)
+            applyLockSystem(response);
+            // 6. Restore existing progress (materi, mealplan, dll)
+            applyExistingUserProgress(response);
+        }
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    script.onerror = () => {
+        console.warn('⚠️ Gagal ambil progress dari server untuk user', userId);
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    document.body.appendChild(script);
+}
+
+function BACKUP_fetchProgressFromServer(userId) {
+    const callbackName = 'cb_fetch_progress_' + Date.now();
+    const script = document.createElement('script');
+    
+    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    
+    window[callbackName] = function(response) {
+        console.log('📡 Progress dari server untuk user', userId, ':', response);
         
         if (response.success) {
             // Simpan ke localStorage dengan key spesifik user
@@ -7975,12 +8013,17 @@ function parseJSONP(text) {
   }
 }
 
-/************************************************
- * HARD GUARD: Blok akses Modul Hari via Collapse
- * (FIX FINAL – WAJIB ADA)
- ************************************************/
-document.addEventListener('click', function (e) {
-  const header = e.target.closest('[data-hari][data-bs-toggle="collapse"]');
+/*********************************************************
+ * HARD BLOCK MODUL via Bootstrap Collapse (FINAL FIX)
+ *********************************************************/
+document.addEventListener('show.bs.collapse', function (e) {
+  const collapseEl = e.target;
+
+  // Cari header yang mengontrol collapse ini
+  const header = document.querySelector(
+    `[data-bs-target="#${collapseEl.id}"], [href="#${collapseEl.id}"]`
+  );
+
   if (!header) return;
 
   const hariKe = parseInt(header.getAttribute('data-hari'), 10);
@@ -7994,15 +8037,11 @@ document.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    showMessage(
-      'warning',
-      'Silakan selesaikan Perkenalan terlebih dahulu',
-      3000
-    );
+    showMessage( 'warning', 'Silakan selesaikan Perkenalan terlebih dahulu', 3000 );
 
-    console.warn(`⛔ Modul Hari ${hariKe} diblok (Perkenalan belum selesai)`);
+    console.warn(`⛔ Bootstrap collapse Hari ${hariKe} diblok TOTAL`);
   }
-}, true); // ⬅️ CAPTURE PHASE (PENTING!)
+}, true);
 
 </script>
 </body>
