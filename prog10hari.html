@@ -1511,7 +1511,41 @@ function setupAccordionToggle() {
 /**************************************
 * Apply Lock System yang lebih strict *
 ***************************************/
+/**************************************
+ * Apply Lock System (FINAL & BENAR)
+ **************************************/
 function applyLockSystem(progress) {
+  console.log('🔒 Apply Lock System FINAL');
+
+  // Simpan global (WAJIB untuk guard)
+  window.userProgress = progress;
+
+  if (progress.perkenalan === true) {
+    console.log('✅ Perkenalan selesai → Unlock Hari 1');
+
+    updatePerkenalanUI();
+    unlockModul(1);
+
+  } else {
+    console.log('🔐 Perkenalan BELUM selesai → LOCK TOTAL');
+
+    // STRICT LOCK hari 1–10
+    for (let i = 1; i <= 10; i++) {
+      strictLockModul(i);
+    }
+
+    // Pastikan Perkenalan tetap bisa diklik
+    const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+    if (perkenalanHeader) {
+      perkenalanHeader.classList.remove('disabled');
+      perkenalanHeader.style.pointerEvents = 'auto';
+      perkenalanHeader.style.opacity = '1';
+      perkenalanHeader.style.cursor = 'pointer';
+    }
+  }
+}
+
+function BACKUP_applyLockSystem(progress) {
     console.log('🔒 Menerapkan lock system STRICT');
     
     // 1. PERKENALAN
@@ -1556,7 +1590,44 @@ function applyLockSystem(progress) {
 /*************************************
 * Terapkan Progress User dari Server *
 **************************************/
+/**************************************
+ * Apply Existing User Progress (FINAL)
+ **************************************/
 function applyExistingUserProgress(progress) {
+  console.log('📊 Apply Existing Progress FINAL');
+
+  // Simpan global
+  window.userProgress = progress;
+
+  // PERKENALAN
+  if (progress.perkenalan === true) {
+    updateSubmenuLinkUI('perkenalan', 0);
+    disableSelesaiPerkenalanButton();
+    unlockModul(1);
+  }
+
+  // MATERI HARI 1–10
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    if (progress[`materiHari${hariKe}`] === true) {
+      lockMateriVideo(hariKe);
+
+      const btn = document.getElementById(`btnMateriDone${hariKe}`);
+      if (btn) disableButtonFully(btn);
+
+      updateSubmenuLinkUI('materi', hariKe);
+    }
+  }
+
+  // MEAL PLAN HARI 1–10
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    if (progress[`mealplanHari${hariKe}`] === true) {
+      lockMealPlanUI(hariKe);
+      updateSubmenuLinkUI('mealplan', hariKe);
+    }
+  }
+}
+
+function BACKUP_applyExistingUserProgress(progress) {
     console.log('📊 Apply existing user progress:', progress);
 
     // PERKENALAN
@@ -7903,6 +7974,35 @@ function parseJSONP(text) {
     return null;
   }
 }
+
+/************************************************
+ * HARD GUARD: Blok akses Modul Hari via Collapse
+ * (FIX FINAL – WAJIB ADA)
+ ************************************************/
+document.addEventListener('click', function (e) {
+  const header = e.target.closest('[data-hari][data-bs-toggle="collapse"]');
+  if (!header) return;
+
+  const hariKe = parseInt(header.getAttribute('data-hari'), 10);
+
+  // ⛔ BLOK MODUL HARI 1 JIKA PERKENALAN BELUM SELESAI
+  if (
+    hariKe === 1 &&
+    window.userProgress &&
+    window.userProgress.perkenalan !== true
+  ) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    showMessage(
+      'warning',
+      'Silakan selesaikan Perkenalan terlebih dahulu',
+      3000
+    );
+
+    console.warn(`⛔ Modul Hari ${hariKe} diblok (Perkenalan belum selesai)`);
+  }
+}, true); // ⬅️ CAPTURE PHASE (PENTING!)
 
 </script>
 </body>
