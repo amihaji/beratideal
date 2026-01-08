@@ -1626,11 +1626,50 @@ function disableButtonFully(el) {
 * Kunci UI Meal Plan (UPLOAD MATI, X & PDF HIDUP)
 ****************************************/
 /**************************************
- * Kunci UI Meal Plan (FINAL VERSION)
- * - Disable semua tombol upload
- * - PDF & tombol close tetap aktif
+ * Kunci UI Meal Plan (FINAL – SAFE)
+ * - HANYA disable tombol upload
+ * - X Form & X PDF TETAP AKTIF
  **************************************/
 function lockMealPlanUI(hariKe) {
+  console.log(`🔒 Mengunci Meal Plan UI hari ${hariKe}`);
+
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (!container) return;
+
+  /* =====================================
+   * 1️⃣ DISABLE INPUT FILE (UPLOAD)
+   * ===================================== */
+  container.querySelectorAll('input[type="file"]').forEach(input => {
+    disableButtonFully(input);
+  });
+
+  /* =====================================
+   * 2️⃣ DISABLE TOMBOL UPLOAD (BERDASARKAN ATRIBUT)
+   * ===================================== */
+  container.querySelectorAll('button').forEach(btn => {
+
+    // ✅ HANYA tombol upload meal plan
+    if (
+      btn.dataset.action === 'uploadMeal' ||
+      btn.classList.contains('btn-upload-meal')
+    ) {
+      disableButtonFully(btn);
+    }
+  });
+
+  /* =====================================
+   * 3️⃣ DISABLE TOMBOL SELESAI MEAL PLAN
+   * ===================================== */
+  const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  if (btnSelesai) {
+    disableButtonFully(btnSelesai);
+  }
+
+  console.log(`✅ Meal Plan hari ${hariKe} terkunci (X & PDF tetap aktif)`);
+}
+
+
+function BACKUP2_lockMealPlanUI(hariKe) {
   console.log(`🔒 Mengunci Meal Plan UI hari ${hariKe}`);
 
   const container = document.getElementById(`mealPlanContent${hariKe}`);
