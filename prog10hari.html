@@ -3977,7 +3977,7 @@ function checkAndApplyButtonStatus(userId, hariKe) {
 /****************************************************
 * Tampilkan submenu hanya untuk melihat (read-only) *
 *****************************************************/
-function HASPUS_showSubmenuOnly(targetId) {
+function showSubmenuOnly(targetId) {
     console.log(`👁️ Showing submenu ${targetId} in read-only mode`);
     
     const targetContent = document.getElementById(targetId);
@@ -4901,6 +4901,70 @@ function restoreMealPlanState(hariKe) {
   }
 }
 
+/***********************************************************
+* Cek apakah semua meal sudah diupload untuk hari tertentu *
+************************************************************/
+function checkAllMealsUploaded(hariKe) {
+  const meals = [
+    'sarapan',
+    'cemilanPagi',
+    'makanSiang',
+    'cemilanSore',
+    'makanMalam'
+  ];
+  return meals.every(meal =>
+    localStorage.getItem(`meal_${hariKe}_${meal}`) === 'done'
+  );
+}
+
+/**************************
+* Simpan status meal plan *
+***************************/
+function saveMealPlanStatus(hariKe, status) {
+    localStorage.setItem(`mealplan_hari_${hariKe}`, status);
+    localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
+    
+    // Apply button disable
+    disableButtonsAfterCompletion(hariKe, 'mealplan');
+}
+
+/************************************************************
+* Update UI setelah meal plan selesai dengan disable tombol *
+*************************************************************/
+function updateMealPlanCompletionUI(hariKe) {
+  // 🔒 Disable tombol selesai
+  const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  if (selesaiBtn) {
+    selesaiBtn.disabled = true;
+    selesaiBtn.onclick = null;
+    selesaiBtn.style.opacity = '0.5';
+  }
+
+  // 🔒 Disable SEMUA tombol upload
+  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  if (container) {
+    container.querySelectorAll('button').forEach(btn => {
+      btn.disabled = true;
+      btn.onclick = null;
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+    });
+  }
+
+  // ✅ Tandai submenu Meal Plan
+  updateSubmenuLinkUI(hariKe, 'mealplan');
+}
+
+/*********************************
+* Cek status meal plan saat load *
+**********************************/
+function checkMealPlanStatus(hariKe) {
+    const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
+    if (status === 'completed') {
+        updateMealPlanCompletionUI(hariKe);
+    }
+}
+
 /*******************************************
 * Generate form meal plan untuk semua hari *
 ********************************************/
@@ -4913,6 +4977,21 @@ function generateMealPlanForms() {
             container.innerHTML = createMealPlanFormHTML(hariKe);
         }
     }
+}
+
+/**********************************************
+* Load progress meal plan yang sudah diupload *
+***********************************************/
+function loadMealPlanProgress(hariKe) {
+    const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+    
+    mealTypes.forEach(mealType => {
+        const status = localStorage.getItem(`meal_${hariKe}_${mealType}`);
+        if (status === 'uploaded') {
+            const fileName = localStorage.getItem(`meal_${hariKe}_${mealType}_file`) || 'File terupload';
+            updateMealInputField(mealType, fileName, hariKe);
+        }
+    });
 }
 
 /***********************************
@@ -6005,6 +6084,18 @@ function getResistanceDataForServer(hariKe) {
         totalReps: totalReps,
         totalMinutes: totalMinutes
     };
+}
+
+function simpanWaterHariAktif() {
+  if (window.activeWaterHari) {
+    simpanWater(window.activeWaterHari);
+  }
+}
+
+function selesaiWaterHariAktif() {
+  if (window.activeWaterHari) {
+    simpanWater(window.activeWaterHari);
+  }
 }
 
 /******************************************************
