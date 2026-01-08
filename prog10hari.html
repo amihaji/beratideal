@@ -6016,64 +6016,6 @@ function applyWorkoutReadOnlyMode(hariKe) {
 /************************************
 * Fungsi Tambah Olahraga Resistance *
 *************************************/
-function BACKUP_addResistanceExercise(hariKe, exerciseName) {
-  // const container = document.getElementById(`resistanceContainer${hariKe}`);
-  const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
-    if (!container) {
-        console.error('❌ selectedResistanceContainer tidak ditemukan');
-        return;
-    }
-  if (!container) return;
-
-  const exerciseId = `res_${hariKe}_${Date.now()}`;
-
-  container.innerHTML = `
-    <div class="card mt-3 p-3" id="${exerciseId}">
-      <h6>${exerciseName}</h6>
-
-      <div class="row">
-        <div class="col">
-          <input type="number" class="form-control" placeholder="Set"
-                 id="set_${exerciseId}">
-        </div>
-        <div class="col">
-          <input type="number" class="form-control" placeholder="Repetisi"
-                 id="reps_${exerciseId}">
-        </div>
-        <div class="col">
-          <input type="number" class="form-control" placeholder="Durasi (menit)"
-                 id="dur_${exerciseId}">
-        </div>
-      </div>
-
-      <small class="text-muted d-block mt-2">
-        Timestamp: ${new Date().toLocaleTimeString()}
-      </small>
-
-      <button class="btn btn-primary btn-sm mt-3"
-              id="btnSave_${exerciseId}"
-              onclick="saveResistanceData(${hariKe}, '${exerciseId}')"
-              disabled>
-        Simpan
-      </button>
-    </div>
-  `;
-
-  // validasi input → enable tombol simpan
-  const fields = [
-    `set_${exerciseId}`,
-    `reps_${exerciseId}`,
-    `dur_${exerciseId}`
-  ];
-
-  fields.forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-      const filled = fields.every(fid => document.getElementById(fid).value);
-      document.getElementById(`btnSave_${exerciseId}`).disabled = !filled;
-    });
-  });
-}
-
 function addResistanceExercise(hariKe, exerciseName) {
     console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
     
@@ -6168,10 +6110,7 @@ function removeResistanceExercise(hariKe, exerciseId) {
 /*******************************************
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
-/****************************************
- * Save Resistance Data (FINAL)
- ****************************************/
-function saveResistanceData(hariKe, exerciseId) {
+function BACKUP_saveResistanceData(hariKe, exerciseId) {
   console.log(`💾 Simpan Resistance Hari ${hariKe}`, exerciseId);
 
   const setVal  = document.getElementById(`set_${exerciseId}`).value;
@@ -6200,7 +6139,7 @@ function saveResistanceData(hariKe, exerciseId) {
 }
 
 
-function BACKUP_saveResistanceData(hariKe, exerciseId) {
+function saveResistanceData(hariKe, exerciseId) {
     const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
     const durasiValue = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
