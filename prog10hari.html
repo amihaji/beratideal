@@ -5539,6 +5539,20 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 function updateWorkoutCompletionUI(hariKe) {
   console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
   
+  // 🔑 SIMPAN STATUS WORKOUT = OK KE SERVER
+  google.script.run
+    .withSuccessHandler(() => {
+      console.log(`✅ Workout hari ${hariKe} berhasil disimpan ke sheet (OK)`);
+      localStorage.setItem(`workoutHari${hariKe}`, 'completed');
+    })
+    .withFailureHandler(err => {
+      console.error('❌ Gagal menyimpan status workout:', err);
+    })
+    .updateWorkoutStatus({
+      hariKe: hariKe,
+      workout: 'OK'
+    });
+  
   // Update tombol di menu utama
   const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
   if (workoutItem) {
