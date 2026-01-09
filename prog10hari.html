@@ -2471,6 +2471,65 @@ function updateSubmenuLinkUI(type, hariKe) {
         );
     }
 
+    /* =====================================
+     * ✅ TAMBAHAN UNTUK WORKOUT (INI KUNCINYA)
+     * ===================================== */
+    if (type === 'workout') {
+        link = document.querySelector(
+            `a.menu-item.submenu-trigger[onclick*="selesaiWorkout(${hariKe})"]`
+        );
+    }
+
+    if (!link) {
+        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
+        return;
+    }
+
+    // ❌ Cegah dobel centang
+    if (link.querySelector('.status-done')) return;
+
+    // ✅ Tambah centang BULAT HIJAU
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle status-done';
+    icon.style.color = 'green';
+    icon.style.marginLeft = '8px';
+    icon.style.fontSize = '0.9em';
+
+    link.appendChild(icon);
+    link.style.fontWeight = 'bold';
+    link.style.color = '#666';
+}
+
+function BACKUP_updateSubmenuLinkUI(type, hariKe) {
+    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
+
+    let link = null;
+
+    if (type === 'perkenalan') {
+        // ✅ KHUSUS perkenalan
+        const container = document.getElementById('perkenalanContent');
+        if (!container) return;
+
+        link = [...container.querySelectorAll('a.menu-item')]
+            .find(a => a.textContent.includes('Selesai Perkenalan'));
+    }
+
+    if (type === 'materi') {
+        // ✅ KHUSUS Materi Hari X (ANTI SALAH TARGET)
+        const container = document.getElementById(`pertemuan${hariKe}Content`);
+        if (!container) return;
+
+        link = container.querySelector(
+            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
+        );
+    }
+
+    if (type === 'mealplan') {
+        link = document.querySelector(
+            `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`
+        );
+    }
+
     if (!link) {
         console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
         return;
@@ -5127,64 +5186,6 @@ function showWorkoutForm(hariKe) {
     setTimeout(() => { 
         workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
     }, 200);
-}
-
-function BACKUP_showWorkoutForm(hariKe) {
-    console.log(`👟 Showing workout form for day ${hariKe}`);
-    
-    // Sembunyikan semua submenu lainnya
-    document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    // Tampilkan workout content
-    const workoutContent = document.getElementById(`workoutContent${hariKe}`);
-    if (workoutContent) {
-        workoutContent.style.display = 'block';
-        
-        // Pastikan form workout sudah digenerate
-        const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
-        if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
-            console.log(`⚙️ Generating workout form for day ${hariKe}`);
-            workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
-        }
-        
-        // Setup resistance exercises (termasuk tombol)
-        setupResistanceExercises(hariKe);
-        
-        // Setup event listeners untuk workout form
-        setupWorkoutForDay(hariKe);
-        
-        // Load saved workout data
-        loadSavedWorkoutData(hariKe);
-
-        /* =====================================================
-         * 🔁 RESTORE WORKOUT READ-ONLY (USER LAMA)
-         * ⚠️ HARUS DI SINI (DOM SUDAH SIAP)
-         * ===================================================== */
-        if (
-            hariKe === 1 &&
-            window.userProgress &&
-            window.userProgress.workoutHari1 === true
-        ) {
-            console.log('🔒 Restore workout UI (DOM ready)');
-
-            // Kunci semua field & tombol workout
-            disableButtonsAfterCompletion(1, 'workout');
-
-            // Tampilkan centang hijau submenu
-            updateWorkoutCompletionUI(1);
-        }
-
-        // Scroll ke form
-        setTimeout(() => { 
-            workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
-        }, 200);
-        
-    } else {
-        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
-        showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
-    }
 }
 
 /*******************************
