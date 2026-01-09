@@ -1572,7 +1572,6 @@ function applyExistingUserProgress(progress) {
       updateSubmenuLinkUI('mealplan', hariKe);
     }
   }
- 
 }
 
 /************************************
@@ -5083,6 +5082,63 @@ function showWorkoutForm(hariKe) {
     
     // Tampilkan workout content
     const workoutContent = document.getElementById(`workoutContent${hariKe}`);
+    if (!workoutContent) {
+        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
+        showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    workoutContent.style.display = 'block';
+    
+    // Pastikan form workout sudah digenerate
+    const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
+    if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
+        console.log(`⚙️ Generating workout form for day ${hariKe}`);
+        workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
+    }
+    
+    // Setup resistance exercises
+    setupResistanceExercises(hariKe);
+    
+    // Setup event listeners
+    setupWorkoutForDay(hariKe);
+    
+    // Load saved workout data
+    loadSavedWorkoutData(hariKe);
+
+    /* =====================================================
+     * 🔒 APPLY STATUS WORKOUT (SAMA SEPERTI MEAL PLAN)
+     * ===================================================== */
+    if (
+        hariKe === 1 &&
+        window.userProgress &&
+        window.userProgress.workoutHari1 === true
+    ) {
+        console.log('🔒 Workout Hari 1 sudah selesai → READ ONLY');
+
+        // Kunci UI workout
+        disableButtonsAfterCompletion(hariKe, 'workout');
+
+        // Tampilkan centang hijau submenu (SAMA DENGAN MEAL PLAN)
+        updateSubmenuLinkUI('workout', hariKe);
+    }
+
+    // Scroll ke form
+    setTimeout(() => { 
+        workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+    }, 200);
+}
+
+function BACKUP_showWorkoutForm(hariKe) {
+    console.log(`👟 Showing workout form for day ${hariKe}`);
+    
+    // Sembunyikan semua submenu lainnya
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Tampilkan workout content
+    const workoutContent = document.getElementById(`workoutContent${hariKe}`);
     if (workoutContent) {
         workoutContent.style.display = 'block';
         
@@ -5120,46 +5176,6 @@ function showWorkoutForm(hariKe) {
             updateWorkoutCompletionUI(1);
         }
 
-        // Scroll ke form
-        setTimeout(() => { 
-            workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
-        }, 200);
-        
-    } else {
-        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
-        showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
-    }
-}
-
-function BACKUP_showWorkoutForm(hariKe) {
-    console.log(`👟 Showing workout form for day ${hariKe}`);
-    
-    // Sembunyikan semua submenu lainnya
-    document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    // Tampilkan workout content
-    const workoutContent = document.getElementById(`workoutContent${hariKe}`);
-    if (workoutContent) {
-        workoutContent.style.display = 'block';
-        
-        // Pastikan form workout sudah digenerate
-        const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
-        if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
-            console.log(`⚙️ Generating workout form for day ${hariKe}`);
-            workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
-        }
-        
-        // Setup resistance exercises (termasuk tombol)
-        setupResistanceExercises(hariKe);
-        
-        // Setup event listeners untuk workout form
-        setupWorkoutForDay(hariKe);
-        
-        // Load saved workout data
-        loadSavedWorkoutData(hariKe);
-        
         // Scroll ke form
         setTimeout(() => { 
             workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
