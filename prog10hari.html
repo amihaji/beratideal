@@ -2303,7 +2303,86 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /****************************************
  * Disable Buttons After Completion
  ****************************************/
+/************************************************
+* Disable semua field & tombol setelah selesai *
+*************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
+
+  // ============================================
+  // 🔒 KHUSUS WORKOUT (JANGAN GANGGU YANG LAIN)
+  // ============================================
+  if (submenuType !== 'workout') return;
+
+  console.log(`🔒 Disable workout UI hari ${hariKe}`);
+
+  // =========================
+  // 1️⃣ FIELD KARDIO
+  // =========================
+  document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
+
+  // Upload / kegiatan kardio (jika ada)
+  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
+
+  // =========================
+  // 2️⃣ RESISTANCE
+  // =========================
+  // Dropdown resistance
+  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+  if (resistanceDropdown) {
+    resistanceDropdown.disabled = true;
+    resistanceDropdown.style.backgroundColor = '#f8f9fa';
+    resistanceDropdown.style.cursor = 'not-allowed';
+  }
+
+  // Semua input resistance (set, repetisi, durasi)
+  const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
+  if (resistanceContainer) {
+    resistanceContainer.querySelectorAll('input').forEach(input => {
+      input.disabled = true;
+      input.style.backgroundColor = '#f8f9fa';
+      input.style.cursor = 'not-allowed';
+    });
+
+    // Tombol hapus resistance (trash)
+    resistanceContainer.querySelectorAll('button').forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    });
+  }
+
+  // =========================
+  // 3️⃣ TOMBOL SIMPAN
+  // =========================
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.disabled = true;
+    btnSimpan.classList.remove('btn-primary');
+    btnSimpan.classList.add('btn-secondary');
+    btnSimpan.style.opacity = '0.6';
+    btnSimpan.style.cursor = 'not-allowed';
+    btnSimpan.title = 'Workout sudah selesai';
+  }
+
+  // =========================
+  // 4️⃣ TOMBOL SELESAI
+  // =========================
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = true;
+    btnSelesai.classList.remove('btn-secondary');
+    btnSelesai.classList.add('btn-success');
+    btnSelesai.style.opacity = '0.6';
+    btnSelesai.style.cursor = 'not-allowed';
+    btnSelesai.title = 'Workout sudah selesai';
+  }
+
+  console.log(`✅ Workout hari ${hariKe} berhasil dikunci`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   if (submenuType !== 'workout') return;
 
   const container = document.getElementById(`workoutContent${hariKe}`);
@@ -5215,6 +5294,59 @@ async function simpanWorkoutData(hariKe) {
 * Tandai workout sebagai selesai *
 **********************************/
 async function completeWorkoutFinal(hariKe) {
+  const userId = localStorage.getItem('userId');
+  const namaUser = localStorage.getItem('namaUser');
+
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  // WAJIB: pastikan sudah simpan
+  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
+    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 Workout complete response:', result);
+
+    if (result === "OK" || result.includes("OK")) {
+
+      // ✅ SIMPAN STATUS LOKAL
+      saveWorkoutStatus(hariKe, 'completed');
+
+      // ✅ KUNCI FIELD & TOMBOL
+      disableButtonsAfterCompletion(hariKe, 'workout');
+
+      // ✅ UPDATE UI (CENTANG MENU + BUTTON)
+      updateWorkoutCompletionUI(hariKe);
+
+      showMessage('success', `Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+
+    } else {
+      showMessage('error', 'Gagal menandai workout selesai', 3000, `pertemuan${hariKe}`);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
+  }
+}
+
+
+async function BACKUP_completeWorkoutFinal(hariKe) {
   const userId   = localStorage.getItem('userId');
   const namaUser = localStorage.getItem('namaUser');
 
