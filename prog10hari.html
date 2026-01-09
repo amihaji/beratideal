@@ -1572,6 +1572,16 @@ function applyExistingUserProgress(progress) {
       updateSubmenuLinkUI('mealplan', hariKe);
     }
   }
+
+  // SUBMENU WORKOUT 1-10 
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    //if (progress.workoutHari1 === true) {
+    if (progress[`workoutHari${hariKe}`] === true) {  
+      console.log('✅ Apply submenu check Workout Hari 1 (login)');
+      updateSubmenuLinkUI('workout', 1);
+    }
+  }
+
 }
 
 /************************************
@@ -2313,76 +2323,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`btnUploadKardio${hariKe}`)?.setAttribute('disabled', true);
-
-  // ✅ TAMBAHAN: DISABLE UPLOAD KARDIO (DI SINI TEMPATNYA)
-  //const uploadInput = document.querySelector(
-  //  `#workoutContent${hariKe} input[type="file"]`
-  //);
-  //if (uploadInput) {
-  //  uploadInput.disabled = true;
-  //  uploadInput.style.opacity = '0.6';
-  //  uploadInput.style.cursor = 'not-allowed';
-  //}
-
-  // ⛔ START & STOP 
-  document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`btnStopOlahraga${hariKe}`)?.setAttribute('disabled', true);
-
-  document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
-
-  // 2️⃣ RESISTANCE
-  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-  if (resistanceDropdown) {
-    resistanceDropdown.disabled = true;
-    resistanceDropdown.style.backgroundColor = '#f8f9fa';
-    resistanceDropdown.style.cursor = 'not-allowed';
-  }
-
-  const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
-  if (resistanceContainer) {
-    resistanceContainer.querySelectorAll('input, button').forEach(el => {
-      el.disabled = true;
-      el.style.opacity = '0.6';
-      el.style.cursor = 'not-allowed';
-    });
-  }
-
-  // 3️⃣ TOMBOL SIMPAN
-  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  if (btnSimpan) {
-    btnSimpan.disabled = true;
-    btnSimpan.classList.remove('btn-primary');
-    btnSimpan.classList.add('btn-secondary');
-    btnSimpan.style.opacity = '0.6';
-    btnSimpan.style.cursor = 'not-allowed';
-  }
-
-  // 4️⃣ TOMBOL SELESAI
-  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (btnSelesai) {
-    btnSelesai.disabled = true;
-
-    // ⛔ JANGAN hijau
-    btnSelesai.classList.remove('btn-success');
-    btnSelesai.classList.add('btn-secondary');
-
-    btnSelesai.style.opacity = '0.6';
-    btnSelesai.style.cursor = 'not-allowed';
-  }
-
-  console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
-}
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-
-  if (submenuType !== 'workout') return;
-
-  console.log(`🔒 Disable workout UI hari ${hariKe}`);
-
-  // 1️⃣ FIELD KARDIO
-  document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
 
   // ⛔ START & STOP 
   document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
