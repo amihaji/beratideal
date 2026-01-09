@@ -5308,6 +5308,83 @@ async function simpanWorkoutData(hariKe) {
 
         const result = await response.text();
         console.log('📥 Workout update response:', result);
+        if (result.includes("OK")) {
+            showMessage('success', 'Data workout berhasil disimpan!', 3000, `pertemuan${hariKe}`);
+
+            localStorage.setItem(`workout_kardio_type_${hariKe}`, kardioType);
+            localStorage.setItem(`workout_start_time_${hariKe}`, startTime);
+            localStorage.setItem(`workout_stop_time_${hariKe}`, stopTime);
+
+            // 🔑 INI YANG SEBELUMNYA TIDAK PERNAH TERJALAN
+            localStorage.setItem(`workout_saved_${hariKe}`, 'true');
+
+            saveWorkoutStatus(hariKe, 'saved');
+        } else {
+            showMessage('error', 'Gagal menyimpan data workout: ' + result, 3000, `pertemuan${hariKe}`);
+        }
+    } catch (error) {
+        console.error('❌ Workout save error:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
+    }
+}
+
+async function BACKUP_simpanWorkoutData(hariKe) {
+    const userId = localStorage.getItem('userId');
+    const namaUser = localStorage.getItem('namaUser');
+    
+    if (!userId) {
+        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    // Collect kardio data
+    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    
+    if (!kardioType) {
+        showMessage('warning', 'Pilih jenis olahraga kardio terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    // Collect resistance data
+    const resistanceData = getResistanceDataForServer(hariKe);
+    
+    const workoutData = {
+        kardioType: kardioType,
+        startTime: startTime,
+        stopTime: stopTime,
+        resistenExercises: resistanceData.resistenExercises,
+        totalSets: resistanceData.totalSets,
+        totalReps: resistanceData.totalReps,
+        totalMinutes: resistanceData.totalMinutes
+    };
+    
+    console.log('📤 Sending workout data for day', hariKe, ':', workoutData);
+    
+    // Get kardio file data
+    const kardioFile = localStorage.getItem(`workout_kardio_file_${hariKe}`);
+    const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
+    
+    try {
+        showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
+        
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'updateWorkout',
+                userId: userId,
+                namaUser: namaUser,
+                hariKe: hariKe,
+                workoutData: JSON.stringify(workoutData),
+                kardioFile: kardioFile || '',
+                kardioFilename: kardioFilename || ''
+            })
+        });
+
+        const result = await response.text();
+        console.log('📥 Workout update response:', result);
         
         if (result === "OK" || result.includes("success")) {
             showMessage('success', 'Data workout berhasil disimpan!', 3000, `pertemuan${hariKe}`);
