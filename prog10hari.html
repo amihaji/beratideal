@@ -5612,12 +5612,12 @@ function updateWorkoutCompletionUI(hariKe) {
   const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
   if (selesaiBtn) {
     selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Workout Selesai ✓`;
-    //selesaiBtn.classList.remove('btn-secondary');
-    //selesaiBtn.classList.add('btn-success');
+    selesaiBtn.classList.remove('btn-secondary');
+    selesaiBtn.classList.add('btn-success');
     selesaiBtn.disabled = true;
     selesaiBtn.style.opacity = '0.6';
     selesaiBtn.style.cursor = 'not-allowed';
-    selesaiBtn.title = 'Workout sudah selesai';
+    selesaiBtn.title = 'Workout selesai';
   }
   
   // Update tombol simpan
@@ -5628,7 +5628,7 @@ function updateWorkoutCompletionUI(hariKe) {
     simpanBtn.classList.add('btn-secondary');
     simpanBtn.style.opacity = '0.6';
     simpanBtn.style.cursor = 'not-allowed';
-    simpanBtn.title = 'Sudah selesai';
+    simpanBtn.title = 'Tersimpan';
   }
   
   // Disable dropdown resistance
