@@ -2306,6 +2306,31 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 function disableButtonsAfterCompletion(hariKe, submenuType) {
   if (submenuType !== 'workout') return;
 
+  const container = document.getElementById(`workoutContent${hariKe}`);
+  if (!container) return;
+
+  container.querySelectorAll(
+    'input, select, textarea, button'
+  ).forEach(el => {
+
+    // ❗ JANGAN disable tombol close & cek PDF
+    if (
+      el.classList.contains('btn-close') ||
+      el.classList.contains('btn-pdf') ||
+      el.dataset.keepEnabled === 'true'
+    ) {
+      return;
+    }
+
+    el.disabled = true;
+    el.style.pointerEvents = 'none';
+    el.style.opacity = '0.6';
+  });
+}
+
+function BACKUP2_disableButtonsAfterCompletion(hariKe, submenuType) {
+  if (submenuType !== 'workout') return;
+
   const section = document.getElementById(`workoutContent${hariKe}`);
   if (!section) return;
 
@@ -5449,6 +5474,9 @@ async function completeWorkoutFinal(hariKe) {
 
       // Simpan status lokal (dipakai restore & lock)
       saveWorkoutStatus(hariKe, 'completed');
+  
+      // 🔒 KUNCI FIELD & TOMBOL
+      disableButtonsAfterCompletion(hariKe, 'workout');
 
       // Update UI (UI ONLY, tidak kirim server)
       updateWorkoutCompletionUI(hariKe);
