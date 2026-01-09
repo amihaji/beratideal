@@ -2303,9 +2303,6 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
-/************************************************
-* Disable semua field & tombol setelah selesai *
-*************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
 
   if (submenuType !== 'workout') return;
@@ -2315,16 +2312,17 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   // 1️⃣ FIELD KARDIO
   document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`btnUploadKardio${hariKe}`)?.setAttribute('disabled', true);
 
   // ✅ TAMBAHAN: DISABLE UPLOAD KARDIO (DI SINI TEMPATNYA)
-  const uploadInput = document.querySelector(
-    `#workoutContent${hariKe} input[type="file"]`
-  );
-  if (uploadInput) {
-    uploadInput.disabled = true;
-    uploadInput.style.opacity = '0.6';
-    uploadInput.style.cursor = 'not-allowed';
-  }
+  //const uploadInput = document.querySelector(
+  //  `#workoutContent${hariKe} input[type="file"]`
+  //);
+  //if (uploadInput) {
+  //  uploadInput.disabled = true;
+  //  uploadInput.style.opacity = '0.6';
+  //  uploadInput.style.cursor = 'not-allowed';
+  //}
 
   // ⛔ START & STOP 
   document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
