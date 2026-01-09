@@ -2300,14 +2300,70 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
   container.appendChild(exerciseElement);
 }
 
-/****************************************
- * Disable Buttons After Completion
- ****************************************/
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
 
+  if (submenuType !== 'workout') return;
+
+  console.log(`🔒 Disable workout UI hari ${hariKe}`);
+
+  // * 1️⃣ FIELD KARDIO
+  document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
+
+  /* ⛔ START & STOP (INI YANG KURANG) */
+  document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`btnStopOlahraga${hariKe}`)?.setAttribute('disabled', true);
+
+  document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
+
+  // * 2️⃣ RESISTANCE
+  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+  if (resistanceDropdown) {
+    resistanceDropdown.disabled = true;
+    resistanceDropdown.style.backgroundColor = '#f8f9fa';
+    resistanceDropdown.style.cursor = 'not-allowed';
+  }
+
+  const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
+  if (resistanceContainer) {
+    resistanceContainer.querySelectorAll('input, button').forEach(el => {
+      el.disabled = true;
+      el.style.opacity = '0.6';
+      el.style.cursor = 'not-allowed';
+    });
+  }
+
+  // * 3️⃣ TOMBOL SIMPAN
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.disabled = true;
+    btnSimpan.classList.remove('btn-primary');
+    btnSimpan.classList.add('btn-secondary');
+    btnSimpan.style.opacity = '0.6';
+    btnSimpan.style.cursor = 'not-allowed';
+  }
+
+  // * 4️⃣ TOMBOL SELESAI
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = true;
+
+    // ⛔ JANGAN hijau
+    btnSelesai.classList.remove('btn-success');
+    btnSelesai.classList.add('btn-secondary');
+
+    btnSelesai.style.opacity = '0.6';
+    btnSelesai.style.cursor = 'not-allowed';
+  }
+
+  console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   // ============================================
   // 🔒 KHUSUS WORKOUT (JANGAN GANGGU YANG LAIN)
   // ============================================
@@ -2380,31 +2436,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   }
 
   console.log(`✅ Workout hari ${hariKe} berhasil dikunci`);
-}
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  if (submenuType !== 'workout') return;
-
-  const container = document.getElementById(`workoutContent${hariKe}`);
-  if (!container) return;
-
-  container.querySelectorAll(
-    'input, select, textarea, button'
-  ).forEach(el => {
-
-    // ❗ JANGAN disable tombol close & cek PDF
-    if (
-      el.classList.contains('btn-close') ||
-      el.classList.contains('btn-pdf') ||
-      el.dataset.keepEnabled === 'true'
-    ) {
-      return;
-    }
-
-    el.disabled = true;
-    el.style.pointerEvents = 'none';
-    el.style.opacity = '0.6';
-  });
 }
 
 /*************************************
@@ -5565,7 +5596,8 @@ function updateWorkoutCompletionUI(hariKe) {
   // Update tombol di menu utama
   const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
   if (workoutItem) {
-    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ke ${hariKe} ✓ `;
+    // workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ke ${hariKe} ✓ `;
+    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i> ${hariKe}.3 Workout - Hari ke ${hariKe} <i class="fas fa-check-circle text-success ms-1"></i>`;
     workoutItem.style.color = '#666666';
     workoutItem.style.fontWeight = 'bold';
     
