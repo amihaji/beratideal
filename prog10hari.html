@@ -2303,7 +2303,7 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /****************************************
  * Disable Buttons After Completion
  ****************************************/
-function disableButtonsAfterCompletion(hariKe, submenuType) {
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   if (submenuType !== 'workout') return;
 
   const container = document.getElementById(`workoutContent${hariKe}`);
@@ -2328,21 +2328,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   });
 }
 
-function BACKUP2_disableButtonsAfterCompletion(hariKe, submenuType) {
-  if (submenuType !== 'workout') return;
-
-  const section = document.getElementById(`workoutContent${hariKe}`);
-  if (!section) return;
-
-  section.querySelectorAll('input, select, button').forEach(el => {
-    el.disabled = true;
-  });
-
-  console.log(`🔒 Workout Hari ${hariKe} dikunci`);
-}
-
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
+function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disabling action buttons for ${submenuType} day ${hariKe}`);
   
   const buttonConfigs = {
