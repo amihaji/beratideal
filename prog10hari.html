@@ -1572,29 +1572,7 @@ function applyExistingUserProgress(progress) {
       updateSubmenuLinkUI('mealplan', hariKe);
     }
   }
-
-    // ======================================
-  // 🔁 RESTORE WORKOUT (USER LAMA)
-  // ======================================
-  if (progress.workoutHari1 === true) {
-    console.log('🔁 Restore Workout Hari 1 (READ ONLY)');
-
-    const hariKe = 1;
-
-    // Tampilkan centang hijau submenu
-    updateWorkoutCompletionUI(hariKe);
-
-    // Kunci semua field & tombol workout
-    disableButtonsAfterCompletion(hariKe, 'workout');
-
-    // Sinkron localStorage (aman walau cache kosong)
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      localStorage.setItem(`workout_status_${userId}_${hariKe}`, 'completed');
-    }
-  }
-
-  
+ 
 }
 
 /************************************
@@ -5096,6 +5074,64 @@ async function selesaiWorkout(hariKe) {
 * Tampilkan form workout dengan struktur yang benar *
 *****************************************************/
 function showWorkoutForm(hariKe) {
+    console.log(`👟 Showing workout form for day ${hariKe}`);
+    
+    // Sembunyikan semua submenu lainnya
+    document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    
+    // Tampilkan workout content
+    const workoutContent = document.getElementById(`workoutContent${hariKe}`);
+    if (workoutContent) {
+        workoutContent.style.display = 'block';
+        
+        // Pastikan form workout sudah digenerate
+        const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
+        if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
+            console.log(`⚙️ Generating workout form for day ${hariKe}`);
+            workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
+        }
+        
+        // Setup resistance exercises (termasuk tombol)
+        setupResistanceExercises(hariKe);
+        
+        // Setup event listeners untuk workout form
+        setupWorkoutForDay(hariKe);
+        
+        // Load saved workout data
+        loadSavedWorkoutData(hariKe);
+
+        /* =====================================================
+         * 🔁 RESTORE WORKOUT READ-ONLY (USER LAMA)
+         * ⚠️ HARUS DI SINI (DOM SUDAH SIAP)
+         * ===================================================== */
+        if (
+            hariKe === 1 &&
+            window.userProgress &&
+            window.userProgress.workoutHari1 === true
+        ) {
+            console.log('🔒 Restore workout UI (DOM ready)');
+
+            // Kunci semua field & tombol workout
+            disableButtonsAfterCompletion(1, 'workout');
+
+            // Tampilkan centang hijau submenu
+            updateWorkoutCompletionUI(1);
+        }
+
+        // Scroll ke form
+        setTimeout(() => { 
+            workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+        }, 200);
+        
+    } else {
+        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
+        showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
+    }
+}
+
+function BACKUP_showWorkoutForm(hariKe) {
     console.log(`👟 Showing workout form for day ${hariKe}`);
     
     // Sembunyikan semua submenu lainnya
