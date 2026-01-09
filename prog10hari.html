@@ -1573,23 +1573,28 @@ function applyExistingUserProgress(progress) {
     }
   }
 
+    // ======================================
   // 🔁 RESTORE WORKOUT (USER LAMA)
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    //if (progress.workoutHari1 === true) {
-    if (progress[`workoutHari${hariKe}`] === true) {  
-      console.log('🔁 Restore Workout Hari 1 (READ ONLY)');
-      //const hariKe = 1;
-      // Tampilkan centang hijau submenu
-      updateWorkoutCompletionUI(hariKe);
-      // Kunci semua field & tombol workout
-      disableButtonsAfterCompletion(hariKe, 'workout');
-      // Sinkron localStorage (aman walau cache kosong)
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        localStorage.setItem(`workout_status_${userId}_${hariKe}`, 'completed');
-      }
+  // ======================================
+  if (progress.workoutHari1 === true) {
+    console.log('🔁 Restore Workout Hari 1 (READ ONLY)');
+
+    const hariKe = 1;
+
+    // Tampilkan centang hijau submenu
+    updateWorkoutCompletionUI(hariKe);
+
+    // Kunci semua field & tombol workout
+    disableButtonsAfterCompletion(hariKe, 'workout');
+
+    // Sinkron localStorage (aman walau cache kosong)
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      localStorage.setItem(`workout_status_${userId}_${hariKe}`, 'completed');
     }
   }
+
+  
 }
 
 /************************************
