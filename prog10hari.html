@@ -2303,24 +2303,37 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
+/************************************************
+* Disable semua field & tombol setelah selesai *
+*************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
 
   if (submenuType !== 'workout') return;
 
   console.log(`🔒 Disable workout UI hari ${hariKe}`);
 
-  // * 1️⃣ FIELD KARDIO
+  // 1️⃣ FIELD KARDIO
   document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
 
-  /* ⛔ START & STOP (INI YANG KURANG) */
+  // ✅ TAMBAHAN: DISABLE UPLOAD KARDIO (DI SINI TEMPATNYA)
+  const uploadInput = document.querySelector(
+    `#workoutContent${hariKe} input[type="file"]`
+  );
+  if (uploadInput) {
+    uploadInput.disabled = true;
+    uploadInput.style.opacity = '0.6';
+    uploadInput.style.cursor = 'not-allowed';
+  }
+
+  // ⛔ START & STOP 
   document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`btnStopOlahraga${hariKe}`)?.setAttribute('disabled', true);
 
   document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
 
-  // * 2️⃣ RESISTANCE
+  // 2️⃣ RESISTANCE
   const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
   if (resistanceDropdown) {
     resistanceDropdown.disabled = true;
@@ -2337,7 +2350,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     });
   }
 
-  // * 3️⃣ TOMBOL SIMPAN
+  // 3️⃣ TOMBOL SIMPAN
   const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
   if (btnSimpan) {
     btnSimpan.disabled = true;
@@ -2347,7 +2360,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     btnSimpan.style.cursor = 'not-allowed';
   }
 
-  // * 4️⃣ TOMBOL SELESAI
+  // 4️⃣ TOMBOL SELESAI
   const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
   if (btnSelesai) {
     btnSelesai.disabled = true;
@@ -2364,27 +2377,23 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 }
 
 function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  // ============================================
-  // 🔒 KHUSUS WORKOUT (JANGAN GANGGU YANG LAIN)
-  // ============================================
+
   if (submenuType !== 'workout') return;
 
   console.log(`🔒 Disable workout UI hari ${hariKe}`);
 
-  // =========================
   // 1️⃣ FIELD KARDIO
-  // =========================
   document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
+
+  // ⛔ START & STOP 
+  document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
+  document.getElementById(`btnStopOlahraga${hariKe}`)?.setAttribute('disabled', true);
+
   document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
 
-  // Upload / kegiatan kardio (jika ada)
-  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
-
-  // =========================
   // 2️⃣ RESISTANCE
-  // =========================
-  // Dropdown resistance
   const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
   if (resistanceDropdown) {
     resistanceDropdown.disabled = true;
@@ -2392,26 +2401,16 @@ function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
     resistanceDropdown.style.cursor = 'not-allowed';
   }
 
-  // Semua input resistance (set, repetisi, durasi)
   const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
   if (resistanceContainer) {
-    resistanceContainer.querySelectorAll('input').forEach(input => {
-      input.disabled = true;
-      input.style.backgroundColor = '#f8f9fa';
-      input.style.cursor = 'not-allowed';
-    });
-
-    // Tombol hapus resistance (trash)
-    resistanceContainer.querySelectorAll('button').forEach(btn => {
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
+    resistanceContainer.querySelectorAll('input, button').forEach(el => {
+      el.disabled = true;
+      el.style.opacity = '0.6';
+      el.style.cursor = 'not-allowed';
     });
   }
 
-  // =========================
   // 3️⃣ TOMBOL SIMPAN
-  // =========================
   const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
   if (btnSimpan) {
     btnSimpan.disabled = true;
@@ -2419,29 +2418,84 @@ function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
     btnSimpan.classList.add('btn-secondary');
     btnSimpan.style.opacity = '0.6';
     btnSimpan.style.cursor = 'not-allowed';
-    btnSimpan.title = 'Workout sudah selesai';
   }
 
-  // =========================
   // 4️⃣ TOMBOL SELESAI
-  // =========================
   const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
   if (btnSelesai) {
     btnSelesai.disabled = true;
-    btnSelesai.classList.remove('btn-secondary');
-    btnSelesai.classList.add('btn-success');
+
+    // ⛔ JANGAN hijau
+    btnSelesai.classList.remove('btn-success');
+    btnSelesai.classList.add('btn-secondary');
+
     btnSelesai.style.opacity = '0.6';
     btnSelesai.style.cursor = 'not-allowed';
-    btnSelesai.title = 'Workout sudah selesai';
   }
 
-  console.log(`✅ Workout hari ${hariKe} berhasil dikunci`);
+  console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
 }
 
 /*************************************
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
 function updateSubmenuLinkUI(type, hariKe) {
+    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
+
+    let link = null;
+
+    if (type === 'perkenalan') {
+        const container = document.getElementById('perkenalanContent');
+        if (!container) return;
+
+        link = [...container.querySelectorAll('a.menu-item')]
+            .find(a => a.textContent.includes('Selesai Perkenalan'));
+    }
+
+    if (type === 'materi') {
+        const container = document.getElementById(`pertemuan${hariKe}Content`);
+        if (!container) return;
+
+        link = container.querySelector(
+            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
+        );
+    }
+
+    if (type === 'mealplan') {
+        link = document.querySelector(
+            `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`
+        );
+    }
+
+    /* ===============================
+     * ✅ WORKOUT — SELECTOR YANG BENAR
+     * =============================== */
+    if (type === 'workout') {
+        link = document.querySelector(
+            `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`
+        );
+    }
+
+    if (!link) {
+        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
+        return;
+    }
+
+    // ❌ cegah dobel centang
+    if (link.querySelector('.status-done')) return;
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle status-done';
+    icon.style.color = '#198754'; // hijau bootstrap
+    icon.style.marginLeft = '8px';
+    icon.style.fontSize = '0.9em';
+
+    link.appendChild(icon);
+    link.style.fontWeight = 'bold';
+    link.style.color = '#666';
+}
+
+function BACKUP_updateSubmenuLinkUI(type, hariKe) {
     console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
 
     let link = null;
@@ -2500,55 +2554,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     link.style.color = '#666';
 }
 
-function BACKUP_updateSubmenuLinkUI(type, hariKe) {
-    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-
-    let link = null;
-
-    if (type === 'perkenalan') {
-        // ✅ KHUSUS perkenalan
-        const container = document.getElementById('perkenalanContent');
-        if (!container) return;
-
-        link = [...container.querySelectorAll('a.menu-item')]
-            .find(a => a.textContent.includes('Selesai Perkenalan'));
-    }
-
-    if (type === 'materi') {
-        // ✅ KHUSUS Materi Hari X (ANTI SALAH TARGET)
-        const container = document.getElementById(`pertemuan${hariKe}Content`);
-        if (!container) return;
-
-        link = container.querySelector(
-            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
-        );
-    }
-
-    if (type === 'mealplan') {
-        link = document.querySelector(
-            `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`
-        );
-    }
-
-    if (!link) {
-        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
-        return;
-    }
-
-    // ❌ Cegah dobel centang
-    if (link.querySelector('.status-done')) return;
-
-    // ✅ Tambah centang BULAT HIJAU
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle status-done';
-    icon.style.color = 'green';
-    icon.style.marginLeft = '8px';
-    icon.style.fontSize = '0.9em';
-
-    link.appendChild(icon);
-    link.style.fontWeight = 'bold';
-    link.style.color = '#666';
-}
 
 /***************************
 /* SHOW SUBMENU READ-ONLY  *
