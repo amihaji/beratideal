@@ -5954,13 +5954,8 @@ function addResistanceExercise(hariKe, exerciseName) {
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
     
-    // Cek apakah exercise sudah dipilih
-    if (document.getElementById(fullExerciseId)) {
-        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-    
-    /*
+  
+   /*
    // Cek inputan jumlah set apakah lebih dari 0
     const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
     if (parseInt(setInput.value) <= 0) {
@@ -5983,6 +5978,89 @@ function addResistanceExercise(hariKe, exerciseName) {
     }
     */
 
+    const exerciseElement = document.createElement("div");
+    exerciseElement.id = fullExerciseId;
+    exerciseElement.className = "resistance-exercise-item card mb-3";
+    exerciseElement.innerHTML = `  
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="card-title mb-0 text-primary">${exerciseName}</h6>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-danger btn-sm" 
+                            onclick="removeResistanceExercise(${hariKe}, '${exerciseId}')"
+                            data-bs-toggle="tooltip" title="Hapus"> 
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">	
+                        <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
+                        <input type="number" min="0" id="jmlSet-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Jumlah set" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="set">
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
+                        <input type="number" min="0" id="jmlRepetisi-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="repetisi">
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
+                        <input type="number" min="0" id="jmlDurasi-${hariKe}-${exerciseId}" class="form-control" 
+                               placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="durasi">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(exerciseElement);
+      // Cek apakah exercise sudah dipilih
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    
+    // Auto-save ketika input berubah
+    const inputs = exerciseElement.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const exerciseId = this.getAttribute('data-exercise');
+            const hariKe = this.getAttribute('data-hari');
+            saveResistanceData(hariKe, exerciseId);
+        });
+    });
+  
+    console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
+}
+
+function MASTER_addResistanceExercise(hariKe, exerciseName) {
+    console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
+    
+    const containerId = `selectedResistanceContainer${hariKe}`;
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`❌ Resistance container not found: ${containerId}`);
+        return;
+    }
+    
+    const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
+    const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
+    
+    // Cek apakah exercise sudah dipilih
+    
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
     exerciseElement.className = "resistance-exercise-item card mb-3";
@@ -6039,6 +6117,7 @@ function addResistanceExercise(hariKe, exerciseName) {
   
     console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
 }
+
 
 /**********************************************
 * Fungsi Hapus Olahraga Resistance (per hari)
