@@ -5109,7 +5109,7 @@ function showWorkoutForm(hariKe) {
     loadSavedWorkoutData(hariKe);
 
     /* =====================================================
-     * 🔒 APPLY STATUS WORKOUT (SAMA SEPERTI MEAL PLAN)
+     * 🔒 APPLY STATUS WORKOUT 
      * ===================================================== */
     if (
         hariKe === 1 &&
@@ -5392,70 +5392,6 @@ async function completeWorkoutFinal(hariKe) {
   } catch (err) {
     console.error(err);
     showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
-  }
-}
-
-
-async function BACKUP_completeWorkoutFinal(hariKe) {
-  const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
-
-  // 1️⃣ Validasi login
-  if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  // 2️⃣ Pastikan data workout SUDAH disimpan
-  const workoutSaved = localStorage.getItem(`workout_saved_${hariKe}`);
-  if (!workoutSaved) {
-    showMessage('warning', 'Simpan data workout terlebih dahulu!', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  try {
-    showMessage('info', 'Menandai workout sebagai selesai...', 3000, `pertemuan${hariKe}`);
-
-    // 3️⃣ PANGGIL BACKEND → completeWorkout (ISI KOLOM Z = OK)
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'completeWorkout', // 🔑 PENTING
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Workout complete response:', result);
-
-    // 4️⃣ Jika backend sukses
-    if (result === "OK" || result.includes("success")) {
-
-      // Simpan status lokal (dipakai restore & lock)
-      saveWorkoutStatus(hariKe, 'completed');
-  
-      // 🔒 KUNCI FIELD & TOMBOL
-      disableButtonsAfterCompletion(hariKe, 'workout');
-
-      // Update UI (UI ONLY, tidak kirim server)
-      updateWorkoutCompletionUI(hariKe);
-
-      showMessage('success', `Workout hari ${hariKe} berhasil diselesaikan!`, 3000, `pertemuan${hariKe}`);
-
-      // 5️⃣ Tutup submenu (Close X & Cek Disini tetap aktif)
-      setTimeout(() => {
-        hideSubmenu(`workoutContent${hariKe}`);
-      }, 1500);
-
-    } else {
-      showMessage('error', 'Gagal menandai workout selesai: ' + result, 3000, `pertemuan${hariKe}`);
-    }
-
-  } catch (error) {
-    console.error('❌ Workout complete error:', error);
-    showMessage('error', 'Gagal terhubung ke server: ' + error.message, 3000, `pertemuan${hariKe}`);
   }
 }
 
@@ -6023,7 +5959,8 @@ function addResistanceExercise(hariKe, exerciseName) {
         showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
         return;
     }
-
+    
+    /*
    // Cek inputan jumlah set apakah lebih dari 0
     const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
     if (parseInt(setInput.value) <= 0) {
@@ -6044,6 +5981,7 @@ function addResistanceExercise(hariKe, exerciseName) {
         showMessage('warning', 'Durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
         return;
     }
+    */
 
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
