@@ -5954,26 +5954,13 @@ function addResistanceExercise(hariKe, exerciseName) {
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
     
-  
-   /*
-   // Cek inputan jumlah set apakah lebih dari 0
-    const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
-    if (parseInt(setInput.value) <= 0) {
-        showMessage('warning', 'Jumlah set tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    // Cek inputan jumlah repetisi apakah lebih dari 0
+    // Cek inputan jumlah set atau jumlah repetisi atau jumlah durasi tidak boleh 0 
+    /*
+    const setInput      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
     const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
-    if (parseInt(repetisiInput.value) <= 0) {
-        showMessage('warning', 'Jumlah repetisi tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    // Cek inputan durasi apakah lebih dari 0
-    const durasiInput = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
-    if (parseInt(durasiInput.value) <= 0) {
-        showMessage('warning', 'Durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
+    const durasiInput   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
+    if (parseInt(setInput.value) <= 0 && parseInt(repetisiInput.value) <= 0 && parseInt(durasiInput.value) <= 0) {
+        showMessage('warning', 'Jumlah set, repetisi, dan durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
         return;
     }
     */
@@ -6021,13 +6008,13 @@ function addResistanceExercise(hariKe, exerciseName) {
     `;
 
     container.appendChild(exerciseElement);
-      // Cek apakah exercise sudah dipilih
+    
+    // Cek apakah exercise sudah dipilih
     if (document.getElementById(fullExerciseId)) {
         showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
         return;
     }
-    
-    
+        
     // Auto-save ketika input berubah
     const inputs = exerciseElement.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
