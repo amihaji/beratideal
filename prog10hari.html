@@ -6017,7 +6017,34 @@ function addResistanceExercise(hariKe, exerciseName) {
     
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
-       
+    
+    // Cek apakah exercise sudah dipilih
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+   // Cek inputan jumlah set apakah lebih dari 0
+    const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
+    if (parseInt(setInput.value) <= 0) {
+        showMessage('warning', 'Jumlah set tidak boleh 0', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    // Cek inputan jumlah repetisi apakah lebih dari 0
+    const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
+    if (parseInt(repetisiInput.value) <= 0) {
+        showMessage('warning', 'Jumlah repetisi tidak boleh 0', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    // Cek inputan durasi apakah lebih dari 0
+    const durasiInput = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
+    if (parseInt(durasiInput.value) <= 0) {
+        showMessage('warning', 'Durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
     exerciseElement.className = "resistance-exercise-item card mb-3";
@@ -6059,33 +6086,6 @@ function addResistanceExercise(hariKe, exerciseName) {
             </div>
         </div>
     `;
-
-    // Cek apakah exercise sudah dipilih
-    if (document.getElementById(fullExerciseId)) {
-        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-   // Cek inputan jumlah set apakah lebih dari 0
-    const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
-    if (parseInt(setInput.value) <= 0) {
-        showMessage('warning', 'Jumlah set tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    // Cek inputan jumlah repetisi apakah lebih dari 0
-    const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
-    if (parseInt(repetisiInput.value) <= 0) {
-        showMessage('warning', 'Jumlah repetisi tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    // Cek inputan durasi apakah lebih dari 0
-    const durasiInput = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
-    if (parseInt(durasiInput.value) <= 0) {
-        showMessage('warning', 'Durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
 
     container.appendChild(exerciseElement);
     
