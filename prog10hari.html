@@ -6019,10 +6019,10 @@ function addResistanceExercise(hariKe, exerciseName) {
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
     
     // Cek apakah exercise sudah dipilih
-    //if (document.getElementById(fullExerciseId)) {
-    //    showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
-    //    return;
-    //}
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
     
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
