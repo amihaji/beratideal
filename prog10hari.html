@@ -6061,15 +6061,15 @@ function addResistanceExercise(hariKe, exerciseName) {
             </div>
         </div>
     `;
-    
-    container.appendChild(exerciseElement);
-    
+
     // Cek apakah exercise sudah dipilih
     if (document.getElementById(fullExerciseId)) {
         showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
         return;
     }
 
+    container.appendChild(exerciseElement);
+    
     // Auto-save ketika input berubah
     const inputs = exerciseElement.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
