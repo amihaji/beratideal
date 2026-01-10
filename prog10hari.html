@@ -6018,11 +6018,7 @@ function addResistanceExercise(hariKe, exerciseName) {
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
     
-    // Cek apakah exercise sudah dipilih
-    if (document.getElementById(fullExerciseId)) {
-        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
-        return;
-    }
+  
     
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
@@ -6068,8 +6064,13 @@ function addResistanceExercise(hariKe, exerciseName) {
     
     container.appendChild(exerciseElement);
     
+    // Cek apakah exercise sudah dipilih
+    if (document.getElementById(fullExerciseId)) {
+        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
     // Auto-save ketika input berubah
-    /*
     const inputs = exerciseElement.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
         input.addEventListener('change', function() {
@@ -6078,8 +6079,7 @@ function addResistanceExercise(hariKe, exerciseName) {
             saveResistanceData(hariKe, exerciseId);
         });
     });
-    */
-   
+  
     console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
 }
 
