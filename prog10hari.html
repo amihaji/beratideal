@@ -1578,7 +1578,7 @@ function applyExistingUserProgress(progress) {
     //if (progress.workoutHari1 === true) {
     if (progress[`workoutHari${hariKe}`] === true) {  
       console.log('✅ Apply submenu check Workout Hari 1 (login)');
-      updateSubmenuLinkUI('workout', 1);
+      updateSubmenuLinkUI('workout', hariKe);
     }
   }
 
@@ -5566,10 +5566,10 @@ function updateWorkoutCompletionUI(hariKe) {
   // Update tombol selesai di form
   const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
   if (selesaiBtn) {
-    selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Workout Selesai ✓`;
-    selesaiBtn.classList.remove('btn-secondary');
-    selesaiBtn.classList.add('btn-success');
+    selesaiBtn.innerHTML = `<i class="fas fa-check-double"></i> Workout Selesai`;
     selesaiBtn.disabled = true;
+    // selesaiBtn.classList.remove('btn-secondary');
+    selesaiBtn.classList.add('btn-secondary');
     selesaiBtn.style.opacity = '0.6';
     selesaiBtn.style.cursor = 'not-allowed';
     selesaiBtn.title = 'Workout selesai';
@@ -5909,11 +5909,11 @@ function applyWorkoutReadOnlyMode(hariKe) {
             btn.classList.add('btn-secondary');
             btn.style.opacity = '0.6';
             btn.style.cursor = 'not-allowed';
-            btn.title = 'Workout sudah selesai';
+            btn.title = 'Workout selesai';
             
             // Update teks untuk tombol selesai
             if (selector.includes('SelesaiWorkout')) {
-                btn.innerHTML = '<i class="fas fa-check-double"></i> Workout Selesai ✓';
+                btn.innerHTML = '<i class="fas fa-check-double"></i> Workout Selesai';
             }
         }
     });
@@ -6004,16 +6004,6 @@ function addResistanceExercise(hariKe, exerciseName) {
         return;
     }
      
-    // Cek inputan jumlah set atau jumlah repetisi atau jumlah durasi tidak boleh 0 
-    const setInput      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
-    const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
-    const durasiInput   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
-    if (parseInt(setInput.value) <= 0 && parseInt(repetisiInput.value) <= 0 && parseInt(durasiInput.value) <= 0) {
-        showMessage('warning', 'Jumlah set, repetisi, dan durasi tidak boleh 0', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-
     // Auto-save ketika input berubah
     const inputs = exerciseElement.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
@@ -6124,9 +6114,9 @@ function removeResistanceExercise(hariKe, exerciseId) {
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
 function saveResistanceData(hariKe, exerciseId) {
-    const setValue = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
+    const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
-    const durasiValue = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
+    const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
     
     // Validasi: minimal satu field harus diisi
     if (!setValue && !repetisiValue && !durasiValue) {
