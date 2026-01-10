@@ -6017,9 +6017,7 @@ function addResistanceExercise(hariKe, exerciseName) {
     
     const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
     const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
-    
-  
-    
+       
     const exerciseElement = document.createElement("div");
     exerciseElement.id = fullExerciseId;
     exerciseElement.className = "resistance-exercise-item card mb-3";
@@ -6040,21 +6038,21 @@ function addResistanceExercise(hariKe, exerciseName) {
                 <div class="col-12 col-md-4">
                     <div class="input-group input-group-sm">	
                         <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
-                        <input type="number" min="0" id="jmlSet-${hariKe}-${exerciseId}" class="form-control" 
+                        <input type="number" min="1" id="jmlSet-${hariKe}-${exerciseId}" class="form-control" 
                                placeholder="Jumlah set" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="set">
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
-                        <input type="number" min="0" id="jmlRepetisi-${hariKe}-${exerciseId}" class="form-control" 
+                        <input type="number" min="1" id="jmlRepetisi-${hariKe}-${exerciseId}" class="form-control" 
                                placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="repetisi">
                     </div>
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="input-group input-group-sm">
                         <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
-                        <input type="number" min="0" id="jmlDurasi-${hariKe}-${exerciseId}" class="form-control" 
+                        <input type="number" min="1" id="jmlDurasi-${hariKe}-${exerciseId}" class="form-control" 
                                placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-hari="${hariKe}" data-type="durasi">
                     </div>
                 </div>
@@ -6065,6 +6063,27 @@ function addResistanceExercise(hariKe, exerciseName) {
     // Cek apakah exercise sudah dipilih
     if (document.getElementById(fullExerciseId)) {
         showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+   // Cek inputan jumlah set apakah lebih dari 0
+    const setInput = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`);
+    if (parseInt(setInput.value) <= 0) {
+        showMessage('warning', 'Jumlah set harus lebih dari 0', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    // Cek inputan jumlah repetisi apakah lebih dari 0
+    const repetisiInput = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`);
+    if (parseInt(repetisiInput.value) <= 0) {
+        showMessage('warning', 'Jumlah repetisi harus lebih dari 0', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+
+    // Cek inputan durasi apakah lebih dari 0
+    const durasiInput = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`);
+    if (parseInt(durasiInput.value) <= 0) {
+        showMessage('warning', 'Durasi harus lebih dari 0', 3000, `pertemuan${hariKe}`);
         return;
     }
 
