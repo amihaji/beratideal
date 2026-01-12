@@ -5134,11 +5134,15 @@ async function uploadKardioFile(hariKe) {
             // Update input field dengan nama file yang benar
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
-                inputField.value = `✓ ${formattedFileName}`;
+                //inputField.value = `✓ ${formattedFileName}`;
+                //inputField.value = `✓ ${originalFileName}`;
                 inputField.style.color = '#666666';
+                inputField.innerHTML = `${originalFileName} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
+                // workoutItem.style.color = '#666666';
+    
             }
             
-            showMessage('success', `File ${formattedFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
+            showMessage('success', `File ${originalFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
             
         } catch (error) {
             console.error('Upload error:', error);
@@ -5492,7 +5496,7 @@ function updateWorkoutCompletionUI(hariKe) {
   const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
   if (workoutItem) {
     //workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i> ${hariKe}.3 Workout - Hari ke ${hariKe} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
-    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i> ${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
+    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
     workoutItem.style.color = '#666666';
     workoutItem.style.fontWeight = 'bold';
     
