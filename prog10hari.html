@@ -5230,6 +5230,16 @@ async function simpanWorkoutData(hariKe) {
         return;
     }
     
+    // 🔑 PAKSA SIMPAN SEMUA INPUT RESISTANCE TERLEBIH DAHULU
+    document
+      .querySelectorAll(`#selectedResistanceContainer${hariKe} input`)
+      .forEach(input => {
+        const exerciseId = input.dataset.exercise;
+        if (exerciseId) {
+          saveResistanceData(hariKe, exerciseId);
+        }
+      });
+
     // Collect resistance data
     const resistanceData = getResistanceDataForServer(hariKe);
     
