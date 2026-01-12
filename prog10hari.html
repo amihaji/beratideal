@@ -5134,15 +5134,18 @@ async function uploadKardioFile(hariKe) {
             // Update input field dengan nama file yang benar
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
-                //inputField.style.color = '#666666';
-                //inputField.value = `${originalFileName} ✓`;
-                inputField.value = `${originalFileName}`;
+                inputField.style.color = '#666666';
+                inputField.value = `${originalFileName} ✓`;
+                
+                //inputField.value = `${originalFileName}`;
                 // 🟢 centang di DALAM input
+                /*
                 inputField.style.color = '#666666';
                 inputField.style.backgroundImage    = "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" fill=\"green\"><path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.97 11.03a.75.75 0 0 0 1.08 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 6.03 7.97a.75.75 0 1 0-1.06 1.06l2 2z\"/></svg>')";
                 inputField.style.backgroundRepeat   = 'no-repeat';
                 inputField.style.backgroundPosition = 'right 10px center';
                 inputField.style.backgroundSize     = '16px';
+                */
             }
             
             showMessage('success', `File ${originalFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
