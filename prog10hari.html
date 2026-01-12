@@ -5135,11 +5135,8 @@ async function uploadKardioFile(hariKe) {
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
                 //inputField.value = `✓ ${formattedFileName}`;
-                ikon.innerHTML = `<i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
-                inputField.value = `${originalFileName}` + ikon.innerHTML;
                 inputField.style.color = '#666666';
-                // workoutItem.style.color = '#666666';
-    
+                inputField.value = `${originalFileName} ✓`;
             }
             
             showMessage('success', `File ${originalFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
