@@ -2433,66 +2433,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     link.style.color = '#666';
 }
 
-function BACKUP_updateSubmenuLinkUI(type, hariKe) {
-    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-
-    let link = null;
-
-    if (type === 'perkenalan') {
-        // ✅ KHUSUS perkenalan
-        const container = document.getElementById('perkenalanContent');
-        if (!container) return;
-
-        link = [...container.querySelectorAll('a.menu-item')]
-            .find(a => a.textContent.includes('Selesai Perkenalan'));
-    }
-
-    if (type === 'materi') {
-        // ✅ KHUSUS Materi Hari X (ANTI SALAH TARGET)
-        const container = document.getElementById(`pertemuan${hariKe}Content`);
-        if (!container) return;
-
-        link = container.querySelector(
-            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
-        );
-    }
-
-    if (type === 'mealplan') {
-        link = document.querySelector(
-            `a.menu-item.submenu-trigger[onclick*="uploadMealPlan(${hariKe})"]`
-        );
-    }
-
-    /* =====================================
-     * ✅ TAMBAHAN UNTUK WORKOUT (INI KUNCINYA)
-     * ===================================== */
-    if (type === 'workout') {
-        link = document.querySelector(
-            `a.menu-item.submenu-trigger[onclick*="selesaiWorkout(${hariKe})"]`
-        );
-    }
-
-    if (!link) {
-        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
-        return;
-    }
-
-    // ❌ Cegah dobel centang
-    if (link.querySelector('.status-done')) return;
-
-    // ✅ Tambah centang BULAT HIJAU
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle status-done';
-    icon.style.color = 'green';
-    icon.style.marginLeft = '8px';
-    icon.style.fontSize = '0.9em';
-
-    link.appendChild(icon);
-    link.style.fontWeight = 'bold';
-    link.style.color = '#666';
-}
-
-
 /***************************
 /* SHOW SUBMENU READ-ONLY  *
 /**************************/
@@ -5194,11 +5134,19 @@ async function uploadKardioFile(hariKe) {
             // Update input field dengan nama file yang benar
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
-                inputField.value = `✓ ${formattedFileName}`;
+                //inputField.style.color = '#666666';
+                //inputField.value = `${originalFileName} ✓`;
+                
+                inputField.value = `${originalFileName}`;
+                // 🟢 centang di DALAM input
                 inputField.style.color = '#666666';
+                inputField.style.backgroundImage    = "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" fill=\"green\"><path d=\"M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.97 11.03a.75.75 0 0 0 1.08 0l3.992-3.992a.75.75 0 1 0-1.06-1.06L7.5 9.44 6.03 7.97a.75.75 0 1 0-1.06 1.06l2 2z\"/></svg>')";
+                inputField.style.backgroundRepeat   = 'no-repeat';
+                inputField.style.backgroundPosition = 'right 10px center';
+                inputField.style.backgroundSize     = '16px';
             }
             
-            showMessage('success', `File ${formattedFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
+            showMessage('success', `File ${originalFileName} berhasil diupload!`, 3000, `pertemuan${hariKe}`);
             
         } catch (error) {
             console.error('Upload error:', error);
@@ -5551,8 +5499,7 @@ function updateWorkoutCompletionUI(hariKe) {
   // Update tombol di menu utama
   const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
   if (workoutItem) {
-    // workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ke ${hariKe} ✓ `;
-    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i> ${hariKe}.3 Workout - Hari ke ${hariKe} <i class="fas fa-check-circle text-success ms-1"></i>`;
+    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
     workoutItem.style.color = '#666666';
     workoutItem.style.fontWeight = 'bold';
     
@@ -5892,7 +5839,7 @@ function applyWorkoutReadOnlyMode(hariKe) {
         dropdown.disabled = true;
         dropdown.style.backgroundColor = '#f8f9fa';
         dropdown.style.cursor = 'not-allowed';
-        dropdown.title = 'Workout sudah selesai';
+        dropdown.title = 'Workout selesai';
     }
     
     // 2. Nonaktifkan tombol aksi
