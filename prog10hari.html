@@ -5243,6 +5243,20 @@ async function simpanWorkoutData(hariKe) {
     // Collect resistance data
     const resistanceData = getResistanceDataForServer(hariKe);
     
+    // 🔍 VALIDASI KONDISIONAL RESISTANCE
+    // Jika ADA resistance dipilih → data TIDAK boleh 0
+    if (resistanceData.resistenExercises) {
+      if (
+        resistanceData.totalSets === 0 ||
+        resistanceData.totalReps === 0 ||
+        resistanceData.totalMinutes === 0
+      ) {
+        showMessage( 'warning', 'Karena Anda memilih olahraga resistance, jumlah set, repetisi, dan durasi tidak boleh 0.', 2000, `pertemuan${hariKe}` );
+        return; // ⛔ hentikan proses simpan
+      }
+    }
+    // Jika TIDAK ada resistance → BOLEH 0 (tidak perlu apa-apa)
+
     const workoutData = {
         kardioType: kardioType,
         startTime: startTime,
