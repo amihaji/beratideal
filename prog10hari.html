@@ -2320,7 +2320,13 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable workout UI hari ${hariKe}`);
 
   // 1️⃣ FIELD KARDIO
-  document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
+  const kardioDropdown = document.getElementById(`olaharagaKardio${hariKe}`);
+  if (kardioDropdown) {
+    kardioDropdown.disabled = true;
+    kardioDropdown.style.backgroundColor = '#f8f9fa';
+    kardioDropdown.style.cursor = 'not-allowed';
+  }
+  // document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
   document.getElementById(`btnUploadKardio${hariKe}`)?.setAttribute('disabled', true);
 
@@ -2343,7 +2349,8 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   if (resistanceContainer) {
     resistanceContainer.querySelectorAll('input, button').forEach(el => {
       el.disabled = true;
-      el.style.opacity = '0.6';
+      //el.style.opacity = '0.6';
+      el.style.backgroundColor = '#f8f9fa';
       el.style.cursor = 'not-allowed';
     });
   }
