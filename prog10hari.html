@@ -5287,7 +5287,7 @@ async function simpanWorkoutData(hariKe) {
     const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
     
     try {
-        showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
+        // showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
         
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
@@ -5947,7 +5947,7 @@ function addResistanceExercise(hariKe, exerciseName) {
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="card-title mb-0 text-primary">${exerciseName}</h6>
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-danger btn-sm" 
+                    <button type="button" class="btn btn-danger btn-sm"
                             onclick="removeResistanceExercise(${hariKe}, '${exerciseId}')"
                             data-bs-toggle="tooltip" title="Hapus"> 
                         <i class="fas fa-trash"></i>
