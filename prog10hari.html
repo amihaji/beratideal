@@ -2690,7 +2690,7 @@ function applyProgressToUI(progress) {
     const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
     perkenalanLinks.forEach(link => {
       if (link.textContent.includes('Selesai Perkenalan')) {
-        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan ✓';
+        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan';
         link.style.color = '#666666';
         link.style.fontWeight = 'bold';
         link.style.pointerEvents = 'none';
@@ -2730,15 +2730,19 @@ function applyProgressToUI(progress) {
     // Update link meal plan
     const mealPlanLinks = document.querySelectorAll('[onclick="uploadMealPlan(1)"]');
     mealPlanLinks.forEach(link => {
-      link.innerHTML = '<i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama ✓';
+      //link.innerHTML = '<i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama';
+      //link.style.color = '#666666';
+      //link.style.fontWeight = 'bold';
+      link.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
       link.style.color = '#666666';
       link.style.fontWeight = 'bold';
+
     });
     
     // Update tombol selesai meal plan
     const selesaiBtn = document.getElementById('btnSelesaiMealPlan1');
     if (selesaiBtn) {
-      selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai Meal Plan Hari Pertama';
+      selesaiBtn.innerHTML = '<i class="fas fa-check-double"></i> Selesai Meal Plan';
       selesaiBtn.classList.remove('btn-secondary');
       selesaiBtn.classList.add('btn-success');
       selesaiBtn.disabled = true;
@@ -5134,9 +5138,6 @@ async function uploadKardioFile(hariKe) {
             // Update input field dengan nama file yang benar
             const inputField = document.getElementById(`kegiatanKardio${hariKe}`);
             if (inputField) {
-                //inputField.style.color = '#666666';
-                //inputField.value = `${originalFileName} ✓`;
-                
                 inputField.value = `${originalFileName}`;
                 // 🟢 centang di DALAM input
                 inputField.style.color = '#666666';
@@ -5243,12 +5244,7 @@ async function simpanWorkoutData(hariKe) {
     const hasResistance = resistanceData.resistenExercises && resistanceData.resistenExercises.trim() !== '';
 
     if (!hasKardio && !hasResistance) {
-        showMessage(
-            'warning',
-            'Isi minimal salah satu: Olahraga Kardio atau Olahraga Resistance.',
-            3000,
-            `pertemuan${hariKe}`
-        );
+        showMessage( 'warning','Isi minimal salah satu: Olahraga Kardio atau Olahraga Resistance.', 3000,`pertemuan${hariKe}`);
         return; // ⛔ HENTIKAN SIMPAN
     }
 
@@ -5259,12 +5255,7 @@ async function simpanWorkoutData(hariKe) {
             resistanceData.totalReps === 0 ||
             resistanceData.totalMinutes === 0
         ) {
-            showMessage(
-                'warning',
-                'Karena Anda memilih olahraga resistance, jumlah set, repetisi, dan durasi tidak boleh 0.',
-                3000,
-                `pertemuan${hariKe}`
-            );
+            showMessage( 'warning', 'Pilih resistance maka : jumlah set, repetisi, dan durasi tidak boleh 0.', 3000,`pertemuan${hariKe}` );
             return; // ⛔ hentikan proses simpan
         }
     }
@@ -5551,13 +5542,13 @@ function updateWorkoutCompletionUI(hariKe) {
   // Update tombol selesai di form
   const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
   if (selesaiBtn) {
-    selesaiBtn.innerHTML = `<i class="fa fa-check"></i> Selesai`;
+    selesaiBtn.innerHTML = `<i class="fa fa-check"></i> Selesai Workout`;
     selesaiBtn.disabled = true;
     // selesaiBtn.classList.remove('btn-secondary');
     selesaiBtn.classList.add('btn-secondary');
     selesaiBtn.style.opacity = '0.6';
     selesaiBtn.style.cursor = 'not-allowed';
-    selesaiBtn.title = ' selesai';
+    selesaiBtn.title = ' selesai Workout';
   }
   
   // Update tombol simpan
@@ -5823,7 +5814,7 @@ function setupResistanceExercises(hariKe) {
                     <i class="fa fa-pencil-square-o"></i> Simpan
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
-                    <i class="fa fa-check"></i> Selesai
+                    <i class="fa fa-check"></i> Selesai Workout
                 </button>
             </div>
         </div>
@@ -5898,7 +5889,7 @@ function applyWorkoutReadOnlyMode(hariKe) {
             
             // Update teks untuk tombol selesai
             if (selector.includes('SelesaiWorkout')) {
-                btn.innerHTML = '<i class="fa fa-check"></i> Selesai';
+                btn.innerHTML = '<i class="fa fa-check"></i> Selesai Workout';
             }
         }
     });
@@ -6207,7 +6198,7 @@ function generateWaterReminderForm(hariKe, containerId = null) {
                     <i class="fa fa-pencil-square-o"></i> Simpan
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWater${hariKe}" disabled>
-                    <i class="fa fa-check"></i> Selesai
+                    <i class="fa fa-check"></i> Selesai Water
                 </button>
             </div>
             
@@ -6263,7 +6254,7 @@ function loadWaterReminderStatus(hariKe) {
         if (statusDiv) {
             statusDiv.innerHTML = `
                 <div class="alert alert-success alert-sm mt-2 p-2">
-                    <i class="fas fa-check-circle"></i> Water reminder sudah selesai
+                    <i class="fas fa-check-circle"></i> Selesai Water
                 </div>
             `;
         }
