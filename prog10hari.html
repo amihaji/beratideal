@@ -5064,23 +5064,16 @@ function showWorkoutForm(hariKe) {
     // Load saved workout data
     loadSavedWorkoutData(hariKe);
 
-    /* =====================================================
-     * 🔒 APPLY STATUS WORKOUT 
-     * ===================================================== */
+    // ======================================
+    // 🔁 APPLY LOCK WORKOUT JIKA SUDAH SELESAI
+    // ======================================
     if (
-        hariKe === 1 &&
-        window.userProgress &&
-        window.userProgress.workoutHari1 === true
+      window.userProgress &&
+      window.userProgress[`workoutHari${hariKe}`] === true
     ) {
-        console.log('🔒 Workout Hari 1 sudah selesai → READ ONLY');
-
-        // Kunci UI workout
-        disableButtonsAfterCompletion(hariKe, 'workout');
-
-        // Tampilkan centang hijau submenu (SAMA DENGAN MEAL PLAN)
-        updateSubmenuLinkUI('workout', hariKe);
+      console.log(`🔒 Apply lock workout Hari ${hariKe} setelah render`);
+      disableButtonsAfterCompletion(hariKe, 'workout');
     }
-
     // Scroll ke form
     setTimeout(() => { 
         workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
