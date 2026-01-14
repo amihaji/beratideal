@@ -1575,13 +1575,16 @@ function applyExistingUserProgress(progress) {
 
   // SUBMENU WORKOUT 1-10 
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    //if (progress.workoutHari1 === true) {
     if (progress[`workoutHari${hariKe}`] === true) {  
-      console.log('✅ Apply submenu check Workout Hari 1 (login)');
+      console.log(`✅ Restore Workout Hari ${hariKe} (login)`);
+
+      // ✅ Tampilkan centang hijau di submenu
       updateSubmenuLinkUI('workout', hariKe);
+
+      // 🔒 Kunci SEMUA UI workout (kardio + resistance)
+      disableButtonsAfterCompletion(hariKe, 'workout');
     }
   }
-
 }
 
 /************************************
