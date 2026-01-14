@@ -5114,6 +5114,54 @@ async function selesaiWorkout(hariKe) {
 * Tampilkan form workout dengan struktur yang benar *
 *****************************************************/
 function showWorkoutForm(hariKe) {
+  console.log(`👟 Showing workout form for day ${hariKe}`);
+
+  // 1️⃣ Sembunyikan submenu lain
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    content.style.display = 'none';
+  });
+
+  // 2️⃣ Ambil container workout
+  const workoutContent = document.getElementById(`workoutContent${hariKe}`);
+  if (!workoutContent) {
+    console.error(`❌ Workout content not found: workoutContent${hariKe}`);
+    showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  workoutContent.style.display = 'block';
+
+  // 3️⃣ Generate form workout (1x)
+  const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
+
+  if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
+    console.log(`⚙️ Generating workout form for day ${hariKe}`);
+    workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
+  }
+
+  // 4️⃣ Setup Resistance : (SUDAH termasuk loadSavedResistanceData)
+  setupResistanceExercises(hariKe);
+
+  // 5️⃣ Setup event listener workout
+  setupWorkoutForDay(hariKe);
+
+  // 6️⃣ APPLY LOCK JIKA WORKOUT SUDAH SELESAI (DOM SUDAH ADA → BARU AMAN DI-LOCK)
+  if (
+    window.userProgress &&
+    window.userProgress[`workoutHari${hariKe}`] === true
+  ) {
+    console.log(`🔒 Apply lock workout Hari ${hariKe} (after render)`);
+    disableButtonsAfterCompletion(hariKe, 'workout');
+  }
+
+  // 7️⃣ Scroll ke form
+  setTimeout(() => {
+    workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+
+function BACKUP_showWorkoutForm(hariKe) {
     console.log(`👟 Showing workout form for day ${hariKe}`);
     
     // Sembunyikan semua submenu lainnya
