@@ -6046,7 +6046,7 @@ function removeResistanceExercise(hariKe, exerciseId) {
     const exerciseElement = document.getElementById(fullExerciseId);
     if (exerciseElement) {
         exerciseElement.remove();
-        showMessage('warning', 'Olahraga dihapus', 3000, `pertemuan${hariKe}`);
+        showMessage('warning', 'Pilihan olahraga Resistance dihapus', 3000, `pertemuan${hariKe}`);
         
         // Hapus dari localStorage
         localStorage.removeItem(`resistance-${hariKe}-${exerciseId}`);
@@ -6057,6 +6057,26 @@ function removeResistanceExercise(hariKe, exerciseId) {
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
 function saveResistanceData(hariKe, exerciseId) {
+    const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
+    const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
+    const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
+
+    const exerciseElement = document.getElementById(`resistance-${hariKe}-${exerciseId}`);
+    const exerciseName    = exerciseElement?.querySelector('.card-title')?.textContent || exerciseId.replace(/-/g, ' ');
+
+    const exerciseData = {
+        name: exerciseName,
+        set: setValue || 0,
+        repetisi: repetisiValue || 0,
+        durasi: durasiValue || 0,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem( `resistance-${hariKe}-${exerciseId}`, JSON.stringify(exerciseData) );
+    console.log(  `💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`,exerciseData);
+}
+
+
+function BACKUP_saveResistanceData(hariKe, exerciseId) {
     const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
     const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
     const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
