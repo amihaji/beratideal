@@ -1938,10 +1938,11 @@ function setupAllComponentsInternal() {
 * Update navbar untuk user yang login *
 ***************************************/
 function updateNavbarForLoggedInUser() {
+    console.log('🔄 Updating Navbar for Login user...');
     const loginMenuItem = document.getElementById('loginMenuItem');
     const namaUser      = localStorage.getItem('namaUser');
     const userId        = localStorage.getItem('userId');
-
+   
     if (!loginMenuItem || !namaUser || !userId) {
         console.warn('Navbar user info tidak bisa ditampilkan');
         return;
@@ -1953,25 +1954,6 @@ function updateNavbarForLoggedInUser() {
             <i class="fas fa-user"></i> ${namaUser}
             <span class="text-muted">| ${userId}</span>
             &nbsp;
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-    `;
-}
-
-
-function BACKUP_updateNavbarForLoggedInUser() {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    const namaUser      = localStorage.getItem('namaUser');
-    const userId        = localStorage.getItem('userId');
-
-    if (!loginMenuItem || !namaUser || !userId) return;
-
-    loginMenuItem.innerHTML = `
-        <span class="nav-link text-white me-3">
-            <i class="fas fa-user"></i> ${namaUser}
-            <span class="text-muted">| ${userId}</span>
-        </span>
-        <a class="nav-link main-menu-link" href="#" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     `;
