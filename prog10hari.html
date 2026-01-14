@@ -1942,6 +1942,28 @@ function updateNavbarForLoggedInUser() {
     const namaUser      = localStorage.getItem('namaUser');
     const userId        = localStorage.getItem('userId');
 
+    if (!loginMenuItem || !namaUser || !userId) {
+        console.warn('Navbar user info tidak bisa ditampilkan');
+        return;
+    }
+
+    // GANTI ISI <li>, TETAP JAGA STRUKTUR <a class="nav-link">
+    loginMenuItem.innerHTML = `
+        <a class="nav-link main-menu-link" href="#" onclick="logout()">
+            <i class="fas fa-user"></i> ${namaUser}
+            <span class="text-muted">| ${userId}</span>
+            &nbsp;
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    `;
+}
+
+
+function BACKUP_updateNavbarForLoggedInUser() {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    const namaUser      = localStorage.getItem('namaUser');
+    const userId        = localStorage.getItem('userId');
+
     if (!loginMenuItem || !namaUser || !userId) return;
 
     loginMenuItem.innerHTML = `
