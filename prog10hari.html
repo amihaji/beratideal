@@ -6075,33 +6075,6 @@ function saveResistanceData(hariKe, exerciseId) {
     console.log(  `💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`,exerciseData);
 }
 
-
-function BACKUP_saveResistanceData(hariKe, exerciseId) {
-    const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
-    const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
-    const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
-    
-    // Validasi: minimal satu field harus diisi
-    if (!setValue && !repetisiValue && !durasiValue) {
-        showMessage('warning', 'Isi secara lengkap Data Olahraga Resistance', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-    
-    const exerciseElement = document.getElementById(`resistance-${hariKe}-${exerciseId}`);
-    const exerciseName = exerciseElement?.querySelector('.card-title')?.textContent || exerciseId.replace(/-/g, ' ');
-    
-    const exerciseData = {
-        name: exerciseName,
-        set: setValue || 0,
-        repetisi: repetisiValue || 0,
-        durasi: durasiValue || 0,
-        timestamp: new Date().toISOString()
-    };
-    
-    localStorage.setItem(`resistance-${hariKe}-${exerciseId}`, JSON.stringify(exerciseData));
-    console.log(`💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`, exerciseData);
-}
-
 /*******************************************************
 * Fungsi Load Data Resistance yang Tersimpan (per hari)
 ********************************************************/
