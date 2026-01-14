@@ -1946,26 +1946,13 @@ function updateNavbarForLoggedInUser() {
 
     loginMenuItem.innerHTML = `
         <span class="nav-link text-white me-3">
-            <i class="fas fa-user"></i>
-            ${namaUser}
+            <i class="fas fa-user"></i> ${namaUser}
             <span class="text-muted">| ${userId}</span>
         </span>
         <a class="nav-link main-menu-link" href="#" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     `;
-}
-
-
-function BACKUP_updateNavbarForLoggedInUser(userId) {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    if (loginMenuItem) {
-        loginMenuItem.innerHTML = `
-            <a class="nav-link main-menu-link" href="loginFC.html" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout (${userId})
-            </a>
-        `;
-    }
 }
 
 // Di dalam generate HTML untuk submenu
