@@ -2401,74 +2401,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
 }
 
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-
-  if (submenuType !== 'workout') return;
-
-  console.log(`🔒 Disable workout UI hari ${hariKe}`);
-
-  // 1️⃣ FIELD KARDIO
-  const kardioDropdown = document.getElementById(`olaharagaKardio${hariKe}`);
-  if (kardioDropdown) {
-    kardioDropdown.disabled = true;
-    kardioDropdown.style.backgroundColor = '#f8f9fa';
-    kardioDropdown.style.cursor = 'not-allowed';
-  }
-  // document.getElementById(`olahragaKardio${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`kegiatanKardio${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`btnUploadKardio${hariKe}`)?.setAttribute('disabled', true);
-
-  // ⛔ START & STOP 
-  document.getElementById(`btnStartOlahraga${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`btnStopOlahraga${hariKe}`)?.setAttribute('disabled', true);
-
-  document.getElementById(`startOlahraga${hariKe}`)?.setAttribute('disabled', true);
-  document.getElementById(`stopOlahraga${hariKe}`)?.setAttribute('disabled', true);
-
-  // 2️⃣ RESISTANCE
-  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-  if (resistanceDropdown) {
-    resistanceDropdown.disabled = true;
-    resistanceDropdown.style.backgroundColor = '#f8f9fa';
-    resistanceDropdown.style.cursor = 'not-allowed';
-  }
-
-  const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
-  if (resistanceContainer) {
-    resistanceContainer.querySelectorAll('input, button').forEach(el => {
-      el.disabled = true;
-      //el.style.opacity = '0.6';
-      el.style.backgroundColor = '#f8f9fa';
-      el.style.cursor = 'not-allowed';
-    });
-  }
-
-  // 3️⃣ TOMBOL SIMPAN
-  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  if (btnSimpan) {
-    btnSimpan.disabled = true;
-    btnSimpan.classList.remove('btn-primary');
-    btnSimpan.classList.add('btn-secondary');
-    btnSimpan.style.opacity = '0.6';
-    btnSimpan.style.cursor = 'not-allowed';
-  }
-
-  // 4️⃣ TOMBOL SELESAI
-  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (btnSelesai) {
-    btnSelesai.disabled = true;
-
-    // ⛔ JANGAN hijau
-    btnSelesai.classList.remove('btn-success');
-    btnSelesai.classList.add('btn-secondary');
-
-    btnSelesai.style.opacity = '0.6';
-    btnSelesai.style.cursor = 'not-allowed';
-  }
-
-  console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
-}
-
 /*************************************
 /* UPDATE SUBMENU LINK UI - COMPLETE *
 /*************************************/
@@ -5160,63 +5092,6 @@ function showWorkoutForm(hariKe) {
   }, 200);
 }
 
-
-function BACKUP_showWorkoutForm(hariKe) {
-    console.log(`👟 Showing workout form for day ${hariKe}`);
-    
-    // Sembunyikan semua submenu lainnya
-    document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    // Tampilkan workout content
-    const workoutContent = document.getElementById(`workoutContent${hariKe}`);
-    if (!workoutContent) {
-        console.error(`❌ Workout content not found: workoutContent${hariKe}`);
-        showMessage('error', 'Form workout tidak ditemukan', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    workoutContent.style.display = 'block';
-    
-    // Pastikan form workout sudah digenerate
-    const workoutListContainer = document.getElementById(`olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
-    if (!workoutListContainer || workoutListContainer.innerHTML.trim() === '') {
-        console.log(`⚙️ Generating workout form for day ${hariKe}`);
-        workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
-    }
-    
-    // 🔄 RESET resistance container agar tidak dobel saat reopen
-    const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
-    if (resistanceContainer) {
-      resistanceContainer.innerHTML = '';
-    }
-
-    // Setup resistance exercises
-    setupResistanceExercises(hariKe);
-    
-    // Setup event listeners
-    setupWorkoutForDay(hariKe);
-    
-    // Load saved workout data
-    loadSavedWorkoutData(hariKe);
-
-    // ======================================
-    // 🔁 APPLY LOCK WORKOUT JIKA SUDAH SELESAI
-    // ======================================
-    if (
-      window.userProgress &&
-      window.userProgress[`workoutHari${hariKe}`] === true
-    ) {
-      console.log(`🔒 Apply lock workout Hari ${hariKe} setelah render`);
-      disableButtonsAfterCompletion(hariKe, 'workout');
-    }
-    // Scroll ke form
-    setTimeout(() => { 
-        workoutContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
-    }, 200);
-}
-
 /*******************************
 * Upload file kardio olahraga  *
 ********************************/
@@ -6162,82 +6037,6 @@ function addResistanceExercise(hariKe, exerciseName, fromRestore = false) {
     console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
 }
 
-function BACKUP_addResistanceExercise(hariKe, exerciseName) {
-    console.log(`➕ Adding resistance exercise for day ${hariKe}: ${exerciseName}`);
-    
-    const containerId = `selectedResistanceContainer${hariKe}`;
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`❌ Resistance container not found: ${containerId}`);
-        return;
-    }
-    
-    const exerciseId = exerciseName.toLowerCase().replace(/\s+/g, '-');
-    const fullExerciseId = `resistance-${hariKe}-${exerciseId}`;
-
-    // ✅ CEK DULU SEBELUM BUAT & APPEND
-    if (document.getElementById(fullExerciseId)) {
-        showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
-        return;
-    }
-
-    const exerciseElement = document.createElement("div");
-    exerciseElement.id = fullExerciseId;
-    exerciseElement.className = "resistance-exercise-item card mb-3";
-    exerciseElement.innerHTML = `  
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="card-title mb-0 text-primary">${exerciseName}</h6>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-danger btn-sm"
-                            onclick="removeResistanceExercise(${hariKe}, '${exerciseId}')"
-                            data-bs-toggle="tooltip" title="Hapus"> 
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="row g-2">
-                <div class="col-12 col-md-4">
-                    <div class="input-group input-group-sm">	
-                        <span class="input-group-text"><i class="fas fa-user-cog"></i></span>
-                        <input type="number" min="0" id="jmlSet-${hariKe}-${exerciseId}" class="form-control" 
-                               placeholder="Jumlah set" data-exercise="${exerciseId}" data-hari="${hariKe}">
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
-                        <input type="number" min="0" id="jmlRepetisi-${hariKe}-${exerciseId}" class="form-control" 
-                               placeholder="Jumlah Repetisi" data-exercise="${exerciseId}" data-hari="${hariKe}">
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="fas fa-user-clock"></i></span>
-                        <input type="number" min="0" id="jmlDurasi-${hariKe}-${exerciseId}" class="form-control" 
-                               placeholder="Durasi (Menit)" data-exercise="${exerciseId}" data-hari="${hariKe}">
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(exerciseElement);
-    
-    // Auto-save ketika input berubah
-    const inputs = exerciseElement.querySelectorAll('input[type="number"]');
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const exerciseId = this.getAttribute('data-exercise');
-            const hariKe = this.getAttribute('data-hari');
-            saveResistanceData(hariKe, exerciseId);
-        });
-    });
-  
-    console.log(`✅ Added resistance exercise: ${exerciseName} for day ${hariKe}`);
-}
-
 /**********************************************
 * Fungsi Hapus Olahraga Resistance (per hari)
 **********************************************/
@@ -6302,7 +6101,8 @@ function loadSavedResistanceData(hariKe) {
                 
                 // Add exercise to UI
                 setTimeout(() => {
-                    addResistanceExercise(hariKe, exerciseName);
+                    // addResistanceExercise(hariKe, exerciseName);
+                    addResistanceExercise(hariKe, exerciseName, true);
                     
                     // Set values after element is created
                     setTimeout(() => {
