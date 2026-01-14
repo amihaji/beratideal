@@ -2613,9 +2613,50 @@ function applyReadOnlyModeToSubmenu(container) {
 }
 
 /********************************************
-/* UPDATE SETUP ALL COMPONENTS - IMPROVED *
+/* UPDATE SETUP ALL COMPONENTS - FINAL FIX *
 /********************************************/
 function setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+
+  // 🔑 SATU-SATUNYA PENANDA LOGIN
+  const userId = localStorage.getItem('userId');
+
+  // 1. ACCORDION TOGGLE FIX
+  setupAccordionToggle();
+
+  // 2. CEK USER LOGIN
+  if (userId) {
+    console.log('👤 User is logged in:', userId);
+
+    // ✅ TAMPILKAN USER INFO & LOGOUT DI NAVBAR
+    updateNavbarForLoggedInUser();
+
+    // 🔄 LOAD COMPLETE PROGRESS DARI SERVER
+    loadCompleteProgressFromServer(userId, 1)
+      .then(progress => {
+        console.log('✅ Complete progress loaded successfully');
+      })
+      .catch(error => {
+        console.error('❌ Error loading complete progress:', error);
+        // Fallback jika server gagal
+        checkProgressFallback(userId);
+      });
+
+  } else {
+    console.log('⚠️ No user logged in or session expired');
+
+    // 🔒 USER BELUM LOGIN → LOCK SEMUA MODUL
+    applyLockForNewUser();
+  }
+
+  // 3. SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
+  setupAllComponentsInternal();
+
+  console.log('✅ All components setup complete');
+}
+
+
+function BACKUP_setupAllComponents() {
   console.log('🔧 Setting up all components...');
   
   const userId = localStorage.getItem('userId');
