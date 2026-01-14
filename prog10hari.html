@@ -5138,6 +5138,12 @@ function showWorkoutForm(hariKe) {
         workoutListContainer.innerHTML = createWorkoutFormHTML(hariKe);
     }
     
+    // 🔄 RESET resistance container agar tidak dobel saat reopen
+    const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    if (resistanceContainer) {
+      resistanceContainer.innerHTML = '';
+    }
+
     // Setup resistance exercises
     setupResistanceExercises(hariKe);
     
