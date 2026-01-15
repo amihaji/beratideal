@@ -1944,7 +1944,7 @@ function updateNavbarForLoggedInUser() {
   if (!loginMenuItem) return;
 
   const userId       = localStorage.getItem('userId');
-  const namaKonsumen = localStorage.getItem('namaKonsumen'); // 🔑 DARI PROGRAM
+  const userName     = localStorage.getItem('userName'); // 🔑 DARI PROGRAM
 
   if (!userId) return;
 
@@ -1952,8 +1952,8 @@ function updateNavbarForLoggedInUser() {
     <a class="nav-link main-menu-link" href="#" onclick="logout()">
       <i class="fas fa-user-circle me-1"></i>
       <strong>
-        ${namaKonsumen ? namaKonsumen : userId}
-        ${namaKonsumen ? `<span class="text-muted"> | ${userId}</span>` : ''}
+        ${userName ? userName : userId}
+        ${userName ? `<span class="text-muted"> | ${userId}</span>` : ''}
       </strong>
       <span class="ms-3 text-danger">
         <i class="fas fa-sign-out-alt"></i> Logout
@@ -1963,34 +1963,6 @@ function updateNavbarForLoggedInUser() {
 }
 
 function BACKUP_updateNavbarForLoggedInUser() {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    if (!loginMenuItem) return;
-
-    const userId   = localStorage.getItem('userId');
-    let userName   = localStorage.getItem('userName');
-
-    if (!userId) return;
-
-    // fallback aman
-    if (!userName || userName.trim() === '') {
-        userName = userId;
-    }
-
-    loginMenuItem.innerHTML = `
-        <a class="nav-link main-menu-link" href="#" onclick="logout()">
-            <i class="fas fa-user-circle me-1"></i>
-            <strong>
-                ${userName}
-                <span class="text-muted"> | ${userId}</span>
-            </strong>
-            <span class="ms-3 text-danger">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </span>
-        </a>
-    `;
-}
-
-function BACKUP1_updateNavbarForLoggedInUser() {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (!loginMenuItem) return;
 
@@ -2760,6 +2732,7 @@ function setupAllComponents() {
   console.log('🔧 Setting up all components...');
 
   const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
 
   // 1. ACCORDION TOGGLE FIX
   setupAccordionToggle();
