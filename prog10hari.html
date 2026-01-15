@@ -1943,23 +1943,27 @@ function updateNavbarForLoggedInUser() {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (!loginMenuItem) return;
 
-    const userId   = localStorage.getItem('userId');
-    let namaUser   = localStorage.getItem('namaUser');
+    const userId = localStorage.getItem('userId');
+    let namaUser = localStorage.getItem('namaUser');
 
     if (!userId) return;
 
-    // 🔑 FALLBACK AMAN:
-    // jika namaUser kosong / null / sama dengan userId
-    if (!namaUser || namaUser.trim() === '' || namaUser === userId) {
-        namaUser = userId;
+    // 🔑 NORMALISASI NAMA USER (INI KUNCINYA)
+    if (
+        !namaUser ||
+        namaUser === 'undefined' ||
+        namaUser === 'null' ||
+        namaUser.trim() === '' ||
+        namaUser === userId
+    ) {
+        namaUser = null;
     }
-
     loginMenuItem.innerHTML = `
         <a class="nav-link main-menu-link" href="#" onclick="logout()">
             <i class="fas fa-user-circle me-1"></i>
             <strong>
-                ${namaUser}
-                ${namaUser !== userId ? `<span class="text-muted"> | ${userId}</span>` : ''}
+                ${namaUser ? namaUser : userId}
+                ${namaUser ? `<span class="text-muted"> | ${userId}</span>` : ''}
             </strong>
             <span class="ms-3 text-danger">
                 <i class="fas fa-sign-out-alt"></i> Logout
