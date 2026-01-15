@@ -1075,7 +1075,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbws--UwwsbYyohdZq9qkILV2WWst_uQUQn-2PGDFCtMAyeFu11AfWLnxxJvG-DBM_G_/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbytnBhxbNIUDoa9N2F3zaZyX8q6_2r8RCeswRXOCTKMkDkDjHKVkXBI7pR403iGH82D/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -1943,6 +1943,34 @@ function updateNavbarForLoggedInUser() {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (!loginMenuItem) return;
 
+    const userId   = localStorage.getItem('userId');
+    let namaUser   = localStorage.getItem('namaUser');
+
+    if (!userId) return;
+
+    // fallback aman
+    if (!namaUser || namaUser.trim() === '') {
+        namaUser = userId;
+    }
+
+    loginMenuItem.innerHTML = `
+        <a class="nav-link main-menu-link" href="#" onclick="logout()">
+            <i class="fas fa-user-circle me-1"></i>
+            <strong>
+                ${namaUser}
+                <span class="text-muted"> | ${userId}</span>
+            </strong>
+            <span class="ms-3 text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </span>
+        </a>
+    `;
+}
+
+function BACKUP_updateNavbarForLoggedInUser() {
+    const loginMenuItem = document.getElementById('loginMenuItem');
+    if (!loginMenuItem) return;
+
     const userId = localStorage.getItem('userId');
     let namaUser = localStorage.getItem('namaUser');
 
@@ -1965,31 +1993,6 @@ function updateNavbarForLoggedInUser() {
                 ${namaUser ? namaUser : userId}
                 ${namaUser ? `<span class="text-muted"> | ${userId}</span>` : ''}
             </strong>
-            <span class="ms-3 text-danger">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </span>
-        </a>
-    `;
-}
-
-function BACKUP_updateNavbarForLoggedInUser() {
-    const loginMenuItem = document.getElementById('loginMenuItem');
-    if (!loginMenuItem) return;
-
-    const userId   = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
-
-    if (!userId) return;
-
-    // Fallback aman
-    const displayName = namaUser && namaUser !== userId
-        ? `${namaUser} <span class="text-muted">| ${userId}</span>`
-        : userId;
-
-    loginMenuItem.innerHTML = `
-        <a class="nav-link main-menu-link" href="#" onclick="logout()">
-            <i class="fas fa-user-circle me-1"></i>
-            <strong>${displayName}</strong>
             <span class="ms-3 text-danger">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </span>
