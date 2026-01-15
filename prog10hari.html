@@ -1940,6 +1940,29 @@ function setupAllComponentsInternal() {
 * Update navbar untuk user yang login *
 ***************************************/
 function updateNavbarForLoggedInUser() {
+  const loginMenuItem = document.getElementById('loginMenuItem');
+  if (!loginMenuItem) return;
+
+  const userId       = localStorage.getItem('userId');
+  const namaKonsumen = localStorage.getItem('namaKonsumen'); // 🔑 DARI PROGRAM
+
+  if (!userId) return;
+
+  loginMenuItem.innerHTML = `
+    <a class="nav-link main-menu-link" href="#" onclick="logout()">
+      <i class="fas fa-user-circle me-1"></i>
+      <strong>
+        ${namaKonsumen ? namaKonsumen : userId}
+        ${namaKonsumen ? `<span class="text-muted"> | ${userId}</span>` : ''}
+      </strong>
+      <span class="ms-3 text-danger">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </span>
+    </a>
+  `;
+}
+
+function BACKUP_updateNavbarForLoggedInUser() {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (!loginMenuItem) return;
 
@@ -1967,7 +1990,7 @@ function updateNavbarForLoggedInUser() {
     `;
 }
 
-function BACKUP_updateNavbarForLoggedInUser() {
+function BACKUP1_updateNavbarForLoggedInUser() {
     const loginMenuItem = document.getElementById('loginMenuItem');
     if (!loginMenuItem) return;
 
@@ -2082,9 +2105,85 @@ function loadProgressFromStorage() {
 }
 
 /**********************************************
-/* FUNGSI LOAD COMPLETE PROGRESS DARI SERVER *
-/**********************************************/
+* FUNGSI LOAD COMPLETE PROGRESS DARI SERVER
+* + RESTORE NAMA KONSUMEN (FIX FINAL)
+**********************************************/
 async function loadCompleteProgressFromServer(userId, hariKe = 1) {
+  return new Promise((resolve, reject) => {
+    console.log(`📡 Loading COMPLETE progress for ${userId}, day ${hariKe}`);
+
+    const callbackName = 'cb_complete_progress_' + Date.now();
+    const script = document.createElement('script');
+
+    script.src =
+      `${URL_PROGRAM_APP}?action=getUserCompleteProgress` +
+      `&userId=${encodeURIComponent(userId)}` +
+      `&hariKe=${hariKe}` +
+      `&callback=${callbackName}`;
+
+    window[callbackName] = function (response) {
+      console.log('📊 Complete progress response:', response);
+
+      try {
+        if (response && response.success) {
+
+          /* ======================================================
+           * 🔑 FIX UTAMA: SIMPAN NAMA KONSUMEN KE LOCALSTORAGE
+           * Sumber: sheet PROGRAM kolom E (Nama Konsumen)
+           * ====================================================== */
+          if (
+            response.workoutData &&
+            response.workoutData.namaKonsumen &&
+            response.workoutData.namaKonsumen.trim() !== ''
+          ) {
+            localStorage.setItem(
+              'namaKonsumen',
+              response.workoutData.namaKonsumen.trim()
+            );
+            console.log(
+              '👤 Nama Konsumen disimpan:',
+              response.workoutData.namaKonsumen
+            );
+          }
+
+          // Simpan complete progress user
+          localStorage.setItem(
+            `completeProgress_${userId}`,
+            JSON.stringify(response)
+          );
+
+          // Apply ke UI (materi, mealplan, workout, dll)
+          applyCompleteProgressToUI(response, hariKe);
+
+          resolve(response);
+
+        } else {
+          console.error('❌ Failed to load complete progress:', response);
+          reject(new Error(response?.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('❌ Error processing progress:', err);
+        reject(err);
+      }
+
+      // Cleanup
+      document.body.removeChild(script);
+      delete window[callbackName];
+    };
+
+    script.onerror = () => {
+      console.error('❌ Script error loading complete progress');
+      document.body.removeChild(script);
+      delete window[callbackName];
+      reject(new Error('Failed to load progress'));
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+
+async function BACKUP_loadCompleteProgressFromServer(userId, hariKe = 1) {
   return new Promise((resolve, reject) => {
     console.log(`📡 Loading COMPLETE progress for ${userId}, day ${hariKe}`);
     
@@ -2099,6 +2198,7 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
       if (response.success) {
         // Simpan ke localStorage dengan key spesifik user
         localStorage.setItem(`completeProgress_${userId}`, JSON.stringify(response));
+        localStorage.setItem('namaKonsumen', response.workoutData?.namaKonsumen || '');
         
         // Apply progress ke UI
         applyCompleteProgressToUI(response, hariKe);
@@ -2659,6 +2759,43 @@ function applyReadOnlyModeToSubmenu(container) {
 function setupAllComponents() {
   console.log('🔧 Setting up all components...');
 
+  const userId = localStorage.getItem('userId');
+
+  // 1. ACCORDION TOGGLE FIX
+  setupAccordionToggle();
+
+  // 2. CEK USER LOGIN
+  if (userId) {
+    console.log('👤 User is logged in:', userId);
+
+    // Tampilkan navbar
+    updateNavbarForLoggedInUser();
+
+    // 🔄 LOAD COMPLETE PROGRESS
+    loadCompleteProgressFromServer(userId, 1)
+      .then(() => {
+        console.log('✅ Complete progress loaded successfully');
+      })
+      .catch(err => {
+        console.error('❌ Error loading complete progress:', err);
+        checkProgressFallback(userId);
+      });
+
+  } else {
+    console.log('⚠️ No user logged in');
+    applyLockForNewUser();
+  }
+
+  // 3. SETUP KOMPONEN LAIN
+  setupAllComponentsInternal();
+
+  console.log('✅ All components setup complete');
+}
+
+
+function BACKUP_setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+
   // 🔑 SATU-SATUNYA PENANDA LOGIN
   const userId = localStorage.getItem('userId');
 
@@ -2693,46 +2830,6 @@ function setupAllComponents() {
   // 3. SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
   setupAllComponentsInternal();
 
-  console.log('✅ All components setup complete');
-}
-
-
-function BACKUP_setupAllComponents() {
-  console.log('🔧 Setting up all components...');
-  
-  const userId = localStorage.getItem('userId');
-  const userToken = localStorage.getItem('userToken');
-  
-  // 1. ACCORDION TOGGLE FIX
-  setupAccordionToggle();
-  
-  // 2. CEK USER LOGIN DAN LOAD PROGRESS
-  if (userId && userToken) {
-    console.log('👤 User is logged in:', userId);
-    
-    // Load COMPLETE progress dari server
-    loadCompleteProgressFromServer(userId, 1)
-      .then(progress => {
-        console.log('✅ Complete progress loaded successfully');
-        
-        // Update navbar untuk show logout
-        updateNavbarForLoggedInUser();
-      })
-      .catch(error => {
-        console.error('❌ Error loading complete progress:', error);
-        // Fallback: cek progress dari localStorage
-        checkProgressFallback(userId);
-      });
-    
-  } else {
-    console.log('⚠️ No user logged in or session expired');
-    // Lock semua modul untuk non-logged in users
-    applyLockForNewUser();
-  }
-  
-  // 3. SETUP SEMUA KOMPONEN LAINNYA
-  setupAllComponentsInternal();
-  
   console.log('✅ All components setup complete');
 }
 
