@@ -2670,7 +2670,6 @@ function applyReadOnlyModeToSubmenu(container) {
 /********************************************/
 function setupAllComponents() {
   console.log('🔧 Setting up all components...');
-
   // 🔑 DATA LOGIN
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName'); // 🔑 sudah fix
@@ -2688,7 +2687,7 @@ function setupAllComponents() {
     // 🔹 SAPAAN PERSONAL USER
     const namaTampil = userName && userName.trim() !== '' ? userName : userId;
     const hour       = new Date().getHours();
-    
+
     let salam = 'SELAMAT MALAM';
     if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
     else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
@@ -2721,14 +2720,12 @@ function setupAllComponents() {
 
   } else {
     console.log('⚠️ No user logged in or session expired');
-
     // 🔒 USER BELUM LOGIN → LOCK SEMUA MODUL
     applyLockForNewUser();
   }
 
   // 3️⃣ SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
   setupAllComponentsInternal();
-
   console.log('✅ All components setup complete');
 }
 
