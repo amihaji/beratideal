@@ -133,6 +133,8 @@
         window[callbackName] = function (response) {
           // ... login success handling ...
           
+          // 🔍 DEBUG LOGIN RESPONSE (WAJIB UNTUK CEK)
+          console.log('LOGIN RESPONSE:', response);
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
