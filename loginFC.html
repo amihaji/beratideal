@@ -138,11 +138,10 @@
           if (response.status === 'success' && response.loggedIn) {
             // Simpan session
             localStorage.setItem('userId', response.userId);
-            // localStorage.setItem('namaUser', response.namaUser || response.userId);
             localStorage.setItem('namaUser', response.namaUser); // 🔑 WAJIB
             localStorage.setItem('userToken', response.token);
             localStorage.setItem('userLevel', response.level);
-            
+
             console.log('✅ Login berhasil, ambil progress...');
             
             // AMBIL PROGRESS DARI SERVER
