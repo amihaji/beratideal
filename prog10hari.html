@@ -1075,7 +1075,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw5TA98KcPofaPQYGhYnr0F9QvudyadbIQXxfv_Y4u5XyCMcoOf5_U4aszzshNBGjTk/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzBTDbm7Ytu9PgtI_MAKqvPoIqACud-OxrQ_VTCByrpz81QLFnKvPgoaTeKy-v7g1_4/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -1184,7 +1184,7 @@ function logout() {
     
     // Clear general data
     localStorage.removeItem('userId');
-    localStorage.removeItem('namaUser');
+    localStorage.removeItem('userName');
     localStorage.removeItem('userToken');
     localStorage.removeItem('userLevel');
     localStorage.removeItem('progressData'); // General progress data
@@ -1967,20 +1967,20 @@ function BACKUP_updateNavbarForLoggedInUser() {
     if (!loginMenuItem) return;
 
     const userId   = localStorage.getItem('userId');
-    let namaUser   = localStorage.getItem('namaUser');
+    let userName   = localStorage.getItem('userName');
 
     if (!userId) return;
 
     // fallback aman
-    if (!namaUser || namaUser.trim() === '') {
-        namaUser = userId;
+    if (!userName || userName.trim() === '') {
+        userName = userId;
     }
 
     loginMenuItem.innerHTML = `
         <a class="nav-link main-menu-link" href="#" onclick="logout()">
             <i class="fas fa-user-circle me-1"></i>
             <strong>
-                ${namaUser}
+                ${userName}
                 <span class="text-muted"> | ${userId}</span>
             </strong>
             <span class="ms-3 text-danger">
@@ -1995,26 +1995,26 @@ function BACKUP1_updateNavbarForLoggedInUser() {
     if (!loginMenuItem) return;
 
     const userId = localStorage.getItem('userId');
-    let namaUser = localStorage.getItem('namaUser');
+    let userName = localStorage.getItem('userName');
 
     if (!userId) return;
 
     // 🔑 NORMALISASI NAMA USER (INI KUNCINYA)
     if (
-        !namaUser ||
-        namaUser === 'undefined' ||
-        namaUser === 'null' ||
-        namaUser.trim() === '' ||
-        namaUser === userId
+        !userName ||
+        userName === 'undefined' ||
+        userName === 'null' ||
+        userName.trim() === '' ||
+        userName === userId
     ) {
-        namaUser = null;
+        userName = null;
     }
     loginMenuItem.innerHTML = `
         <a class="nav-link main-menu-link" href="#" onclick="logout()">
             <i class="fas fa-user-circle me-1"></i>
             <strong>
-                ${namaUser ? namaUser : userId}
-                ${namaUser ? `<span class="text-muted"> | ${userId}</span>` : ''}
+                ${userName ? userName : userId}
+                ${userName ? `<span class="text-muted"> | ${userId}</span>` : ''}
             </strong>
             <span class="ms-3 text-danger">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -4286,7 +4286,7 @@ async function simpanMateri(hariKe) {
     console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
 
     const userId   = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    const userName = localStorage.getItem('userName');
     if (!userId) return;
 
     const btn = document.getElementById(`btnMateriDone${hariKe}`);
@@ -4304,7 +4304,7 @@ async function simpanMateri(hariKe) {
         body: new URLSearchParams({
             action: 'updateMateri',
             userId,
-            namaUser,
+            userName,
             hariKe
         })
     });
@@ -4335,7 +4335,7 @@ async function simpanMateri(hariKe) {
 ********************************************/
 async function selesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
+  const userName = localStorage.getItem('userName');
   if (!userId) return;
 
   console.log('✅ Menyelesaikan perkenalan');
@@ -4346,7 +4346,7 @@ async function selesaikanPerkenalan() {
     body: new URLSearchParams({
       action: 'updatePerkenalan',
       userId,
-      namaUser
+      userName
     })
   });
 
@@ -4905,7 +4905,7 @@ async function uploadMealItem(hariKe, mealType) {
 *************************/
 async function uploadToServer(hariKe, mealType, fileData, fileName) {
   const userId   = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
+  const userName = localStorage.getItem('userName');
   if (!userId) {
     console.error('❌ User belum login');
     return { success: false, message: 'Silakan login terlebih dahulu' };
@@ -4920,7 +4920,7 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
       body: new URLSearchParams({
         action: 'uploadMealPlan',
         userId,
-        namaUser,
+        userName,
         hariKe,
         mealType,
         file: fileData,
@@ -5013,7 +5013,7 @@ async function selesaikanMealPlan(hariKe) {
     }
 
     const userId   = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    const userName = localStorage.getItem('userName');
     if (!userId) return;
 
     // 2️⃣ SIMPAN STATUS OK KE SHEET (KOLOM Q)
@@ -5023,7 +5023,7 @@ async function selesaikanMealPlan(hariKe) {
         body: new URLSearchParams({
             action: 'updateMealPlan',
             userId,
-            namaUser,
+            userName,
             hariKe
         })
     });
@@ -5423,7 +5423,7 @@ function setStopTimeKardio(hariKe) {
 *********************************/
 async function simpanWorkoutData(hariKe) {
     const userId = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    const userName = localStorage.getItem('userName');
     
     if (!userId) {
         showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
@@ -5495,7 +5495,7 @@ async function simpanWorkoutData(hariKe) {
             body: new URLSearchParams({
                 action: 'updateWorkout',
                 userId: userId,
-                namaUser: namaUser,
+                userName: userName,
                 hariKe: hariKe,
                 workoutData: JSON.stringify(workoutData),
                 kardioFile: kardioFile || '',
@@ -5531,7 +5531,7 @@ async function simpanWorkoutData(hariKe) {
 **********************************/
 async function completeWorkoutFinal(hariKe) {
   const userId = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
+  const userName = localStorage.getItem('userName');
 
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
@@ -6980,7 +6980,7 @@ function selesaiWaterReminder(hariKe) {
     console.log(`✅ selesaiWaterReminder() untuk hari: ${hariKe}`);
     
     const userId = localStorage.getItem('userId');
-    const namaUser = localStorage.getItem('namaUser');
+    const userName = localStorage.getItem('userName');
     
     if (!userId) {
         showMessage('error', 'User tidak login. Silahkan login kembali.', 4000);
@@ -7010,7 +7010,7 @@ function selesaiWaterReminder(hariKe) {
     // Kirim ke Google Apps Script
     const callbackName = 'cb_selesai_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_PROGRAM_APP}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&namaUser=${encodeURIComponent(namaUser || '')}&hariKe=${hariKe}&callback=${callbackName}`;
+    script.src = `${URL_PROGRAM_APP}?action=completeWaterReminder&userId=${encodeURIComponent(userId)}&userName=${encodeURIComponent(userName || '')}&hariKe=${hariKe}&callback=${callbackName}`;
     
     window[callbackName] = function(response) {
         console.log('📥 Response selesaiWaterReminder (RAW):', response, 'Type:', typeof response);
@@ -7300,7 +7300,7 @@ function simpanWaterReminderModul(modul, hariKe) {
   }
   
   const userId = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('namaUser');
+  const userName = localStorage.getItem('userName');
   
   if (!userId) {
     showMessage('error', 'User tidak login. Silahkan login kembali.', 4000);
@@ -7346,7 +7346,7 @@ function simpanWaterReminderModul(modul, hariKe) {
   const params = new URLSearchParams({
     action: 'updateWaterReminder',
     userId: encodeURIComponent(userId),
-    namaUser: encodeURIComponent(namaUser || ''),
+    userName: encodeURIComponent(userName || ''),
     modul: modul,                    // ✅ Parameter modul
     hariKe: hariKe,                  // ✅ Parameter hari
     asupanAir: encodeURIComponent(asupanAir),
