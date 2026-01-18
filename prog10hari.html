@@ -1951,8 +1951,15 @@ function updateNavbarForLoggedInUser() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
 
-  // 🔑 KUNCI UTAMA: PAKSA ITEM KE KANAN
-  loginMenuItem.className = 'nav-item ms-auto';
+  // 🔑 NAIK 1 LEVEL: UL NAVBAR
+  const parentUl = loginMenuItem.closest('ul.navbar-nav');
+  if (parentUl) {
+    parentUl.classList.add('ms-auto');   // DORONG KE KANAN
+    parentUl.classList.remove('mx-auto');
+  }
+
+  // 🔑 RESET CLASS LI
+  loginMenuItem.className = 'nav-item d-flex align-items-center';
 
   loginMenuItem.innerHTML = `
     <div class="d-flex align-items-center gap-3">
@@ -1962,7 +1969,7 @@ function updateNavbarForLoggedInUser() {
         <i class="fas fa-user me-1"></i>${userId}
       </span>
 
-      <!-- LOGOUT -->
+      <!-- LOGOUT ICON -->
       <a href="#" onclick="logout()" class="text-danger" title="Logout">
         <i class="fas fa-sign-out-alt fa-lg"></i>
       </a>
