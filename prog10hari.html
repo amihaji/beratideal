@@ -1954,7 +1954,7 @@ function updateNavbarForLoggedInUser() {
   if (!userId) return;
 
   loginMenuItem.innerHTML = `
-    <div class="d-flex justify-content-end align-items-center gap-3 mt-2 text-end">
+    <div class="d-flex justify-content-end gap-3 mt-2 text-end">
       <!-- USER ID ICON -->
       <span class="text-dark fw-bold">
         <i class="fas fa-user me-1"></i>${userId}
@@ -1965,29 +1965,6 @@ function updateNavbarForLoggedInUser() {
         <i class="fas fa-sign-out-alt fa-lg"></i>
       </a>
     </div>
-  `;
-}
-
-function BACKUP_updateNavbarForLoggedInUser() {
-  const loginMenuItem = document.getElementById('loginMenuItem');
-  if (!loginMenuItem) return;
-
-  const userId       = localStorage.getItem('userId');
-  const userName     = localStorage.getItem('userName'); 
-
-  if (!userId) return;
-
-  loginMenuItem.innerHTML = `
-    <a class="nav-link main-menu-link" href="#" onclick="logout()">
-      <i class="fas fa-user-circle me-1"></i>
-      <strong>
-        ${userName ? userName : userId}
-        ${userName ? `<span class="text-muted"> | ${userId}</span>` : ''}
-      </strong>
-      <span class="ms-3 text-danger">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </span>
-    </a>
   `;
 }
 
@@ -2739,44 +2716,6 @@ function setupAllComponents() {
 
   // 3️⃣ SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
   setupAllComponentsInternal();
-  console.log('✅ All components setup complete');
-}
-
-
-function BACKUP_setupAllComponents() {
-  console.log('🔧 Setting up all components...');
-
-  const userId = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
-  // 1. ACCORDION TOGGLE FIX
-  setupAccordionToggle();
-
-  // 2. CEK USER LOGIN
-  if (userId) {
-    console.log('👤 User is logged in:', userId);
-
-    // Tampilkan navbar
-    updateNavbarForLoggedInUser();
-
-    // 🔄 LOAD COMPLETE PROGRESS
-    loadCompleteProgressFromServer(userId, 1)
-      .then(() => {
-        console.log('✅ Complete progress loaded successfully');
-      })
-      .catch(err => {
-        console.error('❌ Error loading complete progress:', err);
-        checkProgressFallback(userId);
-      });
-
-  } else {
-    console.log('⚠️ No user logged in');
-    applyLockForNewUser();
-  }
-
-  // 3. SETUP KOMPONEN LAIN
-  setupAllComponentsInternal();
-
   console.log('✅ All components setup complete');
 }
 
