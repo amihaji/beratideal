@@ -1941,9 +1941,6 @@ function setupAllComponentsInternal() {
     initializeAllVideoPlayers();   
 }
 
-/************************************************
-* Update navbar untuk user yang login dan logout*
-*************************************************/
 /**************************************
 * Update navbar untuk user yang login *
 ***************************************/
@@ -1951,25 +1948,25 @@ function updateNavbarForLoggedInUser() {
   const loginMenuItem = document.getElementById('loginMenuItem');
   if (!loginMenuItem) return;
 
-  const userId   = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
+  const userId = localStorage.getItem('userId');
   if (!userId) return;
 
-  // 🔑 Paksa item navbar ke kanan
-  loginMenuItem.classList.add('ms-auto', 'text-end');
+  // 🔑 KUNCI UTAMA: PAKSA ITEM KE KANAN
+  loginMenuItem.className = 'nav-item ms-auto';
 
   loginMenuItem.innerHTML = `
-    <div class="d-flex align-items-center gap-3 justify-content-end text-end">
-      <!-- USER ICON + ID -->
+    <div class="d-flex align-items-center gap-3">
+
+      <!-- USER ID -->
       <span class="fw-bold text-dark">
         <i class="fas fa-user me-1"></i>${userId}
       </span>
 
-      <!-- LOGOUT ICON -->
+      <!-- LOGOUT -->
       <a href="#" onclick="logout()" class="text-danger" title="Logout">
         <i class="fas fa-sign-out-alt fa-lg"></i>
       </a>
+
     </div>
   `;
 }
