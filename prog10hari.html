@@ -703,7 +703,7 @@ body { background-color: #f8f9fa; }
                   class="menu-item video-link" onclick="showMessage('info', 'Memuat video...', 1000, 'pertemuan1')"
                   style="max-width: 100%;" data-section="pertemuan1" 
                   data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink1">
-                  <i class="fas fa-video"></i>1.1 Materi Hari Pertama - Dari Mana Saja Sumber Protein Bisa Didapatkan? 
+                  <i class="fas fa-video"></i>1.1 Materi Utama - Hari Pertama 
                 </a>
                 
                 <!-- Video Player untuk Materi Hari Pertama - DITEMPATKAN DI SINI -->
@@ -1951,42 +1951,27 @@ function updateNavbarForLoggedInUser() {
   const userId = localStorage.getItem('userId');
   if (!userId) return;
 
-  // 🔑 Ambil UL navbar
   const parentUl = loginMenuItem.closest('ul.navbar-nav');
   if (parentUl) {
-
-    // 📱 MOBILE (<= 591px) → RATA KIRI
+    // Mobile → kiri | Desktop → kanan
     if (window.innerWidth <= 591) {
-      parentUl.classList.remove('ms-auto');
-      parentUl.classList.remove('mx-auto');
-    }
-    // 💻 DESKTOP → RATA KANAN
-    else {
+      parentUl.classList.remove('ms-auto', 'mx-auto');
+    } else {
       parentUl.classList.add('ms-auto');
       parentUl.classList.remove('mx-auto');
     }
   }
 
-  // Reset class LI
-  loginMenuItem.className = 'nav-item';
-
+  // 🔑 PENTING: pakai nav-link, BUKAN div
   loginMenuItem.innerHTML = `
-    <div class="d-flex align-items-center gap-3">
-
-      <!-- USER ID -->
+    <a href="#" class="nav-link main-menu-link d-flex align-items-center gap-3" onclick="logout()">
       <span class="fw-bold text-dark">
         <i class="fas fa-user me-1"></i>${userId}
       </span>
-
-      <!-- LOGOUT ICON -->
-      <a href="#" onclick="logout()" class="text-danger" title="Logout">
-        <i class="fas fa-sign-out-alt fa-lg"></i>
-      </a>
-
-    </div>
+      <i class="fas fa-sign-out-alt text-danger"></i>
+    </a>
   `;
 }
-
 
 function BACKUP_updateNavbarForLoggedInUser() {
   const loginMenuItem = document.getElementById('loginMenuItem');
