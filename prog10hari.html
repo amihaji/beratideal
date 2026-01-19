@@ -6361,6 +6361,25 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     return wrapper;
 }
 
+/*************************************
+ * Setup tombol Water Reminder
+ *************************************/
+function setupWaterButtons(hariKe) {
+  const btnSimpan  = document.getElementById(`btnSimpanWater${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
+
+  if (btnSimpan) {
+    btnSimpan.onclick = () => simpanWaterReminder(hariKe);
+  }
+
+  if (btnSelesai) {
+    btnSelesai.onclick = () => selesaiWaterReminder(hariKe);
+  }
+
+  console.log(`✅ Water buttons wired for day ${hariKe}`);
+}
+
+
 /*********************************************************
  * LOAD SAVED STATUS - Dipanggil saat buka water reminder
  ********************************************************/
@@ -6538,6 +6557,39 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
 *********************************/
 async function simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
+  const radio  = document.querySelector(`input[name="asupanAir${hariKe}"]:checked`);
+
+  if (!radio) {
+    showMessage('warning', 'Pilih jumlah asupan air terlebih dahulu', 3000);
+    return;
+  }
+
+  const asupanAir = radio.value;
+
+  console.log('📤 Kirim water:', { userId, hariKe, asupanAir });
+
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateWater',
+      userId,
+      hariKe,
+      asupanAir
+    })
+  });
+
+  const result = await response.text();
+  console.log('📥 Response water:', result);
+
+  if (result === 'OK') {
+    showMessage('success', 'Asupan air berhasil disimpan', 3000);
+    document.getElementById(`btnSelesaiWater${hariKe}`).disabled = false;
+  }
+}
+
+async function BACKUP_simpanWaterReminder(hariKe) {
+  const userId = localStorage.getItem('userId');
   const asupanAir = document.querySelector(`input[name="airHari${hariKe}"]:checked`)?.value;
 
   if (!asupanAir) {
@@ -6564,34 +6616,6 @@ async function simpanWaterReminder(hariKe) {
   }
 }
 
-async function BACKUP_simpanWaterReminder(hariKe) {
-  const userId = localStorage.getItem('userId');
-  const air    = document.getElementById(`airPutih${hariKe}`)?.value;
-
-  if (!air) {
-    showMessage('warning', 'Pilih asupan air terlebih dahulu', 3000);
-    return;
-  }
-
-  const res = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateWater',
-      userId,
-      hariKe,
-      asupanAir: air
-    })
-  });
-
-  const text = await res.text();
-
-  if (text.includes('OK')) {
-    showMessage('success', 'Asupan air tersimpan', 3000);
-    document.getElementById(`btnSelesaiWater${hariKe}`)?.removeAttribute('disabled');
-  }
-}
-
 /*********************************
 * Selesaikan Water Reminder *
 *********************************/
@@ -6611,11 +6635,12 @@ async function selesaiWaterReminder(hariKe) {
   const result = await response.text();
 
   if (result === 'OK') {
-    disableWaterUI(hariKe); // pakai fungsi yang SUDAH ADA
     showMessage('success', 'Water Reminder selesai', 3000);
+
+    document.getElementById(`btnSimpanWater${hariKe}`).disabled  = true;
+    document.getElementById(`btnSelesaiWater${hariKe}`).disabled = true;
   }
 }
-
 
 async function BACKUP_selesaiWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
@@ -6635,31 +6660,6 @@ async function BACKUP_selesaiWaterReminder(hariKe) {
   if (result === 'OK') {
     disableWaterUI(hariKe); // pakai fungsi yang SUDAH ADA
     showMessage('success', 'Water Reminder selesai', 3000);
-  }
-}
-
-async function BACKUP_completeWaterReminder(hariKe) {
-  const userId = localStorage.getItem('userId');
-
-  const res = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'completeWater',
-      userId,
-      hariKe
-    })
-  });
-
-  const text = await res.text();
-
-  if (text.includes('OK')) {
-    showMessage('success', 'Water Reminder selesai', 3000);
-
-    document.getElementById(`btnSimpanWater${hariKe}`)?.setAttribute('disabled', true);
-    document.getElementById(`btnSelesaiWater${hariKe}`)?.setAttribute('disabled', true);
-
-    updateSubmenuLinkUI('water', hariKe);
   }
 }
 
