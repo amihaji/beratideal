@@ -65,7 +65,43 @@ body { background-color: #f8f9fa; }
     transform: scale(1);
   }
 }
+/*****  Akhir Header Imagae Smooth Animation *****/
 
+/****** Skeleton Loader ******/
+.skeleton-wrapper {
+  padding: 16px;
+}
+.skeleton-header {
+  height: 140px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f0f0f0 37%,
+    #e0e0e0 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+.skeleton-card {
+  height: 60px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f0f0f0 37%,
+    #e0e0e0 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+/****** Akhir Skeleton Loader ******/
 
 /***** Menu Accordian ******/
 .menu-accordion { margin-bottom: 10px; }
@@ -617,6 +653,15 @@ body { background-color: #f8f9fa; }
             Kak <strong><span id="greetingNameInline"></span></strong> akan mengikuti kelas ini selama <strong>10 Hari</strong><br>
             dan diedukasi dengan modul-modul yang disusun secara lengkap dan terstruktur<br>
           </h6>
+        </div>
+
+        <!-- SKELETON LOADER berfungsi untuk menampilkan SEBELUM tampilan sebenarnya  --> 
+        <!-- Aplikasi terasa lebih cepat, User tidak merasa “nunggu” -->
+        <div id="skeletonLoader" class="skeleton-wrapper">
+          <div class="skeleton-header"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
         </div>
 
         <!------------------------------->
@@ -2755,6 +2800,65 @@ function applyReadOnlyModeToSubmenu(container) {
 /* UPDATE SETUP ALL COMPONENTS - FINAL *
 /********************************************/
 function setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  // 🔹 TAMPILKAN SKELETON DI AWAL
+  const skeleton = document.getElementById('skeletonLoader');
+  if (skeleton) skeleton.style.display = 'block';
+
+  // 1️⃣ ACCORDION FIX
+  setupAccordionToggle();
+
+  // 2️⃣ CEK LOGIN
+  if (userId) {
+    console.log('👤 User is logged in:', userId);
+
+    // 🔹 NAVBAR USER
+    updateNavbarForLoggedInUser();
+
+    // 🔹 SAPAAN USER
+    const namaTampil = userName && userName.trim() !== '' ? userName : userId;
+    const hour = new Date().getHours();
+    let salam = 'SELAMAT MALAM';
+    if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
+    else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
+    else if (hour >= 15 && hour < 18) salam = 'SELAMAT SORE';
+
+    document.getElementById('greetingName')?.innerText = `Kak ${namaTampil}`;
+    document.getElementById('greetingTime')?.innerText = salam;
+    document.getElementById('greetingNameInline')?.innerText = namaTampil;
+
+    // 🔹 LOAD PROGRESS
+    loadCompleteProgressFromServer(userId, 1)
+      .then(() => {
+        console.log('✅ Progress loaded');
+
+        // ✅ SEMBUNYIKAN SKELETON
+        if (skeleton) skeleton.classList.add('skeleton-hide');
+      })
+      .catch(err => {
+        console.error(err);
+        checkProgressFallback(userId);
+        if (skeleton) skeleton.classList.add('skeleton-hide');
+      });
+
+  } else {
+    console.log('⚠️ No user logged in');
+    applyLockForNewUser();
+    if (skeleton) skeleton.classList.add('skeleton-hide');
+  }
+
+  // 3️⃣ SETUP KOMPONEN LAIN
+  setupAllComponentsInternal();
+
+  console.log('✅ All components setup complete');
+}
+
+
+function BACKUP_setupAllComponents() {
   console.log('🔧 Setting up all components...');
   // 🔑 DATA LOGIN
   const userId   = localStorage.getItem('userId');
@@ -8020,6 +8124,16 @@ document.addEventListener('show.bs.collapse', function (e) {
     console.warn(`⛔ Bootstrap collapse Hari ${hariKe} diblok TOTAL`);
   }
 }, true);
+
+function showSkeleton() {
+  const sk = document.getElementById('skeletonLoader');
+  if (sk) sk.style.display = 'block';
+}
+
+function hideSkeleton() {
+  const sk = document.getElementById('skeletonLoader');
+  if (sk) sk.style.display = 'none';
+}
 
 </script>
 </body>
