@@ -6663,7 +6663,7 @@ function enableWaterSaveButton(hariKe) {
 /**************************************
 *  SIMPAN WATER REMINDER SUDAH SELESAI
 ***************************************/
-function simpanWaterReminder(hariKe) {
+function BACKUP_simpanWaterReminder(hariKe) {
   const water = getWaterHari(hariKe);
   if (!water) {
     showMessage('warning', 'Silakan pilih jumlah air minum terlebih dahulu', 2000);
@@ -6685,7 +6685,7 @@ function simpanWaterReminder(hariKe) {
 /*********************************
 * SIMPAN DATA ASUPAN AIR (WATER) *
 *********************************/
-async function simpanAsupanAir(hariKe) {
+async function simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000);
@@ -6729,24 +6729,6 @@ async function simpanAsupanAir(hariKe) {
   }
 }
 
-function BACKUP_simpanAsupanAir(hariKe) {
-  const asupanAir = getWaterHari(hariKe);
-
-  if (!asupanAir) {
-    showMessage('warning', 'Silakan pilih asupan air terlebih dahulu', 2000);
-    return;
-  }
-
-  const data = {
-    action: 'simpanAir',
-    userId: localStorage.getItem('userId'),
-    hariKe: hariKe,
-    asupanAir: asupanAir
-  };
-  kirimKeServer(data);
-  showMessage('success', 'Asupan air berhasil disimpan', 2000);
-}
-
 /***************************************************
  * FUNGSI HELPER UNTUK CLEANUP SCRIPT
  * @param {object} script - Objek script DOM
@@ -6769,7 +6751,7 @@ function cleanUpScript(script, callbackName) {
  * TANDAI WATER REMINDER SELESAI (MANDIRI)
  * @param {number} hariKe - Nomor hari
  ***************************************************/
-function selesaiWater(hariKe) {
+function BACKUP_selesaiWater(hariKe) {
   const data = {
     action: 'simpanAir',
     userId: localStorage.getItem('userId'),
