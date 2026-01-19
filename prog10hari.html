@@ -6536,6 +6536,34 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
 /*********************************
 * SIMPAN DATA ASUPAN AIR (WATER) *
 *********************************/
+async function simpanWaterReminder(hariKe) {
+  const userId = localStorage.getItem('userId');
+  const asupanAir = document.querySelector(`input[name="airHari${hariKe}"]:checked`)?.value;
+
+  if (!asupanAir) {
+    showMessage('warning', 'Pilih jumlah asupan air', 3000);
+    return;
+  }
+
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      action: 'updateWater',
+      userId,
+      hariKe,
+      asupanAir
+    })
+  });
+
+  const result = await response.text();
+  console.log('WATER SAVE:', result);
+
+  if (result === 'OK') {
+    showMessage('success', 'Data asupan air tersimpan', 3000);
+  }
+}
+
 async function BACKUP_simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   const air    = document.getElementById(`airPutih${hariKe}`)?.value;
@@ -6588,7 +6616,8 @@ async function selesaiWaterReminder(hariKe) {
   }
 }
 
-async function selesaiWaterReminder(hariKe) {
+
+async function BACKUP_selesaiWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
 
   const response = await fetch(URL_PROGRAM_APP, {
