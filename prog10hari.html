@@ -6579,7 +6579,7 @@ function simpanWaterReminder(hariKe) {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      action: 'simpanAir',
+      action: 'updateWater',
       userId: userId,
       hariKe: hariKe,
       asupanAir: air
@@ -6597,59 +6597,6 @@ function simpanWaterReminder(hariKe) {
   });
 }
 
-async function BACKUP_simpanWaterReminder(hariKe) {
-  const userId = localStorage.getItem('userId');
-  const namaUser = localStorage.getItem('userName');
-
-  if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu', 3000);
-    return;
-  }
-
-  // Ambil pilihan radio
-  const selected = document.querySelector(
-    `input[name="airputihRadio${hariKe}"]:checked`
-  );
-
-  if (!selected) {
-    showMessage('warning', 'Pilih asupan air harian terlebih dahulu', 3000);
-    return;
-  }
-
-  const waterValue = selected.value;
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updateWater',
-        userId,
-        namaUser,
-        hariKe,
-        waterValue
-      })
-    });
-
-    const result = await response.text();
-    console.log('💧 Water save response:', result);
-
-    if (result.includes('OK')) {
-      showMessage('success', 'Data Water Reminder tersimpan', 3000);
-      localStorage.setItem(`water_saved_${hariKe}`, 'true');
-
-      // ❌ TIDAK ADA disable
-      // ❌ TIDAK ADA update submenu
-    } else {
-      showMessage('error', 'Gagal menyimpan Water Reminder', 3000);
-    }
-
-  } catch (err) {
-    console.error(err);
-    showMessage('error', 'Gagal terhubung ke server', 3000);
-  }
-}
-
 /*********************************
 * Selesaikan Water Reminder *
 *********************************/
@@ -6661,7 +6608,7 @@ function completeWaterReminder(hariKe) {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      action: 'simpanAir',
+      action: 'completeWater',
       userId: userId,
       hariKe: hariKe,
       water: 'OK'
