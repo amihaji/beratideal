@@ -6469,6 +6469,32 @@ function waterReminder(hariKe) {
  * GENERATE RADIO BUTTONS UNTUK PILIHAN AIR MINUM
  *************************************************/
 function generateWaterRadioButtons(hariKe) {
+  const container = document.getElementById(`waterRadioContainer${hariKe}`);
+  if (!container) return;
+
+  const options = [
+    { value: '1500 ml', label: '1.5 Liter / Hari' },
+    { value: '2000 ml', label: '2 Liter / Hari' },
+    { value: '2500 ml', label: '2.5 Liter / Hari' },
+    { value: '3000 ml', label: '3 Liter / Hari' }
+  ];
+
+  container.innerHTML = options.map(opt => `
+    <div class="form-check mb-1">
+      <input class="form-check-input"
+             type="radio"
+             name="waterHari${hariKe}"
+             id="water-${hariKe}-${opt.value}"
+             value="${opt.value}">
+      <label class="form-check-label" for="water-${hariKe}-${opt.value}">
+        ${opt.label}
+      </label>
+    </div>
+  `).join('');
+}
+
+
+ function BACKUP_generateWaterRadioButtons(hariKe) {
     console.log(`💧 Generate radio buttons hari ${hariKe}`);
     
     const containerId = 'airputihRadioBtn';
@@ -6524,7 +6550,7 @@ function generateWaterRadioButtons(hariKe) {
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" 
                         id="btnSelesaiWater${hariKe}"
-                        onclick="completeWaterReminder(${hariKe})" 
+                        onclick="selesaiWaterReminder(${hariKe})" 
                         disabled>
                     <i class="fa fa-check"></i> Selesai
                 </button>
@@ -6548,6 +6574,14 @@ function generateWaterRadioButtons(hariKe) {
  *  AMBIL NILAI WATER REMINDER (HARI KE-x)
  *******************************************/
 function getWaterHari(hariKe) {
+  const checked = document.querySelector(
+    `input[name="waterHari${hariKe}"]:checked`
+  );
+  return checked ? checked.value : '';
+}
+
+
+ function BACKUP_getWaterHari(hariKe) {
   const container = document.getElementById('waterReminderContent' + hariKe);
   if (!container) {
     console.warn('❌ Container water tidak ditemukan hari', hariKe);
@@ -6568,6 +6602,25 @@ function getWaterHari(hariKe) {
  * ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
  ************************************************/
 function setWaterComponentsDisabled(hariKe, isDisabled) {
+
+  // radio buttons
+  document
+    .querySelectorAll(`input[name="waterHari${hariKe}"]`)
+    .forEach(r => r.disabled = isDisabled);
+
+  // tombol simpan
+  const btnSimpan = document.getElementById(`btnSimpanWater${hariKe}`);
+  if (btnSimpan) btnSimpan.disabled = isDisabled;
+
+  // tombol selesai
+  const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
+  if (btnSelesai) btnSelesai.disabled = isDisabled;
+
+  // ❌ JANGAN sentuh tombol X
+  // ❌ JANGAN sentuh tombol Cek Disini
+}
+
+function BACKUP_setWaterComponentsDisabled(hariKe, isDisabled) {
 
   // Radio button
   const radios = document.getElementsByName('waterHari' + hariKe);
@@ -6599,6 +6652,46 @@ function enableWaterSaveButton(hariKe) {
 * SIMPAN DATA ASUPAN AIR (WATER) *
 *********************************/
 async function simpanWaterReminder(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('warning', 'Silakan login terlebih dahulu', 3000);
+    return;
+  }
+
+  const waterValue = getWaterHari(hariKe);
+  if (!waterValue) {
+    showMessage('warning', 'Pilih target asupan air terlebih dahulu', 3000);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateWater',
+        userId,
+        hariKe,
+        waterValue
+      })
+    });
+
+    const result = await response.text();
+
+    if (result.includes('OK')) {
+      showMessage('success', 'Data asupan air berhasil disimpan', 3000);
+      localStorage.setItem(`water_saved_${hariKe}`, 'true');
+    } else {
+      showMessage('error', 'Gagal menyimpan data air', 3000);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('error', 'Gagal terhubung ke server', 3000);
+  }
+}
+
+async function BACKUP_simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000);
@@ -6641,6 +6734,49 @@ async function simpanWaterReminder(hariKe) {
     showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
   }
 }
+
+async function selesaiWaterReminder(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) return;
+
+  if (!localStorage.getItem(`water_saved_${hariKe}`)) {
+    showMessage('warning', 'Simpan data air terlebih dahulu', 3000);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWater',
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.text();
+
+    if (result.includes('OK')) {
+      showMessage('success', 'Water Reminder selesai', 3000);
+
+      // 🔒 LOCK HANYA KOMPONEN WATER
+      setWaterComponentsDisabled(hariKe, true);
+
+      // ✔ centang submenu
+      updateSubmenuLinkUI('water', hariKe);
+
+      localStorage.setItem(`water_status_${hariKe}`, 'completed');
+    } else {
+      showMessage('error', 'Gagal menyelesaikan Water Reminder', 3000);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('error', 'Gagal terhubung ke server', 3000);
+  }
+}
+
 
 /***************************************************
  * FUNGSI HELPER UNTUK CLEANUP SCRIPT
@@ -6862,7 +6998,7 @@ function loadWaterReminderData(hariKe) {
 /*********************************
 * SELESAI WATER REMINDER (OK)    *
 *********************************/
-async function completeWaterReminder(hariKe) {
+async function BACKUP_completeWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000);
