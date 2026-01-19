@@ -4446,24 +4446,19 @@ function selesaiMateri(hariSelesai) {
 /* =====================================
    SIMPAN WATER REMINDER (MANUAL)
    ===================================== */
-function simpanWater(hariKe) {
-
+function BACKUP_simpanWater(hariKe) {
   const water = getWaterHari(hariKe);
-
   if (!water) {
     showMessage('warning', 'Silakan pilih jumlah air minum terlebih dahulu', 2000);
     return;
   }
-
   const data = {
     action: 'simpanAir',
     userId: localStorage.getItem('userId'),
     hariKe: hariKe,
     water: water
   };
-
   kirimKeServer(data);
-
   showMessage('success', 'Water Reminder berhasil disimpan', 2000);
 }
 
@@ -6323,13 +6318,13 @@ function getResistanceDataForServer(hariKe) {
     };
 }
 
-function simpanWaterHariAktif() {
+function BACKUP_simpanWaterHariAktif() {
   if (window.activeWaterHari) {
     simpanWater(window.activeWaterHari);
   }
 }
 
-function selesaiWaterHariAktif() {
+function BACKUP_selesaiWaterHariAktif() {
   if (window.activeWaterHari) {
     simpanWater(window.activeWaterHari);
   }
@@ -6666,32 +6661,30 @@ function enableWaterSaveButton(hariKe) {
 }
 
 /**************************************
-*  SIMPAN WATER REMINDER (MANDIRI)
+*  SIMPAN WATER REMINDER SUDAH SELESAI
 ***************************************/
 function simpanWaterReminder(hariKe) {
-
   const water = getWaterHari(hariKe);
-
   if (!water) {
     showMessage('warning', 'Silakan pilih jumlah air minum terlebih dahulu', 2000);
     return;
   }
-
   const data = {
     action: 'simpanAir',
     userId: localStorage.getItem('userId'),
     hariKe: hariKe,
     water: water
   };
-
   kirimKeServer(data);
-
+  // 🔓 ENABLE tombol Selesai
+  //const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
+  //if (btnSelesai) btnSelesai.disabled = false;
   showMessage('success', 'Water Reminder berhasil disimpan', 2000);
 }
   
-/*******************************
-*  SIMPAN ASUPAN AIR (MANDIRI)
-********************************/
+/******************************
+*  SIMPAN ASUPAN AIR TERSIMPAN
+*******************************/
 function simpanAsupanAir(hariKe) {
   const asupanAir = getWaterHari(hariKe);
 
@@ -6706,13 +6699,7 @@ function simpanAsupanAir(hariKe) {
     hariKe: hariKe,
     asupanAir: asupanAir
   };
-
   kirimKeServer(data);
-
-  // 🔓 ENABLE tombol Selesai
-  const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
-  if (btnSelesai) btnSelesai.disabled = false;
-
   showMessage('success', 'Asupan air berhasil disimpan', 2000);
 }
 
