@@ -2524,9 +2524,9 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ Workout hari ${hariKe} terkunci sempurna`);
 }
 
-/*************************************
-/* UPDATE SUBMENU LINK UI - COMPLETE *
-/*************************************/
+/************************************************
+/* UPDATE SUBMENU LINK UI - CENTANG HIJAU BULAT *
+/************************************************/
 function updateSubmenuLinkUI(type, hariKe) {
     console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
 
@@ -2536,7 +2536,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     if (type === 'perkenalan') {
         const container = document.getElementById('perkenalanContent');
         if (!container) return;
-
         link = [...container.querySelectorAll('a.menu-item')]
             .find(a => a.textContent.includes('Selesai Perkenalan'));
     }
@@ -2545,7 +2544,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     if (type === 'materi') {
         const container = document.getElementById(`pertemuan${hariKe}Content`);
         if (!container) return;
-
         link = container.querySelector(
             `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
         );
@@ -2553,6 +2551,7 @@ function updateSubmenuLinkUI(type, hariKe) {
 
     // ✅ MAEL PLAN SELECTOR
     if (type === 'mealplan') {
+       if (!container) return;
         link = document.querySelector(
             `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`
         );
@@ -2560,6 +2559,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     
     // ✅ WORKOUT SELECTOR
     if (type === 'workout') {
+       if (!container) return;
         link = document.querySelector(
             `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`
         );
@@ -2567,9 +2567,9 @@ function updateSubmenuLinkUI(type, hariKe) {
 
     // ✅ WATER SELECTOR
     if (type === 'water') {
+        if (!container) return;
         link = document.querySelector(
-        // `a.menu-item.submenu-trigger[onclick*="waterReminder(${hariKe})"]`
-        `a.menu-item.submenu-trigger[data-target="waterReminderContent(${hariKe})"]`
+           `a.menu-item.submenu-trigger[data-target="waterReminderContent(${hariKe})"]`
       );
     }
 
