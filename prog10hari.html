@@ -6380,7 +6380,7 @@ function setupWaterButtons(hariKe) {
 /*********************************************************
  * LOAD SAVED STATUS - Dipanggil saat buka water reminder
  ********************************************************/
-function BACKUP_loadWaterReminderStatus(hariKe) {
+function loadWaterReminderStatus(hariKe) {
     console.log(`💧 Load status water hari ${hariKe}`);
     // Cek jika sudah disimpan
     const saved = localStorage.getItem('water_hari_' + hariKe + '_saved');
@@ -6758,7 +6758,7 @@ function checkWaterStatus(hariKe) {
  * LOAD DATA YANG SUDAH DISIMPAN
  * @param {number} hariKe - Nomor hari
  ***************************************************/
-function BACKUP_loadWaterReminderData(hariKe) {
+function loadWaterReminderData(hariKe) {
     console.log(`💾 Load water data hari ${hariKe}`);
     
     // Cek dari localStorage
@@ -6862,7 +6862,7 @@ function lockWaterReminderUI(hariKe) {
 }
 
 // Fungsi untuk update icon di menu
-function BACKUP_updateWaterMenuIcon(hariKe) {
+function updateWaterMenuIcon(hariKe) {
     console.log('🎯 Update menu icon untuk water hari', hariKe);
     
     // Cari menu item untuk water hari ini
@@ -7081,7 +7081,7 @@ function loadSavedWaterDataModul(modul, hariKe) {
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
  ****************************************/
-function BACKUP_updateWaterMenuIconModul(modul, hariKe) {
+function updateWaterMenuIconModul(modul, hariKe) {
   console.log(`🎯 Update menu icon M${modul}D${hariKe}`);
   
   const prefix = `M${modul}D${hariKe}`;
@@ -7143,7 +7143,7 @@ function checkWaterStatusModul(modul, hariKe) {
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
  */
-function BACKUP_resetWaterReminderModul(modul, hariKe) {
+function resetWaterReminderModul(modul, hariKe) {
   if (!confirm(`Reset Water Reminder Modul ${modul}, Hari ${hariKe}?`)) return;
   
   const prefix = `M${modul}D${hariKe}`;
@@ -7214,7 +7214,7 @@ function BACKUP_resetWaterReminderModul(modul, hariKe) {
 /****************************************************
 /* FUNGSI REUSABLE: Load Saved Water Reminder Data *
 /****************************************************/
-function BACKUP_loadSavedWaterReminderData(hariKe) {
+function loadSavedWaterReminderData(hariKe) {
     console.log(`💧 Loading saved water data for day ${hariKe}`);
     
     const userId      = localStorage.getItem('userId');
@@ -7291,7 +7291,7 @@ function disableWaterRadioButtons(hariKe) {
   });
 }
 
-function BACKUP_disableAllWaterButtons(hariKe) {
+function disableAllWaterButtons(hariKe) {
   const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
   const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
 
@@ -7326,7 +7326,7 @@ function initializeAllWaterReminderForms() {
 /*****************************************
 /* CSS STYLING UNTUK WATER REMINDER FORM *
 /*****************************************/
-function BACKUP_addWaterReminderStyles() {
+function addWaterReminderStyles() {
     const styleId = 'water-reminder-styles';
     
     // Hapus style lama jika ada
