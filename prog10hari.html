@@ -2564,9 +2564,15 @@ function updateSubmenuLinkUI(type, hariKe) {
     }
 
     // ✅ WATER SELECTOR
+    //if (type === 'water') {
+    //    link = document.querySelector(
+    //       `a.menu-item.submenu-trigger[data-target="waterReminderContent(${hariKe})"]`
+    //  );
+    //}
+
     if (type === 'water') {
-        link = document.querySelector(
-           `a.menu-item.submenu-trigger[data-target="waterReminderContent(${hariKe})"]`
+      link = document.querySelector(
+        `a.menu-item.submenu-trigger[onclick*="waterReminder(${hariKe})"]`
       );
     }
 
@@ -6577,7 +6583,7 @@ async function simpanWaterReminder(hariKe) {
   console.log('📥 Response water:', result);
   if (result === 'OK') {
     // showMessage('success', 'Asupan air berhasil disimpan', 3000);
-    showMessage('success', 'Data Tersimpan', 3000, `pertemuan${hariKe}` );
+    showMessage('success', 'Asupan air berhasil disimpan', 3000, `pertemuan${hariKe}` );
     
     // Aktifkan tombol selesai
     const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
@@ -6589,7 +6595,7 @@ async function simpanWaterReminder(hariKe) {
 * Selesaikan Water Reminder *
 *********************************/
 async function selesaiWaterReminder(hariKe) {
-  const userId = localStorage.getItem('userId');
+  const userId   = localStorage.getItem('userId');
   const response = await fetch(URL_PROGRAM_APP, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -6601,14 +6607,14 @@ async function selesaiWaterReminder(hariKe) {
   });
   const result = await response.text();
   if (result === 'OK') {
-    showMessage('success', 'Data Tersimpan', 3000, `pertemuan${hariKe}` );
+    showMessage('success', 'Water Reminder Selesai', 3000, `pertemuan${hariKe}` );
     
     // Disable radio button
     document
       .querySelectorAll(`input[name="asupanAir${hariKe}"]`)
       .forEach(radio => radio.disabled = true);
     
-      // Disable tombol Simpan & Selesai
+    // Disable tombol Simpan & Selesai
     document.getElementById(`btnSimpanWater${hariKe}`)?.setAttribute('disabled', true);
     document.getElementById(`btnSelesaiWater${hariKe}`)?.setAttribute('disabled', true);
     
