@@ -6612,12 +6612,37 @@ async function selesaiWaterReminder(hariKe) {
     document.getElementById(`btnSimpanWater${hariKe}`)?.setAttribute('disabled', true);
     document.getElementById(`btnSelesaiWater${hariKe}`)?.setAttribute('disabled', true);
     
-    // SIMPAN STATUS LOKAL
-    // saveWaterStatus(hariKe, 'completed');
     // UPDATE SUBMENU (CENTANG HIJAU)
     updateSubmenuLinkUI('water', hariKe);
   }
 }
+
+function disableWaterAfterCompletion(hariKe) {
+  console.log(`🔒 Lock Water Reminder hari ${hariKe}`);
+
+  // Disable radio button
+  document
+    .querySelectorAll(`input[name="asupanAir${hariKe}"]`)
+    .forEach(radio => {
+      radio.disabled = true;
+    });
+
+  // Disable tombol simpan
+  const btnSimpan = document.getElementById(`btnSimpanWater${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.disabled = true;
+    btnSimpan.classList.add('btn-secondary');
+    btnSimpan.classList.remove('btn-primary');
+  }
+
+  // Disable tombol selesai
+  const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = true;
+    btnSelesai.classList.add('btn-secondary');
+  }
+}
+
 
 /***************************************************
  * FUNGSI HELPER UNTUK CLEANUP SCRIPT
@@ -7401,7 +7426,47 @@ function addWaterReminderStyles() {
     console.log('🎨 Water reminder styles added');
 }
 
+/******************************************
+* AUTO-LOCK WATER (USER LAMA / READ-ONLY) *
+******************************************/
 function showWaterReminderForm(hariKe) {
+    console.log(`💧 Showing water reminder form for day ${hariKe}`);
+    
+    // 1️⃣ Tampilkan submenu
+    showSubmenu(`waterReminderContent${hariKe}`);
+    
+    // 2️⃣ Tentukan container
+    const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
+    const container = document.getElementById(containerId);
+    
+    // 3️⃣ Generate / load form
+    if (container && container.innerHTML.trim() === '') {
+        generateWaterReminderForm(hariKe, containerId);
+    } else {
+        // Jika sudah ada, load data tersimpan
+        setTimeout(() => {
+            loadSavedWaterReminderData(hariKe);
+        }, 300);
+    }
+
+    // 4️⃣ Setup event (Simpan & Selesai)
+    setTimeout(() => {
+        setupWaterReminderEvents(hariKe);
+    }, 500);
+
+    // 🔒 AUTO-LOCK WATER (USER LAMA / READ-ONLY)
+    setTimeout(() => {
+        if (
+            window.userProgress &&
+            window.userProgress[`waterHari${hariKe}`] === true
+        ) {
+            console.log(`🔒 Water Hari ${hariKe} sudah selesai → READ ONLY`);
+            disableWaterAfterCompletion(hariKe);
+        }
+    }, 600);
+}
+
+function BACKUP_showWaterReminderForm(hariKe) {
     console.log(`💧 Showing water reminder form for day ${hariKe}`);
     
     // Tampilkan submenu
@@ -7421,9 +7486,7 @@ function showWaterReminderForm(hariKe) {
     }
     
     // Setup events
-    setTimeout(() => {
-        //setupWaterReminderEvents(hariKe);
-    }, 500);
+    setTimeout(() => { setupWaterReminderEvents(hariKe);}, 500);
 }
 
 /* =====================================================
