@@ -798,7 +798,7 @@ body { background-color: #f8f9fa; }
                 <!-- WATER REMINDER HARI PERTAMA -->
                 <!-- <a href="pdf/WaterReminder_HariKe1.pdf" -->           
                 <a href="#" class="menu-item submenu-trigger" onclick="waterReminder(1)" data-target="waterReminderContent1">
-                    <i class="fas fa-prescription-bottle"></i> 1.4 Water Reminder - Hari Pertama
+                    <i class="fas fa-prescription-bottle"></i>1.4 Water Reminder - Hari Pertama
                 </a>
 
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
@@ -2569,7 +2569,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     if (type === 'water') {
         link = document.querySelector(
         // `a.menu-item.submenu-trigger[onclick*="waterReminder(${hariKe})"]`
-        `a.menu-item.submenu-trigger[data-target="waterReminder(${hariKe})"]`
+        `a.menu-item.submenu-trigger[data-target="waterReminderContent(${hariKe})"]`
       );
     }
 
@@ -6604,7 +6604,6 @@ async function selesaiWaterReminder(hariKe) {
   });
   const result = await response.text();
   if (result === 'OK') {
-    //showMessage('success', 'Water Reminder selesai', 3000);
     showMessage('success', 'Data Tersimpan', 3000, `pertemuan${hariKe}` );
     
     // Disable radio button
@@ -6762,7 +6761,7 @@ function checkWaterStatus(hariKe) {
  * LOAD DATA YANG SUDAH DISIMPAN
  * @param {number} hariKe - Nomor hari
  ***************************************************/
-function loadWaterReminderData(hariKe) {
+function BACKUP_loadWaterReminderData(hariKe) {
     console.log(`💾 Load water data hari ${hariKe}`);
     
     // Cek dari localStorage
