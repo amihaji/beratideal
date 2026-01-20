@@ -2196,7 +2196,73 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 /********************************************
 /* APPLY COMPLETE PROGRESS TO UI - DETAILED *
 /********************************************/
+/********************************************
+/* APPLY COMPLETE PROGRESS TO UI - FINAL FIX *
+/********************************************/
 function applyCompleteProgressToUI(progress, hariKe) {
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+
+  // ===============================
+  // INISIALISASI GLOBAL PROGRESS
+  // ===============================
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+
+  // ===============================
+  // PERKENALAN
+  // ===============================
+  if (progress.perkenalan === true) {
+    unlockModul(hariKe);
+    updatePerkenalanUI(); // ⚠️ TANPA getCompletionStatus
+  }
+
+  // ===============================
+  // STATUS SUBMENU HARI PERTAMA
+  // ===============================
+  const progressMap = [
+    { field: 'materiHari1',   type: 'materi' },
+    { field: 'mealplanHari1', type: 'mealplan' },
+    { field: 'workoutHari1',  type: 'workout' },
+    { field: 'waterHari1',    type: 'water' }
+  ];
+
+  progressMap.forEach(item => {
+    if (progress[item.field] === true) {
+      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
+
+      // tandai progress global
+      window.userProgress[item.field] = true;
+
+      // update submenu checklist
+      updateSubmenuLinkUI(hariKe, item.type);
+
+      // disable UI sesuai jenis
+      disableButtonsAfterCompletion(hariKe, item.type);
+    }
+  });
+
+  // ===============================
+  // AUTO-EXPAND MODUL (OPSIONAL)
+  // ===============================
+  if (
+    progress.perkenalan ||
+    progress.materiHari1 ||
+    progress.mealplanHari1 ||
+    progress.workoutHari1 ||
+    progress.waterHari1
+  ) {
+    setTimeout(() => {
+      const header = document.querySelector(`[data-hari="${hariKe}"]`);
+      if (header && header.classList.contains('collapsed')) {
+        header.click();
+      }
+    }, 800);
+  }
+}
+
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
   // WATER REMINDER STATUS (WAJIB DI SINI)
@@ -7510,6 +7576,42 @@ function addWaterReminderStyles() {
 ******************************************/
 function showWaterReminderForm(hariKe) {
   console.log(`💧 Showing water reminder form for day ${hariKe}`);
+
+  // Tampilkan submenu
+  showSubmenu(`waterReminderContent${hariKe}`);
+
+  const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
+  const container   = document.getElementById(containerId);
+
+  if (!container) {
+    console.error('❌ Water container tidak ditemukan:', containerId);
+    return;
+  }
+
+  // Generate form jika belum ada
+  if (container.innerHTML.trim() === '') {
+    generateWaterReminderForm(hariKe, containerId);
+  }
+
+  // Load data tersimpan
+  setTimeout(() => {
+    loadSavedWaterReminderData(hariKe);
+  }, 200);
+
+  // 🔒 AUTO LOCK JIKA USER LAMA (WATER SUDAH OK)
+  setTimeout(() => {
+    if (
+      window.userProgress &&
+      window.userProgress[`waterHari${hariKe}`] === true
+    ) {
+      console.log('🔒 Water Reminder hari', hariKe, 'READ ONLY');
+      disableWaterAfterCompletion(hariKe);
+    }
+  }, 300);
+}
+
+function BACKUP_showWaterReminderForm(hariKe) {
+  console.log(`💧 Showing water reminder form for day ${hariKe}`);
   showSubmenu(`waterReminderContent${hariKe}`);
   const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
   const container = document.getElementById(containerId);
@@ -7532,60 +7634,6 @@ function showWaterReminderForm(hariKe) {
   }, 300);
 }
 
-function BACKUP_showWaterReminderForm(hariKe) {
-    console.log(`💧 Showing water reminder form for day ${hariKe}`);
-    
-    // 1️⃣ Tampilkan submenu
-    showSubmenu(`waterReminderContent${hariKe}`);
-    
-    // 2️⃣ Tentukan container
-    const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
-    const container = document.getElementById(containerId);
-    
-    // 3️⃣ Generate / load form
-    if (container && container.innerHTML.trim() === '') {
-        generateWaterReminderForm(hariKe, containerId);
-    } else {
-        setTimeout(() => {
-            loadSavedWaterReminderData(hariKe);
-        }, 300);
-    }
-
-    // 🔒 AUTO-LOCK WATER (USER LAMA / READ-ONLY)
-     setTimeout(() => {
-        if (
-            window.userProgress &&
-            window.userProgress[`waterHari${hariKe}`] === true
-        ) {
-            console.log(`🔒 Water Hari ${hariKe} sudah selesai → READ ONLY`);
-            disableWaterAfterCompletion(hariKe);
-        }
-    }, 500);
-}
-
-
-function BACKUP_showWaterReminderForm(hariKe) {
-    console.log(`💧 Showing water reminder form for day ${hariKe}`);
-    
-    // Tampilkan submenu
-    showSubmenu(`waterReminderContent${hariKe}`);
-    
-    // Generate form jika belum ada
-    const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
-    const container = document.getElementById(containerId);
-    
-    if (container && container.innerHTML.trim() === '') {
-        generateWaterReminderForm(hariKe, containerId);
-    } else {
-        // Jika sudah ada, load saved data
-        setTimeout(() => {
-            loadSavedWaterReminderData(hariKe);
-        }, 300);
-    }
-    
-    // Setup events
-    setTimeout(() => { setupWaterReminderEvents(hariKe);}, 500);
-}
 
 /* =====================================================
    KIRIM DATA KE GOOGLE APPS SCRIPT (JSONP)
