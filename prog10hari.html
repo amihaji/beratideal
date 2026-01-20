@@ -7443,19 +7443,13 @@ function showWaterReminderForm(hariKe) {
     if (container && container.innerHTML.trim() === '') {
         generateWaterReminderForm(hariKe, containerId);
     } else {
-        // Jika sudah ada, load data tersimpan
         setTimeout(() => {
             loadSavedWaterReminderData(hariKe);
         }, 300);
     }
 
-    // 4️⃣ Setup event (Simpan & Selesai)
-    setTimeout(() => {
-        setupWaterReminderEvents(hariKe);
-    }, 500);
-
     // 🔒 AUTO-LOCK WATER (USER LAMA / READ-ONLY)
-    setTimeout(() => {
+     setTimeout(() => {
         if (
             window.userProgress &&
             window.userProgress[`waterHari${hariKe}`] === true
@@ -7463,8 +7457,9 @@ function showWaterReminderForm(hariKe) {
             console.log(`🔒 Water Hari ${hariKe} sudah selesai → READ ONLY`);
             disableWaterAfterCompletion(hariKe);
         }
-    }, 600);
+    }, 500);
 }
+
 
 function BACKUP_showWaterReminderForm(hariKe) {
     console.log(`💧 Showing water reminder form for day ${hariKe}`);
