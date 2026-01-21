@@ -1279,7 +1279,7 @@ function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
     const cocokSub = text.includes(submenuKeyword);
 
     if (cocokHari && cocokSub) {
-      item.style.fontWeight = 'bold';
+      // item.style.fontWeight = 'bold';
       if (!item.querySelector('.submenu-done')) {
         const icon = document.createElement('span');
         icon.className = 'submenu-done';
@@ -1679,7 +1679,7 @@ function disableButtonFully(el) {
 }
 
 /**************************************
- * Kunci UI Meal Plan (FINAL – AKURAT)
+ * Kunci UI Meal Plan 
  * - HANYA disable tombol uploadMealItem
  * - X Form & X PDF TETAP AKTIF
  **************************************/
@@ -1688,7 +1688,6 @@ function lockMealPlanUI(hariKe) {
 
   const container = document.getElementById(`mealPlanContent${hariKe}`);
   if (!container) return;
-
   
   //* 1️⃣ DISABLE TOMBOL UPLOAD MEAL PLAN (BERDASARKAN onclick)
   container.querySelectorAll('button[onclick]').forEach(btn => {
@@ -1739,7 +1738,7 @@ function strictLockModul(hariKe) {
         if (lockIcon) {
             lockIcon.className = 'status-lock';
             lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
-            lockIcon.style.color = '#dc3545'; // Warna merah untuk emphasis
+            lockIcon.style.color = '#000e3d'; // Warna biru tua
         }
         
         // 5. Add tooltip "Selesaikan Perkenalan dulu"
@@ -2716,7 +2715,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     icon.style.fontSize = '0.9em';
 
     link.appendChild(icon);
-    link.style.fontWeight = 'bold';
+    // link.style.fontWeight = 'bold';
     link.style.color = '#666';
 }
 
@@ -3000,7 +2999,7 @@ function applyProgressToUI(progress) {
       if (link.textContent.includes('Selesai Perkenalan')) {
         link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan';
         link.style.color = '#666666';
-        link.style.fontWeight = 'bold';
+        // link.style.fontWeight = 'bold';
         link.style.pointerEvents = 'none';
       }
     });
@@ -3018,7 +3017,7 @@ function applyProgressToUI(progress) {
     if (materiLink) {
       materiLink.innerHTML = materiLink.innerHTML + ' ✓';
       materiLink.style.color = '#666666';
-      materiLink.style.fontWeight = 'bold';
+      // materiLink.style.fontWeight = 'bold';
     }
     
     // Update tombol centang di video
@@ -3038,12 +3037,9 @@ function applyProgressToUI(progress) {
     // Update link meal plan
     const mealPlanLinks = document.querySelectorAll('[onclick="uploadMealPlan(1)"]');
     mealPlanLinks.forEach(link => {
-      //link.innerHTML = '<i class="fas fa-utensils"></i>1.2 Meal Plan - Hari Pertama';
-      //link.style.color = '#666666';
-      //link.style.fontWeight = 'bold';
       link.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
       link.style.color = '#666666';
-      link.style.fontWeight = 'bold';
+      // link.style.fontWeight = 'bold';
 
     });
     
@@ -5732,7 +5728,7 @@ async function selesaiIstirahat(hariKe) {
     if (istirahatItem) {
         istirahatItem.innerHTML = `<i class="fas fa-bed"></i>${hariKe}.5 Waktu Istirahat - Hari ke ${hariKe} ✓`;
         istirahatItem.style.color = '#666666';
-        istirahatItem.style.fontWeight = 'bold';
+        // istirahatItem.style.fontWeight = 'bold';
     }
     showMessage('success', `Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
@@ -5752,7 +5748,7 @@ async function selesaiDataTracking(hariKe) {
     if (trackingItem) {
         trackingItem.innerHTML = `<i class="fas fa-user-friends"></i>${hariKe}.6 Data Tracking - Hari ke ${hariKe} ✓`;
         trackingItem.style.color = '#666666';
-        trackingItem.style.fontWeight = 'bold';
+        // trackingItem.style.fontWeight = 'bold';
     }
     showMessage('success', `Data Tracking hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
 }
@@ -5791,7 +5787,7 @@ function updateWorkoutCompletionUI(hariKe) {
   if (workoutItem) {
     workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
     workoutItem.style.color = '#666666';
-    workoutItem.style.fontWeight = 'bold';
+    // workoutItem.style.fontWeight = 'bold';
     
     // Ubah onclick untuk read-only mode
     workoutItem.onclick = function(e) {
@@ -6820,7 +6816,8 @@ function tandaiSubmenuSelesai(hariKe, submenuKeyword) {
       text.includes(`Hari ${hariKe}`)
     ) {
       // Tebalkan teks menu
-      item.style.fontWeight = 'bold';
+      // item.style.fontWeight = 'bold';
+
       // Cegah duplikasi icon
       if (!item.querySelector('.submenu-done')) {
 
