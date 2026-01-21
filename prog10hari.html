@@ -86,8 +86,8 @@ body { background-color: #f8f9fa; }
 }
 .menu-header:hover {
   /* background: linear-gradient(135deg, #cfdaff 0%, #105fff 100%); */
-  background-color : #d1e7f3;   /* #7c7c7c; */ 
-  color:#333;                   /* #f7f7f7;  */          
+  background-color : #0070f0;   /* #7c7c7c; */ 
+  color:#ffffff;                   /* #f7f7f7;  */          
   /* transform: translateY(-2px); */
   /* box-shadow: 0 4px 8px rgba(0,0,0,0.2); */
 }
@@ -5067,12 +5067,7 @@ async function selesaikanMealPlan(hariKe) {
 
     // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
     if (!checkAllMealsUploaded(hariKe)) {
-        showMessage(
-            'warning',
-            'Masih ada meal plan yang belum diupload',
-            3000,
-            `mealPlanContent${hariKe}`
-        );
+        showMessage( 'warning', 'Masih ada meal plan yang belum diupload', 3000, `mealPlanContent${hariKe}` );
         return;
     }
 
@@ -5100,7 +5095,8 @@ async function selesaikanMealPlan(hariKe) {
         // 3️⃣ SIMPAN STATUS LOKAL
         localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
 
-        // 4️⃣ KUNCI UI (PAKAI lockMealPlanUI VERSI REVISI_14 ANDA)
+        showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealPlanContent${hariKe}` );
+        // 4️⃣ KUNCI UI lockMealPlanUI
         lockMealPlanUI(hariKe);
 
         // 5️⃣ CENTANG SUBMENU
