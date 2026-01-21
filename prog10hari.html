@@ -133,13 +133,18 @@ body { background-color: #f8f9fa; }
 .submenu-trigger { cursor: pointer; }
 .submenu-trigger:hover { background-color: #e7e7e7; color: #333;  }
 
-/* Warna Icon Menu */
-.menu-item i { width: 40px; margin-right: 10px; color: #000000;}
-/* Status Icon Lock */
-.status-lock { font-size: 10px; margin-left: 10px;  color: #002fff;}
-/* Status Icon Unlock */
-.status-unlock { font-size: 10px; margin-left: 10px; color: #ffffff;}
+/* Jarak Submenu danb Warna Icon */
+.menu-item i { width: 20px; margin-right: 10px; color: #000000;}
+/* Ukuran dan Status Icon Lock */
+.status-lock { font-size: 12px; margin-left: 10px;  color: #002fff;}
+/* Status dan Icon Unlock */
+.status-unlock { font-size: 12px; margin-left: 10px; color: #ffffff;}
 /***** Akhir Menu Accordian *****/
+
+/* Style untuk modul terkunci */
+.menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
+.status-lock { color: #000e3d; margin-left: 10px; }
+.status-unlock { color: #ffffff; margin-left: 10px; }
 
 /***** FIX POSITIONING UNTUK SUBMENU *****/
 
@@ -466,11 +471,6 @@ body { background-color: #f8f9fa; }
 /* Style untuk tombol centang video */
 .complete-btn { transition: all 0.3s ease; }
 .complete-btn:hover { transform: scale(1.1); background-color: #218838 !important; }
-
-/* Style untuk modul terkunci */
-.menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
-.status-lock { color: #000e3d; margin-left: 10px; }
-.status-unlock { color: #ffffff; margin-left: 10px; }
 
 /***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
 .notification-message {
@@ -1738,7 +1738,7 @@ function strictLockModul(hariKe) {
         const lockIcon = newHeader.querySelector('.status-lock, .status-unlock');
         if (lockIcon) {
             lockIcon.className = 'status-lock';
-            lockIcon.style.color = '#000e3d'; // Warna biru tua
+            //lockIcon.style.color = '#000e3d'; // Warna biru tua
         }
         
         // 5. Add tooltip "Selesaikan Perkenalan dulu"
@@ -1856,7 +1856,7 @@ function lockModul(hariKe) {
             let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
             if (lockIcon) {
                 lockIcon.className = 'fas fa-lock status-lock';
-                lockIcon.style.color = '#000e3d';
+                //lockIcon.style.color = '#000e3d';
             } else {
                 // Cari atau buat icon
                 const iconContainer = modulHeader.querySelector('span');
@@ -1864,11 +1864,11 @@ function lockModul(hariKe) {
                     const existingIcon = iconContainer.querySelector('i');
                     if (existingIcon) {
                         existingIcon.className = 'fas fa-lock status-lock';
-                        existingIcon.style.color = '#000e3d';
+                        //existingIcon.style.color = '#000e3d';
                     } else {
                         const newIcon = document.createElement('i');
                         newIcon.className = 'fas fa-lock status-lock';
-                        newIcon.style.color = '#000e3d';
+                        //newIcon.style.color = '#000e3d';
                         newIcon.style.marginLeft = '10px';
                         iconContainer.appendChild(newIcon);
                     }
