@@ -1737,7 +1737,6 @@ function strictLockModul(hariKe) {
         const lockIcon = newHeader.querySelector('.status-lock, .status-unlock');
         if (lockIcon) {
             lockIcon.className = 'status-lock';
-            //lockIcon.innerHTML = '<i class="fas fa-lock" style="font-size:18px"></i>';
             lockIcon.style.color = '#000e3d'; // Warna biru tua
         }
         
@@ -1790,7 +1789,6 @@ function unlockModul(hariKe) {
     if (lockIcon) {
         console.log('🔑 Found lock icon:', lockIcon.className);
         lockIcon.className = 'fas fa-unlock status-unlock';
-        lockIcon.innerHTML = '<i class="fas fa-unlock" style="font-size:18px"></i>';
         lockIcon.style.color = '#000e3d'; // Warna biru tua
     } else {
         console.warn('⚠️ No lock icon found, creating new one');
@@ -1799,7 +1797,6 @@ function unlockModul(hariKe) {
         if (iconContainer) {
             const newIcon = document.createElement('i');
             newIcon.className = 'fas fa-unlock status-unlock';
-            //newIcon.innerHTML = '<i class="fas fa-unlock" style="font-size:18px"></i>';
             newIcon.style.color = '#000e3d'; // Warna biru tua
             newIcon.style.marginLeft = '10px';
             iconContainer.appendChild(newIcon);
@@ -1858,7 +1855,6 @@ function lockModul(hariKe) {
             let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
             if (lockIcon) {
                 lockIcon.className = 'fas fa-lock status-lock';
-                //lockIcon.innerHTML = '<i class="fas fa-lock" style="font-size:18px"></i>';
                 lockIcon.style.color = '#000e3d';
             } else {
                 // Cari atau buat icon
@@ -1867,12 +1863,10 @@ function lockModul(hariKe) {
                     const existingIcon = iconContainer.querySelector('i');
                     if (existingIcon) {
                         existingIcon.className = 'fas fa-lock status-lock';
-                        //existingIcon.innerHTML = '<i class="fas fa-lock" style="font-size:18px"></i>';
                         existingIcon.style.color = '#000e3d';
                     } else {
                         const newIcon = document.createElement('i');
                         newIcon.className = 'fas fa-lock status-lock';
-                        //newIcon.innerHTML = '<i class="fas fa-lock" style="font-size:18px"></i>';
                         newIcon.style.color = '#000e3d';
                         newIcon.style.marginLeft = '10px';
                         iconContainer.appendChild(newIcon);
@@ -4730,10 +4724,6 @@ function getHariKeFromSection(section) {
 function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
-// *********************************************
-// ***** FUNGSI - FUNGSI UTK TAMPILAN FORM  ****
-// *********************************************
 
 /**********************************
 * Mengupdate Status Materi Unlock *
