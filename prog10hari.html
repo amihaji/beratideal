@@ -2369,7 +2369,31 @@ function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
 /*****************************************
 /* LOAD SAVED WORKOUT DATA DARI PROGRESS *
 /*****************************************/
-function loadWorkoutSavedData(hariKe, workoutData) {
+function loadWorkoutSavedData(hariKe) {
+  console.log(`💾 Loading saved workout data for day ${hariKe}`);
+
+  if (!window.userProgressData || !window.userProgressData.workoutData) {
+    console.warn('⚠️ Tidak ada workoutData tersimpan');
+    return;
+  }
+
+  const data = window.userProgressData.workoutData;
+  if (!data || typeof data !== 'object') {
+    console.warn('⚠️ workoutData invalid:', data);
+    return;
+  }
+
+  // Kardio
+  const kardioSelect = document.getElementById(`kardio${hariKe}`);
+  if (kardioSelect && data.kardio) {
+    kardioSelect.value = data.kardio;
+  }
+
+  // Resistance akan tetap dibuat oleh flow normal
+  console.log('✅ Workout saved data applied safely');
+}
+
+function BACKUP_loadWorkoutSavedData(hariKe, workoutData) {
     console.log('💾 Loading saved workout data:', workoutData);
     
     // 1. Set kardio type
@@ -5348,12 +5372,6 @@ async function selesaiWorkout(hariKe) {
 }
 
 /****************************************
- * SHOW WORKOUT FORM (FINAL FIX)
- * - Render workout form
- * - Load saved data
- * - Apply READ ONLY for user lama
- ****************************************/
-/****************************************
  * SHOW WORKOUT FORM (FINAL & PRECISE)
  * - Render workout form
  * - Load saved data
@@ -5362,70 +5380,53 @@ async function selesaiWorkout(hariKe) {
 function showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
-  // 1️⃣ Tampilkan submenu
   showSubmenu(`workoutContent${hariKe}`);
 
-  // 2️⃣ Generate form jika belum ada
   const containerId = `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`;
   const container = document.getElementById(containerId);
-
-  if (!container) {
-    console.warn(`❌ Workout container not found for day ${hariKe}`);
-    return;
-  }
+  if (!container) return;
 
   if (container.innerHTML.trim() === '') {
     generateWorkoutForm(hariKe);
-  } else {
-    setTimeout(() => {
-      loadWorkoutSavedData(hariKe);
-    }, 200);
   }
 
-  // 3️⃣ Setup event listeners (USER BARU)
   setTimeout(() => {
+    loadWorkoutSavedData(hariKe);
     setupWorkoutForDay(hariKe);
   }, 300);
 
-  // =================================================
-  // 🔒 READ ONLY MODE — USER LAMA (FINAL FIX)
-  // =================================================
-  if (
-    window.userProgress &&
-    window.userProgress[`workoutHari${hariKe}`] === true
-  ) {
-    console.log(`🔒 Workout hari ${hariKe} sudah selesai → READ ONLY`);
-
+  // ===============================
+  // 🔒 READ ONLY — USER LAMA
+  // ===============================
+  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
     setTimeout(() => {
       const section = document.getElementById(`workoutContent${hariKe}`);
       if (!section) return;
 
-      // ❌ Disable input utama
-      section.querySelectorAll(`
-        select,
-        input[type="radio"],
-        input[type="text"],
-        input[type="number"],
-        input[type="file"],
-        textarea
-      `).forEach(el => el.disabled = true);
+      console.log(`🔒 Apply READ ONLY workout hari ${hariKe}`);
 
-      // ❌ Disable tombol aksi workout
-      section.querySelectorAll(`
-        button.btn-start,
-        button.btn-stop,
-        button.btn-simpan,
-        button.btn-selesai
-      `).forEach(el => el.disabled = true);
+      // ❌ Disable INPUT
+      section.querySelectorAll(
+        'select, input[type="radio"], input[type="text"], input[type="number"], input[type="file"], textarea'
+      ).forEach(el => el.disabled = true);
 
-      // ✅ PASTIKAN TOMBOL INI TETAP AKTIF
-      section.querySelectorAll(`
-        .btn-close,
-        .btn-cek-disini
-      `).forEach(el => el.disabled = false);
+      // ❌ Disable tombol START & STOP (BERDASARKAN ID)
+      const btnStart = document.getElementById(`btnStart${hariKe}`);
+      const btnStop  = document.getElementById(`btnStop${hariKe}`);
+      const btnSave  = document.getElementById(`btnSimpanWorkout${hariKe}`);
+      const btnDone  = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+
+      if (btnStart) btnStart.disabled = true;
+      if (btnStop)  btnStop.disabled  = true;
+      if (btnSave)  btnSave.disabled  = true;
+      if (btnDone)  btnDone.disabled  = true;
+
+      // ✅ PASTIKAN INI TETAP AKTIF
+      section.querySelectorAll('.btn-close, .btn-cek-disini')
+        .forEach(el => el.disabled = false);
 
       console.log(`✅ Workout hari ${hariKe} READ ONLY (X & Cek Disini aktif)`);
-    }, 500);
+    }, 600);
   }
 }
 
