@@ -5931,6 +5931,60 @@ function loadSavedWorkoutData(hariKe) {
 * Fungsi khusus untuk hari tertentu *
 *************************************/
 function setupWorkoutForDay(hariKe) {
+  console.log(`🔧 Setting up workout for day ${hariKe}`);
+
+  const kardioSelect   = document.getElementById(`kardioSelect${hariKe}`);
+  const uploadBtn      = document.getElementById(`uploadKardioBtn${hariKe}`);
+  const startBtn       = document.getElementById(`btnStartWorkout${hariKe}`);
+  const stopBtn        = document.getElementById(`btnStopWorkout${hariKe}`);
+  const simpanBtn      = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  const selesaiBtn     = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+
+  // ===============================
+  // 🔒 GUARD UTAMA – USER LAMA
+  // ===============================
+  if (
+    window.userProgress &&
+    window.userProgress[`workoutHari${hariKe}`] === true
+  ) {
+    console.log(`🔒 Workout hari ${hariKe} sudah selesai → READ ONLY`);
+
+    if (kardioSelect) kardioSelect.disabled = true;
+    if (uploadBtn)    uploadBtn.disabled    = true;
+    if (startBtn)     startBtn.disabled     = true;
+    if (stopBtn)      stopBtn.disabled      = true;
+    if (simpanBtn)    simpanBtn.disabled    = true;
+    if (selesaiBtn)   selesaiBtn.disabled   = true;
+
+    return; // ⛔ STOP TOTAL, JANGAN PASANG EVENT
+  }
+
+  // ===============================
+  // ⬇️ USER BARU → EVENT NORMAL
+  // ===============================
+
+  if (startBtn && stopBtn) {
+    startBtn.addEventListener('click', () => startWorkout(hariKe));
+    stopBtn.addEventListener('click', () => stopWorkout(hariKe));
+  }
+
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', () => uploadKardioFile(hariKe));
+  }
+
+  if (simpanBtn) {
+    simpanBtn.addEventListener('click', () => simpanWorkout(hariKe));
+  }
+
+  if (selesaiBtn) {
+    selesaiBtn.addEventListener('click', () => selesaiWorkout(hariKe));
+  }
+
+  console.log(`✅ Workout event listeners aktif untuk hari ${hariKe}`);
+}
+
+
+function BACKUP_setupWorkoutForDay(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
     
     // Cek status workout
