@@ -2190,9 +2190,6 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 /********************************************
 /* APPLY COMPLETE PROGRESS TO UI - DETAILED *
 /********************************************/
-/********************************************
-/* APPLY COMPLETE PROGRESS TO UI - FINAL FIX *
-/********************************************/
 function applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
@@ -2218,7 +2215,9 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'materiHari1',   type: 'materi' },
     { field: 'mealplanHari1', type: 'mealplan' },
     { field: 'workoutHari1',  type: 'workout' },
-    { field: 'waterHari1',    type: 'water' }
+    { field: 'waterHari1',    type: 'water' },
+    { field: 'istirahatHari1', type: 'istirahat' },
+    { field: 'datatrackingHari1', type: 'datatracking' }
   ];
 
   progressMap.forEach(item => {
@@ -2227,11 +2226,11 @@ function applyCompleteProgressToUI(progress, hariKe) {
 
       // tandai progress global
       window.userProgress[item.field] = true;
+ 
+      // ✅ PARAMETER BENAR: (type, hariKe)
+      updateSubmenuLinkUI(item.type, hariKe);
 
-      // update submenu checklist
-      updateSubmenuLinkUI(hariKe, item.type);
-
-      // disable UI sesuai jenis
+      // 🔒 LOCK UI SESUAI TYPE
       disableButtonsAfterCompletion(hariKe, item.type);
     }
   });
