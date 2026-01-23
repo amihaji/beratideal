@@ -5347,10 +5347,79 @@ async function selesaiWorkout(hariKe) {
     showWorkoutForm(hariKe);
 }
 
-/****************************************************
-* Tampilkan form workout dengan struktur yang benar *
-*****************************************************/
+/****************************************
+ * SHOW WORKOUT FORM (FINAL FIX)
+ * - Render workout form
+ * - Load saved data
+ * - Apply READ ONLY for user lama
+ ****************************************/
 function showWorkoutForm(hariKe) {
+  console.log(`👟 Showing workout form for day ${hariKe}`);
+
+  // 1️⃣ Tampilkan submenu
+  showSubmenu(`workoutContent${hariKe}`);
+
+  // 2️⃣ Generate form jika belum ada
+  const containerId = `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`;
+  const container = document.getElementById(containerId);
+
+  if (!container) {
+    console.warn(`❌ Workout container not found for day ${hariKe}`);
+    return;
+  }
+
+  if (container.innerHTML.trim() === '') {
+    generateWorkoutForm(hariKe);
+  } else {
+    // Load data lama jika ada
+    setTimeout(() => {
+      loadWorkoutSavedData(hariKe);
+    }, 200);
+  }
+
+  // 3️⃣ Setup event listeners workout (UNTUK USER BARU)
+  setTimeout(() => {
+    setupWorkoutForDay(hariKe);
+  }, 300);
+
+  // =================================================
+  // 🔒 FINAL READ-ONLY LOCK (USER LAMA)
+  // =================================================
+  if (
+    window.userProgress &&
+    window.userProgress[`workoutHari${hariKe}`] === true
+  ) {
+    console.log(`🔒 Workout hari ${hariKe} sudah selesai → READ ONLY`);
+
+    // ⏱️ WAJIB delay karena form dibuat async
+    setTimeout(() => {
+      const workoutSection = document.getElementById(`workoutContent${hariKe}`);
+      if (!workoutSection) {
+        console.warn(`❌ workoutContent${hariKe} tidak ditemukan`);
+        return;
+      }
+
+      workoutSection
+        .querySelectorAll('input, select, textarea, button')
+        .forEach(el => {
+          // ✅ KECUALI tombol X & Cek Disini
+          if (
+            el.classList.contains('btn-close') ||
+            el.classList.contains('btn-cek-disini')
+          ) {
+            el.disabled = false;
+          } else {
+            el.disabled = true;
+          }
+        });
+
+      console.log(`✅ Workout hari ${hariKe} benar-benar READ ONLY`);
+    }, 500);
+  }
+}
+
+
+function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
   // 1️⃣ Sembunyikan submenu lain
