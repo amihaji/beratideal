@@ -2223,13 +2223,10 @@ function applyCompleteProgressToUI(progress, hariKe) {
   progressMap.forEach(item => {
     if (progress[item.field] === true) {
       console.log(`✅ ${item.type} hari ${hariKe} selesai`);
-
       // tandai progress global
       window.userProgress[item.field] = true;
- 
       // ✅ PARAMETER BENAR: (type, hariKe)
       updateSubmenuLinkUI(item.type, hariKe);
-
       // 🔒 LOCK UI SESUAI TYPE
       disableButtonsAfterCompletion(hariKe, item.type);
     }
