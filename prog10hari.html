@@ -5409,6 +5409,65 @@ function showWorkoutForm(hariKe) {
   setupWorkoutEventListeners(hariKe);
 }
 
+function setupWorkoutEventListeners(hariKe) {
+  console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
+
+  const isCompleted =
+    window.serverProgress &&
+    window.serverProgress[`workoutHari${hariKe}`] === true;
+
+  // ============================
+  // JIKA USER LAMA → JANGAN PASANG EVENT
+  // ============================
+  if (isCompleted) {
+    console.log(`🔒 Workout hari ${hariKe} selesai → skip event listeners`);
+    return;
+  }
+
+  // ============================
+  // USER BARU → EVENT AKTIF
+  // ============================
+
+  const kardioSelect = document.getElementById(`kardio${hariKe}`);
+  const uploadBtn   = document.getElementById(`uploadWorkout${hariKe}`);
+  const startBtn    = document.getElementById(`startWorkout${hariKe}`);
+  const stopBtn     = document.getElementById(`stopWorkout${hariKe}`);
+  const simpanBtn   = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  const selesaiBtn  = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+
+  if (kardioSelect) {
+    kardioSelect.onchange = () =>
+      console.log('🏃 Kardio dipilih:', kardioSelect.value);
+  }
+
+  if (uploadBtn) {
+    uploadBtn.onclick = () =>
+      console.log('📤 Upload workout diklik');
+  }
+
+  if (startBtn) {
+    startBtn.onclick = () =>
+      console.log('▶️ Start workout');
+  }
+
+  if (stopBtn) {
+    stopBtn.onclick = () =>
+      console.log('⏹ Stop workout');
+  }
+
+  if (simpanBtn) {
+    simpanBtn.onclick = () =>
+      console.log('💾 Simpan workout');
+  }
+
+  if (selesaiBtn) {
+    selesaiBtn.onclick = () =>
+      console.log('✅ Selesai workout');
+  }
+
+  console.log(`✅ Workout event listeners aktif untuk hari ${hariKe}`);
+}
+
 function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
