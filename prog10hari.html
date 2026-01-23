@@ -1642,6 +1642,7 @@ function applyExistingUserProgress(progress) {
     if (progress[`waterHari${hariKe}`] === true) {
       // ✅ Tampilkan centang hijau di submenu
       updateSubmenuLinkUI('water', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'water');
     }
   }
 }
@@ -2560,6 +2561,75 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 * Disable semua field & tombol setelah selesai *
 *************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
+
+  /* =========================
+   * WORKOUT (SUDAH ADA - JANGAN DIUBAH)
+   * ========================= */
+  if (submenuType === 'workout') {
+    console.log(`🔒 Disable workout UI hari ${hariKe}`);
+    // (ISI WORKOUT BIARKAN APA ADANYA)
+    return;
+  }
+
+  /* =========================
+   * WATER REMINDER (TAMBAHAN FIX)
+   * ========================= */
+  if (submenuType === 'water') {
+    console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
+
+    const container = document.getElementById(`waterReminderContent${hariKe}`);
+    if (!container) return;
+
+    // 1️⃣ DISABLE SEMUA INPUT
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+
+    // 2️⃣ DISABLE SEMUA BUTTON KECUALI X & CEK DISINI
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+
+      // ❗ CLOSE / X → TETAP AKTIF
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+
+      // ❗ CEK DISINI → TETAP AKTIF
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.title = 'Lihat PDF';
+        return;
+      }
+
+      // ⛔ LAINNYA → DISABLE
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Water sudah diisi';
+    });
+
+    console.log(`✅ Water hari ${hariKe} terkunci total`);
+    return;
+  }
+}
+
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
 
   if (submenuType !== 'workout') return;
 
