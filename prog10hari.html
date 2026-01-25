@@ -5132,43 +5132,45 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
+/****************************************
+ * SHOW WORKOUT FORM (FINAL & STABIL)
+ ****************************************/
 function showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
-  // 🔑 USER LAMA & WORKOUT SUDAH SELESAI
-  if (window.userProgress?.[`workoutHari${hariKe}`]) {
-    console.log(`🔒 Workout hari ${hariKe} SUDAH SELESAI → READ ONLY`);
+  const targetId = `workoutContent${hariKe}`;
 
-    showSubmenuReadOnly(`workoutContent${hariKe}`);
-    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+  // =========================
+  // 🔒 USER LAMA (SUDAH SELESAI)
+  // =========================
+  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
+    console.log(`🔒 Workout hari ${hariKe} READ ONLY (user lama)`);
 
-    return; // ⛔ STOP TOTAL (INI WAJIB)
+    // tampilkan submenu TANPA render ulang
+    showSubmenuReadOnly(targetId);
+
+    // pastikan tombol X & Cek Disini tetap aktif
+    enableCloseAndCekDisini(targetId);
+
+    return; // ⛔ STOP TOTAL
   }
 
   // =========================
-  // USER BARU / BELUM SELESAI
+  // 🟢 USER BARU
   // =========================
-  showSubmenu(`workoutContent${hariKe}`);
+  showSubmenu(targetId);
 
   const container = document.getElementById(
     `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
   );
   if (!container) return;
 
-  // 🔹 RENDER FORM (HANYA SEKALI)
+  // render hanya SEKALI
   if (container.innerHTML.trim() === '') {
     container.innerHTML = createWorkoutFormHTML(hariKe);
 
-    // 🔹 WAJIB: resistance
+    // setup resistance + tombol
     setupResistanceExercises(hariKe);
-
-    // 🔹 WAJIB: event listener (INI YANG KAMU TANYA)
-    setupWorkoutEventListeners(hariKe);
-  }
-
-  // 🔹 load data kalau ada (AMAN untuk user baru)
-  if (window.workoutSavedData?.[`hari${hariKe}`]) {
-    loadWorkoutSavedData(hariKe, window.workoutSavedData[`hari${hariKe}`]);
   }
 }
 
@@ -5926,101 +5928,94 @@ function createWorkoutFormHTML(hariKe) {
 /****************************
 * Daftar Olahraga Resisten  *
 *****************************/   
+/****************************
+* SETUP RESISTANCE (FINAL)
+*****************************/
 function setupResistanceExercises(hariKe) {
-    console.log(`🏋️ Setting up resistance exercises for day ${hariKe}`);
-    
-    const containerId = `resistance-section${hariKe}`;
-    const container = document.getElementById(containerId);
-    
-    if (!container) {
-        console.error(`❌ Resistance container not found: ${containerId}`);
-        return;
-    }
+  console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
 
-    // ==============================
-    // JIKA FORM SUDAH ADA → JANGAN BUAT ULANG
-    // ==============================
-    const existingDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-    const existingContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
-    
-    if (existingDropdown && existingContainer) {
-        console.log(`🔄 Resistance form sudah ada untuk hari ${hariKe}`);
+  const container = document.getElementById(`resistance-section${hariKe}`);
+  if (!container) {
+    console.error(`❌ Resistance container tidak ditemukan hari ${hariKe}`);
+    return;
+  }
 
-        // Re-bind event dropdown
-        existingDropdown.onchange = null;
-        existingDropdown.addEventListener('change', function () {
-            const selectedValue = this.value;
-            if (selectedValue) {
-                addResistanceExercise(hariKe, selectedValue);
-                this.value = '';
-            }
-        });
+  // =========================
+  // JIKA SUDAH ADA → JANGAN BUAT ULANG
+  // =========================
+  const existingDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+  const existingSelected = document.getElementById(`selectedResistanceContainer${hariKe}`);
 
-        // Load data jika ada
-        loadSavedResistanceData(hariKe);
+  if (existingDropdown && existingSelected) {
+    console.log(`🔄 Resistance sudah ada hari ${hariKe}`);
 
-        return; // ⛔ STOP — JANGAN LOCK DI SINI
-    }
+    // rebind dropdown
+    existingDropdown.onchange = null;
+    existingDropdown.addEventListener('change', function () {
+      if (this.value) {
+        addResistanceExercise(hariKe, this.value);
+        this.value = '';
+      }
+    });
 
-    // ==============================
-    // FORM BELUM ADA → BUAT BARU
-    // ==============================
-    console.log(`⚙️ Membuat form resistance baru untuk hari ${hariKe}`);
-    
-    const resistanceExercises = ["Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"];
-    
-    const wrapper = document.createElement("div");
-    wrapper.className = "mb-3";
-    wrapper.innerHTML = `  
-        <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
-        <div class="mb-3">
-            <select class="form-select" id="resistanceDropdown${hariKe}" style="max-width: 100%;">
-                <option value="">Pilih Olahraga Resistance...</option>
-                ${resistanceExercises.map(exercise => 
-                    `<option value="${exercise}">${exercise}</option>`
-                ).join('')}
-            </select>
-        </div>
-        
-        <div id="selectedResistanceContainer${hariKe}">
-            <!-- Selected exercises will appear here -->
-        </div>
-        
-        <!-- TOMBOL SIMPAN DAN SELESAI WORKOUT -->
-        <div class="mt-4 mb-3 p-1">
-            <div class="text-left">
-                <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
-                    <i class="fa fa-pencil-square-o"></i> Simpan
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
-                    <i class="fa fa-check"></i> Selesai Workout
-                </button>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML = '';
-    container.appendChild(wrapper);
-
-    // Dropdown event
-    setTimeout(() => {
-        const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-        if (dropdown) {
-            dropdown.addEventListener('change', function() {
-                const selectedValue = this.value;
-                if (selectedValue) {
-                    addResistanceExercise(hariKe, selectedValue);
-                    this.value = '';
-                }
-            });
-        }
-    }, 100);
-
-    // Load saved resistance (kalau ada)
     loadSavedResistanceData(hariKe);
+    return;
+  }
 
-    // 🔑 EVENT LISTENER WORKOUT HANYA DI SINI
-    setupWorkoutForDay(hariKe);
+  // =========================
+  // BUAT FORM BARU
+  // =========================
+  const resistanceExercises = [
+    "Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"
+  ];
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "mb-3";
+  wrapper.innerHTML = `
+    <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
+
+    <div class="mb-3">
+      <select class="form-select" id="resistanceDropdown${hariKe}">
+        <option value="">Pilih Olahraga Resistance...</option>
+        ${resistanceExercises.map(r => `<option value="${r}">${r}</option>`).join('')}
+      </select>
+    </div>
+
+    <div id="selectedResistanceContainer${hariKe}"></div>
+
+    <div class="mt-4 mb-3 p-1">
+      <div class="text-left">
+        <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
+          <i class="fa fa-pencil-square-o"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
+          <i class="fa fa-check"></i> Selesai Workout
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = '';
+  container.appendChild(wrapper);
+
+  // dropdown event
+  setTimeout(() => {
+    const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+    if (dropdown) {
+      dropdown.addEventListener('change', function () {
+        if (this.value) {
+          addResistanceExercise(hariKe, this.value);
+          this.value = '';
+        }
+      });
+    }
+  }, 100);
+
+  // load saved resistance
+  loadSavedResistanceData(hariKe);
+
+  // 🔑 setup tombol Simpan & Selesai
+  setupWorkoutForDay(hariKe);
 }
 
 
