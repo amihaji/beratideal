@@ -5170,6 +5170,76 @@ function showWorkoutForm(hariKe) {
 function setupWorkoutEventListeners(hariKe) {
   console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
 
+  // =========================
+  // ELEMENT
+  // =========================
+  const btnUpload = document.getElementById(`btnUploadKardio${hariKe}`);
+  const inputUpload = document.getElementById(`kegiatanKardio${hariKe}`);
+
+  const btnStart = document.getElementById(`btnStartOlahraga${hariKe}`);
+  const btnStop  = document.getElementById(`btnStopOlahraga${hariKe}`);
+
+  const inputStart = document.getElementById(`startOlahraga${hariKe}`);
+  const inputStop  = document.getElementById(`stopOlahraga${hariKe}`);
+
+  // =========================
+  // VALIDASI
+  // =========================
+  if (!btnUpload || !btnStart || !btnStop) {
+    console.warn(`⚠️ Tombol workout tidak lengkap hari ${hariKe}`);
+    return;
+  }
+
+  // =========================
+  // 📂 UPLOAD (FIX FINAL)
+  // =========================
+  let fileInput = document.getElementById(`fileUploadKardio${hariKe}`);
+  if (!fileInput) {
+    fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*,application/pdf";
+    fileInput.id = `fileUploadKardio${hariKe}`;
+    fileInput.style.display = "none";
+    document.body.appendChild(fileInput);
+  }
+
+  btnUpload.onclick = () => {
+    console.log(`📂 Klik Upload hari ${hariKe}`);
+    fileInput.click();
+  };
+
+  fileInput.onchange = () => {
+    if (fileInput.files.length > 0) {
+      inputUpload.value = fileInput.files[0].name;
+      console.log(`✅ File dipilih:`, fileInput.files[0].name);
+    }
+  };
+
+  // =========================
+  // ⏱️ START
+  // =========================
+  btnStart.onclick = () => {
+    const now = new Date();
+    inputStart.value = now.toTimeString().slice(0, 5);
+    console.log(`▶️ Start olahraga hari ${hariKe}: ${inputStart.value}`);
+  };
+
+  // =========================
+  // ⏹️ STOP
+  // =========================
+  btnStop.onclick = () => {
+    const now = new Date();
+    inputStop.value = now.toTimeString().slice(0, 5);
+    console.log(`⏹️ Stop olahraga hari ${hariKe}: ${inputStop.value}`);
+  };
+
+  console.log(`✅ Workout event listeners BENAR-BENAR aktif untuk hari ${hariKe}`);
+}
+
+
+function BACKUP_setupWorkoutEventListeners(hariKe) {
+  console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
+
   const isCompleted =
     window.serverProgress &&
     window.serverProgress[`workoutHari${hariKe}`] === true;
