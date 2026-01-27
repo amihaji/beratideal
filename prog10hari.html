@@ -5164,7 +5164,6 @@ function showWorkoutForm(hariKe) {
   setupWorkoutForDay(hariKe);
 }
 
-
 function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
@@ -5806,6 +5805,35 @@ function loadSavedWorkoutData(hariKe) {
 * Fungsi khusus untuk hari tertentu *
 *************************************/
 function setupWorkoutForDay(hariKe) {
+  console.log(`🔧 Setting up workout for day ${hariKe}`);
+
+  // 🔒 JIKA USER LAMA & WORKOUT SUDAH SELESAI → READ ONLY
+  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
+    console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
+
+    // kunci UI
+    disableWorkoutUI(hariKe);
+
+    // pastikan X & Cek Disini tetap aktif
+    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+
+    return; // ⛔ STOP
+  }
+
+  // ============================
+  // 🟢 USER BARU (INI YANG HILANG)
+  // ============================
+  console.log(`🟢 Workout hari ${hariKe} USER BARU → AKTIF`);
+
+  // ⛔ JANGAN panggil disableWorkoutUI di sini
+  // BIARKAN SEMUA INPUT AKTIF
+
+  // Setup event tombol Start / Stop / Upload
+  setupWorkoutEventListeners(hariKe);
+}
+
+
+function BACKUP_setupWorkoutForDay(hariKe) {
   console.log(`🔧 Setting up workout for day ${hariKe}`);
 
   const kardioSelect   = document.getElementById(`kardioSelect${hariKe}`);
