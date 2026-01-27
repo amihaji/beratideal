@@ -6035,8 +6035,57 @@ function isWorkoutCompleted(hariKe) {
 * Apply Read-Only Mode untuk Workout yang Sudah Selesai *
 *********************************************************/
 function applyWorkoutReadOnlyMode(hariKe) {
+
+  // ✅ USER BARU → STOP
+  if (!window.userProgress || !window.userProgress[`workoutHari${hariKe}`]) {
+    console.log(`🟢 applyWorkoutReadOnlyMode SKIP (USER BARU) hari ${hariKe}`);
+    return;
+  }
+
+  console.log(`🔒 Apply READ ONLY workout hari ${hariKe}`);
+
+  disableWorkoutUI(hariKe);
+
+  // ✅ X & Cek Disini TETAP AKTIF
+  enableCloseAndCekDisini(`workoutContent${hariKe}`);
+}
+
+function disableWorkoutUI(hariKe) {
+  // ✅ USER BARU → JANGAN DI-LOCK
+  if (!window.userProgress || !window.userProgress[`workoutHari${hariKe}`]) {
+    console.log(`🟢 disableWorkoutUI SKIP (USER BARU) hari ${hariKe}`);
+    return;
+  }
+  console.log(`🔒 Disable workout UI hari ${hariKe} (USER LAMA)`);
+
+  const idsToDisable = [
+    `olahragaKardio${hariKe}`,
+    `kegiatanKardio${hariKe}`,
+    `btnUploadKardio${hariKe}`,
+    `btnStartOlahraga${hariKe}`,
+    `btnStopOlahraga${hariKe}`,
+    `startOlahraga${hariKe}`,
+    `stopOlahraga${hariKe}`,
+    `resistanceDropdown${hariKe}`,
+    `btnSimpanWorkout${hariKe}`,
+    `btnSelesaiWorkout${hariKe}`
+  ];
+
+  idsToDisable.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = true;
+      el.style.pointerEvents = "none";
+    }
+  });
+
+  // ✅ PASTIKAN X & Cek Disini tetap aktif
+  enableCloseAndCekDisini(`workoutContent${hariKe}`);
+}
+
+function BACKUP_applyWorkoutReadOnlyMode(hariKe) {
     console.log(`🔒 Applying read-only mode for workout day ${hariKe}`);
-    
+   
     // 1. Nonaktifkan dropdown utama
     const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
     if (dropdown) {
