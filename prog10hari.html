@@ -5132,10 +5132,40 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
-/****************************************
- * SHOW WORKOUT FORM (FINAL - STABIL)
- ****************************************/
 function showWorkoutForm(hariKe) {
+  console.log(`👟 Showing workout form for day ${hariKe}`);
+
+  // 🔒 USER LAMA
+  if (window.userProgress?.[`workoutHari${hariKe}`]) {
+    console.log(`🔒 Workout hari ${hariKe} USER LAMA`);
+    showSubmenuReadOnly(`workoutContent${hariKe}`);
+    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+    return;
+  }
+
+  // 🟢 USER BARU
+  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
+  showSubmenu(`workoutContent${hariKe}`);
+
+  const container = document.getElementById(
+    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
+  );
+  if (!container) return;
+
+  // ⛔ INI YANG SELAMA INI SALAH / KURANG
+  if (container.innerHTML.trim() === '') {
+    container.innerHTML = createWorkoutFormHTML(hariKe);
+
+    // 🔑 WAJIB → TANPA INI, RESISTANCE & TOMBOL TIDAK AKAN ADA
+    setupResistanceExercises(hariKe);
+  }
+
+  // 🔑 EVENT LISTENER (UPLOAD, START, STOP, SIMPAN)
+  setupWorkoutForDay(hariKe);
+}
+
+
+function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
   const contentId = `workoutContent${hariKe}`;
