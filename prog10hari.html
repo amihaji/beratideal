@@ -5132,83 +5132,55 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
+/****************************************
+ * SHOW WORKOUT FORM (FINAL - STABIL)
+ ****************************************/
 function showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
-  const targetId = `workoutContent${hariKe}`;
-  const container = document.getElementById(
-    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
-  );
+  const contentId = `workoutContent${hariKe}`;
+  const containerId = `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`;
+  const container = document.getElementById(containerId);
 
   if (!container) {
-    console.error('❌ Container workout tidak ditemukan');
+    console.error(`❌ Workout container tidak ditemukan: ${containerId}`);
     return;
   }
 
-  // =========================
-  // 🔒 USER LAMA (READ ONLY)
-  // =========================
+  // ===============================
+  // 🔒 USER LAMA (WORKOUT SELESAI)
+  // ===============================
   if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
-    console.log(`🔒 Workout hari ${hariKe} READ ONLY`);
+    console.log(`🔒 Workout hari ${hariKe} READ ONLY (USER LAMA)`);
 
-    showSubmenuReadOnly(targetId);
-    enableCloseAndCekDisini(targetId);
+    showSubmenuReadOnly(contentId);
 
-    return; // ⛔ STOP TOTAL
+    // Pastikan form SUDAH ADA (tidak render ulang)
+    if (container.innerHTML.trim() === '') {
+      container.innerHTML = createWorkoutFormHTML(hariKe);
+      setupResistanceExercises(hariKe);
+    }
+
+    applyWorkoutReadOnlyMode(hariKe);
+    enableCloseAndCekDisini(contentId);
+    return;
   }
 
-  // =========================
-  // 🟢 USER BARU
-  // =========================
-  showSubmenu(targetId);
+  // ===============================
+  // 🟢 USER BARU (BELUM SELESAI)
+  // ===============================
+  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
 
-  // render HANYA SEKALI
+  showSubmenu(contentId);
+
+  // Render HANYA SEKALI
   if (container.innerHTML.trim() === '') {
     container.innerHTML = createWorkoutFormHTML(hariKe);
-
-    // ⚠️ URUTAN INI WAJIB
-    setupResistanceExercises(hariKe);
-    setupWorkoutForDay(hariKe); // ⬅️ INI YANG HILANG SEBELUMNYA
-  }
-}
-
-function BACKUP_showWorkoutForm(hariKe) {
-  console.log(`👟 Showing workout form for day ${hariKe}`);
-
-  const targetId = `workoutContent${hariKe}`;
-
-  // =========================
-  // 🔒 USER LAMA (SUDAH SELESAI)
-  // =========================
-  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
-    console.log(`🔒 Workout hari ${hariKe} READ ONLY (user lama)`);
-
-    // tampilkan submenu TANPA render ulang
-    showSubmenuReadOnly(targetId);
-
-    // pastikan tombol X & Cek Disini tetap aktif
-    enableCloseAndCekDisini(targetId);
-
-    return; // ⛔ STOP TOTAL
-  }
-
-  // =========================
-  // 🟢 USER BARU
-  // =========================
-  showSubmenu(targetId);
-
-  const container = document.getElementById(
-    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
-  );
-  if (!container) return;
-
-  // render hanya SEKALI
-  if (container.innerHTML.trim() === '') {
-    container.innerHTML = createWorkoutFormHTML(hariKe);
-
-    // setup resistance + tombol
     setupResistanceExercises(hariKe);
   }
+
+  // Aktifkan event workout NORMAL
+  setupWorkoutForDay(hariKe);
 }
 
 function setupWorkoutEventListeners(hariKe) {
@@ -5931,9 +5903,66 @@ function createWorkoutFormHTML(hariKe) {
 }
 
 /****************************
-* Daftar Olahraga Resisten  *
-*****************************/   
+ * SETUP RESISTANCE (FINAL)
+ ****************************/
 function setupResistanceExercises(hariKe) {
+  console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
+
+  const container = document.getElementById(`resistance-section${hariKe}`);
+  if (!container) {
+    console.error(`❌ Resistance container tidak ditemukan`);
+    return;
+  }
+
+  // Jika sudah ada → JANGAN buat ulang
+  if (document.getElementById(`resistanceDropdown${hariKe}`)) {
+    console.log(`🔄 Resistance form sudah ada hari ${hariKe}`);
+    loadSavedResistanceData(hariKe);
+    return;
+  }
+
+  const resistanceExercises = [
+    "Squat", "Lunge", "Push Up", "Sit Up",
+    "Plank", "Pilates", "Yoga"
+  ];
+
+  container.innerHTML = `
+    <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
+
+    <div class="mb-3">
+      <select class="form-select" id="resistanceDropdown${hariKe}">
+        <option value="">Pilih Olahraga Resistance...</option>
+        ${resistanceExercises.map(e => `<option value="${e}">${e}</option>`).join('')}
+      </select>
+    </div>
+
+    <div id="selectedResistanceContainer${hariKe}"></div>
+
+    <div class="mt-4 mb-3">
+      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
+        <i class="fa fa-pencil-square-o"></i> Simpan
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
+        <i class="fa fa-check"></i> Selesai Workout
+      </button>
+    </div>
+  `;
+
+  // Event dropdown
+  document
+    .getElementById(`resistanceDropdown${hariKe}`)
+    .addEventListener('change', function () {
+      if (this.value) {
+        addResistanceExercise(hariKe, this.value);
+        this.value = '';
+      }
+    });
+
+  loadSavedResistanceData(hariKe);
+}
+
+
+function BACKUP_setupResistanceExercises(hariKe) {
   console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
 
   const container = document.getElementById(`resistance-section${hariKe}`);
@@ -5989,93 +6018,6 @@ function setupResistanceExercises(hariKe) {
   });
 
   loadSavedResistanceData(hariKe);
-}
-
-function BACKUP_setupResistanceExercises(hariKe) {
-  console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
-
-  const container = document.getElementById(`resistance-section${hariKe}`);
-  if (!container) {
-    console.error(`❌ Resistance container tidak ditemukan hari ${hariKe}`);
-    return;
-  }
-
-  // =========================
-  // JIKA SUDAH ADA → JANGAN BUAT ULANG
-  // =========================
-  const existingDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-  const existingSelected = document.getElementById(`selectedResistanceContainer${hariKe}`);
-
-  if (existingDropdown && existingSelected) {
-    console.log(`🔄 Resistance sudah ada hari ${hariKe}`);
-
-    // rebind dropdown
-    existingDropdown.onchange = null;
-    existingDropdown.addEventListener('change', function () {
-      if (this.value) {
-        addResistanceExercise(hariKe, this.value);
-        this.value = '';
-      }
-    });
-
-    loadSavedResistanceData(hariKe);
-    return;
-  }
-
-  // =========================
-  // BUAT FORM BARU
-  // =========================
-  const resistanceExercises = [
-    "Squat", "Lunge", "Push Up", "Sit Up", "Plank", "Pilates", "Yoga"
-  ];
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-3";
-  wrapper.innerHTML = `
-    <h6 class="mt-3 mb-2">Olahraga Resistance :</h6>
-
-    <div class="mb-3">
-      <select class="form-select" id="resistanceDropdown${hariKe}">
-        <option value="">Pilih Olahraga Resistance...</option>
-        ${resistanceExercises.map(r => `<option value="${r}">${r}</option>`).join('')}
-      </select>
-    </div>
-
-    <div id="selectedResistanceContainer${hariKe}"></div>
-
-    <div class="mt-4 mb-3 p-1">
-      <div class="text-left">
-        <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
-          <i class="fa fa-pencil-square-o"></i> Simpan
-        </button>
-        <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}">
-          <i class="fa fa-check"></i> Selesai Workout
-        </button>
-      </div>
-    </div>
-  `;
-
-  container.innerHTML = '';
-  container.appendChild(wrapper);
-
-  // dropdown event
-  setTimeout(() => {
-    const dropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-    if (dropdown) {
-      dropdown.addEventListener('change', function () {
-        if (this.value) {
-          addResistanceExercise(hariKe, this.value);
-          this.value = '';
-        }
-      });
-    }
-  }, 100);
-
-  // load saved resistance
-  loadSavedResistanceData(hariKe);
-
-  // 🔑 setup tombol Simpan & Selesai
-  setupWorkoutForDay(hariKe);
 }
 
 function isWorkoutCompleted(hariKe) {
