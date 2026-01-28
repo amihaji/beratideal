@@ -5117,13 +5117,58 @@ function createMealPlanFormHTML(hariKe) {
 // *********************************************
 
 /*****************************************
-* Selesaikan workout untuk hari tertentu *
-******************************************/
+ * Selesaikan workout untuk hari tertentu
+ *****************************************/
 async function selesaiWorkout(hariKe) {
-    console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
-    
-    // Tampilkan form workout langsung
-    showWorkoutForm(hariKe);
+  console.log('🏁 Klik SELESAI workout hari:', hariKe);
+
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('error', 'User belum login', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId: userId,
+        hariKe: hariKe
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 completeWorkout response:', result);
+
+    if (result.trim() === 'OK') {
+
+      // 🔐 SIMPAN STATUS SELESAI
+      window.userProgress = window.userProgress || {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
+
+      localStorage.setItem(`workout_done_${hariKe}`, 'true');
+
+      // 🔒 DISABLE SELURUH UI WORKOUT
+      disableWorkoutUI(hariKe);
+      enableCloseAndCekDisini(`workoutContent${hariKe}`);
+
+      // ✅ CENTANG HIJAU SUBMENU
+      tandaiSubmenuSelesai(`workout${hariKe}`);
+      showMessage( 'success', 'Workout sudah selesai', 3000, `pertemuan${hariKe}` );
+
+      // tampilkan ulang sebagai READ ONLY
+      showWorkoutForm(hariKe);
+
+    } else {
+      showMessage( 'error', 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
+    }
+
+  } catch (err) {
+    console.error('❌ Error selesaiWorkout:', err);
+    showMessage( 'error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}` );
+  }
 }
 
 /****************************************
@@ -5132,7 +5177,40 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
-function showWorkoutForm(hariKe) {
+ function showWorkoutForm(hariKe) {
+  console.log(`👟 Showing workout form for day ${hariKe}`);
+
+  const isWorkoutDone =
+    window.userProgress?.[`workoutHari${hariKe}`] === true ||
+    localStorage.getItem(`workout_done_${hariKe}`) === 'true';
+
+  // 🔒 USER LAMA / SUDAH SELESAI
+  if (isWorkoutDone) {
+    console.log(`🔒 Workout hari ${hariKe} READ ONLY`);
+
+    showSubmenuReadOnly(`workoutContent${hariKe}`);
+    setupResistanceExercises(hariKe);
+    disableWorkoutUI(hariKe);
+    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+
+    return;
+  }
+
+  // 🟢 USER BARU
+  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
+  showSubmenu(`workoutContent${hariKe}`);
+
+  const container = document.getElementById( `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`);
+  if (!container) return;
+
+  // ⛳️ WAJIB: resistance selalu disiapkan
+  setupResistanceExercises(hariKe);
+
+  // ⛳️ AKTIFKAN EVENT WORKOUT
+  setupWorkoutForDay(hariKe);
+}
+
+function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
   // =========================
