@@ -1126,7 +1126,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw1YsFE6AnrJPO869-bOEtyblG3_d_UJKLdZTuxeR5PIAlAxidfMeiqsOAKoTiVzYF9/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycby2eY_sADK1nXJjQmCj8Ntt_9TNv5L3yLsl9FgtH9JNLvlSjEMptKRbDe4qhkTxho5b/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -2205,99 +2205,6 @@ function applyCompleteProgressToUI(progress, hariKe) {
   // ===============================
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
-  }
-
-  // ===============================
-  // DEFINISI SUBMENU HARI PERTAMA
-  // ===============================
-  const progressMap = [
-    { field: 'materiHari1',   type: 'materi' },
-    { field: 'mealplanHari1', type: 'mealplan' },
-    { field: 'workoutHari1',  type: 'workout' },
-    { field: 'waterHari1',    type: 'water' },
-    { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'datatrackingHari1', type: 'datatracking' }
-  ];
-
-  // ===============================
-  // APPLY STATUS KE UI
-  // ===============================
-  progressMap.forEach(item => {
-
-    // =====================================================
-    // 🔥 KHUSUS WORKOUT → HANYA SELESAI JIKA KOLOM Z = "OK"
-    // =====================================================
-    if (item.type === 'workout') {
-
-      const workoutStatus =
-        progress?.workoutStatus ||
-        progress?.workoutData?.workoutStatus ||
-        progress?.workoutData?.statusWorkout ||
-        progress?.workoutData?.workout ||
-        '';
-
-      if (workoutStatus === 'OK') {
-        console.log(`✅ workout hari ${hariKe} SELESAI (OK)`);
-
-        window.userProgress[item.field] = true;
-        updateSubmenuLinkUI(item.type, hariKe);
-        disableButtonsAfterCompletion(hariKe, item.type);
-
-      } else {
-        console.log(`🟢 workout hari ${hariKe} BELUM selesai`);
-        window.userProgress[item.field] = false;
-      }
-
-      return; // ⛔ STOP KHUSUS WORKOUT
-    }
-
-    // =====================================================
-    // ✅ SUBMENU LAIN (MATERI, MEALPLAN, DLL)
-    // =====================================================
-    if (progress[item.field] === true) {
-      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
-
-      window.userProgress[item.field] = true;
-      updateSubmenuLinkUI(item.type, hariKe);
-      disableButtonsAfterCompletion(hariKe, item.type);
-    }
-  });
-
-  // ===============================
-  // AUTO EXPAND MODUL (OPSIONAL)
-  // ===============================
-  if (
-    progress.perkenalan ||
-    progress.materiHari1 ||
-    progress.mealplanHari1 ||
-    progress.workoutStatus === 'OK' ||
-    progress.workoutData?.workout === 'OK' ||
-    progress.waterHari1
-  ) {
-    setTimeout(() => {
-      const header = document.querySelector(`[data-hari="${hariKe}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click();
-      }
-    }, 800);
-  }
-}
-
-function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
-  console.log('🎯 Applying COMPLETE progress to UI:', progress);
-
-  // ===============================
-  // INISIALISASI GLOBAL PROGRESS
-  // ===============================
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
-
-  // ===============================
-  // PERKENALAN
-  // ===============================
-  if (progress.perkenalan === true) {
-    unlockModul(hariKe);
     // updatePerkenalanUI(); // ⚠️ TANPA getCompletionStatus
   }
 
@@ -2343,7 +2250,6 @@ function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
     }, 800);
   }
 }
-
 
 /*****************************************
 /* LOAD SAVED WORKOUT DATA DARI PROGRESS *
@@ -5211,109 +5117,13 @@ function createMealPlanFormHTML(hariKe) {
 // *********************************************
 
 /*****************************************
- * Selesaikan workout untuk hari tertentu
- *****************************************/
+* Selesaikan workout untuk hari tertentu *
+******************************************/
 async function selesaiWorkout(hariKe) {
-  console.log('🏁 Klik SELESAI workout hari:', hariKe);
-
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('error', 'User belum login', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'completeWorkout',
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 completeWorkout response:', result);
-
-    if (result.trim() !== 'OK') {
-      showMessage('error', 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}`);
-      return;
-    }
-
-    // =====================
-    // ✅ STATUS FINAL
-    // =====================
-    window.userProgress = window.userProgress || {};
-    //window.userProgress[`workoutHari${hariKe}`] = true;
-    localStorage.setItem(`workout_done_${hariKe}`, 'true');
-
-    //tandaiSubmenuSelesai(`workout${hariKe}`);
-    disableWorkoutUI(hariKe);
-
-    showMessage(
-      'success',
-      'Workout sudah selesai',
-      3000,
-      `pertemuan${hariKe}`
-    );
-
-  } catch (err) {
-    console.error('❌ Error selesaiWorkout:', err);
-    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
-  }
-}
-
- async function BACKUP_selesaiWorkout(hariKe) {
-  console.log('🏁 Klik SELESAI workout hari:', hariKe);
-
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('error', 'User belum login', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'completeWorkout',
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 completeWorkout response:', result);
-
-    if (result.trim() === 'OK') {
-
-      // 🔐 SIMPAN STATUS SELESAI
-      window.userProgress = window.userProgress || {};
-      //window.userProgress[`workoutHari${hariKe}`] = true;
-
-      localStorage.setItem(`workout_done_${hariKe}`, 'true');
-
-      // 🔒 DISABLE SELURUH UI WORKOUT
-      disableWorkoutUI(hariKe);
-      //enableCloseAndCekDisini(`workoutContent${hariKe}`);
-
-      // ✅ CENTANG HIJAU SUBMENU
-      //tandaiSubmenuSelesai(`workout${hariKe}`);
-      showMessage( 'success', 'Workout sudah selesai', 3000, `pertemuan${hariKe}` );
-
-      // tampilkan ulang sebagai READ ONLY
-      showWorkoutForm(hariKe);
-
-    } else {
-      showMessage( 'error', 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
-    }
-
-  } catch (err) {
-    console.error('❌ Error selesaiWorkout:', err);
-    showMessage( 'error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}` );
-  }
+    console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
+    
+    // Tampilkan form workout langsung
+    showWorkoutForm(hariKe);
 }
 
 /****************************************
@@ -5322,35 +5132,7 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
- function showWorkoutForm(hariKe) {
-  console.log(`👟 Showing workout form for day ${hariKe}`);
-
-  const isDone = window.userProgress?.[`workoutHari${hariKe}`] === true;
-
-  // 🔒 USER LAMA (READ ONLY)
-  if (isDone) {
-    console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
-
-    showSubmenuReadOnly(`workoutContent${hariKe}`);
-    setupResistanceExercises(hariKe);
-    disableWorkoutUI(hariKe);
-    return;
-  }
-  // 🟢 USER BARU
-  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
-
-  showSubmenu(`workoutContent${hariKe}`);
-
-  const container = document.getElementById(
-    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
-  );
-  if (!container) return;
-
-  setupResistanceExercises(hariKe);
-  setupWorkoutForDay(hariKe);
-}
-
-function BACKUP_showWorkoutForm(hariKe) {
+function showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
   // =========================
@@ -5360,7 +5142,7 @@ function BACKUP_showWorkoutForm(hariKe) {
     console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
 
     showSubmenuReadOnly(`workoutContent${hariKe}`);
-    // enableCloseAndCekDisini(`workoutContent${hariKe}`);
+    enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
     // PASTIKAN resistance & tombol tetap dirender
     setupResistanceExercises(hariKe);
@@ -5385,104 +5167,97 @@ function BACKUP_showWorkoutForm(hariKe) {
   setupWorkoutForDay(hariKe);
 }
 
-/************************************************
- * SETUP WORKOUT EVENT LISTENERS (FINAL STABLE)
- * - USER BARU  : aktif semua
- * - USER LAMA  : read-only (ditangani di tempat lain)
- * - TANPA google.script.run
- ************************************************/
 function setupWorkoutEventListeners(hariKe) {
   console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
 
-  // ===============================
-  // AMBIL ELEMEN
-  // ===============================
-  const btnUpload  = document.getElementById(`btnUploadKardio${hariKe}`);
-  const btnStart   = document.getElementById(`btnStartOlahraga${hariKe}`);
-  const btnStop    = document.getElementById(`btnStopOlahraga${hariKe}`);
-  const btnSimpan  = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  const btnUpload = document.getElementById(`btnUploadKardio${hariKe}`);
+  const btnStart = document.getElementById(`btnStartOlahraga${hariKe}`);
+  const btnStop = document.getElementById(`btnStopOlahraga${hariKe}`);
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
   const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  const inputFile  = document.getElementById(`kegiatanKardio${hariKe}`);
-  const inputStart = document.getElementById(`startOlahraga${hariKe}`);
-  const inputStop  = document.getElementById(`stopOlahraga${hariKe}`);
 
-  if (!btnUpload || !btnStart || !btnStop || !btnSimpan || !btnSelesai) {
+  if (!btnSimpan || !btnSelesai) {
     console.warn(`⚠️ Tombol workout tidak lengkap hari ${hariKe}`);
     return;
   }
 
-  // ===============================
-  // RESET EVENT (ANTI DOUBLE BIND)
-  // ===============================
-  btnUpload.onclick  = null;
-  btnStart.onclick   = null;
-  btnStop.onclick    = null;
-  btnSimpan.onclick  = null;
-  btnSelesai.onclick = null;
-
-  // ===============================
-  // UPLOAD FILE KARDIO
-  // ===============================
-  btnUpload.onclick = () => {
-    console.log(`📂 Klik Upload hari ${hariKe}`);
-
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-
-    fileInput.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      console.log(`✅ File dipilih: ${file.name}`);
-      inputFile.value = file.name;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result.split(',')[1];
-        localStorage.setItem(`workout_kardio_file_${hariKe}`, base64);
-        localStorage.setItem(`workout_kardio_filename_${hariKe}`, file.name);
-      };
-      reader.readAsDataURL(file);
+  /* =============================
+   * UPLOAD
+   * ============================= */
+  if (btnUpload) {
+    btnUpload.onclick = () => {
+      console.log(`📂 Klik Upload hari ${hariKe}`);
+      document.getElementById(`kegiatanKardio${hariKe}`).removeAttribute('readonly');
     };
+  }
 
-    fileInput.click();
-  };
+  /* =============================
+   * START
+   * ============================= */
+  if (btnStart) {
+    btnStart.onclick = () => {
+      const now = new Date().toTimeString().slice(0, 5);
+      document.getElementById(`startOlahraga${hariKe}`).value = now;
+      console.log(`▶️ Start olahraga hari ${hariKe}: ${now}`);
+    };
+  }
 
-  // ===============================
-  // START OLAHRAGA
-  // ===============================
-  btnStart.onclick = () => {
-    const now = new Date();
-    const time = now.toTimeString().slice(0, 5);
-    inputStart.value = time;
-    console.log(`▶️ Start olahraga hari ${hariKe}: ${time}`);
-  };
+  /* =============================
+   * STOP
+   * ============================= */
+  if (btnStop) {
+    btnStop.onclick = () => {
+      const now = new Date().toTimeString().slice(0, 5);
+      document.getElementById(`stopOlahraga${hariKe}`).value = now;
+      console.log(`⏹️ Stop olahraga hari ${hariKe}: ${now}`);
+    };
+  }
 
-  // ===============================
-  // STOP OLAHRAGA
-  // ===============================
-  btnStop.onclick = () => {
-    const now = new Date();
-    const time = now.toTimeString().slice(0, 5);
-    inputStop.value = time;
-    console.log(`⏹️ Stop olahraga hari ${hariKe}: ${time}`);
-  };
-
-  // ===============================
-  // SIMPAN WORKOUT (PAKAI FUNGSI LAMA)
-  // ===============================
+  /* =============================
+   * SIMPAN  (INI YANG KRUSIAL)
+   * ============================= */
   btnSimpan.onclick = () => {
     console.log(`💾 SIMPAN workout hari ${hariKe}`);
-    simpanWorkoutData(hariKe);
+
+    google.script.run
+      .withSuccessHandler(() => {
+        alert('✅ Data workout berhasil disimpan');
+      })
+      .withFailureHandler(err => {
+        alert('❌ Gagal menyimpan workout');
+        console.error(err);
+      })
+      .saveWorkoutData({
+        userId: window.currentUserId,
+        hariKe: hariKe,
+        kardio: document.getElementById(`olahragaKardio${hariKe}`).value,
+        kegiatan: document.getElementById(`kegiatanKardio${hariKe}`).value,
+        startTime: document.getElementById(`startOlahraga${hariKe}`).value,
+        stopTime: document.getElementById(`stopOlahraga${hariKe}`).value,
+        resistance: getResistanceData(hariKe)
+      });
   };
 
-  // ===============================
-  // SELESAI WORKOUT (PAKAI FUNGSI LAMA)
-  // ===============================
+  /* =============================
+   * SELESAI (INI JUGA KRUSIAL)
+   * ============================= */
   btnSelesai.onclick = () => {
     console.log(`✅ SELESAI workout hari ${hariKe}`);
-    selesaiWorkout(hariKe);
+
+    google.script.run
+      .withSuccessHandler(() => {
+        alert('🏁 Workout hari ini sudah selesai');
+        window.userProgress[`workoutHari${hariKe}`] = true;
+        updateSubmenuLinkUI(hariKe, 'workout');
+      })
+      .withFailureHandler(err => {
+        alert('❌ Gagal menyelesaikan workout');
+        console.error(err);
+      })
+      .completeWorkout({
+        userId: window.currentUserId,
+        hariKe: hariKe
+      });
   };
 
   console.log(`✅ Workout event listeners BENAR-BENAR aktif untuk hari ${hariKe}`);
@@ -6033,7 +5808,7 @@ function setupWorkoutForDay(hariKe) {
     disableWorkoutUI(hariKe);
 
     // pastikan X & Cek Disini tetap aktif
-    //enableCloseAndCekDisini(`workoutContent${hariKe}`);
+    enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
     return; // ⛔ STOP
   }
@@ -6210,29 +5985,10 @@ function applyWorkoutReadOnlyMode(hariKe) {
   disableWorkoutUI(hariKe);
 
   // ✅ X & Cek Disini TETAP AKTIF
-  //enableCloseAndCekDisini(`workoutContent${hariKe}`);
+  enableCloseAndCekDisini(`workoutContent${hariKe}`);
 }
 
-/*********************************
- * Disable seluruh UI workout
- *********************************/
 function disableWorkoutUI(hariKe) {
-  console.log(`🔒 Disable workout UI hari ${hariKe}`);
-
-  const area = document.getElementById(`workoutContent${hariKe}`);
-  if (!area) return;
-
-  area.querySelectorAll('input, select, textarea, button').forEach(el => {
-    el.disabled = true;
-  });
-
-  // X & Cek Disini tetap aktif
-  area.querySelectorAll('.btn-close, .btn-cek-disini').forEach(el => {
-    el.disabled = false;
-  });
-}
-
-function BACKUP_disableWorkoutUI(hariKe) {
   // ✅ USER BARU → JANGAN DI-LOCK
   if (!window.userProgress || !window.userProgress[`workoutHari${hariKe}`]) {
     console.log(`🟢 disableWorkoutUI SKIP (USER BARU) hari ${hariKe}`);
@@ -6262,7 +6018,7 @@ function BACKUP_disableWorkoutUI(hariKe) {
   });
 
   // ✅ PASTIKAN X & Cek Disini tetap aktif
-  //enableCloseAndCekDisini(`workoutContent${hariKe}`);
+  enableCloseAndCekDisini(`workoutContent${hariKe}`);
 }
 
 /************************************
