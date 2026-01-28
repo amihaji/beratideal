@@ -1126,7 +1126,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyE5n46ij2goAGaAkrn9IvIHBzEXDv2kAytvyr1jvAiMrfBe9E1BhisQ2nj3ZxBWEUG/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz-8yM-9dZmhomn34oFA_nSfNUfS2P2J4zQChWUz_xDOyhy1K8QYuiVE63DwGte0Qjr/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -5170,131 +5170,99 @@ function showWorkoutForm(hariKe) {
 function setupWorkoutEventListeners(hariKe) {
   console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
 
-  // =========================
-  // ELEMENT
-  // =========================
   const btnUpload = document.getElementById(`btnUploadKardio${hariKe}`);
-  const inputUpload = document.getElementById(`kegiatanKardio${hariKe}`);
-
   const btnStart = document.getElementById(`btnStartOlahraga${hariKe}`);
-  const btnStop  = document.getElementById(`btnStopOlahraga${hariKe}`);
+  const btnStop = document.getElementById(`btnStopOlahraga${hariKe}`);
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
 
-  const inputStart = document.getElementById(`startOlahraga${hariKe}`);
-  const inputStop  = document.getElementById(`stopOlahraga${hariKe}`);
-
-  // =========================
-  // VALIDASI
-  // =========================
-  if (!btnUpload || !btnStart || !btnStop) {
+  if (!btnSimpan || !btnSelesai) {
     console.warn(`⚠️ Tombol workout tidak lengkap hari ${hariKe}`);
     return;
   }
 
-  // =========================
-  // 📂 UPLOAD (FIX FINAL)
-  // =========================
-  let fileInput = document.getElementById(`fileUploadKardio${hariKe}`);
-  if (!fileInput) {
-    fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*,application/pdf";
-    fileInput.id = `fileUploadKardio${hariKe}`;
-    fileInput.style.display = "none";
-    document.body.appendChild(fileInput);
+  /* =============================
+   * UPLOAD
+   * ============================= */
+  if (btnUpload) {
+    btnUpload.onclick = () => {
+      console.log(`📂 Klik Upload hari ${hariKe}`);
+      document.getElementById(`kegiatanKardio${hariKe}`).removeAttribute('readonly');
+    };
   }
 
-  btnUpload.onclick = () => {
-    console.log(`📂 Klik Upload hari ${hariKe}`);
-    fileInput.click();
+  /* =============================
+   * START
+   * ============================= */
+  if (btnStart) {
+    btnStart.onclick = () => {
+      const now = new Date().toTimeString().slice(0, 5);
+      document.getElementById(`startOlahraga${hariKe}`).value = now;
+      console.log(`▶️ Start olahraga hari ${hariKe}: ${now}`);
+    };
+  }
+
+  /* =============================
+   * STOP
+   * ============================= */
+  if (btnStop) {
+    btnStop.onclick = () => {
+      const now = new Date().toTimeString().slice(0, 5);
+      document.getElementById(`stopOlahraga${hariKe}`).value = now;
+      console.log(`⏹️ Stop olahraga hari ${hariKe}: ${now}`);
+    };
+  }
+
+  /* =============================
+   * SIMPAN  (INI YANG KRUSIAL)
+   * ============================= */
+  btnSimpan.onclick = () => {
+    console.log(`💾 SIMPAN workout hari ${hariKe}`);
+
+    google.script.run
+      .withSuccessHandler(() => {
+        alert('✅ Data workout berhasil disimpan');
+      })
+      .withFailureHandler(err => {
+        alert('❌ Gagal menyimpan workout');
+        console.error(err);
+      })
+      .saveWorkoutData({
+        userId: window.currentUserId,
+        hariKe: hariKe,
+        kardio: document.getElementById(`olahragaKardio${hariKe}`).value,
+        kegiatan: document.getElementById(`kegiatanKardio${hariKe}`).value,
+        startTime: document.getElementById(`startOlahraga${hariKe}`).value,
+        stopTime: document.getElementById(`stopOlahraga${hariKe}`).value,
+        resistance: getResistanceData(hariKe)
+      });
   };
 
-  fileInput.onchange = () => {
-    if (fileInput.files.length > 0) {
-      inputUpload.value = fileInput.files[0].name;
-      console.log(`✅ File dipilih:`, fileInput.files[0].name);
-    }
-  };
+  /* =============================
+   * SELESAI (INI JUGA KRUSIAL)
+   * ============================= */
+  btnSelesai.onclick = () => {
+    console.log(`✅ SELESAI workout hari ${hariKe}`);
 
-  // =========================
-  // ⏱️ START
-  // =========================
-  btnStart.onclick = () => {
-    const now = new Date();
-    inputStart.value = now.toTimeString().slice(0, 5);
-    console.log(`▶️ Start olahraga hari ${hariKe}: ${inputStart.value}`);
-  };
-
-  // =========================
-  // ⏹️ STOP
-  // =========================
-  btnStop.onclick = () => {
-    const now = new Date();
-    inputStop.value = now.toTimeString().slice(0, 5);
-    console.log(`⏹️ Stop olahraga hari ${hariKe}: ${inputStop.value}`);
+    google.script.run
+      .withSuccessHandler(() => {
+        alert('🏁 Workout hari ini sudah selesai');
+        window.userProgress[`workoutHari${hariKe}`] = true;
+        updateSubmenuLinkUI(hariKe, 'workout');
+      })
+      .withFailureHandler(err => {
+        alert('❌ Gagal menyelesaikan workout');
+        console.error(err);
+      })
+      .completeWorkout({
+        userId: window.currentUserId,
+        hariKe: hariKe
+      });
   };
 
   console.log(`✅ Workout event listeners BENAR-BENAR aktif untuk hari ${hariKe}`);
 }
 
-
-function BACKUP_setupWorkoutEventListeners(hariKe) {
-  console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
-
-  const isCompleted =
-    window.serverProgress &&
-    window.serverProgress[`workoutHari${hariKe}`] === true;
-
-  // ============================
-  // JIKA USER LAMA → JANGAN PASANG EVENT
-  // ============================
-  if (isCompleted) {
-    console.log(`🔒 Workout hari ${hariKe} selesai → skip event listeners`);
-    return;
-  }
-
-  // ============================
-  // USER BARU → EVENT AKTIF
-  // ============================
-
-  const kardioSelect = document.getElementById(`kardio${hariKe}`);
-  const uploadBtn   = document.getElementById(`uploadWorkout${hariKe}`);
-  const startBtn    = document.getElementById(`startWorkout${hariKe}`);
-  const stopBtn     = document.getElementById(`stopWorkout${hariKe}`);
-  const simpanBtn   = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  const selesaiBtn  = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-
-  if (kardioSelect) {
-    kardioSelect.onchange = () =>
-      console.log('🏃 Kardio dipilih:', kardioSelect.value);
-  }
-
-  if (uploadBtn) {
-    uploadBtn.onclick = () =>
-      console.log('📤 Upload workout diklik');
-  }
-
-  if (startBtn) {
-    startBtn.onclick = () =>
-      console.log('▶️ Start workout');
-  }
-
-  if (stopBtn) {
-    stopBtn.onclick = () =>
-      console.log('⏹ Stop workout');
-  }
-
-  if (simpanBtn) {
-    simpanBtn.onclick = () =>
-      console.log('💾 Simpan workout');
-  }
-
-  if (selesaiBtn) {
-    selesaiBtn.onclick = () =>
-      console.log('✅ Selesai workout');
-  }
-
-  console.log(`✅ Workout event listeners aktif untuk hari ${hariKe}`);
-}
 
 /*******************************
 * Upload file kardio olahraga  *
