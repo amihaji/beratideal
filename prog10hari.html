@@ -5142,57 +5142,33 @@ async function selesaiWorkout(hariKe) {
     const result = await response.text();
     console.log('📥 completeWorkout response:', result);
 
-    // =========================
-    // ✅ SERVER OK
-    // =========================
-    if (result.trim() === 'OK') {
-
-      // 🔐 simpan status selesai
-      window.userProgress = window.userProgress || {};
-      window.userProgress[`workoutHari${hariKe}`] = true;
-      localStorage.setItem(`workout_done_${hariKe}`, 'true');
-
-      // 🔒 kunci UI workout
-      disableWorkoutUI(hariKe);
-
-      // 🧩 hanya panggil jika ADA
-      if (typeof enableCloseAndCekDisini === 'function') {
-        enableCloseAndCekDisini(`workoutContent${hariKe}`);
-      }
-
-      // ✅ centang hijau submenu
-      tandaiSubmenuSelesai(`workout${hariKe}`);
-
-      showMessage(
-        'success',
-        'Workout sudah selesai',
-        3000,
-        `pertemuan${hariKe}`
-      );
-
-      // render ulang sebagai READ ONLY
-      showWorkoutForm(hariKe);
-
-    } else {
-      showMessage(
-        'error',
-        'Gagal menyelesaikan workout',
-        3000,
-        `pertemuan${hariKe}`
-      );
+    if (result.trim() !== 'OK') {
+      showMessage('error', 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}`);
+      return;
     }
 
-  } catch (err) {
-    console.error('❌ Error selesaiWorkout:', err);
+    // =====================
+    // ✅ STATUS FINAL
+    // =====================
+    window.userProgress = window.userProgress || {};
+    window.userProgress[`workoutHari${hariKe}`] = true;
+    localStorage.setItem(`workout_done_${hariKe}`, 'true');
+
+    tandaiSubmenuSelesai(`workout${hariKe}`);
+    disableWorkoutUI(hariKe);
+
     showMessage(
-      'error',
-      'Gagal terhubung ke server',
+      'success',
+      'Workout sudah selesai',
       3000,
       `pertemuan${hariKe}`
     );
+
+  } catch (err) {
+    console.error('❌ Error selesaiWorkout:', err);
+    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
   }
 }
-
 
  async function BACKUP_selesaiWorkout(hariKe) {
   console.log('🏁 Klik SELESAI workout hari:', hariKe);
@@ -5227,7 +5203,7 @@ async function selesaiWorkout(hariKe) {
 
       // 🔒 DISABLE SELURUH UI WORKOUT
       disableWorkoutUI(hariKe);
-      enableCloseAndCekDisini(`workoutContent${hariKe}`);
+      //enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
       // ✅ CENTANG HIJAU SUBMENU
       tandaiSubmenuSelesai(`workout${hariKe}`);
@@ -5255,31 +5231,27 @@ async function selesaiWorkout(hariKe) {
  function showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
-  // =========================
+  const isDone = window.userProgress?.[`workoutHari${hariKe}`] === true;
+
   // 🔒 USER LAMA (READ ONLY)
-  // =========================
-  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
+  if (isDone) {
     console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
 
     showSubmenuReadOnly(`workoutContent${hariKe}`);
-
-    if (typeof enableCloseAndCekDisini === 'function') {
-      enableCloseAndCekDisini(`workoutContent${hariKe}`);
-    }
-
     setupResistanceExercises(hariKe);
     disableWorkoutUI(hariKe);
     return;
   }
-
-  // =========================
   // 🟢 USER BARU
-  // =========================
   console.log(`🟢 Workout hari ${hariKe} USER BARU`);
+
   showSubmenu(`workoutContent${hariKe}`);
 
-  const container = document.getElementById( `olahragaKardio-list${hariKe > 1 ? hariKe : ''}` );
+  const container = document.getElementById(
+    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
+  );
   if (!container) return;
+
   setupResistanceExercises(hariKe);
   setupWorkoutForDay(hariKe);
 }
@@ -5294,7 +5266,7 @@ function BACKUP_showWorkoutForm(hariKe) {
     console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
 
     showSubmenuReadOnly(`workoutContent${hariKe}`);
-    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+    // enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
     // PASTIKAN resistance & tombol tetap dirender
     setupResistanceExercises(hariKe);
@@ -5967,7 +5939,7 @@ function setupWorkoutForDay(hariKe) {
     disableWorkoutUI(hariKe);
 
     // pastikan X & Cek Disini tetap aktif
-    enableCloseAndCekDisini(`workoutContent${hariKe}`);
+    //enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
     return; // ⛔ STOP
   }
@@ -6144,7 +6116,7 @@ function applyWorkoutReadOnlyMode(hariKe) {
   disableWorkoutUI(hariKe);
 
   // ✅ X & Cek Disini TETAP AKTIF
-  enableCloseAndCekDisini(`workoutContent${hariKe}`);
+  //enableCloseAndCekDisini(`workoutContent${hariKe}`);
 }
 
 /*********************************
@@ -6156,17 +6128,15 @@ function disableWorkoutUI(hariKe) {
   const area = document.getElementById(`workoutContent${hariKe}`);
   if (!area) return;
 
-  // disable semua input & button
   area.querySelectorAll('input, select, textarea, button').forEach(el => {
     el.disabled = true;
   });
 
-  // kecuali tombol X dan Cek Disini
+  // X & Cek Disini tetap aktif
   area.querySelectorAll('.btn-close, .btn-cek-disini').forEach(el => {
     el.disabled = false;
   });
 }
-
 
 function BACKUP_disableWorkoutUI(hariKe) {
   // ✅ USER BARU → JANGAN DI-LOCK
@@ -6198,7 +6168,7 @@ function BACKUP_disableWorkoutUI(hariKe) {
   });
 
   // ✅ PASTIKAN X & Cek Disini tetap aktif
-  enableCloseAndCekDisini(`workoutContent${hariKe}`);
+  //enableCloseAndCekDisini(`workoutContent${hariKe}`);
 }
 
 /************************************
