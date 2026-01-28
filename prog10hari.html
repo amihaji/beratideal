@@ -2205,6 +2205,99 @@ function applyCompleteProgressToUI(progress, hariKe) {
   // ===============================
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
+  }
+
+  // ===============================
+  // DEFINISI SUBMENU HARI PERTAMA
+  // ===============================
+  const progressMap = [
+    { field: 'materiHari1',   type: 'materi' },
+    { field: 'mealplanHari1', type: 'mealplan' },
+    { field: 'workoutHari1',  type: 'workout' },
+    { field: 'waterHari1',    type: 'water' },
+    { field: 'istirahatHari1', type: 'istirahat' },
+    { field: 'datatrackingHari1', type: 'datatracking' }
+  ];
+
+  // ===============================
+  // APPLY STATUS KE UI
+  // ===============================
+  progressMap.forEach(item => {
+
+    // =====================================================
+    // 🔥 KHUSUS WORKOUT → HANYA SELESAI JIKA KOLOM Z = "OK"
+    // =====================================================
+    if (item.type === 'workout') {
+
+      const workoutStatus =
+        progress?.workoutStatus ||
+        progress?.workoutData?.workoutStatus ||
+        progress?.workoutData?.statusWorkout ||
+        progress?.workoutData?.workout ||
+        '';
+
+      if (workoutStatus === 'OK') {
+        console.log(`✅ workout hari ${hariKe} SELESAI (OK)`);
+
+        window.userProgress[item.field] = true;
+        updateSubmenuLinkUI(item.type, hariKe);
+        disableButtonsAfterCompletion(hariKe, item.type);
+
+      } else {
+        console.log(`🟢 workout hari ${hariKe} BELUM selesai`);
+        window.userProgress[item.field] = false;
+      }
+
+      return; // ⛔ STOP KHUSUS WORKOUT
+    }
+
+    // =====================================================
+    // ✅ SUBMENU LAIN (MATERI, MEALPLAN, DLL)
+    // =====================================================
+    if (progress[item.field] === true) {
+      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
+
+      window.userProgress[item.field] = true;
+      updateSubmenuLinkUI(item.type, hariKe);
+      disableButtonsAfterCompletion(hariKe, item.type);
+    }
+  });
+
+  // ===============================
+  // AUTO EXPAND MODUL (OPSIONAL)
+  // ===============================
+  if (
+    progress.perkenalan ||
+    progress.materiHari1 ||
+    progress.mealplanHari1 ||
+    progress.workoutStatus === 'OK' ||
+    progress.workoutData?.workout === 'OK' ||
+    progress.waterHari1
+  ) {
+    setTimeout(() => {
+      const header = document.querySelector(`[data-hari="${hariKe}"]`);
+      if (header && header.classList.contains('collapsed')) {
+        header.click();
+      }
+    }, 800);
+  }
+}
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+
+  // ===============================
+  // INISIALISASI GLOBAL PROGRESS
+  // ===============================
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+
+  // ===============================
+  // PERKENALAN
+  // ===============================
+  if (progress.perkenalan === true) {
+    unlockModul(hariKe);
     // updatePerkenalanUI(); // ⚠️ TANPA getCompletionStatus
   }
 
@@ -2250,6 +2343,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
     }, 800);
   }
 }
+
 
 /*****************************************
 /* LOAD SAVED WORKOUT DATA DARI PROGRESS *
@@ -5151,10 +5245,10 @@ async function selesaiWorkout(hariKe) {
     // ✅ STATUS FINAL
     // =====================
     window.userProgress = window.userProgress || {};
-    window.userProgress[`workoutHari${hariKe}`] = true;
+    //window.userProgress[`workoutHari${hariKe}`] = true;
     localStorage.setItem(`workout_done_${hariKe}`, 'true');
 
-    tandaiSubmenuSelesai(`workout${hariKe}`);
+    //tandaiSubmenuSelesai(`workout${hariKe}`);
     disableWorkoutUI(hariKe);
 
     showMessage(
@@ -5197,7 +5291,7 @@ async function selesaiWorkout(hariKe) {
 
       // 🔐 SIMPAN STATUS SELESAI
       window.userProgress = window.userProgress || {};
-      window.userProgress[`workoutHari${hariKe}`] = true;
+      //window.userProgress[`workoutHari${hariKe}`] = true;
 
       localStorage.setItem(`workout_done_${hariKe}`, 'true');
 
@@ -5206,7 +5300,7 @@ async function selesaiWorkout(hariKe) {
       //enableCloseAndCekDisini(`workoutContent${hariKe}`);
 
       // ✅ CENTANG HIJAU SUBMENU
-      tandaiSubmenuSelesai(`workout${hariKe}`);
+      //tandaiSubmenuSelesai(`workout${hariKe}`);
       showMessage( 'success', 'Workout sudah selesai', 3000, `pertemuan${hariKe}` );
 
       // tampilkan ulang sebagai READ ONLY
