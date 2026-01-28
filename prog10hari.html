@@ -1126,7 +1126,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz-8yM-9dZmhomn34oFA_nSfNUfS2P2J4zQChWUz_xDOyhy1K8QYuiVE63DwGte0Qjr/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbygHXTIImCmLrAF5H23ea7-uJO_sB-QuYvUJJg7Pfgw_R4DyNY01r2p3dQKsLyPnjP4/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';
 
 /***************************************
@@ -5167,97 +5167,104 @@ function showWorkoutForm(hariKe) {
   setupWorkoutForDay(hariKe);
 }
 
+/************************************************
+ * SETUP WORKOUT EVENT LISTENERS (FINAL STABLE)
+ * - USER BARU  : aktif semua
+ * - USER LAMA  : read-only (ditangani di tempat lain)
+ * - TANPA google.script.run
+ ************************************************/
 function setupWorkoutEventListeners(hariKe) {
   console.log(`🔧 setupWorkoutEventListeners dipanggil untuk hari ${hariKe}`);
 
-  const btnUpload = document.getElementById(`btnUploadKardio${hariKe}`);
-  const btnStart = document.getElementById(`btnStartOlahraga${hariKe}`);
-  const btnStop = document.getElementById(`btnStopOlahraga${hariKe}`);
-  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  // ===============================
+  // AMBIL ELEMEN
+  // ===============================
+  const btnUpload  = document.getElementById(`btnUploadKardio${hariKe}`);
+  const btnStart   = document.getElementById(`btnStartOlahraga${hariKe}`);
+  const btnStop    = document.getElementById(`btnStopOlahraga${hariKe}`);
+  const btnSimpan  = document.getElementById(`btnSimpanWorkout${hariKe}`);
   const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  const inputFile  = document.getElementById(`kegiatanKardio${hariKe}`);
+  const inputStart = document.getElementById(`startOlahraga${hariKe}`);
+  const inputStop  = document.getElementById(`stopOlahraga${hariKe}`);
 
-  if (!btnSimpan || !btnSelesai) {
+  if (!btnUpload || !btnStart || !btnStop || !btnSimpan || !btnSelesai) {
     console.warn(`⚠️ Tombol workout tidak lengkap hari ${hariKe}`);
     return;
   }
 
-  /* =============================
-   * UPLOAD
-   * ============================= */
-  if (btnUpload) {
-    btnUpload.onclick = () => {
-      console.log(`📂 Klik Upload hari ${hariKe}`);
-      document.getElementById(`kegiatanKardio${hariKe}`).removeAttribute('readonly');
+  // ===============================
+  // RESET EVENT (ANTI DOUBLE BIND)
+  // ===============================
+  btnUpload.onclick  = null;
+  btnStart.onclick   = null;
+  btnStop.onclick    = null;
+  btnSimpan.onclick  = null;
+  btnSelesai.onclick = null;
+
+  // ===============================
+  // UPLOAD FILE KARDIO
+  // ===============================
+  btnUpload.onclick = () => {
+    console.log(`📂 Klik Upload hari ${hariKe}`);
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      console.log(`✅ File dipilih: ${file.name}`);
+      inputFile.value = file.name;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        localStorage.setItem(`workout_kardio_file_${hariKe}`, base64);
+        localStorage.setItem(`workout_kardio_filename_${hariKe}`, file.name);
+      };
+      reader.readAsDataURL(file);
     };
-  }
 
-  /* =============================
-   * START
-   * ============================= */
-  if (btnStart) {
-    btnStart.onclick = () => {
-      const now = new Date().toTimeString().slice(0, 5);
-      document.getElementById(`startOlahraga${hariKe}`).value = now;
-      console.log(`▶️ Start olahraga hari ${hariKe}: ${now}`);
-    };
-  }
-
-  /* =============================
-   * STOP
-   * ============================= */
-  if (btnStop) {
-    btnStop.onclick = () => {
-      const now = new Date().toTimeString().slice(0, 5);
-      document.getElementById(`stopOlahraga${hariKe}`).value = now;
-      console.log(`⏹️ Stop olahraga hari ${hariKe}: ${now}`);
-    };
-  }
-
-  /* =============================
-   * SIMPAN  (INI YANG KRUSIAL)
-   * ============================= */
-  btnSimpan.onclick = () => {
-    console.log(`💾 SIMPAN workout hari ${hariKe}`);
-
-    google.script.run
-      .withSuccessHandler(() => {
-        alert('✅ Data workout berhasil disimpan');
-      })
-      .withFailureHandler(err => {
-        alert('❌ Gagal menyimpan workout');
-        console.error(err);
-      })
-      .saveWorkoutData({
-        userId: window.currentUserId,
-        hariKe: hariKe,
-        kardio: document.getElementById(`olahragaKardio${hariKe}`).value,
-        kegiatan: document.getElementById(`kegiatanKardio${hariKe}`).value,
-        startTime: document.getElementById(`startOlahraga${hariKe}`).value,
-        stopTime: document.getElementById(`stopOlahraga${hariKe}`).value,
-        resistance: getResistanceData(hariKe)
-      });
+    fileInput.click();
   };
 
-  /* =============================
-   * SELESAI (INI JUGA KRUSIAL)
-   * ============================= */
+  // ===============================
+  // START OLAHRAGA
+  // ===============================
+  btnStart.onclick = () => {
+    const now = new Date();
+    const time = now.toTimeString().slice(0, 5);
+    inputStart.value = time;
+    console.log(`▶️ Start olahraga hari ${hariKe}: ${time}`);
+  };
+
+  // ===============================
+  // STOP OLAHRAGA
+  // ===============================
+  btnStop.onclick = () => {
+    const now = new Date();
+    const time = now.toTimeString().slice(0, 5);
+    inputStop.value = time;
+    console.log(`⏹️ Stop olahraga hari ${hariKe}: ${time}`);
+  };
+
+  // ===============================
+  // SIMPAN WORKOUT (PAKAI FUNGSI LAMA)
+  // ===============================
+  btnSimpan.onclick = () => {
+    console.log(`💾 SIMPAN workout hari ${hariKe}`);
+    simpanWorkoutData(hariKe);
+  };
+
+  // ===============================
+  // SELESAI WORKOUT (PAKAI FUNGSI LAMA)
+  // ===============================
   btnSelesai.onclick = () => {
     console.log(`✅ SELESAI workout hari ${hariKe}`);
-
-    google.script.run
-      .withSuccessHandler(() => {
-        alert('🏁 Workout hari ini sudah selesai');
-        window.userProgress[`workoutHari${hariKe}`] = true;
-        updateSubmenuLinkUI(hariKe, 'workout');
-      })
-      .withFailureHandler(err => {
-        alert('❌ Gagal menyelesaikan workout');
-        console.error(err);
-      })
-      .completeWorkout({
-        userId: window.currentUserId,
-        hariKe: hariKe
-      });
+    selesaiWorkout(hariKe);
   };
 
   console.log(`✅ Workout event listeners BENAR-BENAR aktif untuk hari ${hariKe}`);
