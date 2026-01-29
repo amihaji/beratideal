@@ -2196,65 +2196,56 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 function applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
-  // ===============================
-  // INISIALISASI GLOBAL PROGRESS
-  // ===============================
-  window.userProgress = window.userProgress || {};
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
 
-  // ===============================
-  // PERKENALAN
-  // ===============================
+  /* ===============================
+   * PERKENALAN
+   * =============================== */
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
   }
 
-  // ===============================
-  // MATERI
-  // ===============================
-  if (progress.materiHari1 === true) {
-    window.userProgress.materiHari1 = true;
-    updateSubmenuLinkUI('materi', hariKe);
-    disableButtonsAfterCompletion(hariKe, 'materi');
-  }
+  /* ===============================
+   * MAP PROGRESS
+   * =============================== */
+  const progressMap = [
+    { field: 'materiHari1', type: 'materi' },
+    { field: 'mealplanHari1', type: 'mealplan' },
+    { field: 'workoutHari1', type: 'workout' },
+    { field: 'waterHari1', type: 'water' }
+  ];
 
-  // ===============================
-  // MEAL PLAN
-  // ===============================
-  if (progress.mealplanHari1 === true) {
-    window.userProgress.mealplanHari1 = true;
-    updateSubmenuLinkUI('mealplan', hariKe);
-    disableButtonsAfterCompletion(hariKe, 'mealplan');
-  }
+  progressMap.forEach(item => {
 
-  // ===============================
-  // WATER
-  // ===============================
-  if (progress.waterHari1 === true) {
-    window.userProgress.waterHari1 = true;
-    updateSubmenuLinkUI('water', hariKe);
-    disableButtonsAfterCompletion(hariKe, 'water');
-  }
+    /* ==========================================
+     * 🔥 FIX UTAMA: WORKOUT JANGAN AUTO TRUE
+     * ========================================== */
+    let isDone = false;
 
-  // ===============================
-  // 🔥 WORKOUT (INI FIX UTAMA)
-  // ===============================
-  // ⚠️ WORKOUT HANYA SELESAI JIKA server TEGAS kirim completed === true
-  if (progress.workoutHari1 === true && progress.workoutCompleted === true) {
+    if (item.type === 'workout') {
+      isDone =
+        progress[item.field] === true ||
+        progress[item.field] === 'OK';
+    } else {
+      isDone = progress[item.field] === true;
+    }
 
-    console.log('✅ Workout benar-benar selesai (Z = OK)');
+    if (isDone) {
+      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
 
-    window.userProgress.workoutHari1 = true;
-    updateSubmenuLinkUI('workout', hariKe);
-    disableButtonsAfterCompletion(hariKe, 'workout');
+      window.userProgress[item.field] = true;
+      updateSubmenuLinkUI(item.type, hariKe);
+      disableButtonsAfterCompletion(hariKe, item.type);
+    } else {
+      console.log(`🟢 ${item.type} BELUM selesai → USER BARU`);
+    }
+  });
 
-  } else {
-    console.log('🟢 Workout BELUM selesai → USER BARU / AKTIF');
-    window.userProgress.workoutHari1 = false;
-  }
-
-  // ===============================
-  // AUTO EXPAND
-  // ===============================
+  /* ===============================
+   * AUTO OPEN MODUL
+   * =============================== */
   setTimeout(() => {
     const header = document.querySelector(`[data-hari="${hariKe}"]`);
     if (header && header.classList.contains('collapsed')) {
@@ -2262,6 +2253,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
     }
   }, 500);
 }
+
 
 function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
