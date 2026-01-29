@@ -2193,68 +2193,74 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
  * - Lock READ ONLY untuk USER LAMA
  * - Tampilkan centang hijau submenu
  ********************************************/
-function applyCompleteProgressToUI(progress, hariKe = 1) {
+function applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
   // ===============================
-  // INIT GLOBAL PROGRESS
+  // INISIALISASI GLOBAL PROGRESS
   // ===============================
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
+  window.userProgress = window.userProgress || {};
 
   // ===============================
   // PERKENALAN
   // ===============================
   if (progress.perkenalan === true) {
-    window.userProgress.perkenalan = true;
     unlockModul(hariKe);
   }
 
   // ===============================
-  // MAP PROGRESS HARI PERTAMA
+  // MATERI
   // ===============================
-  const progressMap = [
-    { field: 'materiHari1',       type: 'materi' },
-    { field: 'mealplanHari1',     type: 'mealplan' },
-    { field: 'workoutHari1',      type: 'workout' },
-    { field: 'waterHari1',        type: 'water' },
-    { field: 'istirahatHari1',    type: 'istirahat' },
-    { field: 'datatrackingHari1', type: 'datatracking' }
-  ];
-
-  progressMap.forEach(item => {
-    if (progress[item.field] === true) {
-      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
-
-      // Simpan global state (PENTING untuk read-only)
-      window.userProgress[item.field] = true;
-
-      // ✅ Tampilkan centang hijau submenu
-      updateSubmenuLinkUI(item.type, hariKe);
-
-      // 🔒 LOCK UI SESUAI TYPE
-      disableButtonsAfterCompletion(hariKe, item.type);
-    }
-  });
-
-  // ===============================
-  // AUTO OPEN MODUL (OPSIONAL)
-  // ===============================
-  if (
-    progress.perkenalan ||
-    progress.materiHari1 ||
-    progress.mealplanHari1 ||
-    progress.workoutHari1 ||
-    progress.waterHari1
-  ) {
-    setTimeout(() => {
-      const header = document.querySelector(`[data-hari="${hariKe}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click();
-      }
-    }, 600);
+  if (progress.materiHari1 === true) {
+    window.userProgress.materiHari1 = true;
+    updateSubmenuLinkUI('materi', hariKe);
+    disableButtonsAfterCompletion(hariKe, 'materi');
   }
+
+  // ===============================
+  // MEAL PLAN
+  // ===============================
+  if (progress.mealplanHari1 === true) {
+    window.userProgress.mealplanHari1 = true;
+    updateSubmenuLinkUI('mealplan', hariKe);
+    disableButtonsAfterCompletion(hariKe, 'mealplan');
+  }
+
+  // ===============================
+  // WATER
+  // ===============================
+  if (progress.waterHari1 === true) {
+    window.userProgress.waterHari1 = true;
+    updateSubmenuLinkUI('water', hariKe);
+    disableButtonsAfterCompletion(hariKe, 'water');
+  }
+
+  // ===============================
+  // 🔥 WORKOUT (INI FIX UTAMA)
+  // ===============================
+  // ⚠️ WORKOUT HANYA SELESAI JIKA server TEGAS kirim completed === true
+  if (progress.workoutHari1 === true && progress.workoutCompleted === true) {
+
+    console.log('✅ Workout benar-benar selesai (Z = OK)');
+
+    window.userProgress.workoutHari1 = true;
+    updateSubmenuLinkUI('workout', hariKe);
+    disableButtonsAfterCompletion(hariKe, 'workout');
+
+  } else {
+    console.log('🟢 Workout BELUM selesai → USER BARU / AKTIF');
+    window.userProgress.workoutHari1 = false;
+  }
+
+  // ===============================
+  // AUTO EXPAND
+  // ===============================
+  setTimeout(() => {
+    const header = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (header && header.classList.contains('collapsed')) {
+      header.click();
+    }
+  }, 500);
 }
 
 function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
