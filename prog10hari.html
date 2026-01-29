@@ -1126,7 +1126,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwLZ8bNNGHtjyLcYUfsYtZVFPziaPZCkQogjxLA1cVzqhj6Z77fFC39Kwx3Sm7uQe29/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbziLj7Cinb8F6nhHfwHIyqqAiU7ZfiQ2YBrVJms_r6d1pQwxRm2UxHqHEnMByhyt27X/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -2188,9 +2188,76 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 }
 
 /********************************************
-/* APPLY COMPLETE PROGRESS TO UI - DETAILED *
-/********************************************/
-function applyCompleteProgressToUI(progress, hariKe) {
+ * APPLY COMPLETE PROGRESS TO UI (REVISI_27)
+ * - Sinkron progress server → UI
+ * - Lock READ ONLY untuk USER LAMA
+ * - Tampilkan centang hijau submenu
+ ********************************************/
+function applyCompleteProgressToUI(progress, hariKe = 1) {
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+
+  // ===============================
+  // INIT GLOBAL PROGRESS
+  // ===============================
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+
+  // ===============================
+  // PERKENALAN
+  // ===============================
+  if (progress.perkenalan === true) {
+    window.userProgress.perkenalan = true;
+    unlockModul(hariKe);
+  }
+
+  // ===============================
+  // MAP PROGRESS HARI PERTAMA
+  // ===============================
+  const progressMap = [
+    { field: 'materiHari1',       type: 'materi' },
+    { field: 'mealplanHari1',     type: 'mealplan' },
+    { field: 'workoutHari1',      type: 'workout' },
+    { field: 'waterHari1',        type: 'water' },
+    { field: 'istirahatHari1',    type: 'istirahat' },
+    { field: 'datatrackingHari1', type: 'datatracking' }
+  ];
+
+  progressMap.forEach(item => {
+    if (progress[item.field] === true) {
+      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
+
+      // Simpan global state (PENTING untuk read-only)
+      window.userProgress[item.field] = true;
+
+      // ✅ Tampilkan centang hijau submenu
+      updateSubmenuLinkUI(item.type, hariKe);
+
+      // 🔒 LOCK UI SESUAI TYPE
+      disableButtonsAfterCompletion(hariKe, item.type);
+    }
+  });
+
+  // ===============================
+  // AUTO OPEN MODUL (OPSIONAL)
+  // ===============================
+  if (
+    progress.perkenalan ||
+    progress.materiHari1 ||
+    progress.mealplanHari1 ||
+    progress.workoutHari1 ||
+    progress.waterHari1
+  ) {
+    setTimeout(() => {
+      const header = document.querySelector(`[data-hari="${hariKe}"]`);
+      if (header && header.classList.contains('collapsed')) {
+        header.click();
+      }
+    }, 600);
+  }
+}
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
   // ===============================
@@ -5117,9 +5184,77 @@ function createMealPlanFormHTML(hariKe) {
 // *********************************************
 
 /*****************************************
-* Selesaikan workout untuk hari tertentu *
-******************************************/
+ * SELESAI WORKOUT (FINAL - STABIL)
+ *****************************************/
 async function selesaiWorkout(hariKe) {
+  console.log('🏁 Klik SELESAI workout hari:', hariKe);
+
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('error', 'User belum login', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 completeWorkout response:', result);
+
+    if (result.trim() === 'OK') {
+
+      // ✅ SET STATUS SETELAH SERVER BERHASIL
+      window.userProgress = window.userProgress || {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
+
+      localStorage.setItem(`workout_done_${hariKe}`, 'true');
+
+      // 🔒 DISABLE UI WORKOUT
+      disableWorkoutUI(hariKe);
+
+      // ✅ CENTANG HIJAU SUBMENU
+      tandaiSubmenuSelesai(`workout${hariKe}`);
+
+      showMessage(
+        'success',
+        'Workout hari ini sudah selesai',
+        3000,
+        `pertemuan${hariKe}`
+      );
+
+      // 🔁 Render ulang sebagai READ ONLY
+      showWorkoutForm(hariKe);
+
+    } else {
+      showMessage(
+        'error',
+        'Gagal menyelesaikan workout',
+        3000,
+        `pertemuan${hariKe}`
+      );
+    }
+
+  } catch (err) {
+    console.error('❌ Error selesaiWorkout:', err);
+    showMessage(
+      'error',
+      'Koneksi ke server gagal',
+      3000,
+      `pertemuan${hariKe}`
+    );
+  }
+}
+
+
+async function BACKUP_selesaiWorkout(hariKe) {
     console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
     
     // Tampilkan form workout langsung
@@ -5132,7 +5267,49 @@ async function selesaiWorkout(hariKe) {
  * - Load saved data
  * - Apply READ ONLY for USER LAMA
  ****************************************/
+/****************************************
+ * SHOW WORKOUT FORM (FINAL - AMAN)
+ ****************************************/
 function showWorkoutForm(hariKe) {
+  console.log(`👟 Showing workout form for day ${hariKe}`);
+
+  const isWorkoutDone =
+    window.userProgress &&
+    window.userProgress[`workoutHari${hariKe}`] === true;
+
+  // =========================
+  // 🔒 USER LAMA (READ ONLY)
+  // =========================
+  if (isWorkoutDone) {
+    console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
+
+    showSubmenuReadOnly(`workoutContent${hariKe}`);
+    setupResistanceExercises(hariKe);
+    disableWorkoutUI(hariKe);
+    return;
+  }
+
+  // =========================
+  // 🟢 USER BARU
+  // =========================
+  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
+
+  showSubmenu(`workoutContent${hariKe}`);
+
+  const container = document.getElementById(
+    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
+  );
+  if (!container) {
+    console.warn('❌ Container workout tidak ditemukan');
+    return;
+  }
+
+  setupResistanceExercises(hariKe);
+  setupWorkoutForDay(hariKe);
+}
+
+
+ function BACKUP_showWorkoutForm(hariKe) {
   console.log(`👟 Showing workout form for day ${hariKe}`);
 
   // =========================
