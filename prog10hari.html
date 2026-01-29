@@ -5193,43 +5193,37 @@ function selesaiWorkout(hariKe) {
     return;
   }
 
-  const callbackName = `cb_completeWorkout_${Date.now()}`;
-  const script = document.createElement('script');
+  // === FORM POST (SAMA PERSIS SEPERTI MATERI / WATER) ===
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = URL_PROGRAM_APP;
+  form.style.display = 'none';
 
-  window[callbackName] = function (response) {
-    console.log('📥 completeWorkout response:', response);
-
-    try {
-      if (response && response.status === 'success') {
-
-        // tandai progress lokal
-        if (!window.userProgress) window.userProgress = {};
-        window.userProgress[`workoutHari${hariKe}`] = true;
-
-        // update UI submenu
-        updateSubmenuLinkUI('workout', hariKe);
-        disableWorkoutUI(hariKe);
-
-        alert('✅ Workout berhasil diselesaikan');
-      } else {
-        console.error('❌ completeWorkout gagal:', response);
-        alert(response?.message || 'Gagal menyelesaikan workout');
-      }
-    } finally {
-      delete window[callbackName];
-      document.body.removeChild(script);
-    }
-  };
-
-  const params = new URLSearchParams({
+  const fields = {
     action: 'completeWorkout',
     userId: userId,
-    hariKe: hariKe,
-    callback: callbackName
+    hariKe: hariKe
+  };
+
+  Object.keys(fields).forEach(key => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = fields[key];
+    form.appendChild(input);
   });
 
-  script.src = `${URL_PROGRAM_APP}?${params.toString()}`;
-  document.body.appendChild(script);
+  document.body.appendChild(form);
+  form.submit();
+
+  // === UPDATE UI LANGSUNG (SAMA POLA DENGAN MATERI) ===
+  if (!window.userProgress) window.userProgress = {};
+  window.userProgress[`workoutHari${hariKe}`] = true;
+
+  updateSubmenuLinkUI('workout', hariKe);
+  disableWorkoutUI(hariKe);
+
+  console.log('✅ completeWorkout dikirim via POST');
 }
 
  function BACKUP_selesaiWorkout(hariKe) {
