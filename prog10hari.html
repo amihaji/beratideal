@@ -5192,51 +5192,52 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
  * SELESAI WORKOUT (JSONP FINAL)
  *****************************************/
-function selesaiWorkout(hariKe) {
+async function selesaiWorkout(hariKe) {
   console.log('🏁 SELESAI workout hari', hariKe);
 
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    console.error('❌ userId tidak ditemukan');
+    showMessage('error', 'User belum login', 3000, `pertemuan${hariKe}`);
     return;
   }
 
-  const callbackName = 'cb_completeWorkout_' + Date.now();
-  const script = document.createElement('script');
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId: userId,
+        hariKe: hariKe
+      })
+    });
 
-  window[callbackName] = function (res) {
-    console.log('📥 completeWorkout response:', res);
+    // 🔥 PENTING: parse JSON, BUKAN text
+    const result = await response.json();
+    console.log('📥 completeWorkout response:', result);
 
-    if (res && res.success === true) {
+    // ✅ SAMAKAN POLA DENGAN MATERI / MEAL / WATER
+    if (result.status === 'success') {
 
-      // ✅ tandai progress
+      // tandai progress lokal
       window.userProgress = window.userProgress || {};
       window.userProgress[`workoutHari${hariKe}`] = true;
 
-      // 🔒 lock UI workout
-      disableWorkoutUI(hariKe);
-
-      // ✅ centang hijau submenu
+      // lock UI
+      disableButtonsAfterCompletion(hariKe, 'workout');
       updateSubmenuLinkUI('workout', hariKe);
+      showMessage( 'success', 'Workout berhasil diselesaikan', 3000, `pertemuan${hariKe}` );
 
     } else {
-      console.error('❌ completeWorkout gagal:', res);
+      console.error('❌ completeWorkout gagal:', result);
+      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
     }
 
-    delete window[callbackName];
-    document.body.removeChild(script);
-  };
-
-  script.src =
-    `${URL_PROGRAM_APP}` +
-    `?action=completeWorkout` +
-    `&userId=${encodeURIComponent(userId)}` +
-    `&hariKe=${hariKe}` +
-    `&callback=${callbackName}`;
-
-  document.body.appendChild(script);
+  } catch (err) {
+    console.error('❌ Error selesaiWorkout:', err);
+    showMessage( 'error','Gagal terhubung ke server',3000,`pertemuan${hariKe}`);
+  }
 }
-
 
 async function BACKUP_selesaiWorkout(hariKe) {
     console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
