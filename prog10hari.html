@@ -1947,6 +1947,7 @@ function setupAllComponentsInternal() {
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     
     // Setup workout forms
+    debugWorkoutStructure(); // ← TAMBAHKAN INI
     generateWorkoutForms();      // 1. Generate HTML dulu
     initializeAllWorkoutDays();  // 2. Setup event listeners
     
@@ -5168,9 +5169,92 @@ function showWorkoutForm(hariKe) {
 }
 
 /************************************************
- * SETUP WORKOUT EVENT LISTENERS - SIMPLE FIX
+ * SETUP WORKOUT EVENT LISTENERS - FIXED (Flexible)
  ************************************************/
 function setupWorkoutEventListeners(hariKe) {
+    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+    
+    // Cari tombol dengan berbagai kemungkinan ID
+    const possibleSimpanIds = [
+        `btnSimpanWorkout${hariKe}`,
+        `btnSimpanWorkout`,
+        `simpanWorkout${hariKe}`,
+        `simpanWorkout`
+    ];
+    
+    const possibleSelesaiIds = [
+        `btnSelesaiWorkout${hariKe}`,
+        `btnSelesaiWorkout`,
+        `selesaiWorkout${hariKe}`,
+        `selesaiWorkout`
+    ];
+    
+    let btnSimpan = null;
+    let btnSelesai = null;
+    
+    // Cari tombol Simpan
+    for (const id of possibleSimpanIds) {
+        btnSimpan = document.getElementById(id);
+        if (btnSimpan) {
+            console.log(`✅ Found Simpan button with ID: ${id}`);
+            break;
+        }
+    }
+    
+    // Cari tombol Selesai
+    for (const id of possibleSelesaiIds) {
+        btnSelesai = document.getElementById(id);
+        if (btnSelesai) {
+            console.log(`✅ Found Selesai button with ID: ${id}`);
+            break;
+        }
+    }
+    
+    // Jika masih tidak ditemukan, cari berdasarkan text
+    if (!btnSimpan) {
+        const allButtons = document.querySelectorAll('button');
+        for (const btn of allButtons) {
+            if (btn.textContent.includes('Simpan') && btn.textContent.includes('Workout')) {
+                btnSimpan = btn;
+                console.log(`✅ Found Simpan button by text: ${btn.textContent}`);
+                break;
+            }
+        }
+    }
+    
+    if (!btnSelesai) {
+        const allButtons = document.querySelectorAll('button');
+        for (const btn of allButtons) {
+            if (btn.textContent.includes('Selesai') && btn.textContent.includes('Workout')) {
+                btnSelesai = btn;
+                console.log(`✅ Found Selesai button by text: ${btn.textContent}`);
+                break;
+            }
+        }
+    }
+    
+    // Setup event listeners jika ditemukan
+    if (btnSimpan) {
+        btnSimpan.onclick = function() {
+            console.log(`💾 Simpan workout clicked for day ${hariKe}`);
+            simpanWorkoutData(hariKe);
+        };
+    } else {
+        console.error(`❌ Simpan button not found for day ${hariKe}`);
+    }
+    
+    if (btnSelesai) {
+        btnSelesai.disabled = true;
+        btnSelesai.onclick = function() {
+            console.log(`✅ Selesai workout clicked for day ${hariKe}`);
+            selesaiWorkoutFinal(hariKe);
+        };
+    } else {
+        console.error(`❌ Selesai button not found for day ${hariKe}`);
+    }
+}
+
+function BACKUP_setupWorkoutEventListeners(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
     
     // Tombol Simpan
@@ -5820,13 +5904,34 @@ async function selesaiWorkoutFinal(hariKe) {
 }
 
 /************************************************
- * INITIALIZE ALL WORKOUT DAYS - FIXED
- * Setup semua hari workout saat load
- ************************************************/
-/************************************************
- * INITIALIZE ALL WORKOUT DAYS - SIMPLE FIX
+ * INITIALIZE ALL WORKOUT DAYS - FIXED (Focus on day 1)
  ************************************************/
 function initializeAllWorkoutDays() {
+    console.log('🔧 Initializing workout days (focus on day 1)...');
+    
+    // Hanya fokus pada hari 1 dulu
+    const hariKe = 1;
+    
+    // 1. Debug dulu untuk melihat apa yang ada
+    generateWorkoutForms(); // Fungsi debugging
+    
+    // 2. Setup event listeners untuk hari 1
+    setupWorkoutEventListeners(hariKe);
+    
+    // 3. Setup resistance (jika ada)
+    setupResistanceExercises(hariKe);
+    
+    // 4. Cek jika sudah selesai
+    if (localStorage.getItem(`workoutHari${hariKe}`) === 'completed') {
+        console.log(`📊 Workout hari ${hariKe} sudah selesai`);
+        disableWorkoutUI(hariKe);
+        updateSubmenuLinkUI('workout', hariKe);
+    }
+    
+    console.log('✅ Workout initialization complete for day 1');
+}
+
+ function BACKUP_initializeAllWorkoutDays() {
     console.log('🔧 Initializing all workout days...');
     
     // 1. Generate form terlebih dahulu
@@ -5856,7 +5961,70 @@ function initializeAllWorkoutDays() {
 /*******************************************
  * GENERATE WORKOUT FORMS - FIXED SIMPLE
  *******************************************/
+/*******************************************
+ * GENERATE WORKOUT FORMS - FIXED (Cek HTML yang ada)
+ *******************************************/
 function generateWorkoutForms() {
+    console.log('🔧 Checking workout forms...');
+    
+    // Cek untuk hari 1 - apakah form sudah ada?
+    const hariKe = 1;
+    
+    // Coba cari dengan beberapa kemungkinan ID
+    const possibleContainerIds = [
+        `olahragaKardio-list`,
+        `olahragaKardio-list${hariKe}`,
+        `kardio-container`,
+        `kardio-container${hariKe}`,
+        `workout-form-${hariKe}`,
+        `workoutContent${hariKe}`
+    ];
+    
+    let foundContainer = null;
+    for (const containerId of possibleContainerIds) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            console.log(`✅ Found container: ${containerId}`);
+            foundContainer = container;
+            break;
+        }
+    }
+    
+    if (foundContainer) {
+        console.log('📋 Container content:', foundContainer.innerHTML.substring(0, 200) + '...');
+        
+        // Cek apakah tombol sudah ada
+        const simpanBtn = document.getElementById(`btnSimpanWorkout${hariKe}`);
+        const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+        
+        console.log(`🔍 Simpan button found: ${!!simpanBtn}`);
+        console.log(`🔍 Selesai button found: ${!!selesaiBtn}`);
+        
+        // Jika tombol tidak ditemukan, mungkin ID-nya berbeda
+        if (!simpanBtn || !selesaiBtn) {
+            console.log('⚠️ Tombol tidak ditemukan dengan ID standar, mencari alternatif...');
+            
+            // Cari semua tombol di container
+            const allButtons = foundContainer.querySelectorAll('button');
+            console.log(`🔢 Jumlah tombol di container: ${allButtons.length}`);
+            
+            allButtons.forEach((btn, index) => {
+                console.log(`Button ${index}:`, btn.id, btn.textContent, btn.className);
+            });
+        }
+    } else {
+        console.error('❌ No workout container found!');
+        
+        // Coba cari di seluruh dokumen
+        const allContainers = document.querySelectorAll('[id*="kardio"], [id*="olahraga"], [id*="workout"]');
+        console.log('🔍 All possible workout containers:', allContainers.length);
+        allContainers.forEach(container => {
+            console.log(`Container: ${container.id}`);
+        });
+    }
+}
+
+function BACKUP_generateWorkoutForms() {
     console.log('🔧 Generating workout forms for all days...');
     
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
@@ -7718,6 +7886,39 @@ document.addEventListener('show.bs.collapse', function (e) {
     console.warn(`⛔ Bootstrap collapse Hari ${hariKe} diblok TOTAL`);
   }
 }, true);
+
+/*******************************************
+ * DEBUG WORKOUT STRUCTURE
+ *******************************************/
+function debugWorkoutStructure() {
+    console.log('🔍 Debugging workout structure...');
+    
+    // Cari workoutContent1
+    const workoutContent = document.getElementById('workoutContent1');
+    if (workoutContent) {
+        console.log('✅ Found workoutContent1');
+        console.log('📋 Inner HTML (first 500 chars):', workoutContent.innerHTML.substring(0, 500));
+        
+        // Cari semua input dan tombol di dalamnya
+        const inputs = workoutContent.querySelectorAll('input, select, button');
+        console.log(`🔢 Found ${inputs.length} form elements`);
+        
+        inputs.forEach((element, index) => {
+            console.log(`Element ${index}:`, {
+                tag: element.tagName,
+                id: element.id,
+                name: element.name,
+                type: element.type,
+                placeholder: element.placeholder,
+                text: element.textContent?.substring(0, 50),
+                className: element.className
+            });
+        });
+    } else {
+        console.error('❌ workoutContent1 not found!');
+    }
+}
+
 </script>
 </body>
 </html>
