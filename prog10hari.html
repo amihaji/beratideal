@@ -1891,7 +1891,6 @@ function updatePerkenalanUI() {
   console.log('✅ Perkenalan UI updated');
 }
 
-
 function setupAllComponentsInternal() {
     // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
@@ -1948,7 +1947,7 @@ function setupAllComponentsInternal() {
     debugWorkoutStructure(); // ← TAMBAHKAN INI
     generateWorkoutForms();      // 1. Generate HTML dulu
     initializeAllWorkoutDays();  // 2. Setup event listeners
-    
+ 
     // Tambahkan styles
     addWaterReminderStyles(); 
     // Generate semua form
@@ -1984,7 +1983,11 @@ function setupAllComponentsInternal() {
     });
 
     // Initialize video players
-    initializeAllVideoPlayers();   
+    initializeAllVideoPlayers();
+    
+    // Di akhir setupAllComponentsInternal()
+    console.log('🔍 Testing server connection on startup...');
+    testServerConnection();
 }
 
 /**************************************
@@ -5158,7 +5161,71 @@ function showWorkoutForm(hariKe) {
  * SETUP WORKOUT EVENT LISTENERS - FINAL FIX
  * Panggil fungsi yang sudah ada di REVISI_27
  ************************************************/
+/************************************************
+ * SETUP WORKOUT EVENT LISTENERS - FINAL VERSION
+ ************************************************/
 function setupWorkoutEventListeners(hariKe) {
+    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+    
+    // 1. Setup tombol Simpan
+    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+    if (btnSimpan) {
+        console.log(`✅ Found Simpan button for day ${hariKe}`);
+        
+        // Clone untuk menghapus event listener lama
+        const newBtnSimpan = btnSimpan.cloneNode(true);
+        btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
+        
+        // Setup event listener baru
+        newBtnSimpan.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
+            
+            // Debug sebelum simpan
+            console.log('🔍 Debug sebelum simpan:');
+            console.log('User ID:', localStorage.getItem('userId'));
+            console.log('User Name:', localStorage.getItem('userName'));
+            
+            // Panggil fungsi simpanWorkoutData
+            if (typeof simpanWorkoutData === 'function') {
+                const success = await simpanWorkoutData(hariKe);
+                console.log(`📤 Hasil simpan: ${success ? 'Berhasil' : 'Gagal'}`);
+            } else {
+                console.error('❌ Fungsi simpanWorkoutData tidak ditemukan!');
+                alert('Error: Fungsi penyimpanan tidak ditemukan');
+            }
+        });
+    }
+    
+    // 2. Setup tombol Selesai
+    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+    if (btnSelesai) {
+        console.log(`✅ Found Selesai button for day ${hariKe}`);
+        btnSelesai.disabled = true;
+        
+        const newBtnSelesai = btnSelesai.cloneNode(true);
+        btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
+        
+        newBtnSelesai.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`✅ Tombol Selesai diklik untuk hari ${hariKe}`);
+            
+            if (typeof selesaiWorkoutFinal === 'function') {
+                selesaiWorkoutFinal(hariKe);
+            } else {
+                console.error('❌ Fungsi selesaiWorkoutFinal tidak ditemukan!');
+                alert('Error: Fungsi penyelesaian tidak ditemukan');
+            }
+        });
+    }
+    
+    console.log(`✅ Workout event listeners setup complete for day ${hariKe}`);
+}
+
+ function BACKUP_setupWorkoutEventListeners(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
     
     // 1. Setup tombol Simpan - PANGGIL FUNGSI YANG SUDAH ADA
@@ -5356,125 +5423,201 @@ function setStopTimeKardio(hariKe) {
 /********************************
  * Simpan data workout ke server - SIMPLE FIX
  *********************************/
+/********************************
+ * SIMPAN WORKOUT DATA - FIXED FINAL
+ * Mengatasi error: "Cannot read properties of undefined (reading 'userId')"
+ *********************************/
 async function simpanWorkoutData(hariKe) {
+    console.log(`💾 Simpan workout data hari ${hariKe}`);
+    
+    // 1. Ambil data user
     const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
+    const userName = localStorage.getItem('userName') || userId;
     
     if (!userId) {
         showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-        return;
+        return false;
     }
     
-    // 1️⃣ COLLECT KARDIO DATA
+    // 2. Ambil data dari form
     const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
-    const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
-    const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const kegiatanKardio = document.getElementById(`kegiatanKardio${hariKe}`)?.value || '';
     
-    // 2️⃣ PAKSA SIMPAN RESISTANCE KE LOCALSTORAGE
-    document
-        .querySelectorAll(`#selectedResistanceContainer${hariKe} input`)
-        .forEach(input => {
-            const exerciseId = input.dataset.exercise;
-            if (exerciseId) {
-                saveResistanceData(hariKe, exerciseId);
-            }
-        });
-
-    // 3️⃣ COLLECT RESISTANCE DATA
+    // 3. Ambil data resistance (jika ada)
     const resistanceData = getResistanceDataForServer(hariKe);
-
-    // 🔒 VALIDASI JENIS WORKOUT (MINIMAL SALAH SATU)
-    const hasKardio     = kardioType && kardioType.trim() !== '';
-    const hasResistance = resistanceData.resistenExercises && resistanceData.resistenExercises.trim() !== '';
-
-    if (!hasKardio && !hasResistance) {
-        showMessage( 'warning','Isi minimal salah satu: Olahraga Kardio atau Olahraga Resistance.', 3000,`pertemuan${hariKe}`);
-        return; // ⛔ HENTIKAN SIMPAN
-    }
-
-    // 🔍 VALIDASI KONDISIONAL RESISTANCE (TIDAK BOLEH 0)
-    if (hasResistance) {
-        if (
-            resistanceData.totalSets === 0 ||
-            resistanceData.totalReps === 0 ||
-            resistanceData.totalMinutes === 0
-        ) {
-            showMessage( 'warning', 'Pilih resistance maka : jumlah set, repetisi, dan durasi tidak boleh 0.', 3000,`pertemuan${hariKe}` );
-            return; // ⛔ hentikan proses simpan
-        }
-    }
-
-    // 4️⃣ BENTUK DATA WORKOUT
+    
+    console.log('📊 Data yang akan dikirim:', {
+        userId,
+        userName,
+        hariKe,
+        kardioType,
+        startTime,
+        stopTime,
+        kegiatanKardio,
+        resistanceData
+    });
+    
+    // 4. Buat workoutData object sesuai format yang diharapkan server
     const workoutData = {
         kardioType: kardioType,
         startTime: startTime,
         stopTime: stopTime,
-        resistenExercises: resistanceData.resistenExercises,
-        totalSets: resistanceData.totalSets,
-        totalReps: resistanceData.totalReps,
-        totalMinutes: resistanceData.totalMinutes
+        kardioFile: kegiatanKardio, // File name, bukan file content
+        resistenExercises: resistanceData.resistenExercises || '',
+        totalSets: resistanceData.totalSets || 0,
+        totalReps: resistanceData.totalReps || 0,
+        totalMinutes: resistanceData.totalMinutes || 0
     };
     
-    console.log('📤 Sending workout data for day', hariKe, ':', workoutData);
-    // 5️⃣ FILE KARDIO
-    const kardioFile     = localStorage.getItem(`workout_kardio_file_${hariKe}`);
-    const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
-
-    // Awal Debug  
-    console.log('🔍 Debug dalam simpanWorkoutData:');
-    console.log('userId:', userId);
-    console.log('userName:', userName);
-    console.log('hariKe:', hariKe);
-    console.log('URL_PROGRAM_APP:', URL_PROGRAM_APP);
-    console.log('📤 Request body:', new URLSearchParams({
-        action: 'updateWorkout',
-        userId: userId,
-        userName: userName,
-        hariKe: hariKe,
-        workoutData: JSON.stringify(workoutData),
-        kardioFile: kardioFile || '',
-        kardioFilename: kardioFilename || ''
-     }).toString());
-    // Akhir Debug 
-
+    // 5. Ambil file kardio dari localStorage (jika diupload)
+    const kardioFileBase64 = localStorage.getItem(`workout_kardio_file_${hariKe}`) || '';
+    const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`) || '';
+    
+    // 6. Tampilkan loading
+    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+    if (btnSimpan) {
+        const originalText = btnSimpan.innerHTML;
+        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        btnSimpan.disabled = true;
+    }
+    
     try {
-        // showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
+        // 7. Kirim ke server dengan format yang benar
+        console.log('📤 Mengirim data ke server...');
+        console.log('URL:', URL_PROGRAM_APP);
+        console.log('Parameter:', {
+            action: 'updateWorkout',
+            userId: userId,
+            userName: userName,
+            hariKe: hariKe,
+            workoutData: JSON.stringify(workoutData),
+            kardioFile: kardioFileBase64,
+            kardioFilename: kardioFilename
+        });
         
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' 
+            },
             body: new URLSearchParams({
                 action: 'updateWorkout',
                 userId: userId,
                 userName: userName,
-                hariKe: hariKe,
+                hariKe: hariKe.toString(),
                 workoutData: JSON.stringify(workoutData),
-                kardioFile: kardioFile || '',
-                kardioFilename: kardioFilename || ''
+                kardioFile: kardioFileBase64,
+                kardioFilename: kardioFilename
             })
         });
-
+        
         const result = await response.text();
-        console.log('📥 Workout update response:', result);
-
-        if (result.includes("OK")) {
-            showMessage('success', 'Data workout berhasil disimpan!', 3000, `pertemuan${hariKe}`);
-
-            localStorage.setItem(`workout_kardio_type_${hariKe}`, kardioType);
-            localStorage.setItem(`workout_start_time_${hariKe}`, startTime);
-            localStorage.setItem(`workout_stop_time_${hariKe}`, stopTime);
-
-            // 🔑 status simpan
-            localStorage.setItem(`workout_saved_${hariKe}`, 'true');
-
-            saveWorkoutStatus(hariKe, 'saved');
+        console.log('📥 Response dari server:', result);
+        
+        // 8. Proses response
+        if (result && result.trim() !== '') {
+            // Bersihkan response (hapus "undefined" jika ada)
+            let cleanResult = result.trim();
+            if (cleanResult.startsWith('undefined(')) {
+                cleanResult = cleanResult.substring(9);
+            }
+            if (cleanResult.endsWith(')')) {
+                cleanResult = cleanResult.substring(0, cleanResult.length - 1);
+            }
+            
+            console.log('🧹 Cleaned response:', cleanResult);
+            
+            try {
+                // Parse JSON
+                const jsonResult = JSON.parse(cleanResult);
+                
+                if (jsonResult.success || jsonResult.status === 'success') {
+                    // ✅ BERHASIL
+                    
+                    // Enable tombol Selesai
+                    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+                    if (btnSelesai) {
+                        btnSelesai.disabled = false;
+                        btnSelesai.classList.remove('btn-secondary');
+                        btnSelesai.classList.add('btn-success');
+                    }
+                    
+                    // Simpan status lokal
+                    localStorage.setItem(`workout_saved_${hariKe}`, 'true');
+                    
+                    showMessage('success', 
+                        'Data workout berhasil disimpan! Klik "Selesai" untuk menyelesaikan.', 
+                        3000, 
+                        `pertemuan${hariKe}`
+                    );
+                    
+                    return true;
+                } else {
+                    // ❌ GAGAL
+                    showMessage('error', 
+                        `Gagal menyimpan: ${jsonResult.message || jsonResult.error || 'Unknown error'}`, 
+                        3000, 
+                        `pertemuan${hariKe}`
+                    );
+                }
+                
+            } catch (parseError) {
+                console.error('❌ Error parsing JSON:', parseError);
+                console.error('Raw response:', result);
+                
+                // Coba cek jika ada string "OK" atau "success"
+                if (result.includes('OK') || result.includes('success')) {
+                    // ✅ BERHASIL (format simple)
+                    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+                    if (btnSelesai) {
+                        btnSelesai.disabled = false;
+                        btnSelesai.classList.remove('btn-secondary');
+                        btnSelesai.classList.add('btn-success');
+                    }
+                    
+                    localStorage.setItem(`workout_saved_${hariKe}`, 'true');
+                    
+                    showMessage('success', 
+                        'Data workout berhasil disimpan!', 
+                        3000, 
+                        `pertemuan${hariKe}`
+                    );
+                    
+                    return true;
+                } else {
+                    showMessage('error', 
+                        `Error dari server: ${result.substring(0, 100)}`, 
+                        3000, 
+                        `pertemuan${hariKe}`
+                    );
+                }
+            }
         } else {
-            showMessage('error', 'Gagal menyimpan data workout: ' + result, 3000, `pertemuan${hariKe}`);
+            showMessage('error', 
+                'Response kosong dari server', 
+                3000, 
+                `pertemuan${hariKe}`
+            );
         }
+        
     } catch (error) {
-        console.error('❌ Workout save error:', error);
-        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
+        console.error('❌ Network error:', error);
+        showMessage('error', 
+            `Network error: ${error.message}`, 
+            3000, 
+            `pertemuan${hariKe}`
+        );
+    } finally {
+        // Reset tombol simpan
+        if (btnSimpan) {
+            btnSimpan.innerHTML = '<i class="fa fa-save"></i> Simpan';
+            btnSimpan.disabled = false;
+        }
     }
+    
+    return false;
 }
 
 /*********************************
@@ -6403,10 +6546,57 @@ function loadSavedResistanceData(hariKe) {
     });
 }
 
-/*********************************************
-* Get resistance data untuk dikirim ke server
-**********************************************/
+/*******************************************
+ * GET RESISTANCE DATA FOR SERVER - FIXED
+ *******************************************/
 function getResistanceDataForServer(hariKe) {
+    console.log(`📊 Mengambil data resistance untuk server hari ${hariKe}`);
+    
+    const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    if (!container) {
+        return {
+            resistenExercises: '',
+            totalSets: 0,
+            totalReps: 0,
+            totalMinutes: 0
+        };
+    }
+    
+    let resistenExercises = [];
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalMinutes = 0;
+    
+    // Ambil semua exercise item
+    const exerciseItems = container.querySelectorAll('.resistance-exercise-item');
+    
+    exerciseItems.forEach(item => {
+        const exerciseName = item.querySelector('[id^="jenisResistance-"]')?.value || '';
+        if (exerciseName) {
+            const setId = item.querySelector('[id^="jmlSet-"]')?.id || '';
+            const repId = item.querySelector('[id^="jmlRepetisi-"]')?.id || '';
+            const durasiId = item.querySelector('[id^="jmlDurasi-"]')?.id || '';
+            
+            const sets = parseInt(item.querySelector(`#${setId}`)?.value || 0);
+            const reps = parseInt(item.querySelector(`#${repId}`)?.value || 0);
+            const minutes = parseInt(item.querySelector(`#${durasiId}`)?.value || 0);
+            
+            resistenExercises.push(exerciseName);
+            totalSets += sets;
+            totalReps += reps;
+            totalMinutes += minutes;
+        }
+    });
+    
+    return {
+        resistenExercises: resistenExercises.join(', '),
+        totalSets: totalSets,
+        totalReps: totalReps,
+        totalMinutes: totalMinutes
+    };
+}
+
+function BACKUP_getResistanceDataForServer(hariKe) {
     const allKeys = Object.keys(localStorage);
     const resistanceKeys = allKeys.filter(key => key.startsWith(`resistance-${hariKe}-`));
     
@@ -7780,6 +7970,40 @@ function debugServerResponse(hariKe) {
         .catch(error => {
             console.error('❌ Server connection error:', error);
         });
+}
+
+/*******************************************
+ * TEST SERVER CONNECTION - Debugging
+ *******************************************/
+async function testServerConnection() {
+    console.log('🔍 Testing server connection...');
+    
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error('❌ No userId found');
+        return;
+    }
+    
+    try {
+        const testUrl = `${URL_PROGRAM_APP}?action=test&userId=${encodeURIComponent(userId)}&timestamp=${Date.now()}`;
+        console.log('Test URL:', testUrl);
+        
+        const response = await fetch(testUrl);
+        const result = await response.text();
+        
+        console.log('✅ Server test response:', result.substring(0, 200));
+        
+        // Parse JSON jika memungkinkan
+        try {
+            const jsonResult = JSON.parse(result);
+            console.log('📊 Parsed JSON:', jsonResult);
+        } catch (e) {
+            console.log('⚠️ Response bukan JSON valid');
+        }
+        
+    } catch (error) {
+        console.error('❌ Server test error:', error);
+    }
 }
 
 </script>
