@@ -5124,18 +5124,12 @@ async function selesaiWorkout(hariKe) {
 }
 
 /****************************************
- * SHOW WORKOUT FORM (FINAL & PRECISE)
- * - Render workout form
- * - Load saved data
- * - Apply READ ONLY for USER LAMA
- ****************************************/
-/****************************************
- * SHOW WORKOUT FORM - FIXED FINAL
+ * SHOW WORKOUT FORM - FINAL VERSION
  ****************************************/
 function showWorkoutForm(hariKe) {
     console.log(`👟 Showing workout form for day ${hariKe}`);
     
-    // 1. Pastikan form HTML sudah digenerate untuk hari ini
+    // 1. Pastikan form HTML sudah digenerate
     const containerId = hariKe === 1 ? 'olahragaKardio-list' : `olahragaKardio-list${hariKe}`;
     const container = document.getElementById(containerId);
     
@@ -5148,16 +5142,16 @@ function showWorkoutForm(hariKe) {
     // 2. Tampilkan submenu
     showSubmenu(`workoutContent${hariKe}`);
     
-    // 3. Setup event listeners
+    // 3. Setup event listeners (DENGAN FUNGSI YANG BENAR)
     setupWorkoutEventListeners(hariKe);
     
     // 4. Setup resistance
     setupResistanceExercises(hariKe);
     
-    // 5. Load saved data jika ada
-    if (typeof loadSavedWorkoutData === 'function') {
-        loadSavedWorkoutData(hariKe);
-    }
+    // 5. Debug server connection
+    debugServerResponse(hariKe);
+    
+    console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
 
 function BACKUP_showWorkoutForm(hariKe) {
@@ -5196,24 +5190,34 @@ function BACKUP_showWorkoutForm(hariKe) {
 }
 
 /************************************************
- * SETUP WORKOUT EVENT LISTENERS - FIXED (Flexible)
- ************************************************/
-/************************************************
- * SETUP WORKOUT EVENT LISTENERS - FIXED FINAL
+ * SETUP WORKOUT EVENT LISTENERS - FINAL FIX
+ * Panggil fungsi yang sudah ada di REVISI_27
  ************************************************/
 function setupWorkoutEventListeners(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
     
-    // 1. Setup tombol Simpan
+    // 1. Setup tombol Simpan - PANGGIL FUNGSI YANG SUDAH ADA
     const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
     if (btnSimpan) {
         console.log(`✅ Found Simpan button for day ${hariKe}`);
-        // Hapus event listener lama jika ada
-        btnSimpan.onclick = null;
-        // Tambahkan event listener baru
-        btnSimpan.addEventListener('click', function() {
+        
+        // Hapus semua event listener sebelumnya
+        const newBtnSimpan = btnSimpan.cloneNode(true);
+        btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
+        
+        // Tambahkan event listener yang memanggil fungsi ASLI
+        newBtnSimpan.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             console.log(`💾 Simpan workout clicked for day ${hariKe}`);
-            simpanWorkoutData(hariKe);
+            
+            // PANGGIL FUNGSI simpanWorkoutData() YANG SUDAH ADA DI REVISI_27
+            if (typeof window.simpanWorkoutData === 'function') {
+                window.simpanWorkoutData(hariKe);
+            } else {
+                console.error('❌ Fungsi simpanWorkoutData tidak ditemukan!');
+                alert('Error: Fungsi penyimpanan tidak ditemukan');
+            }
         });
     } else {
         console.error(`❌ Simpan button not found for day ${hariKe}`);
@@ -5224,12 +5228,24 @@ function setupWorkoutEventListeners(hariKe) {
     if (btnSelesai) {
         console.log(`✅ Found Selesai button for day ${hariKe}`);
         btnSelesai.disabled = true; // Default disabled
-        // Hapus event listener lama jika ada
-        btnSelesai.onclick = null;
-        // Tambahkan event listener baru
-        btnSelesai.addEventListener('click', function() {
+        
+        // Hapus semua event listener sebelumnya
+        const newBtnSelesai = btnSelesai.cloneNode(true);
+        btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
+        
+        // Tambahkan event listener
+        newBtnSelesai.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             console.log(`✅ Selesai workout clicked for day ${hariKe}`);
-            selesaiWorkoutFinal(hariKe);
+            
+            // PANGGIL FUNGSI selesaiWorkoutFinal() YANG SUDAH ADA
+            if (typeof window.selesaiWorkoutFinal === 'function') {
+                window.selesaiWorkoutFinal(hariKe);
+            } else {
+                console.error('❌ Fungsi selesaiWorkoutFinal tidak ditemukan!');
+                alert('Error: Fungsi penyelesaian tidak ditemukan');
+            }
         });
     } else {
         console.error(`❌ Selesai button not found for day ${hariKe}`);
@@ -5237,7 +5253,6 @@ function setupWorkoutEventListeners(hariKe) {
     
     console.log(`✅ Workout event listeners setup complete for day ${hariKe}`);
 }
-
 
 function BACKUP_setupWorkoutEventListeners(hariKe) {
     console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
@@ -5492,79 +5507,107 @@ function setStopTimeKardio(hariKe) {
  * Simpan data workout ke server - SIMPLE FIX
  *********************************/
 async function simpanWorkoutData(hariKe) {
-    console.log(`💾 Simpan workout data hari ${hariKe}`);
-    
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
     if (!userId) {
-        alert('Silakan login terlebih dahulu');
+        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
         return;
     }
     
-    // 1. Ambil data kardio
+    // 1️⃣ COLLECT KARDIO DATA
     const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
-    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
-    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
     
-    // 2. Validasi minimal input
-    if (!kardioType && !startTime && !stopTime) {
-        alert('Isi minimal salah satu data olahraga!');
-        return;
+    // 2️⃣ PAKSA SIMPAN RESISTANCE KE LOCALSTORAGE
+    document
+        .querySelectorAll(`#selectedResistanceContainer${hariKe} input`)
+        .forEach(input => {
+            const exerciseId = input.dataset.exercise;
+            if (exerciseId) {
+                saveResistanceData(hariKe, exerciseId);
+            }
+        });
+
+    // 3️⃣ COLLECT RESISTANCE DATA
+    const resistanceData = getResistanceDataForServer(hariKe);
+
+    // 🔒 VALIDASI JENIS WORKOUT (MINIMAL SALAH SATU)
+    const hasKardio     = kardioType && kardioType.trim() !== '';
+    const hasResistance = resistanceData.resistenExercises && resistanceData.resistenExercises.trim() !== '';
+
+    if (!hasKardio && !hasResistance) {
+        showMessage( 'warning','Isi minimal salah satu: Olahraga Kardio atau Olahraga Resistance.', 3000,`pertemuan${hariKe}`);
+        return; // ⛔ HENTIKAN SIMPAN
     }
+
+    // 🔍 VALIDASI KONDISIONAL RESISTANCE (TIDAK BOLEH 0)
+    if (hasResistance) {
+        if (
+            resistanceData.totalSets === 0 ||
+            resistanceData.totalReps === 0 ||
+            resistanceData.totalMinutes === 0
+        ) {
+            showMessage( 'warning', 'Pilih resistance maka : jumlah set, repetisi, dan durasi tidak boleh 0.', 3000,`pertemuan${hariKe}` );
+            return; // ⛔ hentikan proses simpan
+        }
+    }
+
+    // 4️⃣ BENTUK DATA WORKOUT
+    const workoutData = {
+        kardioType: kardioType,
+        startTime: startTime,
+        stopTime: stopTime,
+        resistenExercises: resistanceData.resistenExercises,
+        totalSets: resistanceData.totalSets,
+        totalReps: resistanceData.totalReps,
+        totalMinutes: resistanceData.totalMinutes
+    };
     
-    // 3. Tampilkan loading
-    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-    if (btnSimpan) {
-        btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-        btnSimpan.disabled = true;
-    }
+    console.log('📤 Sending workout data for day', hariKe, ':', workoutData);
+    
+    // 5️⃣ FILE KARDIO
+    const kardioFile     = localStorage.getItem(`workout_kardio_file_${hariKe}`);
+    const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
     
     try {
-        // 4. Kirim ke server
+        // showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
+        
         const response = await fetch(URL_PROGRAM_APP, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' 
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
                 action: 'updateWorkout',
                 userId: userId,
-                userName: userName || userId,
+                userName: userName,
                 hariKe: hariKe,
-                kardioType: kardioType,
-                startTime: startTime,
-                stopTime: stopTime
+                workoutData: JSON.stringify(workoutData),
+                kardioFile: kardioFile || '',
+                kardioFilename: kardioFilename || ''
             })
         });
-        
+
         const result = await response.text();
-        console.log('📥 Server response:', result);
-        
-        if (result && result.includes("OK")) {
-            // ✅ ENABLE TOMBOL SELESAI
-            const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-            if (btnSelesai) {
-                btnSelesai.disabled = false;
-                btnSelesai.classList.remove('btn-secondary');
-                btnSelesai.classList.add('btn-success');
-            }
-            
-            alert('Data workout berhasil disimpan! Klik "Selesai" untuk menyelesaikan.');
-            
+        console.log('📥 Workout update response:', result);
+
+        if (result.includes("OK")) {
+            showMessage('success', 'Data workout berhasil disimpan!', 3000, `pertemuan${hariKe}`);
+
+            localStorage.setItem(`workout_kardio_type_${hariKe}`, kardioType);
+            localStorage.setItem(`workout_start_time_${hariKe}`, startTime);
+            localStorage.setItem(`workout_stop_time_${hariKe}`, stopTime);
+
+            // 🔑 status simpan
+            localStorage.setItem(`workout_saved_${hariKe}`, 'true');
+
+            saveWorkoutStatus(hariKe, 'saved');
         } else {
-            alert('Gagal menyimpan: ' + result);
+            showMessage('error', 'Gagal menyimpan data workout: ' + result, 3000, `pertemuan${hariKe}`);
         }
-        
     } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Error: ' + error.message);
-    } finally {
-        // Reset tombol simpan
-        if (btnSimpan) {
-            btnSimpan.innerHTML = '<i class="fa fa-save"></i> Simpan';
-            btnSimpan.disabled = false;
-        }
+        console.error('❌ Workout save error:', error);
+        showMessage('error', 'Gagal terhubung: ' + error.message, 3000, `pertemuan${hariKe}`);
     }
 }
 
@@ -7948,6 +7991,36 @@ function debugWorkoutStructure() {
     } else {
         console.error('❌ workoutContent1 not found!');
     }
+}
+
+/*******************************************
+ * DEBUG SERVER RESPONSE - Helper
+ *******************************************/
+function debugServerResponse(hariKe) {
+    console.log(`🔍 Debug server untuk hari ${hariKe}`);
+    
+    // Ambil data dari form
+    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const kardioFile = document.getElementById(`kegiatanKardio${hariKe}`)?.value || '';
+    
+    console.log('📊 Data form:', {
+        kardioType,
+        startTime,
+        stopTime,
+        kardioFile
+    });
+    
+    // Test koneksi ke server
+    fetch(URL_PROGRAM_APP + '?action=test&userId=' + encodeURIComponent(localStorage.getItem('userId')))
+        .then(response => response.text())
+        .then(result => {
+            console.log('✅ Test server connection:', result.substring(0, 100));
+        })
+        .catch(error => {
+            console.error('❌ Server connection error:', error);
+        });
 }
 
 </script>
