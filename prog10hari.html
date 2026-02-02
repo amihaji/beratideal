@@ -5416,11 +5416,27 @@ async function simpanWorkoutData(hariKe) {
     };
     
     console.log('📤 Sending workout data for day', hariKe, ':', workoutData);
-    
     // 5️⃣ FILE KARDIO
     const kardioFile     = localStorage.getItem(`workout_kardio_file_${hariKe}`);
     const kardioFilename = localStorage.getItem(`workout_kardio_filename_${hariKe}`);
-    
+
+    // Awal Debug  
+    console.log('🔍 Debug dalam simpanWorkoutData:');
+    console.log('userId:', userId);
+    console.log('userName:', userName);
+    console.log('hariKe:', hariKe);
+    console.log('URL_PROGRAM_APP:', URL_PROGRAM_APP);
+    console.log('📤 Request body:', new URLSearchParams({
+        action: 'updateWorkout',
+        userId: userId,
+        userName: userName,
+        hariKe: hariKe,
+        workoutData: JSON.stringify(workoutData),
+        kardioFile: kardioFile || '',
+        kardioFilename: kardioFilename || ''
+     }).toString());
+    // Akhir Debug 
+
     try {
         // showMessage('info', 'Menyimpan data workout...', 3000, `pertemuan${hariKe}`);
         
