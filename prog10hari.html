@@ -5154,41 +5154,6 @@ function showWorkoutForm(hariKe) {
     console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
 
-function BACKUP_showWorkoutForm(hariKe) {
-  console.log(`👟 Showing workout form for day ${hariKe}`);
-
-  // =========================
-  // 🔒 USER LAMA (READ ONLY)
-  // =========================
-  if (window.userProgress?.[`workoutHari${hariKe}`] === true) {
-    console.log(`🔒 Workout hari ${hariKe} USER LAMA → READ ONLY`);
-
-    showSubmenuReadOnly(`workoutContent${hariKe}`);
-    enableCloseAndCekDisini(`workoutContent${hariKe}`);
-
-    // PASTIKAN resistance & tombol tetap dirender
-    setupResistanceExercises(hariKe);
-    disableWorkoutUI(hariKe);
-
-    return;
-  }
-
-  // =========================
-  // 🟢 USER BARU
-  // =========================
-  console.log(`🟢 Workout hari ${hariKe} USER BARU`);
-  showSubmenu(`workoutContent${hariKe}`);
-  const container = document.getElementById(
-    `olahragaKardio-list${hariKe > 1 ? hariKe : ''}`
-  );
-  if (!container) return;
-
-  // 🔥 INI KUNCI YANG SELAMA INI HILANG
-  setupResistanceExercises(hariKe);
-  // Aktifkan event
-  setupWorkoutForDay(hariKe);
-}
-
 /************************************************
  * SETUP WORKOUT EVENT LISTENERS - FINAL FIX
  * Panggil fungsi yang sudah ada di REVISI_27
@@ -5252,121 +5217,6 @@ function setupWorkoutEventListeners(hariKe) {
     }
     
     console.log(`✅ Workout event listeners setup complete for day ${hariKe}`);
-}
-
-function BACKUP_setupWorkoutEventListeners(hariKe) {
-    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
-    
-    // Cari tombol dengan berbagai kemungkinan ID
-    const possibleSimpanIds = [
-        `btnSimpanWorkout${hariKe}`,
-        `btnSimpanWorkout`,
-        `simpanWorkout${hariKe}`,
-        `simpanWorkout`
-    ];
-    
-    const possibleSelesaiIds = [
-        `btnSelesaiWorkout${hariKe}`,
-        `btnSelesaiWorkout`,
-        `selesaiWorkout${hariKe}`,
-        `selesaiWorkout`
-    ];
-    
-    let btnSimpan = null;
-    let btnSelesai = null;
-    
-    // Cari tombol Simpan
-    for (const id of possibleSimpanIds) {
-        btnSimpan = document.getElementById(id);
-        if (btnSimpan) {
-            console.log(`✅ Found Simpan button with ID: ${id}`);
-            break;
-        }
-    }
-    
-    // Cari tombol Selesai
-    for (const id of possibleSelesaiIds) {
-        btnSelesai = document.getElementById(id);
-        if (btnSelesai) {
-            console.log(`✅ Found Selesai button with ID: ${id}`);
-            break;
-        }
-    }
-    
-    // Jika masih tidak ditemukan, cari berdasarkan text
-    if (!btnSimpan) {
-        const allButtons = document.querySelectorAll('button');
-        for (const btn of allButtons) {
-            if (btn.textContent.includes('Simpan') && btn.textContent.includes('Workout')) {
-                btnSimpan = btn;
-                console.log(`✅ Found Simpan button by text: ${btn.textContent}`);
-                break;
-            }
-        }
-    }
-    
-    if (!btnSelesai) {
-        const allButtons = document.querySelectorAll('button');
-        for (const btn of allButtons) {
-            if (btn.textContent.includes('Selesai') && btn.textContent.includes('Workout')) {
-                btnSelesai = btn;
-                console.log(`✅ Found Selesai button by text: ${btn.textContent}`);
-                break;
-            }
-        }
-    }
-    
-    // Setup event listeners jika ditemukan
-    if (btnSimpan) {
-        btnSimpan.onclick = function() {
-            console.log(`💾 Simpan workout clicked for day ${hariKe}`);
-            simpanWorkoutData(hariKe);
-        };
-    } else {
-        console.error(`❌ Simpan button not found for day ${hariKe}`);
-    }
-    
-    if (btnSelesai) {
-        btnSelesai.disabled = true;
-        btnSelesai.onclick = function() {
-            console.log(`✅ Selesai workout clicked for day ${hariKe}`);
-            selesaiWorkoutFinal(hariKe);
-        };
-    } else {
-        console.error(`❌ Selesai button not found for day ${hariKe}`);
-    }
-}
-
-function BACKUP_setupWorkoutEventListeners(hariKe) {
-    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
-    
-    // Tombol Simpan
-    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-    if (btnSimpan) {
-        console.log(`✅ Found Simpan button for day ${hariKe}`);
-        btnSimpan.onclick = function() {
-            console.log(`💾 Simpan workout clicked for day ${hariKe}`);
-            simpanWorkoutData(hariKe);
-        };
-    } else {
-        console.error(`❌ Simpan button not found for day ${hariKe}`);
-    }
-    
-    // Tombol Selesai
-    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-    if (btnSelesai) {
-        console.log(`✅ Found Selesai button for day ${hariKe}`);
-        btnSelesai.disabled = true; // Default disabled
-        btnSelesai.onclick = function() {
-            console.log(`✅ Selesai workout clicked for day ${hariKe}`);
-            selesaiWorkoutFinal(hariKe);
-        };
-    } else {
-        console.error(`❌ Selesai button not found for day ${hariKe}`);
-    }
-    
-    // Tombol lainnya tetap pakai onclick inline di HTML
-    console.log(`✅ Workout event listeners setup for day ${hariKe}`);
 }
 
 /*******************************
@@ -6042,29 +5892,6 @@ function initializeAllWorkoutDays() {
     console.log('✅ Workout initialization complete for day 1');
 }
 
- function BACKUP_initializeAllWorkoutDays() {
-    console.log('🔧 Initializing all workout days...');
-    
-    // 1. Generate form terlebih dahulu
-    generateWorkoutForms();
-    
-    // 2. Setup untuk setiap hari
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        // Setup event listeners
-        setupWorkoutEventListeners(hariKe);
-        
-        // Setup resistance (buat container jika belum ada)
-        setupResistanceExercises(hariKe);
-        
-        // Cek jika sudah selesai
-        if (localStorage.getItem(`workoutHari${hariKe}`) === 'completed') {
-            console.log(`📊 Workout hari ${hariKe} sudah selesai`);
-            disableWorkoutUI(hariKe);
-            updateSubmenuLinkUI('workout', hariKe);
-        }
-    }
-}
-
 /*******************************************
  * CREATE WORKOUT FORM HTML - FIXED FINAL
  *******************************************/
@@ -6200,7 +6027,6 @@ function generateWorkoutForms() {
     }
 }
 
-
 /*******************************************
  * SHOW RESISTANCE MODAL - Jika belum ada
  *******************************************/
@@ -6277,60 +6103,6 @@ function addSelectedExercise(hariKe) {
     }
 }
 
-
-function BACKUP_createWorkoutFormHTML(hariKe) {
-    return `
-        <div class="form-group mb-2"> 
-            <select class="form-select" id="olahragaKardio${hariKe}" style="max-width: 100%;" required>
-                <option value="">Pilihan Olahraga Kardio...</option>
-                <option value="Lari">Lari</option>
-                <option value="Sepeda">Sepeda</option>
-                <option value="Renang">Renang</option>
-                <option value="Aerobic">Aerobic</option>
-                <option value="Zumba">Zumba</option>
-                <option value="Jalan Cepat">Jalan Cepat</option>
-            </select>
-        </div> 
-
-        <div class="form-label mt-2 mb-2">Kegiatan Olahraga :</div>
-        <div class="input-group mb-2">
-            <input class="form-control" type="text" id="kegiatanKardio${hariKe}" placeholder="Upload" style="max-width: 100%;" readonly>
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUploadKardio${hariKe}" data-bs-toggle="tooltip" title="upload">
-                <i class="fa fa-cloud-upload"></i>
-            </button>
-        </div>
-        
-        <div class="form-label mt-1 mb-0">Durasi Olahraga :</div>
-        <div class="input-group mt-0 mb-2">
-            <button type="button" class="btn btn-primary btn-sm" id="btnStartOlahraga${hariKe}" data-bs-toggle="tooltip" title="Waktu Mulai">
-                Start
-            </button>
-            <input class="form-control" type="time" id="startOlahraga${hariKe}" style="max-width: 100%;">  
-        </div>
-
-        <div class="input-group mt-0 mb-2">
-            <button type="button" class="btn btn-danger btn-sm" id="btnStopOlahraga${hariKe}" data-bs-toggle="tooltip" title="Waktu Berhenti">
-                Stop
-            </button>
-            <input class="form-control" type="time" id="stopOlahraga${hariKe}" style="max-width: 100%;">  
-        </div>
-        
-        <!-- Resistance Section akan ditambahkan oleh setupResistanceExercises -->
-        <div id="resistance-section${hariKe}">
-            <!-- Tempat untuk dropdown dan selected resistance exercises -->
-        </div>
-
-        <div class="text-left mt-4">
-            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
-                <i class="fa fa-pencil-square-o"></i> Simpan
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}" disabled>
-                <i class="fa fa-check"></i> Selesai Workout
-            </button>
-        </div>
-    `;
-}
-
 /*******************************************
  * SETUP RESISTANCE EXERCISES - FIXED FINAL
  *******************************************/
@@ -6345,40 +6117,12 @@ function setupResistanceExercises(hariKe) {
     
     console.log(`✅ Resistance container ready for day ${hariKe}`);
 }
-
- function BACKUP_setupResistanceExercises(hariKe) {
-    console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
-    
-    // Cek jika container sudah ada
-    const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
-    if (!resistanceContainer) {
-        console.log(`⚠️ Resistance container not found for day ${hariKe}, creating one`);
-        
-        // Cari resistance section
-        const resistanceSection = document.getElementById(`resistance-section${hariKe}`);
-        if (resistanceSection) {
-            // Buat container baru
-            const newContainer = document.createElement('div');
-            newContainer.id = `selectedResistanceContainer${hariKe}`;
-            newContainer.className = 'mt-3';
-            resistanceSection.appendChild(newContainer);
-            console.log(`✅ Created resistance container for day ${hariKe}`);
-        }
-    }
-    // Jika ada saved data, restore menggunakan fungsi yang sudah ada
-    const savedExercise = localStorage.getItem(`saved_resistance_${hariKe}`);
-    if (savedExercise && typeof addResistanceExercise === 'function') {
-        console.log(`🔄 Restoring saved resistance exercise: ${savedExercise}`);
-        addResistanceExercise(hariKe, savedExercise, true); // true = fromRestore
-    }
-}
-
+ 
 function isWorkoutCompleted(hariKe) {
     // Prioritas 1: data dari server
     if (window.userProgress && window.userProgress[`workoutHari${hariKe}`] === true) {
         return true;
     }
-
     // Prioritas 2: localStorage fallback
     const localStatus = localStorage.getItem(`workoutHari${hariKe}`);
     return localStatus === 'completed';
@@ -6388,7 +6132,6 @@ function isWorkoutCompleted(hariKe) {
 * Apply Read-Only Mode untuk Workout yang Sudah Selesai *
 *********************************************************/
 function applyWorkoutReadOnlyMode(hariKe) {
-
   // ✅ USER BARU → STOP
   if (!window.userProgress || !window.userProgress[`workoutHari${hariKe}`]) {
     console.log(`🟢 applyWorkoutReadOnlyMode SKIP (USER BARU) hari ${hariKe}`);
