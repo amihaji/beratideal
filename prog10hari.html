@@ -5120,6 +5120,38 @@ function createMealPlanFormHTML(hariKe) {
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
 async function selesaiWorkout(hariKe) {
+  try {
+    console.log("🏁 Menyelesaikan workout hari", hariKe);
+
+    const params = new URLSearchParams();
+    params.append("action", "completeWorkout");
+    params.append("userId", userId);
+    params.append("hariKe", hariKe);
+
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: params
+    });
+
+    const text = await res.text();
+    console.log("📥 Response complete workout:", text);
+
+    if (text.includes('"success":true') || text.includes("success")) {
+      // 🔒 KUNCI SEMUA INPUT & TOMBOL
+      lockWorkoutUI(hariKe); // FUNGSI SUDAH ADA
+
+      // ✅ TAMPILKAN ICON CENTANG
+      tampilkanCentangWorkout(hariKe); // FUNGSI SUDAH ADA
+    }
+
+  } catch (err) {
+    console.error("❌ Gagal menyelesaikan workout:", err);
+    alert("Gagal menyelesaikan workout");
+  }
+}
+
+
+async function BACKUP_selesaiWorkout(hariKe) {
     console.log('🏋️‍♂️ Selesaikan workout hari:', hariKe);
     
     // Tampilkan form workout langsung
@@ -5423,11 +5455,70 @@ function setStopTimeKardio(hariKe) {
 /********************************
  * Simpan data workout ke server - SIMPLE FIX
  *********************************/
-/********************************
- * SIMPAN WORKOUT DATA - FIXED FINAL
- * Mengatasi error: "Cannot read properties of undefined (reading 'userId')"
- *********************************/
 async function simpanWorkoutData(hariKe) {
+  try {
+    console.log("💾 Simpan workout data hari", hariKe);
+
+    const workoutData = ambilDataWorkoutHari(hariKe); // FUNGSI SUDAH ADA
+    console.log("📊 Data workout final:", workoutData);
+
+    const params = new URLSearchParams();
+    params.append("action", "updateWorkout");
+    params.append("userId", userId);
+    params.append("userName", userName);
+    params.append("hariKe", hariKe);
+    params.append("workoutData", JSON.stringify(workoutData));
+    params.append("kardioFile", workoutData.kardioFile || "");
+    params.append("kardioFilename", workoutData.kardioFilename || "");
+
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: params
+    });
+
+    const text = await res.text();
+    console.log("📥 Response dari server:", text);
+
+    if (text.trim() === "OK") {
+      console.log("📤 Hasil simpan: Berhasil");
+
+      // 🔑 AKTIFKAN TOMBOL SELESAI
+      const btnSelesai = document.getElementById(`btnWorkoutDone${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+
+      return true;
+    } else {
+      throw new Error(text);
+    }
+
+  } catch (err) {
+    console.error("❌ Gagal simpan workout:", err);
+    alert("Gagal menyimpan data workout");
+    return false;
+  }
+}
+
+function ambilDataWorkoutHari(hariKe) {
+  const data = {};
+
+  // ===== KARDIO =====
+  data.kardioType = document.querySelector(`input[name="kardioType${hariKe}"]:checked`)?.value || "";
+  data.startTime  = document.getElementById(`kardioStart${hariKe}`)?.value || "";
+  data.stopTime   = document.getElementById(`kardioStop${hariKe}`)?.value || "";
+  data.kardioFile = window[`kardioFileHari${hariKe}`] || "";
+  data.kardioFilename = window[`kardioFilenameHari${hariKe}`] || "";
+
+  // ===== RESISTEN (INI YANG TADI HILANG) =====
+  const resistance = ambilResistanceHari(hariKe); // FUNGSI SUDAH ADA
+  data.resistenExercises = resistance.list || "";
+  data.totalSets   = resistance.totalSets || 0;
+  data.totalReps   = resistance.totalReps || 0;
+  data.totalMinutes = resistance.totalMinutes || 0;
+
+  return data;
+}
+
+ async function BACKUP_simpanWorkoutData(hariKe) {
     console.log(`💾 Simpan workout data hari ${hariKe}`);
     
     // 1. Ambil data user
