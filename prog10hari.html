@@ -5121,12 +5121,8 @@ function createMealPlanFormHTML(hariKe) {
 ******************************************/
 async function selesaiWorkout(hariKe) {
   try {
-    const user = window.currentUser;
-    if (!user || !user.userId) {
-      throw new Error("User belum siap");
-    }
-
-    const userId = user.userId;
+    // 🔑 PERSIS SEPERTI MODUL LAIN
+    const userId = localStorage.getItem("userId");
 
     console.log("🏁 Menyelesaikan workout hari", hariKe);
     console.log("User ID:", userId);
@@ -5461,14 +5457,9 @@ function setStopTimeKardio(hariKe) {
  *********************************/
 async function simpanWorkoutData(hariKe) {
   try {
-    // 🔑 AMBIL USER DARI STATE ASLI APLIKASI
-    const user = window.currentUser;
-    if (!user || !user.userId) {
-      throw new Error("User belum siap");
-    }
-
-    const userId = user.userId;
-    const userName = user.userName;
+    // 🔑 PERSIS SEPERTI MATERI / MEAL / WATER
+    const userId   = localStorage.getItem("userId");
+    const userName = localStorage.getItem("userName");
 
     console.log("💾 Tombol Simpan diklik untuk hari", hariKe);
     console.log("User ID:", userId);
@@ -5500,6 +5491,7 @@ async function simpanWorkoutData(hariKe) {
       return true;
     }
 
+    // BIARKAN BACKEND YANG MENENTUKAN ERROR
     throw new Error(text);
 
   } catch (err) {
