@@ -5123,27 +5123,22 @@ async function selesaiWorkout(hariKe) {
   try {
     console.log("🏁 Menyelesaikan workout hari", hariKe);
 
-    if (!window.userId) {
-      console.warn("⏭️ Skip selesai workout: user belum siap");
-      return;
-    }
-
     const params = new URLSearchParams();
     params.append("action", "completeWorkout");
-    params.append("userId", window.userId);
+    params.append("userId", userId);
     params.append("hariKe", hariKe);
 
-    const res = await fetch(WEB_APP_URL, {
+    const response = await fetch(WEB_APP_URL, {
       method: "POST",
       body: params
     });
 
-    const text = await res.text();
+    const text = await response.text();
     console.log("📥 Response complete workout:", text);
 
     if (text.includes("success")) {
-      lockWorkoutUI(hariKe);           // SUDAH ADA
-      tampilkanCentangWorkout(hariKe); // SUDAH ADA
+      lockWorkoutUI(hariKe);            // SUDAH ADA
+      tampilkanCentangWorkout(hariKe);  // SUDAH ADA
     }
 
   } catch (err) {
@@ -5459,37 +5454,33 @@ function setStopTimeKardio(hariKe) {
 async function simpanWorkoutData(hariKe) {
   try {
     console.log("💾 Tombol Simpan diklik untuk hari", hariKe);
-
-    // 🔑 IKUT POLA MODUL LAIN: ambil dari parameter global yang SUDAH ADA
-    if (!window.userId || !window.userName) {
-      console.warn("⏭️ Skip simpan: user belum siap");
-      return;
-    }
+    console.log("User ID:", userId);
+    console.log("User Name:", userName);
 
     const workoutData = ambilDataWorkoutHari(hariKe);
     console.log("📊 Data workout final:", workoutData);
 
     const params = new URLSearchParams();
     params.append("action", "updateWorkout");
-    params.append("userId", window.userId);
-    params.append("userName", window.userName);
+    params.append("userId", userId);
+    params.append("userName", userName);
     params.append("hariKe", hariKe);
     params.append("workoutData", JSON.stringify(workoutData));
     params.append("kardioFile", workoutData.kardioFile || "");
     params.append("kardioFilename", workoutData.kardioFilename || "");
 
-    const res = await fetch(WEB_APP_URL, {
+    const response = await fetch(WEB_APP_URL, {
       method: "POST",
       body: params
     });
 
-    const text = await res.text();
+    const text = await response.text();
     console.log("📥 Response dari server:", text);
 
     if (text.trim() === "OK") {
       const btnSelesai = document.getElementById(`btnWorkoutDone${hariKe}`);
       if (btnSelesai) btnSelesai.disabled = false;
-      return;
+      return true;
     }
 
     throw new Error(text);
@@ -5497,6 +5488,7 @@ async function simpanWorkoutData(hariKe) {
   } catch (err) {
     console.error("❌ Gagal simpan workout:", err);
     alert("❌ Gagal simpan workout");
+    return false;
   }
 }
 
