@@ -5119,9 +5119,10 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
-async function selesaiWorkout(hariKe) {
+async function selesaiWorkout(hariKe, userId) {
   try {
     console.log("🏁 Menyelesaikan workout hari", hariKe);
+    console.log("User ID:", userId);
 
     const params = new URLSearchParams();
     params.append("action", "completeWorkout");
@@ -5451,7 +5452,7 @@ function setStopTimeKardio(hariKe) {
 /*********************************
  * Simpan data workout ke server 
  *********************************/
-async function simpanWorkoutData(hariKe) {
+async function simpanWorkoutData(hariKe, userId, userName) {
   try {
     console.log("💾 Tombol Simpan diklik untuk hari", hariKe);
     console.log("User ID:", userId);
@@ -5491,6 +5492,7 @@ async function simpanWorkoutData(hariKe) {
     return false;
   }
 }
+
 
 function ambilDataWorkoutHari(hariKe) {
   const data = {};
