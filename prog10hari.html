@@ -5428,36 +5428,42 @@ function simpanWorkoutData(hariKe) {
 
 
 function ambilDataWorkoutHari(hariKe) {
-  // ======================
-  // KARDIO (LANGSUNG DARI FORM)
-  // ======================
+  // ===== KARDIO =====
   const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
   const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
   const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
 
-  // ======================
-  // RESISTANCE (SATU SUMBER DATA)
-  // ======================
-  const key = `resistance_data_${hariKe}`;
-  const resistanceList = JSON.parse(localStorage.getItem(key) || '[]');
-
+  // ===== RESISTANCE =====
+  let resistenList = [];
   let totalSets = 0;
   let totalReps = 0;
   let totalMinutes = 0;
-  let exerciseNames = [];
 
-  resistanceList.forEach(item => {
-    if (item.name) exerciseNames.push(item.name);
-    totalSets     += Number(item.set || 0);
-    totalReps     += Number(item.repetisi || 0);
-    totalMinutes += Number(item.durasi || 0);
-  });
+  const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
+  if (container) {
+    const items = container.querySelectorAll('[data-exercise]');
+    items.forEach(item => {
+      const name  = item.dataset.exercise;
+      const set   = Number(item.dataset.set || 0);
+      const reps  = Number(item.dataset.reps || 0);
+      const dur   = Number(item.dataset.duration || 0);
+
+      resistenList.push(name);
+      totalSets    += set;
+      totalReps    += reps;
+      totalMinutes+= dur;
+    });
+  }
 
   return {
     kardioType,
     startTime,
     stopTime,
-    resistenExercises: exerciseNames.join(', '),
+
+    kardioFile: window.kardioFileUrlByDay?.[hariKe] || '',
+    kardioFilename: '',
+
+    resistenExercises: resistenList.join(', '),
     totalSets,
     totalReps,
     totalMinutes
