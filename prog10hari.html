@@ -5121,7 +5121,6 @@ function createMealPlanFormHTML(hariKe) {
 ******************************************/
 async function selesaiWorkout(hariKe) {
   try {
-    // 🔑 PERSIS SEPERTI MODUL LAIN
     const userId = localStorage.getItem("userId");
 
     console.log("🏁 Menyelesaikan workout hari", hariKe);
@@ -5141,13 +5140,12 @@ async function selesaiWorkout(hariKe) {
     console.log("📥 Response complete workout:", text);
 
     if (text.includes("success")) {
-      lockWorkoutUI(hariKe);
-      tampilkanCentangWorkout(hariKe);
+      updateSubmenuLinkUI("workout", hariKe);
+      // ❌ JANGAN panggil fungsi yang tidak ada
     }
 
   } catch (err) {
     console.error("❌ Gagal menyelesaikan workout:", err);
-    alert("❌ Gagal menyelesaikan workout");
   }
 }
 
@@ -5543,50 +5541,52 @@ async function simpanWorkoutData(hariKe) {
   }
 }
 
-
 function ambilDataWorkoutHari(hariKe) {
   const data = {};
 
-  // ===== KARDIO =====
-  data.kardioType =
-    document.querySelector(`input[name="kardioType${hariKe}"]:checked`)?.value || "";
+  // ===== KARDIO TYPE (RADIO) =====
+  const kardioRadio = document.querySelector(
+    `input[name="kardioType${hariKe}"]:checked`
+  );
+  data.kardioType = kardioRadio ? kardioRadio.value : "";
 
-  data.startTime =
-    document.getElementById(`kardioStart${hariKe}`)?.value || "";
+  // ===== TIME =====
+  const startInput = document.querySelector(
+    `input[name="kardioStart${hariKe}"]`
+  );
+  const stopInput = document.querySelector(
+    `input[name="kardioStop${hariKe}"]`
+  );
+  data.startTime = startInput ? startInput.value : "";
+  data.stopTime = stopInput ? stopInput.value : "";
 
-  data.stopTime =
-    document.getElementById(`kardioStop${hariKe}`)?.value || "";
+  // ===== FILE =====
+  data.kardioFile = window[`kardioFileHari${hariKe}`] || "";
+  data.kardioFilename = window[`kardioFilenameHari${hariKe}`] || "";
 
-  data.kardioFile =
-    window[`kardioFileHari${hariKe}`] || "";
-
-  data.kardioFilename =
-    window[`kardioFilenameHari${hariKe}`] || "";
-
-  // ===== RESISTANCE (SESUAI LOG REVISI_29) =====
+  // ===== RESISTANCE =====
   const resistanceMap = window.resistanceDataPerHari?.[hariKe] || {};
 
   let list = [];
-  let totalSet = 0;
-  let totalRepetisi = 0;
-  let totalDurasi = 0;
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
 
   Object.values(resistanceMap).forEach(item => {
     if (!item) return;
     list.push(item.name || "");
-    totalSet += Number(item.set || 0);
-    totalRepetisi += Number(item.repetisi || 0);
-    totalDurasi += Number(item.durasi || 0);
+    totalSets += Number(item.set || 0);
+    totalReps += Number(item.repetisi || 0);
+    totalMinutes += Number(item.durasi || 0);
   });
 
   data.resistenExercises = list.join(", ");
-  data.totalSets = totalSet;
-  data.totalReps = totalRepetisi;
-  data.totalMinutes = totalDurasi;
+  data.totalSets = totalSets;
+  data.totalReps = totalReps;
+  data.totalMinutes = totalMinutes;
 
   return data;
 }
-
 
 function BACKUP_ambilDataWorkoutHari(hariKe) {
   const data = {};
