@@ -5435,39 +5435,49 @@ async function simpanWorkoutData(hariKe) {
 }
 
 function ambilDataWorkoutHari(hariKe) {
-  // =========================
-  // KARDIO (AMBIL LANGSUNG DARI STATE / INPUT YANG SUDAH ADA)
-  // =========================
-  const kardioType   = selectedKardioByDay?.[hariKe] || '';
-  const startTime    = kardioStartTimeByDay?.[hariKe] || '';
-  const stopTime     = kardioStopTimeByDay?.[hariKe] || '';
-  const kardioFile   = kardioFileByDay?.[hariKe] || '';
-  const kardioFilename = kardioFilenameByDay?.[hariKe] || '';
+  const container = document.getElementById(`workoutContent${hariKe}`);
+  if (!container) {
+    throw new Error('Container workout tidak ditemukan');
+  }
 
   // =========================
-  // RESISTANCE (PAKAI DATA YANG SUDAH ADA)
+  // KARDIO
   // =========================
-  const resistanceList = resistanceDataByDay?.[hariKe] || [];
+  const kardioSelect = container.querySelector('select[name="kardioType"]');
+  const startInput   = container.querySelector('input[name="startTime"]');
+  const stopInput    = container.querySelector('input[name="stopTime"]');
 
+  const kardioType = kardioSelect ? kardioSelect.value : '';
+  const startTime  = startInput ? startInput.value : '';
+  const stopTime   = stopInput ? stopInput.value : '';
+
+  // =========================
+  // RESISTANCE (DARI INPUT YANG ADA)
+  // =========================
   let totalSet = 0;
   let totalReps = 0;
   let totalMinutes = 0;
   let exerciseNames = [];
 
-  resistanceList.forEach(item => {
-    totalSet     += Number(item.set || 0);
-    totalReps    += Number(item.repetisi || 0);
-    totalMinutes += Number(item.durasi || 0);
-    if (item.name) exerciseNames.push(item.name);
+  const resistanceRows = container.querySelectorAll('.resistance-row');
+
+  resistanceRows.forEach(row => {
+    const name = row.querySelector('.exercise-name')?.innerText || '';
+    const set  = Number(row.querySelector('input[name="set"]')?.value || 0);
+    const reps = Number(row.querySelector('input[name="repetisi"]')?.value || 0);
+    const dur  = Number(row.querySelector('input[name="durasi"]')?.value || 0);
+
+    if (name) exerciseNames.push(name);
+
+    totalSet     += set;
+    totalReps    += reps;
+    totalMinutes += dur;
   });
 
   return {
     kardioType,
     startTime,
     stopTime,
-    kardioFile,
-    kardioFilename,
-
     resistenExercises: exerciseNames.join(', '),
     totalSets: totalSet,
     totalReps: totalReps,
