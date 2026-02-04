@@ -5121,27 +5121,23 @@ function createMealPlanFormHTML(hariKe) {
 ******************************************/
 async function selesaiWorkout(hariKe) {
   try {
-    const userId = localStorage.getItem('userId');
+    const formData = new FormData();
+    formData.append('action', 'completeWorkout');
+    formData.append('userId', currentUser.userId);
+    formData.append('hariKe', hariKe);
 
-    if (!userId) {
-      console.error('❌ User belum login');
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.append('action', 'completeWorkout');
-    params.append('userId', userId);
-    params.append('hariKe', hariKe);
-
-    const response = await fetch(URL_PROGRAM_APP, {
+    const res = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
-      body: params
+      body: formData
     });
 
-    const result = await response.text();
-    console.log('📥 Response complete workout:', result);
+    const text = await res.text();
+    console.log('📥 Response complete workout:', text);
 
-    // update UI (INI SUDAH ADA)
+    if (!text.includes('success')) {
+      throw new Error('Gagal menyelesaikan workout');
+    }
+
     updateSubmenuLinkUI('workout', hariKe);
     disableButtonsAfterCompletion(hariKe, 'workout');
 
@@ -5149,6 +5145,7 @@ async function selesaiWorkout(hariKe) {
     console.error('❌ Gagal menyelesaikan workout:', err);
   }
 }
+
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
@@ -5388,90 +5385,81 @@ function setStopTimeKardio(hariKe) {
  *********************************/
 async function simpanWorkoutData(hariKe) {
   try {
-    const userId   = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-
-    if (!userId || !userName) {
-      console.error('❌ User belum login (localStorage kosong)');
-      return;
+    if (!window.currentUser || !currentUser.userId) {
+      throw new Error('User belum login');
     }
 
-    console.log('👤 Simpan workout untuk:', userId, userName);
-
-    const workoutData = ambilDataWorkoutHari(hariKe); // ← fungsi SUDAH ADA
+    const workoutData = ambilDataWorkoutHari(hariKe);
 
     console.log('📊 Data workout final:', workoutData);
 
-    const formData = new URLSearchParams();
+    const formData = new FormData();
     formData.append('action', 'updateWorkout');
-    formData.append('userId', userId);
-    formData.append('userName', userName);
+    formData.append('userId', currentUser.userId);
+    formData.append('userName', currentUser.userName);
     formData.append('hariKe', hariKe);
     formData.append('workoutData', JSON.stringify(workoutData));
 
-    // kardio file (kalau ada)
-    if (workoutData.kardioFile) {
-      formData.append('kardioFile', workoutData.kardioFile);
-      formData.append('kardioFilename', workoutData.kardioFilename || '');
+    // File kardio (jika ada)
+    if (window.kardioFileBase64) {
+      formData.append('kardioFile', window.kardioFileBase64);
+      formData.append(
+        'kardioFilename',
+        `${currentUser.userId}_KA${hariKe}.jpg`
+      );
     }
 
-    const response = await fetch(URL_PROGRAM_APP, {
+    const res = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
       body: formData
     });
 
-    const text = await response.text();
+    const text = await res.text();
     console.log('📥 Response dari server:', text);
 
     if (text.trim() !== 'OK') {
-      throw new Error(text);
+      throw new Error('Response server tidak OK');
     }
 
     console.log('✅ Workout berhasil disimpan');
 
+    // enable tombol selesai
+    const btnSelesai = document.querySelector(`#btnSelesaiWorkout${hariKe}`);
+    if (btnSelesai) btnSelesai.disabled = false;
+
+    return true;
+
   } catch (err) {
     console.error('❌ Gagal simpan workout:', err);
+    return false;
   }
 }
 
+
 function ambilDataWorkoutHari(hariKe) {
-  const container = document.getElementById(`workoutContent${hariKe}`);
-  if (!container) {
-    throw new Error('Container workout tidak ditemukan');
-  }
+  // ======================
+  // KARDIO (LANGSUNG DARI FORM)
+  // ======================
+  const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+  const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+  const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
 
-  // =========================
-  // KARDIO
-  // =========================
-  const kardioSelect = container.querySelector('select[name="kardioType"]');
-  const startInput   = container.querySelector('input[name="startTime"]');
-  const stopInput    = container.querySelector('input[name="stopTime"]');
+  // ======================
+  // RESISTANCE (SATU SUMBER DATA)
+  // ======================
+  const key = `resistance_data_${hariKe}`;
+  const resistanceList = JSON.parse(localStorage.getItem(key) || '[]');
 
-  const kardioType = kardioSelect ? kardioSelect.value : '';
-  const startTime  = startInput ? startInput.value : '';
-  const stopTime   = stopInput ? stopInput.value : '';
-
-  // =========================
-  // RESISTANCE (DARI INPUT YANG ADA)
-  // =========================
-  let totalSet = 0;
+  let totalSets = 0;
   let totalReps = 0;
   let totalMinutes = 0;
   let exerciseNames = [];
 
-  const resistanceRows = container.querySelectorAll('.resistance-row');
-
-  resistanceRows.forEach(row => {
-    const name = row.querySelector('.exercise-name')?.innerText || '';
-    const set  = Number(row.querySelector('input[name="set"]')?.value || 0);
-    const reps = Number(row.querySelector('input[name="repetisi"]')?.value || 0);
-    const dur  = Number(row.querySelector('input[name="durasi"]')?.value || 0);
-
-    if (name) exerciseNames.push(name);
-
-    totalSet     += set;
-    totalReps    += reps;
-    totalMinutes += dur;
+  resistanceList.forEach(item => {
+    if (item.name) exerciseNames.push(item.name);
+    totalSets     += Number(item.set || 0);
+    totalReps     += Number(item.repetisi || 0);
+    totalMinutes += Number(item.durasi || 0);
   });
 
   return {
@@ -5479,11 +5467,12 @@ function ambilDataWorkoutHari(hariKe) {
     startTime,
     stopTime,
     resistenExercises: exerciseNames.join(', '),
-    totalSets: totalSet,
-    totalReps: totalReps,
-    totalMinutes: totalMinutes
+    totalSets,
+    totalReps,
+    totalMinutes
   };
 }
+
 
 /*********************************
 * Tandai workout sebagai selesai *
@@ -5919,7 +5908,103 @@ function initializeAllWorkoutDays() {
 /*******************************************
  * CREATE WORKOUT FORM HTML - FIXED FINAL
  *******************************************/
+/*******************************************
+ * CREATE WORKOUT FORM HTML - FINAL FIX
+ *******************************************/
 function createWorkoutFormHTML(hariKe) {
+    return `
+        <!-- Pilih Jenis Olahraga Kardio -->
+        <div class="mt-3 mb-2">
+            <h6>Olahraga Kardio :</h6>
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <i class="fas fa-running"></i>
+                </div>
+                <select class="form-select" id="olahragaKardio${hariKe}">
+                    <option value="">Pilih Jenis Olahraga...</option>
+                    <option value="Lari">Lari</option>
+                    <option value="Sepeda">Sepeda</option>
+                    <option value="Renang">Renang</option>
+                    <option value="Aerobic">Aerobic</option>
+                    <option value="Zumba">Zumba</option>
+                    <option value="Jalan Cepat">Jalan Cepat</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Upload Kardio -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-file-upload"></i>
+            </div>
+            <input class="form-control" type="text"
+                   id="kegiatanKardio${hariKe}"
+                   placeholder="Kegiatan Olahraga" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick="uploadKardioFile(${hariKe})">
+                Upload
+            </button>
+        </div>
+
+        <!-- Start -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-play"></i>
+            </div>
+            <input class="form-control" type="time"
+                   id="startOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick="setStartTimeKardio(${hariKe})">
+                Start
+            </button>
+        </div>
+
+        <!-- Stop -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-stop"></i>
+            </div>
+            <input class="form-control" type="time"
+                   id="stopOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick="setStopTimeKardio(${hariKe})">
+                Stop
+            </button>
+        </div>
+
+        <!-- ================= RESISTANCE ================= -->
+        <div class="mt-4">
+            <h6>Olahraga Resistance :</h6>
+
+            <!-- 🔑 DATA RESISTANCE (WAJIB ADA) -->
+            <input type="hidden" id="resistenExercises${hariKe}">
+            <input type="hidden" id="totalSets${hariKe}">
+            <input type="hidden" id="totalReps${hariKe}">
+            <input type="hidden" id="totalMinutes${hariKe}">
+
+            <button type="button" class="btn btn-outline-primary btn-sm mb-2"
+                    onclick="showResistanceModal(${hariKe})">
+                Tambah Resistance
+            </button>
+
+            <div id="selectedResistanceContainer${hariKe}"></div>
+        </div>
+
+        <!-- Tombol -->
+        <div class="mt-4">
+            <button type="button" class="btn btn-primary btn-sm"
+                    id="btnSimpanWorkout${hariKe}">
+                Simpan
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm"
+                    id="btnSelesaiWorkout${hariKe}" disabled>
+                Selesai
+            </button>
+        </div>
+    `;
+}
+
+ function BACKUP_createWorkoutFormHTML(hariKe) {
     return `
         <!-- Pilih Jenis Olahraga Kardio -->
         <div class="mt-3 mb-2">
@@ -6103,9 +6188,42 @@ function showResistanceModal(hariKe) {
 }
 
 /*******************************************
- * ADD SELECTED EXERCISE - Panggil fungsi yang sudah ada
+ * ADD SELECTED EXERCISE - FINAL FIX
  *******************************************/
 function addSelectedExercise(hariKe) {
+    const selectElement = document.getElementById(`selectExercise${hariKe}`);
+    const exerciseName = selectElement.value;
+
+    if (!exerciseName) {
+        alert('Pilih exercise terlebih dahulu!');
+        return;
+    }
+
+    // Tutup modal
+    const modalEl = document.getElementById(`resistanceModal${hariKe}`);
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+
+    // Tambah ke UI (pakai fungsi yang SUDAH ADA)
+    if (typeof addResistanceExercise === 'function') {
+        addResistanceExercise(hariKe, exerciseName, false);
+    }
+
+    // ============================
+    // 🔑 SIMPAN KE FORM (INI KUNCI)
+    // ============================
+    const resistenInput = document.getElementById(`resistenExercises${hariKe}`);
+
+    let current = resistenInput.value
+        ? resistenInput.value.split(',')
+        : [];
+
+    current.push(exerciseName);
+    resistenInput.value = current.join(',');
+}
+
+
+ function BACKUP_addSelectedExercise(hariKe) {
     const selectElement = document.getElementById(`selectExercise${hariKe}`);
     const exerciseName = selectElement.value;
     
