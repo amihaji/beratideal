@@ -5497,7 +5497,45 @@ async function simpanWorkoutData(hariKe) {
   }
 }
 
+
 function ambilDataWorkoutHari(hariKe) {
+  const data = {};
+
+  // ===== KARDIO =====
+  data.kardioType = document.querySelector(`input[name="kardioType${hariKe}"]:checked`)?.value || "";
+  data.startTime  = document.getElementById(`kardioStart${hariKe}`)?.value || "";
+  data.stopTime   = document.getElementById(`kardioStop${hariKe}`)?.value || "";
+  data.kardioFile     = window[`kardioFileHari${hariKe}`] || "";
+  data.kardioFilename = window[`kardioFilenameHari${hariKe}`] || "";
+
+  // ===== RESISTANCE (AMBIL LANGSUNG DARI STORAGE GLOBAL) =====
+  const resistanceData =
+    window.resistanceExercises?.[hariKe] ||
+    window.resistanceData?.[hariKe] ||
+    window.workoutResistance?.[hariKe] ||
+    [];
+
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
+  let list = [];
+
+  resistanceData.forEach(item => {
+    list.push(item.name);
+    totalSets += Number(item.sets || 0);
+    totalReps += Number(item.reps || 0);
+    totalMinutes += Number(item.minutes || 0);
+  });
+
+  data.resistenExercises = list.join(", ");
+  data.totalSets = totalSets;
+  data.totalReps = totalReps;
+  data.totalMinutes = totalMinutes;
+
+  return data;
+}
+
+function BACKUP_ambilDataWorkoutHari(hariKe) {
   const data = {};
 
   // ===== KARDIO =====
