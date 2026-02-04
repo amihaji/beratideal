@@ -2281,7 +2281,48 @@ function loadWorkoutSavedData(hariKe) {
 /************************************************
 /* Extract File Name dari Drive URL *
 *************************************************/
-function extractFileNameFromDriveUrl(driveUrl) {
+function extractFileNameFromDriveUrl(driveUrl, hariKe) {
+    console.log('🔗 Extracting filename from Drive URL:', driveUrl);
+
+    if (!driveUrl) return '';
+
+    try {
+        let fileId = '';
+
+        // Format: /file/d/FILE_ID/view
+        if (driveUrl.includes('/file/d/')) {
+            const start = driveUrl.indexOf('/d/') + 3;
+            const end = driveUrl.indexOf('/', start);
+            fileId = driveUrl.substring(start, end);
+        }
+
+        // Format: uc?id=FILE_ID
+        if (driveUrl.includes('uc?id=')) {
+            const params = new URLSearchParams(driveUrl.split('?')[1]);
+            fileId = params.get('id');
+        }
+
+        if (!fileId) return '';
+
+        // Ambil filename jika pernah disimpan
+        const savedName = localStorage.getItem(`drive_filename_${fileId}`);
+        if (savedName) return savedName;
+
+        // Fallback: generate ulang
+        const userId = localStorage.getItem('userId') || 'user';
+        const kardioType =
+            document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
+
+        return `${userId}_KA${hariKe}${kardioType}.jpg`;
+
+    } catch (err) {
+        console.error('❌ extractFileName error:', err);
+        return '';
+    }
+}
+
+
+function BACKUP_extractFileNameFromDriveUrl(driveUrl) {
     console.log('🔗 Extracting filename from Drive URL:', driveUrl);
     
     if (!driveUrl) return 'File_terupload.jpg';
@@ -5250,7 +5291,64 @@ function setupWorkoutEventListeners(hariKe) {
 /*******************************
 * Upload file kardio olahraga  *
 ********************************/
-async function uploadKardioFile(hariKe) {
+window.kardioFileUrlByDay = {};     // WAJIB ADA GLOBAL CACHE
+function uploadKardioFile(hariKe) {
+    console.log(`📸 Upload kardio file hari ${hariKe}`);
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async function () {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function () {
+            const base64 = reader.result.split(',')[1];
+
+            const userId = localStorage.getItem('userId');
+            const kardioType =
+                document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
+
+            const fileName = `${userId}_KA${hariKe}${kardioType}.jpg`;
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'uploadKardio');
+            formData.append('userId', userId);
+            formData.append('hariKe', hariKe);
+            formData.append('filename', fileName);
+            formData.append('file', base64);
+
+            const res = await fetch(URL_PROGRAM_APP, {
+                method: 'POST',
+                body: formData
+            });
+
+            const text = await res.text();
+
+            // === PENTING ===
+            window.kardioFileUrlByDay[hariKe] = text;
+
+            // Simpan mapping filename
+            const fileId = text.match(/[-\w]{25,}/)?.[0];
+            if (fileId) {
+                localStorage.setItem(`drive_filename_${fileId}`, fileName);
+            }
+
+            document.getElementById(`kegiatanKardio${hariKe}`).value = fileName;
+
+            console.log('✅ Kardio uploaded:', text);
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    input.click();
+}
+
+
+async function BACKUP_uploadKardioFile(hariKe) {
     console.log(`📸 Upload kardio file hari ${hariKe}`);
     
     const fileInput = document.createElement('input');
@@ -5426,8 +5524,44 @@ function simpanWorkoutData(hariKe) {
   }
 }
 
-
 function ambilDataWorkoutHari(hariKe) {
+    console.log(`📊 Ambil data workout hari ${hariKe}`);
+
+    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+    const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const kardioFile = window.kardioFileUrlByDay?.[hariKe] || '';
+    const kardioFilename = extractFileNameFromDriveUrl(kardioFile, hariKe);
+
+    // === RESISTANCE ===
+    const exercises  =  window.selectedResistanceExercises?.[hariKe] || [];
+    let totalSets    = 0;
+    let totalReps    = 0;
+    let totalMinutes = 0;
+    const exerciseNames = [];
+
+    exercises.forEach(ex => {
+        totalSets += Number(ex.set || 0);
+        totalReps += Number(ex.repetisi || 0);
+        totalMinutes += Number(ex.durasi || 0);
+        exerciseNames.push(ex.name);
+    });
+
+    return {
+        kardioType,
+        kardioFile,
+        kardioFilename,
+        startTime,
+        stopTime,
+
+        resistenExercises: exerciseNames.join(', '),
+        totalSets,
+        totalReps,
+        totalMinutes
+    };
+}
+
+function BACKUP_ambilDataWorkoutHari(hariKe) {
   // ===== KARDIO =====
   const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
   const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
