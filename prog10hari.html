@@ -5119,8 +5119,15 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
-async function selesaiWorkout(hariKe, userId) {
+async function selesaiWorkout(hariKe) {
   try {
+    const user = window.currentUser;
+    if (!user || !user.userId) {
+      throw new Error("User belum siap");
+    }
+
+    const userId = user.userId;
+
     console.log("🏁 Menyelesaikan workout hari", hariKe);
     console.log("User ID:", userId);
 
@@ -5129,7 +5136,7 @@ async function selesaiWorkout(hariKe, userId) {
     params.append("userId", userId);
     params.append("hariKe", hariKe);
 
-    const response = await fetch(WEB_APP_URL, {
+    const response = await fetch(URL_PROGRAM_APP, {
       method: "POST",
       body: params
     });
@@ -5138,8 +5145,8 @@ async function selesaiWorkout(hariKe, userId) {
     console.log("📥 Response complete workout:", text);
 
     if (text.includes("success")) {
-      lockWorkoutUI(hariKe);            // SUDAH ADA
-      tampilkanCentangWorkout(hariKe);  // SUDAH ADA
+      lockWorkoutUI(hariKe);
+      tampilkanCentangWorkout(hariKe);
     }
 
   } catch (err) {
@@ -5452,7 +5459,58 @@ function setStopTimeKardio(hariKe) {
 /*********************************
  * Simpan data workout ke server 
  *********************************/
-async function simpanWorkoutData(hariKe, userId, userName) {
+async function simpanWorkoutData(hariKe) {
+  try {
+    // 🔑 AMBIL USER DARI STATE ASLI APLIKASI
+    const user = window.currentUser;
+    if (!user || !user.userId) {
+      throw new Error("User belum siap");
+    }
+
+    const userId = user.userId;
+    const userName = user.userName;
+
+    console.log("💾 Tombol Simpan diklik untuk hari", hariKe);
+    console.log("User ID:", userId);
+    console.log("User Name:", userName);
+
+    const workoutData = ambilDataWorkoutHari(hariKe);
+    console.log("📊 Data workout final:", workoutData);
+
+    const params = new URLSearchParams();
+    params.append("action", "updateWorkout");
+    params.append("userId", userId);
+    params.append("userName", userName);
+    params.append("hariKe", hariKe);
+    params.append("workoutData", JSON.stringify(workoutData));
+    params.append("kardioFile", workoutData.kardioFile || "");
+    params.append("kardioFilename", workoutData.kardioFilename || "");
+
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      body: params
+    });
+
+    const text = await response.text();
+    console.log("📥 Response dari server:", text);
+
+    if (text.trim() === "OK") {
+      const btnSelesai = document.getElementById(`btnWorkoutDone${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+      return true;
+    }
+
+    throw new Error(text);
+
+  } catch (err) {
+    console.error("❌ Gagal simpan workout:", err);
+    alert("❌ Gagal simpan workout");
+    return false;
+  }
+}
+
+
+ async function BACKUP_simpanWorkoutData(hariKe, userId, userName) {
   try {
     console.log("💾 Tombol Simpan diklik untuk hari", hariKe);
     console.log("User ID:", userId);
