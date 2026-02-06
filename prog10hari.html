@@ -5291,17 +5291,11 @@ function setupWorkoutEventListeners(hariKe) {
 * Upload file kardio olahraga  *
 ********************************/
 async function uploadKardioFile(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    alert('User belum login');
-    return;
-  }
-
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
 
-  input.onchange = () => {
+  input.onchange = async () => {
     const file = input.files[0];
     if (!file) return;
 
@@ -5309,11 +5303,11 @@ async function uploadKardioFile(hariKe) {
     reader.onload = () => {
       const base64 = reader.result.split(',')[1];
 
-      // ⬇️ SIMPAN KE MEMORY (BUKAN KE SERVER)
-      window.kardioUploadByDay = window.kardioUploadByDay || {};
-      window.kardioUploadByDay[hariKe] = {
+      // SIMPAN KE MEMORY GLOBAL (BUKAN KIRIM KE SERVER)
+      window.kardioUploadData = window.kardioUploadData || {};
+      window.kardioUploadData[hariKe] = {
         base64,
-        fileName: `${userId}_KA${hariKe}.jpg`
+        filename: file.name
       };
 
       document.getElementById(`kegiatanKardio${hariKe}`).value = file.name;
@@ -5391,25 +5385,38 @@ async function simpanWorkoutData(hariKe) {
     return;
   }
 
-  // =============================
-  // AMBIL DATA RESISTANCE
-  // =============================
-  const resistanceList = window.resistanceDataByDay?.[hariKe] || [];
+  /* ===============================
+     🔥 AGREGASI RESISTEN (KUNCI)
+     =============================== */
+  const resistenData = window.resistanceData?.[hariKe] || [];
 
+  const resistenNames = [];
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
+
+  resistenData.forEach(item => {
+    if (!item.name) return;
+    resistenNames.push(item.name);
+    totalSets += Number(item.set || 0);
+    totalReps += Number(item.repetisi || 0);
+    totalMinutes += Number(item.durasi || 0);
+  });
+
+  /* ===============================
+     DATA WORKOUT FINAL
+     =============================== */
   const workoutData = {
     kardioType: document.getElementById(`olahragaKardio${hariKe}`)?.value || '',
     startTime: document.getElementById(`startOlahraga${hariKe}`)?.value || '',
     stopTime: document.getElementById(`stopOlahraga${hariKe}`)?.value || '',
-    resistenExercises: resistanceList.map(r => r.name).join(', '),
-    totalSets: resistanceList.reduce((t, r) => t + Number(r.set || 0), 0),
-    totalReps: resistanceList.reduce((t, r) => t + Number(r.repetisi || 0), 0),
-    totalMinutes: resistanceList.reduce((t, r) => t + Number(r.durasi || 0), 0)
+    resistenExercises: resistenNames.join(', '),
+    totalSets,
+    totalReps,
+    totalMinutes
   };
 
-  // =============================
-  // DATA UPLOAD KARDIO
-  // =============================
-  const kardioUpload = window.kardioUploadByDay?.[hariKe] || {};
+  const kardioUpload = window.kardioUploadData?.[hariKe] || {};
 
   const payload = {
     action: 'updateWorkout',
@@ -5418,25 +5425,21 @@ async function simpanWorkoutData(hariKe) {
     hariKe,
     workoutData: JSON.stringify(workoutData),
     kardioFile: kardioUpload.base64 || '',
-    kardioFilename: kardioUpload.fileName || ''
+    kardioFilename: kardioUpload.filename || ''
   };
 
   console.log('📤 Payload workout FINAL:', payload);
 
-  const res = await fetch(SERVER_URL, {
+  const response = await fetch(URL_PROGRAM_APP, {
     method: 'POST',
-    body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' }
+    body: new URLSearchParams(payload)
   });
 
-  const result = await res.json();
-
+  const result = await response.json();
   if (result.success) {
-    document.getElementById(`btnSelesaiWorkout${hariKe}`).disabled = false;
-    alert('Workout tersimpan');
+    alert('Workout berhasil disimpan');
   } else {
     alert('Gagal simpan workout');
-    console.error(result);
   }
 }
 
