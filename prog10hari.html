@@ -5093,46 +5093,45 @@ function createMealPlanFormHTML(hariKe) {
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
 function selesaiWorkout(hariKe) {
+  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+
   const userId = localStorage.getItem('userId');
   if (!userId) {
     alert('User belum login');
     return;
   }
 
-  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+  const callbackName = `cb_complete_workout_${Date.now()}`;
+  window[callbackName] = function (res) {
+    console.log('📥 Response complete workout:', res);
 
-  const callbackName = `cbWorkout${hariKe}`;
-
-  window[callbackName] = function (response) {
-    console.log('📥 Response complete workout:', response);
-
-    if (response.success) {
-      // ✅ LOCK UI
+    if (res && res.success) {
+      // 🔒 Disable semua input workout
       disableWorkoutUI(hariKe);
 
-      // ✅ TAMPILKAN CENTANG HIJAU
-      tandaiWorkoutSelesai(hariKe);
+      // ✅ Update submenu icon & status
+      updateWorkoutCompletionUI(hariKe);
 
-      alert('✅ Workout berhasil diselesaikan');
+      // 🔄 Ambil ulang progress agar icon hijau muncul
+      loadCompleteProgress(userId, hariKe);
+
     } else {
-      alert(response.message || 'Gagal menyelesaikan workout');
+      alert('Gagal menyelesaikan workout');
     }
 
-    // cleanup
     delete window[callbackName];
   };
 
   const script = document.createElement('script');
   script.src =
-    `${URL_PROGRAM_APP}` +
-    `?userId=${encodeURIComponent(userId)}` +
+    `${URL_PROGRAM_APP}?` +
+    `action=completeWorkout` +
+    `&userId=${encodeURIComponent(userId)}` +
     `&hariKe=${hariKe}` +
-    `&callback=${callbackName}` +
-    `&action=completeWorkout`;
+    `&callback=${callbackName}`;
 
   document.body.appendChild(script);
 }
-
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
@@ -5491,8 +5490,8 @@ function disableWorkoutUI(hariKe) {
   const container = document.getElementById(`workoutContent${hariKe}`);
   if (!container) return;
 
-  container.querySelectorAll('input, select, button').forEach(el => {
-    // KECUALI tombol close & cek disini
+  container.querySelectorAll('input, select, textarea, button').forEach(el => {
+    // KECUALI tombol X & Cek Disini
     if (
       el.classList.contains('btn-close-header') ||
       el.id === 'btnCekDisiniWorkout'
