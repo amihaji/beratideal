@@ -5669,6 +5669,28 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 * Update UI setelah workout selesai *
 *************************************/
 function updateWorkoutCompletionUI(hariKe) {
+  const submenu = document.querySelector(
+    `.submenu-trigger[onclick="selesaiWorkout(${hariKe})"]`
+  );
+
+  if (!submenu) {
+    console.warn('Submenu workout tidak ditemukan');
+    return;
+  }
+
+  if (!submenu.querySelector('.status-done')) {
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle status-done';
+    icon.style.color = 'green';
+    icon.style.marginLeft = '6px';
+    submenu.appendChild(icon);
+  }
+
+  console.log(`✅ Icon centang workout hari ${hariKe} ditambahkan`);
+}
+
+
+function BACKUP_updateWorkoutCompletionUI(hariKe) {
   console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
   
   // Update tombol di menu utama
