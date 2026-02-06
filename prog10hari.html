@@ -5447,56 +5447,6 @@ function ambilDataWorkoutHari(hariKe) {
     };
 }
 
-/*********************************
-* Tandai workout sebagai selesai *
-**********************************/
-async function BACKUP_completeWorkoutFinal(hariKe) {
-  const userId = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
-  if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  // WAJIB: pastikan sudah simpan
-  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
-    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return;
-  }
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'completeWorkout',
-        userId,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
-    console.log('📥 Workout complete response:', result);
-
-    if (result === "OK" || result.includes("OK")) {
-      // ✅ SIMPAN STATUS LOKAL
-      saveWorkoutStatus(hariKe, 'completed');
-      // ✅ KUNCI FIELD & TOMBOL
-      disableButtonsAfterCompletion(hariKe, 'workout');
-      // ✅ UPDATE UI (CENTANG MENU + BUTTON)
-      updateWorkoutCompletionUI(hariKe);
-      showMessage('success', `Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-    } else {
-      showMessage('error', 'Gagal menandai workout selesai', 3000, `pertemuan${hariKe}`);
-    }
-
-  } catch (err) {
-    console.error(err);
-    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
-  }
-}
-
 function disableWorkoutUI(hariKe) {
   const container = document.getElementById(`workoutContent${hariKe}`);
   if (!container) return;
@@ -5698,56 +5648,6 @@ function updateWorkoutCompletionUI(hariKe) {
   }
 
   console.log(`✅ Icon centang workout hari ${hariKe} ditambahkan`);
-}
-
-function BACKUP_updateWorkoutCompletionUI(hariKe) {
-  console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
-  
-  // Update tombol di menu utama
-  const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
-  if (workoutItem) {
-    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
-    workoutItem.style.color = '#666666';
-    workoutItem.style.marginLeft = '2px';
-    // workoutItem.style.fontWeight = 'bold';
-    
-    // Ubah onclick untuk read-only mode
-    workoutItem.onclick = function(e) {
-      e.preventDefault();
-      showSubmenuReadOnly(`workoutContent${hariKe}`);
-    };
-  }
-  
-  // Update tombol selesai di form
-  const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (selesaiBtn) {
-    selesaiBtn.innerHTML = `<i class="fa fa-check"></i> Selesai Workout`;
-    selesaiBtn.disabled = true;
-    // selesaiBtn.classList.remove('btn-secondary');
-    selesaiBtn.classList.add('btn-secondary');
-    selesaiBtn.style.opacity = '0.6';
-    selesaiBtn.style.cursor = 'not-allowed';
-    selesaiBtn.title = ' selesai Workout';
-  }
-  
-  // Update tombol simpan
-  const simpanBtn = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  if (simpanBtn) {
-    simpanBtn.disabled = true;
-    simpanBtn.classList.remove('btn-primary');
-    simpanBtn.classList.add('btn-secondary');
-    simpanBtn.style.opacity = '0.6';
-    simpanBtn.style.cursor = 'not-allowed';
-    simpanBtn.title = 'Tersimpan';
-  }
-  
-  // Disable dropdown resistance
-  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
-  if (resistanceDropdown) {
-    resistanceDropdown.disabled = true;
-    resistanceDropdown.style.backgroundColor = '#f8f9fa';
-    resistanceDropdown.style.cursor = 'not-allowed';
-  }
 }
 
 /**************************
