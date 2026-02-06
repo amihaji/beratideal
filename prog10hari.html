@@ -5092,31 +5092,41 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
+let workoutCompleting = {};
 function selesaiWorkout(hariKe) {
+  if (workoutCompleting[hariKe]) {
+    console.warn('⛔ Complete workout sudah diproses');
+    return;
+  }
+  workoutCompleting[hariKe] = true;
+
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
   const userId = localStorage.getItem('userId');
   if (!userId) {
     alert('User belum login');
+    workoutCompleting[hariKe] = false;
     return;
   }
 
   const callbackName = `cb_complete_workout_${Date.now()}`;
+
   window[callbackName] = function (res) {
     console.log('📥 Response complete workout:', res);
 
     if (res && res.success) {
-      // 🔒 Disable semua input workout
+      // 🔒 Disable semua UI workout
       disableWorkoutUI(hariKe);
 
-      // ✅ Update submenu icon & status
+      // ✅ Tambahkan icon centang submenu
       updateWorkoutCompletionUI(hariKe);
 
-      // 🔄 Ambil ulang progress agar icon hijau muncul
+      // 🔄 Refresh progress server
       loadCompleteProgress(userId, hariKe);
 
     } else {
       alert('Gagal menyelesaikan workout');
+      workoutCompleting[hariKe] = false;
     }
 
     delete window[callbackName];
@@ -5124,14 +5134,15 @@ function selesaiWorkout(hariKe) {
 
   const script = document.createElement('script');
   script.src =
-    `${URL_PROGRAM_APP}?` +
-    `action=completeWorkout` +
+    `${URL_PROGRAM_APP}` +
+    `?action=completeWorkout` +
     `&userId=${encodeURIComponent(userId)}` +
     `&hariKe=${hariKe}` +
     `&callback=${callbackName}`;
 
   document.body.appendChild(script);
 }
+
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
@@ -5491,16 +5502,16 @@ function disableWorkoutUI(hariKe) {
   if (!container) return;
 
   container.querySelectorAll('input, select, textarea, button').forEach(el => {
-    // KECUALI tombol X & Cek Disini
     if (
       el.classList.contains('btn-close-header') ||
       el.id === 'btnCekDisiniWorkout'
     ) return;
 
     el.disabled = true;
+    el.style.pointerEvents = 'none';
   });
 
-  console.log(`🔒 Workout UI hari ${hariKe} dikunci`);
+  console.log(`🔒 Workout UI hari ${hariKe} dikunci total`);
 }
 
 function tandaiWorkoutSelesai(hariKe) {
@@ -5670,7 +5681,7 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 *************************************/
 function updateWorkoutCompletionUI(hariKe) {
   const submenu = document.querySelector(
-    `.submenu-trigger[onclick="selesaiWorkout(${hariKe})"]`
+    `.submenu-trigger[data-target="workoutContent${hariKe}"]`
   );
 
   if (!submenu) {
@@ -5688,7 +5699,6 @@ function updateWorkoutCompletionUI(hariKe) {
 
   console.log(`✅ Icon centang workout hari ${hariKe} ditambahkan`);
 }
-
 
 function BACKUP_updateWorkoutCompletionUI(hariKe) {
   console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
