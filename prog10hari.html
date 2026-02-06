@@ -5092,22 +5092,47 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
-async function selesaiWorkout(hariKe) {
+function selesaiWorkout(hariKe) {
   const userId = localStorage.getItem('userId');
-  if (!userId) return alert('User belum login');
+  if (!userId) {
+    alert('User belum login');
+    return;
+  }
 
-  const params = new URLSearchParams({
-    action: 'completeWorkout',
-    userId,
-    hariKe,
-    callback: 'cb'
-  });
+  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
-  const res = await fetch(`${URL_PROGRAM_APP}?${params.toString()}`);
-  const text = await res.text();
+  const callbackName = `cbWorkout${hariKe}`;
 
-  console.log('📥 Response complete workout:', text);
+  window[callbackName] = function (response) {
+    console.log('📥 Response complete workout:', response);
+
+    if (response.success) {
+      // ✅ LOCK UI
+      disableWorkoutUI(hariKe);
+
+      // ✅ TAMPILKAN CENTANG HIJAU
+      tandaiWorkoutSelesai(hariKe);
+
+      alert('✅ Workout berhasil diselesaikan');
+    } else {
+      alert(response.message || 'Gagal menyelesaikan workout');
+    }
+
+    // cleanup
+    delete window[callbackName];
+  };
+
+  const script = document.createElement('script');
+  script.src =
+    `${URL_PROGRAM_APP}` +
+    `?userId=${encodeURIComponent(userId)}` +
+    `&hariKe=${hariKe}` +
+    `&callback=${callbackName}` +
+    `&action=completeWorkout`;
+
+  document.body.appendChild(script);
 }
+
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
@@ -5361,9 +5386,13 @@ async function simpanWorkoutData(hariKe) {
     }
 
     alert('✅ Workout berhasil disimpan');
-
-    // ❌ JANGAN SET WORKOUT OK DI SINI
-    // Workout OK HANYA DARI tombol "Selesai"
+    // ENABLE tombol selesai setelah simpan sukses
+    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+    if (btnSelesai) {
+      btnSelesai.disabled = false;
+      btnSelesai.classList.remove('btn-secondary');
+      btnSelesai.classList.add('btn-success');
+    }
 
   } catch (err) {
     console.error('❌ Gagal simpan workout:', err);
@@ -5411,7 +5440,7 @@ function ambilDataWorkoutHari(hariKe) {
 /*********************************
 * Tandai workout sebagai selesai *
 **********************************/
-async function completeWorkoutFinal(hariKe) {
+async function BACKUP_completeWorkoutFinal(hariKe) {
   const userId = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
 
@@ -5457,6 +5486,41 @@ async function completeWorkoutFinal(hariKe) {
     showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
   }
 }
+
+function disableWorkoutUI(hariKe) {
+  const container = document.getElementById(`workoutContent${hariKe}`);
+  if (!container) return;
+
+  container.querySelectorAll('input, select, button').forEach(el => {
+    // KECUALI tombol close & cek disini
+    if (
+      el.classList.contains('btn-close-header') ||
+      el.id === 'btnCekDisiniWorkout'
+    ) return;
+
+    el.disabled = true;
+  });
+
+  console.log(`🔒 Workout UI hari ${hariKe} dikunci`);
+}
+
+function tandaiWorkoutSelesai(hariKe) {
+  const btn = document.querySelector(
+    `.submenu-trigger[data-target="workoutContent${hariKe}"]`
+  );
+
+  if (!btn) return;
+
+  if (!btn.querySelector('.status-done')) {
+    const icon = document.createElement('span');
+    icon.className = 'status-done ms-2';
+    icon.innerHTML = '🟢';
+    btn.appendChild(icon);
+  }
+
+  console.log(`✅ Submenu Workout hari ${hariKe} ditandai selesai`);
+}
+
 
 /************************
 * Simpan status workout *
