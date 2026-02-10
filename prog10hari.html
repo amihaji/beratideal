@@ -5110,7 +5110,6 @@ async function selesaiWorkout(hariKe) {
 
   // ⛔ VALIDASI BARU DILAKUKAN SAAT TOMBOL SELESAI DIKLIK
   const sudahSimpan = localStorage.getItem(`workoutSavedHari${hariKe}`) === 'true';
-
   if (!sudahSimpan) {
     showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
     return;
@@ -5835,11 +5834,18 @@ function selesaiWorkoutFinal(hariKe) {
     return;
   }
 
-  // Pastikan sudah simpan
-  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
-    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+  // ⛔ Pastikan sudah tersimpan
+  const sudahSimpan = localStorage.getItem(`workoutSavedHari${hariKe}`) === 'true';
+  if (!sudahSimpan) {
+    showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
     return;
   }
+
+  // Pastikan sudah simpan
+  //if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
+  //  showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+  //  return;
+  //}
 
   showMessage('info', 'Menyelesaikan workout...', 2000, `pertemuan${hariKe}`);
 
