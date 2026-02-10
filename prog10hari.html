@@ -1943,7 +1943,7 @@ function setupAllComponentsInternal() {
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     // Setup workout forms
-    debugWorkoutStructure(); // ← TAMBAHKAN INI
+    // debugWorkoutStructure(); // ← TAMBAHKAN INI
     generateWorkoutForms();      // 1. Generate HTML dulu
     initializeAllWorkoutDays();  // 2. Setup event listeners
  
@@ -1986,7 +1986,7 @@ function setupAllComponentsInternal() {
     
     // Di akhir setupAllComponentsInternal()
     console.log('🔍 Testing server connection on startup...');
-    testServerConnection();
+    //testServerConnection();
 }
 
 /**************************************
@@ -5237,7 +5237,7 @@ function showWorkoutForm(hariKe) {
     setupResistanceExercises(hariKe);
     
     // 5. Debug server connection
-    debugServerResponse(hariKe);
+    // debugServerResponse(hariKe);
     
     console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
@@ -7750,7 +7750,7 @@ document.addEventListener('show.bs.collapse', function (e) {
 /*******************************************
  * DEBUG WORKOUT STRUCTURE
  *******************************************/
-function debugWorkoutStructure() {
+function BACKUP_debugWorkoutStructure() {
     console.log('🔍 Debugging workout structure...');
     
     // Cari workoutContent1
@@ -7782,7 +7782,7 @@ function debugWorkoutStructure() {
 /*******************************************
  * DEBUG SERVER RESPONSE - Helper
  *******************************************/
-function debugServerResponse(hariKe) {
+function BACKUP_debugServerResponse(hariKe) {
     console.log(`🔍 Debug server untuk hari ${hariKe}`);
     
     // Ambil data dari form
@@ -7812,7 +7812,7 @@ function debugServerResponse(hariKe) {
 /*******************************************
  * TEST SERVER CONNECTION - Debugging
  *******************************************/
-async function testServerConnection() {
+async function BACKUP_testServerConnection() {
     console.log('🔍 Testing server connection...');
     
     const userId = localStorage.getItem('userId');
