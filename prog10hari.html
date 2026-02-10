@@ -5490,7 +5490,7 @@ async function simpanWorkoutData(hariKe) {
     if (btnSelesai) {
       btnSelesai.disabled = false;
       btnSelesai.classList.remove('btn-secondary');
-      btnSelesai.classList.add('btn-success');
+      btnSelesai.classList.add('btn-secondary');
     }
 
   } catch (err) {
@@ -5633,7 +5633,7 @@ function cekStatusWaterReminder() {
     document.getElementById('btnSimpan').disabled = true;
     document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-check"></i> Simpan';
     document.getElementById('btnSelesai').disabled = true;
-    document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check"></i> Selesai';
+    document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check"></i> Selesai Water';
     
     // Tampilkan centang
     const waterItem = document.getElementById('waterReminderItem');
@@ -5868,21 +5868,10 @@ function selesaiWorkoutFinal(hariKe) {
       // 4️⃣ DISABLE UI WORKOUT (KECUALI X & CEK DISINI)
       disableButtonsAfterCompletion(hariKe, 'workout');
 
-      showMessage(
-        'success',
-        `Workout hari ${hariKe} selesai`,
-        3000,
-        `pertemuan${hariKe}`
-      );
+      showMessage( 'success', `Workout hari ${hariKe} selesai`, 3000, `pertemuan${hariKe}` );
     } else {
-      showMessage(
-        'error',
-        res?.message || 'Gagal menyelesaikan workout',
-        3000,
-        `pertemuan${hariKe}`
-      );
+      showMessage( 'error', res?.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
     }
-
     // cleanup
     delete window[callbackName];
   };
@@ -5932,9 +5921,6 @@ function initializeAllWorkoutDays() {
     console.log('✅ Workout initialization complete for day 1');
 }
 
-/*******************************************
- * CREATE WORKOUT FORM HTML - FIXED FINAL
- *******************************************/
 /*******************************************
  * CREATE WORKOUT FORM HTML - FINAL FIX
  *******************************************/
@@ -6025,7 +6011,7 @@ function createWorkoutFormHTML(hariKe) {
             </button>
             <button type="button" class="btn btn-secondary btn-sm"
                     id="btnSelesaiWorkout${hariKe}" disabled>
-                Selesai
+                Selesai Workout
             </button>
         </div>
     `;
@@ -6252,7 +6238,7 @@ function disableWorkoutUI(hariKe) {
         button.disabled = true;
         button.style.opacity = '0.6';
         button.style.cursor = 'not-allowed';
-        button.title = 'Workout sudah selesai';
+        button.title = 'Workout selesai';
     });
     
     console.log(`✅ Workout UI hari ${hariKe} berhasil di-disable`);
@@ -6611,7 +6597,7 @@ function loadWaterReminderStatus(hariKe) {
         
         if (btnSelesai) {
             btnSelesai.disabled = true;
-            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
+            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
             btnSelesai.classList.remove('btn-success');
             btnSelesai.classList.add('btn-outline-success');
         }
@@ -6690,7 +6676,7 @@ function waterReminder(hariKe) {
                 class="btn btn-secondary"
                 onclick="selesaiWaterReminder(${hariKe})"
                 disabled>
-          <i class="fas fa-check"></i> Selesai
+          <i class="fas fa-check"></i> Selesai Water
         </button>
       </div>
     </div>
@@ -6972,7 +6958,7 @@ function checkWaterStatus(hariKe) {
   if (btnSelesai && saved === 'true') {
     btnSelesai.disabled = false;
     btnSelesai.classList.remove('btn-secondary');
-    btnSelesai.classList.add('btn-success');
+    btnSelesai.classList.add('btn-secondary');
   }
 }
 
@@ -6996,16 +6982,16 @@ function loadWaterReminderData(hariKe) {
         
         if (btnSimpan) {
             btnSimpan.disabled = true;
-            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
+            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
             btnSimpan.classList.remove('btn-primary');
-            btnSimpan.classList.add('btn-outline-success');
+            btnSimpan.classList.add('btn-primary');
         }
         
         if (btnSelesai) {
             btnSelesai.disabled = true;
-            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
-            btnSelesai.classList.remove('btn-success');
-            btnSelesai.classList.add('btn-outline-success');
+            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
+            btnSelesai.classList.remove('btn-secondary');
+            btnSelesai.classList.add('btn-secondary');
         }
         
         if (statusDiv) {
@@ -7029,15 +7015,15 @@ function loadWaterReminderData(hariKe) {
         
         if (btnSimpan) {
             btnSimpan.disabled = true;
-            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
+            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
             btnSimpan.classList.remove('btn-primary');
-            btnSimpan.classList.add('btn-outline-success');
+            btnSimpan.classList.add('btn-primary');
         }
         
         if (btnSelesai) {
             btnSelesai.disabled = false;
             btnSelesai.classList.remove('btn-secondary');
-            btnSelesai.classList.add('btn-success');
+            btnSelesai.classList.add('btn-secondary');
         }
         
         // Set radio button yang sebelumnya dipilih
@@ -7253,7 +7239,7 @@ function loadSavedWaterDataModul(modul, hariKe) {
     const btnSelesai = document.getElementById(btnSelesaiId);
     if (btnSelesai) {
       btnSelesai.disabled = false;
-      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-success');
+      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
     }
   }
   
@@ -7271,13 +7257,13 @@ function loadSavedWaterDataModul(modul, hariKe) {
     
     if (btnSimpan) {
       btnSimpan.disabled = true;
-      btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
+      btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
     }
     
     if (btnSelesai) {
       btnSelesai.disabled = true;
-      btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
-      btnSelesai.className = btnSelesai.className.replace('btn-success', 'btn-outline-success');
+      btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
+      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
     }
     
     // Update status display
@@ -7353,7 +7339,7 @@ function checkWaterStatusModul(modul, hariKe) {
   
   if (btnSelesai && isSaved) {
     btnSelesai.disabled = false;
-    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-success');
+    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
     return true;
   }
   
@@ -7404,8 +7390,8 @@ function resetWaterReminderModul(modul, hariKe) {
   
   if (btnSelesai) {
     btnSelesai.disabled = true;
-    btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai';
-    btnSelesai.className = btnSelesai.className.replace('btn-success btn-outline-success', 'btn-secondary');
+    btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai Water';
+    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
   }
   
   // Reset radio buttons
