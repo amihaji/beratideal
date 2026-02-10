@@ -1125,7 +1125,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxhTbsQMxrOS9ZKatGJ_FZPp7E9q6hBkNMLjE0hK1AGhc2c9v-qz2uojKrjCNSyr8Tx0Q/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxrOpDL31VRcGnWHJPr7328iBLGkbjBHeuCbTTuS1nMrmWKXcNv2t_Zbs3-4UCy5E1V7w/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -5095,6 +5095,64 @@ async function selesaiWorkout(hariKe) {
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
   const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  // ✅ JIKA SUDAH SELESAI (USER LAMA) → JANGAN VALIDASI SIMPAN
+  if (window.userProgress && window.userProgress[`workoutHari${hariKe}`] === true) {
+    console.log('ℹ️ Workout sudah selesai sebelumnya (user lama)');
+    return;
+  }
+
+  // ❗ USER BARU WAJIB SUDAH SIMPAN
+  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
+    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.json();
+    console.log('📥 Response complete workout:', result);
+
+    if (result.success === true) {
+      // ✅ UPDATE STATE
+      if (!window.userProgress) window.userProgress = {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
+
+      localStorage.setItem(`workout_completed_${hariKe}`, '1');
+
+      // ✅ UI UPDATE
+      updateSubmenuLinkUI('workout', hariKe);
+      disableWorkoutUI(hariKe);
+
+      showMessage('success', `Workout hari ${hariKe} selesai`, 3000, `pertemuan${hariKe}`);
+    } else {
+      showMessage('error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}`);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
+  }
+}
+
+
+async function BACKUP_selesaiWorkout(hariKe) {
+  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+
+  const userId = localStorage.getItem('userId');
 
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
@@ -5103,12 +5161,7 @@ async function selesaiWorkout(hariKe) {
 
   // 🚨 WAJIB: pastikan sudah SIMPAN
   if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
-    showMessage(
-      'warning',
-      'Simpan data workout terlebih dahulu',
-      3000,
-      `pertemuan${hariKe}`
-    );
+    showMessage('warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
     return;
   }
 
@@ -5175,51 +5228,6 @@ async function selesaiWorkout(hariKe) {
     );
   }
 }
-
-
-function BACKUP_selesaiWorkout(hariKe) {
-  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
-
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    console.warn('User belum login');
-    return;
-  }
-
-  const callbackName = `cb_complete_${hariKe}_${Date.now()}`;
-
-  window[callbackName] = function (res) {
-    console.log('📥 Response complete workout:', res);
-
-    if (res && res.success) {
-      // 🔒 LOCK UI
-      disableButtonsAfterCompletion(hariKe, 'workout');
-
-      // ✅ UPDATE SUBMENU ICON
-      updateSubmenuLinkUI('workout', hariKe);
-
-      // 🔄 SYNC STATE
-      window.userProgress = window.userProgress || {};
-      window.userProgress[`workoutHari${hariKe}`] = true;
-
-    } else {
-      console.warn('Complete workout gagal');
-    }
-
-    delete window[callbackName];
-  };
-
-  const script = document.createElement('script');
-  script.src =
-    `${URL_PROGRAM_APP}` +
-    `?action=completeWorkout` +
-    `&userId=${encodeURIComponent(userId)}` +
-    `&hariKe=${hariKe}` +
-    `&callback=${callbackName}`;
-
-  document.body.appendChild(script);
-}
-
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
