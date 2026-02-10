@@ -5749,6 +5749,7 @@ function setupWorkoutForDay(hariKe) {
       e.preventDefault();
       console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
       simpanWorkoutData(hariKe);
+      btnSimpan.disabled = true;   // DISABLED SETELAH TERSIMPAN
     };
   }
 
@@ -5822,40 +5823,33 @@ function createWorkoutFormHTML(hariKe) {
         <!-- Upload Kardio -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-                <i class="fas fa-file-upload"></i>
+              <i class="fas fa-file-upload"></i>
             </div>
-            <input class="form-control" type="text"
-                   id="kegiatanKardio${hariKe}"
-                   placeholder="Kegiatan Olahraga" readonly>
+            <input class="form-control" type="text" id="kegiatanKardio${hariKe}" placeholder="Kegiatan Olahraga" readonly>
             <button type="button" class="btn btn-outline-secondary btn-sm"
-                    onclick="uploadKardioFile(${hariKe})">
-                Upload
+              onclick="uploadKardioFile(${hariKe})">Upload
             </button>
         </div>
 
-        <!-- Start -->
+        <!-- Waktu Start -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-                <i class="fas fa-play"></i>
+              <i class="fas fa-play"></i>
             </div>
-            <input class="form-control" type="time"
-                   id="startOlahraga${hariKe}" disabled>
-            <button type="button" class="btn btn-outline-secondary btn-sm"
-                    onclick="setStartTimeKardio(${hariKe})">
-                Start
+            <input class="form-control" type="time" id="startOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-primary btn-sm"
+              onclick="setStartTimeKardio(${hariKe})"> Start
             </button>
         </div>
 
-        <!-- Stop -->
+        <!-- Waktu Stop -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-                <i class="fas fa-stop"></i>
+              <i class="fas fa-stop"></i>
             </div>
-            <input class="form-control" type="time"
-                   id="stopOlahraga${hariKe}" disabled>
-            <button type="button" class="btn btn-outline-secondary btn-sm"
-                    onclick="setStopTimeKardio(${hariKe})">
-                Stop
+            <input class="form-control" type="time" id="stopOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-danger btn-sm"
+              onclick="setStopTimeKardio(${hariKe})"> Stop
             </button>
         </div>
 
@@ -5870,21 +5864,17 @@ function createWorkoutFormHTML(hariKe) {
             <input type="hidden" id="totalMinutes${hariKe}">
 
             <button type="button" class="btn btn-outline-primary btn-sm mb-2"
-                    onclick="showResistanceModal(${hariKe})">
-                Tambah Resistance
+                onclick="showResistanceModal(${hariKe})"> Tambah Resistance
             </button>
-
             <div id="selectedResistanceContainer${hariKe}"></div>
         </div>
 
         <!-- Tombol -->
         <div class="mt-4">
-            <button type="button" class="btn btn-primary btn-sm"
-                    id="btnSimpanWorkout${hariKe}">
+            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
                 Simpan
             </button>
-            <button type="button" class="btn btn-secondary btn-sm"
-                    id="btnSelesaiWorkout${hariKe}" disabled>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}" disabled>
                 Selesai Workout
             </button>
         </div>
@@ -5956,11 +5946,8 @@ function showResistanceModal(hariKe) {
                         </select>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary" 
-                                onclick="addSelectedExercise(${hariKe})">
-                            Tambah
-                        </button>
+                      <button type="button" class="btn btn-primary" onclick="addSelectedExercise(${hariKe})">Tambah</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     </div>
                 </div>
             </div>
