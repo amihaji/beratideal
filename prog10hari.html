@@ -2221,13 +2221,11 @@ function applyCompleteProgressToUI(progress, hariKe) {
 
   progressMap.forEach(item => {
     if (progress[item.field] === true) {
-      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
-      // tandai progress global
       window.userProgress[item.field] = true;
-      // ✅ PARAMETER BENAR: (type, hariKe)
       updateSubmenuLinkUI(item.type, hariKe);
-      // 🔒 LOCK UI SESUAI TYPE
-      disableButtonsAfterCompletion(hariKe, item.type);
+      if (item.type === 'workout') {
+        disableButtonsAfterCompletion(hariKe, 'workout');
+      }
     }
   });
 
@@ -5092,41 +5090,34 @@ function createMealPlanFormHTML(hariKe) {
 /*****************************************
 * Selesaikan workout untuk hari tertentu *
 ******************************************/
-let workoutCompleting = {};
+// let workoutCompleting = {};
 function selesaiWorkout(hariKe) {
-  if (workoutCompleting[hariKe]) {
-    console.warn('⛔ Complete workout sudah diproses');
-    return;
-  }
-  workoutCompleting[hariKe] = true;
-
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    alert('User belum login');
-    workoutCompleting[hariKe] = false;
+    console.warn('User belum login');
     return;
   }
 
-  const callbackName = `cb_complete_workout_${Date.now()}`;
+  const callbackName = `cb_complete_${hariKe}_${Date.now()}`;
 
   window[callbackName] = function (res) {
     console.log('📥 Response complete workout:', res);
 
     if (res && res.success) {
-      // 🔒 Disable semua UI workout
-      disableWorkoutUI(hariKe);
+      // 🔒 LOCK UI
+      disableButtonsAfterCompletion(hariKe, 'workout');
 
-      // ✅ Tambahkan icon centang submenu
-      updateWorkoutCompletionUI(hariKe);
+      // ✅ UPDATE SUBMENU ICON
+      updateSubmenuLinkUI('workout', hariKe);
 
-      // 🔄 Refresh progress server
-      loadCompleteProgress(userId, hariKe);
+      // 🔄 SYNC STATE
+      window.userProgress = window.userProgress || {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
 
     } else {
-      alert('Gagal menyelesaikan workout');
-      workoutCompleting[hariKe] = false;
+      console.warn('Complete workout gagal');
     }
 
     delete window[callbackName];
@@ -5175,10 +5166,6 @@ function showWorkoutForm(hariKe) {
     console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
 
-/************************************************
- * SETUP WORKOUT EVENT LISTENERS - FINAL FIX
- * Panggil fungsi yang sudah ada di REVISI_27
- ************************************************/
 /************************************************
  * SETUP WORKOUT EVENT LISTENERS - FINAL VERSION
  ************************************************/
@@ -5733,75 +5720,83 @@ function setupWorkoutForDay(hariKe) {
  * - Tampilkan centang hijau
  * - Disable semua input kecuali Cek Disini dan X
  ************************************************/
-async function selesaiWorkoutFinal(hariKe) {
-    console.log(`✅ Menyelesaikan workout hari ${hariKe}`);
-    
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    
-    if (!userId) {
-        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-        return;
+/*********************************
+ * FINAL — Selesaikan Workout (JSONP)
+ * DIPERTAHANKAN NAMANYA
+ *********************************/
+function selesaiWorkoutFinal(hariKe) {
+  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName') || userId;
+
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  // Pastikan sudah simpan
+  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
+    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  showMessage('info', 'Menyelesaikan workout...', 2000, `pertemuan${hariKe}`);
+
+  // === JSONP CALLBACK ===
+  const callbackName = `cb_completeWorkout_${hariKe}_${Date.now()}`;
+  window[callbackName] = function (res) {
+    console.log('📥 Response complete workout:', res);
+
+    if (res && res.success === true) {
+      // 1️⃣ SIMPAN STATUS GLOBAL
+      if (!window.userProgress) window.userProgress = {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
+
+      // 2️⃣ SIMPAN STATUS LOKAL
+      localStorage.setItem(`workoutHari${hariKe}`, 'completed');
+
+      // 3️⃣ TAMPILKAN CENTANG HIJAU
+      updateSubmenuLinkUI('workout', hariKe);
+
+      // 4️⃣ DISABLE UI WORKOUT (KECUALI X & CEK DISINI)
+      disableButtonsAfterCompletion(hariKe, 'workout');
+
+      showMessage(
+        'success',
+        `Workout hari ${hariKe} selesai`,
+        3000,
+        `pertemuan${hariKe}`
+      );
+    } else {
+      showMessage(
+        'error',
+        res?.message || 'Gagal menyelesaikan workout',
+        3000,
+        `pertemuan${hariKe}`
+      );
     }
-    
-    // 1️⃣ KIRIM STATUS "OK" KE KOLOM Z
-    try {
-        showMessage('info', 'Menyelesaikan workout...', 2000, `pertemuan${hariKe}`);
-        
-        const response = await fetch(URL_PROGRAM_APP, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' 
-            },
-            body: new URLSearchParams({
-                action: 'completeWorkout',
-                userId: userId,
-                userName: userName || userId,
-                hariKe: hariKe
-            })
-        });
-        
-        const result = await response.text();
-        console.log('📥 Response complete workout:', result);
-        
-        if (result && result.includes("OK")) {
-            // ✅ SIMPAN STATUS LOKAL
-            localStorage.setItem(`workoutHari${hariKe}`, 'completed');
-            
-            // ✅ TAMPILKAN CENTANG HIJAU DI SUBMENU
-            updateSubmenuLinkUI('workout', hariKe);
-            
-            // ✅ DISABLE SEMUA INPUT DAN TOMBOL (KECUALI CEK DISINI DAN X)
-            disableWorkoutUI(hariKe);
-            
-            showMessage('success', 
-                `Workout hari ${hariKe} selesai! Centang hijau telah ditampilkan.`, 
-                3000, 
-                `pertemuan${hariKe}`
-            );
-            
-            // ✅ UPDATE PROGRESS GLOBAL
-            if (window.userProgress) {
-                window.userProgress[`workoutHari${hariKe}`] = true;
-            }
-            
-        } else {
-            showMessage('error', 
-                'Gagal menyelesaikan workout: ' + (result || 'Unknown error'), 
-                3000, 
-                `pertemuan${hariKe}`
-            );
-        }
-        
-    } catch (error) {
-        console.error('❌ Error saat menyelesaikan workout:', error);
-        showMessage('error', 
-            'Error: ' + error.message, 
-            3000, 
-            `pertemuan${hariKe}`
-        );
-    }
+
+    // cleanup
+    delete window[callbackName];
+  };
+
+  // === JSONP REQUEST ===
+  const script = document.createElement('script');
+  script.src =
+    `${URL_PROGRAM_APP}?action=completeWorkout` +
+    `&userId=${encodeURIComponent(userId)}` +
+    `&hariKe=${hariKe}` +
+    `&callback=${callbackName}`;
+
+  script.onerror = () => {
+    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
+    delete window[callbackName];
+  };
+
+  document.body.appendChild(script);
 }
+
 
 /************************************************
  * INITIALIZE ALL WORKOUT DAYS - FIXED (Focus on day 1)
