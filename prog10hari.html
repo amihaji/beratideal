@@ -5729,6 +5729,40 @@ function loadSavedWorkoutData(hariKe) {
  * Inisialisasi semua event listener untuk workout
  ************************************************/
 function setupWorkoutForDay(hariKe) {
+  console.log(`🔧 Setup workout untuk hari ${hariKe}`);
+
+  // 1️⃣ Event listener utama workout (simpan & selesai)
+  setupWorkoutEventListeners(hariKe);
+
+  // 2️⃣ Setup resistance exercises
+  setupResistanceExercises(hariKe);
+
+  // 3️⃣ Tombol Simpan (aman walau dipanggil ulang)
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.onclick = function (e) {
+      e.preventDefault();
+      console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
+      simpanWorkoutData(hariKe);
+    };
+  }
+
+  // 4️⃣ Tombol Selesai → WAJIB pakai selesaiWorkout (FETCH)
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = true;
+    btnSelesai.onclick = function (e) {
+      e.preventDefault();
+      console.log(`🏁 Tombol Selesai diklik untuk hari ${hariKe}`);
+      selesaiWorkout(hariKe); // ✅ SATU-SATUNYA FUNGSI
+    };
+  }
+
+  // 5️⃣ Restore data jika user lama
+  loadSavedWorkoutData(hariKe);
+}
+
+function BACKUP_setupWorkoutForDay(hariKe) {
     console.log(`🔧 Setup workout untuk hari ${hariKe}`);
     
     // 1. Setup event listener untuk kardio
@@ -5766,7 +5800,7 @@ function setupWorkoutForDay(hariKe) {
  * - Tampilkan centang hijau
  * - Disable semua input kecuali Cek Disini dan X
  ************************************************/
-function selesaiWorkoutFinal(hariKe) {
+function BACKUP_selesaiWorkoutFinal(hariKe) {
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
   const userId = localStorage.getItem('userId');
@@ -5783,12 +5817,6 @@ function selesaiWorkoutFinal(hariKe) {
     showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
     return;
   }
-
-  // Pastikan sudah simpan
-  //if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
-  //  showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
-  //  return;
-  //}
 
   showMessage('info', 'Menyelesaikan workout...', 2000, `pertemuan${hariKe}`);
 
