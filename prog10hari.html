@@ -4755,11 +4755,13 @@ async function uploadMealItem(hariKe, mealType) {
           localStorage.setItem(key, 'done');
           console.log(`✅ ${mealType} hari ${hariKe} selesai`);
         } else {
-          alert('Gagal upload: ' + (res?.message || 'Unknown error'));
+          // alert('Gagal upload: ' + (res?.message || 'Unknown error'));
+          showMessage('error', 'Gagal Upload', 3000);
         }
       } catch (err) {
         console.error('❌ Upload error:', err);
-        alert('Terjadi kesalahan saat upload');
+        // alert('Terjadi kesalahan saat upload');
+        showMessage('error','Terjadi kesalahan saat upload', 3000);
       }
     };
     reader.readAsDataURL(file);
@@ -5094,6 +5096,67 @@ function createMealPlanFormHTML(hariKe) {
 async function selesaiWorkout(hariKe) {
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
+  // 🔒 USER LAMA → LANGSUNG KELUAR (READ ONLY)
+  if (
+    window.userProgress &&
+    window.userProgress[`workoutHari${hariKe}`] === true
+  ) {
+    console.log('ℹ️ Workout sudah selesai sebelumnya (user lama)');
+    return;
+  }
+
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  // ⛔ VALIDASI BARU DILAKUKAN SAAT TOMBOL SELESAI DIKLIK
+  const sudahSimpan = localStorage.getItem(`workoutSavedHari${hariKe}`) === 'true';
+
+  if (!sudahSimpan) {
+    showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId,
+        userName,
+        hariKe
+      })
+    });
+
+    const result = await response.json();
+    console.log('📥 Complete workout response:', result);
+
+    if (result.success === true) {
+      // ✅ SET STATUS FRONTEND
+      if (!window.userProgress) window.userProgress = {};
+      window.userProgress[`workoutHari${hariKe}`] = true;
+
+      localStorage.setItem(`workoutHari${hariKe}`, 'completed');
+
+      updateSubmenuLinkUI('workout', hariKe);
+      disableWorkoutUI(hariKe);
+
+      showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `pertemuan${hariKe}` );
+    } else {
+      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
+    }
+
+  } catch (err) {
+    console.error('❌ Error complete workout:', err);
+    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}` );
+  }
+}
+
+async function BACKUP_selesaiWorkout(hariKe) {
+  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
@@ -5304,7 +5367,8 @@ async function uploadKardioFile(hariKe) {
     input.click();
   } catch (err) {
     console.error('❌ Upload kardio gagal:', err);
-    alert(err.message);
+    // alert(err.message);
+    showMessage('error', err.message, 3000);
   }
 }
 
@@ -5420,7 +5484,8 @@ async function simpanWorkoutData(hariKe) {
       throw new Error(result.message || 'Gagal simpan workout');
     }
 
-    alert('✅ Workout berhasil disimpan');
+    // alert('✅ Workout berhasil disimpan');
+    showMessage('success', 'Workout berhasil tersimpan', 3000);
     // ENABLE tombol selesai setelah simpan sukses
     const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
     if (btnSelesai) {
@@ -5431,7 +5496,8 @@ async function simpanWorkoutData(hariKe) {
 
   } catch (err) {
     console.error('❌ Gagal simpan workout:', err);
-    alert(err.message);
+    // alert(err.message);
+    showMessage('error', 'Gagal simpan workout', 3000);
   }
 }
 
@@ -6053,7 +6119,8 @@ function addSelectedExercise(hariKe) {
     const exerciseName = selectElement.value;
 
     if (!exerciseName) {
-        alert('Pilih exercise terlebih dahulu!');
+        //alert('Pilih exercise terlebih dahulu!');
+        showMessage('warning', 'Pilih exercise terlebih dahulu', 3000);
         return;
     }
 
