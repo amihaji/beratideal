@@ -2398,12 +2398,12 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 *************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
 
-  /* =========================
+  /* ==================================
    * WORKOUT (SUDAH ADA - JANGAN DIUBAH)
-   * ========================= */
+   * ================================ */
   if (submenuType === 'workout') {
     console.log(`🔒 Disable workout UI hari ${hariKe}`);
-    // (ISI WORKOUT BIARKAN APA ADANYA)
+    disableWorkoutUI(hariKe);
     return;
   }
 
@@ -5720,10 +5720,6 @@ function setupWorkoutForDay(hariKe) {
  * - Tampilkan centang hijau
  * - Disable semua input kecuali Cek Disini dan X
  ************************************************/
-/*********************************
- * FINAL — Selesaikan Workout (JSONP)
- * DIPERTAHANKAN NAMANYA
- *********************************/
 function selesaiWorkoutFinal(hariKe) {
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
