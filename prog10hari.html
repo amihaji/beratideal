@@ -2262,9 +2262,8 @@ function extractFileNameFromDriveUrl(driveUrl, hariKe) {
         if (savedName) return savedName;
 
         // Fallback: generate ulang
-        const userId = localStorage.getItem('userId') || 'user';
-        const kardioType =
-            document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
+        const userId     = localStorage.getItem('userId') || 'user';
+        const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
 
         return `${userId}_KA${hariKe}${kardioType}.jpg`;
 
@@ -5122,9 +5121,6 @@ function showWorkoutForm(hariKe) {
     // 4. Setup resistance
     setupResistanceExercises(hariKe);
     
-    // 5. Debug server connection
-    // debugServerResponse(hariKe);
-    
     console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
 
@@ -5315,75 +5311,91 @@ function setStopTimeKardio(hariKe) {
  * Simpan data workout ke server 
  *********************************/
 async function simpanWorkoutData(hariKe) {
+  console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
+
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return false;
+  }
+
+  // ==============================
+  // 🔎 VALIDASI INPUT WORKOUT
+  // ==============================
+
+  const kardioType  = document.getElementById(`kardioType${hariKe}`)?.value || '';
+  const startTime   = document.getElementById(`startTime${hariKe}`)?.value || '';
+  const stopTime    = document.getElementById(`stopTime${hariKe}`)?.value || '';
+
+  const resistanceContainer = document.getElementById(`resistanceContainer${hariKe}`);
+  const resistanceItems = resistanceContainer
+    ? resistanceContainer.querySelectorAll('.resistance-item')
+    : [];
+
+  const adaKardio =
+    kardioType !== '' &&
+    startTime !== '' &&
+    stopTime !== '';
+
+  const adaResistance = resistanceItems.length > 0;
+
+  // ❌ Jika dua-duanya kosong
+  if (!adaKardio && !adaResistance) {
+    showMessage( 'warning', 'Input terlebih dahulu jenis workoutnya', 3000, `pertemuan${hariKe}`);
+    return false;
+  }
+
+  // ❌ Jika kardio dipilih tapi pilihan upload kegiatan dan jam kosong
+  if (kardioType !== '' && (startTime === '' || stopTime === '')) {
+    showMessage( 'warning', 'Lengkapi upload, waktu mulai dan selesai olahraga kardio', 3000, `pertemuan${hariKe}` );
+    return false;
+  }
+
+  // ==============================
+  // ✅ PROSES SIMPAN KE SERVER
+  // ==============================
+
   try {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-
-    if (!userId) throw new Error('User belum login');
-
-    console.log('👤 Simpan workout untuk:', userId, userName);
-
-    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
-    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
-    const stopTime  = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
-
-    // 🔥 AMBIL DATA RESISTANCE (INI YANG SEBELUMNYA HILANG)
-    const resistanceData = getResistanceDataForServer(hariKe);
-
-    // 🔥 AMBIL FILE KARDIO DARI LOCAL (SEPERTI MEALPLAN)
-    const kardioFile = localStorage.getItem(`kardioFile_${hariKe}`) || '';
-    const kardioFilename = localStorage.getItem(`kardioFilename_${hariKe}`) || '';
-
     const workoutData = {
       kardioType,
       startTime,
-      stopTime,
-      resistenExercises: resistanceData.resistenExercises,
-      totalSets: resistanceData.totalSets,
-      totalReps: resistanceData.totalReps,
-      totalMinutes: resistanceData.totalMinutes
+      stopTime
     };
-
-    const payload = {
-      action: 'updateWorkout',
-      userId,
-      userName,
-      hariKe,
-      workoutData: JSON.stringify(workoutData),
-      kardioFile,
-      kardioFilename
-    };
-
-    console.log('📤 Payload workout FINAL:', payload);
 
     const response = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
-      body: new URLSearchParams(payload)
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: new URLSearchParams({
+        action: 'updateWorkout',
+        userId,
+        userName,
+        hariKe,
+        workoutData: JSON.stringify(workoutData)
+      })
     });
 
-    const text = await response.text();
-    console.log('📥 Response dari server:', text);
+    const result = await response.json();
+    console.log('📥 Response dari server:', result);
 
-    const result = JSON.parse(text);
-
-    if (!result.success) {
-      throw new Error(result.message || 'Gagal simpan workout');
-    }
-
-    // alert('✅ Workout berhasil disimpan');
-    showMessage('success', 'Workout berhasil tersimpan', 3000);
-    // ENABLE tombol selesai setelah simpan sukses
-    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-    if (btnSelesai) {
-      btnSelesai.disabled = false;
-      btnSelesai.classList.remove('btn-secondary');
-      btnSelesai.classList.add('btn-secondary');
+    if (result.success === true) {
+      localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
+      const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+        showMessage( 'success', 'Data workout berhasil disimpan', 3000, `pertemuan${hariKe}` );
+      return true;
+    } else {
+      showMessage( 'error', result.message || 'Gagal menyimpan workout', 3000, `pertemuan${hariKe}` );
+      return false;
     }
 
   } catch (err) {
-    console.error('❌ Gagal simpan workout:', err);
-    // alert(err.message);
-    showMessage('error', 'Gagal simpan workout', 3000);
+    console.error('❌ Error simpan workout:', err);
+    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}` );
+    return false;
   }
 }
 
@@ -5638,6 +5650,7 @@ function loadSavedWorkoutData(hariKe) {
     const kardioSelect = document.getElementById(`olahragaKardio${hariKe}`);
     if (kardioType && kardioSelect) {
         kardioSelect.value = kardioType;
+        kardioSelect.style.cursor = 'pointer';
     }
     
     // Load kardio filename
