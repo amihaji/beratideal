@@ -5033,8 +5033,9 @@ function createMealPlanFormHTML(hariKe) {
 // *********************************************
 // ***** FUNGSI WORKOUT COMPLETE FLEKSIBEL *****
 // *********************************************
+
 /************************************************
- * SIMPAN WORKOUT DATA - FINAL VALIDATION FIX
+ * SIMPAN WORKOUT DATA - FINAL FIX MATCH HTML
  ************************************************/
 async function simpanWorkoutData(hariKe) {
   console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
@@ -5048,11 +5049,11 @@ async function simpanWorkoutData(hariKe) {
   }
 
   // ==============================
-  // 🔍 AMBIL DATA KARDIO
+  // 🔍 AMBIL DATA KARDIO (SESUAI HTML ANDA)
   // ==============================
   const kardioType  = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
-  const startTime   = document.getElementById(`startTime${hariKe}`)?.value || '';
-  const stopTime    = document.getElementById(`stopTime${hariKe}`)?.value || '';
+  const startTime   = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+  const stopTime    = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
 
   const kardioValid =
     kardioType !== '' &&
@@ -5060,18 +5061,15 @@ async function simpanWorkoutData(hariKe) {
     stopTime !== '';
 
   // ==============================
-  // 🔍 CEK DATA RESISTANCE
+  // 🔍 CEK DATA RESISTANCE (DARI HIDDEN INPUT)
   // ==============================
-  let resistanceData = [];
-  try {
-    resistanceData = JSON.parse(localStorage.getItem(`resistanceHari${hariKe}`)) || [];
-  } catch (e) {
-    resistanceData = [];
-  }
+  const resistenExercises = document.getElementById(`resistenExercises${hariKe}`)?.value || '';
+  const totalSets   = document.getElementById(`totalSets${hariKe}`)?.value || 0;
+  const totalReps   = document.getElementById(`totalReps${hariKe}`)?.value || 0;
+  const totalMinutes= document.getElementById(`totalMinutes${hariKe}`)?.value || 0;
 
   const resistanceValid =
-    Array.isArray(resistanceData) &&
-    resistanceData.length > 0;
+    resistenExercises !== '';
 
   // ==============================
   // 🚨 VALIDASI FINAL
@@ -5087,14 +5085,17 @@ async function simpanWorkoutData(hariKe) {
   }
 
   // ==============================
-  // 🚀 LANJUT SIMPAN
+  // 🚀 SIMPAN KE SERVER
   // ==============================
   try {
     const workoutData = {
       kardioType,
       startTime,
       stopTime,
-      resistance: resistanceData
+      resistenExercises,
+      totalSets,
+      totalReps,
+      totalMinutes
     };
 
     const response = await fetch(URL_PROGRAM_APP, {
@@ -5116,7 +5117,9 @@ async function simpanWorkoutData(hariKe) {
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-      document.getElementById(`btnSelesaiWorkout${hariKe}`).disabled = false;
+
+      const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
 
       showMessage('success', 'Workout berhasil disimpan', 3000, `pertemuan${hariKe}`);
       return true;
@@ -5227,7 +5230,53 @@ function showWorkoutForm(hariKe) {
 /************************************************
  * SETUP WORKOUT EVENT LISTENERS - FINAL VERSION
  ************************************************/
+/************************************************
+ * SETUP WORKOUT EVENT LISTENERS - SINGLE SOURCE
+ ************************************************/
 function setupWorkoutEventListeners(hariKe) {
+  console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+
+  const btnSimpan  = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+
+  if (!btnSimpan || !btnSelesai) return;
+
+  // Reset event listener agar tidak double
+  btnSimpan.onclick = null;
+  btnSelesai.onclick = null;
+
+  btnSelesai.disabled = true;
+
+  // =====================
+  // SIMPAN
+  // =====================
+  btnSimpan.onclick = async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const success = await simpanWorkoutData(hariKe);
+
+    if (success) {
+      btnSelesai.disabled = false;
+    }
+  };
+
+  // =====================
+  // SELESAI
+  // =====================
+  btnSelesai.onclick = async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    await selesaiWorkout(hariKe);
+  };
+
+  console.log(`✅ Workout listeners ready for day ${hariKe}`);
+}
+
+
+
+ function BACKUP_setupWorkoutEventListeners(hariKe) {
   console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
 
   // TOMBOL SIMPAN
@@ -5702,39 +5751,24 @@ function loadSavedWorkoutData(hariKe) {
  ************************************************/
 function setupWorkoutForDay(hariKe) {
   console.log(`🔧 Setup workout untuk hari ${hariKe}`);
-
-  // 1️⃣ Event listener utama workout (simpan & selesai)
-  setupWorkoutEventListeners(hariKe);
-
-  // 2️⃣ Setup resistance exercises
-  setupResistanceExercises(hariKe);
- 
-  /* NON AKTIFKAN 
-  // 3️⃣ Tombol Simpan (aman walau dipanggil ulang)
-  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  if (btnSimpan) {
-    btnSimpan.onclick = function (e) {
-      e.preventDefault();
-      console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
-      simpanWorkoutData(hariKe);
-      btnSimpan.disabled = true;   // DISABLED SETELAH TERSIMPAN
-    };
+  // Hindari setup berulang
+  if (window[`workoutSetupDone${hariKe}`]) {
+    console.log('⚠️ Setup sudah pernah dijalankan');
+    return;
   }
+  setupWorkoutEventListeners(hariKe);
+  setupResistanceExercises(hariKe);
+  loadSavedWorkoutData(hariKe);
+  window[`workoutSetupDone${hariKe}`] = true;
+}
 
-  // 4️⃣ Tombol Selesai → WAJIB pakai selesaiWorkout (FETCH)
-  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (btnSelesai) {
-    btnSelesai.disabled = true;
-    btnSelesai.onclick = function (e) {
-      e.preventDefault();
-      console.log(`🏁 Tombol Selesai diklik untuk hari ${hariKe}`);
-      selesaiWorkout(hariKe); // ✅ SATU-SATUNYA FUNGSI
-    };
-  } 
-  */   
-
-
-  // 5️⃣ Restore data jika user lama
+function BACKUP_setupWorkoutForDay(hariKe) {
+  console.log(`🔧 Setup workout untuk hari ${hariKe}`);
+  // Event listener utama workout (simpan & selesai)
+  setupWorkoutEventListeners(hariKe);
+  // Setup resistance exercises
+  setupResistanceExercises(hariKe);
+  // Restore data jika user lama
   loadSavedWorkoutData(hariKe);
 }
 
