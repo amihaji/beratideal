@@ -6178,9 +6178,43 @@ function loadSavedResistanceData(hariKe) {
 }
 
 /*******************************************
- * GET RESISTANCE DATA FOR SERVER - FIXED
+ * GET RESISTANCE DATA FOR SERVER - FINAL FIX
  *******************************************/
 function getResistanceDataForServer(hariKe) {
+
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
+  let exercises = [];
+
+  let resistanceArray = [];
+
+  try {
+    resistanceArray = JSON.parse(
+      localStorage.getItem(`resistanceHari${hariKe}`)
+    ) || [];
+  } catch (e) {
+    resistanceArray = [];
+  }
+
+  resistanceArray.forEach(item => {
+    exercises.push(item.name || '');
+
+    totalSets    += Number(item.set || 0);
+    totalReps    += Number(item.repetisi || 0);
+    totalMinutes += Number(item.durasi || 0);
+  });
+
+  return {
+    resistenExercises: exercises.join(', '),
+    totalSets,
+    totalReps,
+    totalMinutes
+  };
+}
+
+
+function BACKUP_getResistanceDataForServer(hariKe) {
   let exercises = [];
   let totalSets = 0;
   let totalReps = 0;
