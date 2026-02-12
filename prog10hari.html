@@ -15,6 +15,8 @@ body { background-color: #f8f9fa; }
 /***** Sub Judul di Navbar *****/
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
 
+select {cursor: pointer;}
+
 /***** Main Menu Navbar *****/
 .main-menu-link { font-weight: 500; padding: 8px 12px !important; border-radius: 3px; }
 .main-menu-link:hover, .main-menu-link.active { 
@@ -472,7 +474,7 @@ body { background-color: #f8f9fa; }
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: 1px solid rgba(0,0,0,0.1);
 }
-.pesan-notif-icon { font-size: 18px; }
+.pesan-notif-icon { font-size: 12px; }
 .notification-error { background-color: #c9302c; color: white; border-color: #c9302c; }
 .notification-success { background-color:  #025aa5; color: white; border-color: #025aa5; }
 .notification-warning { background-color: #f0ad4e; color: black; border-color: #f0ad4e; }
@@ -5388,7 +5390,7 @@ async function simpanWorkoutData(hariKe) {
         showMessage( 'success', 'Data workout berhasil disimpan', 3000, `pertemuan${hariKe}` );
       return true;
     } else {
-      showMessage( 'error', result.message || 'Gagal menyimpan workout', 3000, `pertemuan${hariKe}` );
+        showMessage( 'error', result.message || 'Gagal menyimpan workout', 3000, `pertemuan${hariKe}` );
       return false;
     }
 
@@ -5650,7 +5652,7 @@ function loadSavedWorkoutData(hariKe) {
     const kardioSelect = document.getElementById(`olahragaKardio${hariKe}`);
     if (kardioType && kardioSelect) {
         kardioSelect.value = kardioType;
-        kardioSelect.style.cursor = 'pointer';
+        // kardioSelect.style.cursor = 'pointer';
     }
     
     // Load kardio filename
