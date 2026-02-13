@@ -15,8 +15,6 @@ body { background-color: #f8f9fa; }
 /***** Sub Judul di Navbar *****/
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
 
-select {cursor: pointer;}
-
 /***** Main Menu Navbar *****/
 .main-menu-link { font-weight: 500; padding: 8px 12px !important; border-radius: 3px; }
 .main-menu-link:hover, .main-menu-link.active { 
@@ -474,7 +472,7 @@ select {cursor: pointer;}
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: 1px solid rgba(0,0,0,0.1);
 }
-.pesan-notif-icon { font-size: 12px; }
+.pesan-notif-icon { font-size: 18px; }
 .notification-error { background-color: #c9302c; color: white; border-color: #c9302c; }
 .notification-success { background-color:  #025aa5; color: white; border-color: #025aa5; }
 .notification-warning { background-color: #f0ad4e; color: black; border-color: #f0ad4e; }
@@ -565,6 +563,15 @@ select {cursor: pointer;}
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
+              
+              <!-- NON AKTIFKAN SOCIAL MEDIA ---
+              <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+                <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+              </ul>
+              --------------------------------->
+              
               <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link main-menu-link" href="#about" onclick="showAbout()">About</a></li>
                 <li class="nav-item" id="loginMenuItem">
@@ -585,6 +592,7 @@ select {cursor: pointer;}
         </div>
 
         <div class="card-title text-white p-1 mb-0" style="text-align:center; background-color:#002266; border-bottom:5px solid #f3f3f3;">
+        <!-- <div class="card-title text-black p-1 mt-3 mb-0" style="text-align:center; background-color:#f0f0f0; border-bottom:5px solid #5e5e5e;"> -->
           <h5 style="margin-top: 5px; margin-bottom: 0px;" id="greetingTime"></h5>
           <h6 style="font-size: small"; id="greetingName"></h6>
           <h6 style="font-size: small;">
@@ -731,9 +739,11 @@ select {cursor: pointer;}
               <div class="menu-content">
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
+                <!-- class="menu-item video-link" onclick="showMessage('info', 'Memuat video...', 1000, 'pertemuan1')"-->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
                   class="menu-item video-link" style="max-width: 100%;" data-section="pertemuan1" 
                   data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink1">
+                  <!-- <i class="fas fa-video"></i>1.1 Materi Hari Pertama -->
                   1.1 Materi Hari Pertama 
                 </a>
                 
@@ -758,38 +768,52 @@ select {cursor: pointer;}
                 </div>
   
                 <!-- MEAL PLAN HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="mealPlanContent1">
+                <!-- <a href="pdf/MealPlan_HariKe1.pdf" -->
+                <a href="#" class="menu-item submenu-trigger" onclick="uploadMealPlan(1)" data-target="mealPlanContent1">
+                  <!-- <i class="fas fa-utensils"></i>1.2 Meal Plan Hari Pertama -->
                   1.2 Meal Plan Hari Pertama
                 </a>
 
                 <!-- WORKOUT HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="workoutContent1">
+                <!-- <a href="pdf/Workout_HariKe1.pdf" -->
+                <a href="#" class="menu-item submenu-trigger" onclick="selesaiWorkout(1)" data-target="workoutContent1">
+                  <!-- <i class="fas fa-dumbbell"></i>1.3 Workout Hari Pertama -->
                   1.3 Workout Hari Pertama
                 </a>
               
                 <!-- WATER REMINDER HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="waterReminderContent1">
+                <!-- <a href="pdf/WaterReminder_HariKe1.pdf" -->           
+                <a href="#" class="menu-item submenu-trigger" onclick="waterReminder(1)" data-target="waterReminderContent1">
+                  <!--  <i class="fas fa-prescription-bottle"></i>1.4 Water Reminder Hari Pertama -->
                   1.4 Water Reminder Hari Pertama
                 </a>
 
                 <!-- WAKTU ISTIRAHAT HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="istirahatContent1">
+                <!-- <a href="pdf/Istirahat_HariKe1.pdf" --> 
+                <a href="#" class="menu-item submenu-trigger" onclick="istirahat(1)" data-target="istirahatContent1">
+                  <!-- <i class="fas fa-bed"></i>1.5 Waktu Istirahat Hari Pertama -->
                   1.5 Waktu Istirahat Hari Pertama
                 </a>
                 
                 <!-- DATA TRACKING HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="dataTrackingContent1">
+                <!-- <a href="/pdf/DataTracking_HariKe1.pdf" --> 
+                <a href="#" class="menu-item submenu-trigger" onclick="dataTracking(1)" data-target="dataTrackingContent1">
+                  <!-- <i class="fas fa-user-friends"></i>1.6 Data Tracking Hari Pertama -->
                   1.6 Data Tracking Hari Pertama
                 </a>
 
                 <!-- TANYA COACH HARI PERTAMA -->
                 <a href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+bertanya+materi+tentang+" 
                   class="menu-item" onclick="tanyaCoach(1)" target="_blank">
+                  <!-- <i class="fa fa-whatsapp"></i>1.7 Tanya Coach? Hari Pertama -->
                   1.7 Tanya Coach? Hari Pertama
                 </a>
 
                 <!-- SELESAI MODUL HARI PERTAMA -->
-                <a href="#" class="menu-item">1.8 Selesai Modul hari Pertama</a> 
+                <a href="#" class="menu-item">
+                  <!-- <i class="fas fa-check-double"></i> Selesai Modul hari Pertama -->
+                  1.8 Selesai Modul hari Pertama
+                </a> 
               </div>
             </div>
           </div>
@@ -1071,6 +1095,7 @@ select {cursor: pointer;}
           </div>
         </div>
 
+        <!-- <footer class="footer mt-3 text-white text-center p-2 rounded" style="font-size:12pt; background-color: #002266;"> -->
         <footer class="footer mt-3 text-black text-center p-2" style="font-size:12pt; background-color: #f1f1f1;">
           FIT Challenge Versi 1.0 © 2025 Power by:<a href="https://www.beratidealku.com" class="text-black"> www.beratidealku.com</a></br>
           <img src="images/Logo_Herbalife_Independent_Member.png" alt="Logo" width="160" height="20">
@@ -1100,7 +1125,7 @@ select {cursor: pointer;}
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxZ1TdkpD54SKY6s4V1yTREQrrMzZIsoS6mUil2PEPF_jamLFSohvMJRKlYXp3EkUwW9g/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxmtmEHTD3wyxshkFQGJ2OUAAqQwZpeIOQiyyPsitz_Eq6d77Z5tXATCX6XbrI_e1GCqQ/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -1918,6 +1943,7 @@ function setupAllComponentsInternal() {
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
     // Setup workout forms
+    debugWorkoutStructure(); // ← TAMBAHKAN INI
     generateWorkoutForms();      // 1. Generate HTML dulu
     initializeAllWorkoutDays();  // 2. Setup event listeners
  
@@ -1960,6 +1986,7 @@ function setupAllComponentsInternal() {
     
     // Di akhir setupAllComponentsInternal()
     console.log('🔍 Testing server connection on startup...');
+    testServerConnection();
 }
 
 /**************************************
@@ -2002,13 +2029,14 @@ function createSubmenuHTML(hariKe) {
           class="menu-item video-link" onclick="showSubmenuWithStatus('videoContainerPertemuan${hariKe}', ${hariKe}, 'materi')"
           style="max-width: 100%;" data-section="pertemuan${hariKe}" 
           data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink${hariKe}">
-          ${hariKe}.1 Materi Hari ${getDayName(hariKe)} 
+          <i class="fas fa-video"></i>${hariKe}.1 Materi Hari ${getDayName(hariKe)} 
         </a>
         
         <!-- Meal Plan -->
         <a href="#" 
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('mealPlanContent${hariKe}', ${hariKe}, 'mealplan')" 
           data-target="mealPlanContent${hariKe}" id="mealPlanLink${hariKe}">
+          <!-- <i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)} -->
           ${hariKe}.2 Meal Plan Hari ${getDayName(hariKe)}
        </a>
         
@@ -2016,6 +2044,7 @@ function createSubmenuHTML(hariKe) {
         <a href="#"
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('workoutContent${hariKe}', ${hariKe}, 'workout')" 
           data-target="workoutContent${hariKe}" id="workoutLink${hariKe}">
+          <!-- <i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} -->
           ${hariKe}.3 Workout Hari ${getDayName(hariKe)}
         </a>
         
@@ -2023,6 +2052,7 @@ function createSubmenuHTML(hariKe) {
         <a href="#"
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('waterReminderContent${hariKe}', ${hariKe}, 'water')" 
           data-target="waterReminderContent${hariKe}" id="waterLink${hariKe}">
+          <!-- <i class="fas fa-prescription-bottle"></i>${hariKe}.4 Water Reminder - Hari ${getDayName(hariKe)} -->
           ${hariKe}.4 Water Reminder Hari ${getDayName(hariKe)}
         </a>
         
@@ -2030,6 +2060,7 @@ function createSubmenuHTML(hariKe) {
         <a href="#"
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('istirahatContent${hariKe}', ${hariKe}, 'istirahat')" 
           data-target="istirahatContent${hariKe}" id="istirahatLink${hariKe}">
+          <!-- <i class="fas fa-bed"></i>${hariKe}.5 Waktu Istirahat - Hari ${getDayName(hariKe)} -->
           ${hariKe}.5 Waktu Istirahat Hari ${getDayName(hariKe)}
         </a>
         
@@ -2037,11 +2068,13 @@ function createSubmenuHTML(hariKe) {
         <a href="#"
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('dataTrackingContent${hariKe}', ${hariKe}, 'datatracking')" 
           data-target="dataTrackingContent${hariKe}" id="trackingLink${hariKe}">
+          <!-- <i class="fas fa-user-friends"></i>${hariKe}.6 Data Tracking - Hari ${getDayName(hariKe)} -->
           ${hariKe}.6 Data Tracking Hari ${getDayName(hariKe)}
         </a>
         
         <!-- Selesai Modul -->
         <a href="#" class="menu-item" onclick="selesaiModul(${hariKe})" id="selesaiModulLink${hariKe}">
+          <!-- <i class="fas fa-check-double"></i>Selesai Modul hari ${getDayName(hariKe)} -->
           Selesai Modul hari ${getDayName(hariKe)}
         </a>
     `;
@@ -2159,17 +2192,24 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 function applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
 
-  // Inisialisasi Global Progress
+  // ===============================
+  // INISIALISASI GLOBAL PROGRESS
+  // ===============================
   if (!window.userProgress) {
     window.userProgress = {};
   }
 
-  // Perkenalan
+  // ===============================
+  // PERKENALAN
+  // ===============================
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
+    // updatePerkenalanUI(); // ⚠️ TANPA getCompletionStatus
   }
-  
-  // Status Submenu hari Pertama
+
+  // ===============================
+  // STATUS SUBMENU HARI PERTAMA
+  // ===============================
   const progressMap = [
     { field: 'materiHari1',   type: 'materi' },
     { field: 'mealplanHari1', type: 'mealplan' },
@@ -2181,15 +2221,19 @@ function applyCompleteProgressToUI(progress, hariKe) {
 
   progressMap.forEach(item => {
     if (progress[item.field] === true) {
+      console.log(`✅ ${item.type} hari ${hariKe} selesai`);
+      // tandai progress global
       window.userProgress[item.field] = true;
+      // ✅ PARAMETER BENAR: (type, hariKe)
       updateSubmenuLinkUI(item.type, hariKe);
-      if (item.type === 'workout') {
-        disableButtonsAfterCompletion(hariKe, 'workout');
-      }
+      // 🔒 LOCK UI SESUAI TYPE
+      disableButtonsAfterCompletion(hariKe, item.type);
     }
   });
 
-  // Automatis Expand Modul
+  // ===============================
+  // AUTO-EXPAND MODUL (OPSIONAL)
+  // ===============================
   if (
     progress.perkenalan ||
     progress.materiHari1 ||
@@ -2264,14 +2308,82 @@ function extractFileNameFromDriveUrl(driveUrl, hariKe) {
         if (savedName) return savedName;
 
         // Fallback: generate ulang
-        const userId     = localStorage.getItem('userId') || 'user';
-        const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
+        const userId = localStorage.getItem('userId') || 'user';
+        const kardioType =
+            document.getElementById(`olahragaKardio${hariKe}`)?.value || 'Kardio';
 
         return `${userId}_KA${hariKe}${kardioType}.jpg`;
 
     } catch (err) {
         console.error('❌ extractFileName error:', err);
         return '';
+    }
+}
+
+
+function BACKUP_extractFileNameFromDriveUrl(driveUrl) {
+    console.log('🔗 Extracting filename from Drive URL:', driveUrl);
+    
+    if (!driveUrl) return 'File_terupload.jpg';
+    
+    try {
+        // Format 1: https://drive.google.com/file/d/FILE_ID/view?usp=drivesdk
+        if (driveUrl.includes('drive.google.com/file/d/')) {
+            // Ekstrak FILE_ID dari URL
+            const startIndex = driveUrl.indexOf('/d/') + 3;
+            const endIndex = driveUrl.indexOf('/', startIndex);
+            
+            if (startIndex > 2 && endIndex > startIndex) {
+                const fileId = driveUrl.substring(startIndex, endIndex);
+                
+                // Coba ambil nama file dari localStorage jika tersimpan sebelumnya
+                const savedFileName = localStorage.getItem(`drive_filename_${fileId}`);
+                if (savedFileName) {
+                    return savedFileName;
+                }
+                
+                // Jika tidak ada di localStorage, buat nama berdasarkan pola
+                // Format: amihaji_KA1Sepeda.jpg
+                const userId = localStorage.getItem('userId') || 'user';
+                const kardioType = document.getElementById('olahragaKardio1')?.value || 'Kardio';
+                const kardioCode = getKardioCode(kardioType);
+                
+                return `${userId}_KA1${kardioCode}.jpg`;
+            }
+        }
+        
+        // Format 2: Direct link (https://drive.google.com/uc?id=FILE_ID&export=download)
+        if (driveUrl.includes('drive.google.com/uc?')) {
+            const urlParams = new URLSearchParams(driveUrl.split('?')[1]);
+            const fileId = urlParams.get('id');
+            
+            if (fileId) {
+                const savedFileName = localStorage.getItem(`drive_filename_${fileId}`);
+                if (savedFileName) {
+                    return savedFileName;
+                }
+                return `GoogleDrive_File_${fileId.substring(0, 8)}.jpg`;
+            }
+        }
+        
+        // Format 3: Sudah berupa nama file (fallback)
+        const parts = driveUrl.split('/');
+        const lastPart = parts.pop();
+        
+        // Jika masih mengandung query parameters (view?usp=drivesdk)
+        if (lastPart.includes('?')) {
+            const fileName = lastPart.split('?')[0];
+            if (fileName && fileName !== 'view' && fileName !== 'preview') {
+                return fileName;
+            }
+        }
+        
+        // Default fallback
+        return lastPart || 'File_terupload.jpg';
+        
+    } catch (error) {
+        console.error('Error extracting filename:', error);
+        return 'File_terupload.jpg';
     }
 }
 
@@ -2354,21 +2466,26 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 * Disable semua field & tombol setelah selesai *
 *************************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
-  // Disabled Workout
+
+  /* =========================
+   * WORKOUT (SUDAH ADA - JANGAN DIUBAH)
+   * ========================= */
   if (submenuType === 'workout') {
     console.log(`🔒 Disable workout UI hari ${hariKe}`);
-    disableWorkoutUI(hariKe);
+    // (ISI WORKOUT BIARKAN APA ADANYA)
     return;
   }
 
-  // Disabled Water Reminder
+  /* =========================
+   * WATER REMINDER (TAMBAHAN FIX)
+   * ========================= */
   if (submenuType === 'water') {
     console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
 
     const container = document.getElementById(`waterReminderContent${hariKe}`);
     if (!container) return;
 
-    // Disabled semua inputan
+    // 1️⃣ DISABLE SEMUA INPUT
     container.querySelectorAll('input, select, textarea').forEach(el => {
       el.disabled = true;
       el.readOnly = true;
@@ -2376,13 +2493,13 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
       el.style.cursor = 'not-allowed';
     });
 
-    // Disabled semua button kecuali "X" & "Cek Disini"
+    // 2️⃣ DISABLE SEMUA BUTTON KECUALI X & CEK DISINI
     container.querySelectorAll('button').forEach(btn => {
       const id   = btn.id || '';
       const text = btn.textContent || '';
       const cls  = btn.className || '';
 
-      // Close "X" Tetap aktif
+      // ❗ CLOSE / X → TETAP AKTIF
       if (
         cls.includes('btn-close') ||
         cls.includes('close-pdf') ||
@@ -2395,7 +2512,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
         return;
       }
 
-      // "Cek Disini" Tetat Aktif
+      // ❗ CEK DISINI → TETAP AKTIF
       if (id.includes('CekDisini') || text.includes('Cek Disini')) {
         btn.disabled = false;
         btn.style.opacity = '1';
@@ -2404,7 +2521,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
         return;
       }
 
-      // Lainnya DISABLE
+      // ⛔ LAINNYA → DISABLE
       btn.disabled = true;
       btn.style.opacity = '0.6';
       btn.style.cursor = 'not-allowed';
@@ -2424,7 +2541,7 @@ function updateSubmenuLinkUI(type, hariKe) {
 
     let link = null;
 
-    // Perkenalan Selektor
+    // ✅ PERKENALAN SELECTOR
     if (type === 'perkenalan') {
         const container = document.getElementById('perkenalanContent');
         if (!container) return;
@@ -2432,7 +2549,7 @@ function updateSubmenuLinkUI(type, hariKe) {
             .find(a => a.textContent.includes('Selesai Perkenalan'));
     }
 
-    // Materi Selektor
+    // ✅ MATERI SELECTOR
     if (type === 'materi') {
         const container = document.getElementById(`pertemuan${hariKe}Content`);
         if (!container) return;
@@ -2441,21 +2558,21 @@ function updateSubmenuLinkUI(type, hariKe) {
         );
     }
 
-    // Meal Plan Selektor
+    // ✅ MAEL PLAN SELECTOR
     if (type === 'mealplan') {
         link = document.querySelector(
             `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`
         );
     }
     
-    // Workout Selektor
+    // ✅ WORKOUT SELECTOR
     if (type === 'workout') {
         link = document.querySelector(
             `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`
         );
     }
 
-    // Water Selektor
+    // ✅ WATER SELECTOR
     if (type === 'water') {
         link = document.querySelector(
            `a.menu-item.submenu-trigger[data-target="waterReminderContent${hariKe}"]`
@@ -2467,7 +2584,7 @@ function updateSubmenuLinkUI(type, hariKe) {
         return;
     }
 
-    // ❌ Cegah dobel centang
+    // ❌ cegah dobel centang
     if (link.querySelector('.status-done')) return;
 
     const icon = document.createElement('i');
@@ -2499,10 +2616,10 @@ function showSubmenuReadOnly(targetId) {
         return;
     }
     
-    // Tampilkan submenu
+    // 1. Tampilkan submenu
     showSubmenu(targetId);
     
-    // Untuk Workout: Pastikan form dibuat dulu
+    // 2. UNTUK WORKOUT: PASTIKAN FORM DIBUAT DULU
     if (submenuType === 'workout') {
         console.log(`🔨 Ensuring workout form is created for day ${hariKe}`);
         
@@ -2539,7 +2656,7 @@ function showSubmenuReadOnly(targetId) {
         }
     }
     
-    // Terapkan mode read-only SETELAH form dibuat
+    // 3. Terapkan mode read-only SETELAH form dibuat
     setTimeout(() => {
         console.log(`🔒 Applying read-only mode to ${targetId}`);
         applyReadOnlyModeToSubmenu(targetContent);
@@ -2548,9 +2665,9 @@ function showSubmenuReadOnly(targetId) {
     console.log(`✅ Read-only mode initiated for ${targetId}`);
 }
 
-/**********************************
-/* APPLY READ-ONLY MODE TO SUBMENU
-***********************************/
+/**********************************************
+/* APPLY READ-ONLY MODE TO SUBMENU - IMPROVED *
+***********************************************/
 function applyReadOnlyModeToSubmenu(container) {
     if (!container) return;
     
@@ -2602,7 +2719,7 @@ function applyReadOnlyModeToSubmenu(container) {
         button.title = 'Sudah selesai';
     });
     
-    // Disable input fields kecuali untuk melihat PDF/video
+    // 2. Disable input fields kecuali untuk melihat PDF/video
     container.querySelectorAll('input, select, textarea').forEach(input => {
         const inputId = input.id || '';
         
@@ -2619,26 +2736,26 @@ function applyReadOnlyModeToSubmenu(container) {
     console.log(`✅ Read-only mode applied to ${container.id}`);
 }
 
-/***************************************
+/********************************************
 /* UPDATE SETUP ALL COMPONENTS - FINAL *
-/***************************************/
+/********************************************/
 function setupAllComponents() {
   console.log('🔧 Setting up all components...');
-  // DATA LOGIN
+  // 🔑 DATA LOGIN
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName'); // 🔑 sudah fix
 
-  // ACCORDION TOGGLE FIX
+  // 1️⃣ ACCORDION TOGGLE FIX
   setupAccordionToggle();
 
-  // CEK USER LOGIN
+  // 2️⃣ CEK USER LOGIN
   if (userId) {
     console.log('👤 User is logged in:', userId);
 
-    // UPDATE NAVBAR (ICON USER + LOGOUT)
+    // 🔹 UPDATE NAVBAR (ICON USER + LOGOUT)
     updateNavbarForLoggedInUser();
 
-    // SAPAAN PERSONAL USER BERDASARKAN WAKTU AKSES
+    // 🔹 SAPAAN PERSONAL USER BERDASARKAN WAKTU AKSES
     const namaTampil = userName && userName.trim() !== '' ? userName : userId;
     const hour       = new Date().getHours();
 
@@ -2661,7 +2778,7 @@ function setupAllComponents() {
       elGreetingNameInline.innerText = namaTampil;
     }
 
-    // LOAD COMPLETE PROGRESS DARI SERVER
+    // 🔹 LOAD COMPLETE PROGRESS DARI SERVER
     loadCompleteProgressFromServer(userId, 1)
       .then(progress => {
         console.log('✅ Complete progress loaded successfully');
@@ -2678,7 +2795,7 @@ function setupAllComponents() {
     applyLockForNewUser();
   }
 
-  // SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
+  // 3️⃣ SETUP SEMUA KOMPONEN LAINNYA (TETAP JALAN)
   setupAllComponentsInternal();
   console.log('✅ All components setup complete');
 }
@@ -2714,14 +2831,14 @@ function fetchProgressFromServer(userId) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
         if (response.success) {
 
-            // simpan global
+            // 🔑 simpan global
             window.userProgress = response;
 
             // simpan storage (biarkan)
             localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
             localStorage.setItem('progressData', JSON.stringify(response));
 
-            // TENTUKAN USER BARU / LAMA
+            // 🔍 TENTUKAN USER BARU / LAMA
             const isUserBaru = response.perkenalan !== true;
 
             if (isUserBaru) {
@@ -2729,7 +2846,7 @@ function fetchProgressFromServer(userId) {
                 applyLockSystem(response);
             }
 
-            // SEMUA USER → restore progress
+            // ✅ SEMUA USER → restore progress
             applyExistingUserProgress(response);
         }
         document.body.removeChild(script);
@@ -2858,6 +2975,7 @@ function updateMateriCompletionUI(hariKe) {
   updateSubmenuLinkUI(hariKe, 'materi');
   console.log(`✅ Materi Hari ${hariKe} UI updated successfully`);
 }
+
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
@@ -3779,6 +3897,7 @@ function displayPDF(section, pdfUrl, title) {
             <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
             <div class="pdfjs-controls">
                 <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
+                    <!-- <i class="fas fa-chevron-left"></i> Sebelumnya -->
                     <i class="fas fa-chevron-left"></i> Sebelum
                 </button>
                 <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
@@ -3807,8 +3926,13 @@ function displayPDF(section, pdfUrl, title) {
 function fallbackToIframe(section, pdfUrl) {
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     pdfContainer.innerHTML = `
-        <iframe src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
-          width="100%" height="500" style="border: none;">
+        <iframe 
+            src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
+            width="100%" 
+            height="500" 
+            style="border: none;"
+            <!-- onerror="handlePDFError('${section}')"-->
+        >
         </iframe>
     `;
 }
@@ -4700,13 +4824,11 @@ async function uploadMealItem(hariKe, mealType) {
           localStorage.setItem(key, 'done');
           console.log(`✅ ${mealType} hari ${hariKe} selesai`);
         } else {
-          // alert('Gagal upload: ' + (res?.message || 'Unknown error'));
-          showMessage('error', 'Gagal Upload', 3000);
+          alert('Gagal upload: ' + (res?.message || 'Unknown error'));
         }
       } catch (err) {
         console.error('❌ Upload error:', err);
-        // alert('Terjadi kesalahan saat upload');
-        showMessage('error','Terjadi kesalahan saat upload', 3000);
+        alert('Terjadi kesalahan saat upload');
       }
     };
     reader.readAsDataURL(file);
@@ -5034,175 +5156,37 @@ function createMealPlanFormHTML(hariKe) {
 // ***** FUNGSI WORKOUT COMPLETE FLEKSIBEL *****
 // *********************************************
 
-/************************************************
- * SIMPAN WORKOUT DATA - FINAL FIX MATCH HTML
- ************************************************/
-/************************************************
- * SIMPAN WORKOUT DATA - FINAL STABLE VERSION
- ************************************************/
-async function simpanWorkoutData(hariKe) {
-
-  console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
-
-  const userId   = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
-  if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
-    return false;
-  }
-
-  // ======================
-  // AMBIL DATA KARDIO
-  // ======================
-  const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
-  const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
-  const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
-
-  const kardioFile     = localStorage.getItem(`kardioFile_${hariKe}`) || '';
-  const kardioFilename = localStorage.getItem(`kardioFilename_${hariKe}`) || '';
-
-  const kardioValid =
-    kardioType !== '' &&
-    startTime !== '' &&
-    stopTime !== '';
-
-  // ======================
-  // AMBIL DATA RESISTANCE
-  // ======================
-  const resistanceData = getResistanceDataForServer(hariKe);
-
-  const resistanceValid =
-    resistanceData.resistenExercises !== '';
-
-  // ======================
-  // VALIDASI FINAL
-  // ======================
-  if (!kardioValid && !resistanceValid) {
-    showMessage(
-      'warning',
-      'Input terlebih dahulu Jenis workoutnya',
-      3000,
-      `pertemuan${hariKe}`
-    );
-    return false;
-  }
-
-  // ======================
-  // KIRIM KE SERVER
-  // ======================
+/*****************************************
+* Selesaikan workout untuk hari tertentu *
+******************************************/
+function selesaiWorkout(hariKe) {
   try {
+    const userId = localStorage.getItem('userId');
+    if (!userId) throw new Error('User belum login');
 
-    const payload = {
-      action: 'updateWorkout',
-      userId,
-      userName,
-      hariKe,
-      kardioType,
-      startTime,
-      stopTime,
-      kardioFile,
-      kardioFilename,
-      resistenExercises: resistanceData.resistenExercises,
-      totalSets: resistanceData.totalSets,
-      totalReps: resistanceData.totalReps,
-      totalMinutes: resistanceData.totalMinutes
-    };
+    const formData = new FormData();
+    formData.append('action', 'completeWorkout');
+    formData.append('userId', userId);
+    formData.append('hariKe', hariKe);
 
-    console.log('📤 Payload workout FINAL:', payload);
-
-    const response = await fetch(URL_PROGRAM_APP, {
+    fetch(URL_PROGRAM_APP, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams(payload)
+      body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+      console.log('📥 Response complete workout:', res);
+      if (res.success) {
+        updateSubmenuLinkUI('workout', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'workout');
+      }
     });
-
-    const result = await response.json();
-    console.log('📥 Response server:', result);
-
-    if (result.success === true) {
-
-      localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-
-      const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-      if (btnSelesai) btnSelesai.disabled = false;
-
-      showMessage('success', 'Workout berhasil disimpan', 3000, `pertemuan${hariKe}`);
-      return true;
-    }
-
-    showMessage('error', result.message || 'Gagal menyimpan workout', 3000, `pertemuan${hariKe}`);
-    return false;
-
-  } catch (error) {
-    console.error(error);
-    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}`);
-    return false;
-  }
-}
-
-/*************************************
- * SELESAIKAN WORKOUT (FINAL VERSION)
- *************************************/
-async function selesaiWorkout(hariKe) {
-  console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
-
-  // 🔒 USER LAMA → LANGSUNG KELUAR (READ ONLY)
-  if (
-    window.userProgress &&
-    window.userProgress[`workoutHari${hariKe}`] === true
-  ) {
-    console.log('ℹ️ Workout sudah selesai sebelumnya (user lama)');
-    return;
-  }
-
-  const userId   = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-
-  // ⛔ VALIDASI BARU DILAKUKAN SAAT TOMBOL SELESAI DIKLIK
-  const sudahSimpan = localStorage.getItem(`workoutSavedHari${hariKe}`) === 'true';
-  if (!sudahSimpan) {
-    showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
-    return;
-  }
-
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-      },
-      body: new URLSearchParams({
-        action: 'completeWorkout',
-        userId,
-        userName,
-        hariKe
-      })
-    });
-
-    const result = await response.json();
-    console.log('📥 Complete workout response:', result);
-
-    if (result.success === true) {
-      // ✅ SET STATUS FRONTEND
-      if (!window.userProgress) window.userProgress = {};
-      window.userProgress[`workoutHari${hariKe}`] = true;
-      localStorage.setItem(`workoutHari${hariKe}`, 'completed');
-
-      updateSubmenuLinkUI('workout', hariKe);
-      disableWorkoutUI(hariKe);
-      showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `pertemuan${hariKe}` );
-    } else {
-      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
-    }
 
   } catch (err) {
-    console.error('❌ Error complete workout:', err);
-    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}` );
+    console.error('❌ Gagal menyelesaikan workout:', err);
   }
 }
+
 
 /****************************************
  * SHOW WORKOUT FORM - FINAL VERSION
@@ -5229,88 +5213,113 @@ function showWorkoutForm(hariKe) {
     // 4. Setup resistance
     setupResistanceExercises(hariKe);
     
+    // 5. Debug server connection
+    debugServerResponse(hariKe);
+    
     console.log(`✅ Workout form for day ${hariKe} is ready`);
 }
 
 /************************************************
+ * SETUP WORKOUT EVENT LISTENERS - FINAL FIX
+ * Panggil fungsi yang sudah ada di REVISI_27
+ ************************************************/
+/************************************************
  * SETUP WORKOUT EVENT LISTENERS - FINAL VERSION
  ************************************************/
 function setupWorkoutEventListeners(hariKe) {
-  console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
-
-  const btnSimpan  = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-
-  if (!btnSimpan || !btnSelesai) return;
-
-  // Reset event listener agar tidak double
-  btnSimpan.onclick = null;
-  btnSelesai.onclick = null;
-
-  btnSelesai.disabled = true;
-
-  // SIMPAN
-  btnSimpan.onclick = async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const success = await simpanWorkoutData(hariKe);
-
-    if (success) {
-      btnSelesai.disabled = false;
+    console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+    
+    // 1. Setup tombol Simpan
+    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+    if (btnSimpan) {
+        console.log(`✅ Found Simpan button for day ${hariKe}`);
+        
+        // Clone untuk menghapus event listener lama
+        const newBtnSimpan = btnSimpan.cloneNode(true);
+        btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
+        
+        // Setup event listener baru
+        newBtnSimpan.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
+            
+            // Debug sebelum simpan
+            console.log('🔍 Debug sebelum simpan:');
+            console.log('User ID:', localStorage.getItem('userId'));
+            console.log('User Name:', localStorage.getItem('userName'));
+            
+            // Panggil fungsi simpanWorkoutData
+            if (typeof simpanWorkoutData === 'function') {
+                const success = await simpanWorkoutData(hariKe);
+                console.log(`📤 Hasil simpan: ${success ? 'Berhasil' : 'Gagal'}`);
+            } else {
+                console.error('❌ Fungsi simpanWorkoutData tidak ditemukan!');
+                alert('Error: Fungsi penyimpanan tidak ditemukan');
+            }
+        });
     }
-  };
-
-  // SELESAI
-  btnSelesai.onclick = async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    await selesaiWorkout(hariKe);
-  };
-
-  console.log(`✅ Workout listeners ready for day ${hariKe}`);
+    
+    // 2. Setup tombol Selesai
+    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+    if (btnSelesai) {
+        console.log(`✅ Found Selesai button for day ${hariKe}`);
+        btnSelesai.disabled = true;
+        
+        const newBtnSelesai = btnSelesai.cloneNode(true);
+        btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
+        
+        newBtnSelesai.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`✅ Tombol Selesai diklik untuk hari ${hariKe}`);
+            
+            if (typeof selesaiWorkoutFinal === 'function') {
+                selesaiWorkoutFinal(hariKe);
+            } else {
+                console.error('❌ Fungsi selesaiWorkoutFinal tidak ditemukan!');
+                alert('Error: Fungsi penyelesaian tidak ditemukan');
+            }
+        });
+    }
+    
+    console.log(`✅ Workout event listeners setup complete for day ${hariKe}`);
 }
 
 /*******************************
 * Upload file kardio olahraga  *
 ********************************/
 async function uploadKardioFile(hariKe) {
-  try {
-    const userId = localStorage.getItem('userId');
-    if (!userId) throw new Error('User belum login');
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
 
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64Data = reader.result.split(',')[1];
-
-        console.log('📸 Kardio file siap disimpan (base64)');
-
-        // Simpan sementara (SEPERTI MEALPLAN)
-        localStorage.setItem(`kardioFile_${hariKe}`, base64Data);
-        localStorage.setItem(`kardioFilename_${hariKe}`, file.name);
-
-        // Update UI saja (BELUM KIRIM SERVER)
-        document.getElementById(`kegiatanKardio${hariKe}`).value = file.name;
+      // SIMPAN KE MEMORY GLOBAL (BUKAN KIRIM KE SERVER)
+      window.kardioUploadData = window.kardioUploadData || {};
+      window.kardioUploadData[hariKe] = {
+        base64,
+        filename: file.name
       };
 
-      reader.readAsDataURL(file);
+      document.getElementById(`kegiatanKardio${hariKe}`).value = file.name;
+      console.log('✅ Kardio file siap disimpan (base64)');
     };
 
-    input.click();
-  } catch (err) {
-    console.error('❌ Upload kardio gagal:', err);
-    showMessage('error', err.message, 3000);
-  }
+    reader.readAsDataURL(file);
+  };
+
+  input.click();
 }
+
 
 /****************************************
 * Helper: Konversi jenis kardio ke kode *
@@ -5364,9 +5373,76 @@ function setStopTimeKardio(hariKe) {
     }
 }
 
-/*****************************************
- * SIMPAN WORKOUT DATA - FINAL FIXED
- *****************************************/
+/*********************************
+ * Simpan data workout ke server 
+ *********************************/
+async function simpanWorkoutData(hariKe) {
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  if (!userId) {
+    alert('User belum login');
+    return;
+  }
+
+  /* ===============================
+     🔥 AGREGASI RESISTEN (KUNCI)
+     =============================== */
+  const resistenData = window.resistanceData?.[hariKe] || [];
+
+  const resistenNames = [];
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
+
+  resistenData.forEach(item => {
+    if (!item.name) return;
+    resistenNames.push(item.name);
+    totalSets += Number(item.set || 0);
+    totalReps += Number(item.repetisi || 0);
+    totalMinutes += Number(item.durasi || 0);
+  });
+
+  /* ===============================
+     DATA WORKOUT FINAL
+     =============================== */
+  const workoutData = {
+    kardioType: document.getElementById(`olahragaKardio${hariKe}`)?.value || '',
+    startTime: document.getElementById(`startOlahraga${hariKe}`)?.value || '',
+    stopTime: document.getElementById(`stopOlahraga${hariKe}`)?.value || '',
+    resistenExercises: resistenNames.join(', '),
+    totalSets,
+    totalReps,
+    totalMinutes
+  };
+
+  const kardioUpload = window.kardioUploadData?.[hariKe] || {};
+
+  const payload = {
+    action: 'updateWorkout',
+    userId,
+    userName,
+    hariKe,
+    workoutData: JSON.stringify(workoutData),
+    kardioFile: kardioUpload.base64 || '',
+    kardioFilename: kardioUpload.filename || ''
+  };
+
+  console.log('📤 Payload workout FINAL:', payload);
+
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    body: new URLSearchParams(payload)
+  });
+
+  const result = await response.json();
+  if (result.success) {
+    alert('Workout berhasil disimpan');
+  } else {
+    alert('Gagal simpan workout');
+  }
+}
+
 function ambilDataWorkoutHari(hariKe) {
     console.log(`📊 Ambil data workout hari ${hariKe}`);
 
@@ -5404,40 +5480,99 @@ function ambilDataWorkoutHari(hariKe) {
     };
 }
 
-function disableWorkoutUI(hariKe) {
-  const container = document.getElementById(`workoutContent${hariKe}`);
-  if (!container) return;
+function BACKUP_ambilDataWorkoutHari(hariKe) {
+  // ===== KARDIO =====
+  const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+  const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+  const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
 
-  container.querySelectorAll('input, select, textarea, button').forEach(el => {
-    if (
-      el.classList.contains('btn-close-header') ||
-      el.id === 'btnCekDisiniWorkout'
-    ) return;
+  // ===== RESISTANCE =====
+  let resistenList = [];
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
 
-    el.disabled = true;
-    el.style.pointerEvents = 'none';
-  });
+  const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
+  if (container) {
+    const items = container.querySelectorAll('[data-exercise]');
+    items.forEach(item => {
+      const name  = item.dataset.exercise;
+      const set   = Number(item.dataset.set || 0);
+      const reps  = Number(item.dataset.reps || 0);
+      const dur   = Number(item.dataset.duration || 0);
 
-  console.log(`🔒 Workout UI hari ${hariKe} dikunci total`);
-}
-
-function tandaiWorkoutSelesai(hariKe) {
-  const btn = document.querySelector(
-    `.submenu-trigger[data-target="workoutContent${hariKe}"]`
-  );
-
-  if (!btn) return;
-
-  if (!btn.querySelector('.status-done')) {
-    const icon = document.createElement('span');
-    icon.className = 'status-done ms-2';
-    icon.innerHTML = '🟢';
-    btn.appendChild(icon);
+      resistenList.push(name);
+      totalSets    += set;
+      totalReps    += reps;
+      totalMinutes+= dur;
+    });
   }
 
-  console.log(`✅ Submenu Workout hari ${hariKe} ditandai selesai`);
+  return {
+    kardioType,
+    startTime,
+    stopTime,
+
+    kardioFile: window.kardioFileUrlByDay?.[hariKe] || '',
+    kardioFilename: '',
+
+    resistenExercises: resistenList.join(', '),
+    totalSets,
+    totalReps,
+    totalMinutes
+  };
 }
 
+
+/*********************************
+* Tandai workout sebagai selesai *
+**********************************/
+async function completeWorkoutFinal(hariKe) {
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  // WAJIB: pastikan sudah simpan
+  if (!localStorage.getItem(`workout_saved_${hariKe}`)) {
+    showMessage('warning', 'Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'completeWorkout',
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.text();
+    console.log('📥 Workout complete response:', result);
+
+    if (result === "OK" || result.includes("OK")) {
+      // ✅ SIMPAN STATUS LOKAL
+      saveWorkoutStatus(hariKe, 'completed');
+      // ✅ KUNCI FIELD & TOMBOL
+      disableButtonsAfterCompletion(hariKe, 'workout');
+      // ✅ UPDATE UI (CENTANG MENU + BUTTON)
+      updateWorkoutCompletionUI(hariKe);
+      showMessage('success', `Workout hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+    } else {
+      showMessage('error', 'Gagal menandai workout selesai', 3000, `pertemuan${hariKe}`);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showMessage('error', 'Gagal terhubung ke server', 3000, `pertemuan${hariKe}`);
+  }
+}
 
 /************************
 * Simpan status workout *
@@ -5500,7 +5635,7 @@ function cekStatusWaterReminder() {
     document.getElementById('btnSimpan').disabled = true;
     document.getElementById('btnSimpan').innerHTML = '<i class="fas fa-check"></i> Simpan';
     document.getElementById('btnSelesai').disabled = true;
-    document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check"></i> Selesai Water';
+    document.getElementById('btnSelesai').innerHTML = '<i class="fas fa-check"></i> Selesai';
     
     // Tampilkan centang
     const waterItem = document.getElementById('waterReminderItem');
@@ -5587,24 +5722,53 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 * Update UI setelah workout selesai *
 *************************************/
 function updateWorkoutCompletionUI(hariKe) {
-  const submenu = document.querySelector(
-    `.submenu-trigger[data-target="workoutContent${hariKe}"]`
-  );
-
-  if (!submenu) {
-    console.warn('Submenu workout tidak ditemukan');
-    return;
+  console.log(`🏁 Updating workout completion UI for day ${hariKe}`);
+  
+  // Update tombol di menu utama
+  const workoutItem = document.querySelector(`[onclick="selesaiWorkout(${hariKe})"]`);
+  if (workoutItem) {
+    workoutItem.innerHTML = `<i class="fas fa-dumbbell"></i>${hariKe}.3 Workout - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
+    workoutItem.style.color = '#666666';
+    workoutItem.style.marginLeft = '2px';
+    // workoutItem.style.fontWeight = 'bold';
+    
+    // Ubah onclick untuk read-only mode
+    workoutItem.onclick = function(e) {
+      e.preventDefault();
+      showSubmenuReadOnly(`workoutContent${hariKe}`);
+    };
   }
-
-  if (!submenu.querySelector('.status-done')) {
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle status-done';
-    icon.style.color = 'green';
-    icon.style.marginLeft = '6px';
-    submenu.appendChild(icon);
+  
+  // Update tombol selesai di form
+  const selesaiBtn = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (selesaiBtn) {
+    selesaiBtn.innerHTML = `<i class="fa fa-check"></i> Selesai Workout`;
+    selesaiBtn.disabled = true;
+    // selesaiBtn.classList.remove('btn-secondary');
+    selesaiBtn.classList.add('btn-secondary');
+    selesaiBtn.style.opacity = '0.6';
+    selesaiBtn.style.cursor = 'not-allowed';
+    selesaiBtn.title = ' selesai Workout';
   }
-
-  console.log(`✅ Icon centang workout hari ${hariKe} ditambahkan`);
+  
+  // Update tombol simpan
+  const simpanBtn = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  if (simpanBtn) {
+    simpanBtn.disabled = true;
+    simpanBtn.classList.remove('btn-primary');
+    simpanBtn.classList.add('btn-secondary');
+    simpanBtn.style.opacity = '0.6';
+    simpanBtn.style.cursor = 'not-allowed';
+    simpanBtn.title = 'Tersimpan';
+  }
+  
+  // Disable dropdown resistance
+  const resistanceDropdown = document.getElementById(`resistanceDropdown${hariKe}`);
+  if (resistanceDropdown) {
+    resistanceDropdown.disabled = true;
+    resistanceDropdown.style.backgroundColor = '#f8f9fa';
+    resistanceDropdown.style.cursor = 'not-allowed';
+  }
 }
 
 /**************************
@@ -5618,7 +5782,6 @@ function loadSavedWorkoutData(hariKe) {
     const kardioSelect = document.getElementById(`olahragaKardio${hariKe}`);
     if (kardioType && kardioSelect) {
         kardioSelect.value = kardioType;
-        // kardioSelect.style.cursor = 'pointer';
     }
     
     // Load kardio filename
@@ -5649,21 +5812,119 @@ function loadSavedWorkoutData(hariKe) {
     }
 }
 
+/************************************
+* Fungsi khusus untuk hari tertentu *
+*************************************/
 /************************************************
  * SETUP WORKOUT FOR DAY - FIXED
  * Inisialisasi semua event listener untuk workout
  ************************************************/
 function setupWorkoutForDay(hariKe) {
-  console.log(`🔧 Setup workout untuk hari ${hariKe}`);
-  // Hindari setup berulang
-  if (window[`workoutSetupDone${hariKe}`]) {
-    console.log('⚠️ Setup sudah pernah dijalankan');
-    return;
-  }
-  setupWorkoutEventListeners(hariKe);
-  setupResistanceExercises(hariKe);
-  loadSavedWorkoutData(hariKe);
-  window[`workoutSetupDone${hariKe}`] = true;
+    console.log(`🔧 Setup workout untuk hari ${hariKe}`);
+    
+    // 1. Setup event listener untuk kardio
+    setupWorkoutEventListeners(hariKe);
+    
+    // 2. Setup resistance exercises
+    setupResistanceExercises(hariKe);
+    
+    // 3. Setup tombol simpan workout
+    const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+    if (btnSimpan) {
+        btnSimpan.onclick = function() {
+            console.log(`💾 Tombol Simpan diklik untuk hari ${hariKe}`);
+            simpanWorkoutData(hariKe);
+        };
+    }
+    
+    // 4. Setup tombol selesai workout - DISABLED DULU
+    const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+    if (btnSelesai) {
+        btnSelesai.disabled = true;
+        btnSelesai.onclick = function() {
+            console.log(`✅ Tombol Selesai diklik untuk hari ${hariKe}`);
+            selesaiWorkoutFinal(hariKe);
+        };
+    }
+    
+    // 5. Load saved data jika ada
+    loadSavedWorkoutData(hariKe);
+}
+
+/************************************************
+ * SELESAI WORKOUT FINAL - FIXED
+ * - Simpan "OK" ke kolom Z
+ * - Tampilkan centang hijau
+ * - Disable semua input kecuali Cek Disini dan X
+ ************************************************/
+async function selesaiWorkoutFinal(hariKe) {
+    console.log(`✅ Menyelesaikan workout hari ${hariKe}`);
+    
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
+    if (!userId) {
+        showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+        return;
+    }
+    
+    // 1️⃣ KIRIM STATUS "OK" KE KOLOM Z
+    try {
+        showMessage('info', 'Menyelesaikan workout...', 2000, `pertemuan${hariKe}`);
+        
+        const response = await fetch(URL_PROGRAM_APP, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' 
+            },
+            body: new URLSearchParams({
+                action: 'completeWorkout',
+                userId: userId,
+                userName: userName || userId,
+                hariKe: hariKe
+            })
+        });
+        
+        const result = await response.text();
+        console.log('📥 Response complete workout:', result);
+        
+        if (result && result.includes("OK")) {
+            // ✅ SIMPAN STATUS LOKAL
+            localStorage.setItem(`workoutHari${hariKe}`, 'completed');
+            
+            // ✅ TAMPILKAN CENTANG HIJAU DI SUBMENU
+            updateSubmenuLinkUI('workout', hariKe);
+            
+            // ✅ DISABLE SEMUA INPUT DAN TOMBOL (KECUALI CEK DISINI DAN X)
+            disableWorkoutUI(hariKe);
+            
+            showMessage('success', 
+                `Workout hari ${hariKe} selesai! Centang hijau telah ditampilkan.`, 
+                3000, 
+                `pertemuan${hariKe}`
+            );
+            
+            // ✅ UPDATE PROGRESS GLOBAL
+            if (window.userProgress) {
+                window.userProgress[`workoutHari${hariKe}`] = true;
+            }
+            
+        } else {
+            showMessage('error', 
+                'Gagal menyelesaikan workout: ' + (result || 'Unknown error'), 
+                3000, 
+                `pertemuan${hariKe}`
+            );
+        }
+        
+    } catch (error) {
+        console.error('❌ Error saat menyelesaikan workout:', error);
+        showMessage('error', 
+            'Error: ' + error.message, 
+            3000, 
+            `pertemuan${hariKe}`
+        );
+    }
 }
 
 /************************************************
@@ -5695,6 +5956,9 @@ function initializeAllWorkoutDays() {
 }
 
 /*******************************************
+ * CREATE WORKOUT FORM HTML - FIXED FINAL
+ *******************************************/
+/*******************************************
  * CREATE WORKOUT FORM HTML - FINAL FIX
  *******************************************/
 function createWorkoutFormHTML(hariKe) {
@@ -5721,33 +5985,40 @@ function createWorkoutFormHTML(hariKe) {
         <!-- Upload Kardio -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-              <i class="fas fa-file-upload"></i>
+                <i class="fas fa-file-upload"></i>
             </div>
-            <input class="form-control" type="text" id="kegiatanKardio${hariKe}" placeholder="Kegiatan Olahraga" readonly>
+            <input class="form-control" type="text"
+                   id="kegiatanKardio${hariKe}"
+                   placeholder="Kegiatan Olahraga" readonly>
             <button type="button" class="btn btn-outline-secondary btn-sm"
-              onclick="uploadKardioFile(${hariKe})">Upload
+                    onclick="uploadKardioFile(${hariKe})">
+                Upload
             </button>
         </div>
 
-        <!-- Waktu Start -->
+        <!-- Start -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-              <i class="fas fa-play"></i>
+                <i class="fas fa-play"></i>
             </div>
-            <input class="form-control" type="time" id="startOlahraga${hariKe}" disabled>
-            <button type="button" class="btn btn-outline-primary btn-sm"
-              onclick="setStartTimeKardio(${hariKe})">  Start  
+            <input class="form-control" type="time"
+                   id="startOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick="setStartTimeKardio(${hariKe})">
+                Start
             </button>
         </div>
 
-        <!-- Waktu Stop -->
+        <!-- Stop -->
         <div class="input-group mb-3">
             <div class="input-group-text">
-              <i class="fas fa-stop"></i>
+                <i class="fas fa-stop"></i>
             </div>
-            <input class="form-control" type="time" id="stopOlahraga${hariKe}" disabled>
-            <button type="button" class="btn btn-outline-danger btn-sm"
-              onclick="setStopTimeKardio(${hariKe})">  Stop  
+            <input class="form-control" type="time"
+                   id="stopOlahraga${hariKe}" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    onclick="setStopTimeKardio(${hariKe})">
+                Stop
             </button>
         </div>
 
@@ -5762,22 +6033,123 @@ function createWorkoutFormHTML(hariKe) {
             <input type="hidden" id="totalMinutes${hariKe}">
 
             <button type="button" class="btn btn-outline-primary btn-sm mb-2"
-                onclick="showResistanceModal(${hariKe})"> Tambah Resistance
+                    onclick="showResistanceModal(${hariKe})">
+                Tambah Resistance
             </button>
+
             <div id="selectedResistanceContainer${hariKe}"></div>
         </div>
 
         <!-- Tombol -->
         <div class="mt-4">
-            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanWorkout${hariKe}">
-              <i class="fa fa-pencil-square-o"></i> Simpan
+            <button type="button" class="btn btn-primary btn-sm"
+                    id="btnSimpanWorkout${hariKe}">
+                Simpan
             </button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiWorkout${hariKe}" disabled>
-              <i class="fas fa-check"></i> Selesai Workout
+            <button type="button" class="btn btn-secondary btn-sm"
+                    id="btnSelesaiWorkout${hariKe}" disabled>
+                Selesai
             </button>
         </div>
     `;
 }
+
+ function BACKUP_createWorkoutFormHTML(hariKe) {
+    return `
+        <!-- Pilih Jenis Olahraga Kardio -->
+        <div class="mt-3 mb-2">
+            <h6>Olahraga Kardio :</h6>
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <i class="fas fa-running"></i>
+                </div>
+                <select class="form-select" id="olahragaKardio${hariKe}" style="max-width: 100%;">
+                    <option value="">Pilih Jenis Olahraga...</option>
+                    <option value="Lari">Lari</option>
+                    <option value="Sepeda">Sepeda</option>
+                    <option value="Renang">Renang</option>
+                    <option value="Aerobic">Aerobic</option>
+                    <option value="Zumba">Zumba</option>
+                    <option value="Jalan Cepat">Jalan Cepat</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Upload Kegiatan Olahraga -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-file-upload"></i>
+            </div>
+            <input class="form-control" type="text" 
+                   id="kegiatanKardio${hariKe}" 
+                   placeholder="Kegiatan Olahraga" readonly>
+            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                    onclick="uploadKardioFile(${hariKe})" 
+                    id="btnUploadKardio${hariKe}">
+                <i class="fa fa-cloud-upload"></i> Upload
+            </button>
+        </div>
+        
+        <!-- Waktu Start Olahraga -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <input class="form-control" type="time" 
+                   id="startOlahraga${hariKe}" 
+                   placeholder="Waktu Mulai Olahraga" 
+                   style="max-width: 100%;" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                    onclick="setStartTimeKardio(${hariKe})" 
+                    id="btnStartOlahraga${hariKe}">
+                <i class="fas fa-play"></i> Start
+            </button>
+        </div>
+        
+        <!-- Waktu Stop Olahraga -->
+        <div class="input-group mb-3">
+            <div class="input-group-text">
+                <i class="fas fa-stop-circle"></i>
+            </div>
+            <input class="form-control" type="time" 
+                   id="stopOlahraga${hariKe}" 
+                   placeholder="Waktu Selesai Olahraga" 
+                   style="max-width: 100%;" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                    onclick="setStopTimeKardio(${hariKe})" 
+                    id="btnStopOlahraga${hariKe}">
+                <i class="fas fa-stop"></i> Stop
+            </button>
+        </div>
+        
+        <!-- Olahraga Resistance Section -->
+        <div id="resistance-section${hariKe}" class="mt-4">
+            <h6>Olahraga Resistance :</h6>
+            <div class="mb-3">
+                <button type="button" class="btn btn-outline-primary btn-sm" 
+                        onclick="showResistanceModal(${hariKe})">
+                    <i class="fas fa-plus"></i> Tambah Resistance Exercise
+                </button>
+            </div>
+            <div id="selectedResistanceContainer${hariKe}">
+                <!-- Resistance exercises akan ditambahkan di sini -->
+            </div>
+        </div>
+        
+        <!-- Tombol Simpan & Selesai -->
+        <div class="text-left mt-4">
+            <button type="button" class="btn btn-primary btn-sm" 
+                    id="btnSimpanWorkout${hariKe}">
+                <i class="fa fa-save"></i> Simpan
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" 
+                    id="btnSelesaiWorkout${hariKe}" disabled>
+                <i class="fa fa-check"></i> Selesai
+            </button>
+        </div>
+    `;
+}
+
 
 /*******************************************
  * GENERATE WORKOUT FORMS - FIXED SIMPLE
@@ -5844,8 +6216,11 @@ function showResistanceModal(hariKe) {
                         </select>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" onclick="addSelectedExercise(${hariKe})">Tambah</button>
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" 
+                                onclick="addSelectedExercise(${hariKe})">
+                            Tambah
+                        </button>
                     </div>
                 </div>
             </div>
@@ -5870,8 +6245,7 @@ function addSelectedExercise(hariKe) {
     const exerciseName = selectElement.value;
 
     if (!exerciseName) {
-        //alert('Pilih exercise terlebih dahulu!');
-        showMessage('warning', 'Pilih exercise terlebih dahulu', 3000);
+        alert('Pilih exercise terlebih dahulu!');
         return;
     }
 
@@ -5896,6 +6270,29 @@ function addSelectedExercise(hariKe) {
 
     current.push(exerciseName);
     resistenInput.value = current.join(',');
+}
+
+
+ function BACKUP_addSelectedExercise(hariKe) {
+    const selectElement = document.getElementById(`selectExercise${hariKe}`);
+    const exerciseName = selectElement.value;
+    
+    if (!exerciseName) {
+        alert('Pilih exercise terlebih dahulu!');
+        return;
+    }
+    
+    // Tutup modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById(`resistanceModal${hariKe}`));
+    modal.hide();
+    
+    // Panggil fungsi yang sudah ada di file asli
+    if (typeof addResistanceExercise === 'function') {
+        addResistanceExercise(hariKe, exerciseName, false);
+    } else {
+        console.error('Function addResistanceExercise not found!');
+        alert('Fungsi addResistanceExercise tidak ditemukan!');
+    }
 }
 
 /*******************************************
@@ -5997,7 +6394,7 @@ function disableWorkoutUI(hariKe) {
         button.disabled = true;
         button.style.opacity = '0.6';
         button.style.cursor = 'not-allowed';
-        button.title = 'Workout selesai';
+        button.title = 'Workout sudah selesai';
     });
     
     console.log(`✅ Workout UI hari ${hariKe} berhasil di-disable`);
@@ -6122,48 +6519,23 @@ function removeResistanceExercise(hariKe, exerciseId) {
 /*******************************************
 * Fungsi Simpan Data Resistance (per hari)
 ********************************************/
-/*******************************************
-* SIMPAN DATA RESISTANCE (FINAL CLEAN)
-********************************************/
 function saveResistanceData(hariKe, exerciseId) {
-
-    const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value || 0;
-    const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value || 0;
-    const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value || 0;
+    const setValue      = document.getElementById(`jmlSet-${hariKe}-${exerciseId}`)?.value;
+    const repetisiValue = document.getElementById(`jmlRepetisi-${hariKe}-${exerciseId}`)?.value;
+    const durasiValue   = document.getElementById(`jmlDurasi-${hariKe}-${exerciseId}`)?.value;
 
     const exerciseElement = document.getElementById(`resistance-${hariKe}-${exerciseId}`);
-    const exerciseName    =
-        exerciseElement?.querySelector('.card-title')?.textContent?.replace(' ✓','') ||
-        exerciseId.replace(/-/g, ' ');
-
-    let resistanceArray = [];
-
-    try {
-        resistanceArray = JSON.parse(localStorage.getItem(`resistanceHari${hariKe}`)) || [];
-    } catch (e) {
-        resistanceArray = [];
-    }
-
-    // Cari apakah sudah ada
-    const index = resistanceArray.findIndex(e => e.id === exerciseId);
+    const exerciseName    = exerciseElement?.querySelector('.card-title')?.textContent || exerciseId.replace(/-/g, ' ');
 
     const exerciseData = {
-        id: exerciseId,
         name: exerciseName,
-        set: Number(setValue),
-        repetisi: Number(repetisiValue),
-        durasi: Number(durasiValue)
+        set: setValue || 0,
+        repetisi: repetisiValue || 0,
+        durasi: durasiValue || 0,
+        timestamp: new Date().toISOString()
     };
-
-    if (index >= 0) {
-        resistanceArray[index] = exerciseData;
-    } else {
-        resistanceArray.push(exerciseData);
-    }
-
-    localStorage.setItem(`resistanceHari${hariKe}`, JSON.stringify(resistanceArray));
-
-    console.log(`💾 Resistance updated day ${hariKe}:`, resistanceArray);
+    localStorage.setItem( `resistance-${hariKe}-${exerciseId}`, JSON.stringify(exerciseData) );
+    console.log(  `💾 Saved resistance data for day ${hariKe}, exercise ${exerciseId}:`,exerciseData);
 }
 
 /*******************************************************
@@ -6208,39 +6580,53 @@ function loadSavedResistanceData(hariKe) {
 }
 
 /*******************************************
- * GET RESISTANCE DATA FOR SERVER - FINAL FIX
+ * GET RESISTANCE DATA FOR SERVER - FIXED
  *******************************************/
 function getResistanceDataForServer(hariKe) {
-
-  let totalSets = 0;
-  let totalReps = 0;
-  let totalMinutes = 0;
-  let exercises = [];
-
-  let resistanceArray = [];
-
-  try {
-    resistanceArray = JSON.parse(
-      localStorage.getItem(`resistanceHari${hariKe}`)
-    ) || [];
-  } catch (e) {
-    resistanceArray = [];
-  }
-
-  resistanceArray.forEach(item => {
-    exercises.push(item.name || '');
-
-    totalSets    += Number(item.set || 0);
-    totalReps    += Number(item.repetisi || 0);
-    totalMinutes += Number(item.durasi || 0);
-  });
-
-  return {
-    resistenExercises: exercises.join(', '),
-    totalSets,
-    totalReps,
-    totalMinutes
-  };
+    console.log(`📊 Mengambil data resistance untuk server hari ${hariKe}`);
+    
+    const container = document.getElementById(`selectedResistanceContainer${hariKe}`);
+    if (!container) {
+        return {
+            resistenExercises: '',
+            totalSets: 0,
+            totalReps: 0,
+            totalMinutes: 0
+        };
+    }
+    
+    let resistenExercises = [];
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalMinutes = 0;
+    
+    // Ambil semua exercise item
+    const exerciseItems = container.querySelectorAll('.resistance-exercise-item');
+    
+    exerciseItems.forEach(item => {
+        const exerciseName = item.querySelector('[id^="jenisResistance-"]')?.value || '';
+        if (exerciseName) {
+            const setId = item.querySelector('[id^="jmlSet-"]')?.id || '';
+            const repId = item.querySelector('[id^="jmlRepetisi-"]')?.id || '';
+            const durasiId = item.querySelector('[id^="jmlDurasi-"]')?.id || '';
+            
+            const sets = parseInt(item.querySelector(`#${setId}`)?.value || 0);
+            const reps = parseInt(item.querySelector(`#${repId}`)?.value || 0);
+            const minutes = parseInt(item.querySelector(`#${durasiId}`)?.value || 0);
+            
+            resistenExercises.push(exerciseName);
+            totalSets += sets;
+            totalReps += reps;
+            totalMinutes += minutes;
+        }
+    });
+    
+    return {
+        resistenExercises: resistenExercises.join(', '),
+        totalSets: totalSets,
+        totalReps: totalReps,
+        totalMinutes: totalMinutes
+    };
 }
 
 /******************************************************
@@ -6384,7 +6770,7 @@ function loadWaterReminderStatus(hariKe) {
         
         if (btnSelesai) {
             btnSelesai.disabled = true;
-            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
+            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
             btnSelesai.classList.remove('btn-success');
             btnSelesai.classList.add('btn-outline-success');
         }
@@ -6463,7 +6849,7 @@ function waterReminder(hariKe) {
                 class="btn btn-secondary"
                 onclick="selesaiWaterReminder(${hariKe})"
                 disabled>
-          <i class="fas fa-check"></i> Selesai Water
+          <i class="fas fa-check"></i> Selesai
         </button>
       </div>
     </div>
@@ -6745,7 +7131,7 @@ function checkWaterStatus(hariKe) {
   if (btnSelesai && saved === 'true') {
     btnSelesai.disabled = false;
     btnSelesai.classList.remove('btn-secondary');
-    btnSelesai.classList.add('btn-secondary');
+    btnSelesai.classList.add('btn-success');
   }
 }
 
@@ -6769,16 +7155,16 @@ function loadWaterReminderData(hariKe) {
         
         if (btnSimpan) {
             btnSimpan.disabled = true;
-            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
+            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
             btnSimpan.classList.remove('btn-primary');
-            btnSimpan.classList.add('btn-primary');
+            btnSimpan.classList.add('btn-outline-success');
         }
         
         if (btnSelesai) {
             btnSelesai.disabled = true;
-            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
-            btnSelesai.classList.remove('btn-secondary');
-            btnSelesai.classList.add('btn-secondary');
+            btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
+            btnSelesai.classList.remove('btn-success');
+            btnSelesai.classList.add('btn-outline-success');
         }
         
         if (statusDiv) {
@@ -6802,15 +7188,15 @@ function loadWaterReminderData(hariKe) {
         
         if (btnSimpan) {
             btnSimpan.disabled = true;
-            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
+            btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
             btnSimpan.classList.remove('btn-primary');
-            btnSimpan.classList.add('btn-primary');
+            btnSimpan.classList.add('btn-outline-success');
         }
         
         if (btnSelesai) {
             btnSelesai.disabled = false;
             btnSelesai.classList.remove('btn-secondary');
-            btnSelesai.classList.add('btn-secondary');
+            btnSelesai.classList.add('btn-success');
         }
         
         // Set radio button yang sebelumnya dipilih
@@ -7026,7 +7412,7 @@ function loadSavedWaterDataModul(modul, hariKe) {
     const btnSelesai = document.getElementById(btnSelesaiId);
     if (btnSelesai) {
       btnSelesai.disabled = false;
-      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
+      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-success');
     }
   }
   
@@ -7044,13 +7430,13 @@ function loadSavedWaterDataModul(modul, hariKe) {
     
     if (btnSimpan) {
       btnSimpan.disabled = true;
-      btnSimpan.innerHTML = '<i class="fas fa-check"></i> Simpan';
+      btnSimpan.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
     }
     
     if (btnSelesai) {
       btnSelesai.disabled = true;
-      btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Water';
-      btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
+      btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai';
+      btnSelesai.className = btnSelesai.className.replace('btn-success', 'btn-outline-success');
     }
     
     // Update status display
@@ -7126,7 +7512,7 @@ function checkWaterStatusModul(modul, hariKe) {
   
   if (btnSelesai && isSaved) {
     btnSelesai.disabled = false;
-    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
+    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-success');
     return true;
   }
   
@@ -7177,8 +7563,8 @@ function resetWaterReminderModul(modul, hariKe) {
   
   if (btnSelesai) {
     btnSelesai.disabled = true;
-    btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai Water';
-    btnSelesai.className = btnSelesai.className.replace('btn-secondary', 'btn-secondary');
+    btnSelesai.innerHTML = '<i class="fa fa-check"></i> Selesai';
+    btnSelesai.className = btnSelesai.className.replace('btn-success btn-outline-success', 'btn-secondary');
   }
   
   // Reset radio buttons
@@ -7508,6 +7894,7 @@ document.addEventListener('show.bs.collapse', function (e) {
   );
 
   if (!header) return;
+
   const hariKe = parseInt(header.getAttribute('data-hari'), 10);
 
   // ⛔ BLOK MODUL HARI 1 JIKA PERKENALAN BELUM SELESAI
@@ -7518,10 +7905,106 @@ document.addEventListener('show.bs.collapse', function (e) {
   ) {
     e.preventDefault();
     e.stopImmediatePropagation();
+
     showMessage( 'warning', 'Silakan selesaikan Perkenalan terlebih dahulu', 3000 );
+
     console.warn(`⛔ Bootstrap collapse Hari ${hariKe} diblok TOTAL`);
   }
 }, true);
+
+/*******************************************
+ * DEBUG WORKOUT STRUCTURE
+ *******************************************/
+function debugWorkoutStructure() {
+    console.log('🔍 Debugging workout structure...');
+    
+    // Cari workoutContent1
+    const workoutContent = document.getElementById('workoutContent1');
+    if (workoutContent) {
+        console.log('✅ Found workoutContent1');
+        console.log('📋 Inner HTML (first 500 chars):', workoutContent.innerHTML.substring(0, 500));
+        
+        // Cari semua input dan tombol di dalamnya
+        const inputs = workoutContent.querySelectorAll('input, select, button');
+        console.log(`🔢 Found ${inputs.length} form elements`);
+        
+        inputs.forEach((element, index) => {
+            console.log(`Element ${index}:`, {
+                tag: element.tagName,
+                id: element.id,
+                name: element.name,
+                type: element.type,
+                placeholder: element.placeholder,
+                text: element.textContent?.substring(0, 50),
+                className: element.className
+            });
+        });
+    } else {
+        console.error('❌ workoutContent1 not found!');
+    }
+}
+
+/*******************************************
+ * DEBUG SERVER RESPONSE - Helper
+ *******************************************/
+function debugServerResponse(hariKe) {
+    console.log(`🔍 Debug server untuk hari ${hariKe}`);
+    
+    // Ambil data dari form
+    const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
+    const startTime = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
+    const stopTime = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
+    const kardioFile = document.getElementById(`kegiatanKardio${hariKe}`)?.value || '';
+    
+    console.log('📊 Data form:', {
+        kardioType,
+        startTime,
+        stopTime,
+        kardioFile
+    });
+    
+    // Test koneksi ke server
+    fetch(URL_PROGRAM_APP + '?action=test&userId=' + encodeURIComponent(localStorage.getItem('userId')))
+        .then(response => response.text())
+        .then(result => {
+            console.log('✅ Test server connection:', result.substring(0, 100));
+        })
+        .catch(error => {
+            console.error('❌ Server connection error:', error);
+        });
+}
+
+/*******************************************
+ * TEST SERVER CONNECTION - Debugging
+ *******************************************/
+async function testServerConnection() {
+    console.log('🔍 Testing server connection...');
+    
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.error('❌ No userId found');
+        return;
+    }
+    
+    try {
+        const testUrl = `${URL_PROGRAM_APP}?action=test&userId=${encodeURIComponent(userId)}&timestamp=${Date.now()}`;
+        console.log('Test URL:', testUrl);
+        
+        const response = await fetch(testUrl);
+        const result = await response.text();
+        
+        console.log('✅ Server test response:', result.substring(0, 200));
+        // Parse JSON jika memungkinkan
+        try {
+            const jsonResult = JSON.parse(result);
+            console.log('📊 Parsed JSON:', jsonResult);
+        } catch (e) {
+            console.log('⚠️ Response bukan JSON valid');
+        }
+    } catch (error) {
+        console.error('❌ Server test error:', error);
+    }
+}
 
 </script>
 </body>
