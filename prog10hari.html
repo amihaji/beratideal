@@ -5038,56 +5038,68 @@ function createMealPlanFormHTML(hariKe) {
  * SIMPAN WORKOUT DATA - FINAL STABLE VERSION
  ************************************************/
 async function simpanWorkoutData(hariKe) {
-
   console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
 
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
 
   if (!userId) {
-    showMessage('error', 'Silakan login terlebih dahulu', 3000, `pertemuan${hariKe}`);
+    showMessage('error','Silakan login terlebih dahulu',3000,`pertemuan${hariKe}`);
     return false;
   }
 
   // ======================
-  // AMBIL DATA KARDIO
+  // KARDIO
   // ======================
   const kardioType = document.getElementById(`olahragaKardio${hariKe}`)?.value || '';
   const startTime  = document.getElementById(`startOlahraga${hariKe}`)?.value || '';
   const stopTime   = document.getElementById(`stopOlahraga${hariKe}`)?.value || '';
-
-  const kardioFile     = localStorage.getItem(`kardioFile_${hariKe}`) || '';
-  const kardioFilename = localStorage.getItem(`kardioFilename_${hariKe}`) || '';
+  const kegiatan   = document.getElementById(`kegiatanKardio${hariKe}`)?.value || '';
 
   const kardioValid =
     kardioType !== '' &&
-    startTime !== '' &&
-    stopTime !== '';
+    startTime  !== '' &&
+    stopTime   !== '';
 
   // ======================
-  // AMBIL DATA RESISTANCE
+  // RESISTANCE (DARI LOCALSTORAGE)
   // ======================
-  const resistanceData = getResistanceDataForServer(hariKe);
+  let resistenExercises = [];
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalMinutes = 0;
 
-  const resistanceValid =
-    resistanceData.resistenExercises !== '';
+  Object.keys(localStorage).forEach(key => {
+    if (!key.startsWith(`resistance-${hariKe}-`)) return;
+
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (!data) return;
+
+      resistenExercises.push(data.name);
+      totalSets     += Number(data.set || 0);
+      totalReps     += Number(data.repetisi || 0);
+      totalMinutes  += Number(data.durasi || 0);
+
+    } catch(e) {}
+  });
+
+  const resistanceValid = resistenExercises.length > 0;
 
   // ======================
   // VALIDASI FINAL
   // ======================
   if (!kardioValid && !resistanceValid) {
-    showMessage(
-      'warning',
-      'Input terlebih dahulu Jenis workoutnya',
-      3000,
-      `pertemuan${hariKe}`
-    );
+    showMessage('warning','Input terlebih dahulu Jenis workoutnya',3000,`pertemuan${hariKe}`);
     return false;
   }
 
   // ======================
-  // KIRIM KE SERVER
+  // FILE KARDIO
   // ======================
+  const kardioFileBase64 = localStorage.getItem(`kardioFile_${hariKe}`) || '';
+  const kardioFilename   = localStorage.getItem(`kardioFilename_${hariKe}`) || '';
+
   try {
 
     const payload = {
@@ -5098,21 +5110,20 @@ async function simpanWorkoutData(hariKe) {
       kardioType,
       startTime,
       stopTime,
-      kardioFile,
-      kardioFilename,
-      resistenExercises: resistanceData.resistenExercises,
-      totalSets: resistanceData.totalSets,
-      totalReps: resistanceData.totalReps,
-      totalMinutes: resistanceData.totalMinutes
+      kegiatan,
+      resistenExercises: resistenExercises.join(', '),
+      totalSets,
+      totalReps,
+      totalMinutes,
+      kardioFileBase64,
+      kardioFilename
     };
 
     console.log('📤 Payload workout FINAL:', payload);
 
     const response = await fetch(URL_PROGRAM_APP, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(payload)
     });
 
@@ -5123,19 +5134,22 @@ async function simpanWorkoutData(hariKe) {
 
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
 
-      const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-      if (btnSelesai) btnSelesai.disabled = false;
+      if (result.kardioFileUrl) {
+        document.getElementById(`kegiatanKardio${hariKe}`).value = result.kardioFileUrl;
+      }
 
-      showMessage('success', 'Workout berhasil disimpan', 3000, `pertemuan${hariKe}`);
+      document.getElementById(`btnSelesaiWorkout${hariKe}`).disabled = false;
+
+      showMessage('success','Workout berhasil disimpan',3000,`pertemuan${hariKe}`);
       return true;
     }
 
-    showMessage('error', result.message || 'Gagal menyimpan workout', 3000, `pertemuan${hariKe}`);
+    showMessage('error',result.message || 'Gagal menyimpan',3000,`pertemuan${hariKe}`);
     return false;
 
-  } catch (error) {
-    console.error(error);
-    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}`);
+  } catch(err) {
+    console.error(err);
+    showMessage('error','Terjadi kesalahan koneksi',3000,`pertemuan${hariKe}`);
     return false;
   }
 }
@@ -6207,7 +6221,7 @@ function loadSavedResistanceData(hariKe) {
 /*******************************************
  * GET RESISTANCE DATA FOR SERVER - FINAL FIX
  *******************************************/
-function getResistanceDataForServer(hariKe) {
+function BACKUP_getResistanceDataForServer(hariKe) {
 
   let totalSets = 0;
   let totalReps = 0;
