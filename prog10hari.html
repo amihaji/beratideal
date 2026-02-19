@@ -509,7 +509,7 @@ body { background-color: #f8f9fa; }
 button:disabled,
 input:disabled,
 select:disabled,
-textarea:disabled { cursor: not-allowed !important;}
+textarea:disabled { cursor: not-allowed}
 
 /*****************************
 /* TAMPILAN MOBILE RESPONSIVE
@@ -6512,19 +6512,17 @@ function waterReminder(hariKe) {
     </div>
   `;
 
-  // Buat radio button
+  // Buat radio
   generateWaterRadioButtons(hariKe);
 
-  // 🔒 CEK PROGRESS USER
+  // 🔥 INI BAGIAN KRITIS
+  // Setiap kali form dibuat, langsung cek progress
   if (window.userProgress && window.userProgress[`waterHari${hariKe}`] === true) {
-    console.log(`🔒 Water hari ${hariKe} sudah selesai (render lock ulang)`);
-
+    console.log(`🔒 Water ${hariKe} sudah selesai → Lock ulang`);
     updateSubmenuLinkUI('water', hariKe);
-
     disableButtonsAfterCompletion(hariKe, 'water');
   }
 }
-
 
  function BACKUP_waterReminder(hariKe) {
   const container = document.getElementById(`waterReminderContent${hariKe}`);
