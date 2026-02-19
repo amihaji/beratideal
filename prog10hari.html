@@ -2418,7 +2418,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
       btn.disabled = true;
       btn.style.opacity = '0.6';
       btn.style.cursor = 'not-allowed';
-      btn.title = 'Water sudah diisi';
+      //btn.title = 'Water sudah diisi';
     });
 
     console.log(`✅ Water hari ${hariKe} terkunci total`);
@@ -6470,10 +6470,41 @@ function loadWaterReminderStatus(hariKe) {
     }
 }
 
-/**************************************************
+/******************************
  * BUKA WATER REMINDER SUBMENU
- *************************************************/
+ ******************************/
 function waterReminder(hariKe) {
+  const container = document.getElementById(`waterReminderContent${hariKe}`);
+  if (!container) return;
+
+  container.style.display = 'block';
+  container.innerHTML = `
+    <div class="card p-3 mt-2">
+      <h6 class="mb-3"><i class="fas fa-tint"></i> Asupan Air Harian</h6>
+      <div id="waterRadioContainer${hariKe}" class="mb-3"></div>
+      <div class="d-flex gap-2">
+        <button id="btnSimpanWater${hariKe}" class="btn btn-primary" onclick="simpanWaterReminder(${hariKe})">
+          <i class="fas fa-save"></i> Simpan
+        </button>
+        <button id="btnSelesaiWater${hariKe}" class="btn btn-secondary" onclick="selesaiWaterReminder(${hariKe})" disabled>
+          <i class="fas fa-check"></i> Selesai Water
+        </button>
+      </div>
+    </div>
+  `;
+
+  // 🔹 Generate radio buttons
+  generateWaterRadioButtons(hariKe);
+  // 🔹 Jika user lama sudah selesai → langsung READ ONLY
+  if (
+    window.userProgress &&
+    window.userProgress[`waterHari${hariKe}`] === true
+  ) {
+    disableButtonsAfterCompletion(hariKe, 'water');
+  }
+}
+
+ function BACKUP_waterReminder(hariKe) {
   const container = document.getElementById(`waterReminderContent${hariKe}`);
   if (!container) return;
 
@@ -6552,7 +6583,31 @@ function getWaterHari(hariKe) {
  * ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
  ************************************************/
 function setWaterComponentsDisabled(hariKe, isDisabled) {
+  // radio buttons
+  document
+    .querySelectorAll(`input[name="waterHari${hariKe}"]`)
+    .forEach(r => {
+      r.disabled = isDisabled;
+      r.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
+    });
 
+  // tombol simpan  
+  const btnSimpan = document.getElementById(`btnSimpanWater${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.disabled = isDisabled;
+    btnSimpan.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
+  }
+
+  // tombol selesai 
+  const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = isDisabled;
+    btnSelesai.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
+  }
+}
+
+
+ function BACKUP_setWaterComponentsDisabled(hariKe, isDisabled) {
   // radio buttons
   document
     .querySelectorAll(`input[name="waterHari${hariKe}"]`)
@@ -6599,11 +6654,17 @@ async function simpanWaterReminder(hariKe) {
   if (result === 'OK') {
     // showMessage('success', 'Asupan air berhasil disimpan', 3000);
     showMessage('success', 'Asupan air berhasil disimpan', 3000, `pertemuan${hariKe}` );
-    
     // Aktifkan tombol selesai
     const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
     if (btnSelesai) btnSelesai.disabled = false;
-   }
+  }
+  // 🔒 Jika user lama sudah selesai → langsung lock
+  if (
+    window.userProgress &&
+      window.userProgress[`waterHari${hariKe}`] === true
+  ) {
+    disableButtonsAfterCompletion(hariKe, 'water');
+  }
 }
 
 /*********************************
