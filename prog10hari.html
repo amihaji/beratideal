@@ -128,6 +128,13 @@ body { background-color: #f8f9fa; }
   display: none;
   width:100% 
 }
+/* Cursor not allowed untuk elemen disabled */
+.submenu-content input:disabled,
+.submenu-content select:disabled,
+.submenu-content textarea:disabled,
+.submenu-content button:disabled {
+  cursor: not-allowed !important;
+}
 /* Kalau readonly kursor not allowed */
 .submenu-content input[readonly] {
   cursor: not-allowed;
@@ -141,13 +148,6 @@ body { background-color: #f8f9fa; }
 .menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
 .status-lock { font-size: 12px; color: #000e3d; margin-left: 2px; }
 .status-unlock { font-size: 12px;color: #ffffff; margin-left: 2px; }
-/* Cursor not-allowed untuk elemen disabled */
-.submenu-content input:disabled,
-.submenu-content select:disabled,
-.submenu-content textarea:disabled,
-.submenu-content button:disabled {
-  cursor: not-allowed !important;
-}
 /* Pastikan submenu tidak keluar dari container */
 .menu-accordion {
   position: relative;
@@ -6477,57 +6477,19 @@ function loadWaterReminderStatus(hariKe) {
 /******************************
  * BUKA WATER REMINDER SUBMENU
  ******************************/
-/**************************************************
- * BUKA WATER REMINDER SUBMENU (FINAL STABLE)
- *************************************************/
 function waterReminder(hariKe) {
-
   const container = document.getElementById(`waterReminderContent${hariKe}`);
   if (!container) return;
 
   container.style.display = 'block';
 
-  // 🔒 Jika sudah selesai (user lama)
-  if (window.userProgress &&
-      window.userProgress[`waterHari${hariKe}`] === true) {
-
-    console.log(`🔒 Water hari ${hariKe} sudah selesai → READ ONLY`);
-
-    // Pastikan form sudah ada
-    if (!container.innerHTML.trim()) {
-      container.innerHTML = `
-        <div class="card p-3 mt-2">
-          <h6 class="mb-3"><i class="fas fa-tint"></i> Asupan Air Harian</h6>
-          <div id="waterRadioContainer${hariKe}" class="mb-3"></div>
-          <div class="d-flex gap-2">
-            <button id="btnSimpanWater${hariKe}" class="btn btn-primary">
-              <i class="fas fa-save"></i> Simpan
-            </button>
-            <button id="btnSelesaiWater${hariKe}" class="btn btn-secondary">
-              <i class="fas fa-check"></i> Selesai Water
-            </button>
-          </div>
-        </div>
-      `;
-      generateWaterRadioButtons(hariKe);
-    }
-
-    // Langsung lock
-    setTimeout(() => {
-      disableButtonsAfterCompletion(hariKe, 'water');
-    }, 100);
-
-    return;
-  }
-
-  // 🔹 USER BARU / BELUM SELESAI
   container.innerHTML = `
     <div class="card p-3 mt-2">
       <h6 class="mb-3"><i class="fas fa-tint"></i> Asupan Air Harian</h6>
 
-      <div id="waterRadioContainer${hariKe}" class="mb-3"></div>
+      <div id="waterRadioContainer${hariKe}"></div>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 mt-3">
         <button id="btnSimpanWater${hariKe}"
                 class="btn btn-primary"
                 onclick="simpanWaterReminder(${hariKe})">
@@ -6544,7 +6506,16 @@ function waterReminder(hariKe) {
     </div>
   `;
 
+  // Generate radio
   generateWaterRadioButtons(hariKe);
+
+  // 🔥 CEK JIKA SUDAH SELESAI (USER LAMA)
+  if (window.userProgress && window.userProgress[`waterHari${hariKe}`] === true) {
+    console.log(`🔒 Water hari ${hariKe} sudah selesai (user lama)`);
+
+    // Lock total pakai sistem global
+    disableButtonsAfterCompletion(hariKe, 'water');
+  }
 }
 
  function BACKUP_waterReminder(hariKe) {
