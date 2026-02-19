@@ -6506,17 +6506,17 @@ function waterReminder(hariKe) {
     </div>
   `;
 
-  // Generate radio
   generateWaterRadioButtons(hariKe);
 
-  // 🔥 CEK JIKA SUDAH SELESAI (USER LAMA)
-  if (window.userProgress && window.userProgress[`waterHari${hariKe}`] === true) {
-    console.log(`🔒 Water hari ${hariKe} sudah selesai (user lama)`);
-
-    // Lock total pakai sistem global
-    disableButtonsAfterCompletion(hariKe, 'water');
-  }
+  // 🔥 PENTING: Delay kecil supaya DOM benar-benar sudah ada
+  setTimeout(() => {
+    if (window.userProgress && window.userProgress[`waterHari${hariKe}`] === true) {
+      console.log(`🔒 Locking water UI hari ${hariKe} (user lama)`);
+      disableButtonsAfterCompletion(hariKe, 'water');
+    }
+  }, 100);
 }
+
 
  function BACKUP_waterReminder(hariKe) {
   const container = document.getElementById(`waterReminderContent${hariKe}`);
