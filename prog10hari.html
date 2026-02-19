@@ -128,6 +128,10 @@ body { background-color: #f8f9fa; }
   display: none;
   width:100% 
 }
+/* Kalau readonly kursor not allowed */
+.submenu-content input[readonly] {
+  cursor: not-allowed;
+}
 .submenu-trigger { cursor: pointer; }
 .submenu-trigger:hover { background-color: #e7e7e7; color: #333; }
 /* Jarak Submenu, Jarak Icon dengan text dan Warna Icon */
@@ -1669,8 +1673,9 @@ function lockMealPlanUI(hariKe) {
   // 2️⃣ DISABLE INPUT TEXT (VISUAL LOCK)
   container.querySelectorAll('input.form-control').forEach(input => {
     input.readOnly = true;
-    input.style.pointerEvents = 'none';
+    // input.style.pointerEvents = 'none';
     input.style.opacity = '0.6';
+    input.style.cursor = 'not-allowed';
   });
 
   // 3️⃣ DISABLE TOMBOL SELESAI
