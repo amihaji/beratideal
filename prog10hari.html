@@ -137,7 +137,13 @@ body { background-color: #f8f9fa; }
 .menu-header.disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
 .status-lock { font-size: 12px; color: #000e3d; margin-left: 2px; }
 .status-unlock { font-size: 12px;color: #ffffff; margin-left: 2px; }
-
+/* Cursor not-allowed untuk elemen disabled */
+.submenu-content input:disabled,
+.submenu-content select:disabled,
+.submenu-content textarea:disabled,
+.submenu-content button:disabled {
+  cursor: not-allowed !important;
+}
 /* Pastikan submenu tidak keluar dari container */
 .menu-accordion {
   position: relative;
