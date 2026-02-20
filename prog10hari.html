@@ -128,13 +128,15 @@ body { background-color: #f8f9fa; }
   display: none;
   width:100% 
 }
-/* Cursor not allowed untuk elemen disabled */
-.submenu-content input:disabled,
-.submenu-content select:disabled,
-.submenu-content textarea:disabled,
-.submenu-content button:disabled {
+/* Override Bootstrap cursor untuk disabled */
+button.btn:disabled,
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
   cursor: not-allowed !important;
 }
+
 /* Kalau readonly kursor not allowed */
 .submenu-content input[readonly] {
   cursor: not-allowed;
@@ -504,12 +506,6 @@ body { background-color: #f8f9fa; }
 .meal-plan-modal .modal-header { background: linear-gradient(135deg, #105fff 0%, #cfdaff 100%); color: white; }
 .meal-plan-modal .modal-body { padding: 20px; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
-
-/* Disabled untuk status Read Only */
-button:disabled,
-input:disabled,
-select:disabled,
-textarea:disabled { cursor: not-allowed}
 
 /*****************************
 /* TAMPILAN MOBILE RESPONSIVE
