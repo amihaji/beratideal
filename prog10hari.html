@@ -507,6 +507,12 @@ textarea:disabled {
 .meal-plan-modal .modal-body { padding: 20px; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
+/* Submenu yang sudah selesai tidak bisa diklik */
+.submenu-readonly {
+  cursor: not-allowed !important;
+  pointer-events: auto; /* tetap bisa buka submenu */
+}
+
 /*****************************
 /* TAMPILAN MOBILE RESPONSIVE
 /*****************************/
@@ -2493,8 +2499,9 @@ function updateSubmenuLinkUI(type, hariKe) {
     icon.style.fontSize = '0.9em';
 
     link.appendChild(icon);
-    // link.style.fontWeight = 'bold';
     link.style.color = '#666';
+    // Tambahkan ini agar mouse "Not Allowed"
+    link.classList.add('submenu-readonly');
 }
 
 /***************************
