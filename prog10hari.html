@@ -1110,7 +1110,7 @@ body { background-color: #f8f9fa; }
 //******************
 // DEKLARASI GLOBAL
 //******************
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwgjN-wbS5fc-_GE8IDArlGzCd26ZmfRL-vS4BZ9qYTo6_N-hpZEAPrOk7cdO-KX4gJwg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwQ7_TQIEG966W4vlcQ3TW-ZoC3jMFxW5XEUdjLN7fMDUVKk8trBNLyWsbmL0Dkcim_Qg/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -4512,50 +4512,77 @@ function updateMateriStatusUI(hariKe) {
 }
 
 /************************
-* Jadwal Waktu Istrihat *
+* Jadwal Waktu Istirahat *
 *************************/   
 const radioIstirahat = document.getElementById("istirahatBtn");
+
 if (radioIstirahat) {
+  const hariKe = 1; // jika dinamis, ganti sesuai sistem Anda
   const wrapper = document.createElement("div");
-  wrapper.className = "mb-1"; /* "input-group mb-1 align-items-start"; */
+  wrapper.className = "mb-1";
   wrapper.innerHTML = `  
     <h6><b>WAKTU ISTIRAHAT</b></h6>
     <b>Mulai Istirahat Jam</b>
     <div class="input-group mb-3">
-      <button type="button" class="btn btn-outline-primary btn-sm" id="btnStartIstirahat" data-bs-toggle="tooltip" title="Mulai Istirahat">
+      <button type="button" class="btn btn-outline-primary btn-sm" id="btnStartIstirahat${hariKe}">
         <i class="far fa-clock mt-2 mb-2"></i>  
       </button>
-      <input class="form-control" type="time" id="mulaiIstirahat" style="max-width: 100%;" disabled>  
+      <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
     </div>
 
-    <b>Berapa Jam Istirahat</b></h6>
+    <b>Berapa Jam Istirahat</b>
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio">
+        <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
       </div>
-      <input type="text" class="form-control" id="tidurKurang6Jam" placeholder="Kurang dari 6jam per malam" readonly>
+      <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio">
+        <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
       </div>
-      <input type="text" class="form-control" id="tidurAntara6_8Jam" placeholder="6jam-8jam per malam" readonly>
+      <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio">
+        <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
       </div>
-      <input type="text" class="form-control" id="tidurLebih8Jam" placeholder="Lebih 8jam per malam" readonly>
+      <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
     </div>  
+
     <div class="container p-0">
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat" data-bs-toggle="tooltip" title="Simpan Istirahat"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat" data-bs-toggle="tooltip" title="Selesai Istirahat"><i class="fa fa-check"></i> Selesai</button>
+      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
+        <i class="fa fa-pencil-square-o"></i> Simpan
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
+        <i class="fa fa-check"></i> Selesai
+      </button>
     </div>
   `;
-    radioIstirahat.appendChild(wrapper);
-} 
+  radioIstirahat.appendChild(wrapper);
+
+  // ENABLE TOMBOL SELESAI WAKTU ISTIRAHAT
+  const btnSimpan = document.getElementById(`btnSimpanIstirahat${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
+  if (btnSimpan) {
+    btnSimpan.addEventListener("click", function () {
+      const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
+      const radioChecked = document.querySelector(
+        `input[name="istirahatHari${hariKe}"]:checked`
+      );
+
+      if (!jamMulai || !radioChecked) {
+        showMessage( 'info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `istirahatContent${hariKe}` );
+        // alert("Lengkapi jam dan pilih durasi istirahat");
+        return;
+      }
+      // Enable tombol selesai
+      btnSelesai.disabled = false;
+    });
+  }
+}
 
 /***************************
 * Input Data Kondisi Tubuh *
@@ -6519,42 +6546,6 @@ function waterReminder(hariKe) {
   }
 }
 
- function BACKUP_waterReminder(hariKe) {
-  const container = document.getElementById(`waterReminderContent${hariKe}`);
-  if (!container) return;
-
-  container.style.display = 'block';
-
-  container.innerHTML = `
-    <div class="card p-3 mt-2">
-      <h6 class="mb-3"><i class="fas fa-tint"></i> Asupan Air Harian</h6>
-
-      <select id="airPutih${hariKe}" class="form-select mb-3">
-        <option value="">-- Pilih Asupan Air --</option>
-        <option value="1500">1500 ml</option>
-        <option value="2000">2000 ml</option>
-        <option value="2500">2500 ml</option>
-        <option value="3000">3000 ml</option>
-      </select>
-
-      <div class="d-flex gap-2">
-        <button id="btnSimpanWater${hariKe}"
-                class="btn btn-primary"
-                onclick="simpanWaterReminder(${hariKe})">
-          <i class="fas fa-save"></i> Simpan
-        </button>
-
-        <button id="btnSelesaiWater${hariKe}"
-                class="btn btn-secondary"
-                onclick="selesaiWaterReminder(${hariKe})"
-                disabled>
-          <i class="fas fa-check"></i> Selesai Water
-        </button>
-      </div>
-    </div>
-  `;
-}
-
 /**************************************************
  * GENERATE RADIO BUTTONS UNTUK PILIHAN AIR MINUM
  *************************************************/
@@ -6621,25 +6612,6 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
   }
 }
 
-
- function BACKUP_setWaterComponentsDisabled(hariKe, isDisabled) {
-  // radio buttons
-  document
-    .querySelectorAll(`input[name="waterHari${hariKe}"]`)
-    .forEach(r => r.disabled = isDisabled);
-
-  // tombol simpan
-  const btnSimpan = document.getElementById(`btnSimpanWater${hariKe}`);
-  if (btnSimpan) btnSimpan.disabled = isDisabled;
-
-  // tombol selesai
-  const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
-  if (btnSelesai) btnSelesai.disabled = isDisabled;
-
-  // ❌ JANGAN sentuh tombol X
-  // ❌ JANGAN sentuh tombol Cek Disini
-}
- 
 /*********************************
 * SIMPAN DATA ASUPAN AIR (WATER) *
 *********************************/
@@ -6685,9 +6657,6 @@ async function simpanWaterReminder(hariKe) {
 /*********************************
 * Selesaikan Water Reminder *
 *********************************/
-/*********************************
-* Selesaikan Water Reminder *
-*********************************/
 async function selesaiWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
@@ -6724,36 +6693,6 @@ async function selesaiWaterReminder(hariKe) {
   } catch (err) {
     console.error('❌ Error selesai water:', err);
     showMessage('error', 'Terjadi kesalahan koneksi', 3000);
-  }
-}
-
-
-async function BACKUP_selesaiWaterReminder(hariKe) {
-  const userId   = localStorage.getItem('userId');
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'completeWater',
-      userId,
-      hariKe
-    })
-  });
-  const result = await response.text();
-  if (result === 'OK') {
-    showMessage('success', 'Water Reminder Selesai', 3000, `pertemuan${hariKe}` );
-    
-    // Disable radio button
-    document
-      .querySelectorAll(`input[name="asupanAir${hariKe}"]`)
-      .forEach(radio => radio.disabled = true);
-    
-    // Disable tombol Simpan & Selesai
-    document.getElementById(`btnSimpanWater${hariKe}`)?.setAttribute('disabled', true);
-    document.getElementById(`btnSelesaiWater${hariKe}`)?.setAttribute('disabled', true);
-    
-    // UPDATE SUBMENU (CENTANG HIJAU)
-    updateSubmenuLinkUI('water', hariKe);
   }
 }
 
