@@ -1628,6 +1628,16 @@ function applyExistingUserProgress(progress) {
       disableButtonsAfterCompletion(hariKe, 'water');
     }
   }
+
+ // ISTIRAHAT HARI 1–10
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    if (progress[`istirahatHari${hariKe}`] === true) {
+      // ✅ Tampilkan centang hijau di submenu
+      updateSubmenuLinkUI('istirahat', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'istirahat');
+    }
+  }
+
 }
 
 /************************************
@@ -2380,10 +2390,8 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   // Disabled Water Reminder
   if (submenuType === 'water') {
     console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
-
     const container = document.getElementById(`waterReminderContent${hariKe}`);
     if (!container) return;
-
     // Disabled semua inputan
     container.querySelectorAll('input, select, textarea').forEach(el => {
       el.disabled = true;
@@ -2391,13 +2399,11 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
       el.style.backgroundColor = '#f8f9fa';
       el.style.cursor = 'not-allowed';
     });
-
     // Disabled semua button kecuali "X" & "Cek Disini"
     container.querySelectorAll('button').forEach(btn => {
       const id   = btn.id || '';
       const text = btn.textContent || '';
       const cls  = btn.className || '';
-
       // Close "X" Tetap aktif
       if (
         cls.includes('btn-close') ||
@@ -2410,7 +2416,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
         btn.style.cursor = 'pointer';
         return;
       }
-
       // "Cek Disini" Tetat Aktif
       if (id.includes('CekDisini') || text.includes('Cek Disini')) {
         btn.disabled = false;
@@ -2419,17 +2424,34 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
         btn.title = 'Lihat PDF';
         return;
       }
-
       // Lainnya DISABLE
       btn.disabled = true;
       btn.style.opacity = '0.6';
       btn.style.cursor = 'not-allowed';
-      //btn.title = 'Water sudah diisi';
     });
-
     console.log(`✅ Water hari ${hariKe} terkunci total`);
     return;
   }
+
+  // Disabled Istirahat
+  if (submenuType === 'istirahat') {
+    const container = document.getElementById(`istirahatContent${hariKe}`);
+    if (!container) return;
+    container.querySelectorAll('input, button').forEach(el => {
+      const text = el.textContent || '';
+      const cls  = el.className || '';
+      // Biarkan tombol close atau cek disini aktif
+      if (cls.includes('btn-close') || text.includes('Cek Disini')) {
+        el.disabled = false;
+        el.style.cursor = 'pointer';
+        return;
+      }
+      el.disabled = true;
+      el.style.cursor = 'not-allowed';
+    });
+    return;
+  }
+
 }
 
 /************************************************
@@ -2478,6 +2500,13 @@ function updateSubmenuLinkUI(type, hariKe) {
       );
     }
 
+    // Istirahat Selektor
+    if (type === 'istirahat') {
+      link = document.querySelector(
+        `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`
+      );
+    }
+    
     if (!link) {
         console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
         return;
@@ -4517,71 +4546,146 @@ function updateMateriStatusUI(hariKe) {
 const radioIstirahat = document.getElementById("istirahatBtn");
 
 if (radioIstirahat) {
-  const hariKe = 1; // jika dinamis, ganti sesuai sistem Anda
+
+  const hariKe = 1; // jika dinamis, sesuaikan
+  const userId = localStorage.getItem("userId");
+
   const wrapper = document.createElement("div");
   wrapper.className = "mb-1";
+
   wrapper.innerHTML = `  
     <h6><b>WAKTU ISTIRAHAT</b></h6>
+
     <b>Mulai Istirahat Jam</b>
     <div class="input-group mb-3">
-      <button type="button" class="btn btn-outline-primary btn-sm" id="btnStartIstirahat${hariKe}">
-        <i class="far fa-clock mt-2 mb-2"></i>  
-      </button>
-      <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
+      <input class="form-control"
+             type="time"
+             id="mulaiIstirahat${hariKe}">
     </div>
 
     <b>Berapa Jam Istirahat</b>
+
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
+        <input type="radio"
+               name="istirahatHari${hariKe}"
+               value="Kurang dari 6 jam">
       </div>
-      <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
+      <input type="text"
+             class="form-control"
+             value="Kurang dari 6 jam per malam"
+             readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
+        <input type="radio"
+               name="istirahatHari${hariKe}"
+               value="6 - 8 jam">
       </div>
-      <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
+      <input type="text"
+             class="form-control"
+             value="6 - 8 jam per malam"
+             readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
+        <input type="radio"
+               name="istirahatHari${hariKe}"
+               value="Lebih dari 8 jam">
       </div>
-      <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
+      <input type="text"
+             class="form-control"
+             value="Lebih dari 8 jam per malam"
+             readonly>
     </div>  
 
     <div class="container p-0">
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
-        <i class="fa fa-pencil-square-o"></i> Simpan
+      <button type="button"
+              class="btn btn-primary btn-sm"
+              id="btnSimpanIstirahat${hariKe}">
+        Simpan
       </button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
-        <i class="fa fa-check"></i> Selesai
+
+      <button type="button"
+              class="btn btn-secondary btn-sm"
+              id="btnSelesaiIstirahat${hariKe}"
+              disabled>
+        Selesai
       </button>
     </div>
   `;
+
   radioIstirahat.appendChild(wrapper);
 
-  // ENABLE TOMBOL SELESAI WAKTU ISTIRAHAT
-  const btnSimpan = document.getElementById(`btnSimpanIstirahat${hariKe}`);
+  const btnSimpan  = document.getElementById(`btnSimpanIstirahat${hariKe}`);
   const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
-  if (btnSimpan) {
-    btnSimpan.addEventListener("click", function () {
-      const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
-      const radioChecked = document.querySelector(
-        `input[name="istirahatHari${hariKe}"]:checked`
-      );
 
-      if (!jamMulai || !radioChecked) {
-        showMessage( 'info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `istirahatContent${hariKe}` );
-        // alert("Lengkapi jam dan pilih durasi istirahat");
-        return;
-      }
-      // Enable tombol selesai
-      btnSelesai.disabled = false;
+  // SIMPAN ISTIRAHAT
+  btnSimpan.addEventListener("click", async function () {
+
+    const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
+    const radioChecked = document.querySelector(
+      `input[name="istirahatHari${hariKe}"]:checked`
+    );
+
+    if (!jamMulai || !radioChecked) {
+      alert("Lengkapi jam dan pilih durasi istirahat");
+      return;
+    }
+
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "updateIstirahat",
+        userId,
+        hariKe,
+        jamMulai,
+        kualitas: radioChecked.value
+      })
     });
-  }
+
+    const result = await response.text();
+
+    if (result === "OK") {
+      btnSelesai.disabled = false;
+    }
+  });
+
+  //  SELESAI ISTIRAHAT
+  btnSelesai.addEventListener("click", async function () {
+
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "completeIstirahat",
+        userId,
+        hariKe
+      })
+    });
+
+    const result = await response.text();
+
+    if (result === "OK") {
+
+      // Disable semua input
+      wrapper.querySelectorAll("input").forEach(el => {
+        el.disabled = true;
+        el.style.cursor = "not-allowed";
+      });
+
+      btnSimpan.disabled  = true;
+      btnSelesai.disabled = true;
+
+      btnSimpan.style.cursor  = "not-allowed";
+      btnSelesai.style.cursor = "not-allowed";
+
+      updateSubmenuLinkUI("istirahat", hariKe);
+    }
+  });
 }
 
 /***************************
