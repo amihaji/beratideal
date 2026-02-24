@@ -4652,87 +4652,56 @@ function updateMateriStatusUI(hariKe) {
 * Jadwal Waktu Istirahat *
 *************************/   
 const radioIstirahat = document.getElementById("istirahatBtn");
-
 if (radioIstirahat) {
-
-  const hariKe = 1; // jika dinamis, sesuaikan
-  const userId = localStorage.getItem("userId");
-
+  const hariKe  = 1; // jika dinamis, sesuaikan
+  const userId  = localStorage.getItem("userId");
   const wrapper = document.createElement("div");
   wrapper.className = "mb-1";
-
   wrapper.innerHTML = `  
     <h6><b>WAKTU ISTIRAHAT</b></h6>
-
     <b>Mulai Istirahat Jam</b>
     <div class="input-group mb-3">
-      <input class="form-control"
-             type="time"
-             id="mulaiIstirahat${hariKe}">
+      <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
     </div>
 
     <b>Berapa Jam Istirahat</b>
-
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio"
-               name="istirahatHari${hariKe}"
-               value="Kurang dari 6 jam">
+      <div class="input-group-text"> 
+        <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
       </div>
-      <input type="text"
-             class="form-control"
-             value="Kurang dari 6 jam per malam"
-             readonly>
+      <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio"
-               name="istirahatHari${hariKe}"
-               value="6 - 8 jam">
+        <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
       </div>
-      <input type="text"
-             class="form-control"
-             value="6 - 8 jam per malam"
-             readonly>
+      <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
     </div>  
     
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <input type="radio"
-               name="istirahatHari${hariKe}"
-               value="Lebih dari 8 jam">
+        <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
       </div>
-      <input type="text"
-             class="form-control"
-             value="Lebih dari 8 jam per malam"
-             readonly>
+      <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
     </div>  
 
     <div class="container p-0">
-      <button type="button"
-              class="btn btn-primary btn-sm"
-              id="btnSimpanIstirahat${hariKe}">
+      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
         Simpan
       </button>
-
-      <button type="button"
-              class="btn btn-secondary btn-sm"
-              id="btnSelesaiIstirahat${hariKe}"
-              disabled>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
         Selesai
       </button>
     </div>
   `;
 
   radioIstirahat.appendChild(wrapper);
-
   const btnSimpan  = document.getElementById(`btnSimpanIstirahat${hariKe}`);
   const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
 
   // SIMPAN ISTIRAHAT
   btnSimpan.addEventListener("click", async function () {
-
     const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
     const radioChecked = document.querySelector(
       `input[name="istirahatHari${hariKe}"]:checked`
@@ -4755,9 +4724,7 @@ if (radioIstirahat) {
         kualitas: radioChecked.value
       })
     });
-
     const result = await response.text();
-
     if (result === "OK") {
       btnSelesai.disabled = false;
     }
@@ -4765,7 +4732,6 @@ if (radioIstirahat) {
 
   //  SELESAI ISTIRAHAT
   btnSelesai.addEventListener("click", async function () {
-
     const response = await fetch(URL_PROGRAM_APP, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -4777,21 +4743,16 @@ if (radioIstirahat) {
     });
 
     const result = await response.text();
-
     if (result === "OK") {
-
       // Disable semua input
       wrapper.querySelectorAll("input").forEach(el => {
         el.disabled = true;
         el.style.cursor = "not-allowed";
       });
-
       btnSimpan.disabled  = true;
       btnSelesai.disabled = true;
-
       btnSimpan.style.cursor  = "not-allowed";
       btnSelesai.style.cursor = "not-allowed";
-
       updateSubmenuLinkUI("istirahat", hariKe);
     }
   });
