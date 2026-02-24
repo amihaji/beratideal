@@ -4505,7 +4505,7 @@ if (inputKondisiTubuh) {
     <!-- Input Lingkar Pinggang -->
     <div class="input-group mb-3">
       <div class="input-group-text">
-        <i class="fas fa-ribbon"></i>
+        <i class="fas fa-ribbon "></i>
       </div>
       <select class="form-select" id="lingkarPerut" style="max-width: 100%;" required>
         <option value="">Pilih Ukuran celana/Lingkar Perut...</option>
@@ -4550,12 +4550,57 @@ if (inputKondisiTubuh) {
     </div>
 
     <div>
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTubuh" data-bs-toggle="tooltip" title="Simpan Data Fisik"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTubuh" data-bs-toggle="tooltip" title="Selesai Input Data"><i class="fa fa-check"></i> Selesai Tracking</button>
+      <button type="button" class="btn btn-primary   btn-sm" id="btnSimpanDataTracking1"  onclick="simpanDataTracking(1)"  data-bs-toggle="tooltip" title="Simpan Data Fisik"><i class="fa fa-pencil-square-o"></i> Simpan</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTracking1" onclick="selesaiDataTracking(1)" data-bs-toggle="tooltip" title="Selesai Data Tracking"><i class="fa fa-check"></i> Selesai Tracking</button>
     </div>
   `;
   inputKondisiTubuh.appendChild(wrapper);
 }   
+
+/************************
+ * Simpan Data Tracking *
+ * *********************/
+function simpanDataTracking(hariKe) {
+  const userId = localStorage.getItem("userId");
+  const jenisKelamin   = document.querySelector('input[name="jenisKelamin"]:checked')?.value || "";
+  const usia           = document.getElementById("usia")?.value || "";
+  const tinggiBadan    = document.getElementById("tinggiBadan")?.value || "";
+  const beratBadan     = document.getElementById("beratBadan")?.value || "";
+  const lingkarPerut   = document.getElementById("lingkarPerut")?.value || "";
+  const aktivitasFisik = document.getElementById("aktivitasFisik")?.value || "";
+
+  if (!jenisKelamin || !usia || !tinggiBadan || !beratBadan || !lingkarPerut || !aktivitasFisik) {
+    alert("Semua field harus diisi");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("action", "updateDataTracking");
+  formData.append("userId", userId);
+  formData.append("hariKe", hariKe);
+  formData.append("jenisKelamin", jenisKelamin);
+  formData.append("usia", usia);
+  formData.append("tinggiBadan", tinggiBadan);
+  formData.append("beratBadan", beratBadan);
+  formData.append("lingkarPerut", lingkarPerut);
+  formData.append("aktivitasFisik", aktivitasFisik);
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(res => {
+    console.log("Response:", res);
+
+    if (res === "OK") {
+      document.getElementById(`btnSelesaiDataTracking${hariKe}`).disabled = false;
+      document.getElementById(`btnSelesaiDataTracking${hariKe}`).classList.remove("btn-secondary");
+      document.getElementById(`btnSelesaiDataTracking${hariKe}`).classList.add("btn-success");
+    }
+  })
+  .catch(err => console.error(err));
+}
 
 /***********************************************
 * Upload meal plan untuk hari tertentu di form * 
