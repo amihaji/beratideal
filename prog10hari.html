@@ -2383,6 +2383,115 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     return;
   }
 
+  // 🔥 Set progress frontend wwater reminder
+  if (!window.userProgress) window.userProgress = {};
+  window.userProgress[`waterHari${hariKe}`] = true;
+
+  // Disabled Water Reminder
+  if (submenuType === 'water') {
+    console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`waterReminderContent${hariKe}`);
+    if (!container) return;
+    // Disabled semua inputan
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    // Disabled semua button kecuali "X" & "Cek Disini"
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+      // Close "X" Tetap aktif
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      // "Cek Disini" Tetat Aktif
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.title = 'Lihat PDF';
+        return;
+      }
+      // Lainnya DISABLE
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ Water hari ${hariKe} terkunci total`);
+    return;
+  }
+
+  // 🔥 Set progress frontend istirahat
+  if (!window.userProgress) window.userProgress = {};
+  window.userProgress[`istirahatHari${hariKe}`] = true;
+
+  // Disabled Istirahat
+  if (submenuType === 'istirahat') {
+    console.log(`🔒 Lock istirahat hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`istirahatContent${hariKe}`);
+    if (!container) return;
+    // Disabled semua inputan
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    // Disabled semua button kecuali "X" & "Cek Disini"
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+      // Close "X" Tetap aktif
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      // "Cek Disini" Tetat Aktif
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.title = 'Lihat PDF';
+        return;
+      }
+      // Lainnya DISABLE
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ istirahat hari ${hariKe} terkunci total`);
+    return;
+  }
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
+  // Disabled Workout
+  if (submenuType === 'workout') {
+    console.log(`🔒 Disable workout UI hari ${hariKe}`);
+    disableWorkoutUI(hariKe);
+    return;
+  }
+
   // 🔥 Set progress frontend
   if (!window.userProgress) window.userProgress = {};
   window.userProgress[`waterHari${hariKe}`] = true;
@@ -2459,7 +2568,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /************************************************/
 function updateSubmenuLinkUI(type, hariKe) {
     console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-
     let link = null;
 
     // Perkenalan Selektor
