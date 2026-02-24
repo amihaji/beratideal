@@ -4471,7 +4471,7 @@ if (inputKondisiTubuh) {
       <div class="input-group-text">
         <i class="fas fa-venus-mars"></i> 
       </div>
-      <select class="form-select" id="jenisKelamin1" required>
+      <select class="form-select" id="jenisKelamin" required>
         <option value="">Pilihan Jenis Kelamin...</option>
         <option value="Pria">Pria</option>
         <option value="Wanita">Wanita</option>
@@ -4560,46 +4560,58 @@ if (inputKondisiTubuh) {
 /************************
  * Simpan Data Tracking *
  * *********************/
-function simpanDataTracking(hariKe) {
-  const userId = localStorage.getItem("userId");
-  const jenisKelamin   = document.querySelector('input[name="jenisKelamin"]:checked')?.value || "";
+async function simpanDataTracking(hariKe) {
+  const userId         = localStorage.getItem('userId');
+  const jenisKelamin   = document.getElementById("jenisKelamin")?.value || "";
   const usia           = document.getElementById("usia")?.value || "";
   const tinggiBadan    = document.getElementById("tinggiBadan")?.value || "";
   const beratBadan     = document.getElementById("beratBadan")?.value || "";
   const lingkarPerut   = document.getElementById("lingkarPerut")?.value || "";
-  const aktivitasFisik = document.getElementById("aktivitasFisik")?.value || "";
-
+  const aktivitasFisik = document.getElementById("aktivitasOlahraga")?.value || "";
+  console.log("📤 Data Tracking:", {
+    jenisKelamin,
+    usia,
+    tinggiBadan,
+    beratBadan,
+    lingkarPerut,
+    aktivitasFisik
+  });
+  // Validasi lengkap
   if (!jenisKelamin || !usia || !tinggiBadan || !beratBadan || !lingkarPerut || !aktivitasFisik) {
-    alert("Semua field harus diisi");
+    showMessage('warning', 'Semua field harus diisi', 3000);
     return;
   }
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'updateDataTracking',
+        userId,
+        hariKe,
+        jenisKelamin,
+        usia,
+        tinggiBadan,
+        beratBadan,
+        lingkarPerut,
+        aktivitasFisik
+      })
+    });
 
-  const formData = new FormData();
-  formData.append("action", "updateDataTracking");
-  formData.append("userId", userId);
-  formData.append("hariKe", hariKe);
-  formData.append("jenisKelamin", jenisKelamin);
-  formData.append("usia", usia);
-  formData.append("tinggiBadan", tinggiBadan);
-  formData.append("beratBadan", beratBadan);
-  formData.append("lingkarPerut", lingkarPerut);
-  formData.append("aktivitasFisik", aktivitasFisik);
-
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.text())
-  .then(res => {
-    console.log("Response:", res);
-
-    if (res === "OK") {
-      document.getElementById(`btnSelesaiDataTracking${hariKe}`).disabled = false;
-      document.getElementById(`btnSelesaiDataTracking${hariKe}`).classList.remove("btn-secondary");
-      document.getElementById(`btnSelesaiDataTracking${hariKe}`).classList.add("btn-success");
+    const result = await response.text();
+    console.log("📥 Response Data Tracking:", result);
+    if (result === "OK") {
+      showMessage('success', 'Data Tracking berhasil disimpan', 3000);
+      // Enable tombol selesai
+      const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+    } else {
+      showMessage('danger', 'Gagal menyimpan data', 3000);
     }
-  })
-  .catch(err => console.error(err));
+  } catch (error) {
+    console.error("❌ Error simpanDataTracking:", error);
+    showMessage('danger', 'Terjadi kesalahan sistem', 3000);
+  }
 }
 
 /***********************************************
