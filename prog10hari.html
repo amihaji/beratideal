@@ -4727,6 +4727,7 @@ if (radioIstirahat) {
     const result = await response.text();
     if (result === "OK") {
       btnSelesai.disabled = false;
+      showMessage( 'success', 'Istirahat Tersimpan', 3000, `istirahat${hariKe}` );
     }
   });
 
@@ -4749,6 +4750,8 @@ if (radioIstirahat) {
         el.disabled = true;
         el.style.cursor = "not-allowed";
       });
+      showMessage( 'success', 'Istirahat Selesai', 3000, `istirahat${hariKe}` );
+
       btnSimpan.disabled  = true;
       btnSelesai.disabled = true;
       btnSimpan.style.cursor  = "not-allowed";
@@ -4862,7 +4865,6 @@ function showMealPlanUploadForm(hariKe) {
         mealPlanContent.style.display = 'block';
         // Scroll ke form
         setTimeout(() => { mealPlanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        // showMessage('info', `Upload meal plan hari ${hariKe}`, 3000, `pertemuan${hariKe}`);
     } else {
         showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
     }
@@ -5789,7 +5791,7 @@ async function selesaiIstirahat(hariKe) {
         istirahatItem.style.color = '#666666';
         // istirahatItem.style.fontWeight = 'bold';
     }
-    showMessage('success', `Istirahat hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+    showMessage('success', `Istirahat hari ${hariKe} selesai!`, 3000, `istirahat${hariKe}`);
 }
 
 /**********************************************
@@ -7467,13 +7469,7 @@ function resetWaterReminderModul(modul, hariKe) {
   
   // Reset menu icon
   updateWaterMenuIconModul(modul, hariKe); // Akan menghapus badge
-  
-  showMessage(
-    'info', 
-    `Water reminder Modul ${modul}, Hari ${hariKe} telah direset`, 
-    3000
-  );
-  
+  showMessage( 'info', `Water reminder Modul ${modul}, Hari ${hariKe} telah direset`, 3000);
   console.log(`🔄 Water reminder M${modul}D${hariKe} di-reset`);
 }
 
