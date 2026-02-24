@@ -4709,7 +4709,7 @@ if (radioIstirahat) {
 
     if (!jamMulai || !radioChecked) {
       // alert("Lengkapi jam dan pilih durasi istirahat");
-      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `istirahat${hariKe}`);
+      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `pertemuan${hariKe}`);
       return;
     }
 
@@ -4727,7 +4727,7 @@ if (radioIstirahat) {
     const result = await response.text();
     if (result === "OK") {
       btnSelesai.disabled = false;
-      showMessage( 'success', 'Istirahat Tersimpan', 3000, `istirahat${hariKe}` );
+      showMessage( 'success', 'Istirahat Tersimpan', 3000, `pertemuan${hariKe}` );
     }
   });
 
@@ -4750,7 +4750,7 @@ if (radioIstirahat) {
         el.disabled = true;
         el.style.cursor = "not-allowed";
       });
-      showMessage( 'success', 'Istirahat Selesai', 3000, `istirahat${hariKe}` );
+      showMessage( 'success', 'Istirahat Selesai', 3000, `pertemuan${hariKe}` );
 
       btnSimpan.disabled  = true;
       btnSelesai.disabled = true;
