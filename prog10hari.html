@@ -1115,7 +1115,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxUJJmm8xPt_enBizE_0-4qyYb9nZ_5I-j5IwhAatpAMnCFcaT3dMyzX2uORNbF4xai0w/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycby_dOvYDDwLzwDW4NBbYG9RNXkniqr714n8m8sht50hMXJsaEXUvdAGa1O7RNlxSpMO/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -4483,7 +4483,7 @@ if (inputKondisiTubuh) {
       <div class="input-group-text">
         <i class="fas fa-user-alt" style="padding-left: 2px; padding-right:3px;"></i>
       </div>
-      <input type="number" class="form-control" id="usia" placeholder="Input Usia Anda">
+      <input type="number" class="form-control" id="usia" placeholder="Input Usia Anda" min="18" max="80" required>
     </div>  
                   
     <!-- Input Berat Badan -->
@@ -4491,7 +4491,7 @@ if (inputKondisiTubuh) {
       <div class="input-group-text">
         <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
       </div>
-      <input type="number" class="form-control" id="beratBadan" placeholder="Input Berat badan (kg)">
+      <input type="number" class="form-control" id="beratBadan" placeholder="Input Berat badan (kg)" min="40" max="150" required>
     </div>  
 
     <!-- Input Tinggi Badan -->
@@ -4499,7 +4499,7 @@ if (inputKondisiTubuh) {
       <div class="input-group-text">
         <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
       </div>
-      <input type="number" class="form-control" id="tinggiBadan" placeholder="Input Tinggi badan (cm)">
+      <input type="number" class="form-control" id="tinggiBadan" placeholder="Input Tinggi badan (cm)" min="100" max="190" required>
     </div>  
                   
     <!-- Input Lingkar Pinggang -->
@@ -4508,7 +4508,7 @@ if (inputKondisiTubuh) {
         <i class="fas fa-ribbon"> </i>
       </div>
       <select class="form-select" id="lingkarPerut" style="max-width: 100%;" required>
-        <option value="">Pilih Ukuran celana/Lingkar Perut...</option>
+        <option value="">Pilih Ukuran Celana/Lingkar Perut...</option>
         <option value="68">26 = Lingkar 68 cm</option>
         <option value="70">27 = Lingkar 70 cm</option>
         <option value="72">28 = Lingkar 72 cm</option>
@@ -4525,7 +4525,7 @@ if (inputKondisiTubuh) {
         <option value="94">39 = Lingkar 94 cm</option>
         <option value="96">40 = Lingkar 96 cm</option>
         <option value="98">41 = Lingkar 98 cm</option>
-        <option value="100">42 = Lingkar 100 cm</option>
+        <option value="100">42 = Lingkar 100 cm</option> 
         <option value="102">43 = Lingkar 102 cm</option>
         <option value="104">44 = Lingkar 104 cm</option>
         <option value="106">45 = Lingkar 106 cm</option>
@@ -4612,6 +4612,58 @@ async function simpanDataTracking(hariKe) {
     console.error("❌ Error simpanDataTracking:", error);
     showMessage('error', 'Terjadi kesalahan sistem', 3000);
   }
+}
+
+/**********************************************
+* Selesaikan Data Tracking dan disable tombol *
+***********************************************/
+async function selesaiDataTracking(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('error', 'User tidak ditemukan', 3000);
+    return;
+  }
+  console.log(`🚀 Proses selesai Data Tracking hari ${hariKe}`);
+  const callbackName = 'cb_complete_datatracking_' + Date.now();
+  const script = document.createElement('script');
+  script.src =
+    `${URL_PROGRAM_APP}?action=completeDataTracking` +
+    `&userId=${encodeURIComponent(userId)}` +
+    `&hariKe=${hariKe}` +
+    `&callback=${callbackName}`;
+
+  window[callbackName] = function (response) {
+    console.log('📊 Response completeDataTracking:', response);
+    try {
+      if (response && response.success) {
+        // 🔹 Simpan status local
+        localStorage.setItem(`datatracking_status_${hariKe}`, 'completed');
+        localStorage.setItem(`datatracking_completed_${hariKe}`, new Date().toISOString());
+        // 🔹 Disable semua field & tombol (kecuali X & Cek Disini)
+        disableButtonsAfterCompletion(hariKe, 'datatracking');
+        // 🔹 Tambahkan icon centang hijau ke submenu
+        updateSubmenuLinkUI('datatracking', hariKe);
+        showMessage('success', `Data Tracking hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
+        console.log(`✅ Data Tracking hari ${hariKe} selesai total`);
+      } else {
+        console.error('❌ Gagal menyelesaikan Data Tracking');
+        showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
+      }
+    } catch (err) {
+      console.error('❌ Error processing completeDataTracking:', err);
+      showMessage('error', 'Terjadi kesalahan sistem', 3000);
+    }
+    // Cleanup JSONP
+    document.body.removeChild(script);
+    delete window[callbackName];
+  };
+  script.onerror = () => {
+    console.error('❌ Script error completeDataTracking');
+    document.body.removeChild(script);
+    delete window[callbackName];
+    showMessage('error', 'Koneksi ke server gagal', 3000);
+  };
+  document.body.appendChild(script);
 }
 
 /***********************************************
