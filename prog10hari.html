@@ -4627,19 +4627,14 @@ async function simpanDataTracking(hariKe) {
 function selesaiDataTracking(hariKe) {
   const userId = window.currentUserId;
   if (!userId) {
-    showMessage('error', 'User tidak ditemukan', 3000);
-    //alert("User tidak ditemukan");
+     showMessage('error', 'User tidak ditemukan', 3000);
     return;
   }
 
-  const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
-  if (!btnSelesai || btnSelesai.disabled) return;
-  btnSelesai.disabled = true;
-
   fetch(WEB_APP_URL, {
-    method: 'POST',
+    method: "POST",
     body: new URLSearchParams({
-      action: 'completeDataTracking',
+      action: "completeDataTracking",   // 🔥 WAJIB INI
       userId: userId,
       hariKe: hariKe
     })
@@ -4647,83 +4642,32 @@ function selesaiDataTracking(hariKe) {
   .then(res => res.json())
   .then(response => {
 
+    console.log("📥 Response Complete Tracking:", response);
     if (response.success) {
-      console.log("✅ Data Tracking selesai & tersimpan");
-      // 🔒 Disable semua input & tombol kecuali X dan Cek Disini
+      // Disable UI
       const container = document.getElementById(`dataTrackingContent${hariKe}`);
       if (container) {
-        container.querySelectorAll('input, select, button')
-          .forEach(el => {
-            if (
-              el.id?.includes("Close") ||
-              el.textContent.includes("Cek Disini")
-            ) {
-              return;
-            }
-            el.disabled = true;
-            el.style.cursor = "not-allowed";
-          });
+        container.querySelectorAll("input, select, button").forEach(el => {
+          if (
+            el.textContent.includes("Cek Disini") ||
+            el.classList.contains("btn-close")
+          ) {
+            return;
+          }
+          el.disabled = true;
+          el.style.cursor = "not-allowed";
+        });
       }
-      // ✅ Tampilkan centang hijau
-      updateSubmenuLinkUI('tracking', hariKe);
+
+      // Centang hijau
+      updateSubmenuLinkUI("tracking", hariKe);
     } else {
-      //alert("Gagal menyelesaikan Data Tracking");
       showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
-      btnSelesai.disabled = false;
     }
   })
   .catch(err => {
     console.error(err);
-    btnSelesai.disabled = false;
   });
-}
-async function BACKUP_selesaiDataTracking(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('error', 'User tidak ditemukan', 3000);
-    return;
-  }
-  console.log(`🚀 Proses selesai Data Tracking hari ${hariKe}`);
-  const callbackName = 'cb_complete_datatracking_' + Date.now();
-  const script = document.createElement('script');
-  script.src =
-    `${URL_PROGRAM_APP}?action=completeDataTracking` +
-    `&userId=${encodeURIComponent(userId)}` +
-    `&hariKe=${hariKe}` +
-    `&callback=${callbackName}`;
-
-  window[callbackName] = function (response) {
-    console.log('📊 Response completeDataTracking:', response);
-    try {
-      if (response && response.success) {
-        // 🔹 Simpan status local
-        localStorage.setItem(`datatracking_status_${hariKe}`, 'completed');
-        localStorage.setItem(`datatracking_completed_${hariKe}`, new Date().toISOString());
-        // 🔹 Disable semua field & tombol (kecuali X & Cek Disini)
-        disableButtonsAfterCompletion(hariKe, 'datatracking');
-        // 🔹 Tambahkan icon centang hijau ke submenu
-        updateSubmenuLinkUI('datatracking', hariKe);
-        showMessage('success', `Data Tracking hari ${hariKe} selesai!`, 3000, `pertemuan${hariKe}`);
-        console.log(`✅ Data Tracking hari ${hariKe} selesai total`);
-      } else {
-        console.error('❌ Gagal menyelesaikan Data Tracking');
-        showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
-      }
-    } catch (err) {
-      console.error('❌ Error processing completeDataTracking:', err);
-      showMessage('error', 'Terjadi kesalahan sistem', 3000);
-    }
-    // Cleanup JSONP
-    document.body.removeChild(script);
-    delete window[callbackName];
-  };
-  script.onerror = () => {
-    console.error('❌ Script error completeDataTracking');
-    document.body.removeChild(script);
-    delete window[callbackName];
-    showMessage('error', 'Koneksi ke server gagal', 3000);
-  };
-  document.body.appendChild(script);
 }
 
 /***********************************************
