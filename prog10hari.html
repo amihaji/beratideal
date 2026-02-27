@@ -4624,34 +4624,33 @@ async function simpanDataTracking(hariKe) {
 /**********************************************
 * Selesaikan Data Tracking dan disable tombol *
 ***********************************************/
-function selesaiDataTracking(hariKe) {
+async function selesaiDataTracking(hariKe) {
   console.log("Selesai Tracking Clicked");
   const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
   if (!userId) {
     showMessage('error', 'User tidak ditemukan', 3000);
     return;
   }
 
-  fetch(URL_PROGRAM_APP, {
-    method: "POST",
-    body: new URLSearchParams({
-      action: "completeDataTracking",
-      userId: userId,
-      hariKe: hariKe
-    })
-  })
-  .then(res => res.text())
-  .then(text => {
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: new URLSearchParams({
+        action: 'completeDataTracking',
+        userId,
+        userName,
+        hariKe
+      })
+    });
 
-    let response;
-    try {
-      response = JSON.parse(text);
-    } catch(e) {
-      response = text;
-    }
-
-    console.log("📥 Response Complete Tracking:", response);
-    if (response.success) {
+    const result = await response.text();
+    console.log("📥 Response Complete Tracking:", result);
+    if (result === "OK" || result.includes("success")) {
       const container = document.getElementById(`dataTrackingContent${hariKe}`);
       if (container) {
         container.querySelectorAll("input, select, button").forEach(el => {
@@ -4663,62 +4662,14 @@ function selesaiDataTracking(hariKe) {
           el.style.cursor = "not-allowed";
         });
       }
-
       updateSubmenuLinkUI("tracking", hariKe);
     } else {
       showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
     }
-  })
-  .catch(err => {
-    console.error(err);
-  });
-}
-
-function BACKUP_selesaiDataTracking(hariKe) {
-  console.log("Selesai Tracking Clicked");
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-     showMessage('error', 'User tidak ditemukan', 3000);
-    return;
+  } catch (error) {
+    console.error(error);
+    showMessage('error', 'Terjadi kesalahan koneksi', 3000);
   }
-
-  fetch(URL_PROGRAM_APP, {
-    method: "POST",
-    body: new URLSearchParams({
-      action: "completeDataTracking",   // 🔥 WAJIB INI
-      userId: userId,
-      hariKe: hariKe
-    })
-  })
-  .then(res => res.json())
-  .then(response => {
-
-    console.log("📥 Response Complete Tracking:", response);
-    if (response.success) {
-      // Disable UI
-      const container = document.getElementById(`dataTrackingContent${hariKe}`);
-      if (container) {
-        container.querySelectorAll("input, select, button").forEach(el => {
-          if (
-            el.textContent.includes("Cek Disini") ||
-            el.classList.contains("btn-close")
-          ) {
-            return;
-          }
-          el.disabled = true;
-          el.style.cursor = "not-allowed";
-        });
-      }
-
-      // Centang hijau
-      updateSubmenuLinkUI("tracking", hariKe);
-    } else {
-      showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
-    }
-  })
-  .catch(err => {
-    console.error(err);
-  });
 }
 
 /***********************************************
