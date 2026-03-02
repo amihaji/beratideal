@@ -4832,6 +4832,43 @@ async function simpanDataTracking(hariKe) {
 ***********************************************/
 async function selesaiDataTracking(hariKe) {
   console.log("Selesai Tracking Clicked");
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  if (!userId) {
+    showMessage('error', 'User tidak ditemukan', 3000);
+    return;
+  }
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: new URLSearchParams({
+        action: 'completeDataTracking',
+        userId,
+        userName,
+        hariKe
+      })
+    });
+    const result = await response.json();
+    console.log("📥 Response Complete Tracking:", result);
+    if (result.success) {
+      // 🔒 Lock UI dengan nama yang BENAR
+      disableButtonsAfterCompletion(hariKe, 'dataTracking');
+      // ✅ Centang hijau dengan nama yang BENAR
+      updateSubmenuLinkUI('dataTracking', hariKe);
+    } else {
+      showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
+    }
+  } catch (error) {
+    console.error(error);
+    showMessage('error', 'Terjadi kesalahan koneksi', 3000);
+  }
+}
+
+async function BACKUP_selesaiDataTracking(hariKe) {
+  console.log("Selesai Tracking Clicked");
   const userId = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
 
