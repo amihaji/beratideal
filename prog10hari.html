@@ -1521,9 +1521,15 @@ function applyExistingUserProgress(progress) {
       disableButtonsAfterCompletion(hariKe, 'istirahat');
     }
   }
-
-
-
+  
+ // ISTIRAHAT HARI 1–10
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    if (progress[`dataTrackingHari${hariKe}`] === true) {
+      // ✅ Tampilkan centang hijau di submenu
+      updateSubmenuLinkUI('dataTracking', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'dataTracking');
+    }
+  }
 }
 
 /************************************
@@ -2295,12 +2301,12 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 
   // 🔥 Set progress frontend tracking
   if (!window.userProgress) window.userProgress = {};
-  window.userProgress[`trackingHari${hariKe}`] = true;
+  window.userProgress[`dataTrackingHari${hariKe}`] = true;
 
   // Disabled Istirahat
-  if (submenuType === 'tracking') {
-    console.log(`🔒 Lock tracking hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`trackingContent${hariKe}`);
+  if (submenuType === 'dataTracking') {
+    console.log(`🔒 Lock data tracking hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`dataTrackingContent${hariKe}`);
     if (!container) return;
     // Disabled semua inputan
     container.querySelectorAll('input, select, textarea').forEach(el => {
@@ -2339,7 +2345,7 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
       btn.style.opacity = '0.6';
       btn.style.cursor = 'not-allowed';
     });
-    console.log(`✅ tracking hari ${hariKe} terkunci total`);
+    console.log(`✅ data tracking hari ${hariKe} terkunci total`);
     return;
   }
 }
@@ -2397,7 +2403,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     }
     
     // Data Tracking Selektor
-    if (type === 'tracking') {
+    if (type === 'dataTracking') {
       link = document.querySelector(
         `a.menu-item.submenu-trigger[data-target="dataTrackingContent${hariKe}"]`
       );
