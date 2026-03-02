@@ -2292,6 +2292,56 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     console.log(`✅ istirahat hari ${hariKe} terkunci total`);
     return;
   }
+
+  // 🔥 Set progress frontend tracking
+  if (!window.userProgress) window.userProgress = {};
+  window.userProgress[`trackingHari${hariKe}`] = true;
+
+  // Disabled Istirahat
+  if (submenuType === 'tracking') {
+    console.log(`🔒 Lock tracking hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`trackingContent${hariKe}`);
+    if (!container) return;
+    // Disabled semua inputan
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    // Disabled semua button kecuali "X" & "Cek Disini"
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+      // Close "X" Tetap aktif
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      // "Cek Disini" Tetat Aktif
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.title = 'Lihat PDF';
+        return;
+      }
+      // Lainnya DISABLE
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ tracking hari ${hariKe} terkunci total`);
+    return;
+  }
 }
 
 /*******************************************
@@ -4653,19 +4703,6 @@ async function selesaiDataTracking(hariKe) {
     const result = await response.text();
     console.log("📥 Response Complete Tracking:", result);
     if (result === "OK" || result.includes("success")) {
-      
-      //const container = document.getElementById(`dataTrackingContent${hariKe}`);
-      //if (container) {
-      //  container.querySelectorAll("input, select, button").forEach(el => {
-      //    if (
-      //      el.textContent.includes("Cek Disini") ||
-      //      el.classList.contains("btn-close")
-      //    ) return;
-      //    el.disabled = true;
-      //    el.style.cursor = "not-allowed";
-      //  });
-      //}
-
       const container = document.getElementById(`dataTrackingContent${hariKe}`);
       if (container) {
         // Disable semua input & select
