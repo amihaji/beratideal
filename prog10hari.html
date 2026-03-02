@@ -2191,7 +2191,26 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
-function disableButtonsAfterCompletion(hariKe, submenuType) {
+function disableButtonsAfterCompletion(container) {
+  if (!container) return;
+  // Disable input & select
+  container.querySelectorAll("input, select, textarea").forEach(el => {
+    el.disabled = true;
+    el.style.cursor = "not-allowed";
+  });
+  // Disable button kecuali:
+  // - Tombol close (btn-close)
+  // - Tombol Cek Disini
+  container.querySelectorAll("button").forEach(btn => {
+    const isCloseBtn  = btn.classList.contains("btn-close");
+    const isCekDisini = btn.textContent.trim().includes("Cek Disini");
+    if (isCloseBtn || isCekDisini) return;
+    btn.disabled = true;
+    btn.style.cursor = "not-allowed";
+  });
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   // Disabled Workout
   if (submenuType === 'workout') {
     console.log(`🔒 Disable workout UI hari ${hariKe}`);
