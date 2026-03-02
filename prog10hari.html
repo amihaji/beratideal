@@ -1522,6 +1522,8 @@ function applyExistingUserProgress(progress) {
     }
   }
 
+
+
 }
 
 /************************************
@@ -4651,15 +4653,35 @@ async function selesaiDataTracking(hariKe) {
     const result = await response.text();
     console.log("📥 Response Complete Tracking:", result);
     if (result === "OK" || result.includes("success")) {
+      
+      //const container = document.getElementById(`dataTrackingContent${hariKe}`);
+      //if (container) {
+      //  container.querySelectorAll("input, select, button").forEach(el => {
+      //    if (
+      //      el.textContent.includes("Cek Disini") ||
+      //      el.classList.contains("btn-close")
+      //    ) return;
+      //    el.disabled = true;
+      //    el.style.cursor = "not-allowed";
+      //  });
+      //}
+
       const container = document.getElementById(`dataTrackingContent${hariKe}`);
       if (container) {
-        container.querySelectorAll("input, select, button").forEach(el => {
-          if (
-            el.textContent.includes("Cek Disini") ||
-            el.classList.contains("btn-close")
-          ) return;
+        // Disable semua input & select
+        container.querySelectorAll("input, select, textarea").forEach(el => {
           el.disabled = true;
           el.style.cursor = "not-allowed";
+        });
+        // Disable semua button KECUALI:
+        // - Tombol Cek Disini
+        // - Tombol close (X)
+        container.querySelectorAll("button").forEach(btn => {
+          const isCekDisini = btn.textContent.includes("Cek Disini");
+          const isCloseBtn  = btn.classList.contains("btn-close");
+          if (isCekDisini || isCloseBtn) return;
+          btn.disabled = true;
+          btn.style.cursor = "not-allowed";
         });
       }
       updateSubmenuLinkUI("tracking", hariKe);
