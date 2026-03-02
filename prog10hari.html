@@ -2191,46 +2191,152 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
-function disableButtonsAfterCompletion(hariKe, submenuType) {
-  if (!hariKe || !submenuType) return;
-  // Tentukan ID container berdasarkan type
-  let containerId = "";
-  switch (submenuType) {
-    case "water":
-      containerId = `waterReminderContent${hariKe}`;
-      break;
-    case "istirahat":
-      containerId = `istirahatContent${hariKe}`;
-      break;
-    case "tracking":
-      containerId = `dataTrackingContent${hariKe}`;
-      break;
-    case "workout":
-      containerId = `workoutContent${hariKe}`;
-      break;
-    case "mealplan":
-      containerId = `mealplanContent${hariKe}`;
-      break;
-    default:
-      return;
+function disableButtonsAfterCompletion(hariKe, submenuType) { 
+  // =========================
+  // WORKOUT
+  // =========================
+  if (submenuType === 'workout') {
+    console.log(`🔒 Disable workout UI hari ${hariKe}`);
+    disableWorkoutUI(hariKe);
+    return;
   }
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  // Disable input & select
-  container.querySelectorAll("input, select, textarea").forEach(el => {
-    el.disabled = true;
-    el.style.cursor = "not-allowed";
-  });
-  // Disable button kecuali:
-  // - Tombol close (btn-close)
-  // - Tombol Cek Disini
-  container.querySelectorAll("button").forEach(btn => {
-    const isCloseBtn  = btn.classList.contains("btn-close");
-    const isCekDisini = btn.textContent.trim().includes("Cek Disini");
-    if (isCloseBtn || isCekDisini) return;
-    btn.disabled = true;
-    btn.style.cursor = "not-allowed";
-  });
+
+  // =========================
+  // WATER REMINDER
+  // =========================
+  if (submenuType === 'water') {
+    if (!window.userProgress) window.userProgress = {};
+    window.userProgress[`waterHari${hariKe}`] = true;
+    console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`waterReminderContent${hariKe}`);
+    if (!container) return;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+      // Tombol X tetap aktif
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      // Cek Disini tetap aktif
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ Water hari ${hariKe} terkunci total`);
+    return;
+  }
+
+  // =========================
+  // ISTIRAHAT
+  // =========================
+  if (submenuType === 'istirahat') {
+    if (!window.userProgress) window.userProgress = {};
+    window.userProgress[`istirahatHari${hariKe}`] = true;
+    console.log(`🔒 Lock istirahat hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`istirahatContent${hariKe}`);
+    if (!container) return;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ istirahat hari ${hariKe} terkunci total`);
+    return;
+  }
+
+  // =========================
+  // DATA TRACKING (FIX KHUSUS)
+  // =========================
+  if (submenuType === 'tracking' || submenuType === 'dataTracking') {
+    if (!window.userProgress) window.userProgress = {};
+    window.userProgress[`dataTrackingHari${hariKe}`] = true;
+    console.log(`🔒 Lock data tracking hari ${hariKe} (READ ONLY)`);
+    const container = document.getElementById(`dataTrackingContent${hariKe}`);
+    if (!container) return;
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      el.disabled = true;
+      el.readOnly = true;
+      el.style.backgroundColor = '#f8f9fa';
+      el.style.cursor = 'not-allowed';
+    });
+    container.querySelectorAll('button').forEach(btn => {
+      const id   = btn.id || '';
+      const text = btn.textContent || '';
+      const cls  = btn.className || '';
+
+      // Tombol X tetap aktif
+      if (
+        cls.includes('btn-close') ||
+        cls.includes('close-pdf') ||
+        cls.includes('close-video') ||
+        btn.innerHTML.includes('fa-times')
+      ) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      // Cek Disini tetap aktif
+      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        return;
+      }
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    });
+    console.log(`✅ data tracking hari ${hariKe} terkunci total`);
+    return;
+  }
 }
 
 function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
