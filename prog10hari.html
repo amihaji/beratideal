@@ -2191,7 +2191,30 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /************************************************
 * Disable semua field & tombol setelah selesai *
 *************************************************/
-function disableButtonsAfterCompletion(container) {
+function disableButtonsAfterCompletion(hariKe, submenuType) {
+  if (!hariKe || !submenuType) return;
+  // Tentukan ID container berdasarkan type
+  let containerId = "";
+  switch (submenuType) {
+    case "water":
+      containerId = `waterReminderContent${hariKe}`;
+      break;
+    case "istirahat":
+      containerId = `istirahatContent${hariKe}`;
+      break;
+    case "tracking":
+      containerId = `dataTrackingContent${hariKe}`;
+      break;
+    case "workout":
+      containerId = `workoutContent${hariKe}`;
+      break;
+    case "mealplan":
+      containerId = `mealplanContent${hariKe}`;
+      break;
+    default:
+      return;
+  }
+  const container = document.getElementById(containerId);
   if (!container) return;
   // Disable input & select
   container.querySelectorAll("input, select, textarea").forEach(el => {
