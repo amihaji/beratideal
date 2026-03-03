@@ -2802,6 +2802,43 @@ function setupCekDisiniButtons() {
 ***********************************************************/
 function handleCekDisiniClick(jenis, hariKe) {
     console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
+
+    const config = {
+        'MealPlan': {
+            section: 'mealplan',
+            fileName: `MealPlan_HariKe${hariKe}.pdf`,
+            title: `Meal Plan Hari ${getDayName(hariKe)}`
+        },
+        'WorkOut': {
+            section: 'workout',
+            fileName: `WorkOut_HariKe${hariKe}.pdf`,
+            title: `Workout Hari ${getDayName(hariKe)}`
+        },
+        'WaterReminder': {
+            section: 'water',
+            fileName: `WaterReminder_HariKe${hariKe}.pdf`,
+            title: `Water Reminder Hari ${getDayName(hariKe)}`
+        },
+        'Istirahat': {
+            section: 'istirahat',
+            fileName: `Istirahat_HariKe${hariKe}.pdf`,
+            title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
+        },
+        'dataTracking': {
+            section: 'dataTracking',
+            fileName: `dataTracking_HariKe${hariKe}.pdf`,
+            title: `Data Tracking Hari ${getDayName(hariKe)}`
+        }
+    };
+    const itemConfig = config[jenis];
+    if (!itemConfig) return;
+    const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${itemConfig.fileName}`;
+    // 🔥 Jangan tambahkan hari ke section
+    loadPDF(itemConfig.section, pdfUrl, itemConfig.title);
+}
+
+function BACKUP_handleCekDisiniClick(jenis, hariKe) {
+    console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
     // Mapping jenis ke section dan nama file
     const config = {
         'MealPlan': {
