@@ -995,7 +995,7 @@ body { background-color: #f8f9fa; }
 
               <h6><b>PANDUAN DATA TRACKING</b></h6>
               <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisinidataTracking">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniDataTracking">
                 <i class="fas fa-user-friends"></i> Cek Disini
               </button>
               
@@ -2785,7 +2785,7 @@ function setupCekDisiniButtons() {
                 hariKe = buttonId.replace('btnCekDisiniIstirihat', '') || '1';
             } else if (buttonId.includes('dataTracking')) {
                 jenis = 'dataTracking';
-                hariKe = buttonId.replace('btnCekDisinidataTracking', '') || '1';
+                hariKe = buttonId.replace('btnCekDisiniDataTracking', '') || '1';
             }
             
             if (jenis && hariKe) {
@@ -2824,8 +2824,8 @@ function handleCekDisiniClick(jenis, hariKe) {
             fileName: `Istirahat_HariKe${hariKe}.pdf`,
             title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
         },
-        'datatracking': {
-            section: 'datatracking',
+        'dataTracking': {
+            section: 'dataTracking',
             fileName: `dataTracking_HariKe${hariKe}.pdf`,
             title: `Data Tracking Hari ${getDayName(hariKe)}`
         }
