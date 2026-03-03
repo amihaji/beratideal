@@ -1466,6 +1466,51 @@ function applyLockSystem(progress) {
 **************************************/
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
+  window.userProgress = progress;
+  if (progress.perkenalan === true) {
+    updateSubmenuLinkUI('perkenalan', 0);
+    disableSelesaiPerkenalanButton();
+    unlockModul(1);
+  }
+
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    if (progress[`materiHari${hariKe}`] === true) {
+      lockMateriVideo(hariKe);
+      const btn = document.getElementById(`btnMateriDone${hariKe}`);
+      if (btn) disableButtonFully(btn);
+      updateSubmenuLinkUI('materi', hariKe);
+    }
+
+    if (progress[`mealplanHari${hariKe}`] === true) {
+      lockMealPlanUI(hariKe);
+      updateSubmenuLinkUI('mealplan', hariKe);
+    }
+
+    if (progress[`workoutHari${hariKe}`] === true) {
+      updateSubmenuLinkUI('workout', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'workout');
+    }
+
+    if (progress[`waterHari${hariKe}`] === true) {
+      updateSubmenuLinkUI('water', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'water');
+    }
+
+    if (progress[`istirahatHari${hariKe}`] === true) {
+      updateSubmenuLinkUI('istirahat', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'istirahat');
+    }
+
+    // ✅ FIX DATA TRACKING
+    if (progress[`dataTrackingHari${hariKe}`] === true) {
+      updateSubmenuLinkUI('dataTracking', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'dataTracking');
+    }
+  }
+}
+
+function BACKUP_applyExistingUserProgress(progress) {
+  console.log('📊 Apply Existing Progress FINAL');
   // Simpan global
   window.userProgress = progress;
   // PERKENALAN
@@ -2013,6 +2058,55 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 /* Apply Lengkap Progress UI *
 /*****************************/
 function applyCompleteProgressToUI(progress, hariKe) {
+
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+
+  if (progress.perkenalan === true) {
+    unlockModul(hariKe);
+  }
+
+  const progressMap = [
+    { field: 'materiHari1', type: 'materi' },
+    { field: 'mealplanHari1', type: 'mealplan' },
+    { field: 'workoutHari1', type: 'workout' },
+    { field: 'waterHari1', type: 'water' },
+    { field: 'istirahatHari1', type: 'istirahat' },
+    { field: 'dataTrackingHari1', type: 'dataTracking' } // ✅ FIX
+  ];
+
+  progressMap.forEach(item => {
+
+    if (progress[item.field] === true) {
+
+      window.userProgress[item.field] = true;
+
+      updateSubmenuLinkUI(item.type, hariKe);
+
+      disableButtonsAfterCompletion(hariKe, item.type); // ✅ semua type ikut lock
+    }
+  });
+
+  if (
+    progress.perkenalan ||
+    progress.materiHari1 ||
+    progress.mealplanHari1 ||
+    progress.workoutHari1 ||
+    progress.waterHari1
+  ) {
+    setTimeout(() => {
+      const header = document.querySelector(`[data-hari="${hariKe}"]`);
+      if (header && header.classList.contains('collapsed')) {
+        header.click();
+      }
+    }, 800);
+  }
+}
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
   // Inisialisasi Global Progress
   if (!window.userProgress) {
@@ -4376,10 +4470,71 @@ function saveMateriStatus(hariKe, status) {
     disableButtonsAfterCompletion(hariKe, 'materi');
 }
 
-/************************************
+/*********************************************
 * Check dan apply unlock untuk user existing *
-*************************************/
+**********************************************/
 async function checkAndUnlockModulesForUser(userId) {
+    console.log('🔓 Checking and unlocking modules for user:', userId);
+    
+    try {
+        // Ambil progress dari server
+        const progress = await fetchUserProgressFromServer(userId);
+        
+        if (progress && progress.success) {
+            console.log('📊 Progress from server:', progress);
+            
+            // 1. Jika perkenalan sudah selesai, unlock modul hari 1
+            if (progress.perkenalan) {
+                console.log('✅ Perkenalan sudah selesai - unlocking modul hari 1');
+                unlockModul(1);
+                
+                // Update UI perkenalan
+                updatePerkenalanUI();
+            }
+            
+            // 2. Check progress untuk setiap submenu
+            const progressChecks = [
+                { type: 'materi', field: 'materiHari1' },
+                { type: 'mealplan', field: 'mealplanHari1' },
+                { type: 'workout', field: 'workoutHari1' },
+                { type: 'water', field: 'waterHari1' },
+                { type: 'istirahat', field: 'istirahatHari1' },
+                { type: 'datatracking', field: 'datatrackingHari1' }
+            ];
+           
+            progressChecks.forEach(item => {
+             if (progress[item.field]) {
+                console.log(`✅ ${item.type} sudah selesai - updating UI`);
+                updateSubmenuLinkUI(item.type, 1);  // ✅ FIX urutan
+                disableButtonsAfterCompletion(1, item.type);
+              }
+            });
+            
+            // 3. Auto-expand Modul Hari 1 jika sudah ada progress
+            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.datatrackingHari1) {
+                setTimeout(() => {
+                    const header = document.querySelector('[data-hari="1"]');
+                    if (header && header.classList.contains('collapsed')) {
+                        console.log('📖 Auto-expanding Modul Hari 1');
+                        header.click();
+                    }
+                }, 1000);
+            }
+            
+        } else {
+            console.log('⚠️ No progress found or user is new');
+            // Untuk user baru, lock modul hari 1
+            lockModul(1);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error checking user progress:', error);
+        // Fallback: cek dari localStorage
+        checkProgressFromLocalStorage(userId);
+    }
+}
+
+async function BACKUP_checkAndUnlockModulesForUser(userId) {
     console.log('🔓 Checking and unlocking modules for user:', userId);
     
     try {
