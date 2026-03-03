@@ -4475,8 +4475,7 @@ function saveMateriStatus(hariKe, status) {
 **********************************************/
 async function checkAndUnlockModulesForUser(userId) {
     console.log('🔓 Checking and unlocking modules for user:', userId);
-    
-    try {
+     try {
         // Ambil progress dari server
         const progress = await fetchUserProgressFromServer(userId);
         
@@ -4487,7 +4486,6 @@ async function checkAndUnlockModulesForUser(userId) {
             if (progress.perkenalan) {
                 console.log('✅ Perkenalan sudah selesai - unlocking modul hari 1');
                 unlockModul(1);
-                
                 // Update UI perkenalan
                 updatePerkenalanUI();
             }
@@ -4520,13 +4518,11 @@ async function checkAndUnlockModulesForUser(userId) {
                     }
                 }, 1000);
             }
-            
         } else {
             console.log('⚠️ No progress found or user is new');
             // Untuk user baru, lock modul hari 1
             lockModul(1);
         }
-        
     } catch (error) {
         console.error('❌ Error checking user progress:', error);
         // Fallback: cek dari localStorage
