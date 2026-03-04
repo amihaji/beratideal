@@ -793,7 +793,7 @@ body { background-color: #f8f9fa; }
                 </a>
                 
                 <!-- DATA TRACKING HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="dataTrackingContent1">
+                <a href="#" class="menu-item submenu-trigger" data-target="trackingContent1">
                   1.6 Data Tracking Hari Pertama
                 </a>
 
@@ -984,27 +984,27 @@ body { background-color: #f8f9fa; }
           </div>
       
           <!-- 1.6 Data Tracking Content -->
-          <div class="submenu-content" id="dataTrackingContent1" style="display: none;">
+          <div class="submenu-content" id="trackingContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Lengkapi Data Anda ! </h6>
-                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('dataTrackingContent1')">
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('trackingContent1')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
 
               <h6><b>PANDUAN DATA TRACKING</b></h6>
               <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniDataTracking">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniTracking">
                 <i class="fas fa-user-friends"></i> Cek Disini
               </button>
               
               <!-- PDF Viewer untuk Data Tracking -->
-              <div class="pdf-viewer" id="pdfViewerDataTracking1" style="display: none;">
-                <button class="close-pdf" onclick="closePDF('dataTracking1')">
+              <div class="pdf-viewer" id="pdfViewerTracking1" style="display: none;">
+                <button class="close-pdf" onclick="closePDF('tracking1')">
                   <i class="fas fa-times"></i>
                 </button>
-                <div class="pdf-container" id="pdfContainerDataTracking1">
+                <div class="pdf-container" id="pdfContainerTracking1">
                   <!-- PDF akan dimuat di sini -->
                 </div>
               </div>  
@@ -1115,7 +1115,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxVb0gHCDQfzIdJehxceFvkcOB3tDvjSDIc8eSTD4iGhZ0P0DL5Rm7rkseEWfJwdTBw1g/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyC1CD4ar3CfcyGjbvPVx8Rgr4tfED6c9Ci1eTx61w17lw6_VSJdIISaXwgiNeTEG1G/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -1330,7 +1330,7 @@ function saveCompletionStatus(submenuType, hariKe, status) {
             workoutHari1: progressData.workoutHari1 || false,
             waterHari1: progressData.waterHari1 || false,
             istirahatHari1: progressData.istirahatHari1 || false,
-            dataTrackingHari1: progressData.dataTrackingHari1 || false
+            trackingHari1: progressData.trackingHari1 || false
         };
     }
     
@@ -1341,7 +1341,7 @@ function saveCompletionStatus(submenuType, hariKe, status) {
         'workout': 'workoutHari1',
         'water': 'waterHari1',
         'istirahat': 'istirahatHari1',
-        'dataTracking': 'dataTrackingHari1'
+        'tracking': 'trackingHari1'
     };
     
     const field = fieldMap[submenuType];
@@ -1379,7 +1379,7 @@ function checkCompletionStatus(userId, submenuType, hariKe) {
             'workout': 'workoutHari1',
             'water': 'waterHari1',
             'istirahat': 'istirahatHari1',
-            'dataTracking': 'dataTrackingHari1'
+            'tracking': 'trackingHari1'
         };
         const field = fieldMap[submenuType];
         return progressData[field] || false;
@@ -1502,9 +1502,9 @@ function applyExistingUserProgress(progress) {
     }
 
     // ✅ FIX DATA TRACKING
-    if (progress[`dataTrackingHari${hariKe}`] === true) {
-      updateSubmenuLinkUI('dataTracking', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'dataTracking');
+    if (progress[`trackingHari${hariKe}`] === true) {
+      updateSubmenuLinkUI('tracking', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'tracking');
     }
   }
 }
@@ -1885,8 +1885,8 @@ function createSubmenuHTML(hariKe) {
         
         <!-- Data Tracking -->
         <a href="#"
-          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('dataTrackingContent${hariKe}', ${hariKe}, 'dataTracking')" 
-          data-target="dataTrackingContent${hariKe}" id="trackingLink${hariKe}">
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('trackingContent${hariKe}', ${hariKe}, 'tracking')" 
+          data-target="trackingContent${hariKe}" id="trackingLink${hariKe}">
           ${hariKe}.6 Data Tracking Hari ${getDayName(hariKe)}
         </a>
         
@@ -2007,7 +2007,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'workoutHari1', type: 'workout' },
     { field: 'waterHari1', type: 'water' },
     { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'dataTrackingHari1', type: 'dataTracking' } // ✅ FIX
+    { field: 'trackingHari1', type: 'tracking' } // ✅ FIX
   ];
 
   progressMap.forEach(item => {
@@ -2271,13 +2271,13 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   }
 
   // =========================
-  // DATA TRACKING (FIX KHUSUS)
+  // DATA TRACKING 
   // =========================
-  if (submenuType === 'tracking' || submenuType === 'dataTracking') {
+  if (submenuType === 'tracking') {
     if (!window.userProgress) window.userProgress = {};
-    window.userProgress[`dataTrackingHari${hariKe}`] = true;
+    window.userProgress[`trackingHari${hariKe}`] = true;
     console.log(`🔒 Lock data tracking hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`dataTrackingContent${hariKe}`);
+    const container = document.getElementById(`trackingContent${hariKe}`);
     if (!container) return;
     container.querySelectorAll('input, select, textarea').forEach(el => {
       el.disabled = true;
@@ -2371,9 +2371,9 @@ function updateSubmenuLinkUI(type, hariKe) {
     }
     
     // Data Tracking Selektor
-    if (type === 'dataTracking') {
+    if (type === 'tracking') {
       link = document.querySelector(
-        `a.menu-item.submenu-trigger[data-target="dataTrackingContent${hariKe}"]`
+        `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`
       );
     }
 
@@ -2783,9 +2783,9 @@ function setupCekDisiniButtons() {
             } else if (buttonId.includes('Istirihat')) {
                 jenis = 'Istirahat';
                 hariKe = buttonId.replace('btnCekDisiniIstirihat', '') || '1';
-            } else if (buttonId.includes('dataTracking')) {
-                jenis = 'dataTracking';
-                hariKe = buttonId.replace('btnCekDisiniDataTracking', '') || '1';
+            } else if (buttonId.includes('Tracking')) {
+                jenis = 'Tracking';
+                hariKe = buttonId.replace('btnCekDisiniTracking', '') || '1';
             }
             
             if (jenis && hariKe) {
@@ -2824,9 +2824,9 @@ function handleCekDisiniClick(jenis, hariKe) {
             fileName: `Istirahat_HariKe${hariKe}.pdf`,
             title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
         },
-        'DataTracking': {
-            section: 'DataTracking',
-            fileName: `dataTracking_HariKe${hariKe}.pdf`,
+        'Tracking': {
+            section: 'tracking',
+            fileName: `Tracking_HariKe${hariKe}.pdf`,
             title: `Data Tracking Hari ${getDayName(hariKe)}`
         }
     };
@@ -3858,7 +3858,7 @@ function checkAndApplyButtonStatus(userId, hariKe) {
         { type: 'workout', check: progress.workoutHari1 },
         { type: 'water', check: progress.waterHari1 },
         { type: 'istirahat', check: progress.istirahatHari1 },
-        { type: 'dataTracking', check: progress.dataTrackingHari1 }
+        { type: 'tracking', check: progress.trackingHari1 }
     ];
     
     statusChecks.forEach(item => {
@@ -4222,7 +4222,7 @@ async function checkAndUnlockModulesForUser(userId) {
                 { type: 'workout', field: 'workoutHari1' },
                 { type: 'water', field: 'waterHari1' },
                 { type: 'istirahat', field: 'istirahatHari1' },
-                { type: 'dataTracking', field: 'dataTrackingHari1' }
+                { type: 'tracking', field: 'trackingHari1' }
             ];
            
             progressChecks.forEach(item => {
@@ -4234,7 +4234,7 @@ async function checkAndUnlockModulesForUser(userId) {
             });
             
             // 3. Auto-expand Modul Hari 1 jika sudah ada progress
-            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.dataTrackingHari1) {
+            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.trackingHari1) {
                 setTimeout(() => {
                     const header = document.querySelector('[data-hari="1"]');
                     if (header && header.classList.contains('collapsed')) {
@@ -4670,9 +4670,9 @@ async function selesaiDataTracking(hariKe) {
     console.log("📥 Response Complete Tracking:", result);
     if (result.success) {
       // 🔒 Lock UI dengan nama yang BENAR
-      disableButtonsAfterCompletion(hariKe, 'dataTracking');
+      disableButtonsAfterCompletion(hariKe, 'tracking');
       // ✅ Centang hijau dengan nama yang BENAR
-      updateSubmenuLinkUI('dataTracking', hariKe);
+      updateSubmenuLinkUI('tracking', hariKe);
     } else {
       showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
     }
