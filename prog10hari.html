@@ -1145,7 +1145,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyUXrCm8i7aMyUfdOekNw5jhjXnSssIFTNGQSZaHSnN7-orSgsqc0EFGrWvWNZh_iGhFA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyxY4gRndX3TZzkICxkya3HWSfRmUjdDJ4vu-ZvgO1ibAIW_29btHFTrVqChIbOI7briw/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -7507,27 +7507,23 @@ function showWaterReminderForm(hariKe) {
 async function kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari",hariKe);
   const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
-  if(!pesan){
-    showMessage( 'info', 'Pesan harus diisi', 3000 );
-    return;
-  }
-
   const response = await fetch(URL_PROGRAM_APP,{
     method:"POST",
-    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-    body:new URLSearchParams({ 
+    headers:{
+      "Content-Type":"application/x-www-form-urlencoded"
+    },
+    body:new URLSearchParams({
       action:"kirimWaCoach",
       pesan:pesan,
-      noCoach:"081149908600"
+      noCoach:"08114499640"
     })
   });
-
   const result = await response.json();
   console.log("📥 Response kirim WA:",result);
   if(result.success){
+    document.getElementById(`btnSelesaiWA${hariKe}`).disabled = false;
     showMessage( 'success', 'Pesan anda berhasil terkirim', 3000 );
-    document.getElementById(`btnSelesaiWA${hariKe}`).disabled=false;
-  }else{
+  } else {
     showMessage( 'error', 'Pesan anda gagal terkirim', 3000 );
   }
 }
