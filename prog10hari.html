@@ -1145,7 +1145,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz-z9_m7GVaQv2RBgl4C7nOeqG2N5FEtQvlhdSzGGBEj-o1yrHizXlAfpzC6q3nAkhzJw/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyPp43GAPzYC-kmXW-NgdpLyECuAriueuK-Y3xuVmrPgKoHBXKq6CaGp3OgVvHeTgeRFA/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -1360,7 +1360,8 @@ function saveCompletionStatus(submenuType, hariKe, status) {
             workoutHari1: progressData.workoutHari1 || false,
             waterHari1: progressData.waterHari1 || false,
             istirahatHari1: progressData.istirahatHari1 || false,
-            trackingHari1: progressData.trackingHari1 || false
+            trackingHari1: progressData.trackingHari1 || false,
+            tanyaHari1: progressData.tanyaHari1 || false
         };
     }
     
@@ -1371,7 +1372,8 @@ function saveCompletionStatus(submenuType, hariKe, status) {
         'workout': 'workoutHari1',
         'water': 'waterHari1',
         'istirahat': 'istirahatHari1',
-        'tracking': 'trackingHari1'
+        'tracking': 'trackingHari1',
+        'tanya': 'tanyaHari1'
     };
     
     const field = fieldMap[submenuType];
@@ -1409,7 +1411,8 @@ function checkCompletionStatus(userId, submenuType, hariKe) {
             'workout': 'workoutHari1',
             'water': 'waterHari1',
             'istirahat': 'istirahatHari1',
-            'tracking': 'trackingHari1'
+            'tracking': 'trackingHari1',
+            'tanya': 'tanyaHari1'
         };
         const field = fieldMap[submenuType];
         return progressData[field] || false;
@@ -7543,7 +7546,7 @@ async function selesaiTanyaCoach(hariKe){
   });
   const result = await response.json();
   if(result.success){
-    updateSubmenuLinkUI('tanyaCoach',hariKe);
+    updateSubmenuLinkUI('tanya',hariKe);
     showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
 }
