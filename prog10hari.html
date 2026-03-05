@@ -7507,6 +7507,11 @@ function showWaterReminderForm(hariKe) {
 async function kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari",hariKe);
   const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
+  if(!pesan){
+    showMessage( 'info', 'Isi pesan terlebih dahulu', 3000 );
+    return;
+  }
+
   const response = await fetch(URL_PROGRAM_APP,{
     method:"POST",
     headers:{
