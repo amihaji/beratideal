@@ -7505,24 +7505,31 @@ function showWaterReminderForm(hariKe) {
  * Kirim Pesan WA ke Coach *
  ***************************/
 async function kirimPesanCoach(hariKe){
-  const pesan    = document.getElementById(`pesanCoach${hariKe}`).value;
+  console.log("📤 Kirim pesan coach hari",hariKe);
+  const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
+  if(!pesan){
+    alert("Pesan belum diisi");
+    showMessage( 'info', 'Pesan harus diisi', 3000 );
+    return;
+  }
+
   const response = await fetch(URL_PROGRAM_APP,{
     method:"POST",
-    headers:{
-      'Content-Type':'application/x-www-form-urlencoded'
-    },
-    body:new URLSearchParams({
-      action:'kirimWaCoach',
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body:new URLSearchParams({ 
+      action:"kirimWaCoach",
       pesan:pesan,
-      noUser:localStorage.getItem("userPhone"),
-      noCoach:"08114499640"
+      noCoach:"081149908600"
     })
   });
 
   const result = await response.json();
+  console.log("📥 Response kirim WA:",result);
   if(result.success){
+    showMessage( 'success', 'Pesan anda berhasil terkirim', 3000 );
     document.getElementById(`btnSelesaiWA${hariKe}`).disabled=false;
-    showMessage( 'success', 'Pesan berhasil terkirim', 3000 );
+  }else{
+    showMessage( 'error', 'Pesan anda gagal terkirim', 3000 );
   }
 }
 
