@@ -798,11 +798,18 @@ body { background-color: #f8f9fa; }
                 </a>
 
                 <!-- TANYA COACH HARI PERTAMA -->
+                <!-- 
                 <a href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+bertanya+materi+tentang+" 
                   class="menu-item" onclick="tanyaCoach(1)" target="_blank">
                   1.7 Tanya Coach? Hari Pertama
                 </a>
-
+                --->
+                
+                <!-- TANYA COACH HARI PERTAMA -->
+                <a href="#" class="menu-item submenu-trigger" data-target="tanyaContent1">
+                  1.7 Tanya Coach? Hari Pertama
+                </a>
+                
                 <!-- SELESAI MODUL HARI PERTAMA -->
                 <a href="#" class="menu-item">1.8 Selesai Modul hari Pertama</a> 
               </div>
@@ -1023,6 +1030,26 @@ body { background-color: #f8f9fa; }
             </div>
           </div>
           
+          <!-- 1.7 Tanya Coach Content -->
+          <div class="submenu-content" id="tanyaContent1" style="display: none;">
+            <div class="border p-3 bg-light mt-2 mb-2">
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mt-1 mb-1">Tanyakan Pada Coach Anda ! </h6>
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('tanyaContent1')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+              <h6><b>TANYA COACH</b></h6>
+              <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
+              
+              <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
+                <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami</p>
+              </div>  
+
+            </div>
+          </div>
+
           <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
     
           <!-- TAMPILAN KREASI RESEP -->
@@ -1115,7 +1142,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyC1CD4ar3CfcyGjbvPVx8Rgr4tfED6c9Ci1eTx61w17lw6_VSJdIISaXwgiNeTEG1G/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbx4rtjaY5n1Z0NYRYQEv-g5-WRpq-slXsCADSAMlNjqWzYyuqQ-uoW8QTkPE2AE11YK/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -7451,6 +7478,52 @@ function showWaterReminderForm(hariKe) {
       disableWaterAfterCompletion(hariKe);
     }
   }, 300);
+}
+
+/****************************
+ *  Kirim Pesan WA ke Coach *
+ * **************************/
+async function kirimPesanCoach(hariKe){
+  const pesan    = document.getElementById(`pesanCoach${hariKe}`).value;
+  const response = await fetch(URL_PROGRAM_APP,{
+    method:"POST",
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    },
+    body:new URLSearchParams({
+      action:'kirimWaCoach',
+      pesan:pesan,
+      noUser:localStorage.getItem("userPhone"),
+      noCoach:"08114499640"
+    })
+  });
+
+  const result = await response.json();
+  if(result.success){
+    document.getElementById(`btnSelesaiWA${hariKe}`).disabled=false;
+
+  }
+}
+
+async function selesaiTanyaCoach(hariKe){
+  const userId   = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+  const response = await fetch(URL_PROGRAM_APP,{
+    method:"POST",
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded'
+    },
+    body:new URLSearchParams({
+      action:'completeTanyaCoach',
+      userId,
+      userName,
+      hariKe
+    })
+  });
+  const result = await response.json();
+  if(result.success){
+    updateSubmenuLinkUI('tanyaCoach',hariKe);
+  }
 }
 
 /*******************************
