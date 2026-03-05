@@ -1145,7 +1145,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyZwqRDfxpxAVkYObOGwjaRx0julPh8x458xw8xG3xTh4LZQL9QsMRqgrsWGfKHWcuRzQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwnWxo9myhhshKdqNmH9_5FYaKZBm4e7BmoNrKHBCg_E26-Yd_OQz4nTHeoFrQ4cdMHPQ/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -7498,9 +7498,9 @@ function showWaterReminderForm(hariKe) {
   }, 300);
 }
 
-/****************************
- *  Kirim Pesan WA ke Coach *
- * **************************/
+/***************************
+ * Kirim Pesan WA ke Coach *
+ ***************************/
 async function kirimPesanCoach(hariKe){
   const pesan    = document.getElementById(`pesanCoach${hariKe}`).value;
   const response = await fetch(URL_PROGRAM_APP,{
@@ -7519,10 +7519,13 @@ async function kirimPesanCoach(hariKe){
   const result = await response.json();
   if(result.success){
     document.getElementById(`btnSelesaiWA${hariKe}`).disabled=false;
-
+    showMessage( 'success', 'Pesan berhasil terkirim', 3000 );
   }
 }
 
+/***********************
+ * Selesai tanya Coach *
+ ***********************/
 async function selesaiTanyaCoach(hariKe){
   const userId   = localStorage.getItem("userId");
   const userName = localStorage.getItem("userName");
@@ -7541,6 +7544,7 @@ async function selesaiTanyaCoach(hariKe){
   const result = await response.json();
   if(result.success){
     updateSubmenuLinkUI('tanyaCoach',hariKe);
+    showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
 }
 
