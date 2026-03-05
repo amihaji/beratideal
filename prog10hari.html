@@ -1041,17 +1041,20 @@ body { background-color: #f8f9fa; }
               </div>
 
               <h6><b>TANYA COACH</b></h6>
-              <p><b>Rekomendasi : </b>Cara melakukan pengukuran dan penimbangan yang benar</br>
-              
-              <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
-                <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tips : </b>Pastikan menginput data dengan lengkap dan benar, agar anda bisa mendapatkan hasil analisa yang lebih akurat dari kami</p>
+               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
+                <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tanyakan : </b>untuk hal yang berhubungan dengan materi pada hari pertama</p>
               </div>  
 
+              <div class="tanya-coach-box">
+                <textarea id="pesanCoach1" placeholder="Tulis pesan ke coach..." class="form-control"></textarea>
+                <button class="btn btn-success mt-2" onclick="kirimPesanCoach(1)"><i class="fa fa-send-o"></i> Kirim</button>
+                <button class="btn btn-primary mt-2" id="btnSelesaiWA1" onclick="selesaiTanyaCoach(1)" disabled><i class="fas fa-check"></i> Selesai WA</button>
+              </div>
             </div>
           </div>
 
           <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
-    
+   
           <!-- TAMPILAN KREASI RESEP -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthyRecept">
@@ -1917,6 +1920,13 @@ function createSubmenuHTML(hariKe) {
           ${hariKe}.6 Data Tracking Hari ${getDayName(hariKe)}
         </a>
         
+        <!-- Tanya Coach -->
+        <a href="#"
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('tanyaContent${hariKe}', ${hariKe}, 'tanya')" 
+          data-target="tanyaContent${hariKe}" id="tanyaLink${hariKe}">
+          ${hariKe}.7 Tanya Coach ? Hari ${getDayName(hariKe)}
+        </a>
+
         <!-- Selesai Modul -->
         <a href="#" class="menu-item" onclick="selesaiModul(${hariKe})" id="selesaiModulLink${hariKe}">
           Selesai Modul hari ${getDayName(hariKe)}
@@ -2728,7 +2738,7 @@ function applyProgressToUI(progress) {
     // Update tombol selesai meal plan
     const selesaiBtn = document.getElementById('btnSelesaiMealPlan1');
     if (selesaiBtn) {
-      selesaiBtn.innerHTML = '<i class="fas fa-check"></i> Selesai Meal Plan';
+      selesaiBtn.innerHTML =  
       selesaiBtn.classList.remove('btn-secondary');
       selesaiBtn.classList.add('btn-secondary');
       selesaiBtn.disabled = true;
@@ -4249,7 +4259,8 @@ async function checkAndUnlockModulesForUser(userId) {
                 { type: 'workout', field: 'workoutHari1' },
                 { type: 'water', field: 'waterHari1' },
                 { type: 'istirahat', field: 'istirahatHari1' },
-                { type: 'tracking', field: 'trackingHari1' }
+                { type: 'tracking', field: 'trackingHari1' },
+                { type: 'tanya', field: 'tanyaHari1' }
             ];
            
             progressChecks.forEach(item => {
