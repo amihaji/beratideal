@@ -1032,8 +1032,7 @@ body { background-color: #f8f9fa; }
                 </button>
               </div>
 
-              <h6><b>TANYA COACH</b></h6>
-               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
+              <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
                 <p><i class="fas far fa-lightbulb mt-2 mb-2" style="color: #fa0000;"></i><b> Tanyakan : </b>untuk hal yang berhubungan dengan materi pada hari pertama</p>
               </div>  
 
@@ -3813,16 +3812,12 @@ function showSubmenu(targetId) {
     
     if (triggerElement) {
       console.log('✅ Trigger ditemukan:', triggerElement);
-      
       // TEMUKAN PARENT MENU CONTENT (di dalam accordion)
       const parentMenuContent = triggerElement.closest('.menu-content');
-      
       if (parentMenuContent) {
         console.log('✅ Menu content parent ditemukan');
-        
         // Tempatkan content TEPAT SETELAH TRIGGER ELEMENT di dalam menu content
         parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
-        
         // Tampilkan content
         targetContent.style.display = 'block';
         
@@ -3834,7 +3829,6 @@ function showSubmenu(targetId) {
         }
       } else {
         console.warn('⚠️ Menu content parent tidak ditemukan');
-        
         // Fallback: tempatkan setelah trigger element
         triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
         targetContent.style.display = 'block';
@@ -5648,12 +5642,6 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
 
     // Check dan apply button status
     setTimeout(() => {
-
-      // AUTO ISI PESAN TANYA COACH
-      if (submenuType === 'tanya') {
-        isiPesanDefaultCoach(hariKe);
-      }
-
       checkAndApplyButtonStatus(hariKe);
         // Untuk mealplan, juga check upload status
         if (submenuType === 'mealplan') {
@@ -7582,9 +7570,11 @@ function isiPesanDefaultCoach(hariKe){
 
   textarea.value =
   `Halo Coach,
-  Saya ${namaUser}, peserta Program Berat Ideal.
-  Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
-  Mohon arahan dari Coach 🙏`;
+  \n Saya ${namaUser}, peserta Program Berat Ideal.
+  \n Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
+  \n Mohon arahan dari Coach 🙏
+  \n ------------------------------
+  \n Jawaban Langsung ke No WA ini`;
 }
 
  
