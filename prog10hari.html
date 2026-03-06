@@ -7554,8 +7554,24 @@ async function selesaiTanyaCoach(hariKe){
   const result = await response.json();
   if(result.success){
     updateSubmenuLinkUI('tanya',hariKe);
+    lockTanyaCoachUI(hariKe);   // <-- TAMBAHKAN INI
     showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
+}
+
+/******************************************
+* Disabled textarea, tombol Kirim Selesai *
+* tombol X tetap aktif                    *
+*******************************************/
+function lockTanyaCoachUI(hariKe){
+  console.log(`🔒 Lock Tanya Coach hari ${hariKe}`);
+  const container = document.querySelector(`#tanyaContent${hariKe} .tanya-coach-box`);
+  if(!container) return;
+  const inputs = container.querySelectorAll("textarea, input, button");
+  inputs.forEach(el=>{
+    el.disabled = true;
+  });
+  console.log(`✅ Tanya Coach hari ${hariKe} terkunci`);
 }
 
 /*******************************
