@@ -3827,7 +3827,11 @@ function showSubmenu(targetId) {
         targetContent.style.display = 'block';
         
         console.log('✅ Submenu ditempatkan di posisi yang benar');
-        
+        // AUTO ISI PESAN OTOMATIS TANYA COACH
+        if (targetId.startsWith("tanyaContent")) {
+          const hariKe = targetId.replace("tanyaContent","");
+          isiPesanDefaultCoach(hariKe);
+        }
       } else {
         console.warn('⚠️ Menu content parent tidak ditemukan');
         
