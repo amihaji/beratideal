@@ -1145,7 +1145,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzSdWQLvHuFIzHpoH86rLPR3jjUY9lyA2g7n3xlfjlJ_KHZlbKFtL5lBSTlVDW5Pi9M/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbybtFOkp3hgmHHDbOso4n8ae9D3vYMtucwW4Na26tE07X-B0ppPJHlNt50Jo9z-wSFY/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -5649,16 +5649,19 @@ async function selesaiIstirahat(hariKe) {
 function showSubmenuWithStatus(targetId, hariKe, submenuType) {
     // Tampilkan submenu seperti biasa
     showSubmenu(targetId);
-    
+
+    // AUTO ISI PESAN TANYA COACH
+    if (submenuType === 'tanya') {
+        isiPesanDefaultCoach(hariKe);
+    }
+
     // Check dan apply button status
     setTimeout(() => {
         checkAndApplyButtonStatus(hariKe);
-        
         // Untuk mealplan, juga check upload status
         if (submenuType === 'mealplan') {
             loadMealPlanProgress(hariKe);
         }
-        
         // Untuk workout, juga check resistance data
         if (submenuType === 'workout') {
             loadSavedResistanceData(hariKe);
@@ -7557,6 +7560,28 @@ async function selesaiTanyaCoach(hariKe){
     lockTanyaCoachUI(hariKe);   // <-- TAMBAHKAN INI
     showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
+}
+
+/*************************************'
+ *  Otomatis isi pesan WA di texarea *
+**************************************/
+ function isiPesanDefaultCoach(hariKe){
+  const textarea = document.getElementById(`pesanCoach${hariKe}`);
+  if(!textarea) return;
+
+  // jika user sudah mengetik jangan ditimpa
+  if(textarea.value.trim() !== "") return;
+
+  let namaUser = "Peserta Program";
+  if(window.userProgress && window.userProgress.namaKonsumen){
+    namaUser = window.userProgress.namaKonsumen;
+  }
+  const pesanDefault =
+    `Halo Coach,
+    Saya ${namaUser}, peserta Program Berat Ideal.
+    Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
+    Mohon arahan dari Coach 🙏`;
+  textarea.value = pesanDefault;
 }
 
 /******************************************
