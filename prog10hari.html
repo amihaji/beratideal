@@ -5642,14 +5642,15 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
     // Tampilkan submenu seperti biasa
     showSubmenu(targetId);
 
-    // AUTO ISI PESAN TANYA COACH
-    if (submenuType === 'tanya') {
-        isiPesanDefaultCoach(hariKe);
-    }
-
     // Check dan apply button status
     setTimeout(() => {
-        checkAndApplyButtonStatus(hariKe);
+
+      // AUTO ISI PESAN TANYA COACH
+      if (submenuType === 'tanya') {
+        isiPesanDefaultCoach(hariKe);
+      }
+
+      checkAndApplyButtonStatus(hariKe);
         // Untuk mealplan, juga check upload status
         if (submenuType === 'mealplan') {
             loadMealPlanProgress(hariKe);
@@ -7557,25 +7558,32 @@ async function selesaiTanyaCoach(hariKe){
 /*************************************'
  *  Otomatis isi pesan WA di texarea *
 **************************************/
- function isiPesanDefaultCoach(hariKe){
+function isiPesanDefaultCoach(hariKe){
+  console.log("✏️ Isi pesan otomatis Tanya Coach hari",hariKe);
   const textarea = document.getElementById(`pesanCoach${hariKe}`);
-  if(!textarea) return;
+  if(!textarea){
+     console.log("❌ textarea tidak ditemukan");
+     return;
+  }
 
-  // jika user sudah mengetik jangan ditimpa
-  if(textarea.value.trim() !== "") return;
+  if(textarea.value.trim() !== ""){
+     console.log("⚠️ textarea sudah ada isi");
+     return;
+  }
 
   let namaUser = "Peserta Program";
   if(window.userProgress && window.userProgress.namaKonsumen){
-    namaUser = window.userProgress.namaKonsumen;
+     namaUser = window.userProgress.namaKonsumen;
   }
-  const pesanDefault =
-    `Halo Coach,
-    Saya ${namaUser}, peserta Program Berat Ideal.
-    Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
-    Mohon arahan dari Coach 🙏`;
-  textarea.value = pesanDefault;
+
+  textarea.value =
+  `Halo Coach,
+  Saya ${namaUser}, peserta Program Berat Ideal.
+  Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
+  Mohon arahan dari Coach 🙏`;
 }
 
+ 
 /******************************************
 * Disabled textarea, tombol Kirim Selesai *
 * tombol X tetap aktif                    *
