@@ -2363,46 +2363,16 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   // =========================
   if (submenuType === 'tanya') {
     if (!window.userProgress) window.userProgress = {};
-    window.userProgress[`trackingHari${hariKe}`] = true;
-    console.log(`🔒 Lock data tracking hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`trackingContent${hariKe}`);
-    if (!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      el.disabled = true;
-      el.readOnly = true;
-      el.style.backgroundColor = '#f8f9fa';
-      el.style.cursor = 'not-allowed';
-    });
-    container.querySelectorAll('button').forEach(btn => {
-      const id   = btn.id || '';
-      const text = btn.textContent || '';
-      const cls  = btn.className || '';
+    window.userProgress[`tanyaHari${hariKe}`] = true;
 
-      // Tombol X tetap aktif
-      if (
-        cls.includes('btn-close') ||
-        cls.includes('close-pdf') ||
-        cls.includes('close-video') ||
-        btn.innerHTML.includes('fa-times')
-      ) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      // Cek Disini tetap aktif
-      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      btn.style.cursor = 'not-allowed';
+    console.log(`🔒 Lock tanya coach hari ${hariKe} (READ ONLY)`);
+    const container = document.querySelector(`#tanyaContent${hariKe} .tanya-coach-box`);
+    if(!container) return;
+    const inputs = container.querySelectorAll("textarea, input, button");
+    inputs.forEach(el=>{
+      el.disabled = true;
     });
-    console.log(`✅ data tracking hari ${hariKe} terkunci total`);
-    return;
+    console.log(`✅ Tanya Coach hari ${hariKe} terkunci`);
   }
 
 }
