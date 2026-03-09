@@ -1363,8 +1363,8 @@ function saveCompletionStatus(submenuType, hariKe, status) {
         'workout': 'workoutHari1',
         'water': 'waterHari1',
         'istirahat': 'istirahatHari1',
-        'tracking': 'trackingHari1',
-        'tanya': 'tanyaHari1'
+        'tracking': 'trackingHari1'
+        //'tanya': 'tanyaHari1'
     };
     
     const field = fieldMap[submenuType];
@@ -1402,8 +1402,8 @@ function checkCompletionStatus(userId, submenuType, hariKe) {
             'workout': 'workoutHari1',
             'water': 'waterHari1',
             'istirahat': 'istirahatHari1',
-            'tracking': 'trackingHari1',
-            'tanya': 'tanyaHari1'
+            'tracking': 'trackingHari1'
+            //'tanya': 'tanyaHari1'
         };
         const field = fieldMap[submenuType];
         return progressData[field] || false;
@@ -2047,8 +2047,8 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'workoutHari1', type: 'workout' },
     { field: 'waterHari1', type: 'water' },
     { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'trackingHari1', type: 'tracking' },
-    { field: 'tanyaHari1', type: 'tanya' } 
+    { field: 'trackingHari1', type: 'tracking' }
+    //{ field: 'tanyaHari1', type: 'tanya' } 
   ];
 
   progressMap.forEach(item => {
@@ -3900,8 +3900,8 @@ function checkAndApplyButtonStatus(userId, hariKe) {
         { type: 'workout', check: progress.workoutHari1 },
         { type: 'water', check: progress.waterHari1 },
         { type: 'istirahat', check: progress.istirahatHari1 },
-        { type: 'tracking', check: progress.trackingHari1 },
-        { type: 'tanya', check: progress.tanyaHari1 }
+        { type: 'tracking', check: progress.trackingHari1 }
+        //{ type: 'tanya', check: progress.tanyaHari1 }
     ];
     
     statusChecks.forEach(item => {
@@ -4249,8 +4249,8 @@ async function checkAndUnlockModulesForUser(userId) {
                 { type: 'workout', field: 'workoutHari1' },
                 { type: 'water', field: 'waterHari1' },
                 { type: 'istirahat', field: 'istirahatHari1' },
-                { type: 'tracking', field: 'trackingHari1' },
-                { type: 'tanya', field: 'tanyaHari1' }
+                { type: 'tracking', field: 'trackingHari1' }
+                //{ type: 'tanya', field: 'tanyaHari1' }
             ];
            
             progressChecks.forEach(item => {
