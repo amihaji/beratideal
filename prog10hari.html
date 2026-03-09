@@ -1533,11 +1533,11 @@ function applyExistingUserProgress(progress) {
     }
 
     // Tanya Coach
-    if (progress[`tanyaHari${hariKe}`] === true) {
+    if (progress[`tanyaCoachHari${hariKe}`] === true) {
       console.log(`🔒 Restore Tanya Coach Hari ${hariKe}`);
       updateSubmenuLinkUI('tanya', hariKe);
       //disableButtonsAfterCompletion(hariKe, 'tanya');
-      //lockTanyaCoachUI(hariKe);
+      lockTanyaCoachUI(hariKe);
     }
 
   }
@@ -4332,7 +4332,13 @@ function checkProgressFromLocalStorage(userId) {
         }
         
         // Check submenu progress
-        if (userProgress.materiHari1 || userProgress.mealplanHari1 || userProgress.workoutHari1) {
+        if (userProgress.materiHari1 || 
+            userProgress.mealplanHari1 || 
+            userProgress.workoutHari1 || 
+            userProgress.waterHari1 || 
+            userProgress.istirahatHari1 ||
+            userProgress.trackingHari1 || 
+            userProgress.tanyaHari1) {
             unlockModul(1);
         }
         
