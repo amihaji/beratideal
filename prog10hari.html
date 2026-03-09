@@ -1536,8 +1536,8 @@ function applyExistingUserProgress(progress) {
     if (progress[`tanyaHari${hariKe}`] === true) {
       console.log(`🔒 Restore Tanya Coach Hari ${hariKe}`);
       updateSubmenuLinkUI('tanya', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'tanya');
-      //lockTanyaCoachUI(hariKe);
+      //disableButtonsAfterCompletion(hariKe, 'tanya');
+      lockTanyaCoachUI(hariKe);
     }
 
   }
@@ -2357,21 +2357,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
     console.log(`✅ data tracking hari ${hariKe} terkunci total`);
     return;
   }
-
-  // =========================
-  // TANYA COACH 
-  // =========================
-  if (submenuType === 'tanya') {
-    console.log(`🔒 Lock tanya coach hari ${hariKe} (READ ONLY)`);
-    const container = document.querySelector(`#tanyaContent${hariKe} .tanya-coach-box`);
-    if(!container) return;
-    const inputs = container.querySelectorAll("textarea, input, button");
-    inputs.forEach(el=>{
-      el.disabled = true;
-    });
-    console.log(`✅ Tanya Coach hari ${hariKe} terkunci`);
-  }
-
 }
 
 /*******************************************
@@ -7547,8 +7532,8 @@ async function selesaiTanyaCoach(hariKe){
   const result = await response.json();
   if(result.success){
     updateSubmenuLinkUI('tanya',hariKe);
-    //lockTanyaCoachUI(hariKe);   // <-- TAMBAHKAN INI
-    disableButtonsAfterCompletion(hariKe, 'tanya');
+    lockTanyaCoachUI(hariKe);   // <-- TAMBAHKAN INI
+    // disableButtonsAfterCompletion(hariKe, 'tanya');
     showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
 }
