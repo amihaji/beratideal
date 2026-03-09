@@ -1520,16 +1520,26 @@ function applyExistingUserProgress(progress) {
       disableButtonsAfterCompletion(hariKe, 'water');
     }
 
+    // Data Istirahat
     if (progress[`istirahatHari${hariKe}`] === true) {
       updateSubmenuLinkUI('istirahat', hariKe);
       disableButtonsAfterCompletion(hariKe, 'istirahat');
     }
 
-    // ✅ FIX DATA TRACKING
+    // Data Tracking
     if (progress[`trackingHari${hariKe}`] === true) {
       updateSubmenuLinkUI('tracking', hariKe);
       disableButtonsAfterCompletion(hariKe, 'tracking');
     }
+
+    // Tanya Coach
+    if (progress[`tanyaHari${hariKe}`] === true) {
+      console.log(`🔒 Restore Tanya Coach Hari ${hariKe}`);
+      updateSubmenuLinkUI('tanya', hariKe);
+      // disableButtonsAfterCompletion(hariKe, 'tanya');
+      lockTanyaCoachUI(hariKe);
+    }
+
   }
 }
 
@@ -2038,17 +2048,14 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'workoutHari1', type: 'workout' },
     { field: 'waterHari1', type: 'water' },
     { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'trackingHari1', type: 'tracking' } // ✅ FIX
+    { field: 'trackingHari1', type: 'tracking' },
+    { field: 'tanyaHari1', type: 'tracking' } 
   ];
 
   progressMap.forEach(item => {
-
     if (progress[item.field] === true) {
-
       window.userProgress[item.field] = true;
-
       updateSubmenuLinkUI(item.type, hariKe);
-
       disableButtonsAfterCompletion(hariKe, item.type); // ✅ semua type ikut lock
     }
   });
@@ -5173,12 +5180,9 @@ async function selesaiWorkout(hariKe) {
       // ✅ SET STATUS FRONTEND
       if (!window.userProgress) window.userProgress = {};
       window.userProgress[`workoutHari${hariKe}`] = true;
-
       localStorage.setItem(`workoutHari${hariKe}`, 'completed');
-
       updateSubmenuLinkUI('workout', hariKe);
       disableWorkoutUI(hariKe);
-
       showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `pertemuan${hariKe}` );
     } else {
       showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
@@ -5544,16 +5548,12 @@ function saveWorkoutStatus(hariKe, status) {
   
   if (status === 'completed') {
     localStorage.setItem(`workout_completed_${userId}_${hariKe}`, new Date().toISOString());
-    
     // Update UI
     updateWorkoutCompletionUI(hariKe);
-    
     // Disable semua tombol
     disableButtonsAfterCompletion(hariKe, 'workout');
-    
     // Update submenu link
     updateSubmenuLinkUI(hariKe, 'workout');
-    
     // Simpan ke user progress data
     const progressKey = `completeProgress_${userId}`;
     let progressData = JSON.parse(localStorage.getItem(progressKey) || '{}');
