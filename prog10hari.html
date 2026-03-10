@@ -2289,7 +2289,7 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
   const containerId = `${submenuType}Content${hariKe}`;
-  const container = document.getElementById(containerId);
+  const container   = document.getElementById(containerId);
 
   if (!container) {
     console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
@@ -2303,12 +2303,8 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 
   // Disable tombol kecuali yang diizinkan
   container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn =
-      btn.classList.contains('btn-close-header') ||
-      btn.classList.contains('close-pdf');
-
-    const isCekDisini =
-      btn.id && btn.id.includes('btnCekDisini');
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
     if (!isCloseBtn && !isCekDisini) {
       btn.disabled = true;
     }
