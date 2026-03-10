@@ -1501,26 +1501,6 @@ function applyLockSystem(progress) {
   }
 }
 
-function BACKUP_applyLockSystem(progress) {
-  console.log('🔒 Apply Lock System (USER BARU SAJA)');
-  // hanya lock jika perkenalan BELUM selesai
-  if (progress.perkenalan === true) return;
-  for (let i = 1; i <= 10; i++) {
-    const header = document.querySelector(`[data-hari="${i}"]`);
-    if (!header) continue;
-    header.classList.add('disabled');
-    header.style.pointerEvents = 'none';
-    header.style.cursor = 'not-allowed';
-  }
-  // perkenalan tetap aktif
-  const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
-  if (perkenalanHeader) {
-    perkenalanHeader.classList.remove('disabled');
-    perkenalanHeader.style.pointerEvents = 'auto';
-    perkenalanHeader.style.cursor = 'pointer';
-  }
-}
-
 /*************************************
 * Terapkan Progress User dari Server *
 **************************************/
@@ -7450,7 +7430,6 @@ async function selesaiTanyaCoach(hariKe){
   const result = await response.json();
   if(result.success){
     updateSubmenuLinkUI('tanya',hariKe);
-    //lockTanyaCoachUI(hariKe);   // <-- TAMBAHKAN INI
     disableButtonsAfterCompletion(hariKe, 'tanya');
     showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
   }
