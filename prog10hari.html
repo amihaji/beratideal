@@ -512,6 +512,43 @@ body { background-color: #f8f9fa; }
 .meal-plan-modal .modal-body { padding: 20px; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
+/* Styling untuk emoticon */
+.emoji-picker{
+  position:relative;
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:8px;
+  margin-top:6px;
+  width:320px;
+  display:none;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.emoji-search{
+  width:100%;
+  padding:6px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  margin-bottom:6px;
+}
+.emoji-category{ display:flex; overflow-x:auto; gap:4px; margin-bottom:6px;
+}
+.emoji-category button{
+  border:none;
+  background:#f1f1f1;
+  border-radius:5px;
+  padding:4px 6px;
+  cursor:pointer;
+}
+.emoji-list{ max-height:160px; overflow-y:auto; }
+.emoji-list span{
+  font-size:22px;
+  padding:6px;
+  cursor:pointer;
+  display:inline-block;
+}
+.emoji-list span:hover{ transform:scale(1.3); }
+
 /*****************************
 /* TAMPILAN MOBILE RESPONSIVE
 /*****************************/
@@ -1037,12 +1074,55 @@ body { background-color: #f8f9fa; }
               </div>  
 
               <div class="tanya-coach-box">
+                <!-- Tampilkan Pesan di texarea -->
                 <textarea id="pesanCoach1" placeholder="Tulis pesan ke coach..." class="form-control"></textarea>
+                
+                <!-- Tampilkan emoticon di texarea -->
+                <div class="emoji-toolbar mt-2">
+                  <button class="btn btn-light btn-sm" onclick="toggleEmojiPicker(1)"> 😊 Emoji</button>
+                </div>
+                <div class="emoji-picker" id="emojiPicker1">
+                  <input type="text" class="emoji-search" placeholder="Cari emoji..." onkeyup="searchEmoji(1,this.value)">
+                  <div class="emoji-category">
+                    <button onclick="showEmojiCategory(1,'recent')">⭐</button>
+                    <button onclick="showEmojiCategory(1,'smile')">😀</button>
+                    <button onclick="showEmojiCategory(1,'gesture')">👍</button>
+                    <button onclick="showEmojiCategory(1,'heart')">❤️</button>
+                    <button onclick="showEmojiCategory(1,'sport')">⚽</button>
+                    <button onclick="showEmojiCategory(1,'food')">🍎</button>
+                    <button onclick="showEmojiCategory(1,'activity')">🏃</button>
+                  </div>
+                  <div class="emoji-list" id="emojiList1"></div>
+                </div>
+
+                <!-- Tampilkan tombol kirim dan selesai -->   
                 <button class="btn btn-primary btn-sm mt-2" onclick="kirimPesanCoach(1)"><i class="fa fa-send-o"></i> Kirim</button>
                 <button class="btn btn-secondary btn-sm mt-2" id="btnSelesaiWA1" onclick="selesaiTanyaCoach(1)" disabled><i class="fas fa-check"></i> Selesai WA</button>
               </div>
             </div>
           </div>
+
+          <!-- 1.8 Selesai Modul hari pertama -->
+          <div class="submenu-content" id="modulContent1" style="display: none;">
+            <div class="border p-3 bg-light mt-2 mb-2">
+              <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
+                <h6 class="mt-1 mb-1">Modul Pertama</h6>
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('modulContent1')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+              <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
+                <p>Apakah semua materi dan aktifitas yang ada di Modul Pertama<i class="fas fa-question mt-2 mb-2" style="color: #fa0000;"></i></b>
+                  sudah diselesaikan dan dipahami dengan baik ? </b>
+                  Kalau YA, maka klik "Selesai Modul" </b>
+                  untuk lanjut ke Modul berikuthnya</p>
+              </div>  
+                <button class="btn btn-primary btn-sm mt-2" id="btnSelesaiModul1" onclick="selesaiModul(1)" ><i class="fas fa-check"></i> Selesai Modul</button>
+              </div>
+          </div>
+
+
 
           <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
    
@@ -3749,59 +3829,6 @@ function showSubmenu(targetId) {
     });
     console.log('📜 Scroll ke submenu');
   }, 120);
-}
-
-function BACKUP_showSubmenu(targetId) {
-  console.log('🔍 Menampilkan submenu:', targetId);
-  // TUTUP SEMUA SUBMENU LAIN
-  document.querySelectorAll('.submenu-content').forEach(content => {
-    if (content.id !== targetId) {
-      content.style.display = 'none';
-    }
-  });
-
-  const targetContent = document.getElementById(targetId);
-  if (!targetContent) {
-    console.error('❌ Target content tidak ditemukan:', targetId);
-    return;
-  }
-
-  // Cari trigger menu
-  const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
-  if (!triggerElement) {
-    console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
-    targetContent.style.display = 'block';
-    return;
-  }
-
-  console.log('✅ Trigger ditemukan:', triggerElement);
-  const parentMenuContent = triggerElement.closest('.menu-content');
-  if (!parentMenuContent) {
-    console.warn('⚠️ Menu content parent tidak ditemukan');
-    targetContent.style.display = 'block';
-    return;
-  }
-
-  console.log('✅ Menu content parent ditemukan');
-  // CEK apakah sudah berada di posisi yang benar
-  if (triggerElement.nextElementSibling !== targetContent) {
-    parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
-    console.log('📦 Submenu dipindahkan ke posisi yang benar');
-  }
-
-  // Tampilkan submenu
-  targetContent.style.display = 'block';
-  console.log('✅ Submenu ditampilkan');
-
-  // Scroll halus
-  setTimeout(() => {
-    targetContent.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-    console.log('📜 Scroll ke submenu');
-  }, 120);
-
 }
 
 /**************************************************
@@ -7543,41 +7570,13 @@ Saya *${namaUser}*
 Peserta *Program Berat Ideal*
 Hari Program : *${hariKe} (${hariText})*
 
-Saya ingin bertanya mengenai materi pada hari ini.
-Pertanyaan :
+Saya ingin bertanya mengenai materi hari ini.
+*Pertanyaan Saya:*
 .....................................
 
 Mohon arahan dari Coach 🙏
--------------------------------------
-Balasan bisa langsung ke nomor WA ini`;
-}
-
-function BACKUP_isiPesanDefaultCoach(hariKe){
-  console.log("✏️ Isi pesan otomatis Tanya Coach hari",hariKe);
-  const textarea = document.getElementById(`pesanCoach${hariKe}`);
-  if(!textarea){
-     console.log("❌ textarea tidak ditemukan");
-     return;
-  }
-
-  if(textarea.value.trim() !== ""){
-     console.log("⚠️ textarea sudah ada isi");
-     return;
-  }
-
-  let namaUser = "";
-  if(window.userProgress && window.userProgress.namaKonsumen){
-     namaUser = window.userProgress.namaKonsumen;
-  }
-
-  textarea.value =
-  `*Halo Coach*,
-Saya ${namaUser}, peserta Program Berat Ideal.
-Saya ingin bertanya mengenai materi pada Hari ${hariKe}.
-Mohon arahan dari Coach 🙏
 -------------------------------------------
-Jawaban Langsung ke No WA ini`;
-
+Balasan langsung ke nomor WA ini`;
 }
 
 /*******************************
@@ -7762,6 +7761,113 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
     }
     return messageElement;
 }
+
+const emojiDB = {
+
+smile:[
+"😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","🙂","🙃",
+"😍","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐",
+"😎","🤓","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖",
+"😫","😩","🥺","😢","😭","😤"
+],
+
+gesture:[
+"👍","👎","👌","✌️","🤞","🤟","🤘","🤙","👏","🙌","🙏","💪",
+"👊","✊","🤛","🤜"
+],
+
+heart:[
+"❤️","🧡","💛","💚","💙","💜","🤎","🖤","🤍","💔","❣️","💕",
+"💞","💓","💗","💖"
+],
+
+sport:[
+"⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋"
+],
+
+food:[
+"🍎","🍌","🍓","🍇","🍉","🍍","🥭","🥑","🍕","🍔","🍟","🌭",
+"🥪","🍜","🍣","🍰","🍩"
+],
+
+activity:[
+"🏃","🚶","🏋️","🚴","🤸","⛹️","🏌️","🏄","🏊","🤽","🤾"
+]
+
+};
+/****************************
+ * Tampilkan kategori emoji
+ ****************************/
+function showEmojiCategory(hariKe,category){
+  const list=document.getElementById(`emojiList${hariKe}`);
+  if(!list) return;
+
+  list.innerHTML="";
+  if(category==="recent"){
+    const recent=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
+    recent.forEach(e=>{
+    list.innerHTML+=`<span onclick="insertEmoji(${hariKe},'${e}')">${e}</span>`;
+    });
+    return;
+  }
+  emojiDB[category].forEach(e=>{
+  list.innerHTML+=`<span onclick="insertEmoji(${hariKe},'${e}')">${e}</span>`;
+  });
+}
+
+/*******************
+ * Sisip Emoticon  *  
+ *******************/
+function insertEmoji(hariKe,emoji){
+  const textarea=document.getElementById(`pesanCoach${hariKe}`);
+  if(!textarea) return;
+  const start=textarea.selectionStart;
+  const end=textarea.selectionEnd;
+  textarea.value =
+  textarea.value.substring(0,start) +
+  emoji +
+  textarea.value.substring(end);
+  textarea.selectionStart =
+  textarea.selectionEnd = start + emoji.length;
+  textarea.focus();
+  saveRecentEmoji(emoji);
+}
+
+/*****************
+ * Recent Emoji  *
+ *****************/
+function saveRecentEmoji(emoji){
+  let recent=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
+  recent=recent.filter(e=>e!==emoji);
+  recent.unshift(emoji);
+  recent=recent.slice(0,20);
+  localStorage.setItem("recentEmoji",JSON.stringify(recent));
+}
+
+/********************
+ * Cari Emoticon   *
+ *******************/
+function searchEmoji(hariKe,text){
+  const list=document.getElementById(`emojiList${hariKe}`);
+  list.innerHTML="";
+  Object.values(emojiDB).flat().forEach(e=>{
+  if(e.includes(text)){
+    list.innerHTML+=`<span onclick="insertEmoji(${hariKe},'${e}')">${e}</span>`;
+  }
+  });
+}
+
+/*****************************************
+* Auto close emoticon jika di klik diluar
+*****************************************/
+document.addEventListener("click",function(e){
+  document.querySelectorAll(".emoji-picker").forEach(picker=>{
+  if(!picker.contains(e.target) &&
+    !e.target.closest(".emoji-toolbar")){
+    picker.style.display="none";
+    }
+  });
+});
 
 </script>
 </body>
