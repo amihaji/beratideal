@@ -1550,27 +1550,14 @@ function applyExistingUserProgress(progress) {
       }
     },
     
-    //{
-    //  key:'tanyaHari',
-    //  action:(h)=>{
-    //    const status = progress[`tanyaHari${h}`];
-    //    if(status === "OK" || status === true){
-    //      console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-    //      updateSubmenuLinkUI('tanya',h);
-    //      disableButtonsAfterCompletion(h,'tanya');
-    //    }
-    //  }
-    //}
-
     {
-      key: 'tanyaHari',
-      action: (h) => {
+      key:'tanyaHari',
+      action:(h)=>{
         const status = progress[`tanyaHari${h}`];
-        // anggap selesai jika ada nilai valid
-        if ( status === true || status === "true" || status === "OK" || status === 1 || status === "1" ) {
+        if(status === "OK" || status === true){
           console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-          updateSubmenuLinkUI('tanya', h);
-          disableButtonsAfterCompletion(h, 'tanya');
+          updateSubmenuLinkUI('tanya',h);
+          disableButtonsAfterCompletion(h,'tanya');
         }
       }
     }
