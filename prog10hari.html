@@ -1136,7 +1136,7 @@ body { background-color: #f8f9fa; }
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwc_Xsia63aZibcDAQEDfE97KBUWBa5CfckIdCRDo7gnCFonWuoZSeQa3fd-WOZ62fF/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw3wJcKNEy7qqGrhqdZevqfR9jZcaC387UTMbRzvjuxAy-h0rrMeu5KNbgSmKKz6VCv/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -1597,94 +1597,6 @@ function applyExistingUserProgress(progress) {
         }
       }
     }
-  ];
-
-  // LOOP HARI 1 - 10
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    progressConfig.forEach(cfg => {
-      const status = progress[`${cfg.key}${hariKe}`];
-      if (status === true || status === "OK") {
-        cfg.action(hariKe);
-      }
-    });
-  }
-}
-
-function BACKUP_applyExistingUserProgress(progress) {
-  console.log('📊 Apply Existing Progress FINAL');
-  window.userProgress = progress;
-  // PERKENALAN
-  if (progress.perkenalan === true) {
-    updateSubmenuLinkUI('perkenalan', 0);
-    disableSelesaiPerkenalanButton();
-    unlockModul(1);
-  }
-
-  // KONFIGURASI PROGRESS SUBMENU
-  const progressConfig = [
-    {
-      key: 'materiHari',
-      action: (h) => {
-        lockMateriVideo(h);
-        const btn = document.getElementById(`btnMateriDone${h}`);
-        if (btn) disableButtonFully(btn);
-        updateSubmenuLinkUI('materi', h);
-      }
-    },
-
-    {
-      key: 'mealplanHari',
-      action: (h) => {
-        lockMealPlanUI(h);
-        updateSubmenuLinkUI('mealplan', h);
-      }
-    },
-
-    {
-      key: 'workoutHari',
-      action: (h) => {
-        updateSubmenuLinkUI('workout', h);
-        disableButtonsAfterCompletion(h, 'workout');
-      }
-    },
-
-    {
-      key: 'waterHari',
-      action: (h) => {
-        updateSubmenuLinkUI('water', h);
-        disableButtonsAfterCompletion(h, 'water');
-      }
-    },
-
-    {
-      key: 'istirahatHari',
-      action: (h) => {
-        updateSubmenuLinkUI('istirahat', h);
-        disableButtonsAfterCompletion(h, 'istirahat');
-      }
-    },
-
-    {
-      key: 'trackingHari',
-      action: (h) => {
-        updateSubmenuLinkUI('tracking', h);
-        disableButtonsAfterCompletion(h, 'tracking');
-      }
-    },
-
-    {
-      key: 'tanyaHari',
-      action: (h) => {
-        const status = progress[`tanyaHari${h}`];
-        // hanya lock jika benar-benar selesai
-        if (status === "OK") {
-          console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-          updateSubmenuLinkUI('tanya', h);
-          disableButtonsAfterCompletion(h,'tanya');
-        }
-      }
-    }
-  
   ];
 
   // LOOP HARI 1 - 10
@@ -2391,154 +2303,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) { 
-  // =========================
-  // WORKOUT
-  // =========================
-  if (submenuType === 'workout') {
-    console.log(`🔒 Disable workout UI hari ${hariKe}`);
-    disableWorkoutUI(hariKe);
-    return;
-  }
-
-  // =========================
-  // WATER REMINDER
-  // =========================
-  if (submenuType === 'water') {
-    if (!window.userProgress) window.userProgress = {};
-    window.userProgress[`waterHari${hariKe}`] = true;
-    console.log(`🔒 Lock WATER hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`waterReminderContent${hariKe}`);
-    if (!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      el.disabled = true;
-      el.readOnly = true;
-      el.style.backgroundColor = '#f8f9fa';
-      el.style.cursor = 'not-allowed';
-    });
-    container.querySelectorAll('button').forEach(btn => {
-      const id   = btn.id || '';
-      const text = btn.textContent || '';
-      const cls  = btn.className || '';
-      // Tombol X tetap aktif
-      if (
-        cls.includes('btn-close') ||
-        cls.includes('close-pdf') ||
-        cls.includes('close-video') ||
-        btn.innerHTML.includes('fa-times')
-      ) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      // Cek Disini tetap aktif
-      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      btn.style.cursor = 'not-allowed';
-    });
-    console.log(`✅ Water hari ${hariKe} terkunci total`);
-    return;
-  }
-
-  // =========================
-  // ISTIRAHAT
-  // =========================
-  if (submenuType === 'istirahat') {
-    if (!window.userProgress) window.userProgress = {};
-    window.userProgress[`istirahatHari${hariKe}`] = true;
-    console.log(`🔒 Lock istirahat hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`istirahatContent${hariKe}`);
-    if (!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      el.disabled = true;
-      el.readOnly = true;
-      el.style.backgroundColor = '#f8f9fa';
-      el.style.cursor = 'not-allowed';
-    });
-    container.querySelectorAll('button').forEach(btn => {
-      const id   = btn.id || '';
-      const text = btn.textContent || '';
-      const cls  = btn.className || '';
-      if (
-        cls.includes('btn-close') ||
-        cls.includes('close-pdf') ||
-        cls.includes('close-video') ||
-        btn.innerHTML.includes('fa-times')
-      ) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      btn.style.cursor = 'not-allowed';
-    });
-    console.log(`✅ istirahat hari ${hariKe} terkunci total`);
-    return;
-  }
-
-  // =========================
-  // DATA TRACKING 
-  // =========================
-  if (submenuType === 'tracking') {
-    if (!window.userProgress) window.userProgress = {};
-    window.userProgress[`trackingHari${hariKe}`] = true;
-    console.log(`🔒 Lock data tracking hari ${hariKe} (READ ONLY)`);
-    const container = document.getElementById(`trackingContent${hariKe}`);
-    if (!container) return;
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      el.disabled = true;
-      el.readOnly = true;
-      el.style.backgroundColor = '#f8f9fa';
-      el.style.cursor = 'not-allowed';
-    });
-    container.querySelectorAll('button').forEach(btn => {
-      const id   = btn.id || '';
-      const text = btn.textContent || '';
-      const cls  = btn.className || '';
-
-      // Tombol X tetap aktif
-      if (
-        cls.includes('btn-close') ||
-        cls.includes('close-pdf') ||
-        cls.includes('close-video') ||
-        btn.innerHTML.includes('fa-times')
-      ) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      // Cek Disini tetap aktif
-      if (id.includes('CekDisini') || text.includes('Cek Disini')) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-        return;
-      }
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      btn.style.cursor = 'not-allowed';
-    });
-    console.log(`✅ data tracking hari ${hariKe} terkunci total`);
-    return;
-  }
-}
-
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
@@ -2593,87 +2357,6 @@ function updateSubmenuLinkUI(type, hariKe) {
   icon.style.fontSize = '0.9em';
   link.appendChild(icon);
   link.style.color = '#666';
-}
-
-function BACKUP_updateSubmenuLinkUI(type, hariKe) {
-    console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-    let link = null;
-
-    // Perkenalan Selektor
-    if (type === 'perkenalan') {
-        const container = document.getElementById('perkenalanContent');
-        if (!container) return;
-        link = [...container.querySelectorAll('a.menu-item')]
-            .find(a => a.textContent.includes('Selesai Perkenalan'));
-    }
-
-    // Materi Selektor
-    if (type === 'materi') {
-        const container = document.getElementById(`pertemuan${hariKe}Content`);
-        if (!container) return;
-        link = container.querySelector(
-            `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
-        );
-    }
-
-    // Meal Plan Selektor
-    if (type === 'mealplan') {
-        link = document.querySelector(
-            `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`
-        );
-    }
-    
-    // Workout Selektor
-    if (type === 'workout') {
-        link = document.querySelector(
-            `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`
-        );
-    }
-
-    // Water Selektor
-    if (type === 'water') {
-        link = document.querySelector(
-           `a.menu-item.submenu-trigger[data-target="waterReminderContent${hariKe}"]`
-      );
-    }
-
-    // Istirahat Selektor
-    if (type === 'istirahat') {
-      link = document.querySelector(
-        `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`
-      );
-    }
-    
-    // Data Tracking Selektor
-    if (type === 'tracking') {
-      link = document.querySelector(
-        `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`
-      );
-    }
-
-    // Tanya Coach Selektor
-    if (type === 'tanya') {
-      link = document.querySelector(
-        `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`
-      );
-    }
-
-    if (!link) {
-        console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
-        return;
-    }
-
-    // ❌ Cegah dobel centang
-    if (link.querySelector('.status-done')) return;
-
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle status-done';
-    icon.style.color = '#198754';   // hijau bootstrap
-    icon.style.marginLeft = '2px';  //'8px';
-    icon.style.fontSize = '0.9em';
-
-    link.appendChild(icon);
-    link.style.color = '#666';
 }
 
 /*************************
@@ -4083,65 +3766,6 @@ function showSubmenu(targetId) {
 
 }
 
-function BACKUP_showSubmenu(targetId) {
-  console.log('🔍 Menampilkan submenu:', targetId);
-  
-  // TUTUP SEMUA SUBMENU LAIN TAPI BIARKAN PDF TERBUKA
-  document.querySelectorAll('.submenu-content').forEach(content => {
-    if (content.id !== targetId) {
-      content.style.display = 'none';
-      // Kembalikan ke posisi semula
-      const menuAccordion = document.getElementById('menuAccordion');
-      if (menuAccordion && menuAccordion.parentNode) {
-        menuAccordion.parentNode.insertBefore(content, menuAccordion.nextSibling);
-      }
-    }
-  });
-  
-  // Tampilkan submenu yang dipilih
-  const targetContent = document.getElementById(targetId);
-  if (targetContent) {
-    // TEMUKAN TRIGGER ELEMENT YANG DITEKAN
-    const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
-    
-    if (triggerElement) {
-      console.log('✅ Trigger ditemukan:', triggerElement);
-      // TEMUKAN PARENT MENU CONTENT (di dalam accordion)
-      const parentMenuContent = triggerElement.closest('.menu-content');
-      if (parentMenuContent) {
-        console.log('✅ Menu content parent ditemukan');
-        // Tempatkan content TEPAT SETELAH TRIGGER ELEMENT di dalam menu content
-        parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
-        // Tampilkan content
-        targetContent.style.display = 'block';
-        
-        console.log('✅ Submenu ditempatkan di posisi yang benar');
-        // AUTO ISI PESAN OTOMATIS TANYA COACH
-        if (targetId.startsWith("tanyaContent")) {
-          const hariKe = targetId.replace("tanyaContent","");
-          isiPesanDefaultCoach(hariKe);
-        }
-      } else {
-        console.warn('⚠️ Menu content parent tidak ditemukan');
-        // Fallback: tempatkan setelah trigger element
-        triggerElement.parentNode.insertBefore(targetContent, triggerElement.nextSibling);
-        targetContent.style.display = 'block';
-      }
-    } else {
-      console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
-      targetContent.style.display = 'block';
-    }
-    
-    // Scroll ke konten yang ditampilkan
-    setTimeout(() => { 
-      targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
-      console.log('📜 Scroll ke submenu');
-    }, 100);
-  } else {
-    console.error('❌ Target content tidak ditemukan:', targetId);
-  }
-}
-
 /**************************************************
 * Sembunyikan Submenu dan tidak meyembunyikan PDF *
 ***************************************************/
@@ -4205,32 +3829,6 @@ function checkAndApplyButtonStatus(userId, hariKe) {
       updateSubmenuLinkUI(item.type, hariKe);
     }
   });
-}
-
-function BACKUP_checkAndApplyButtonStatus(userId, hariKe) {
-    console.log(`🔍 Checking button status for user ${userId}, day ${hariKe}`);
-    // Ambil progress data dari localStorage (yang sudah disinkron dari server)
-    const progressData = localStorage.getItem(`progressData_${userId}`);
-    if (!progressData) return;
-    
-    const progress = JSON.parse(progressData);
-    // Check dan apply status untuk setiap submenu
-    const statusChecks = [
-        { type: 'materi', check: progress.materiHari1 },
-        { type: 'mealplan', check: progress.mealplanHari1 },
-        { type: 'workout', check: progress.workoutHari1 },
-        { type: 'water', check: progress.waterHari1 },
-        { type: 'istirahat', check: progress.istirahatHari1 },
-        { type: 'tracking', check: progress.trackingHari1 },
-        { type: 'tanya', check: progress.tanyaHari1 }
-    ];
-    
-    statusChecks.forEach(item => {
-        if (item.check) {
-            disableButtonsAfterCompletion(hariKe, item.type);
-            updateSubmenuLinkUI(hariKe, item.type);
-        }
-    });
 }
 
 /****************************************************
@@ -7886,22 +7484,6 @@ function isiPesanDefaultCoach(hariKe){
   \n Mohon arahan dari Coach 🙏
   \n ------------------------------
   \n Jawaban Langsung ke No WA ini`;
-}
-
- 
-/******************************************
-* Disabled textarea, tombol Kirim Selesai *
-* tombol X tetap aktif                    *
-******************************************/
-function BACKUP_lockTanyaCoachUI(hariKe){
-  console.log(`🔒 Lock Tanya Coach hari ${hariKe}`);
-  const container = document.querySelector(`#tanyaContent${hariKe} .tanya-coach-box`);
-  if(!container) return;
-  const inputs = container.querySelectorAll("textarea, input, button");
-  inputs.forEach(el=>{
-    el.disabled = true;
-  });
-  console.log(`✅ Tanya Coach hari ${hariKe} terkunci`);
 }
 
 /*******************************
