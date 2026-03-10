@@ -515,6 +515,8 @@ body { background-color: #f8f9fa; }
 /* Styling untuk emoticon */
 .emoji-picker{
 position:absolute;
+bottom:60px;
+left:0;
 width:320px;
 background:#fff;
 border:1px solid #ddd;
@@ -7812,6 +7814,19 @@ document.querySelectorAll(".emoji-btn").forEach(btn=>{
   });
 });
 
+/********************
+* Open Emoji Picker
+*********************/
+function openEmojiPicker(btn){
+  activeTextarea = btn.closest(".tanya-coach-box")
+  .querySelector("textarea");
+  const container = btn.closest(".tanya-coach-box");
+  /* pindahkan picker ke dalam form aktif */
+  container.appendChild(picker);
+  picker.style.display="block";
+  showEmoji("smile");
+}
+
 /******************
  * Render Emoji
  ******************/
@@ -7862,9 +7877,8 @@ function saveRecent(e){
 /*****************
  * Kategori Emoji
  *****************/
-document.querySelectorAll(".emoji-category button")
-.forEach(btn=>{
-btn.onclick=()=>showEmoji(btn.dataset.cat);
+document.querySelectorAll(".emoji-btn").forEach(btn=>{
+btn.onclick = () => openEmojiPicker(btn);
 });
 
 /*******************
