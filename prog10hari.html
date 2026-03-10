@@ -1466,6 +1466,42 @@ function setupAccordionToggle() {
 * Apply Lock System yang lebih strict *
 ***************************************/
 function applyLockSystem(progress) {
+  console.log('🔒 Apply Lock System');
+  // jika user sudah pernah mulai modul apapun → jangan lock
+  const sudahMulai =
+    progress.perkenalan === true ||
+    progress.materiHari1 === true ||
+    progress.mealplanHari1 === true ||
+    progress.workoutHari1 === true ||
+    progress.waterHari1 === true ||
+    progress.istirahatHari1 === true ||
+    progress.trackingHari1 === true ||
+    progress.tanyaHari1 === true ||
+    progress.tanyaHari1 === "OK";
+
+  if (sudahMulai) {
+    console.log("✅ User sudah mulai program → tidak dikunci");
+    return;
+  }
+  console.log("🔒 User baru → semua modul dikunci");
+  for (let i = 1; i <= 10; i++) {
+    const header = document.querySelector(`[data-hari="${i}"]`);
+    if (!header) continue;
+    header.classList.add('disabled');
+    header.style.pointerEvents = 'none';
+    header.style.cursor = 'not-allowed';
+  }
+
+  // perkenalan tetap aktif
+  const perkenalanHeader = document.querySelector('[data-bs-target="#perkenalanContent"]');
+  if (perkenalanHeader) {
+    perkenalanHeader.classList.remove('disabled');
+    perkenalanHeader.style.pointerEvents = 'auto';
+    perkenalanHeader.style.cursor = 'pointer';
+  }
+}
+
+function BACKUP_applyLockSystem(progress) {
   console.log('🔒 Apply Lock System (USER BARU SAJA)');
   // hanya lock jika perkenalan BELUM selesai
   if (progress.perkenalan === true) return;
