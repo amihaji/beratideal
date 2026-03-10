@@ -7493,10 +7493,66 @@ async function selesaiTanyaCoach(hariKe){
   }
 }
 
-/*************************************'
- *  Otomatis isi pesan WA di texarea *
+/*************************************
+ * Otomatis isi pesan WA di textarea *
 **************************************/
 function isiPesanDefaultCoach(hariKe){
+  console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
+  const textarea = document.getElementById(`pesanCoach${hariKe}`);
+  if(!textarea){
+    console.log("❌ textarea tidak ditemukan");
+    return;
+  }
+
+  // Jangan timpa jika user sudah mengetik
+  if(textarea.value.trim() !== ""){
+    console.log("⚠️ textarea sudah ada isi");
+    return;
+  }
+
+  //  AMBIL NAMA USER
+  let namaUser = "Peserta Program";
+  const namaLocal = localStorage.getItem("userName");
+  if(namaLocal){
+    namaUser = namaLocal;
+  }
+
+  if(window.userProgress && window.userProgress.namaKonsumen){
+    namaUser = window.userProgress.namaKonsumen;
+  }
+
+  //   NAMA HARI
+   const namaHari = {
+    1:"Pertama",
+    2:"Kedua",
+    3:"Ketiga",
+    4:"Keempat",
+    5:"Kelima",
+    6:"Keenam",
+    7:"Ketujuh",
+    8:"Kedelapan",
+    9:"Kesembilan",
+    10:"Kesepuluh"
+  };
+
+  const hariText = namaHari[hariKe] || hariKe;
+  // TEMPLATE PESAN
+  textarea.value =
+`*Halo Coach* 👋
+Saya *${namaUser}*
+Peserta *Program Berat Ideal*
+Hari Program : *${hariKe} (${hariText})*
+
+Saya ingin bertanya mengenai materi pada hari ini.
+Pertanyaan :
+.....................................
+
+Mohon arahan dari Coach 🙏
+-------------------------------------
+Balasan bisa langsung ke nomor WA ini`;
+}
+
+function BACKUP_isiPesanDefaultCoach(hariKe){
   console.log("✏️ Isi pesan otomatis Tanya Coach hari",hariKe);
   const textarea = document.getElementById(`pesanCoach${hariKe}`);
   if(!textarea){
