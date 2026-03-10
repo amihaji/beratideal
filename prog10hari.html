@@ -3734,6 +3734,64 @@ function showSubmenu(targetId) {
   // Tampilkan submenu
   targetContent.style.display = 'block';
   console.log('✅ Submenu ditampilkan');
+  
+  // AUTO ISI PESAN TANYA COACH
+  if (targetId.startsWith('tanyaContent')) {
+    const hariKe = targetId.replace('tanyaContent','');
+    isiPesanDefaultCoach(hariKe);
+  }
+
+  // Scroll halus
+  setTimeout(() => {
+    targetContent.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+    console.log('📜 Scroll ke submenu');
+  }, 120);
+}
+
+function BACKUP_showSubmenu(targetId) {
+  console.log('🔍 Menampilkan submenu:', targetId);
+  // TUTUP SEMUA SUBMENU LAIN
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    if (content.id !== targetId) {
+      content.style.display = 'none';
+    }
+  });
+
+  const targetContent = document.getElementById(targetId);
+  if (!targetContent) {
+    console.error('❌ Target content tidak ditemukan:', targetId);
+    return;
+  }
+
+  // Cari trigger menu
+  const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
+  if (!triggerElement) {
+    console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
+    targetContent.style.display = 'block';
+    return;
+  }
+
+  console.log('✅ Trigger ditemukan:', triggerElement);
+  const parentMenuContent = triggerElement.closest('.menu-content');
+  if (!parentMenuContent) {
+    console.warn('⚠️ Menu content parent tidak ditemukan');
+    targetContent.style.display = 'block';
+    return;
+  }
+
+  console.log('✅ Menu content parent ditemukan');
+  // CEK apakah sudah berada di posisi yang benar
+  if (triggerElement.nextElementSibling !== targetContent) {
+    parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
+    console.log('📦 Submenu dipindahkan ke posisi yang benar');
+  }
+
+  // Tampilkan submenu
+  targetContent.style.display = 'block';
+  console.log('✅ Submenu ditampilkan');
 
   // Scroll halus
   setTimeout(() => {
