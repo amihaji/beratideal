@@ -1488,7 +1488,94 @@ function applyLockSystem(progress) {
 /*************************************
 * Terapkan Progress User dari Server *
 **************************************/
-function applyExistingUserProgress(progress) {
+function BACKUP_applyExistingUserProgress(progress) {
+  console.log('📊 Apply Existing Progress FINAL');
+  window.userProgress = progress;
+  // PERKENALAN
+  if (progress.perkenalan === true) {
+    updateSubmenuLinkUI('perkenalan', 0);
+    disableSelesaiPerkenalanButton();
+    unlockModul(1);
+  }
+
+  // KONFIGURASI PROGRESS SUBMENU
+  const progressConfig = [
+    {
+      key: 'materiHari',
+      action: (h) => {
+        lockMateriVideo(h);
+        const btn = document.getElementById(`btnMateriDone${h}`);
+        if (btn) disableButtonFully(btn);
+        updateSubmenuLinkUI('materi', h);
+      }
+    },
+
+    {
+      key: 'mealplanHari',
+      action: (h) => {
+        lockMealPlanUI(h);
+        updateSubmenuLinkUI('mealplan', h);
+      }
+    },
+
+    {
+      key: 'workoutHari',
+      action: (h) => {
+        updateSubmenuLinkUI('workout', h);
+        disableButtonsAfterCompletion(h, 'workout');
+      }
+    },
+
+    {
+      key: 'waterHari',
+      action: (h) => {
+        updateSubmenuLinkUI('water', h);
+        disableButtonsAfterCompletion(h, 'water');
+      }
+    },
+
+    {
+      key: 'istirahatHari',
+      action: (h) => {
+        updateSubmenuLinkUI('istirahat', h);
+        disableButtonsAfterCompletion(h, 'istirahat');
+      }
+    },
+
+    {
+      key: 'trackingHari',
+      action: (h) => {
+        updateSubmenuLinkUI('tracking', h);
+        disableButtonsAfterCompletion(h, 'tracking');
+      }
+    },
+
+    {
+      key: 'tanyaHari',
+      action: (h) => {
+        const status = progress[`tanyaHari${h}`];
+        // anggap selesai jika ada nilai valid
+        if ( status === true || status === "true" || status === "OK" || status === 1 || status === "1" ) {
+          console.log(`🔒 Restore Tanya Coach Hari ${h}`);
+          updateSubmenuLinkUI('tanya', h);
+          disableButtonsAfterCompletion(h, 'tanya');
+        }
+      }
+    }  
+  ];
+
+  // LOOP HARI 1 - 10
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    progressConfig.forEach(cfg => {
+      const status = progress[`${cfg.key}${hariKe}`];
+      if (status === true || status === "OK") {
+        cfg.action(hariKe);
+      }
+    });
+  }
+}
+
+function BACKUP_applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
   window.userProgress = progress;
   // PERKENALAN
@@ -1562,6 +1649,7 @@ function applyExistingUserProgress(progress) {
         }
       }
     }
+  
   ];
 
   // LOOP HARI 1 - 10
@@ -1574,93 +1662,6 @@ function applyExistingUserProgress(progress) {
     });
   }
 }
-
-
-function BACKUP_applyExistingUserProgress(progress) {
-  console.log('📊 Apply Existing Progress FINAL');
-  window.userProgress = progress;
-  // PERKENALAN
-  if (progress.perkenalan === true) {
-    updateSubmenuLinkUI('perkenalan', 0);
-    disableSelesaiPerkenalanButton();
-    unlockModul(1);
-  }
-
-  // KONFIGURASI PROGRESS SUBMENU
-  const progressConfig = [
-    {
-      key: 'materiHari',
-      action: (h) => {
-        lockMateriVideo(h);
-        const btn = document.getElementById(`btnMateriDone${h}`);
-        if (btn) disableButtonFully(btn);
-        updateSubmenuLinkUI('materi', h);
-      }
-    },
-
-    {
-      key: 'mealplanHari',
-      action: (h) => {
-        lockMealPlanUI(h);
-        updateSubmenuLinkUI('mealplan', h);
-      }
-    },
-
-    {
-      key: 'workoutHari',
-      action: (h) => {
-        updateSubmenuLinkUI('workout', h);
-        disableButtonsAfterCompletion(h, 'workout');
-      }
-    },
-
-    {
-      key: 'waterHari',
-      action: (h) => {
-        updateSubmenuLinkUI('water', h);
-        disableButtonsAfterCompletion(h, 'water');
-      }
-    },
-
-    {
-      key: 'istirahatHari',
-      action: (h) => {
-        updateSubmenuLinkUI('istirahat', h);
-        disableButtonsAfterCompletion(h, 'istirahat');
-      }
-    },
-
-    {
-      key: 'trackingHari',
-      action: (h) => {
-        updateSubmenuLinkUI('tracking', h);
-        disableButtonsAfterCompletion(h, 'tracking');
-      }
-    },
-
-    {
-      key: 'tanyaHari',
-      action: (h) => {
-        console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-        updateSubmenuLinkUI('tanya', h);
-        // DISABLE FORM SETELAH SELESAI
-        disableButtonsAfterCompletion(h, 'tanya');
-      }
-    }
-
-  ];
-
-  // LOOP HARI 1 - 10
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    progressConfig.forEach(cfg => {
-      const status = progress[`${cfg.key}${hariKe}`];
-      if (status === true || status === "OK") {
-        cfg.action(hariKe);
-      }
-    });
-  }
-}
-
 
 /************************************
 * Disable button secara TOTAL (UX) *
