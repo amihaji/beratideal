@@ -513,6 +513,7 @@ body { background-color: #f8f9fa; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
 /* Styling untuk emoticon */
+.emoji-picker{ display:none; }
 .emoji-picker{
   position:relative;
   background:#fff;
@@ -1079,8 +1080,9 @@ body { background-color: #f8f9fa; }
                 
                 <!-- Tampilkan emoticon di texarea -->
                 <div class="emoji-toolbar mt-2">
-                  <button class="btn btn-light btn-sm" onclick="toggleEmojiPicker(1)"> 😊 Emoji</button>
+                  <button class="btn btn-outline-success btn-sm" onclick="toggleEmojiPicker(1)"> 😊 Emoji</button>
                 </div>
+                
                 <div class="emoji-picker" id="emojiPicker1">
                   <input type="text" class="emoji-search" placeholder="Cari emoji..." onkeyup="searchEmoji(1,this.value)">
                   <div class="emoji-category">
@@ -1121,7 +1123,6 @@ body { background-color: #f8f9fa; }
                 <button class="btn btn-primary btn-sm mt-2" id="btnSelesaiModul1" onclick="selesaiModul(1)" ><i class="fas fa-check"></i> Selesai Modul</button>
               </div>
           </div>
-
 
 
           <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
@@ -7763,38 +7764,55 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
 }
 
 const emojiDB = {
-
 smile:[
 "😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","🙂","🙃",
 "😍","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐",
 "😎","🤓","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖",
 "😫","😩","🥺","😢","😭","😤"
 ],
-
 gesture:[
 "👍","👎","👌","✌️","🤞","🤟","🤘","🤙","👏","🙌","🙏","💪",
 "👊","✊","🤛","🤜"
 ],
-
 heart:[
 "❤️","🧡","💛","💚","💙","💜","🤎","🖤","🤍","💔","❣️","💕",
 "💞","💓","💗","💖"
 ],
-
 sport:[
 "⚽","🏀","🏈","⚾","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋"
 ],
-
 food:[
 "🍎","🍌","🍓","🍇","🍉","🍍","🥭","🥑","🍕","🍔","🍟","🌭",
 "🥪","🍜","🍣","🍰","🍩"
 ],
-
 activity:[
 "🏃","🚶","🏋️","🚴","🤸","⛹️","🏌️","🏄","🏊","🤽","🤾"
 ]
-
 };
+
+/*********************
+ * Toggle Emoji Picker
+ **********************/
+function BACKUP_toggleEmojiPicker(hariKe){
+  const picker = document.getElementById(`emojiPicker${hariKe}`);
+  if(!picker){
+    console.log("❌ emoji picker tidak ditemukan");
+    return;
+  }
+  if(picker.style.display === "block"){
+    picker.style.display = "none";
+  }else{
+    picker.style.display = "block";
+  }
+}
+
+function toggleEmojiPicker(hariKe){
+  const picker = document.getElementById(`emojiPicker${hariKe}`);
+  if(!picker) return;
+  const current = window.getComputedStyle(picker).display;
+  picker.style.display = current === "none" ? "block" : "none";
+}
+
 /****************************
  * Tampilkan kategori emoji
  ****************************/
