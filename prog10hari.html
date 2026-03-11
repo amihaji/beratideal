@@ -1114,7 +1114,7 @@ padding-top:4px;
                       <input class="emoji-search" placeholder="Cari emoji...">
                       <div class="emoji-list"></div>
                       <div class="emoji-category">
-                        Kategori Emoji:
+                        Kategori :
                         <button class="btn btn-outline-light btn-sm" data-cat="recent">⭐</button>
                         <button class="btn btn-outline-light btn-sm" data-cat="smile">😀</button>
                         <button class="btn btn-outline-light btn-sm" data-cat="hand">👍</button>
@@ -7911,18 +7911,16 @@ if(e.target.classList.contains("emoji-search")){
 }
 });
 
+/***************************
+ * Keyboard Shortcut Emoji
+ ***************************/
 document.addEventListener("keyup",function(){
-
 const map={
 ":smile":"😀",
 ":sad":"😢",
 ":love":"❤️",
 ":ok":"👍"
 };
-
-/***************************
- * Keyboard Shortcut Emoji
- ***************************/
 document.querySelectorAll(".tanya-coach-box textarea")
 .forEach(textarea=>{
   Object.keys(map).forEach(k=>{
