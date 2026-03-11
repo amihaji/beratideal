@@ -513,44 +513,42 @@ body { background-color: #f8f9fa; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
 /* Styling untuk emoticon */
-.emoji-picker{
-position:absolute;
-bottom:60px;
-left:0;
-width:320px;
-background:#fff;
+.emoji-box{ margin-top:6px;}
+.emoji-toggle{
+background:#f1f1f1;
 border:1px solid #ddd;
-border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,.2);
+padding:4px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+.emoji-panel{
 display:none;
-padding:8px;
-z-index:9999;
+border:1px solid #ddd;
+border-radius:8px;
+padding:6px;
+margin-top:5px;
+background:#fff;
 }
 .emoji-search{
 width:100%;
-padding:6px;
+padding:5px;
 border:1px solid #ddd;
 border-radius:6px;
 margin-bottom:6px;
 }
-.emoji-list{
-max-height:180px;
-overflow-y:auto;
-}
+.emoji-list{ max-height:140px; overflow-y:auto; }
 .emoji-list span{
 font-size:22px;
-padding:5px;
+padding:4px;
 cursor:pointer;
 display:inline-block;
 }
-.emoji-list span:hover{
-transform:scale(1.25);
-}
+.emoji-list span:hover{ transform:scale(1.25); }
 .emoji-category{
 display:flex;
 justify-content:space-around;
-margin-top:6px;
 border-top:1px solid #eee;
+margin-top:5px;
 padding-top:4px;
 }
 
@@ -1083,22 +1081,23 @@ padding-top:4px;
                 <textarea id="pesanCoach1" placeholder="Tulis pesan ke coach..." class="form-control"></textarea>
                 
                 <!-- Tampilkan emoticon di texarea -->
-                <div id="emojiPicker" class="emoji-picker">
-                  <input id="emojiSearch" class="emoji-search" placeholder="Cari emoji...">
-                <div id="emojiList" class="emoji-list"></div>
-                <div class="emoji-category">
-                  <button data-cat="recent">⭐</button>
-                  <button data-cat="smile">😀</button>
-                  <button data-cat="hand">👍</button>
-                  <button data-cat="heart">❤️</button>
-                  <button data-cat="sport">⚽</button>
-                  <button data-cat="food">🍌</button>
-                  <button data-cat="activity">🏃</button>
-                </div>
+                <div class="emoji-box">
+                  <button type="button" class="emoji-toggle">😊 Emoji</button>
+                  <!--  <button class="btn btn-outline-success btn-sm mt-2 emoji-btn"> 😊 </button> -->
+                  <div class="emoji-panel">
+                    <input class="emoji-search" placeholder="Cari emoji...">
+                    <div class="emoji-list"></div>
+                    <div class="emoji-category">
+                      <button data-cat="recent">⭐</button>
+                      <button data-cat="smile">😀</button>
+                      <button data-cat="hand">👍</button>
+                      <button data-cat="heart">❤️</button>
+                      <button data-cat="sport">⚽</button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Tampilkan tombol kirim dan selesai -->   
-                <button class="btn btn-outline-success btn-sm mt-2 emoji-btn"> 😊 </button>
                 <button class="btn btn-primary btn-sm mt-2" onclick="kirimPesanCoach(1)"><i class="fa fa-send-o"></i> Kirim</button>
                 <button class="btn btn-secondary btn-sm mt-2" id="btnSelesaiWA1" onclick="selesaiTanyaCoach(1)" disabled><i class="fas fa-check"></i> Selesai WA</button>
               </div>
@@ -7794,134 +7793,118 @@ activity:[
 ]
 };
 
-/**************************
- * Emoji Picker Inti
- * ***********************/
-let activeTextarea=null;
-const picker=document.getElementById("emojiPicker");
-const emojiList=document.getElementById("emojiList");
-const search=document.getElementById("emojiSearch");
-document.querySelectorAll(".emoji-btn").forEach(btn=>{
-  btn.addEventListener("click",e=>{
-  activeTextarea=btn.closest(".tanya-coach-box").querySelector("textarea");
-  const rect=btn.getBoundingClientRect();
-  picker.style.top=window.scrollY+rect.bottom+"px";
-  picker.style.left=rect.left+"px";
-  picker.style.display="block";
-  showEmoji("smile");
-  });
-});
-
 /********************
-* Open Emoji Picker
-*********************/
-function openEmojiPicker(btn){
-  activeTextarea = btn.closest(".tanya-coach-box")
-  .querySelector("textarea");
-  const container = btn.closest(".tanya-coach-box");
-  /* pindahkan picker ke dalam form aktif */
-  container.appendChild(picker);
-  picker.style.display="block";
-  showEmoji("smile");
-}
-
-/******************
- * Render Emoji
- ******************/
-function showEmoji(cat){
-  emojiList.innerHTML="";
-  let list=[];
-  if(cat==="recent"){
-  list=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
-  }else{
-  list=emojiDB[cat];
+ * Emoji Picker
+ *******************/
+document.addEventListener("click",function(e){
+  // toggle panel
+  if(e.target.classList.contains("emoji-toggle")){
+    const panel=e.target.nextElementSibling;
+    panel.style.display=
+    panel.style.display==="block"?"none":"block";
+    showEmoji(panel,"smile");
   }
 
-  list.forEach(e=>{
-  const span=document.createElement("span");
-  span.textContent=e;
-  span.onclick=()=>insertEmoji(e);
-  emojiList.appendChild(span);
-  });
-}
+  // pilih kategori
+  if(e.target.dataset.cat){
+    const panel=e.target.closest(".emoji-panel");
+    showEmoji(panel,e.target.dataset.cat);
+  }
 
-/****************
- * Sisip Emoji
- ****************/
-function insertEmoji(e){
-  if(!activeTextarea) return;
-  const start=activeTextarea.selectionStart;
-  const end=activeTextarea.selectionEnd;
-  activeTextarea.value=
-  activeTextarea.value.substring(0,start)+
-  e+
-  activeTextarea.value.substring(end);
-  activeTextarea.focus();
-  saveRecent(e);
-  picker.style.display="none";
-}
-
-/****************
- * Recent Emoji
- ****************/
-function saveRecent(e){
-  let r=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
-  r=r.filter(x=>x!==e);
-  r.unshift(e);
-  r=r.slice(0,20);
-  localStorage.setItem("recentEmoji",JSON.stringify(r));
-}
-
-/*****************
- * Kategori Emoji
- *****************/
-document.querySelectorAll(".emoji-btn").forEach(btn=>{
-btn.onclick = () => openEmojiPicker(btn);
+  // klik emoji
+  if(e.target.parentElement &&
+    e.target.parentElement.classList.contains("emoji-list")){
+    const emoji=e.target.textContent;
+    const box=e.target.closest(".tanya-coach-box");
+    const textarea=box.querySelector("textarea");
+    insertEmoji(textarea,emoji);
+    saveRecentEmoji(emoji);
+  }
 });
 
 /*******************
- * Pencarian Emoji
+ * Render Emoji
  *******************/
-search.onkeyup=function(){
-  const text=this.value;
-  emojiList.innerHTML="";
-  Object.values(emojiDB).flat().forEach(e=>{
-  if(e.includes(text)){
+function showEmoji(panel,cat){
+  const list=panel.querySelector(".emoji-list");
+  list.innerHTML="";
+  let emojis=[];
+  if(cat==="recent"){
+    emojis=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
+  }else{
+    emojis=emojiDB[cat];
+  }
+  emojis.forEach(e=>{
+  const span=document.createElement("span");
+  span.textContent=e;
+  list.appendChild(span);
+  });
+}
+
+/******************
+ * Insert Emoji
+ ******************/
+function insertEmoji(textarea,emoji){
+  const start=textarea.selectionStart;
+  const end=textarea.selectionEnd;
+  textarea.value=
+  textarea.value.substring(0,start)+
+  emoji+
+  textarea.value.substring(end);
+  textarea.focus();
+}
+
+/**************
+ * Recent Emoji
+ **************/
+function saveRecentEmoji(emoji){
+  let r=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
+  r=r.filter(x=>x!==emoji);
+  r.unshift(emoji);
+  r=r.slice(0,15);
+  localStorage.setItem("recentEmoji",JSON.stringify(r));
+}
+
+/****************
+ * Search Emoji
+ ****************/
+document.addEventListener("keyup",function(e){
+if(e.target.classList.contains("emoji-search")){
+  const panel=e.target.closest(".emoji-panel");
+  const list=panel.querySelector(".emoji-list");
+  const text=e.target.value;
+  list.innerHTML="";
+  Object.values(emojiDB).flat().forEach(em=>{
+  if(em.includes(text)){
     const span=document.createElement("span");
-    span.textContent=e;
-    span.onclick=()=>insertEmoji(e);
-    emojiList.appendChild(span);
+    span.textContent=em;
+    list.appendChild(span);
   }
   });
-};
-
-/*********************
- * Auto Close Picker
- *********************/
-document.addEventListener("click",e=>{
-if(!picker.contains(e.target) &&
-  !e.target.classList.contains("emoji-btn")){
-  picker.style.display="none";
-  }
+}
 });
 
-/*************************
- * Keyboard Sortcut Emoji
- *************************/
-document.addEventListener("keyup",()=>{
-  if(!activeTextarea) return;
-  const map={
-  ":smile":"😀",
-  ":sad":"😢",
-  ":love":"❤️",
-  ":ok":"👍"
-  };
+document.addEventListener("keyup",function(){
+
+const map={
+":smile":"😀",
+":sad":"😢",
+":love":"❤️",
+":ok":"👍"
+};
+
+/***************************
+ * Keyboard Shortcut Emoji
+ ***************************/
+document.querySelectorAll(".tanya-coach-box textarea")
+.forEach(textarea=>{
   Object.keys(map).forEach(k=>{
-  if(activeTextarea.value.endsWith(k)){
-    activeTextarea.value=
-    activeTextarea.value.replace(k,map[k]);
+  if(textarea.value.endsWith(k)){
+    textarea.value=
+    textarea.value.replace(k,map[k]);
   }
   });
+});
 });
 
 </script>
