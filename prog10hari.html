@@ -513,7 +513,15 @@ body { background-color: #f8f9fa; }
 .meal-plan-preview { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; display: none; }
 
 /* Styling untuk emoticon */
-.emoji-box{ margin-top:6px;}
+.action-row{ 
+display:flex;
+align-items:center;
+gap:8px;
+flex-wrap:wrap;
+}
+.action-row button{ min-width:80px;}
+.emoji-box{ position:relative;}
+/*.emoji-box{ margin-top:6px;} */
 .emoji-toggle{
 background:#f1f1f1;
 border:1px solid #ddd;
@@ -1084,27 +1092,30 @@ padding-top:4px;
                 <!-- Tampilkan Pesan di texarea -->
                 <textarea id="pesanCoach1" placeholder="Tulis pesan ke coach..." class="form-control"></textarea>
                 
-                 <!-- Tampilkan emoticon di texarea -->
-                <div class="emoji-box">
-                  <button type="button" class="btn btn-outline-light btn-sm emoji-toggle"> 😊 </button>
-                  <div class="emoji-panel">
-                    <input class="emoji-search" placeholder="Cari emoji...">
-                    <div class="emoji-list"></div>
-                    <div class="emoji-category">Kategori Emoji:
-                      <button class="btn btn-outline-light btn-sm" data-cat="recent">⭐</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="smile">😀</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="hand">👍</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="heart">❤️</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="sport">⚽</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="food">🍌</button>
-                      <button class="btn btn-outline-light btn-sm" data-cat="activity">🚶</button>
+                <!-- Tampilkan emoticon di texarea -->
+                <div class="action-row mt-2">
+                  <div class="emoji-box">
+                    <button type="button" class="btn btn-outline-secondary btn-sm emoji-toggle">😊</button>
+                    <div class="emoji-panel">
+                      <input class="emoji-search" placeholder="Cari emoji...">
+                      <div class="emoji-list"></div>
+                      <div class="emoji-category">
+                        Kategori Emoji:
+                        <button class="btn btn-outline-light btn-sm" data-cat="recent">⭐</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="smile">😀</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="hand">👍</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="heart">❤️</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="sport">⚽</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="food">🍌</button>
+                        <button class="btn btn-outline-light btn-sm" data-cat="activity">🚶</button>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Tampilkan tombol kirim dan selesai -->   
-                <button class="btn btn-primary btn-sm mt-2" onclick="kirimPesanCoach(1)"><i class="fa fa-send-o"></i> Kirim</button>
-                <button class="btn btn-secondary btn-sm mt-2" id="btnSelesaiWA1" onclick="selesaiTanyaCoach(1)" disabled><i class="fas fa-check"></i> Selesai WA</button>
+                  <button class="btn btn-primary btn-sm" onclick="kirimPesanCoach(1)"> <i class="fa fa-send-o"></i> Kirim</button>
+                  <button class="btn btn-secondary btn-sm" id="btnSelesaiWA1" onclick="selesaiTanyaCoach(1)" disabled><i class="fas fa-check"></i> Selesai WA</button>
+
+                </div>
               </div>
             </div>
           </div>
