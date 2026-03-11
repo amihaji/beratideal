@@ -520,7 +520,10 @@ gap:8px;
 flex-wrap:wrap;
 }
 .action-row button{ min-width:80px;}
-.emoji-box{ position:relative; width:auto; }
+.emoji-box{
+position:relative;
+flex-shrink:0;
+}
 .emoji-toggle{
 background:#f1f1f1;
 border:1px solid #ddd;
@@ -530,14 +533,18 @@ cursor:pointer;
 }
 .emoji-panel{
 display:none;
+position:absolute;        /* panel menempel ke tombol emoji */ 
+top:40px;                 /* muncul tepat di bawah tombol */
+left:0;
+width:100%;               /* mengikuti lebar form */
+max-width:260px;          /* tidak boleh melewati form */
+background:#fff;
 border:1px solid #ddd;
 border-radius:8px;
 padding:6px;
-margin-top:5px;
-background:#fff;
-width:100%;                /* mengikuti lebar form */
-max-width:100%;            /* tidak boleh melewati form */
-box-sizing:border-box;     /* padding tidak menambah lebar */
+box-sizing:border-box;    /* padding tidak menambah lebar */
+overflow:hidden;
+z-index:999;
 }
 .emoji-search{
 width:100%;
@@ -552,7 +559,7 @@ max-height:140px;
 overflow-y:auto;
 display:flex;
 flex-wrap:wrap;
-gap:3px;
+gap:4px;
 }
 .emoji-list span{
 font-size:22px;
@@ -616,6 +623,10 @@ padding-top:4px;
   .emoji-list span{
     font-size:20px;
     padding:3px;
+  }
+  /* Emoji Panel tidak pernah lebih lebar dari layar.*/
+  .emoji-panel{
+    max-width:90vw;
   }
 }
 /***** AKHIR TAMPILAN MOBILE *****/
