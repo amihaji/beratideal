@@ -520,8 +520,7 @@ gap:8px;
 flex-wrap:wrap;
 }
 .action-row button{ min-width:80px;}
-.emoji-box{ position:relative;}
-/*.emoji-box{ margin-top:6px;} */
+.emoji-box{ position:relative; width:auto; }
 .emoji-toggle{
 background:#f1f1f1;
 border:1px solid #ddd;
@@ -536,6 +535,9 @@ border-radius:8px;
 padding:6px;
 margin-top:5px;
 background:#fff;
+width:100%;                /* mengikuti lebar form */
+max-width:100%;            /* tidak boleh melewati form */
+box-sizing:border-box;     /* padding tidak menambah lebar */
 }
 .emoji-search{
 width:100%;
@@ -544,7 +546,13 @@ border:1px solid #ddd;
 border-radius:6px;
 margin-bottom:6px;
 }
-.emoji-list{ max-height:140px; overflow-y:auto; }
+.emoji-list{
+max-height:140px;
+overflow-y:auto;
+display:flex;
+flex-wrap:wrap;
+gap:3px;
+}
 .emoji-list span{
 font-size:22px;
 padding:4px;
@@ -602,6 +610,11 @@ padding-top:4px;
   .card, .menu-item, .video-container, .playlist-container {
     margin-left: 2px;
     margin-right: 2px;
+  }
+  /* Emoji list */ 
+  .emoji-list span{
+    font-size:20px;
+    padding:3px;
   }
 }
 /***** AKHIR TAMPILAN MOBILE *****/
