@@ -1269,7 +1269,7 @@ background:#e0e0e0;
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwvBXfT2gsKGIC70V9a_AaKIpdc-4ySb7gu1HBhr0RIQRoMOZlb_-4U4Bbyljrb5XRy/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxezdj4n2LrDDg-5obXeitTV86_YI-AMmV68E-QNtIqXGYxxUC6luUyoBMSVWJC5Lqn/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -7660,30 +7660,31 @@ Balasan langsung ke nomor WA ini`;
 * SELESAI MODUL HARI KE
 **************************/
 async function selesaiModul(hariKe){
-  const userId = localStorage.getItem('userId');
-  if(!userId) return;
-  console.log("🚀 Menyelesaikan Modul Hari",hariKe);
-  try{
-    const response = await fetch(
-      `${URL_PROGRAM_APP}?action=completeModul&userId=${userId}&hariKe=${hariKe}`
-    );
-    const data = await response.json();
-    console.log("📡 Response completeModul:",data);
-    if(data.success){
-
-      // tampilkan pesan sistem
-      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
-      // centang submenu
-      updateSubmenuLinkUI(hariKe,'selesaimodul');
-      // disable tombol
-      disableButtonsAfterCompletion(hariKe,'selesaimodul');
-      // buka modul berikutnya
-      unlockModul(hariKe+1);
-    }
-
-  }catch(err){
-    console.error("❌ Error selesai Modul:",err);
-    showMessage( 'error', 'Gagal menyelesaikan modul', 4000, `pertemuan${hariKe}` );
+const userId = localStorage.getItem('userId');
+if(!userId) return;
+console.log("🚀 Menyelesaikan Modul Hari",hariKe);
+try{
+    const response = await fetch(URL_PROGRAM_APP,{
+    method:"POST",
+    headers:{
+    "Content-Type":"application/x-www-form-urlencoded"
+  },
+  body:new URLSearchParams({
+  action:"completeModul",
+  userId:userId,
+  hariKe:hariKe
+  })
+  });
+  const data = await response.json();
+  console.log("📡 Response completeModul:",data);
+  if(data.success){
+    showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
+    updateSubmenuLinkUI(hariKe,'selesaimodul');
+    disableButtonsAfterCompletion(hariKe,'selesaimodul');
+  }
+}catch(err){
+  console.error("❌ Error selesai Modul:",err);
+  showMessage('error','Gagal menyelesaikan modul',4000,`pertemuan${hariKe}`);
   }
 }
 
