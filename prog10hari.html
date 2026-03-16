@@ -7653,7 +7653,7 @@ Saya ingin bertanya mengenai materi hari ini.
 
 Mohon arahan dari Coach 🙏
 -------------------------------------------
-Balasan langsung ke nomor WA ini`;
+Balasan langsung ke WA ini`;
 }
 
 /*************************
@@ -7664,27 +7664,29 @@ const userId = localStorage.getItem('userId');
 if(!userId) return;
 console.log("🚀 Menyelesaikan Modul Hari",hariKe);
 try{
-    const response = await fetch(URL_PROGRAM_APP,{
+  const response = await fetch(URL_PROGRAM_APP,{
     method:"POST",
     headers:{
     "Content-Type":"application/x-www-form-urlencoded"
-  },
-  body:new URLSearchParams({
-  action:"completeModul",
-  userId:userId,
-  hariKe:hariKe
-  })
+    },
+    body:new URLSearchParams({
+    action:"completeModul",
+    userId:userId,
+    hariKe:hariKe
+    })
   });
-  const data = await response.json();
-  console.log("📡 Response completeModul:",data);
-  if(data.success){
-    showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
-    updateSubmenuLinkUI('selesaimodul',hariKe);
-    disableButtonsAfterCompletion('selesaimodul',hariKe);
-  }
-}catch(err){
-  console.error("❌ Error selesai Modul:",err);
-  showMessage('error','Gagal menyelesaikan modul',4000,`pertemuan${hariKe}`);
+    const data = await response.json();
+    console.log("📡 Response completeModul:",data);
+    if(data.success){
+      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
+      // ✔ urutan parameter benar
+      updateSubmenuLinkUI('selesaimodul',hariKe);
+      disableButtonsAfterCompletion(hariKe,'selesaimodul');
+      unlockModul(hariKe+1);
+    }
+  }catch(err){
+    console.error("❌ Error selesai Modul:",err);
+    showMessage('error','Gagal menyelesaikan modul',4000,`pertemuan${hariKe}`);
   }
 }
 
