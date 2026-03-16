@@ -1700,31 +1700,24 @@ function applyExistingUserProgress(progress) {
         disableButtonsAfterCompletion(h, 'tracking');
       }
     },
-    
+  
     {
       key:'tanyaHari',
       action:(h)=>{
-        const status = progress[`tanyaHari${h}`];
-        if(status === "OK" || status === true){
-          console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-          updateSubmenuLinkUI('tanya',h);
-          disableButtonsAfterCompletion(h,'tanya');
-        }
+        console.log(`🔒 Restore Tanya Coach Hari ${h}`);
+        updateSubmenuLinkUI('tanya',h);
+        disableButtonsAfterCompletion(h,'tanya');
       }
     },
 
     {
       key:'selesaimodulHari',
       action:(h)=>{
-        const status = progress[`selesaimodulHari${h}`];
-        if(status === "OK" || status === true){
-          console.log(`🔒 Modul Selesai hari ${h}`);
-          updateSubmenuLinkUI('selesaimodul',h);
-          disableButtonsAfterCompletion(h,'selesaimodul');
-        }
+        console.log(`🔒 Restore Modul Selesai hari ${h}`);
+        updateSubmenuLinkUI('selesaimodul',h);
+        disableButtonsAfterCompletion(h,'selesaimodul');
       }
     }
-
   ];
 
   // LOOP HARI 1 - 10
@@ -2409,7 +2402,32 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /*****************************************
 * Disable Input dan Tombol Setelah Selesai
 ******************************************/
+/*******************************************
+* Disable tombol setelah aktivitas selesai
+*******************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
+  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
+  const containerId = `${submenuType}Content${hariKe}`;
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
+    return;
+  }
+
+  // Disable tombol kecuali yang diizinkan
+  container.querySelectorAll('button').forEach(btn => {
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
+    if (!isCloseBtn && !isCekDisini) {
+      btn.disabled = true;
+      btn.style.pointerEvents = "none";
+      btn.style.opacity = "0.6";
+    }
+  });
+  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
   const containerId = `${submenuType}Content${hariKe}`;
   const container   = document.getElementById(containerId);
