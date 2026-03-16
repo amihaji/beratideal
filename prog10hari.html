@@ -1269,7 +1269,7 @@ background:#e0e0e0;
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw3wJcKNEy7qqGrhqdZevqfR9jZcaC387UTMbRzvjuxAy-h0rrMeu5KNbgSmKKz6VCv/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwvBXfT2gsKGIC70V9a_AaKIpdc-4ySb7gu1HBhr0RIQRoMOZlb_-4U4Bbyljrb5XRy/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -7630,6 +7630,39 @@ Saya ingin bertanya mengenai materi hari ini.
 Mohon arahan dari Coach 🙏
 -------------------------------------------
 Balasan langsung ke nomor WA ini`;
+}
+
+/*************************
+* SELESAI MODUL HARI KE
+**************************/
+async function selesaiModul(hariKe){
+  const userId = localStorage.getItem('userId');
+  if(!userId) return;
+  if(!confirm(`Yakin menyelesaikan Modul Hari ${hariKe}?`)){
+    return;
+  }
+  console.log("🚀 Menyelesaikan Modul Hari",hariKe);
+  try{
+    const response = await fetch(
+      `${SCRIPT_URL}?action=completeModul&userId=${userId}&hariKe=${hariKe}`
+    );
+    const data = await response.json();
+    console.log("📡 Response completeModul:",data);
+    if(data.success){
+      // tampilkan pesan sukses menggunakan fungsi message sistem
+      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}`);
+      // disable tombol submenu
+      disableButtonsAfterCompletion(hariKe,'modulselesai');
+      // update centang submenu
+      updateSubmenuLinkUI(hariKe,'modulselesai');
+      // unlock modul berikutnya
+      unlockModul(hariKe+1);
+    }
+  }catch(err){
+    console.error("❌ Error selesaiModul:",err);
+    showMessage( 'error', 'Terjadi kesalahan saat menyelesaikan modul', 3000, `pertemuan${hariKe}`
+    );
+  }
 }
 
 /*******************************
