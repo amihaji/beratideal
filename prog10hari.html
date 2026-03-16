@@ -1709,7 +1709,20 @@ function applyExistingUserProgress(progress) {
           disableButtonsAfterCompletion(h,'tanya');
         }
       }
+    },
+
+    {
+      key:'modulselesaiHari',
+      action:(h)=>{
+        const status = progress[`modulselesaiHari${h}`];
+        if(status === "OK" || status === true){
+          console.log(`🔒 Modul Selesai hari ${h}`);
+          updateSubmenuLinkUI('modulselesai',h);
+          disableButtonsAfterCompletion(h,'modulselesai');
+        }
+      }
     }
+
   ];
 
   // LOOP HARI 1 - 10
@@ -2228,7 +2241,8 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'waterHari1', type: 'water' },
     { field: 'istirahatHari1', type: 'istirahat' },
     { field: 'trackingHari1', type: 'tracking' },
-    { field: 'tanyaHari1', type: 'tanya' } 
+    { field: 'tanyaHari1', type: 'tanya' }, 
+    { field: 'modulselesaiHari1', type: 'modulselesai' } 
   ];
 
   progressMap.forEach(item => {
@@ -2247,7 +2261,8 @@ function applyCompleteProgressToUI(progress, hariKe) {
     progress.waterHari1 ||
     progress.istirahatHari1 ||
     progress.trackingHari1 ||
-    progress.tanyaHari1
+    progress.tanyaHari1 ||
+    progress.modulselesaiHari1 
   ) {
     setTimeout(() => {
       const header = document.querySelector(`[data-hari="${hariKe}"]`);
@@ -2423,12 +2438,13 @@ function updateSubmenuLinkUI(type, hariKe) {
   console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
   let link = null;
   const selectorMap = {
-    mealplan  : `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`,
-    workout   : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
-    water     : `a.menu-item.submenu-trigger[data-target="waterReminderContent${hariKe}"]`,
-    istirahat : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
-    tracking  : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
-    tanya     : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`
+    mealplan     : `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`,
+    workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
+    water        : `a.menu-item.submenu-trigger[data-target="waterReminderContent${hariKe}"]`,
+    istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
+    tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
+    tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
+    modulselesai : `a.menu-item.submenu-trigger[data-target="modulselesaiContent${hariKe}"]`,
   };
 
   // PERKENALAN tetap khusus
@@ -3936,7 +3952,8 @@ function checkAndApplyButtonStatus(userId, hariKe) {
     { key:'waterHari', type:'water' },
     { key:'istirahatHari', type:'istirahat' },
     { key:'trackingHari', type:'tracking' },
-    { key:'tanyaHari', type:'tanya' }
+    { key:'tanyaHari', type:'tanya' },
+    { key:'modulselesaiHari', type:'modulselesai' }
   ];
 
   statusMap.forEach(item => {
@@ -4287,7 +4304,8 @@ async function checkAndUnlockModulesForUser(userId) {
                 { type: 'water', field: 'waterHari1' },
                 { type: 'istirahat', field: 'istirahatHari1' },
                 { type: 'tracking', field: 'trackingHari1' },
-                { type: 'tanya', field: 'tanyaHari1' }
+                { type: 'tanya', field: 'tanyaHari1' },
+                { type: 'modulselesai', field: 'modulselesaiHari1' }
             ];
            
             progressChecks.forEach(item => {
@@ -4299,7 +4317,7 @@ async function checkAndUnlockModulesForUser(userId) {
             });
             
             // 3. Auto-expand Modul Hari 1 jika sudah ada progress
-            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.trackingHari1 || progress.tanyaHari1) {
+            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.trackingHari1 || progress.tanyaHari1 || progress.modulselesaiHari1) {
                 setTimeout(() => {
                     const header = document.querySelector('[data-hari="1"]');
                     if (header && header.classList.contains('collapsed')) {
@@ -7635,33 +7653,34 @@ Balasan langsung ke nomor WA ini`;
 /*************************
 * SELESAI MODUL HARI KE
 **************************/
+/****************************************
+* SELESAI MODUL HARI
+*****************************************/
 async function selesaiModul(hariKe){
   const userId = localStorage.getItem('userId');
   if(!userId) return;
-  if(!confirm(`Yakin menyelesaikan Modul Hari ${hariKe}?`)){
-    return;
-  }
   console.log("🚀 Menyelesaikan Modul Hari",hariKe);
   try{
     const response = await fetch(
-      `${SCRIPT_URL}?action=completeModul&userId=${userId}&hariKe=${hariKe}`
+      `${URL_PROGRAM_APP}?action=completeModul&userId=${userId}&hariKe=${hariKe}`
     );
     const data = await response.json();
     console.log("📡 Response completeModul:",data);
     if(data.success){
-      // tampilkan pesan sukses menggunakan fungsi message sistem
-      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}`);
-      // disable tombol submenu
-      disableButtonsAfterCompletion(hariKe,'modulselesai');
-      // update centang submenu
+
+      // tampilkan pesan sistem
+      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
+      // centang submenu
       updateSubmenuLinkUI(hariKe,'modulselesai');
-      // unlock modul berikutnya
+      // disable tombol
+      disableButtonsAfterCompletion(hariKe,'modulselesai');
+      // buka modul berikutnya
       unlockModul(hariKe+1);
     }
+
   }catch(err){
     console.error("❌ Error selesaiModul:",err);
-    showMessage( 'error', 'Terjadi kesalahan saat menyelesaikan modul', 3000, `pertemuan${hariKe}`
-    );
+    showMessage( 'error', 'Gagal menyelesaikan modul', 4000, `pertemuan${hariKe}` );
   }
 }
 
