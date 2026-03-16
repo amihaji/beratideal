@@ -891,7 +891,7 @@ background:#e0e0e0;
                 </a>
                 
                 <!-- SELESAI MODUL HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="modulselesaiContent1">
+                <a href="#" class="menu-item submenu-trigger" data-target="selesaimodulContent1">
                   1.8 Selesai Modul Hari Pertama
                 </a> 
               </div>
@@ -1160,11 +1160,11 @@ background:#e0e0e0;
           </div>
 
           <!-- 1.8 Selesai Modul hari pertama -->
-          <div class="submenu-content" id="modulselesaiContent1" style="display: none;">
+          <div class="submenu-content" id="selesaimodulContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Modul Pertama</h6>
-                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('modulselesaiContent1')">
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('selesaimodulContent1')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -1610,7 +1610,9 @@ function applyLockSystem(progress) {
     progress.istirahatHari1 === true ||
     progress.trackingHari1 === true ||
     progress.tanyaHari1 === true ||
-    progress.tanyaHari1 === "OK";
+    progress.tanyaHari1 === "OK"
+    progress.selesaimodulHari1 === true ||
+    progress.selesaimodulHari1 === "OK";
 
   if (sudahMulai) {
     console.log("✅ User sudah mulai program → tidak dikunci");
@@ -1712,13 +1714,13 @@ function applyExistingUserProgress(progress) {
     },
 
     {
-      key:'modulselesaiHari',
+      key:'selesaimodulHari',
       action:(h)=>{
-        const status = progress[`modulselesaiHari${h}`];
+        const status = progress[`selesaimodulHari${h}`];
         if(status === "OK" || status === true){
           console.log(`🔒 Modul Selesai hari ${h}`);
-          updateSubmenuLinkUI('modulselesai',h);
-          disableButtonsAfterCompletion(h,'modulselesai');
+          updateSubmenuLinkUI('selesaimodul',h);
+          disableButtonsAfterCompletion(h,'selesaimodul');
         }
       }
     }
@@ -2125,8 +2127,10 @@ function createSubmenuHTML(hariKe) {
         </a>
 
         <!-- Selesai Modul -->
-        <a href="#" class="menu-item" onclick="selesaiModul(${hariKe})" id="selesaiModulLink${hariKe}">
-          Selesai Modul hari ${getDayName(hariKe)}
+        <a href="#" 
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('selesaimodulContent${hariKe}', ${hariKe}, 'selesaimodul')" 
+          data-target="selesaimodulContent${hariKe}" id="selesaimodulLink${hariKe}">
+          ${hariKe}.8 Selesai Modul Hari ${getDayName(hariKe)}
         </a>
     `;
 }
@@ -2242,7 +2246,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'istirahatHari1', type: 'istirahat' },
     { field: 'trackingHari1', type: 'tracking' },
     { field: 'tanyaHari1', type: 'tanya' }, 
-    { field: 'modulselesaiHari1', type: 'modulselesai' } 
+    { field: 'selesaimodulHari1', type: 'selesaimodul' } 
   ];
 
   progressMap.forEach(item => {
@@ -2262,7 +2266,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
     progress.istirahatHari1 ||
     progress.trackingHari1 ||
     progress.tanyaHari1 ||
-    progress.modulselesaiHari1 
+    progress.selesaimodulHari1 
   ) {
     setTimeout(() => {
       const header = document.querySelector(`[data-hari="${hariKe}"]`);
@@ -2444,7 +2448,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
     tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
     tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
-    modulselesai : `a.menu-item.submenu-trigger[data-target="modulselesaiContent${hariKe}"]`,
+    selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
   };
 
   // PERKENALAN tetap khusus
@@ -3953,7 +3957,7 @@ function checkAndApplyButtonStatus(userId, hariKe) {
     { key:'istirahatHari', type:'istirahat' },
     { key:'trackingHari', type:'tracking' },
     { key:'tanyaHari', type:'tanya' },
-    { key:'modulselesaiHari', type:'modulselesai' }
+    { key:'selesaimodulHari', type:'selesaimodul' }
   ];
 
   statusMap.forEach(item => {
@@ -4305,7 +4309,7 @@ async function checkAndUnlockModulesForUser(userId) {
                 { type: 'istirahat', field: 'istirahatHari1' },
                 { type: 'tracking', field: 'trackingHari1' },
                 { type: 'tanya', field: 'tanyaHari1' },
-                { type: 'modulselesai', field: 'modulselesaiHari1' }
+                { type: 'selesaimodul', field: 'selesaimodulHari1' }
             ];
            
             progressChecks.forEach(item => {
@@ -4317,7 +4321,7 @@ async function checkAndUnlockModulesForUser(userId) {
             });
             
             // 3. Auto-expand Modul Hari 1 jika sudah ada progress
-            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.trackingHari1 || progress.tanyaHari1 || progress.modulselesaiHari1) {
+            if (progress.perkenalan || progress.materiHari1 || progress.mealplanHari1 || progress.workoutHari1 || progress.trackingHari1 || progress.tanyaHari1 || progress.selesaimodulHari1) {
                 setTimeout(() => {
                     const header = document.querySelector('[data-hari="1"]');
                     if (header && header.classList.contains('collapsed')) {
@@ -4392,7 +4396,9 @@ function checkProgressFromLocalStorage(userId) {
             userProgress.waterHari1 || 
             userProgress.istirahatHari1 ||
             userProgress.trackingHari1 || 
-            userProgress.tanyaHari1) {
+            userProgress.tanyaHari1 ||
+            userProgress.selesaimodulHari1)
+            {
             unlockModul(1);
         }
         
@@ -7653,9 +7659,6 @@ Balasan langsung ke nomor WA ini`;
 /*************************
 * SELESAI MODUL HARI KE
 **************************/
-/****************************************
-* SELESAI MODUL HARI
-*****************************************/
 async function selesaiModul(hariKe){
   const userId = localStorage.getItem('userId');
   if(!userId) return;
@@ -7671,15 +7674,15 @@ async function selesaiModul(hariKe){
       // tampilkan pesan sistem
       showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
       // centang submenu
-      updateSubmenuLinkUI(hariKe,'modulselesai');
+      updateSubmenuLinkUI(hariKe,'selesaimodul');
       // disable tombol
-      disableButtonsAfterCompletion(hariKe,'modulselesai');
+      disableButtonsAfterCompletion(hariKe,'selesaimodul');
       // buka modul berikutnya
       unlockModul(hariKe+1);
     }
 
   }catch(err){
-    console.error("❌ Error selesaiModul:",err);
+    console.error("❌ Error selesai Modul:",err);
     showMessage( 'error', 'Gagal menyelesaikan modul', 4000, `pertemuan${hariKe}` );
   }
 }
