@@ -696,6 +696,7 @@ background:#e0e0e0;
           <!-- ========================== -->
           <!-- MENU PANDUAN -->
           <!-- ========================== -->
+          <!-- MENU PANDUAN APLIKASI -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed"
                     data-bs-toggle="collapse"
@@ -710,15 +711,49 @@ background:#e0e0e0;
             <div class="collapse" id="panduanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
 
-                <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec"
-                   class="menu-item video-link">
-                  <i class="fas fa-file-video"></i>Video Panduan
+                <!-- VIDEO -->
+                <a href="#"
+                  class="menu-item video-link"
+                  data-section="panduan"
+                  data-type="youtube"
+                  data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
+                  <i class="fas fa-file-video"></i>Video Panduan Penggunaan Aplikasi
                 </a>
 
-                <a href="pdf/Panduan_Penggunaan_Aplikasi.pdf"
-                   class="menu-item">
-                  <i class="fas fa-file-pdf"></i>PDF Panduan
+                <!-- PDF -->
+                <a href="#"
+                  class="menu-item"
+                  onclick="openPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf')">
+                  <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
+
+                <!-- VIDEO CONTAINER -->
+                <div class="video-container" id="videoContainerPanduan" style="display:none;">
+                  <button class="close-video" onclick="closeVideo('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('panduan')">
+                      <i class="fas fa-play-circle"></i>
+                      <div>Klik untuk memuat video</div>
+                    </div>
+
+                    <div class="video-loading" id="videoLoadingPanduan">
+                      <div class="spinner-border"></div>
+                    </div>
+
+                    <div id="videoPlayerPanduan"></div>
+                  </div>
+                </div>
+
+                <!-- PDF CONTAINER -->
+                <div class="pdf-viewer" id="pdfViewerPanduan" style="display:none;">
+                  <button class="close-pdf" onclick="closePDF('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="pdf-container" id="pdfContainerPanduan"></div>
+                </div>
 
               </div>
             </div>
@@ -727,28 +762,64 @@ background:#e0e0e0;
           <!-- ========================== -->
           <!-- MENU PERKENALAN -->
           <!-- ========================== -->
+          <!-- MENU PANDUAN APLIKASI -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed"
                     data-bs-toggle="collapse"
-                    data-bs-target="#perkenalanContent">
+                    data-bs-target="#panduanContent">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>
-                Perkenalan
+                Panduan Penggunaan Aplikasi
               </span>
               <i class="fas fa-angle-down menu-icon"></i>
             </button>
 
-            <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
+            <div class="collapse" id="panduanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
 
-                <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM"
-                   class="menu-item video-link">
-                  <i class="fas fa-video"></i>Video Perkenalan
+                <!-- VIDEO -->
+                <a href="#"
+                  class="menu-item video-link"
+                  data-section="panduan"
+                  data-type="youtube"
+                  data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
+                  <i class="fas fa-file-video"></i>Video Panduan Penggunaan Aplikasi
                 </a>
 
-                <a href="#" class="menu-item">
-                  <i class="fas fa-check-double"></i>Selesai Perkenalan
+                <!-- PDF -->
+                <a href="#"
+                  class="menu-item"
+                  onclick="openPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf')">
+                  <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
+
+                <!-- VIDEO CONTAINER -->
+                <div class="video-container" id="videoContainerPanduan" style="display:none;">
+                  <button class="close-video" onclick="closeVideo('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+
+                  <div class="video-wrapper">
+                    <div class="video-placeholder" onclick="playVideo('panduan')">
+                      <i class="fas fa-play-circle"></i>
+                      <div>Klik untuk memuat video</div>
+                    </div>
+
+                    <div class="video-loading" id="videoLoadingPanduan">
+                      <div class="spinner-border"></div>
+                    </div>
+
+                    <div id="videoPlayerPanduan"></div>
+                  </div>
+                </div>
+
+                <!-- PDF CONTAINER -->
+                <div class="pdf-viewer" id="pdfViewerPanduan" style="display:none;">
+                  <button class="close-pdf" onclick="closePDF('panduan')">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="pdf-container" id="pdfContainerPanduan"></div>
+                </div>
 
               </div>
             </div>
@@ -4011,7 +4082,12 @@ function getHariKeFromSection(section) {
 /**********************************
 * Konvers Huruf Besar Awal String *
 ***********************************/
-function capitalizeFirst(string) {
+function capitalizeFirst(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function BACKUP_capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -7382,13 +7458,16 @@ function generateModulHTML(hariKe) {
   <!-- MODUL HARI ${hariKe} -->
   <!-- ======================= -->
 
-  <button class="menu-header" type="button"
-    data-bs-target="#pertemuan${hariKe}Content"
-    data-hari="${hariKe}"
-    style="pointer-events:none;opacity:0.6;cursor:not-allowed;">
-
-    Modul Hari ${hariLabel}
-    <i class="fas fa-lock status-lock"></i>
+  <button class="menu-header collapsed"
+          data-bs-toggle="collapse"
+          data-bs-target="#pertemuan${h}Content"
+          data-hari="${h}">
+    <span>
+      <i class="fas fa-angle-double-right me-2"></i>
+      Modul Hari ${getDayName(h)}
+      <i class="fas fa-lock status-lock ms-2"></i>
+    </span>
+    <i class="fas fa-angle-down menu-icon"></i>
   </button>
 
   <div id="pertemuan${hariKe}Content" class="menu-content collapse">
