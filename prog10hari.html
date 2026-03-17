@@ -700,6 +700,7 @@ background:#e0e0e0;
         <!------------------------------->
         <!-- MENU UTAMA FIT CHALLENGE  -->
         <!------------------------------->
+      
         <div class="menu-accordion" id="menuAccordion">
           <!--------------------------->
           <!-- MENU PANDUAN APLIKASI -->
@@ -817,6 +818,7 @@ background:#e0e0e0;
             </div>
           </div>
            
+          <div id="containerModul"></div>
           <!----------------------------->
           <!-- MENU MODUL HARI PERTAMA -->
           <!-----------------------------> 
@@ -2617,6 +2619,10 @@ function applyReadOnlyModeToSubmenu(container) {
 *****************************/
 function setupAllComponents() {
   console.log('🔧 Setting up all components...');
+  
+  // Generate Seluruh Modul
+  generateAllModul();
+
   // DATA LOGIN
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName'); 
@@ -7786,6 +7792,127 @@ function getDayName(hariKe) {
     };
     return dayNames[hariKe] || `ke-${hariKe}`;
 }
+/************************
+ * MAPPING VIDEO + PDF  *
+ ************************/
+const materiConfig = {
+  1: { video: 'materi1.mp4', pdf: 'modul1.pdf' },
+  2: { video: 'materi2.mp4', pdf: 'modul2.pdf' },
+  3: { video: 'materi3.mp4', pdf: 'modul3.pdf' },
+  4: { video: 'materi4.mp4', pdf: 'modul4.pdf' },
+  5: { video: 'materi5.mp4', pdf: 'modul5.pdf' },
+  6: { video: 'materi6.mp4', pdf: 'modul6.pdf' },
+  7: { video: 'materi7.mp4', pdf: 'modul7.pdf' },
+  8: { video: 'materi8.mp4', pdf: 'modul8.pdf' },
+  9: { video: 'materi9.mp4', pdf: 'modul9.pdf' },
+  10:{ video: 'materi10.mp4', pdf: 'modul10.pdf' }
+};
+
+/***********************************
+ * GENERATOR MODUL (MENU + SUBMENU)
+ **********************************/
+function generateModulHTML(hariKe) {
+  const hariLabel = getDayName(hariKe);
+  return `
+  <!-- ======================= -->
+  <!-- MODUL HARI ${hariKe} -->
+  <!-- ======================= -->
+
+  <button class="menu-header" type="button"
+    data-bs-target="#pertemuan${hariKe}Content"
+    data-hari="${hariKe}"
+    style="pointer-events:none;opacity:0.6;cursor:not-allowed;">
+
+    Modul Hari ${hariLabel}
+    <i class="fas fa-lock status-lock"></i>
+  </button>
+
+  <div id="pertemuan${hariKe}Content" class="menu-content collapse">
+    <a href="#" class="menu-item submenu-trigger" data-target="materiContent${hariKe}">
+      ${hariKe}.1 Materi Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="mealplanContent${hariKe}">
+      ${hariKe}.2 Meal Plan Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="workoutContent${hariKe}">
+      ${hariKe}.3 Workout Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="waterContent${hariKe}">
+      ${hariKe}.4 Water Reminder Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="istirahatContent${hariKe}">
+      ${hariKe}.5 Waktu Istirahat Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="trackingContent${hariKe}">
+      ${hariKe}.6 Data Tracking Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="tanyaContent${hariKe}">
+      ${hariKe}.7 Tanya Coach Hari ${hariLabel}
+    </a>
+    <a href="#" class="menu-item submenu-trigger" data-target="selesaimodulContent${hariKe}">
+      ${hariKe}.8 Selesai Modul Hari ${hariLabel}
+    </a>
+  </div>
+  ${generateSelesaiModulContent(hariKe)}
+  `;
+}
+
+/***********************************
+ * GENERATE CONTENT "SELESAI MODUL"
+ **********************************/
+function generateSelesaiModulContent(hariKe) {
+  const hariLabel = getDayName(hariKe);
+
+  return `
+  <div class="submenu-content" id="selesaimodulContent${hariKe}" style="display:none;">
+    <div class="border p-3 bg-light mt-2 mb-2">
+
+      <div class="card-title p-1 mb-2 position-relative"
+        style="text-align:center;color:#fff;background:#002266;border-bottom:5px solid #facc00;">
+
+        <h6 class="mt-1 mb-1">Modul Hari ${hariLabel}</h6>
+
+        <button type="button"
+          class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2"
+          onclick="hideSubmenu('selesaimodulContent${hariKe}')">
+          <i class="fas fa-times"></i>
+        </button>
+
+      </div>
+
+      <div style="border-left:4px solid #b1b1b1;padding-left:10px;margin-top:10px;">
+        <p>
+        <b>Apakah semua materi dan aktifitas di Modul Hari ${hariLabel}</b><br>
+        <b>sudah diselesaikan dengan baik?</b><br>
+        Klik tombol di bawah untuk lanjut ke modul berikutnya
+        </p>
+
+        <button class="btn btn-primary btn-sm mt-2"
+          id="btnSelesaiModul${hariKe}"
+          onclick="selesaiModul(${hariKe})">
+
+          <i class="fas fa-check"></i> Selesai Modul
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+  `;
+}
+
+/***********************
+ * GENERATE SEMUA MODUL 
+ ***********************/
+function generateAllModul() {
+  const container = document.getElementById('containerModul');
+  let html = '';
+  for (let h = 1; h <= 10; h++) {
+    html += generateModulHTML(h);
+  }
+  container.innerHTML = html;
+}
+
 /**************************************************************************
  * Fungsi universal untuk menampilkan pesan
  * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
