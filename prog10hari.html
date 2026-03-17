@@ -2222,15 +2222,12 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 /*****************************/
 function applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
-
   if (!window.userProgress) {
     window.userProgress = {};
   }
-
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
   }
-
   const progressMap = [
     { field: 'materiHari1', type: 'materi' },
     { field: 'mealplanHari1', type: 'mealplan' },
@@ -2241,12 +2238,12 @@ function applyCompleteProgressToUI(progress, hariKe) {
     { field: 'tanyaHari1', type: 'tanya' }, 
     { field: 'selesaimodulHari1', type: 'selesaimodul' } 
   ];
-
+  
   progressMap.forEach(item => {
-    if (progress[item.field] === true) {
+    if (progress[item.field] === true || progress[item.field] === "OK") {
       window.userProgress[item.field] = true;
       updateSubmenuLinkUI(item.type, hariKe);
-      disableButtonsAfterCompletion(hariKe, item.type); // ✅ semua type ikut lock
+      disableButtonsAfterCompletion(hariKe, item.type);
     }
   });
 
