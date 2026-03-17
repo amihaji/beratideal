@@ -711,23 +711,20 @@ background:#e0e0e0;
             <div class="collapse" id="panduanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
 
-                <!-- VIDEO -->
-                <a href="#"
-                  class="menu-item video-link"
-                  data-section="panduan"
-                  data-type="youtube"
+                <!-- VIDEO Tutorial Panduan Aplikasi -->
+                <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec"
+                  class="menu-item video-link" data-section="panduan" data-type="youtube"
                   data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
                   <i class="fas fa-file-video"></i>Video Panduan Penggunaan Aplikasi
                 </a>
 
-                <!-- PDF -->
-                <a href="#"
-                  class="menu-item"
-                  onclick="openPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf')">
+                <!-- PDF Panduan Penggunaan Aplikasi -->
+                <a href="pdf/Panduan_Penggunaan_Aplikasi.pdf" 
+                  class="menu-item" id="pdfPanduanLink">
                   <i class="fas fa-file-pdf"></i>PDF Panduan Penggunaan Aplikasi
                 </a>
 
-                <!-- VIDEO CONTAINER -->
+                <!-- VIDEO PLAYER CONTAINER UNTUK PANDUAN-->
                 <div class="video-container" id="videoContainerPanduan" style="display:none;">
                   <button class="close-video" onclick="closeVideo('panduan')">
                     <i class="fas fa-times"></i>
@@ -738,21 +735,21 @@ background:#e0e0e0;
                       <i class="fas fa-play-circle"></i>
                       <div>Klik untuk memuat video</div>
                     </div>
-
                     <div class="video-loading" id="videoLoadingPanduan">
                       <div class="spinner-border"></div>
                     </div>
-
                     <div id="videoPlayerPanduan"></div>
                   </div>
                 </div>
 
-                <!-- PDF CONTAINER -->
+                <!-- PDF VIEWER CONTAINER UNTUK PANDUAN -->
                 <div class="pdf-viewer" id="pdfViewerPanduan" style="display:none;">
                   <button class="close-pdf" onclick="closePDF('panduan')">
                     <i class="fas fa-times"></i>
                   </button>
-                  <div class="pdf-container" id="pdfContainerPanduan"></div>
+                  <div class="pdf-container" id="pdfContainerPanduan">
+                    <!-- PDF akan dimuat di sini -->
+                  </div>
                 </div>
 
               </div>
@@ -776,25 +773,29 @@ background:#e0e0e0;
             <div class="collapse" id="perkenalanContent" data-bs-parent="#menuAccordion">
               <div class="menu-content">
 
-                <!-- VIDEO 1 -->
-                <a href="#"
-                  class="menu-item video-link"
-                  data-section="perkenalan"
-                  data-type="youtube"
+                <!-- VIDEO 1 YOUTUBE -->
+                <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM"
+                  class="menu-item video-link" data-section="perkenalan" data-type="youtube"
                   data-url="https://www.youtube.com/watch?v=9DoHhx9jlGM">
-                  <i class="fas fa-video"></i>Alasan Mengapa Herbalife
+                  <i class="fas fa-video"></i>1. Personal Diet Partner
                 </a>
 
-                <!-- VIDEO 2 -->
-                <a href="#"
-                  class="menu-item video-link"
-                  data-section="perkenalan"
-                  data-type="local"
+                <!-- VIDEO 2 YOUTUBE -->
+                <a href="https://www.youtube.com/watch?v=9DoHhx9jlGM"
+                  class="menu-item video-link" data-section="perkenalan" data-type="youtube"
+                  data-url="https://www.youtube.com/watch?v=9DoHhx9jlGM">
+                  <i class="fas fa-video"></i>2. Alasan Mengapa Herbalife
+                </a>
+
+
+                <!-- VIDEO 3 LOCAL -->
+                <a href="/video/Live Best Your Best Life ! - 360.mp4"
+                  class="menu-item video-link" data-section="perkenalan" data-type="local"
                   data-url="video/Live Best Your Best Life ! - 360.mp4">
-                  <i class="fas fa-video"></i>Live Best Your Best Life
+                  <i class="fas fa-video"></i>3. Live Best Your Best Life
                 </a>
 
-                <!-- VIDEO CONTAINER -->
+                <!-- VIDEO PLAYER CONTAINER UNTUK PERKENALAN -->
                 <div class="video-container" id="videoContainerPerkenalan" style="display:none;">
                   <button class="close-video" onclick="closeVideo('perkenalan')">
                     <i class="fas fa-times"></i>
@@ -805,15 +806,16 @@ background:#e0e0e0;
                       <i class="fas fa-play-circle"></i>
                       <div>Klik untuk memuat video</div>
                     </div>
-
                     <div class="video-loading" id="videoLoadingPerkenalan">
                       <div class="spinner-border"></div>
                     </div>
-
                     <div id="videoPlayerPerkenalan"></div>
                   </div>
                 </div>
 
+                <a href="#" class="menu-item">
+                  <i class="fas fa-check-double"></i>Selesai Perkenalan
+                </a>     
               </div>
             </div>
           </div>
@@ -1285,7 +1287,7 @@ function applyExistingUserProgress(progress) {
       key: 'materiHari',
       action: (h) => {
         lockMateriVideo(h);
-        const btn = document.getElementById(`btnMateriDone${h}`);
+        const btn = document.getElementById(`btnMateriDone${hariKe}`);
         if (btn) disableButtonFully(btn);
         updateSubmenuLinkUI('materi', h);
       }
@@ -1334,7 +1336,7 @@ function applyExistingUserProgress(progress) {
     {
       key:'tanyaHari',
       action:(h)=>{
-        console.log(`🔒 Restore Tanya Coach Hari ${h}`);
+        console.log(`🔒 Restore Tanya Coach Hari ${hariKe}`);
         updateSubmenuLinkUI('tanya',h);
         disableButtonsAfterCompletion(h,'tanya');
       }
@@ -1343,7 +1345,7 @@ function applyExistingUserProgress(progress) {
     {
       key:'selesaimodulHari',
       action:(h)=>{
-        console.log(`🔒 Restore Modul Selesai hari ${h}`);
+        console.log(`🔒 Restore Modul Selesai hari ${hariKe}`);
         updateSubmenuLinkUI('selesaimodul',h);
         disableButtonsAfterCompletion(h,'selesaimodul');
       }
@@ -7453,8 +7455,8 @@ function generateModulHTML(hariKe) {
 
   <button class="menu-header collapsed"
           data-bs-toggle="collapse"
-          data-bs-target="#pertemuan${h}Content"
-          data-hari="${h}">
+          data-bs-target="#pertemuan${hariKe}Content"
+          data-hari="${hariKe}">
     <span>
       <i class="fas fa-angle-double-right me-2"></i>
       Modul Hari ${getDayName(h)}
