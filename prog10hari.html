@@ -3498,7 +3498,7 @@ function fallbackToIframe(section, pdfUrl) {
 /***********************
 * Buka PDF di Tab Baru *
 ************************/
-function BACKUP_openPDFInNewTab(section) {
+function openPDFInNewTab(section) {
     if (currentPDFData.url) {
         window.open(currentPDFData.url, '_blank');
     }
@@ -3507,7 +3507,7 @@ function BACKUP_openPDFInNewTab(section) {
 /*******************************************
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
-function BACKUP_closePDF(section) {
+function closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
@@ -7587,14 +7587,13 @@ function generateModulHTML(hariKe) {
   ${generateSelesaiModulContent(hariKe)}
   `;
 }
+
 /*****************************************
 * GENERATE SEMUA SUBMENU CONTENT
 ******************************************/
 function generateAllSubmenuContent(hariKe) {
   const hariLabel = getDayName(hariKe);
-
   return `
-
   <!-- ========================= -->
   <!-- 1.1 MATERI (VIDEO ONLY) -->
   <!-- ========================= -->
