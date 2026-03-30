@@ -3498,7 +3498,7 @@ function fallbackToIframe(section, pdfUrl) {
 /***********************
 * Buka PDF di Tab Baru *
 ************************/
-function openPDFInNewTab(section) {
+function BACKUP_openPDFInNewTab(section) {
     if (currentPDFData.url) {
         window.open(currentPDFData.url, '_blank');
     }
@@ -3507,7 +3507,7 @@ function openPDFInNewTab(section) {
 /*******************************************
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
-function closePDF(section) {
+function BACKUP_closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
@@ -7505,82 +7505,100 @@ function getDayName(hariKe) {
  * MAPPING VIDEO + PDF  *
  ************************/
 const materiConfig = {
-  1: { video: 'materi1.mp4', pdf: 'modul1.pdf' },
-  2: { video: 'materi2.mp4', pdf: 'modul2.pdf' },
-  3: { video: 'materi3.mp4', pdf: 'modul3.pdf' },
-  4: { video: 'materi4.mp4', pdf: 'modul4.pdf' },
-  5: { video: 'materi5.mp4', pdf: 'modul5.pdf' },
-  6: { video: 'materi6.mp4', pdf: 'modul6.pdf' },
-  7: { video: 'materi7.mp4', pdf: 'modul7.pdf' },
-  8: { video: 'materi8.mp4', pdf: 'modul8.pdf' },
-  9: { video: 'materi9.mp4', pdf: 'modul9.pdf' },
-  10:{ video: 'materi10.mp4', pdf: 'modul10.pdf' }
+  1:{video:'video/m1.mp4', mealplan:'pdf/mp1.pdf', workout:'pdf/w1.pdf', water:'pdf/wt1.pdf', istirahat:'pdf/is1.pdf'},
+  2:{video:'video/m2.mp4', mealplan:'pdf/mp2.pdf', workout:'pdf/w2.pdf', water:'pdf/wt2.pdf', istirahat:'pdf/is2.pdf'},
+  3:{video:'video/m3.mp4', mealplan:'pdf/mp3.pdf', workout:'pdf/w3.pdf', water:'pdf/wt3.pdf', istirahat:'pdf/is3.pdf'},
+  4:{video:'video/m4.mp4', mealplan:'pdf/mp4.pdf', workout:'pdf/w4.pdf', water:'pdf/wt4.pdf', istirahat:'pdf/is4.pdf'},
+  5:{video:'video/m5.mp4', mealplan:'pdf/mp5.pdf', workout:'pdf/w5.pdf', water:'pdf/wt5.pdf', istirahat:'pdf/is5.pdf'},
+  6:{video:'video/m6.mp4', mealplan:'pdf/mp6.pdf', workout:'pdf/w6.pdf', water:'pdf/wt6.pdf', istirahat:'pdf/is6.pdf'},
+  7:{video:'video/m7.mp4', mealplan:'pdf/mp7.pdf', workout:'pdf/w7.pdf', water:'pdf/wt7.pdf', istirahat:'pdf/is7.pdf'},
+  8:{video:'video/m8.mp4', mealplan:'pdf/mp8.pdf', workout:'pdf/w8.pdf', water:'pdf/wt8.pdf', istirahat:'pdf/is8.pdf'},
+  9:{video:'video/m9.mp4', mealplan:'pdf/mp9.pdf', workout:'pdf/w9.pdf', water:'pdf/wt9.pdf', istirahat:'pdf/is9.pdf'},
+  10:{video:'video/m10.mp4', mealplan:'pdf/mp10.pdf', workout:'pdf/w10.pdf', water:'pdf/wt10.pdf', istirahat:'pdf/is10.pdf'}
 };
 
-/***********************************
- * GENERATOR MODUL (MENU + SUBMENU)
- **********************************/
+/*****************************************
+* GENERATE MODUL (MENU + SUBMENU + CONTENT)
+******************************************/
 function generateModulHTML(hariKe) {
   const hariLabel = getDayName(hariKe);
+
   return `
   <!-- ======================= -->
   <!-- MODUL HARI ${hariKe} -->
   <!-- ======================= -->
 
-  <button class="menu-header collapsed"
-          data-bs-toggle="collapse"
-          data-bs-target="#pertemuan${hariKe}Content"
-          data-hari="${hariKe}">
-    <span>
-      <i class="fas fa-angle-double-right me-2"></i>
-      Modul Hari ${getDayName(hariKe)}
-      <i class="fas fa-lock status-lock ms-2"></i>
-    </span>
-    <i class="fas fa-angle-down menu-icon"></i>
-  </button>
+  <div class="menu-accordion-item">
+    <button class="menu-header collapsed"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#pertemuan${hariKe}Content"
+      data-hari="${hariKe}">
+      
+      <span>
+        <i class="fas fa-angle-double-right me-2"></i>
+        Modul Hari ${hariLabel}
+        <i class="fas fa-lock status-lock ms-2"></i>
+      </span>
 
-  <div id="pertemuan${hariKe}Content" class="menu-content collapse">
-    <a href="#" class="menu-item submenu-trigger" data-target="materiContent${hariKe}">
-      ${hariKe}.1 Materi Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="mealplanContent${hariKe}">
-      ${hariKe}.2 Meal Plan Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="workoutContent${hariKe}">
-      ${hariKe}.3 Workout Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="waterContent${hariKe}">
-      ${hariKe}.4 Water Reminder Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="istirahatContent${hariKe}">
-      ${hariKe}.5 Waktu Istirahat Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="trackingContent${hariKe}">
-      ${hariKe}.6 Data Tracking Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="tanyaContent${hariKe}">
-      ${hariKe}.7 Tanya Coach Hari ${hariLabel}
-    </a>
-    <a href="#" class="menu-item submenu-trigger" data-target="selesaimodulContent${hariKe}">
-      ${hariKe}.8 Selesai Modul Hari ${hariLabel}
-    </a>
+      <i class="fas fa-angle-down menu-icon"></i>
+    </button>
+
+    <div class="collapse" id="pertemuan${hariKe}Content" data-bs-parent="#menuAccordion">
+      <div class="menu-content">
+
+        <a href="#" class="menu-item submenu-trigger" data-target="materiContent${hariKe}">
+          ${hariKe}.1 Materi Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="mealplanContent${hariKe}">
+          ${hariKe}.2 Meal Plan Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="workoutContent${hariKe}">
+          ${hariKe}.3 Workout Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="waterContent${hariKe}">
+          ${hariKe}.4 Water Reminder Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="istirahatContent${hariKe}">
+          ${hariKe}.5 Waktu Istirahat Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="trackingContent${hariKe}">
+          ${hariKe}.6 Data Tracking Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="tanyaContent${hariKe}">
+          ${hariKe}.7 Tanya Coach Hari ${hariLabel}
+        </a>
+
+        <a href="#" class="menu-item submenu-trigger" data-target="selesaimodulContent${hariKe}">
+          ${hariKe}.8 Selesai Modul Hari ${hariLabel}
+        </a>
+
+      </div>
+    </div>
   </div>
-  ${generateAllSubmenuContent(hariKe)}   <!-- ✅ TAMBAHAN INI -->
+
+  ${generateAllSubmenuContent(hariKe)}
   ${generateSelesaiModulContent(hariKe)}
   `;
 }
-
-/***********************************
- * GENERATOR ISI MODUL DARI SUBMENU
- **********************************/
-function generateAllSubmenuContent(hariKe){
+/*****************************************
+* GENERATE SEMUA SUBMENU CONTENT
+******************************************/
+function generateAllSubmenuContent(hariKe) {
   const hariLabel = getDayName(hariKe);
+
   return `
+
   <!-- ========================= -->
-  <!-- MATERI -->
+  <!-- 1.1 MATERI (VIDEO ONLY) -->
   <!-- ========================= -->
   <div class="submenu-content" id="materiContent${hariKe}" style="display:none;">
-    
     <div class="border p-3 bg-light mt-2 mb-2">
 
       <div class="card-title p-1 mb-2 position-relative"
@@ -7593,117 +7611,129 @@ function generateAllSubmenuContent(hariKe){
           onclick="hideSubmenu('materiContent${hariKe}')">
           <i class="fas fa-times"></i>
         </button>
-
       </div>
 
-      <!-- VIDEO -->
-      <div class="mb-2">
-        <video id="videoMateri${hariKe}" width="100%" controls>
-          <source src="${materiConfig[hariKe].video}" type="video/mp4">
-        </video>
-      </div>
+      <a href="${materiConfig[hariKe].video}"
+        class="menu-item video-link"
+        data-section="pertemuan${hariKe}"
+        data-type="local"
+        data-url="${materiConfig[hariKe].video}">
+        <i class="fas fa-file-video"></i> Materi Hari ${hariLabel}
+      </a>
 
-      <!-- BUTTON CEK -->
-      <button class="btn btn-success btn-sm mt-2"
-        id="btnCekDisini${hariKe}"
-        onclick="handleCekMateri(${hariKe})">
-        <i class="fas fa-check"></i> Cek Disini
-      </button>
-
-      <!-- PDF BUTTON -->
-      <button class="btn btn-warning btn-sm mt-2"
-        onclick="openPDF(${hariKe})">
-        <i class="fas fa-file-pdf"></i> Lihat PDF
-      </button>
-
-      <!-- PDF VIEWER -->
-      <div id="pdfContainer${hariKe}" style="display:none; margin-top:10px;">
-        <canvas id="pdfCanvas${hariKe}"></canvas>
-        <button class="btn btn-danger btn-sm mt-2 close-pdf"
-          onclick="closePDF(${hariKe})">
-          Close PDF
-        </button>
-      </div>
-
-    </div>
-</div>
-`;
-}
-
-function BACKUP_generateAllSubmenuContent(hariKe){
-  const hariLabel = getDayName(hariKe);
-  return `
-  <!-- ========================= -->
-  <!-- MATERI -->
-  <!-- ========================= -->
-  <div class="submenu-content" id="materiContent${hariKe}" style="display:none;">
-    <div class="border p-3 bg-light mt-2 mb-2">
-      <div class="card-title p-1 mb-2 position-relative"
-        style="text-align:center;color:#fff;background:#002266;border-bottom:5px solid #facc00;">
-        <h6 class="mt-1 mb-1">Materi Hari ${hariLabel}</h6>
-        <button type="button"
-          class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2"
-          onclick="hideSubmenu('materiContent${hariKe}')">
+      <div class="video-container" id="videoContainerPertemuan${hariKe}" style="display:none;">
+        <button class="close-video" onclick="closeVideo('pertemuan${hariKe}')">
           <i class="fas fa-times"></i>
         </button>
+        <div class="video-wrapper">
+          <div class="video-placeholder" onclick="playVideo('pertemuan${hariKe}')">
+            <i class="fas fa-play-circle"></i>
+          </div>
+          <div id="videoPlayerPertemuan${hariKe}"></div>
+        </div>
       </div>
 
-      <!-- VIDEO -->
-      <div class="mb-2">
-        <video id="videoMateri${hariKe}" width="100%" controls>
-          <source src="${materiConfig[hariKe].video}" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- BUTTON CEK -->
-      <button class="btn btn-success btn-sm mt-2"
-        id="btnCekDisini${hariKe}"
-        onclick="handleCekMateri(${hariKe})">
-        <i class="fas fa-check"></i> Cek Disini
-      </button>
-
-      <!-- PDF BUTTON -->
-      <button class="btn btn-warning btn-sm mt-2"
-        onclick="openPDF(${hariKe})">
-        <i class="fas fa-file-pdf"></i> Lihat PDF
-      </button>
-
-      <!-- PDF VIEWER -->
-      <div id="pdfContainer${hariKe}" style="display:none; margin-top:10px;">
-        <canvas id="pdfCanvas${hariKe}"></canvas>
-        <button class="btn btn-danger btn-sm mt-2 close-pdf"
-          onclick="closePDF(${hariKe})">
-          Close PDF
-        </button>
-      </div>
     </div>
   </div>
 
+
+  <!-- ========================= -->
+  <!-- 1.2 MEAL PLAN -->
+  <!-- ========================= -->
   <div class="submenu-content" id="mealplanContent${hariKe}" style="display:none;">
-    <div id="jadwalMealplan-list${hariKe > 1 ? hariKe : ''}"></div>
+    <div class="border p-3 bg-light mt-2 mb-2">
+
+      <button class="btn btn-primary btn-sm pdf-link"
+        data-section="mealplan${hariKe}"
+        data-url="${materiConfig[hariKe].mealplan}">
+        Cek Disini
+      </button>
+
+      <div class="pdf-viewer" id="pdfViewerMealplan${hariKe}" style="display:none;">
+        <button class="close-pdf" onclick="closePDF('mealplan${hariKe}')">X</button>
+        <div class="pdf-container" id="pdfContainerMealplan${hariKe}"></div>
+      </div>
+
+    </div>
   </div>
 
+
+  <!-- ========================= -->
+  <!-- 1.3 WORKOUT -->
+  <!-- ========================= -->
   <div class="submenu-content" id="workoutContent${hariKe}" style="display:none;">
-    <div id="olahragaKardio-list${hariKe > 1 ? hariKe : ''}"></div>
+    <button class="btn btn-primary btn-sm pdf-link"
+      data-section="workout${hariKe}"
+      data-url="${materiConfig[hariKe].workout}">
+      Cek Disini
+    </button>
+
+    <div class="pdf-viewer" id="pdfViewerWorkout${hariKe}" style="display:none;">
+      <button class="close-pdf" onclick="closePDF('workout${hariKe}')">X</button>
+      <div class="pdf-container" id="pdfContainerWorkout${hariKe}"></div>
+    </div>
   </div>
 
+
+  <!-- ========================= -->
+  <!-- 1.4 WATER -->
+  <!-- ========================= -->
   <div class="submenu-content" id="waterContent${hariKe}" style="display:none;">
-    <div id="airputihRadioBtn${hariKe > 1 ? hariKe : ''}"></div>
+    <button class="btn btn-primary btn-sm pdf-link"
+      data-section="water${hariKe}"
+      data-url="${materiConfig[hariKe].water}">
+      Cek Disini
+    </button>
+
+    <div class="pdf-viewer" id="pdfViewerWater${hariKe}" style="display:none;">
+      <button class="close-pdf" onclick="closePDF('water${hariKe}')">X</button>
+      <div class="pdf-container" id="pdfContainerWater${hariKe}"></div>
+    </div>
   </div>
 
+
+  <!-- ========================= -->
+  <!-- 1.5 ISTIRAHAT -->
+  <!-- ========================= -->
   <div class="submenu-content" id="istirahatContent${hariKe}" style="display:none;">
-    <h6>Istirahat Hari ${hariLabel}</h6>
+    <button class="btn btn-primary btn-sm pdf-link"
+      data-section="istirahat${hariKe}"
+      data-url="${materiConfig[hariKe].istirahat}">
+      Cek Disini
+    </button>
+
+    <div class="pdf-viewer" id="pdfViewerIstirahat${hariKe}" style="display:none;">
+      <button class="close-pdf" onclick="closePDF('istirahat${hariKe}')">X</button>
+      <div class="pdf-container" id="pdfContainerIstirahat${hariKe}"></div>
+    </div>
   </div>
 
+
+  <!-- ========================= -->
+  <!-- 1.6 TRACKING -->
+  <!-- ========================= -->
   <div class="submenu-content" id="trackingContent${hariKe}" style="display:none;">
     <h6>Tracking Hari ${hariLabel}</h6>
   </div>
 
+  <!-- ========================= -->
+  <!-- 1.7 TANYA -->
+  <!-- ========================= -->
   <div class="submenu-content" id="tanyaContent${hariKe}" style="display:none;">
-    <textarea id="pesanCoach${hariKe}"></textarea>
-    <button id="btnSelesaiWA${hariKe}" disabled>Selesai WA</button>
+    <textarea id="pesanCoach${hariKe}" class="form-control"></textarea>
   </div>
+
   `;
+}
+
+function handleCekMateri(hariKe){
+  console.log("✅ Materi dicek hari", hariKe);
+  const btn = document.getElementById(`btnCekDisini${hariKe}`);
+  if(btn){
+    btn.disabled = true;
+  }
+  updateSubmenuLinkUI('materi', hariKe);
+  disableButtonsAfterCompletion(hariKe, 'materi');
 }
 
 /***********************************
@@ -7755,13 +7785,15 @@ function generateSelesaiModulContent(hariKe) {
  ***********************/
 function generateAllModul() {
   const container = document.getElementById('containerModul');
+  if (!container) return;
   let html = '';
-  for (let hari = 1; hari <= 10; hari++) {
-    html += generateModulHTML(hari);
+  for (let i = 1; i <= 10; i++) {
+    html += generateModulHTML(i);
   }
   container.innerHTML = html;
+  // WAJIB
+  setupPDFLinks();
 }
-
 
 
 /**************************************************************************
