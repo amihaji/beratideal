@@ -7580,6 +7580,63 @@ function generateAllSubmenuContent(hariKe){
   <!-- MATERI -->
   <!-- ========================= -->
   <div class="submenu-content" id="materiContent${hariKe}" style="display:none;">
+    
+    <div class="border p-3 bg-light mt-2 mb-2">
+
+      <div class="card-title p-1 mb-2 position-relative"
+        style="text-align:center;color:#fff;background:#002266;border-bottom:5px solid #facc00;">
+        
+        <h6 class="mt-1 mb-1">Materi Hari ${hariLabel}</h6>
+
+        <button type="button"
+          class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2"
+          onclick="hideSubmenu('materiContent${hariKe}')">
+          <i class="fas fa-times"></i>
+        </button>
+
+      </div>
+
+      <!-- VIDEO -->
+      <div class="mb-2">
+        <video id="videoMateri${hariKe}" width="100%" controls>
+          <source src="${materiConfig[hariKe].video}" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- BUTTON CEK -->
+      <button class="btn btn-success btn-sm mt-2"
+        id="btnCekDisini${hariKe}"
+        onclick="handleCekMateri(${hariKe})">
+        <i class="fas fa-check"></i> Cek Disini
+      </button>
+
+      <!-- PDF BUTTON -->
+      <button class="btn btn-warning btn-sm mt-2"
+        onclick="openPDF(${hariKe})">
+        <i class="fas fa-file-pdf"></i> Lihat PDF
+      </button>
+
+      <!-- PDF VIEWER -->
+      <div id="pdfContainer${hariKe}" style="display:none; margin-top:10px;">
+        <canvas id="pdfCanvas${hariKe}"></canvas>
+        <button class="btn btn-danger btn-sm mt-2 close-pdf"
+          onclick="closePDF(${hariKe})">
+          Close PDF
+        </button>
+      </div>
+
+    </div>
+</div>
+`;
+}
+
+function BACKUP_generateAllSubmenuContent(hariKe){
+  const hariLabel = getDayName(hariKe);
+  return `
+  <!-- ========================= -->
+  <!-- MATERI -->
+  <!-- ========================= -->
+  <div class="submenu-content" id="materiContent${hariKe}" style="display:none;">
     <div class="border p-3 bg-light mt-2 mb-2">
       <div class="card-title p-1 mb-2 position-relative"
         style="text-align:center;color:#fff;background:#002266;border-bottom:5px solid #facc00;">
