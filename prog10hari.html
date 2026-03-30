@@ -909,12 +909,15 @@ background:#e0e0e0;
           <div class="border p-3 bg-light mt-2 mb-2">
             <h6>Workout Hari Pertama</h6>
           </div>
+          <div id="olahragaKardio-list1"></div>
+          <div id="resistance-section1"></div>
         </div>
 
         <div class="submenu-content" id="waterContent1" style="display:none;">
           <div class="border p-3 bg-light mt-2 mb-2">
             <h6>Water Hari Pertama</h6>
           </div>
+          <div id="airputihRadioBtn1"></div>
         </div>
 
         <div class="submenu-content" id="istirahatContent1" style="display:none;">
@@ -933,6 +936,7 @@ background:#e0e0e0;
           <div class="border p-3 bg-light mt-2 mb-2">
             <h6>Tanya Coach Hari Pertama</h6>
           </div>
+          <textarea id="pesanCoach1"></textarea>
         </div>
 
         <div class="submenu-content" id="selesaimodulContent1" style="display:none;">
@@ -2134,9 +2138,9 @@ function updateSubmenuLinkUI(type, hariKe) {
   console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
   let link = null;
   const selectorMap = {
-    mealplan     : `a.menu-item.submenu-trigger[data-target="mealPlanContent${hariKe}"]`,
+    mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
     workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
-    water        : `a.menu-item.submenu-trigger[data-target="waterReminderContent${hariKe}"]`,
+    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
     istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
     tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
     tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
@@ -4499,7 +4503,7 @@ function showMealPlanUploadForm(hariKe) {
     });
     
     // Tampilkan meal plan content
-    const mealPlanContent = document.getElementById(`mealPlanContent${hariKe}`);
+    const mealPlanContent = document.getElementById(`mealplanContent${hariKe}`);
     if (mealPlanContent) {
         mealPlanContent.style.display = 'block';
         // Scroll ke form
@@ -4672,7 +4676,7 @@ async function selesaikanMealPlan(hariKe) {
 
     // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
     if (!checkAllMealsUploaded(hariKe)) {
-        showMessage( 'warning', 'Masih ada meal plan yang belum diupload', 3000, `mealPlanContent${hariKe}` );
+        showMessage( 'warning', 'Masih ada meal plan yang belum diupload', 3000, `mealplanContent${hariKe}` );
         return;
     }
 
@@ -4697,7 +4701,7 @@ async function selesaikanMealPlan(hariKe) {
     if (result && result.includes('OK')) {
         // 3️⃣ SIMPAN STATUS LOKAL
         localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
-        showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealPlanContent${hariKe}` );
+        showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealplanContent${hariKe}` );
         // 4️⃣ KUNCI UI lockMealPlanUI
         lockMealPlanUI(hariKe);
         // 5️⃣ CENTANG SUBMENU
@@ -4773,7 +4777,7 @@ function updateMealPlanCompletionUI(hariKe) {
   }
 
   // 🔒 Disable SEMUA tombol upload
-  const container = document.getElementById(`mealPlanContent${hariKe}`);
+  const container = document.getElementById(`mealplanContent${hariKe}`);
   if (container) {
     container.querySelectorAll('button').forEach(btn => {
       btn.disabled = true;
