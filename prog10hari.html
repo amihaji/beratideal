@@ -7565,7 +7565,45 @@ function generateModulHTML(hariKe) {
       ${hariKe}.8 Selesai Modul Hari ${hariLabel}
     </a>
   </div>
+  ${generateAllSubmenuContent(hariKe)}   <!-- ✅ TAMBAHAN INI -->
   ${generateSelesaiModulContent(hariKe)}
+  `;
+}
+
+/***********************************
+ * GENERATOR ISI MODUL DARI SUBMENU
+ **********************************/
+function generateAllSubmenuContent(hariKe){
+  const hariLabel = getDayName(hariKe);
+  return `
+  <div class="submenu-content" id="materiContent${hariKe}" style="display:none;">
+    <h6>Materi Hari ${hariLabel}</h6>
+  </div>
+
+  <div class="submenu-content" id="mealplanContent${hariKe}" style="display:none;">
+    <div id="jadwalMealplan-list${hariKe > 1 ? hariKe : ''}"></div>
+  </div>
+
+  <div class="submenu-content" id="workoutContent${hariKe}" style="display:none;">
+    <div id="olahragaKardio-list${hariKe > 1 ? hariKe : ''}"></div>
+  </div>
+
+  <div class="submenu-content" id="waterContent${hariKe}" style="display:none;">
+    <div id="airputihRadioBtn${hariKe > 1 ? hariKe : ''}"></div>
+  </div>
+
+  <div class="submenu-content" id="istirahatContent${hariKe}" style="display:none;">
+    <h6>Istirahat Hari ${hariLabel}</h6>
+  </div>
+
+  <div class="submenu-content" id="trackingContent${hariKe}" style="display:none;">
+    <h6>Tracking Hari ${hariLabel}</h6>
+  </div>
+
+  <div class="submenu-content" id="tanyaContent${hariKe}" style="display:none;">
+    <textarea id="pesanCoach${hariKe}"></textarea>
+    <button id="btnSelesaiWA${hariKe}" disabled>Selesai WA</button>
+  </div>
   `;
 }
 
@@ -7624,6 +7662,8 @@ function generateAllModul() {
   }
   container.innerHTML = html;
 }
+
+
 
 /**************************************************************************
  * Fungsi universal untuk menampilkan pesan
