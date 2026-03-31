@@ -821,7 +821,7 @@ background:#e0e0e0;
           <!-- MENU MODUL HARI PERTAMA -->
           <!-----------------------------> 
           <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan1Content" data-hari="1">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan{hari}Content" data-hari="1">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Modul Hari Pertama
                 <i class="fas fa-lock status-lock"></i>
@@ -830,7 +830,7 @@ background:#e0e0e0;
             </button>
 
             <!-- SUBMENU MODUL HARI PERTAMA --> 
-            <div class="collapse" id="pertemuan1Content" data-bs-parent="#menuAccordion">
+            <div class="collapse" id="pertemuan{hari}Content" data-bs-parent="#menuAccordion">
               <div class="menu-content">
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
@@ -1179,8 +1179,8 @@ background:#e0e0e0;
           <!-- AKHIR DARI MODUL1 -->  
           
           <!-- GENERATE MODUL2 - MODUL10 -->
-          <div id="containerModulAuto"></div>
-   
+          <div id="containerModulAuto"></div>     
+    
           <!-- TAMPILAN KREASI RESEP -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthyRecept">
@@ -1403,12 +1403,12 @@ function generateModulFromTemplate() {
     console.error('❌ Modul 1 tidak ditemukan');
     return;
   }
-
   const container = document.getElementById('containerModulAuto');
   if (!container) return;
   let html = '';
   for (let hariKe = 2; hariKe <= 10; hariKe++) {
     let clone = modul1.outerHTML;
+
     // =========================
     // GANTI ID & TEXT
     // =========================
@@ -1422,6 +1422,18 @@ function generateModulFromTemplate() {
       .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
       .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
       .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
+
+      // 🔥 TAMBAHAN WAJIB (VIDEO ID)
+      .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
+      .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
+      .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
+      .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
+
+      // 🔥 TAMBAHAN WAJIB (BUTTON)
+      .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
+      .replaceAll(/selesaiModul\(1\)/g, `selesaiModul(${hariKe})`)
+
+      // TEXT
       .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
       .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
       .replaceAll(/1\.1/g, `${hariKe}.1`)
@@ -1434,24 +1446,26 @@ function generateModulFromTemplate() {
       .replaceAll(/1\.8/g, `${hariKe}.8`);
 
     // =========================
-    // GANTI VIDEO
+    // VIDEO (GLOBAL FIX)
     // =========================
-    clone = clone.replace(
-      /data-url="Video\/.*?\.mp4"/,
+    clone = clone.replaceAll(
+      /data-url="Video\/.*?\.mp4"/g,
       `data-url="${fileMateri[hariKe].video}"`
     );
+
     // =========================
-    // GANTI PDF
+    // PDF
     // =========================
     clone = clone
-      .replace(/data-url="pdf\/mealplan1\.pdf"/g, `data-url="${fileMateri[hariKe].mealplan}"`)
-      .replace(/data-url="pdf\/workout1\.pdf"/g, `data-url="${fileMateri[hariKe].workout}"`)
-      .replace(/data-url="pdf\/water1\.pdf"/g, `data-url="${fileMateri[hariKe].water}"`)
-      .replace(/data-url="pdf\/istirahat1\.pdf"/g, `data-url="${fileMateri[hariKe].istirahat}"`);
+      .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
+      .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
+      .replaceAll(/data-url="pdf\/water1\.pdf"/g, fileMateri[hariKe].water)
+      .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat);
+
     html += clone;
   }
   container.innerHTML = html;
-  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD');
+  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
 }
 
 /**********************************************
@@ -2735,13 +2749,6 @@ function setupAllComponents() {
   // Setup Semua Komponen Lainnya (Tetap jalan)
   setupAllComponentsInternal();
   console.log('✅ All components setup complete');
-}
-
-function BACKUP_setupAllComponents() {
-  console.log('🔧 Setting up all components...');
-  generateModulFromTemplate(); // 🔥 WAJIB DI SINI
-  setupPDFLinks();
-  setupPanduanPDFLinks();
 }
 
 /**************************
