@@ -2949,14 +2949,14 @@ function setupCekDisiniButtons() {
             let jenis, hariKe;
             
             // Extract informasi dari ID button
-            if (buttonId.includes('MealPlan')) {
-                jenis = 'MealPlan';
+            if (buttonId.includes('Mealplan')) {
+                jenis = 'Mealplan';
                 hariKe = buttonId.replace('btnCekDisiniMealPlan', '') || '1';
             } else if (buttonId.includes('Workout')) {
-                jenis = 'WorkOut';
+                jenis = 'Workout';
                 hariKe = buttonId.replace('btnCekDisiniWorkout', '') || '1';
             } else if (buttonId.includes('AirMinum')) {
-                jenis = 'WaterReminder';
+                jenis = 'Water';
                 hariKe = buttonId.replace('btnCekDisiniAirMinum', '') || '1';
             } else if (buttonId.includes('Istirihat')) {
                 jenis = 'Istirahat';
@@ -2984,27 +2984,27 @@ function handleCekDisiniClick(jenis, hariKe) {
     const config = {
         'MealPlan': {
             section: 'mealplan',
-            fileName: `MealPlan_HariKe${hariKe}.pdf`,
+            fileName: `mealplan_hariKe${hariKe}.pdf`,
             title: `Meal Plan Hari ${getDayName(hariKe)}`
         },
-        'WorkOut': {
+        'Workout': {
             section: 'workout', 
-            fileName: `WorkOut_HariKe${hariKe}.pdf`,
+            fileName: `workout_hariKe${hariKe}.pdf`,
             title: `Workout Hari ${getDayName(hariKe)}`
         },
-        'WaterReminder': {
+        'Water': {
             section: 'water',
-            fileName: `WaterReminder_HariKe${hariKe}.pdf`,
+            fileName: `water_hariKe${hariKe}.pdf`,
             title: `Water Reminder Hari ${getDayName(hariKe)}`
         },
         'Istirahat': {
             section: 'istirahat',
-            fileName: `Istirahat_HariKe${hariKe}.pdf`,
+            fileName: `istirahat_hariKe${hariKe}.pdf`,
             title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
         },
         'Tracking': {
             section: 'tracking',
-            fileName: `Tracking_HariKe${hariKe}.pdf`,
+            fileName: `tracking_hariKe${hariKe}.pdf`,
             title: `Data Tracking Hari ${getDayName(hariKe)}`
         }
     };
