@@ -135,10 +135,10 @@ body { background-color: #f8f9fa; }
   pointer-events: auto;
 }
 /* Water Reminder disabled cursor fix */
-[id^="waterreminderContent"] input:disabled,
-[id^="waterreminderContent"] input:disabled + label,
-[id^="waterreminderContent"] .form-check-input:disabled,
-[id^="waterreminderContent"] .form-check-input:disabled + .form-check-label {
+[id^="waterContent"] input:disabled,
+[id^="waterContent"] input:disabled + label,
+[id^="waterContent"] .form-check-input:disabled,
+[id^="waterContent"] .form-check-input:disabled + .form-check-label {
   cursor: not-allowed !important;
 }
 
@@ -871,7 +871,7 @@ background:#e0e0e0;
                 </a>
               
                 <!-- WATER REMINDER HARI PERTAMA -->
-                <a href="#" class="menu-item submenu-trigger" data-target="waterreminderContent1">
+                <a href="#" class="menu-item submenu-trigger" data-target="waterContent1">
                   1.4 Water Reminder Hari Pertama
                 </a>
 
@@ -991,11 +991,11 @@ background:#e0e0e0;
           </div>
    
           <!-- 1.4 Water Reminder Content -->
-          <div class="submenu-content" id="waterreminderContent1" style="display: none;">
+          <div class="submenu-content" id="waterContent1" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Hari Ini Minum Air Berapa</h6>
-                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('waterreminderContent1')">
+                <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('waterContent1')">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -1269,7 +1269,7 @@ background:#e0e0e0;
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyO80CZVl3yL-WuThCK8ZKmFutQh-NeXlLIKrjBHZ2aIgYO6hwHapR-KmNhUaXaM7XO/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwTXm7cbWUD90giHlPits81cMldQ8GzT-wX2C_lv-RxXzwedCovNzCV-XsUlnAAGsGB/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 /***************************************
@@ -2016,10 +2016,10 @@ function setupAllComponentsInternal() {
     }
 
     //  Menandai hari aktif saat klik tombol simpan & selesai water
-    document.querySelectorAll('[data-target^="waterreminderContent"]').forEach(item => {
+    document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
       item.addEventListener('click', function () {
         const hariKe = parseInt(
-          this.getAttribute('data-target').replace('waterreminderContent', '')
+          this.getAttribute('data-target').replace('waterContent', '')
         );
         // Simpan referensi hari aktif
         window.activeWaterHari = hariKe;
@@ -2093,8 +2093,8 @@ function createSubmenuHTML(hariKe) {
         
         <!-- Water Reminder -->
         <a href="#"
-          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('waterreminderContent${hariKe}', ${hariKe}, 'water')" 
-          data-target="waterreminderContent${hariKe}" id="waterLink${hariKe}">
+          class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('waterContent${hariKe}', ${hariKe}, 'water')" 
+          data-target="waterContent${hariKe}" id="waterLink${hariKe}">
           ${hariKe}.4 Water Reminder Hari ${getDayName(hariKe)}
         </a>
         
@@ -2434,7 +2434,7 @@ function updateSubmenuLinkUI(type, hariKe) {
   const selectorMap = {
     mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
     workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
-    water        : `a.menu-item.submenu-trigger[data-target="waterreminderContent${hariKe}"]`,
+    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
     istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
     tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
     tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
@@ -6516,7 +6516,7 @@ function loadWaterReminderStatus(hariKe) {
  * BUKA WATER REMINDER SUBMENU
  ******************************/
 function waterReminder(hariKe) {
-  const container = document.getElementById(`waterreminderContent${hariKe}`);
+  const container = document.getElementById(`waterContent${hariKe}`);
   if (!container) return;
 
   container.style.display = 'block';
@@ -7184,7 +7184,7 @@ function updateWaterMenuIconModul(modul, hariKe) {
   // Cari menu item
   const menuSelectors = [
     `a[onclick*="waterReminderModul(${modul}, ${hariKe})"]`,
-    `a[data-target*="waterreminderContent${prefix}"]`,
+    `a[data-target*="waterContent${prefix}"]`,
     `#waterMenuItem${prefix}`,
     `.menu-item[data-modul="${modul}"][data-hari="${hariKe}"][data-type="water"]`
   ];
@@ -7371,7 +7371,7 @@ function updateWaterSaveUI(hariKe, asupanAir) {
 }
 
 function disableWaterRadioButtons(hariKe) {
-  const container = document.getElementById('waterreminderContent' + hariKe);
+  const container = document.getElementById('waterContent' + hariKe);
   if (!container) return;
 
   const radios = container.querySelectorAll('input[type="radio"]');
@@ -7497,7 +7497,7 @@ function showWaterReminderForm(hariKe) {
   console.log(`💧 Showing water reminder form for day ${hariKe}`);
 
   // Tampilkan submenu
-  showSubmenu(`waterreminderContent${hariKe}`);
+  showSubmenu(`waterContent${hariKe}`);
 
   const containerId = `airputihRadioBtn${hariKe > 1 ? hariKe : ''}`;
   const container   = document.getElementById(containerId);
