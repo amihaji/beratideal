@@ -1176,8 +1176,10 @@ background:#e0e0e0;
               </div>
             </div>  
           </div>
-
-          <!-- MODUL HARI KE 2-10 (SAMA FITURE DAN STRUKTURNYA) -->
+          <!-- AKHIR DARI MODUL1 -->  
+          
+          <!-- GENERATE MODUL2 - MODUL10 -->
+          <div id="containerModulAuto"></div>
    
           <!-- TAMPILAN KREASI RESEP -->
           <div class="menu-accordion-item">
@@ -1221,7 +1223,7 @@ background:#e0e0e0;
               </div>
             </div>
           </div>
-
+      
           <!-- TAMPILAN DASHBOARD FIT TRACK -->
           <div class="menu-accordion-item">
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dasboardFitTrack">
@@ -1390,6 +1392,66 @@ function logout() {
     }
     // Redirect ke halaman login
     window.location.href = 'loginFC.html';
+}
+
+/***********************************************
+* GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
+***********************************************/
+function generateModulFromTemplate() {
+  const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
+  if (!modul1) {
+    console.error('❌ Modul 1 tidak ditemukan');
+    return;
+  }
+
+  const container = document.getElementById('containerModulAuto');
+  if (!container) return;
+  let html = '';
+  for (let hariKe = 2; hariKe <= 10; hariKe++) {
+    let clone = modul1.outerHTML;
+    // =========================
+    // GANTI ID & TEXT
+    // =========================
+    clone = clone
+      .replaceAll(/pertemuan1Content/g, `pertemuan${hariKe}Content`)
+      .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
+      .replaceAll(/mealplanContent1/g, `mealplanContent${hariKe}`)
+      .replaceAll(/workoutContent1/g, `workoutContent${hariKe}`)
+      .replaceAll(/waterContent1/g, `waterContent${hariKe}`)
+      .replaceAll(/istirahatContent1/g, `istirahatContent${hariKe}`)
+      .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
+      .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
+      .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
+      .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
+      .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
+      .replaceAll(/1\.1/g, `${hariKe}.1`)
+      .replaceAll(/1\.2/g, `${hariKe}.2`)
+      .replaceAll(/1\.3/g, `${hariKe}.3`)
+      .replaceAll(/1\.4/g, `${hariKe}.4`)
+      .replaceAll(/1\.5/g, `${hariKe}.5`)
+      .replaceAll(/1\.6/g, `${hariKe}.6`)
+      .replaceAll(/1\.7/g, `${hariKe}.7`)
+      .replaceAll(/1\.8/g, `${hariKe}.8`);
+
+    // =========================
+    // GANTI VIDEO
+    // =========================
+    clone = clone.replace(
+      /data-url="Video\/.*?\.mp4"/,
+      `data-url="${fileMateri[hariKe].video}"`
+    );
+    // =========================
+    // GANTI PDF
+    // =========================
+    clone = clone
+      .replace(/data-url="pdf\/mealplan1\.pdf"/g, `data-url="${fileMateri[hariKe].mealplan}"`)
+      .replace(/data-url="pdf\/workout1\.pdf"/g, `data-url="${fileMateri[hariKe].workout}"`)
+      .replace(/data-url="pdf\/water1\.pdf"/g, `data-url="${fileMateri[hariKe].water}"`)
+      .replace(/data-url="pdf\/istirahat1\.pdf"/g, `data-url="${fileMateri[hariKe].istirahat}"`);
+    html += clone;
+  }
+  container.innerHTML = html;
+  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD');
 }
 
 /**********************************************
@@ -2667,9 +2729,19 @@ function setupAllComponents() {
     applyLockForNewUser();
   }
 
+  // 🔥 WAJIB: generate modul dulu
+  generateModulFromTemplate();
+
   // Setup Semua Komponen Lainnya (Tetap jalan)
   setupAllComponentsInternal();
   console.log('✅ All components setup complete');
+}
+
+function BACKUP_setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+  generateModulFromTemplate(); // 🔥 WAJIB DI SINI
+  setupPDFLinks();
+  setupPanduanPDFLinks();
 }
 
 /**************************
@@ -6469,6 +6541,7 @@ function loadWaterReminderStatus(hariKe) {
             btnSelesai.innerHTML = '<i class="fas fa-check"></i> Selesai Asupan Air';
             btnSelesai.classList.remove('btn-success');
             btnSelesai.classList.add('btn-outline-success');
+            
         }
         
         if (statusDiv) {
