@@ -912,16 +912,16 @@ background:#e0e0e0;
               
               <h6><b>PANDUAN NUTRISI</b></h6>
               <p><b>Rekomendasi Meal Plan : </b>Konsumsi makanan bergizi dalam jumlah yang tepat sesuai dengan kebutuhan nutrisi anda</br>
-              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisiniMealPlan">
+              <button type="button" class="btn btn-primary btn-sm mt-1" id="btnCekDisinimealplan">
                 <i class="fas fa-utensils"></i> Cek Disini
               </button>
         
               <!-- PDF Viewer untuk Meal Plan -->
-              <div class="pdf-viewer" id="pdfViewerMealplan1" style="display: none;">
+              <div class="pdf-viewer" id="pdfViewermealplan1" style="display: none;">
                 <button class="close-pdf" onclick="closePDF('mealplan1')">
                   <i class="fas fa-times"></i>
                 </button>
-                <div class="pdf-container" id="pdfContainerMealplan1">
+                <div class="pdf-container" id="pdfContainermealplan1">
                   <!-- PDF akan dimuat di sini -->
                 </div>
               </div>
@@ -934,9 +934,9 @@ background:#e0e0e0;
               </div>
 
               <!-- Jadwal Meal Plan -->
-              <div class="mt-3 mb-2" id="jadwalMealplan-container">
+              <div class="mt-3 mb-2" id="jadwalmealplan-container">
                 <h6 class="mt-2"><b>JADWAL MEAL PLAN</b></h6>
-                <div id="jadwalMealplan-list">
+                <div id="jadwalmealplan-list">
                   <!-- Pilihan jadwal meal dimuat di sini -->  
                 </div>
               </div>
@@ -1752,7 +1752,7 @@ function applyExistingUserProgress(progress) {
     {
       key: 'mealplanHari',
       action: (h) => {
-        lockMealPlanUI(h);
+        lockmealplanUI(h);
         updateSubmenuLinkUI('mealplan', h);
       }
     },
@@ -1840,7 +1840,7 @@ function disableButtonFully(el) {
 /**********************
  * Kunci UI Meal Plan *
  **********************/
-function lockMealPlanUI(hariKe) {
+function lockmealplanUI(hariKe) {
   console.log(`🔒 Mengunci Meal Plan UI hari ${hariKe}`);
 
   const container = document.getElementById(`mealplanContent${hariKe}`);
@@ -1863,7 +1863,7 @@ function lockMealPlanUI(hariKe) {
   });
 
   // 3️⃣ DISABLE TOMBOL SELESAI
-  const btnSelesai = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaimealplan${hariKe}`);
   if (btnSelesai) {
     disableButtonFully(btnSelesai);
   }
@@ -2077,11 +2077,11 @@ function setupAllComponentsInternal() {
         checkMateriStatus(i);
     }
     // Setup meal plan forms
-    generateMealPlanForms();
+    generatemealplanForms();
     // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
-        checkMealPlanStatus(i);
-        loadMealPlanProgress(i);
+        checkmealplanStatus(i);
+        loadmealplanProgress(i);
     }
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -2168,7 +2168,7 @@ function createSubmenuHTML(hariKe) {
         <!-- Meal Plan -->
         <a href="#" 
           class="menu-item submenu-trigger" onclick="showSubmenuWithStatus('mealplanContent${hariKe}', ${hariKe}, 'mealplan')" 
-          data-target="mealplanContent${hariKe}" id="mealPlanLink${hariKe}">
+          data-target="mealplanContent${hariKe}" id="mealplanLink${hariKe}">
           ${hariKe}.2 Meal Plan Hari ${getDayName(hariKe)}
        </a>
         
@@ -2867,8 +2867,8 @@ function applyProgressToUI(progress) {
     console.log('✅ Meal Plan Hari 1 sudah selesai');
     
     // Update link meal plan
-    const mealPlanLinks = document.querySelectorAll('[onclick="uploadMealPlan(1)"]');
-    mealPlanLinks.forEach(link => {
+    const mealplanLinks = document.querySelectorAll('[onclick="uploadmealplan(1)"]');
+    mealplanLinks.forEach(link => {
       link.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
       link.style.color = '#666666';
       link.style.marginLeft = '2px';
@@ -2877,7 +2877,7 @@ function applyProgressToUI(progress) {
     });
     
     // Update tombol selesai meal plan
-    const selesaiBtn = document.getElementById('btnSelesaiMealPlan1');
+    const selesaiBtn = document.getElementById('btnSelesaimealplan1');
     if (selesaiBtn) {
       selesaiBtn.innerHTML =  
       selesaiBtn.classList.remove('btn-secondary');
@@ -2949,9 +2949,9 @@ function setupCekDisiniButtons() {
             let jenis, hariKe;
             
             // Extract informasi dari ID button
-            if (buttonId.includes('Mealplan')) {
-                jenis = 'Mealplan';
-                hariKe = buttonId.replace('btnCekDisiniMealPlan', '') || '1';
+            if (buttonId.includes('mealplan')) {
+                jenis = 'mealplan';
+                hariKe = buttonId.replace('btnCekDisinimealplan', '') || '1';
             } else if (buttonId.includes('Workout')) {
                 jenis = 'Workout';
                 hariKe = buttonId.replace('btnCekDisiniWorkout', '') || '1';
@@ -2982,7 +2982,7 @@ function handleCekDisiniClick(jenis, hariKe) {
     console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
     // Mapping jenis ke section dan nama file
     const config = {
-        'MealPlan': {
+        'mealplan': {
             section: 'mealplan',
             fileName: `mealplan_hariKe${hariKe}.pdf`,
             title: `Meal Plan Hari ${getDayName(hariKe)}`
@@ -3035,7 +3035,6 @@ function handleCekDisiniClick(jenis, hariKe) {
         }
     }
 }
-
 
 // ********************************
 // ***** FUNGSI VIDEO PLAYER ******
@@ -4861,18 +4860,18 @@ async function selesaiDataTracking(hariKe) {
 /***********************************************
 * Upload meal plan untuk hari tertentu di form * 
 ************************************************/
-function uploadMealPlan(hariKe) {
+function uploadmealplan(hariKe) {
     console.log('🍽️ Upload meal plan hari:', hariKe);
     // Tampilkan form upload langsung
-    showMealPlanUploadForm(hariKe);
+    showmealplanUploadForm(hariKe);
     // restore saat submenu dibuka
-    restoreMealPlanState(hariKe);
+    restoremealplanState(hariKe);
 }
 
 /************************
 * Tampilkan upload file *
 *************************/
-function showMealPlanUploadForm(hariKe) {
+function showmealplanUploadForm(hariKe) {
     // Sembunyikan semua submenu lainnya
     document.querySelectorAll('.submenu-content').forEach(content => {
         content.style.display = 'none';
@@ -4967,7 +4966,7 @@ async function uploadToServer(hariKe, mealType, fileData, fileName) {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({
-        action: 'uploadMealPlan',
+        action: 'uploadmealplan',
         userId,
         userName,
         hariKe,
@@ -5047,7 +5046,7 @@ function getMealTypeName(mealType) {
 * Selesaikan Meal Plan – FINAL FIX
 * (TIDAK menyentuh container)
 *************************************/
-async function selesaikanMealPlan(hariKe) {
+async function selesaikanmealplan(hariKe) {
     console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
     // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
@@ -5065,7 +5064,7 @@ async function selesaikanMealPlan(hariKe) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
-            action: 'updateMealPlan',
+            action: 'updatemealplan',
             userId,
             userName,
             hariKe
@@ -5078,8 +5077,8 @@ async function selesaikanMealPlan(hariKe) {
         // 3️⃣ SIMPAN STATUS LOKAL
         localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
         showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealplanContent${hariKe}` );
-        // 4️⃣ KUNCI UI lockMealPlanUI
-        lockMealPlanUI(hariKe);
+        // 4️⃣ KUNCI UI lockmealplanUI
+        lockmealplanUI(hariKe);
         // 5️⃣ CENTANG SUBMENU
         updateSubmenuLinkUI('mealplan', hariKe);
         // ❌ PENTING: TIDAK ADA KODE YANG MENYENTUH CONTAINER
@@ -5090,7 +5089,7 @@ async function selesaikanMealPlan(hariKe) {
 /*****************************************
  * Restore Meal Plan setelah reload      *
  *****************************************/
-function restoreMealPlanState(hariKe) {
+function restoremealplanState(hariKe) {
   const mealTypes = [
     'sarapan',
     'cemilanPagi',
@@ -5107,8 +5106,8 @@ function restoreMealPlanState(hariKe) {
   });
 
   // Jika sudah selesai
-  if (localStorage.getItem(`mealPlanDone_${hariKe}`) === 'true') {
-    lockMealPlanUI(hariKe);
+  if (localStorage.getItem(`mealplanDone_${hariKe}`) === 'true') {
+    lockmealplanUI(hariKe);
     updateSubmenuLinkUI(hariKe, 'mealplan');
   }
 }
@@ -5132,7 +5131,7 @@ function checkAllMealsUploaded(hariKe) {
 /**************************
 * Simpan status meal plan *
 ***************************/
-function saveMealPlanStatus(hariKe, status) {
+function savemealplanStatus(hariKe, status) {
     localStorage.setItem(`mealplan_hari_${hariKe}`, status);
     localStorage.setItem(`mealplan_completed_${hariKe}`, new Date().toISOString());
     
@@ -5143,9 +5142,9 @@ function saveMealPlanStatus(hariKe, status) {
 /************************************************************
 * Update UI setelah meal plan selesai dengan disable tombol *
 *************************************************************/
-function updateMealPlanCompletionUI(hariKe) {
+function updatemealplanCompletionUI(hariKe) {
   // 🔒 Disable tombol selesai
-  const selesaiBtn = document.getElementById(`btnSelesaiMealPlan${hariKe}`);
+  const selesaiBtn = document.getElementById(`btnSelesaimealplan${hariKe}`);
   if (selesaiBtn) {
     selesaiBtn.disabled = true;
     selesaiBtn.onclick = null;
@@ -5170,23 +5169,23 @@ function updateMealPlanCompletionUI(hariKe) {
 /*********************************
 * Cek status meal plan saat load *
 **********************************/
-function checkMealPlanStatus(hariKe) {
+function checkmealplanStatus(hariKe) {
     const status = localStorage.getItem(`mealplan_hari_${hariKe}`);
     if (status === 'completed') {
-        updateMealPlanCompletionUI(hariKe);
+        updatemealplanCompletionUI(hariKe);
     }
 }
 
 /*******************************************
 * Generate form meal plan untuk semua hari *
 ********************************************/
-function generateMealPlanForms() {
+function generatemealplanForms() {
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
-        const containerId = `jadwalMealplan-list${hariKe > 1 ? hariKe : ''}`;
+        const containerId = `jadwalmealplan-list${hariKe > 1 ? hariKe : ''}`;
         const container = document.getElementById(containerId);
         
         if (container) {
-            container.innerHTML = createMealPlanFormHTML(hariKe);
+            container.innerHTML = createmealplanFormHTML(hariKe);
         }
     }
 }
@@ -5194,7 +5193,7 @@ function generateMealPlanForms() {
 /**********************************************
 * Load progress meal plan yang sudah diupload *
 ***********************************************/
-function loadMealPlanProgress(hariKe) {
+function loadmealplanProgress(hariKe) {
     const mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
     
     mealTypes.forEach(mealType => {
@@ -5209,7 +5208,7 @@ function loadMealPlanProgress(hariKe) {
 /***********************************
 * Create HTML untuk form meal plan *
 ************************************/
-function createMealPlanFormHTML(hariKe) {
+function createmealplanFormHTML(hariKe) {
     return `
         <div><label class="form-label">Sarapan (07:00 - 09:00)</label></div>
         <div class="input-group mt-0 mb-2">
@@ -5253,7 +5252,7 @@ function createMealPlanFormHTML(hariKe) {
 
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-left mt-4">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanMealPlan(${hariKe})" id="btnSelesaiMealPlan${hariKe}">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanmealplan(${hariKe})" id="btnSelesaimealplan${hariKe}">
                 <i class="fas fa-check"></i> Selesai Meal Plan
             </button>
         </div>
@@ -5458,7 +5457,7 @@ async function uploadKardioFile(hariKe) {
         const base64Data = reader.result.split(',')[1];
         console.log('📸 Kardio file siap disimpan (base64)');
 
-        // Simpan sementara (SEPERTI MEALPLAN)
+        // Simpan sementara (SEPERTI mealplan)
         localStorage.setItem(`kardioFile_${hariKe}`, base64Data);
         localStorage.setItem(`kardioFilename_${hariKe}`, file.name);
 
@@ -5776,7 +5775,7 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
       checkAndApplyButtonStatus(hariKe);
         // Untuk mealplan, juga check upload status
         if (submenuType === 'mealplan') {
-            loadMealPlanProgress(hariKe);
+            loadmealplanProgress(hariKe);
         }
         // Untuk workout, juga check resistance data
         if (submenuType === 'workout') {
