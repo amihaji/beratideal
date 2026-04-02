@@ -2080,8 +2080,8 @@ function setupAllComponentsInternal() {
     generateMealplanForms();
     // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
-        checkmealplanStatus(i);
-        loadmealplanProgress(i);
+        checkMealplanStatus(i);
+        loadMealplanProgress(i);
     }
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
@@ -5775,7 +5775,7 @@ function showSubmenuWithStatus(targetId, hariKe, submenuType) {
       checkAndApplyButtonStatus(hariKe);
         // Untuk mealplan, juga check upload status
         if (submenuType === 'mealplan') {
-            loadmealplanProgress(hariKe);
+            loadMealplanProgress(hariKe);
         }
         // Untuk workout, juga check resistance data
         if (submenuType === 'workout') {
