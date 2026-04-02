@@ -5051,7 +5051,7 @@ function getMealTypeName(mealType) {
 * Selesaikan Meal Plan – FINAL FIX
 * (TIDAK menyentuh container)
 *************************************/
-async function selesaikanMealplan(hariKe) {
+async function selesaiMealplan(hariKe) {
     console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
     // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
@@ -5257,7 +5257,7 @@ function createMealplanFormHTML(hariKe) {
 
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-left mt-4">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanMealplan${hariKe}" id="btnSelesaiMealplan${hariKe}">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaiMealplan${hariKe}" id="btnSelesaiMealplan${hariKe}">
                 <i class="fas fa-check"></i> Selesai Meal Plan
             </button>
         </div>
@@ -7738,7 +7738,7 @@ Saya ingin bertanya mengenai materi hari ini.
 .....................................
 
 Mohon arahan dari Coach 🙏
--------------------------------------------
+-------------------------------------
 Balasan langsung ke WA ini`;
 }
 
@@ -7996,26 +7996,26 @@ document.addEventListener("click",function(e){
 
 // buka panel
 if(e.target.classList.contains("emoji-toggle")){
-const panel=e.target.nextElementSibling;
-panel.style.display=
-panel.style.display==="block"?"none":"block";
-showEmoji(panel,"smile");
+  const panel=e.target.nextElementSibling;
+  panel.style.display=
+  panel.style.display==="block"?"none":"block";
+  showEmoji(panel,"smile");
 }
 
 // pilih kategori
 if(e.target.dataset.cat){
-const panel=e.target.closest(".emoji-panel");
-showEmoji(panel,e.target.dataset.cat);
+  const panel=e.target.closest(".emoji-panel");
+  showEmoji(panel,e.target.dataset.cat);
 }
 
 // klik emoji
 if(e.target.parentElement &&
-e.target.parentElement.classList.contains("emoji-list")){
-const emoji=e.target.textContent;
-const box=e.target.closest(".tanya-coach-box");
-const textarea=box.querySelector("textarea");
-insertEmoji(textarea,emoji);
-saveRecentEmoji(emoji);
+  e.target.parentElement.classList.contains("emoji-list")){
+  const emoji=e.target.textContent;
+  const box=e.target.closest(".tanya-coach-box");
+  const textarea=box.querySelector("textarea");
+  insertEmoji(textarea,emoji);
+  saveRecentEmoji(emoji);
 }
 });
 
@@ -8028,9 +8028,9 @@ list.innerHTML="";
 let emojis=[];
 
 if(cat==="recent"){
-emojis=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
-}else{
-emojis=emojiDB[cat];
+    emojis=JSON.parse(localStorage.getItem("recentEmoji")||"[]");
+  }else{
+    emojis=emojiDB[cat];
 }
 
 emojis.forEach(e=>{
@@ -8069,17 +8069,17 @@ localStorage.setItem("recentEmoji",JSON.stringify(r));
  ****************/
 document.addEventListener("keyup",function(e){
 if(e.target.classList.contains("emoji-search")){
-const panel=e.target.closest(".emoji-panel");
-const list=panel.querySelector(".emoji-list");
-const text=e.target.value;
-list.innerHTML="";
-Object.values(emojiDB).flat().forEach(em=>{
-if(em.includes(text)){
-const span=document.createElement("span");
-span.textContent=em;
-list.appendChild(span);
-}
-});
+  const panel=e.target.closest(".emoji-panel");
+  const list=panel.querySelector(".emoji-list");
+  const text=e.target.value;
+  list.innerHTML="";
+  Object.values(emojiDB).flat().forEach(em=>{
+  if(em.includes(text)){
+    const span=document.createElement("span");
+    span.textContent=em;
+    list.appendChild(span);
+  }
+  });
 }
 });
 
