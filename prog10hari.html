@@ -917,11 +917,11 @@ background:#e0e0e0;
               </button>
         
               <!-- PDF Viewer untuk Meal Plan -->
-              <div class="pdf-viewer" id="pdfViewermealplan1" style="display: none;">
+              <div class="pdf-viewer" id="pdfViewerMealplan1" style="display: none;">
                 <button class="close-pdf" onclick="closePDF('mealplan1')">
                   <i class="fas fa-times"></i>
                 </button>
-                <div class="pdf-container" id="pdfContainermealplan1">
+                <div class="pdf-container" id="pdfContainerMealplan1">
                   <!-- PDF akan dimuat di sini -->
                 </div>
               </div>
@@ -1472,8 +1472,8 @@ function generateModulFromTemplate() {
       .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
       .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
       .replaceAll(/data-url="pdf\/water1\.pdf"/g, fileMateri[hariKe].water)
-      .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat);
-
+      .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat)
+      .replaceAll(/data-url="pdf\/tracking1\.pdf"/g, fileMateri[hariKe].tracking);
     html += clone;
   }
   container.innerHTML = html;
@@ -1863,7 +1863,7 @@ function lockmealplanUI(hariKe) {
   });
 
   // 3️⃣ DISABLE TOMBOL SELESAI
-  const btnSelesai = document.getElementById(`btnSelesaimealplan${hariKe}`);
+  const btnSelesai = document.getElementById(`btnSelesaiMealplan${hariKe}`);
   if (btnSelesai) {
     disableButtonFully(btnSelesai);
   }
@@ -2877,7 +2877,7 @@ function applyProgressToUI(progress) {
     });
     
     // Update tombol selesai meal plan
-    const selesaiBtn = document.getElementById('btnSelesaiMealplan1');
+    const selesaiBtn = document.getElementById(`btnSelesaiMealplan${hariKe}`);
     if (selesaiBtn) {
       selesaiBtn.innerHTML =  
       selesaiBtn.classList.remove('btn-secondary');
