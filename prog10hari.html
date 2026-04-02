@@ -822,7 +822,7 @@ background:#e0e0e0;
           <!-----------------------------> 
           <div id="materiContent1" class="submenu-content"></div>
           <div class="menu-accordion-item">
-            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuan1Content" data-hari="1">
+            <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuanContent1" data-hari="1">
               <span>
                 <i class="fas fa-angle-double-right me-2"></i>Modul Hari Pertama
                 <i class="fas fa-lock status-lock"></i>
@@ -831,7 +831,7 @@ background:#e0e0e0;
             </button>
 
             <!-- SUBMENU MODUL HARI PERTAMA --> 
-            <div class="collapse" id="pertemuan1Content" data-bs-parent="#menuAccordion">
+            <div class="collapse" id="pertemuanContent1" data-bs-parent="#menuAccordion">
               <div class="menu-content">
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
@@ -1425,7 +1425,8 @@ function generateModulFromTemplate() {
     // GANTI ID & TEXT AGAR STANDART SAMA
     // ==================================
     clone = clone
-      .replaceAll(/pertemuan1Content/g, `pertemuan${hariKe}Content`)
+      // .replaceAll(/pertemuan1Content/g, `pertemuan${hariKe}Content`)
+      .replaceAll(/pertemuanContent1/g, `pertemuanContent${hariKe}`)
       .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
       .replaceAll(/mealplanContent1/g, `mealplanContent${hariKe}`)
       .replaceAll(/workoutContent1/g, `workoutContent${hariKe}`)
@@ -1434,7 +1435,7 @@ function generateModulFromTemplate() {
       .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
       .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
       .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
-
+      
       // 🔥 TAMBAHAN WAJIB (VIDEO ID)
       .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
       .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
