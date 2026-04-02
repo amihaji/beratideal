@@ -836,19 +836,19 @@ background:#e0e0e0;
               
                 <!-- VIDEO MATERI HARI PERTAMA -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
-                  class="menu-item video-link" style="max-width: 100%;" data-section="pertemuan1" 
+                  class="menu-item video-link" style="max-width: 100%;" data-section="Pertemuan1" 
                   data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink1">
                   1.1 Materi Hari Pertama 
                 </a>
                 
                 <!-- Video Player untuk Materi Hari Pertama - DITEMPATKAN DI SINI -->
                 <div class="video-container" id="videoContainerPertemuan1" style="display: none;">
-                  <button class="close-video" onclick="closeVideo('pertemuan1')">
+                  <button class="close-video" onclick="closeVideo('Pertemuan1')">
                     <i class="fas fa-times"></i>
                   </button>
                 
                   <div class="video-wrapper">
-                    <div class="video-placeholder" onclick="playVideo('pertemuan1')">
+                    <div class="video-placeholder" onclick="playVideo('Pertemuan1')">
                       <i class="fas fa-play-circle"></i>
                       <div class="video-placeholder-text">Klik untuk memuat video</div>
                     </div>
@@ -2161,7 +2161,7 @@ function createSubmenuHTML(hariKe) {
         <!-- Materi Video -->
         <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
           class="menu-item video-link" onclick="showSubmenuWithStatus('videoContainerPertemuan${hariKe}', ${hariKe}, 'materi')"
-          style="max-width: 100%;" data-section="pertemuan${hariKe}" 
+          style="max-width: 100%;" data-section="Pertemuan${hariKe}" 
           data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec" id="materiLink${hariKe}">
           ${hariKe}.1 Materi Hari ${getDayName(hariKe)} 
         </a>
@@ -2543,7 +2543,7 @@ function updateSubmenuLinkUI(type, hariKe) {
     const container = document.getElementById(`pertemuanContent${hariKe}`);
     if (!container) return;
     link = container.querySelector(
-      `a.menu-item.video-link[data-section="pertemuan${hariKe}"]`
+      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
     );
   }
 
@@ -4341,7 +4341,7 @@ function disableCheckButton(sectionId) {
 ********************************************************/
 function selesaiMateri(hariSelesai) {
     console.log('✅ Menyelesaikan materi hari:', hariSelesai);
-    showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `pertemuan${hariSelesai}`);
+    showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `Pertemuan${hariSelesai}`);
     
     // Unlock modul berikutnya (jika masih dalam range 1-10)
     const nextHari = hariSelesai + 1;
@@ -4610,7 +4610,7 @@ if (radioIstirahat) {
     );
 
     if (!jamMulai || !radioChecked) {
-      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `pertemuan${hariKe}`);
+      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `Pertemuan${hariKe}`);
       return;
     }
 
@@ -4628,7 +4628,7 @@ if (radioIstirahat) {
     const result = await response.text();
     if (result === "OK") {
       btnSelesai.disabled = false;
-      showMessage( 'success', 'Istirahat Tersimpan', 3000, `pertemuan${hariKe}` );
+      showMessage( 'success', 'Istirahat Tersimpan', 3000, `Pertemuan${hariKe}` );
     }
   });
 
@@ -4651,7 +4651,7 @@ if (radioIstirahat) {
         el.disabled = true;
         el.style.cursor = "not-allowed";
       });
-      showMessage( 'success', 'Istirahat Selesai', 3000, `pertemuan${hariKe}` );
+      showMessage( 'success', 'Istirahat Selesai', 3000, `Pertemuan${hariKe}` );
 
       btnSimpan.disabled  = true;
       btnSelesai.disabled = true;
@@ -4885,7 +4885,7 @@ function showMealplanUploadForm(hariKe) {
         // Scroll ke form
         setTimeout(() => { mealplanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     } else {
-        showMessage('error', 'Form meal plan tidak ditemukan', 3000, `pertemuan${hariKe}`);
+        showMessage('error', 'Form meal plan tidak ditemukan', 3000, `Pertemuan${hariKe}`);
     }
 }
 
@@ -5286,7 +5286,7 @@ async function selesaiWorkout(hariKe) {
   // ⛔ VALIDASI BARU DILAKUKAN SAAT TOMBOL SELESAI DIKLIK
   const sudahSimpan = localStorage.getItem(`workoutSavedHari${hariKe}`) === 'true';
   if (!sudahSimpan) {
-    showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `pertemuan${hariKe}` );
+    showMessage( 'warning','Simpan data workout terlebih dahulu', 3000, `Pertemuan${hariKe}` );
     return;
   }
 
@@ -5314,14 +5314,14 @@ async function selesaiWorkout(hariKe) {
       localStorage.setItem(`workoutHari${hariKe}`, 'completed');
       updateSubmenuLinkUI('workout', hariKe);
       disableWorkoutUI(hariKe);
-      showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `pertemuan${hariKe}` );
+      showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `Pertemuan${hariKe}` );
     } else {
-      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `pertemuan${hariKe}` );
+      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `Pertemuan${hariKe}` );
     }
 
   } catch (err) {
     console.error('❌ Error complete workout:', err);
-    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `pertemuan${hariKe}` );
+    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `Pertemuan${hariKe}` );
   }
 }
 
@@ -5504,7 +5504,7 @@ function setStartTimeKardio(hariKe) {
         // Simpan di localStorage
         localStorage.setItem(`workout_start_time_${hariKe}`, timeString);
         
-        showMessage('info', `Waktu mulai: ${timeString}`, 2000, `pertemuan${hariKe}`);
+        showMessage('info', `Waktu mulai: ${timeString}`, 2000, `Pertemuan${hariKe}`);
     }
 }
 
@@ -5519,7 +5519,7 @@ function setStopTimeKardio(hariKe) {
         inputField.value = timeString;
         // Simpan di localStorage
         localStorage.setItem(`workout_stop_time_${hariKe}`, timeString);
-        showMessage('info', `Waktu selesai: ${timeString}`, 2000, `pertemuan${hariKe}`);
+        showMessage('info', `Waktu selesai: ${timeString}`, 2000, `Pertemuan${hariKe}`);
     }
 }
 
@@ -5531,7 +5531,7 @@ async function simpanWorkoutData(hariKe) {
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
   if (!userId) {
-    showMessage('error','Silakan login terlebih dahulu',3000,`pertemuan${hariKe}`);
+    showMessage('error','Silakan login terlebih dahulu',3000,`Pertemuan${hariKe}`);
     return false;
   }
 
@@ -5547,7 +5547,7 @@ async function simpanWorkoutData(hariKe) {
 
   // 🚨 VALIDASI BARU (SESUIAI PERMINTAAN ANDA)
   if (!kardioTerisi && !resistenTerisi) {
-    showMessage( 'warning','Isi terlebih dahulu salah satu workout', 3000, `pertemuan${hariKe}`);
+    showMessage( 'warning','Isi terlebih dahulu salah satu workout', 3000, `Pertemuan${hariKe}`);
     return false;
   }
 
@@ -5586,15 +5586,15 @@ async function simpanWorkoutData(hariKe) {
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-      showMessage('success','Workout berhasil disimpan',3000,`pertemuan${hariKe}`);
+      showMessage('success','Workout berhasil disimpan',3000,`Pertemuan${hariKe}`);
       return true;
     }
-    showMessage('error',result.message || 'Gagal menyimpan workout',3000,`pertemuan${hariKe}`);
+    showMessage('error',result.message || 'Gagal menyimpan workout',3000,`Pertemuan${hariKe}`);
     return false;
 
   } catch (error) {
     console.error(error);
-    showMessage('error','Terjadi kesalahan koneksi',3000,`pertemuan${hariKe}`);
+    showMessage('error','Terjadi kesalahan koneksi',3000,`Pertemuan${hariKe}`);
     return false;
   }
 }
@@ -6228,7 +6228,7 @@ function addResistanceExercise(hariKe, exerciseName, fromRestore = false) {
     if (document.getElementById(fullExerciseId)) {
         // ❗ WARNING HANYA JIKA USER ACTION
         if (!fromRestore) {
-            showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `pertemuan${hariKe}`);
+            showMessage('warning', 'Olahraga ini sudah terpilih', 3000, `Pertemuan${hariKe}`);
         }
         return; // STOP TOTAL
     }
@@ -6317,7 +6317,7 @@ function removeResistanceExercise(hariKe, exerciseId) {
     const exerciseElement = document.getElementById(fullExerciseId);
     if (exerciseElement) {
         exerciseElement.remove();
-        showMessage('warning', 'Pilihan olahraga Resistance dihapus', 3000, `pertemuan${hariKe}`);
+        showMessage('warning', 'Pilihan olahraga Resistance dihapus', 3000, `Pertemuan${hariKe}`);
         
         // Hapus dari localStorage
         localStorage.removeItem(`resistance-${hariKe}-${exerciseId}`);
@@ -6740,7 +6740,7 @@ async function simpanWaterReminder(hariKe) {
   const result = await response.text();
   console.log('📥 Response water:', result);
   if (result === 'OK') {
-    showMessage('success', 'Asupan air berhasil disimpan', 3000, `pertemuan${hariKe}` );
+    showMessage('success', 'Asupan air berhasil disimpan', 3000, `Pertemuan${hariKe}` );
     // Aktifkan tombol selesai
     const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
     if (btnSelesai) btnSelesai.disabled = false;
@@ -6781,7 +6781,7 @@ async function selesaiWaterReminder(hariKe) {
       // 🔥 SET PROGRESS FRONTEND (PENTING UNTUK USER LAMA)
       if (!window.userProgress) window.userProgress = {};
       window.userProgress[`waterHari${hariKe}`] = true;
-      showMessage( 'success', 'Water Reminder Selesai', 3000, `pertemuan${hariKe}` );
+      showMessage( 'success', 'Water Reminder Selesai', 3000, `Pertemuan${hariKe}` );
       // 🔒 LOCK TOTAL (pakai sistem global agar konsisten)
       disableButtonsAfterCompletion(hariKe, 'water');
       // ✅ UPDATE SUBMENU ICON CENTANG
@@ -7760,7 +7760,7 @@ try{
     const data = await response.json();
     console.log("📡 Response completeModul:",data);
     if(data.success){
-      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `pertemuan${hariKe}` );
+      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}` );
       // ✔ urutan parameter benar
       updateSubmenuLinkUI('selesaimodul',hariKe);
       disableButtonsAfterCompletion(hariKe,'selesaimodul');
@@ -7768,7 +7768,7 @@ try{
     }
   }catch(err){
     console.error("❌ Error selesai Modul:",err);
-    showMessage('error','Gagal menyelesaikan modul',4000,`pertemuan${hariKe}`);
+    showMessage('error','Gagal menyelesaikan modul',4000,`Pertemuan${hariKe}`);
   }
 }
 
@@ -7891,7 +7891,7 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
         const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
         if (activeMenu && activeMenu.hasAttribute('data-hari')) {
             const hariKe = activeMenu.getAttribute('data-hari');
-            menuTarget = `pertemuan${hariKe}`;
+            menuTarget = `Pertemuan${hariKe}`;
         }
     }
     // Konfigurasi tipe pesan
@@ -7931,7 +7931,7 @@ function showMessage(type, message, duration = 3000, menuTarget = null) {
         const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
         if (activeMenu && activeMenu.hasAttribute('data-hari')) {
             const hariKe = activeMenu.getAttribute('data-hari');
-            const menuElement = document.getElementById(`pertemuan${hariKe}Content`);
+            const menuElement = document.getElementById(`pertemuanContent${hariKe}`);
             if (menuElement) {
                 const menuContent = menuElement.querySelector('.menu-content');
                 if (menuContent) {
