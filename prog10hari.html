@@ -1405,7 +1405,6 @@ function logout() {
     window.location.href = 'loginFC.html';
 }
 
-
 /***********************************************
 * GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
 ***********************************************/
@@ -1425,7 +1424,6 @@ function generateModulFromTemplate() {
     // GANTI ID & TEXT AGAR STANDART SAMA
     // ==================================
     clone = clone
-      // .replaceAll(/pertemuan1Content/g, `pertemuan${hariKe}Content`)
       .replaceAll(/pertemuanContent1/g, `pertemuanContent${hariKe}`)
       .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
       .replaceAll(/mealplanContent1/g, `mealplanContent${hariKe}`)
@@ -1446,13 +1444,13 @@ function generateModulFromTemplate() {
       .replaceAll(/data-section="tanya1"/g, `data-section="tanya${hariKe}"`)
       .replaceAll(/data-section="selesaimodul1"/g, `data-section="selesaimodul${hariKe}"`)
             
-      // 🔥 TAMBAHAN WAJIB (VIDEO ID)
+      // TAMBAHAN WAJIB (VIDEO ID)
       .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
       .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
       .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
       .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
 
-      // 🔥 TAMBAHAN WAJIB (BUTTON)
+      // TAMBAHAN WAJIB (BUTTON)
       .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
       .replaceAll(/selesaiModul\(1\)/g, `selesaiModul(${hariKe})`)
 
@@ -1468,19 +1466,13 @@ function generateModulFromTemplate() {
       .replaceAll(/1\.7/g, `${hariKe}.7`)
       .replaceAll(/1\.8/g, `${hariKe}.8`);
 
-
-
-    // =========================
     // VIDEO (GLOBAL FIX)
-    // =========================
     clone = clone.replaceAll(
       /data-url="Video\/.*?\.mp4"/g,
       `data-url="${fileMateri[hariKe].video}"`
     );
 
-    // =========================
     // PDF
-    // =========================
     clone = clone
       .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
       .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
@@ -5265,7 +5257,7 @@ function createMealplanFormHTML(hariKe) {
 
         <!-- ✅ TAMBAHKAN TOMBOL SELESAI -->
         <div class="text-left mt-4">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanMealplan(${hariKe})" id="btnSelesaiMealplan${hariKe}">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="selesaikanMealplan(${hariKe})" id="btnSelesaiMealplan1">
                 <i class="fas fa-check"></i> Selesai Meal Plan
             </button>
         </div>
