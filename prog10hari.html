@@ -1561,7 +1561,7 @@ function getSubmenuContainer(hariKe, prefix) {
 /*********************************************
 * Enable / Disable Semua Komponen di Submenu *
 **********************************************/
-   function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
+function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
   const container = getSubmenuContainer(hariKe, containerPrefix);
   if (!container) return;
   // Disable semua input
@@ -1959,6 +1959,10 @@ function unlockModul(hariKe) {
     modulHeader.style.opacity = '1';
     modulHeader.style.cursor = 'pointer';
     modulHeader.style.backgroundColor = ''; // Reset background color
+    // FIX COLLAPSE AGAR BISA DIKLIK
+    modulHeader.classList.remove('collapsed');
+    modulHeader.setAttribute('aria-expanded', 'false');
+
     // Update lock icon ke UNLOCK
     let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
     if (!lockIcon) {
