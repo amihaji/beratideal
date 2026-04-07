@@ -1443,7 +1443,10 @@ function logout() {
 * GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
 ***********************************************/
 function generateModulFromTemplate() {
-  const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
+  // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
+  
+  // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item')?.parentElement; // ⬅️ WAJIB
+  const modul1 = document.querySelector('#pertemuanContent1')?.closest('.menu-wrapper');
   if (!modul1) {
     console.error('❌ Modul 1 tidak ditemukan');
     return;
@@ -1962,6 +1965,7 @@ function unlockModul(hariKe) {
     // FIX COLLAPSE AGAR BISA DIKLIK
     modulHeader.classList.remove('collapsed');
     modulHeader.setAttribute('aria-expanded', 'false');
+    modulHeader.querySelectorAll('i.fa-lock').forEach(i =>{ i.className = 'fas fa-unlock status-unlock'; });
 
     // Update lock icon ke UNLOCK
     let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
