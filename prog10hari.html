@@ -853,7 +853,8 @@ button[id^="btnCekDisini"] {
            
           <!----------------------------->
           <!-- MENU MODUL HARI PERTAMA -->
-          <!-----------------------------> 
+          <!----------------------------->
+          <div id="modulHari1Wrapper"> 
           <div id="materiContent1" class="submenu-content"></div>
           <div class="menu-accordion-item">
             <button class="menu-header collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pertemuanContent1" data-hari="1">
@@ -1212,6 +1213,7 @@ button[id^="btnCekDisini"] {
             </div>  
           </div>
           <!-- AKHIR DARI MODUL1 -->  
+          </div> 
           
           <!-- GENERATE MODUL2 - MODUL10 -->
           <div id="containerModulAuto"></div>     
@@ -1444,9 +1446,7 @@ function logout() {
 ***********************************************/
 function generateModulFromTemplate() {
   // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
-  
-  const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item')?.parentElement; // ⬅️ WAJIB
-  // const modul1 = document.querySelector('#pertemuanContent1')?.closest('.menu-wrapper');
+  const modul1 = document.getElementById('modulHari1Wrapper');
   if (!modul1) {
     console.error('❌ Modul 1 tidak ditemukan');
     return;
