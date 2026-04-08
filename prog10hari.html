@@ -1965,8 +1965,11 @@ function unlockModul(hariKe) {
     // FIX COLLAPSE AGAR BISA DIKLIK
     modulHeader.classList.remove('collapsed');
     modulHeader.setAttribute('aria-expanded', 'false');
-    modulHeader.querySelectorAll('i.fa-lock').forEach(i =>{ i.className = 'fas fa-unlock status-unlock'; });
-
+    modulHeader.querySelectorAll('.status-lock').
+    forEach(i => {
+      i.className = 'fas fa-unlock status-unlock';
+    });
+    
     // Update lock icon ke UNLOCK
     let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
     if (!lockIcon) {
@@ -4381,7 +4384,6 @@ function disableCheckButton(sectionId) {
     btn.style.opacity = '0.5';
   }
 }
-
 
 /*******************************************************
 * Unlock modul berikutnya secara otomatis              * 
