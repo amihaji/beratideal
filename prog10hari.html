@@ -2043,7 +2043,10 @@ function updatePerkenalanUI() {
 /***********************************
  * Setup Seluruh Komponen Internal *
  * *********************************/
-function setupAllComponentsInternal() {
+function setupAllComponentsInternal(progress = {}) {
+    // 🔥 FIX: pastikan progress selalu ada
+    if (!progress) progress = {};
+
     // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
         trigger.addEventListener('click', function(e) {
@@ -2060,6 +2063,7 @@ function setupAllComponentsInternal() {
             hideSubmenu(targetId);
         });
     });
+
     // Setup video links
     setupAllLinks();
     // Setup playlist
@@ -2068,34 +2072,31 @@ function setupAllComponentsInternal() {
     setupPerkenalanCompletion();
     // Setup PDF links
     setupPanduanPDFLinks();
-    // Setup tombol "Cek Disini" untuk Modul 
+    // Setup tombol "Cek Disini"
     setupCekDisiniButtons();
     // Setup materi completion
     setupMateriCompletion();
-    // Unlock modul sesuai progress
+    // 🔥 FIX: gunakan progress yang valid
     applyUnlockModul(progress);
-    // setelah itu baru Check materi status dari localStorage
+    // Cek Materi Status
     for (let i = 1; i <= 10; i++) {
         checkMateriStatus(i, progress);
     }
-
-    // Setup meal plan forms
+    // Setup meal plan
     generateMealplanForms();
-    // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
         checkMealplanStatus(i);
         loadMealplanProgress(i);
     }
+
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    // Setup workout forms
-    generateWorkoutForms();      // 1. Generate HTML dulu
-    initializeAllWorkoutDays();  // 2. Setup event listeners
-   // Tambahkan styles
-    addWaterReminderStyles(); 
-    // Generate semua form
-    initializeAllWaterReminderForms(); 
-    // Update onclick handlers untuk water reminder links
+    // Workout
+    generateWorkoutForms();
+    initializeAllWorkoutDays();
+    // Water
+    addWaterReminderStyles();
+    initializeAllWaterReminderForms();
     for (let i = 1; i <= 10; i++) {
         const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
         if (waterLink) {
@@ -2106,21 +2107,20 @@ function setupAllComponentsInternal() {
         }
     }
 
-    //  Menandai hari aktif saat klik tombol simpan & selesai water
     document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
-      item.addEventListener('click', function () {
-        const hariKe = parseInt(
-          this.getAttribute('data-target').replace('waterContent', '')
-        );
-        // Simpan referensi hari aktif
-        window.activeWaterHari = hariKe;
-      });
+        item.addEventListener('click', function () {
+            const hariKe = parseInt(
+                this.getAttribute('data-target').replace('waterContent', '')
+            );
+            window.activeWaterHari = hariKe;
+        });
     });
-    // Initial State Water Reminder
+
     document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
-      btn.disabled = true;
+        btn.disabled = true;
     });
-    // Initialize video players
+
+    // Video
     initializeAllVideoPlayers();
     console.log('🔍 Testing server connection on startup...');
 }
