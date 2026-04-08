@@ -1480,7 +1480,17 @@ function generateModulFromTemplate() {
       .replaceAll(/data-section="tracking1"/g, `data-section="tracking${hariKe}"`)
       .replaceAll(/data-section="tanya1"/g, `data-section="tanya${hariKe}"`)
       .replaceAll(/data-section="selesaimodul1"/g, `data-section="selesaimodul${hariKe}"`)
-            
+         
+      // MEALPLAN
+      .replaceAll(/jadwalmealplan-list/g, `jadwalmealplan-list${hariKe}`)
+      // WORKOUT
+      .replaceAll(/olahragaKardio-list/g, `olahragaKardio-list${hariKe}`)
+      .replaceAll(/olahragaResisten-list/g, `olahragaResisten-list${hariKe}`)
+      // WATER
+      .replaceAll(/airputihRadioBtn/g, `airputihRadioBtn${hariKe}`)
+      // TANYA COACH
+      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
+
       // TAMBAHAN WAJIB (VIDEO ID)
       .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
       .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
@@ -1965,11 +1975,18 @@ function unlockModul(hariKe) {
     // FIX COLLAPSE AGAR BISA DIKLIK
     modulHeader.classList.remove('collapsed');
     modulHeader.setAttribute('aria-expanded', 'false');
-    modulHeader.querySelectorAll('.status-lock').
-    forEach(i => {
-      i.className = 'fas fa-unlock status-unlock';
-    });
     
+    //modulHeader.querySelectorAll('.status-lock').
+    //forEach(i => {
+    //  i.className = 'fas fa-unlock status-unlock';
+    //});
+    
+    modulHeader.querySelectorAll('i').forEach(icon => {
+      if (icon.classList.contains('status-lock')) {
+        icon.className = 'fas fa-unlock status-unlock';
+      }
+    });
+
     // Update lock icon ke UNLOCK
     let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
     if (!lockIcon) {
