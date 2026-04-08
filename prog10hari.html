@@ -2907,16 +2907,15 @@ function checkMateriStatus(hariKe, progress) {
 
     const status = progress[`materiHari${hariKe}`];
 
-    // Jika belum unlock modul sebelumnya
     if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
         return;
     }
 
-    // 🔥 HAPUS dependency function yang tidak ada
-    if (!status) {
-        console.log(`🟢 Materi hari ${hariKe} siap`);
+    // 🔥 FIX: JANGAN panggil function yang tidak ada
+    if (status === true) {
+        console.log(`🔒 Materi hari ${hariKe} selesai`);
     } else {
-        disableMateriUI(hariKe);
+        console.log(`🟢 Materi hari ${hariKe} aktif`);
     }
 }
 
