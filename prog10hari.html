@@ -1860,6 +1860,12 @@ function applyExistingUserProgress(progress) {
     }
   ];
 
+  for (let i = 1; i <= 9; i++) {
+      if (progress[`selesaimodul${i}`]) {
+          unlockModul(i + 1);
+      }
+  }
+
   // LOOP HARI 1 - 10
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
     progressConfig.forEach(cfg => {
@@ -1922,6 +1928,62 @@ function lockmealplanUI(hariKe) {
    console.log(`✅ Meal Plan hari ${hariKe} terkunci (X & PDF tetap aktif)`);
 }
 
+/***********************
+* Lock modul tertentu  *
+************************/
+function lockModul(hariKe) {
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (!modulHeader) return;
+
+    modulHeader.classList.add('disabled');
+    modulHeader.style.pointerEvents = 'none';
+    modulHeader.style.opacity = '0.5';
+    modulHeader.style.cursor = 'not-allowed';
+
+    const icon = modulHeader.querySelector('i');
+    if (icon) {
+        icon.className = 'fas fa-lock status-lock';
+        icon.style.color = '#999';
+    }
+}
+
+function BACKUP_lockModul(hariKe) {
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        // Skip jika sudah unlocked
+        if (!modulHeader.classList.contains('disabled')) {
+            modulHeader.classList.add('disabled');
+            modulHeader.style.pointerEvents = 'none';
+            modulHeader.style.opacity = '0.6';
+            modulHeader.style.cursor = 'not-allowed';
+            
+            // Update lock icon
+            let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
+            if (lockIcon) {
+                lockIcon.className = 'fas fa-lock status-lock';
+                //lockIcon.style.color = '#000e3d';
+            } else {
+                // Cari atau buat icon
+                const iconContainer = modulHeader.querySelector('span');
+                if (iconContainer) {
+                    const existingIcon = iconContainer.querySelector('i');
+                    if (existingIcon) {
+                        existingIcon.className = 'fas fa-lock status-lock';
+                        //existingIcon.style.color = '#000e3d';
+                    } else {
+                        const newIcon = document.createElement('i');
+                        newIcon.className = 'fas fa-lock status-lock';
+                        //newIcon.style.color = '#000e3d';
+                        newIcon.style.marginLeft = '2px' //'10px';
+                        iconContainer.appendChild(newIcon);
+                    }
+                }
+            }
+            console.log(`🔒 Modul Hari ${hariKe} dikunci`);
+        }
+    }
+}
+
 /***************************************
 * Strict Lock Modul (benar-benar lock) *
 ****************************************/
@@ -1954,10 +2016,67 @@ function strictLockModul(hariKe) {
     }
 }
 
-/*********************************
-* Unlock modul dengan icon benar *
-**********************************/
+/************************************************************
+* AUTO UNLOCK MODUL BERDASARKAN PROGRESS
+* FUNGSI KONTROL MANAGER (yang memutuskan modul mana dibuka)
+************************************************************/
+function applyUnlockModul(progress) {
+    // Default: lock semua dulu kecuali hari 1
+    for (let i = 2; i <= 10; i++) {
+        lockModul(i);
+    }
+
+    // Unlock berurutan
+    for (let i = 1; i <= 9; i++) {
+        if (progress[`selesaimodul${i}`] === true) {
+            unlockModul(i + 1);
+        }
+    }
+}
+
+/************************************************
+* Unlock modul FIX FINAL
+* FUNGSI EKSEKUTOR/TUKANG (aksi langsung ke DOM)
+*************************************************/
 function unlockModul(hariKe) {
+    console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
+
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (!modulHeader) {
+        console.error(`❌ Modul header not found for hari ${hariKe}`);
+        return;
+    }
+
+    // Enable klik
+    modulHeader.classList.remove('disabled');
+    modulHeader.style.pointerEvents = 'auto';
+    modulHeader.style.opacity = '1';
+    modulHeader.style.cursor = 'pointer';
+
+    // FIX collapse Bootstrap
+    modulHeader.classList.remove('collapsed');
+    modulHeader.setAttribute('aria-expanded', 'false');
+
+    // 🔥 FIX ICON (PASTI GANTI)
+    const icons = modulHeader.querySelectorAll('i');
+    icons.forEach(icon => {
+        if (icon.classList.contains('fa-lock') || icon.classList.contains('status-lock')) {
+            icon.className = 'fas fa-unlock status-unlock';
+            icon.style.color = '#000e3d';
+        }
+    });
+
+    // Cleanup tooltip
+    modulHeader.removeAttribute('title');
+    modulHeader.removeAttribute('data-bs-toggle');
+    modulHeader.removeAttribute('data-bs-placement');
+    if (modulHeader._tooltip) {
+        modulHeader._tooltip.dispose();
+    }
+    console.log(`✅ Modul Hari ${hariKe} UNLOCKED successfully`);
+}
+
+function BACKUP_unlockModul(hariKe) {
     console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
     if (!modulHeader) {
@@ -2043,46 +2162,6 @@ function applyLockForNewUser() {
         perkenalanHeader.style.cursor = 'pointer';
     }
     console.log('✅ User baru: hanya Perkenalan yang aktif');
-}
-
-/***********************
-* Lock modul tertentu  *
-************************/
-function lockModul(hariKe) {
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        // Skip jika sudah unlocked
-        if (!modulHeader.classList.contains('disabled')) {
-            modulHeader.classList.add('disabled');
-            modulHeader.style.pointerEvents = 'none';
-            modulHeader.style.opacity = '0.6';
-            modulHeader.style.cursor = 'not-allowed';
-            
-            // Update lock icon
-            let lockIcon = modulHeader.querySelector('.status-lock, .status-unlock');
-            if (lockIcon) {
-                lockIcon.className = 'fas fa-lock status-lock';
-                //lockIcon.style.color = '#000e3d';
-            } else {
-                // Cari atau buat icon
-                const iconContainer = modulHeader.querySelector('span');
-                if (iconContainer) {
-                    const existingIcon = iconContainer.querySelector('i');
-                    if (existingIcon) {
-                        existingIcon.className = 'fas fa-lock status-lock';
-                        //existingIcon.style.color = '#000e3d';
-                    } else {
-                        const newIcon = document.createElement('i');
-                        newIcon.className = 'fas fa-lock status-lock';
-                        //newIcon.style.color = '#000e3d';
-                        newIcon.style.marginLeft = '2px' //'10px';
-                        iconContainer.appendChild(newIcon);
-                    }
-                }
-            }
-            console.log(`🔒 Modul Hari ${hariKe} dikunci`);
-        }
-    }
 }
 
 /*******************************
@@ -2957,20 +3036,58 @@ function applyProgressToUI(progress) {
   console.log('✅ Progress berhasil diterapkan');
 }
 
-/**********************************
-* Cek status materi dan update UI *
-***********************************/
-function checkMateriStatus(hariKe) {
+/************************************
+* CHECK STATUS MATERI PER HARI (FIX)
+*************************************/
+function checkMateriStatus(hariKe, progress) {
+    const status = progress[`materi${hariKe}`];
+    // 🔴 Jika belum hari aktif → lock
+    if (!progress[`selesaimodul${hariKe - 1}`] && hariKe !== 1) {
+        lockMateriVideo(hariKe);
+        return;
+    }
+    // 🟢 Jika belum selesai → ENABLE
+    if (!status) {
+        unlockMateriVideo(hariKe);
+    } 
+    // 🔵 Jika sudah selesai → disable
+    else {
+        disableMateriUI(hariKe);
+    }
+}
+
+function BACKUP_checkMateriStatus(hariKe) {
     const status = localStorage.getItem(`materi_hari_${hariKe}`);
     if (status === 'completed') {
         updateMateriCompletionUI(hariKe);
     }
 }
 
+
+/*********************************
+* UPDATE UI MATERI PER HARI (FIX)
+**********************************/
+function updateMateriCompletionUI(hariKe, progress) {
+    const isDone = progress[`materi${hariKe}`];
+
+    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    if (!btn) return;
+
+    if (isDone) {
+        btn.classList.add('completed');
+        btn.disabled = true;
+        btn.style.cursor = 'not-allowed';
+    } else {
+        btn.classList.remove('completed');
+        btn.disabled = false;
+        btn.style.cursor = 'pointer';
+    }
+}
+
 /****************************************
 * Update UI materi dengan tanda centang *
 *****************************************/
-function updateMateriCompletionUI(hariKe) {
+function BACKUP_updateMateriCompletionUI(hariKe) {
   console.log(`🔄 Updating Materi Completion UI for day ${hariKe}`);
   //  1️⃣ Disable HANYA tombol centang (✓) video materi
 
@@ -2996,6 +3113,16 @@ function updateMateriCompletionUI(hariKe) {
   updateSubmenuLinkUI(hariKe, 'materi');
   console.log(`✅ Materi Hari ${hariKe} UI updated successfully`);
 }
+
+/******************************
+* SETUP MATERI COMPLETION (FIX)
+*******************************/
+function setupMateriCompletion(progress) {
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        updateMateriCompletionUI(hariKe, progress);
+    }
+}
+
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
@@ -4328,7 +4455,18 @@ async function selesaikanPerkenalan() {
   }
 }
 
+/******************************************
+ * FIX lockMateriVideo (JANGAN GLOBAL LOCK)
+ *****************************************/
 function lockMateriVideo(hariKe) {
+    const container = document.getElementById(`materiContent${hariKe}`);
+    if (!container) return;
+    container.style.pointerEvents = 'none';
+    container.style.opacity = '0.6';
+    console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
+}
+
+function BACKUP_lockMateriVideo(hariKe) {
     const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
     if (!container) return;
     container.classList.add('video-locked');
@@ -4402,11 +4540,20 @@ function disableCheckButton(sectionId) {
   }
 }
 
-/*******************************************************
-* Unlock modul berikutnya secara otomatis              * 
-* @param {number} hariSelesai - Hari yang baru selesai *
-********************************************************/
-function selesaiMateri(hariSelesai) {
+/******************************************
+* SELESAI MATERI (FIX)  unlock next modul 
+*******************************************/
+function selesaiMateri(hariKe) {
+    console.log(`✅ Menyelesaikan Materi hari ${hariKe}`);
+    showMessage('success', `Materi hari ${hariKe} selesai!`, 3000, `Pertemuan${hariKe}`);
+    saveMateriStatus(hariKe, true);
+    // unlock next modul jika perlu
+    if (hariKe < 10) {
+        unlockModul(hariKe + 1);
+    }
+}
+
+function BACKUP_selesaiMateri(hariSelesai) {
     console.log('✅ Menyelesaikan materi hari:', hariSelesai);
     showMessage('success', `Materi hari ${hariSelesai} selesai!`, 3000, `Pertemuan${hariSelesai}`);
     
@@ -4559,10 +4706,6 @@ function checkProgressFromLocalStorage(userId) {
         }
     }
 }
-
-/****************************************
-* Update UI materi dengan tanda centang *
-*****************************************/
 
 /************************
 /***** FUNGSI BANTU *****
