@@ -2888,6 +2888,74 @@ function setupAllComponents() {
     loadCompleteProgressFromServer(userId, 1)
       .then(progress => {
         console.log('✅ Complete progress loaded successfully');
+        // 🔥 WAJIB TARUH DI SINI
+        applyUnlockModul(progress);
+        setupMateriCompletion(progress);
+        for (let i = 1; i <= 10; i++) {
+            checkMateriStatus(i, progress);
+        }
+      })
+      .catch(error => {
+        console.error('❌ Error loading complete progress:', error);
+        // fallback jika server gagal
+        checkProgressFallback(userId);
+      });
+
+  } else {
+    console.log('⚠️ No user logged in or session expired');
+    // User Belum Login, Lock Semua Modul
+    applyLockForNewUser();
+  }
+
+  // 🔥 WAJIB: generate modul dulu
+  generateModulFromTemplate();
+   // WAJIB DIULANG
+  setupAccordionToggle();
+
+  // Setup Semua Komponen Lainnya (Tetap jalan)
+  setupAllComponentsInternal();
+  console.log('✅ All components setup complete');
+}
+
+function BACKUP_setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+  // DATA LOGIN
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName'); 
+  // Accordian Toggle
+  setupAccordionToggle();
+  // Cek Login User
+  if (userId) {
+    console.log('👤 User is logged in:', userId);
+    // Update Navbar (Icon Useer dan Logout)
+    updateNavbarForLoggedInUser();
+    // Sapaan Personal User Berdasarkan Waktu Akses
+    const namaTampil = userName && userName.trim() !== '' ? userName : userId;
+    const hour       = new Date().getHours();
+
+    let salam = 'SELAMAT MALAM';
+    if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
+    else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
+    else if (hour >= 15 && hour < 18) salam = 'SELAMAT SORE';
+
+    const elGreetingName = document.getElementById('greetingName');
+    const elGreetingTime = document.getElementById('greetingTime');
+    const elGreetingNameInline = document.getElementById('greetingNameInline');
+
+    if (elGreetingName) {
+      elGreetingName.innerText = `Kak ${namaTampil}`;
+    }
+    if (elGreetingTime) {
+      elGreetingTime.innerText = salam;
+    }
+    if (elGreetingNameInline) {
+      elGreetingNameInline.innerText = namaTampil;
+    }
+
+    // Load Progress Lengkap dari server
+    loadCompleteProgressFromServer(userId, 1)
+      .then(progress => {
+        console.log('✅ Complete progress loaded successfully');
       })
       .catch(error => {
         console.error('❌ Error loading complete progress:', error);
