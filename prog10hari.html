@@ -2905,30 +2905,34 @@ function applyProgressToUI(progress) {
 function checkMateriStatus(hariKe, progress) {
     if (!progress) return;
     const status = progress[`materiHari${hariKe}`];
-    // 🔴 jika belum unlock modul sebelumnya → lock
+    // 🔴 belum unlock modul sebelumnya → lock
     if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
         lockMateriVideo(hariKe);
         return;
     }
-
     const btn = document.getElementById(`btnMateriDone${hariKe}`);
     if (!btn) return;
 
-    // 🔵 jika sudah selesai → disable
+    // 🔵 sudah selesai
     if (status === true) {
         btn.disabled = true;
         btn.classList.add('completed');
         btn.style.cursor = 'not-allowed';
+        lockMateriVideo(hariKe);
         console.log(`🔒 Materi hari ${hariKe} selesai`);
     } 
-    // 🟢 jika belum selesai → ENABLE
+    // 🟢 belum selesai → WAJIB unlock
     else {
         btn.disabled = false;
         btn.classList.remove('completed');
         btn.style.cursor = 'pointer';
+        // 🔥 INI YANG HILANG SEBELUMNYA
+        unlockMateriVideo(hariKe);
         console.log(`🟢 Materi hari ${hariKe} aktif`);
     }
 }
+
+
 
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
@@ -4302,6 +4306,20 @@ function lockMateriVideo(hariKe) {
     console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
 }
 
+/*************************
+ * FIX unlockMateriVideo 
+ *************************/
+function unlockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+    container.classList.remove('video-locked');
+    container.style.opacity = '1';
+    console.log(`🔓 Video materi hari ${hariKe} dibuka`);
+}
+
+/*************************************
+* Disabled tombol Selesai Perkenalan
+**************************************/
 function disableSelesaiPerkenalanButton() {
   const container = document.getElementById('perkenalanContent');
   if (!container) return;
@@ -4316,6 +4334,9 @@ function disableSelesaiPerkenalanButton() {
   });
 }
 
+/*************************************
+* Disabled semua tombol aksi selesai
+**************************************/
 function disableActionButtons(type, hariKe) {
   console.log(`🔒 Disabling action buttons for ${type} day ${hariKe}`);
   const containerId =
