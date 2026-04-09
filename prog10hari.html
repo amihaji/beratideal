@@ -1445,6 +1445,119 @@ function logout() {
 * GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
 ***********************************************/
 function generateModulFromTemplate() {
+  const modul1 = document.getElementById('modulHari1Wrapper');
+  if (!modul1) {
+    console.error('❌ Modul 1 tidak ditemukan');
+    return;
+  }
+
+  const container = document.getElementById('containerModulAuto');
+  if (!container) return;
+
+  let html = '';
+
+  for (let hariKe = 2; hariKe <= 10; hariKe++) {
+    let clone = modul1.outerHTML;
+
+    clone = clone
+      // =============================
+      // ID CONTENT
+      // =============================
+      .replaceAll(/pertemuanContent1/g, `pertemuanContent${hariKe}`)
+      .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
+      .replaceAll(/mealplanContent1/g, `mealplanContent${hariKe}`)
+      .replaceAll(/workoutContent1/g, `workoutContent${hariKe}`)
+      .replaceAll(/waterContent1/g, `waterContent${hariKe}`)
+      .replaceAll(/istirahatContent1/g, `istirahatContent${hariKe}`)
+      .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
+      .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
+      .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
+
+      // =============================
+      // DATA SECTION
+      // =============================
+      .replaceAll(/data-section="pertemuan1"/g, `data-section="pertemuan${hariKe}"`)
+      .replaceAll(/data-section="materi1"/g, `data-section="materi${hariKe}"`)
+      .replaceAll(/data-section="mealplan1"/g, `data-section="mealplan${hariKe}"`)
+      .replaceAll(/data-section="workout1"/g, `data-section="workout${hariKe}"`)
+      .replaceAll(/data-section="water1"/g, `data-section="water${hariKe}"`)
+      .replaceAll(/data-section="istirahat1"/g, `data-section="istirahat${hariKe}"`)
+      .replaceAll(/data-section="tracking1"/g, `data-section="tracking${hariKe}"`)
+      .replaceAll(/data-section="tanya1"/g, `data-section="tanya${hariKe}"`)
+      .replaceAll(/data-section="selesaimodul1"/g, `data-section="selesaimodul${hariKe}`)
+
+      // =============================
+      // 🔴 FIX UTAMA: BUTTON CEK DISINI
+      // =============================
+      .replaceAll(/btnCekDisiniMealplan1/g, `btnCekDisiniMealplan${hariKe}`)
+      .replaceAll(/btnCekDisiniWorkout1/g, `btnCekDisiniWorkout${hariKe}`)
+      .replaceAll(/btnCekDisiniAirMinum1/g, `btnCekDisiniAirMinum${hariKe}`)
+      .replaceAll(/btnCekDisiniIstirahat1/g, `btnCekDisiniIstirahat${hariKe}`)
+      .replaceAll(/btnCekDisiniTracking1/g, `btnCekDisiniTracking${hariKe}`)
+
+      // =============================
+      // LIST & INPUT
+      // =============================
+      .replaceAll(/jadwalmealplan-list/g, `jadwalmealplan-list${hariKe}`)
+      .replaceAll(/olahragaKardio-list/g, `olahragaKardio-list${hariKe}`)
+      .replaceAll(/olahragaResisten-list/g, `olahragaResisten-list${hariKe}`)
+      .replaceAll(/airputihRadioBtn/g, `airputihRadioBtn${hariKe}`)
+      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)
+
+      // =============================
+      // VIDEO
+      // =============================
+      .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
+      .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
+      .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
+      .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
+
+      // =============================
+      // BUTTON LAIN
+      // =============================
+      .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
+      .replaceAll(/selesaiModul\(1\)/g, `selesaiModul(${hariKe})`)
+
+      // =============================
+      // TEXT
+      // =============================
+      .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
+      .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
+      .replaceAll(/1\.1/g, `${hariKe}.1`)
+      .replaceAll(/1\.2/g, `${hariKe}.2`)
+      .replaceAll(/1\.3/g, `${hariKe}.3`)
+      .replaceAll(/1\.4/g, `${hariKe}.4`)
+      .replaceAll(/1\.5/g, `${hariKe}.5`)
+      .replaceAll(/1\.6/g, `${hariKe}.6`)
+      .replaceAll(/1\.7/g, `${hariKe}.7`)
+      .replaceAll(/1\.8/g, `${hariKe}.8`);
+
+    // =============================
+    // VIDEO URL
+    // =============================
+    clone = clone.replaceAll(
+      /data-url="Video\/.*?\.mp4"/g,
+      `data-url="${fileMateri[hariKe].video}"`
+    );
+
+    // =============================
+    // PDF URL
+    // =============================
+    clone = clone
+      .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
+      .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
+      .replaceAll(/data-url="pdf\/water1\.pdf"/g, fileMateri[hariKe].water)
+      .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat)
+      .replaceAll(/data-url="pdf\/tracking1\.pdf"/g, fileMateri[hariKe].tracking);
+
+    html += clone;
+  }
+
+  container.innerHTML = html;
+  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
+}
+
+function BACKUP_generateModulFromTemplate() {
   // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
   const modul1 = document.getElementById('modulHari1Wrapper');
   if (!modul1) {
@@ -2973,10 +3086,42 @@ function setupMateriCompletion(progress) {
     }
 }
 
+
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
 ********************************************/
 function setupCekDisiniButtons() {
+  console.log('🔧 Setting up Cek Disini buttons for all days...');
+  const configs = [
+    { type: 'Mealplan', key: 'mealplan', file: 'mealplan' },
+    { type: 'Workout', key: 'workout', file: 'workout' },
+    { type: 'AirMinum', key: 'water', file: 'water' },
+    { type: 'Istirahat', key: 'istirahat', file: 'istirahat' },
+    { type: 'Tracking', key: 'tracking', file: 'tracking' }
+  ];
+  for (let day = 1; day <= 10; day++) {
+    configs.forEach(cfg => {
+      const btnId = `btnCekDisini${cfg.type}${day}`;
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          console.log(`📄 Handling Cek Disini: ${cfg.type} for day ${day}`);
+          const section = `${cfg.key}${day}`;
+          const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${cfg.file}_hariKe${day}.pdf`;
+          loadPDF(section, pdfUrl, `${cfg.type} Hari ${day}`);
+        });
+        console.log(`✅ Button wired: ${btnId}`);
+      } else {
+        console.warn(`⚠️ Button tidak ditemukan: ${btnId}`);
+      }
+    });
+  }
+
+  console.log('✅ Cek Disini buttons setup completed for all days');
+}
+
+function BACKUP_setupCekDisiniButtons() {
     console.log('🔧 Setting up Cek Disini buttons for all days...');
     
     // Setup event listeners untuk semua tombol Cek Disini yang ada
@@ -3019,6 +3164,7 @@ function setupCekDisiniButtons() {
     });
     console.log('✅ Cek Disini buttons setup completed for all days');
 }
+
 
 /**********************************************************
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
@@ -3728,7 +3874,48 @@ function setupPDFLinks() {
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
-function loadPDF(section, pdfUrl, title = '') {
+function loadPDF(section, pdfUrl, title) {
+  console.log('loadPDF called:', { section, pdfUrl, title });
+
+  try {
+    const day = section.replace(/\D/g, '');
+    const base = section.replace(/\d+/g, '');
+
+    const buttonId = `btnCekDisini${capitalizeFirst(base)}${day}`;
+    const cekDisiniBtn = document.getElementById(buttonId);
+
+    if (!cekDisiniBtn) {
+      console.error(`❌ Cek Disini button not found for section: ${section}`);
+      return;
+    }
+
+    let container = cekDisiniBtn.closest('.submenu-content');
+
+    const existingPDF = container.querySelector('.pdf-container');
+    if (existingPDF) existingPDF.remove();
+
+    const pdfContainer = document.createElement('div');
+    pdfContainer.className = 'pdf-container';
+    pdfContainer.style.marginTop = '10px';
+
+    const iframe = document.createElement('iframe');
+    iframe.src = pdfUrl;
+    iframe.width = '100%';
+    iframe.height = '500px';
+    iframe.style.border = '1px solid #ccc';
+
+    pdfContainer.appendChild(iframe);
+
+    cekDisiniBtn.parentNode.insertBefore(pdfContainer, cekDisiniBtn.nextSibling);
+
+    console.log(`✅ PDF tampil untuk ${section}`);
+
+  } catch (err) {
+    console.error('❌ Error loadPDF:', err);
+  }
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
