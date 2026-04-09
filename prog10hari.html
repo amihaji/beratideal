@@ -2056,6 +2056,84 @@ function updatePerkenalanUI() {
  * Setup Seluruh Komponen Internal *
  **********************************/
 function setupAllComponentsInternal(progress = {}) {
+    if (!progress) progress = {};
+    // Submenu triggers
+    document.querySelectorAll('.submenu-trigger').forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('data-target');
+            showSubmenu(target);
+        });
+    });
+    
+    // Tombol close submenu
+    document.querySelectorAll('.btn-close-header').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.closest('.submenu-content').id;
+            hideSubmenu(targetId);
+        });
+    });
+
+    // Links & playlist
+    setupAllLinks();
+    setupPlaylistTriggers();
+    // Perkenalan
+    setupPerkenalanCompletion();
+    // PDF
+    setupPanduanPDFLinks();
+    // Cek Disini
+    setupCekDisiniButtons();
+    // 🔓 Unlock modul
+    applyUnlockModul(progress);
+    // 🔥 Materi (FIX UTAMA)
+    setupMateriCompletion(progress);
+    for (let i = 1; i <= 10; i++) {
+        checkMateriStatus(i, progress);
+    }
+
+    // Mealplan
+    generateMealplanForms();
+    for (let i = 1; i <= 10; i++) {
+        checkMealplanStatus(i);
+        loadMealplanProgress(i);
+    }
+
+    // About
+    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+    // Workout
+    generateWorkoutForms();
+    initializeAllWorkoutDays();
+    // Water
+    addWaterReminderStyles();
+    initializeAllWaterReminderForms();
+    for (let i = 1; i <= 10; i++) {
+        const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
+        if (waterLink) {
+            waterLink.onclick = function(e) {
+                e.preventDefault();
+                showWaterReminderForm(i);
+            };
+        }
+    }
+
+    document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
+        item.addEventListener('click', function () {
+            const hariKe = parseInt(
+                this.getAttribute('data-target').replace('waterContent', '')
+            );
+            window.activeWaterHari = hariKe;
+        });
+    });
+
+    document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
+        btn.disabled = true;
+    });
+    // 🔥 VIDEO (PENTING - JANGAN HILANG)
+    initializeAllVideoPlayers();
+    console.log('🔍 Testing server connection on startup...');
+}
+
+ function BACKUP_setupAllComponentsInternal(progress = {}) {
     // 🔥 FIX: pastikan progress selalu ada
     if (!progress) progress = {};
 
@@ -2136,6 +2214,77 @@ function setupAllComponentsInternal(progress = {}) {
     // Video
     initializeAllVideoPlayers();
     console.log('🔍 Testing server connection on startup...');
+}
+
+/****************************
+* Update Setup All Komponen *
+*****************************/
+function setupAllComponents() {
+  console.log('🔧 Setting up all components...');
+  // DATA LOGIN
+  const userId   = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName'); 
+  // Accordian Toggle
+  setupAccordionToggle();
+  // 🔥 WAJIB: generate modul dulu
+  generateModulFromTemplate();
+  // WAJIB DIULANG
+  setupAccordionToggle();
+
+  // Cek Login User
+  if (userId) {
+    console.log('👤 User is logged in:', userId);
+    // Update Navbar
+    updateNavbarForLoggedInUser();
+    // Sapaan
+    const namaTampil = userName && userName.trim() !== '' ? userName : userId;
+    const hour       = new Date().getHours();
+
+    let salam = 'SELAMAT MALAM';
+    if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
+    else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
+    else if (hour >= 15 && hour < 18) salam = 'SELAMAT SORE';
+
+    const elGreetingName = document.getElementById('greetingName');
+    const elGreetingTime = document.getElementById('greetingTime');
+    const elGreetingNameInline = document.getElementById('greetingNameInline');
+
+    if (elGreetingName) elGreetingName.innerText = `Kak ${namaTampil}`;
+    if (elGreetingTime) elGreetingTime.innerText = salam;
+    if (elGreetingNameInline) elGreetingNameInline.innerText = namaTampil;
+
+    // 🔥 LOAD PROGRESS
+    loadCompleteProgressFromServer(userId, 1)
+      .then(progress => {
+        console.log('✅ Complete progress loaded successfully');
+        // 🔥 SIMPAN GLOBAL (PENTING)
+        window.userProgress = progress;
+        // 🔓 APPLY LOGIC
+        applyUnlockModul(progress);
+        setupMateriCompletion(progress);
+        for (let i = 1; i <= 10; i++) {
+          checkMateriStatus(i, progress);
+        }
+        // 🔥 BARU SETUP INTERNAL (AMAN)
+        setupAllComponentsInternal(progress);
+        console.log('✅ All components setup complete');
+      })
+      .catch(error => {
+        console.error('❌ Error loading complete progress:', error);
+        // fallback
+        checkProgressFallback(userId);
+        // tetap jalankan sistem dengan empty progress
+        setupAllComponentsInternal({});
+        console.log('⚠️ Fallback setup completed');
+      });
+  } else {
+    console.log('⚠️ No user logged in or session expired');
+    // Lock semua modul
+    applyLockForNewUser();
+    // tetap jalankan sistem
+    setupAllComponentsInternal({});
+    console.log('⚠️ Setup for guest completed');
+  }
 }
 
 /**************************************
