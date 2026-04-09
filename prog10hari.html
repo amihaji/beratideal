@@ -2966,21 +2966,6 @@ function updateMateriCompletionUI(hariKe, progress) {
     }
 }
 
-function BACKUP_updateMateriCompletionUI(hariKe, progress) {
-    const isDone = progress[`materi${hariKe}`];
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
-    if (isDone) {
-        btn.classList.add('completed');
-        btn.disabled = true;
-        btn.style.cursor = 'not-allowed';
-    } else {
-        btn.classList.remove('completed');
-        btn.disabled = false;
-        btn.style.cursor = 'pointer';
-    }
-}
-
 /******************************
 * SETUP MATERI COMPLETION (FIX)
 *******************************/
@@ -2989,7 +2974,6 @@ function setupMateriCompletion(progress) {
         updateMateriCompletionUI(hariKe, progress);
     }
 }
-
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
