@@ -1383,6 +1383,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAccordionToggle();
     // Seetup semua komponen
     setupAllComponents();
+    // SetUp Materi
+    setupMateriCompletion();
     // 2. Cek Status User dan Apply Lock
     const userId = localStorage.getItem('userId');
     if (userId) {
@@ -1792,24 +1794,10 @@ function applyExistingUserProgress(progress) {
     {
       key: 'materiHari',
       action: (h) => {
-        const isDone = progress[`materiHari${h}`];
-        const btn    = document.getElementById(`btnMateriDone${h}`);
-        if (isDone === true) {
-            // 🔒 hanya kalau selesai
-            lockMateriVideo(h);
-            if (btn) disableButtonFully(btn);
-            updateSubmenuLinkUI('materi', h);
-            console.log(`🔒 Apply progress: materi hari ${h} selesai`);
-        } else {
-            // 🔓 kalau belum selesai → JANGAN disable
-            unlockMateriVideo(h);
-            if (btn) {
-                btn.disabled = false;
-                btn.classList.remove('completed');
-                btn.style.cursor = 'pointer';
-            }
-            console.log(`🟢 Apply progress: materi hari ${h} aktif`);
-        }
+        lockMateriVideo(h);
+        const btn = document.getElementById(`btnMateriDone${h}`);
+        if (btn) disableButtonFully(btn);
+        updateSubmenuLinkUI('materi', h);
       }
     },
 
@@ -1952,12 +1940,42 @@ function lockModul(hariKe) {
     modulHeader.style.opacity = '0.5';
     modulHeader.style.cursor = 'not-allowed';
 
-    // 🔥 FIX ICON SINGLE
-    let icon = modulHeader.querySelector('.status-lock, .status-unlock');
-
+    const icon = modulHeader.querySelector('i');
     if (icon) {
         icon.className = 'fas fa-lock status-lock';
         icon.style.color = '#999';
+    }
+}
+
+/***************************************
+* Strict Lock Modul (benar-benar lock) *
+****************************************/
+function strictLockModul(hariKe) {
+    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
+    if (modulHeader) {
+        // Add disabled class
+        modulHeader.classList.add('disabled');
+        // Remove click event listener yang ada
+        const newHeader = modulHeader.cloneNode(true);
+        modulHeader.parentNode.replaceChild(newHeader, modulHeader);
+        // Set style untuk benar-benar disabled
+        newHeader.style.pointerEvents = 'none';
+        newHeader.style.opacity = '0.5';
+        newHeader.style.cursor = 'not-allowed';
+        newHeader.style.backgroundColor = '#f8f9fa'; // Background abu-abu
+        // Update lock icon
+        const lockIcon = newHeader.querySelector('.status-lock, .status-unlock');
+        if (lockIcon) {
+            lockIcon.className = 'status-lock';
+            //lockIcon.style.color = '#000e3d'; // Warna biru tua
+        }
+        // Add tooltip "Selesaikan Perkenalan dulu"
+        newHeader.title = 'Selesaikan Perkenalan terlebih dahulu!';
+        newHeader.setAttribute('data-bs-toggle', 'tooltip');
+        newHeader.setAttribute('data-bs-placement', 'top');
+        console.log(`🔒 STRICT LOCK Modul Hari ${hariKe}`);
+        // Initialize Bootstrap tooltip
+        new bootstrap.Tooltip(newHeader);
     }
 }
 
@@ -1966,14 +1984,14 @@ function lockModul(hariKe) {
 * FUNGSI KONTROL MANAGER (yang memutuskan modul mana dibuka)
 ************************************************************/
 function applyUnlockModul(progress) {
-    // Lock semua dulu
+    // Default: lock semua dulu kecuali hari 1
     for (let i = 2; i <= 10; i++) {
         lockModul(i);
     }
 
-    // 🔥 FIX: gunakan key yang BENAR
+    // Unlock berurutan
     for (let i = 1; i <= 9; i++) {
-        if (progress[`selesaimodulHari${i}`] === true) {
+        if (progress[`selesaimodul${i}`] === true) {
             unlockModul(i + 1);
         }
     }
@@ -1987,26 +2005,38 @@ function unlockModul(hariKe) {
     console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
 
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (!modulHeader) return;
+    if (!modulHeader) {
+        console.error(`❌ Modul header not found for hari ${hariKe}`);
+        return;
+    }
 
+    // Enable klik
     modulHeader.classList.remove('disabled');
     modulHeader.style.pointerEvents = 'auto';
     modulHeader.style.opacity = '1';
     modulHeader.style.cursor = 'pointer';
 
-    // FIX collapse
+    // FIX collapse Bootstrap
     modulHeader.classList.remove('collapsed');
     modulHeader.setAttribute('aria-expanded', 'false');
 
-    // 🔥 FIX ICON (HANYA 1 ICON)
-    let icon = modulHeader.querySelector('.status-lock, .status-unlock');
+    // 🔥 FIX ICON (PASTI GANTI)
+    const icons = modulHeader.querySelectorAll('i');
+    icons.forEach(icon => {
+        if (icon.classList.contains('fa-lock') || icon.classList.contains('status-lock')) {
+            icon.className = 'fas fa-unlock status-unlock';
+            icon.style.color = '#000e3d';
+        }
+    });
 
-    if (icon) {
-        icon.className = 'fas fa-unlock status-unlock';
-        icon.style.color = '#000e3d';
+    // Cleanup tooltip
+    modulHeader.removeAttribute('title');
+    modulHeader.removeAttribute('data-bs-toggle');
+    modulHeader.removeAttribute('data-bs-placement');
+    if (modulHeader._tooltip) {
+        modulHeader._tooltip.dispose();
     }
-
-    console.log(`✅ Modul Hari ${hariKe} UNLOCKED`);
+    console.log(`✅ Modul Hari ${hariKe} UNLOCKED successfully`);
 }
 
 /************************************
@@ -2016,7 +2046,7 @@ function applyLockForNewUser() {
     console.log('🔐 STRICT lock semua modul untuk user baru');
 // 🔒 STRICT LOCK modul hari 1–10
     for (let i = 1; i <= 10; i++) {
-        lockModul(i); // ✅ PAKAI YANG BENAR
+        strictLockModul(i); // ✅ PAKAI YANG BENAR
     }
 
     // ✅ Perkenalan tetap terbuka
@@ -2054,9 +2084,8 @@ function updatePerkenalanUI() {
 
 /***********************************
  * Setup Seluruh Komponen Internal *
- **********************************/
-function setupAllComponentsInternal(progress = {}) {
-    if (!progress) progress = {};
+ * *********************************/
+function setupAllComponentsInternal() {
     // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
         trigger.addEventListener('click', function(e) {
@@ -2066,46 +2095,46 @@ function setupAllComponentsInternal(progress = {}) {
         });
     });
     
-    // Tombol close submenu
+    // Setup tombol close di semua submenu
     document.querySelectorAll('.btn-close-header').forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.closest('.submenu-content').id;
             hideSubmenu(targetId);
         });
     });
-
-    // Links & playlist
+    // Setup video links
     setupAllLinks();
+    // Setup playlist
     setupPlaylistTriggers();
-    // Perkenalan
+    // Setup Materi Perkenalan
     setupPerkenalanCompletion();
-    // PDF
+    // Setup PDF links
     setupPanduanPDFLinks();
-    // Cek Disini
+    // Setup tombol "Cek Disini" untuk Modul 
     setupCekDisiniButtons();
-    // 🔓 Unlock modul
-    applyUnlockModul(progress);
-    // 🔥 Materi (FIX UTAMA)
-    setupMateriCompletion(progress);
+    // Setup materi completion
+    setupMateriCompletion();
+    // Check materi status dari localStorage
     for (let i = 1; i <= 10; i++) {
-        checkMateriStatus(i, progress);
+        checkMateriStatus(i);
     }
-
-    // Mealplan
+    // Setup meal plan forms
     generateMealplanForms();
+    // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
         checkMealplanStatus(i);
         loadMealplanProgress(i);
     }
-
-    // About
+    // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    // Workout
-    generateWorkoutForms();
-    initializeAllWorkoutDays();
-    // Water
-    addWaterReminderStyles();
-    initializeAllWaterReminderForms();
+    // Setup workout forms
+    generateWorkoutForms();      // 1. Generate HTML dulu
+    initializeAllWorkoutDays();  // 2. Setup event listeners
+   // Tambahkan styles
+    addWaterReminderStyles(); 
+    // Generate semua form
+    initializeAllWaterReminderForms(); 
+    // Update onclick handlers untuk water reminder links
     for (let i = 1; i <= 10; i++) {
         const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
         if (waterLink) {
@@ -2116,92 +2145,23 @@ function setupAllComponentsInternal(progress = {}) {
         }
     }
 
+    //  Menandai hari aktif saat klik tombol simpan & selesai water
     document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
-        item.addEventListener('click', function () {
-            const hariKe = parseInt(
-                this.getAttribute('data-target').replace('waterContent', '')
-            );
-            window.activeWaterHari = hariKe;
-        });
+      item.addEventListener('click', function () {
+        const hariKe = parseInt(
+          this.getAttribute('data-target').replace('waterContent', '')
+        );
+        // Simpan referensi hari aktif
+        window.activeWaterHari = hariKe;
+      });
     });
-
+    // Initial State Water Reminder
     document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
-        btn.disabled = true;
+      btn.disabled = true;
     });
-    // 🔥 VIDEO (PENTING - JANGAN HILANG)
+    // Initialize video players
     initializeAllVideoPlayers();
     console.log('🔍 Testing server connection on startup...');
-}
-
-/****************************
-* Update Setup All Komponen *
-*****************************/
-function setupAllComponents() {
-  console.log('🔧 Setting up all components...');
-  // DATA LOGIN
-  const userId   = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName'); 
-  // Accordian Toggle
-  setupAccordionToggle();
-  // 🔥 WAJIB: generate modul dulu
-  generateModulFromTemplate();
-  // WAJIB DIULANG
-  setupAccordionToggle();
-
-  // Cek Login User
-  if (userId) {
-    console.log('👤 User is logged in:', userId);
-    // Update Navbar
-    updateNavbarForLoggedInUser();
-    // Sapaan
-    const namaTampil = userName && userName.trim() !== '' ? userName : userId;
-    const hour       = new Date().getHours();
-
-    let salam = 'SELAMAT MALAM';
-    if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
-    else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
-    else if (hour >= 15 && hour < 18) salam = 'SELAMAT SORE';
-
-    const elGreetingName = document.getElementById('greetingName');
-    const elGreetingTime = document.getElementById('greetingTime');
-    const elGreetingNameInline = document.getElementById('greetingNameInline');
-
-    if (elGreetingName) elGreetingName.innerText = `Kak ${namaTampil}`;
-    if (elGreetingTime) elGreetingTime.innerText = salam;
-    if (elGreetingNameInline) elGreetingNameInline.innerText = namaTampil;
-
-    // 🔥 LOAD PROGRESS
-    loadCompleteProgressFromServer(userId, 1)
-      .then(progress => {
-        console.log('✅ Complete progress loaded successfully');
-        // 🔥 SIMPAN GLOBAL (PENTING)
-        window.userProgress = progress;
-        // 🔓 APPLY LOGIC
-        applyUnlockModul(progress);
-        setupMateriCompletion(progress);
-        for (let i = 1; i <= 10; i++) {
-          checkMateriStatus(i, progress);
-        }
-        // 🔥 BARU SETUP INTERNAL (AMAN)
-        setupAllComponentsInternal(progress);
-        console.log('✅ All components setup complete');
-      })
-      .catch(error => {
-        console.error('❌ Error loading complete progress:', error);
-        // fallback
-        checkProgressFallback(userId);
-        // tetap jalankan sistem dengan empty progress
-        setupAllComponentsInternal({});
-        console.log('⚠️ Fallback setup completed');
-      });
-  } else {
-    console.log('⚠️ No user logged in or session expired');
-    // Lock semua modul
-    applyLockForNewUser();
-    // tetap jalankan sistem
-    setupAllComponentsInternal({});
-    console.log('⚠️ Setup for guest completed');
-  }
 }
 
 /**************************************
@@ -2849,7 +2809,7 @@ function setupAllComponents() {
   setupAccordionToggle();
 
   // Setup Semua Komponen Lainnya (Tetap jalan)
-  setupAllComponentsInternal(progress);
+  setupAllComponentsInternal();
   console.log('✅ All components setup complete');
 }
 
@@ -2982,44 +2942,31 @@ function applyProgressToUI(progress) {
 * CHECK STATUS MATERI PER HARI (FIX)
 *************************************/
 function checkMateriStatus(hariKe, progress) {
-    if (!progress) return;
-    const status = progress[`materiHari${hariKe}`];
-    // 🔴 belum unlock modul sebelumnya → lock
-    if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
+    const status = progress[`materi${hariKe}`];
+    // 🔴 Jika belum hari aktif → lock
+    if (!progress[`selesaimodul${hariKe - 1}`] && hariKe !== 1) {
         lockMateriVideo(hariKe);
         return;
     }
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
-
-    // 🔵 sudah selesai
-    if (status === true) {
-        btn.disabled = true;
-        btn.classList.add('completed');
-        btn.style.cursor = 'not-allowed';
-        lockMateriVideo(hariKe);
-        console.log(`🔒 Materi hari ${hariKe} selesai`);
-    } 
-    // 🟢 belum selesai → WAJIB unlock
-    else {
-        btn.disabled = false;
-        btn.classList.remove('completed');
-        btn.style.cursor = 'pointer';
-        // 🔥 INI YANG HILANG SEBELUMNYA
+    // 🟢 Jika belum selesai → ENABLE
+    if (!status) {
         unlockMateriVideo(hariKe);
-        console.log(`🟢 Materi hari ${hariKe} aktif`);
+    } 
+    // 🔵 Jika sudah selesai → disable
+    else {
+        disableMateriUI(hariKe);
     }
 }
-
-
 
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
 **********************************/
 function updateMateriCompletionUI(hariKe, progress) {
-    const isDone = progress[`materiHari${hariKe}`]; // ✅ FIX
+    const isDone = progress[`materi${hariKe}`];
+
     const btn = document.getElementById(`btnMateriDone${hariKe}`);
     if (!btn) return;
+
     if (isDone) {
         btn.classList.add('completed');
         btn.disabled = true;
@@ -3039,6 +2986,7 @@ function setupMateriCompletion(progress) {
         updateMateriCompletionUI(hariKe, progress);
     }
 }
+
 
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
@@ -4212,6 +4160,73 @@ function showSubmenuOnly(targetId) {
     }, 300);
 }
 
+/**********************************************
+* Memberikan tombol centang Materi (Hari 1–10)
+***********************************************/
+function setupMateriCompletion() {
+  console.log('🔧 Setting up materi completion...');
+
+  document.querySelectorAll('.video-container').forEach(container => {
+    const containerId = container.id;
+
+    if (!containerId.includes('Pertemuan')) return;
+
+    const hariKe = containerId.replace('videoContainerPertemuan', '');
+    const videoWrapper = container.querySelector('.video-wrapper');
+    if (!videoWrapper) return;
+
+    videoWrapper.style.position = 'relative';
+
+    let completeBtn = container.querySelector('.complete-btn');
+
+    // === BUAT TOMBOL JIKA BELUM ADA ===
+    if (!completeBtn) {
+      completeBtn = document.createElement('button');
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.className = 'btn btn-success btn-sm complete-btn';
+      completeBtn.id = `btnMateriDone${hariKe}`;
+      completeBtn.style.cssText = `
+        position: absolute; top: 10px; left: 10px; z-index: 25;
+        width: 35px; height: 35px; border-radius: 50%; padding: 0;
+        border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      `;
+
+      completeBtn.onclick = () => {
+        if (completeBtn.dataset.done === 'true') {
+          console.warn('⛔ Materi sudah diselesaikan');
+          return;
+        }
+
+        simpanMateri(hariKe);
+
+        // 🔒 KUNCI LANGSUNG DI UI
+        completeBtn.dataset.done = 'true';
+        completeBtn.disabled = true;
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+
+        // 💾 SIMPAN STATUS
+        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+
+        // ✅ UPDATE SUBMENU
+        updateSubmenuLinkUI('materi', hariKe);
+      };
+
+      videoWrapper.appendChild(completeBtn);
+      console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
+    }
+
+    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
+    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
+      completeBtn.dataset.done = 'true';
+      completeBtn.disabled = true;
+      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.classList.remove('btn-success');
+      completeBtn.classList.add('btn-secondary');
+    }
+  });
+}
 
 /*********************************************************************
 * Cari link "Selesai Perkenalan" dengan selector yang lebih spesifik *
@@ -4315,20 +4330,6 @@ function lockMateriVideo(hariKe) {
     console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
 }
 
-/*************************
- * FIX unlockMateriVideo 
- *************************/
-function unlockMateriVideo(hariKe) {
-    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
-    if (!container) return;
-    container.classList.remove('video-locked');
-    container.style.opacity = '1';
-    console.log(`🔓 Video materi hari ${hariKe} dibuka`);
-}
-
-/*************************************
-* Disabled tombol Selesai Perkenalan
-**************************************/
 function disableSelesaiPerkenalanButton() {
   const container = document.getElementById('perkenalanContent');
   if (!container) return;
@@ -4343,9 +4344,6 @@ function disableSelesaiPerkenalanButton() {
   });
 }
 
-/*************************************
-* Disabled semua tombol aksi selesai
-**************************************/
 function disableActionButtons(type, hariKe) {
   console.log(`🔒 Disabling action buttons for ${type} day ${hariKe}`);
   const containerId =
