@@ -1383,8 +1383,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupAccordionToggle();
     // Seetup semua komponen
     setupAllComponents();
-    // SetUp Materi
-    setupMateriCompletion();
     // 2. Cek Status User dan Apply Lock
     const userId = localStorage.getItem('userId');
     if (userId) {
@@ -2056,7 +2054,7 @@ function updatePerkenalanUI() {
 
 /***********************************
  * Setup Seluruh Komponen Internal *
- * *********************************/
+ **********************************/
 function setupAllComponentsInternal(progress = {}) {
     // 🔥 FIX: pastikan progress selalu ada
     if (!progress) progress = {};
@@ -2088,11 +2086,12 @@ function setupAllComponentsInternal(progress = {}) {
     setupPanduanPDFLinks();
     // Setup tombol "Cek Disini"
     setupCekDisiniButtons();
-    // Setup materi completion
-    setupMateriCompletion();
     // 🔥 FIX: gunakan progress yang valid
     applyUnlockModul(progress);
-    // Cek Materi Status
+
+    // Setup materi completion
+    setupMateriCompletion(progress);
+    // Cek Materi Status per hari
     for (let i = 1; i <= 10; i++) {
         checkMateriStatus(i, progress);
     }
@@ -2120,7 +2119,7 @@ function setupAllComponentsInternal(progress = {}) {
             };
         }
     }
-
+   
     document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
         item.addEventListener('click', function () {
             const hariKe = parseInt(
@@ -2784,7 +2783,7 @@ function setupAllComponents() {
   setupAccordionToggle();
 
   // Setup Semua Komponen Lainnya (Tetap jalan)
-  setupAllComponentsInternal();
+  setupAllComponentsInternal(progress);
   console.log('✅ All components setup complete');
 }
 
@@ -2945,6 +2944,8 @@ function checkMateriStatus(hariKe, progress) {
         console.log(`🟢 Materi hari ${hariKe} aktif`);
     }
 }
+
+
 
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
@@ -4145,73 +4146,6 @@ function showSubmenuOnly(targetId) {
     }, 300);
 }
 
-/**********************************************
-* Memberikan tombol centang Materi (Hari 1–10)
-***********************************************/
-function setupMateriCompletion() {
-  console.log('🔧 Setting up materi completion...');
-
-  document.querySelectorAll('.video-container').forEach(container => {
-    const containerId = container.id;
-
-    if (!containerId.includes('Pertemuan')) return;
-
-    const hariKe = containerId.replace('videoContainerPertemuan', '');
-    const videoWrapper = container.querySelector('.video-wrapper');
-    if (!videoWrapper) return;
-
-    videoWrapper.style.position = 'relative';
-
-    let completeBtn = container.querySelector('.complete-btn');
-
-    // === BUAT TOMBOL JIKA BELUM ADA ===
-    if (!completeBtn) {
-      completeBtn = document.createElement('button');
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.className = 'btn btn-success btn-sm complete-btn';
-      completeBtn.id = `btnMateriDone${hariKe}`;
-      completeBtn.style.cssText = `
-        position: absolute; top: 10px; left: 10px; z-index: 25;
-        width: 35px; height: 35px; border-radius: 50%; padding: 0;
-        border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      `;
-
-      completeBtn.onclick = () => {
-        if (completeBtn.dataset.done === 'true') {
-          console.warn('⛔ Materi sudah diselesaikan');
-          return;
-        }
-
-        simpanMateri(hariKe);
-
-        // 🔒 KUNCI LANGSUNG DI UI
-        completeBtn.dataset.done = 'true';
-        completeBtn.disabled = true;
-        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-        completeBtn.classList.remove('btn-success');
-        completeBtn.classList.add('btn-secondary');
-
-        // 💾 SIMPAN STATUS
-        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-
-        // ✅ UPDATE SUBMENU
-        updateSubmenuLinkUI('materi', hariKe);
-      };
-
-      videoWrapper.appendChild(completeBtn);
-      console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
-    }
-
-    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
-    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
-      completeBtn.dataset.done = 'true';
-      completeBtn.disabled = true;
-      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-      completeBtn.classList.remove('btn-success');
-      completeBtn.classList.add('btn-secondary');
-    }
-  });
-}
 
 /*********************************************************************
 * Cari link "Selesai Perkenalan" dengan selector yang lebih spesifik *
