@@ -1794,10 +1794,24 @@ function applyExistingUserProgress(progress) {
     {
       key: 'materiHari',
       action: (h) => {
-        lockMateriVideo(h);
-        const btn = document.getElementById(`btnMateriDone${h}`);
-        if (btn) disableButtonFully(btn);
-        updateSubmenuLinkUI('materi', h);
+        const isDone = progress[`materiHari${h}`];
+        const btn    = document.getElementById(`btnMateriDone${h}`);
+        if (isDone === true) {
+            // 🔒 hanya kalau selesai
+            lockMateriVideo(h);
+            if (btn) disableButtonFully(btn);
+            updateSubmenuLinkUI('materi', h);
+            console.log(`🔒 Apply progress: materi hari ${h} selesai`);
+        } else {
+            // 🔓 kalau belum selesai → JANGAN disable
+            unlockMateriVideo(h);
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('completed');
+                btn.style.cursor = 'pointer';
+            }
+            console.log(`🟢 Apply progress: materi hari ${h} aktif`);
+        }
       }
     },
 
