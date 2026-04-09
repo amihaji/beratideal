@@ -2984,21 +2984,36 @@ function setupCekDisiniButtons() {
         // Hapus event listener lama jika ada
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
+        
         newButton.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation();
+            e.stopPropagation(); // Mencegah event bubbling ke parent
+            
+            // Deteksi jenis dan hari dari ID button
             const buttonId = this.id;
-            let jenis;
-            if (buttonId.includes('Mealplan')) jenis = 'Mealplan';
-            else if (buttonId.includes('Workout')) jenis = 'Workout';
-            else if (buttonId.includes('AirMinum')) jenis = 'Water';
-            else if (buttonId.includes('Istirihat')) jenis = 'Istirahat';
-            else if (buttonId.includes('Tracking')) jenis = 'Tracking';
-
-            if (jenis) {
-                const hariAktif = getHariAktif(); // atau sumber hari aktif lain
-                console.log(`📄 Handling Cek Disini: ${jenis} untuk hari ${hariAktif}`);
-                handleCekDisiniClick(jenis, hariAktif);
+            let jenis, hariKe;
+            
+            // Extract informasi dari ID button
+            if (buttonId.includes('Mealplan')) {
+                jenis = 'Mealplan';
+                hariKe = buttonId.replace('btnCekDisiniMealplan', '') || '1';
+            } else if (buttonId.includes('Workout')) {
+                jenis = 'Workout';
+                hariKe = buttonId.replace('btnCekDisiniWorkout', '') || '1';
+            } else if (buttonId.includes('AirMinum')) {
+                jenis = 'Water';
+                hariKe = buttonId.replace('btnCekDisiniAirMinum', '') || '1';
+            } else if (buttonId.includes('Istirihat')) {
+                jenis = 'Istirahat';
+                hariKe = buttonId.replace('btnCekDisiniIstirihat', '') || '1';
+            } else if (buttonId.includes('Tracking')) {
+                jenis = 'Tracking';
+                hariKe = buttonId.replace('btnCekDisiniTracking', '') || '1';
+            }
+            
+            if (jenis && hariKe) {
+                console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+                handleCekDisiniClick(jenis, hariKe);
             }
         });
     });
@@ -3794,115 +3809,6 @@ function setupPanduanPDFLinks() {
 *******************/
 function displayPDF(section, pdfUrl, title) {
     console.log('Displaying PDF with PDF.js:', pdfUrl);
-    // Fallback ke container statis hari 1 jika perlu
-    let capSection = capitalizeFirst(section); // e.g. 'Mealplan2'
-    let pdfContainer = document.getElementById(`pdfContainer${capSection}`);
-    if (!pdfContainer) {
-        let base = section.replace(/\d+$/, ''); // 'mealplan2' -> 'mealplan'
-        const capBase = capitalizeFirst(base);
-        pdfContainer = document.getElementById(`pdfContainer${capBase}1`);
-        capSection = capBase + '1';
-    }
-    if (!pdfContainer) return;
-
-    // Set up PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-    
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    const scale = 1.5;
-    function renderPage(num) {
-        pageRendering = true;
-        pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            canvas.className = 'pdfjs-canvas';
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            const renderTask = page.render(renderContext);
-            renderTask.promise.then(function() {
-                pageRendering = false;
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
-            
-            // Clear container dan tambahkan canvas DULUAN
-            const viewer = document.getElementById(`pdfjsViewer${capitalizeFirst(section)}`);
-            viewer.innerHTML = '';
-            viewer.appendChild(canvas);
-            
-            // Update page info
-            document.getElementById(`pdfjsPageInfo${capitalizeFirst(section)}`).textContent = 
-                `Hal: ${num} dari ${pdfDoc.numPages}`;
-                
-        }).catch(function(error) {
-            console.error('Error rendering page:', error);
-            // handlePDFError(section);
-        });
-    }
-    // Antrian render halaman
-    function queueRenderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-        } else {
-            renderPage(num);
-        }
-    }
-    // Ke halaman sebelumnya 
-    function onPrevPage() {
-        if (pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    }
-    // ke halaman berikutnya
-    function onNextPage() {
-        if (pageNum >= pdfDoc.numPages) return;
-        pageNum++;
-        queueRenderPage(pageNum);
-    }
-    
-    // Load the PDF
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
-        pdfDoc = pdfDoc_;
-        
-        // Update container - CONTROLS DIBAWAH SETELAH CANVAS
-        pdfContainer.innerHTML = `
-            <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
-            <div class="pdfjs-controls">
-                <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
-                    <i class="fas fa-chevron-left"></i> Sebelum
-                </button>
-                <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
-                    Hal: 1 dari ${pdfDoc.numPages}
-                </span>
-                <button class="btn btn-sm btn-outline-primary" onclick="onNextPage${capitalizeFirst(section)}()">
-                    Berikut <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        `;
-        // Render first page
-        renderPage(1);
-        // Store functions globally for button access
-        window[`onPrevPage${capitalizeFirst(section)}`] = onPrevPage;
-        window[`onNextPage${capitalizeFirst(section)}`] = onNextPage;
-    }).catch(function(error) {
-        console.error('Error loading PDF with PDF.js:', error);
-        // Fallback ke iframe
-        fallbackToIframe(section, pdfUrl);
-    });
-}
-
-function BACKUP_displayPDF(section, pdfUrl, title) {
-    console.log('Displaying PDF with PDF.js:', pdfUrl);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     if (!pdfContainer) return;
     
@@ -4027,21 +3933,8 @@ function openPDFInNewTab(section) {
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
 function closePDF(section) {
-    console.log('Closing PDF untuk:', section);
-    const capBase      = capitalizeFirst(section.replace(/\d+$/, ''));
-    const pdfViewer    = document.getElementById(`pdfViewer${capBase}1`);
-    const pdfContainer = document.getElementById(`pdfContainer${capBase}1`);
-    if (!pdfViewer || !pdfContainer) return;
-    pdfViewer.style.display = 'none';
-    pdfContainer.innerHTML = '';
-     // JANGAN kembalikan ke posisi semula, biarkan tetap di submenu
-    currentPDFData = {};
-    console.log('✅ PDF closed (submenu remains open)');
-}
-
-function BACKUP_closePDF(section) {
     console.log('Closing PDF for section:', section);
-    const pdfViewer    = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
     if (!pdfViewer || !pdfContainer) return;
     
