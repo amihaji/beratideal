@@ -2904,17 +2904,28 @@ function applyProgressToUI(progress) {
 *************************************/
 function checkMateriStatus(hariKe, progress) {
     if (!progress) return;
-
     const status = progress[`materiHari${hariKe}`];
-
+    // 🔴 jika belum unlock modul sebelumnya → lock
     if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
+        lockMateriVideo(hariKe);
         return;
     }
 
-    // 🔥 FIX: JANGAN panggil function yang tidak ada
+    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    if (!btn) return;
+
+    // 🔵 jika sudah selesai → disable
     if (status === true) {
+        btn.disabled = true;
+        btn.classList.add('completed');
+        btn.style.cursor = 'not-allowed';
         console.log(`🔒 Materi hari ${hariKe} selesai`);
-    } else {
+    } 
+    // 🟢 jika belum selesai → ENABLE
+    else {
+        btn.disabled = false;
+        btn.classList.remove('completed');
+        btn.style.cursor = 'pointer';
         console.log(`🟢 Materi hari ${hariKe} aktif`);
     }
 }
