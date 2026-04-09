@@ -1940,42 +1940,12 @@ function lockModul(hariKe) {
     modulHeader.style.opacity = '0.5';
     modulHeader.style.cursor = 'not-allowed';
 
-    const icon = modulHeader.querySelector('i');
+    // 🔥 FIX ICON SINGLE
+    let icon = modulHeader.querySelector('.status-lock, .status-unlock');
+
     if (icon) {
         icon.className = 'fas fa-lock status-lock';
         icon.style.color = '#999';
-    }
-}
-
-/***************************************
-* Strict Lock Modul (benar-benar lock) *
-****************************************/
-function strictLockModul(hariKe) {
-    const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (modulHeader) {
-        // Add disabled class
-        modulHeader.classList.add('disabled');
-        // Remove click event listener yang ada
-        const newHeader = modulHeader.cloneNode(true);
-        modulHeader.parentNode.replaceChild(newHeader, modulHeader);
-        // Set style untuk benar-benar disabled
-        newHeader.style.pointerEvents = 'none';
-        newHeader.style.opacity = '0.5';
-        newHeader.style.cursor = 'not-allowed';
-        newHeader.style.backgroundColor = '#f8f9fa'; // Background abu-abu
-        // Update lock icon
-        const lockIcon = newHeader.querySelector('.status-lock, .status-unlock');
-        if (lockIcon) {
-            lockIcon.className = 'status-lock';
-            //lockIcon.style.color = '#000e3d'; // Warna biru tua
-        }
-        // Add tooltip "Selesaikan Perkenalan dulu"
-        newHeader.title = 'Selesaikan Perkenalan terlebih dahulu!';
-        newHeader.setAttribute('data-bs-toggle', 'tooltip');
-        newHeader.setAttribute('data-bs-placement', 'top');
-        console.log(`🔒 STRICT LOCK Modul Hari ${hariKe}`);
-        // Initialize Bootstrap tooltip
-        new bootstrap.Tooltip(newHeader);
     }
 }
 
@@ -1984,14 +1954,14 @@ function strictLockModul(hariKe) {
 * FUNGSI KONTROL MANAGER (yang memutuskan modul mana dibuka)
 ************************************************************/
 function applyUnlockModul(progress) {
-    // Default: lock semua dulu kecuali hari 1
+    // Lock semua dulu
     for (let i = 2; i <= 10; i++) {
         lockModul(i);
     }
 
-    // Unlock berurutan
+    // 🔥 FIX: gunakan key yang BENAR
     for (let i = 1; i <= 9; i++) {
-        if (progress[`selesaimodul${i}`] === true) {
+        if (progress[`selesaimodulHari${i}`] === true) {
             unlockModul(i + 1);
         }
     }
@@ -2005,38 +1975,26 @@ function unlockModul(hariKe) {
     console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
 
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (!modulHeader) {
-        console.error(`❌ Modul header not found for hari ${hariKe}`);
-        return;
-    }
+    if (!modulHeader) return;
 
-    // Enable klik
     modulHeader.classList.remove('disabled');
     modulHeader.style.pointerEvents = 'auto';
     modulHeader.style.opacity = '1';
     modulHeader.style.cursor = 'pointer';
 
-    // FIX collapse Bootstrap
+    // FIX collapse
     modulHeader.classList.remove('collapsed');
     modulHeader.setAttribute('aria-expanded', 'false');
 
-    // 🔥 FIX ICON (PASTI GANTI)
-    const icons = modulHeader.querySelectorAll('i');
-    icons.forEach(icon => {
-        if (icon.classList.contains('fa-lock') || icon.classList.contains('status-lock')) {
-            icon.className = 'fas fa-unlock status-unlock';
-            icon.style.color = '#000e3d';
-        }
-    });
+    // 🔥 FIX ICON (HANYA 1 ICON)
+    let icon = modulHeader.querySelector('.status-lock, .status-unlock');
 
-    // Cleanup tooltip
-    modulHeader.removeAttribute('title');
-    modulHeader.removeAttribute('data-bs-toggle');
-    modulHeader.removeAttribute('data-bs-placement');
-    if (modulHeader._tooltip) {
-        modulHeader._tooltip.dispose();
+    if (icon) {
+        icon.className = 'fas fa-unlock status-unlock';
+        icon.style.color = '#000e3d';
     }
-    console.log(`✅ Modul Hari ${hariKe} UNLOCKED successfully`);
+
+    console.log(`✅ Modul Hari ${hariKe} UNLOCKED`);
 }
 
 /************************************
@@ -2046,7 +2004,7 @@ function applyLockForNewUser() {
     console.log('🔐 STRICT lock semua modul untuk user baru');
 // 🔒 STRICT LOCK modul hari 1–10
     for (let i = 1; i <= 10; i++) {
-        strictLockModul(i); // ✅ PAKAI YANG BENAR
+        lockModul(i); // ✅ PAKAI YANG BENAR
     }
 
     // ✅ Perkenalan tetap terbuka
@@ -2085,7 +2043,10 @@ function updatePerkenalanUI() {
 /***********************************
  * Setup Seluruh Komponen Internal *
  * *********************************/
-function setupAllComponentsInternal() {
+function setupAllComponentsInternal(progress = {}) {
+    // 🔥 FIX: pastikan progress selalu ada
+    if (!progress) progress = {};
+
     // Submenu triggers
     document.querySelectorAll('.submenu-trigger').forEach(trigger => {
         trigger.addEventListener('click', function(e) {
@@ -2102,6 +2063,7 @@ function setupAllComponentsInternal() {
             hideSubmenu(targetId);
         });
     });
+
     // Setup video links
     setupAllLinks();
     // Setup playlist
@@ -2110,31 +2072,31 @@ function setupAllComponentsInternal() {
     setupPerkenalanCompletion();
     // Setup PDF links
     setupPanduanPDFLinks();
-    // Setup tombol "Cek Disini" untuk Modul 
+    // Setup tombol "Cek Disini"
     setupCekDisiniButtons();
     // Setup materi completion
     setupMateriCompletion();
-    // Check materi status dari localStorage
+    // 🔥 FIX: gunakan progress yang valid
+    applyUnlockModul(progress);
+    // Cek Materi Status
     for (let i = 1; i <= 10; i++) {
-        checkMateriStatus(i);
+        checkMateriStatus(i, progress);
     }
-    // Setup meal plan forms
+    // Setup meal plan
     generateMealplanForms();
-    // Cek status meal plan
     for (let i = 1; i <= 10; i++) {
         checkMealplanStatus(i);
         loadMealplanProgress(i);
     }
+
     // Setup tentang overlay
     document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    // Setup workout forms
-    generateWorkoutForms();      // 1. Generate HTML dulu
-    initializeAllWorkoutDays();  // 2. Setup event listeners
-   // Tambahkan styles
-    addWaterReminderStyles(); 
-    // Generate semua form
-    initializeAllWaterReminderForms(); 
-    // Update onclick handlers untuk water reminder links
+    // Workout
+    generateWorkoutForms();
+    initializeAllWorkoutDays();
+    // Water
+    addWaterReminderStyles();
+    initializeAllWaterReminderForms();
     for (let i = 1; i <= 10; i++) {
         const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
         if (waterLink) {
@@ -2145,21 +2107,20 @@ function setupAllComponentsInternal() {
         }
     }
 
-    //  Menandai hari aktif saat klik tombol simpan & selesai water
     document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
-      item.addEventListener('click', function () {
-        const hariKe = parseInt(
-          this.getAttribute('data-target').replace('waterContent', '')
-        );
-        // Simpan referensi hari aktif
-        window.activeWaterHari = hariKe;
-      });
+        item.addEventListener('click', function () {
+            const hariKe = parseInt(
+                this.getAttribute('data-target').replace('waterContent', '')
+            );
+            window.activeWaterHari = hariKe;
+        });
     });
-    // Initial State Water Reminder
+
     document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
-      btn.disabled = true;
+        btn.disabled = true;
     });
-    // Initialize video players
+
+    // Video
     initializeAllVideoPlayers();
     console.log('🔍 Testing server connection on startup...');
 }
@@ -2942,21 +2903,21 @@ function applyProgressToUI(progress) {
 * CHECK STATUS MATERI PER HARI (FIX)
 *************************************/
 function checkMateriStatus(hariKe, progress) {
-    const status = progress[`materi${hariKe}`];
-    // 🔴 Jika belum hari aktif → lock
-    if (!progress[`selesaimodul${hariKe - 1}`] && hariKe !== 1) {
-        lockMateriVideo(hariKe);
+    if (!progress) return;
+
+    const status = progress[`materiHari${hariKe}`];
+
+    if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
         return;
     }
-    // 🟢 Jika belum selesai → ENABLE
-    if (!status) {
-        unlockMateriVideo(hariKe);
-    } 
-    // 🔵 Jika sudah selesai → disable
-    else {
-        disableMateriUI(hariKe);
+
+    // 🔥 FIX: JANGAN panggil function yang tidak ada
+    if (status === true) {
+        console.log(`🔒 Materi hari ${hariKe} selesai`);
+    } else {
+        console.log(`🟢 Materi hari ${hariKe} aktif`);
     }
-}
+}h
 
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
