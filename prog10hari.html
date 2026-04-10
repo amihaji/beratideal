@@ -3066,6 +3066,25 @@ function BACKUP_setupCekDisiniButtons() {
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
 ***********************************************************/
 function handleCekDisiniClick(jenis, hariKe) {
+  console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+
+  // 🔴 FIX UTAMA: SECTION ID YANG BENAR
+  const sectionId = `${jenis}Content${hariKe}`;
+  const section = document.getElementById(sectionId);
+
+  if (!section) {
+    console.error('❌ Section tidak ditemukan:', sectionId);
+    return;
+  }
+
+  // 📄 URL PDF
+  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenis}_hariKe${hariKe}.pdf`;
+  console.log('📋 Button clicked:', { jenis, hariKe, sectionId });
+  // 🚀 LOAD PDF
+  loadPDF(section, pdfUrl, `${jenis} Hari ${hariKe}`);
+}
+
+function BACKUP_handleCekDisiniClick(jenis, hariKe) {
     console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
     // Mapping jenis ke section dan nama file
     const config = {
