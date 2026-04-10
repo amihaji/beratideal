@@ -2845,9 +2845,83 @@ function fetchProgressFromServer(userId) {
 }
 
 /************************************
-* Terapkan progress ke UI - SIMPLE  *
+* Terapkan progress ke UI - FIX ALL *
 *************************************/
 function applyProgressToUI(progress) {
+  console.log('🎯 Menerapkan progress ke UI');
+
+  // 1. PERKENALAN
+  if (progress.perkenalan) {
+    console.log('✅ Perkenalan sudah selesai');
+
+    const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
+    perkenalanLinks.forEach(link => {
+      if (link.textContent.includes('Selesai Perkenalan')) {
+        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan';
+        link.style.color = '#666666';
+        link.style.pointerEvents = 'none';
+      }
+    });
+
+    unlockModul(1);
+  }
+
+  // =========================================
+  // 🔥 FIX UTAMA: LOOP SEMUA HARI (1–10)
+  // =========================================
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+
+    // ===============================
+    // ✅ MATERI
+    // ===============================
+    const materiDone = progress[`materiHari${hariKe}`];
+    const btnMateri = document.getElementById(`btnMateriDone${hariKe}`);
+
+    if (materiDone) {
+      console.log(`✅ Materi Hari ${hariKe} sudah selesai`);
+
+      const materiLink = document.getElementById(`materiLink${hariKe}`);
+      if (materiLink) {
+        materiLink.innerHTML = materiLink.innerHTML + ' ✓';
+        materiLink.style.color = '#666666';
+      }
+
+      if (btnMateri) {
+        btnMateri.innerHTML = '<i class="fas fa-check-double"></i>';
+        btnMateri.classList.remove('btn-success');
+        btnMateri.classList.add('btn-secondary');
+        btnMateri.disabled = true;
+      }
+
+    } else {
+      // 🔥 INI YANG PENTING (BIAR HARI 2 ENABLE)
+      if (btnMateri) {
+        btnMateri.disabled = false;
+        btnMateri.classList.remove('btn-secondary');
+        btnMateri.classList.add('btn-success');
+      }
+    }
+
+    // ===============================
+    // ✅ MEAL PLAN
+    // ===============================
+    if (progress[`mealplanHari${hariKe}`]) {
+      console.log(`✅ Meal Plan Hari ${hariKe} sudah selesai`);
+
+      const selesaiBtn = document.getElementById(`btnSelesaiMealplan${hariKe}`);
+      if (selesaiBtn) {
+        selesaiBtn.disabled = true;
+        selesaiBtn.classList.remove('btn-success');
+        selesaiBtn.classList.add('btn-secondary');
+      }
+    }
+
+  }
+
+  console.log('✅ Progress berhasil diterapkan');
+}
+
+function BACKUP_applyProgressToUI(progress) {
   console.log('🎯 Menerapkan progress ke UI');
   
   // 1. Perkenalan
