@@ -3858,11 +3858,14 @@ function openPDFInNewTab(section) {
 ********************************************/
 function closePDF(sectionName) {
     console.log('Closing PDF:', sectionName);
-    const viewer = document.getElementById(`pdfViewer${capitalizeFirst(sectionName)}`);
-    const container = document.getElementById(`pdfContainer${capitalizeFirst(sectionName)}`);
-    if (viewer) viewer.style.display = 'none';
-    if (container) container.innerHTML = '';
-    console.log('✅ PDF ditutup');
+    // 🔥 cari SEMUA kemungkinan (tidak tergantung ID lama)
+    document.querySelectorAll('.pdf-container').forEach(el => {
+        el.innerHTML = '';
+    });
+    document.querySelectorAll('.pdf-viewer').forEach(el => {
+        el.style.display = 'none';
+    });
+    console.log('✅ PDF berhasil ditutup');
 }
 
 /*************************
@@ -3950,17 +3953,24 @@ function hideSubmenu(targetId) {
   console.log('🔍 Menyembunyikan submenu:', targetId);
   const targetContent = document.getElementById(targetId);
   if (!targetContent) return;
-  // 🚨 PROTEKSI: kalau PDF aktif → jangan hide
-  const hasPDF = targetContent.querySelector('iframe');
-  if (hasPDF) {
-    console.log('⛔ Tidak ditutup karena PDF aktif');
-    return;
-  }
+
+  // 🔥 Tutup SEMUA PDF di dalam submenu ini dulu
+  const pdfContainers = targetContent.querySelectorAll('.pdf-container');
+  const pdfViewers = targetContent.querySelectorAll('.pdf-viewer');
+
+  pdfContainers.forEach(el => el.innerHTML = '');
+  pdfViewers.forEach(el => el.style.display = 'none');
+
+  console.log('✅ PDF dibersihkan sebelum submenu ditutup');
+
+  // ✅ Sekarang aman untuk hide
   targetContent.style.display = 'none';
+
   const menuAccordion = document.getElementById('menuAccordion');
   if (menuAccordion && menuAccordion.parentNode) {
     menuAccordion.parentNode.insertBefore(targetContent, menuAccordion.nextSibling);
   }
+  console.log('✅ Submenu berhasil ditutup');
 }
 
 /*******************************************
