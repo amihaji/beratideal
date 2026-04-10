@@ -2977,6 +2977,48 @@ function setupMateriCompletion(progress) {
 * Setup Tombol Cek Disini - untuk semua hari
 ********************************************/
 function setupCekDisiniButtons() {
+  console.log('🔧 Setting up Cek Disini buttons for all days...');
+  document.querySelectorAll('[id^="btnCekDisini"]').forEach(button => {
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+    newButton.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // ============================
+      // 🔴 FIX INTI: AMBIL SUBMENU AKTIF
+      // ============================
+      const activeSubmenu = document.querySelector('.submenu-content[style*="display: block"]');
+      if (!activeSubmenu) {
+        console.error('❌ Tidak ada submenu aktif');
+        return;
+      }
+
+      const match  = activeSubmenu.id.match(/\d+$/);
+      const hariKe = match ? match[0] : null;
+      if (!hariKe) {
+        console.error('❌ Gagal ambil hariKe dari submenu:', activeSubmenu.id);
+        return;
+      }
+
+      // ============================
+      // DETEKSI JENIS
+      // ============================
+      let jenis = '';
+      if (this.id.includes('Mealplan')) jenis = 'Mealplan';
+      else if (this.id.includes('Workout')) jenis = 'Workout';
+      else if (this.id.includes('AirMinum')) jenis = 'Water';
+      else if (this.id.includes('Istirahat')) jenis = 'Istirahat';
+      else if (this.id.includes('Tracking')) jenis = 'Tracking';
+      console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+      handleCekDisiniClick(jenis, hariKe);
+    });
+  });
+
+  console.log('✅ Cek Disini buttons setup completed for all days');
+}
+
+function BACKUP_setupCekDisiniButtons() {
     console.log('🔧 Setting up Cek Disini buttons for all days...');
     
     // Setup event listeners untuk semua tombol Cek Disini yang ada
