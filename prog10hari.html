@@ -1441,24 +1441,25 @@ function logout() {
     window.location.href = 'loginFC.html';
 }
 
+/***********************************************
+* GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
+***********************************************/
 function generateModulFromTemplate() {
+  // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
   const modul1 = document.getElementById('modulHari1Wrapper');
   if (!modul1) {
     console.error('❌ Modul 1 tidak ditemukan');
     return;
   }
-
   const container = document.getElementById('containerModulAuto');
   if (!container) return;
-
   let html = '';
-
   for (let hariKe = 2; hariKe <= 10; hariKe++) {
     let clone = modul1.outerHTML;
 
-    // =============================
-    // ID CONTENT (AMAN)
-    // =============================
+    // ==================================
+    // GANTI ID & TEXT AGAR STANDART SAMA
+    // ==================================
     clone = clone
       .replaceAll(/pertemuanContent1/g, `pertemuanContent${hariKe}`)
       .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
@@ -1469,34 +1470,7 @@ function generateModulFromTemplate() {
       .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
       .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
       .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
-
-      // =============================
-      // 🔴 FIX UTAMA (JANGAN GENERIC)
-      // =============================
-      .replaceAll(/jadwalmealplan-list1/g, `jadwalmealplan-list${hariKe}`)
-      .replaceAll(/olahragaKardio-list1/g, `olahragaKardio-list${hariKe}`)
-      .replaceAll(/olahragaResisten-list1/g, `olahragaResisten-list${hariKe}`)
-      .replaceAll(/airputihRadioBtn1/g, `airputihRadioBtn${hariKe}`)
-      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)
-
-      // =============================
-      // PDF VIEWER
-      // =============================
-      .replaceAll(/pdfViewerMealplan1/g, `pdfViewerMealplan${hariKe}`)
-      .replaceAll(/pdfViewerWorkout1/g, `pdfViewerWorkout${hariKe}`)
-      .replaceAll(/pdfViewerWater1/g, `pdfViewerWater${hariKe}`)
-      .replaceAll(/pdfViewerIstirahat1/g, `pdfViewerIstirahat${hariKe}`)
-      .replaceAll(/pdfViewerTracking1/g, `pdfViewerTracking${hariKe}`)
-
-      .replaceAll(/pdfContainerMealplan1/g, `pdfContainerMealplan${hariKe}`)
-      .replaceAll(/pdfContainerWorkout1/g, `pdfContainerWorkout${hariKe}`)
-      .replaceAll(/pdfContainerWater1/g, `pdfContainerWater${hariKe}`)
-      .replaceAll(/pdfContainerIstirahat1/g, `pdfContainerIstirahat${hariKe}`)
-      .replaceAll(/pdfContainerTracking1/g, `pdfContainerTracking${hariKe}`)
-
-      // =============================
-      // DATA SECTION
-      // =============================
+      
       .replaceAll(/data-section="pertemuan1"/g, `data-section="pertemuan${hariKe}"`)
       .replaceAll(/data-section="materi1"/g, `data-section="materi${hariKe}"`)
       .replaceAll(/data-section="mealplan1"/g, `data-section="mealplan${hariKe}"`)
@@ -1506,10 +1480,28 @@ function generateModulFromTemplate() {
       .replaceAll(/data-section="tracking1"/g, `data-section="tracking${hariKe}"`)
       .replaceAll(/data-section="tanya1"/g, `data-section="tanya${hariKe}"`)
       .replaceAll(/data-section="selesaimodul1"/g, `data-section="selesaimodul${hariKe}"`)
+         
+      // MEALPLAN
+      .replaceAll(/jadwalmealplan-list/g, `jadwalmealplan-list${hariKe}`)
+      // WORKOUT
+      .replaceAll(/olahragaKardio-list/g, `olahragaKardio-list${hariKe}`)
+      .replaceAll(/olahragaResisten-list/g, `olahragaResisten-list${hariKe}`)
+      // WATER
+      .replaceAll(/airputihRadioBtn/g, `airputihRadioBtn${hariKe}`)
+      // TANYA COACH
+      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
 
-      // =============================
+      // TAMBAHAN WAJIB (VIDEO ID)
+      .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
+      .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
+      .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
+      .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
+
+      // TAMBAHAN WAJIB (BUTTON)
+      .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
+      .replaceAll(/selesaiModul\(1\)/g, `selesaiModul(${hariKe})`)
+
       // TEXT
-      // =============================
       .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
       .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
       .replaceAll(/1\.1/g, `${hariKe}.1`)
@@ -1521,29 +1513,23 @@ function generateModulFromTemplate() {
       .replaceAll(/1\.7/g, `${hariKe}.7`)
       .replaceAll(/1\.8/g, `${hariKe}.8`);
 
-    // =============================
-    // VIDEO
-    // =============================
+    // VIDEO (GLOBAL FIX)
     clone = clone.replaceAll(
       /data-url="Video\/.*?\.mp4"/g,
       `data-url="${fileMateri[hariKe].video}"`
     );
 
-    // =============================
-    // PDF URL
-    // =============================
+    // PDF
     clone = clone
       .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
       .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
       .replaceAll(/data-url="pdf\/water1\.pdf"/g, fileMateri[hariKe].water)
       .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat)
       .replaceAll(/data-url="pdf\/tracking1\.pdf"/g, fileMateri[hariKe].tracking);
-
     html += clone;
   }
-
   container.innerHTML = html;
-  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (STABLE)');
+  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
 }
 
 /**********************************************
@@ -2987,34 +2973,51 @@ function setupMateriCompletion(progress) {
     }
 }
 
-
 /********************************************
 * Setup Tombol Cek Disini - untuk semua hari
 ********************************************/
 function setupCekDisiniButtons() {
-  console.log('🔧 Setting up Cek Disini buttons for all days...');
-  document.querySelectorAll('[id^="btnCekDisini"]').forEach(button => {
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
-    newButton.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const parent = this.closest('.submenu-content');
-      if (!parent) return;
-      const match = parent.id.match(/\d+$/);
-      const hariKe = match ? match[0] : '1';
-      let jenis = '';
-      if (this.id.includes('Mealplan')) jenis = 'Mealplan';
-      else if (this.id.includes('Workout')) jenis = 'Workout';
-      else if (this.id.includes('AirMinum')) jenis = 'Water';
-      else if (this.id.includes('Istirahat')) jenis = 'Istirahat';
-      else if (this.id.includes('Tracking')) jenis = 'Tracking';
-
-      console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
-      handleCekDisiniClick(jenis, hariKe);
+    console.log('🔧 Setting up Cek Disini buttons for all days...');
+    
+    // Setup event listeners untuk semua tombol Cek Disini yang ada
+    document.querySelectorAll('[id^="btnCekDisini"]').forEach(button => {
+        // Hapus event listener lama jika ada
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Mencegah event bubbling ke parent
+            
+            // Deteksi jenis dan hari dari ID button
+            const buttonId = this.id;
+            let jenis, hariKe;
+            
+            // Extract informasi dari ID button
+            if (buttonId.includes('Mealplan')) {
+                jenis = 'Mealplan';
+                hariKe = buttonId.replace('btnCekDisiniMealplan', '') || '1';
+            } else if (buttonId.includes('Workout')) {
+                jenis = 'Workout';
+                hariKe = buttonId.replace('btnCekDisiniWorkout', '') || '1';
+            } else if (buttonId.includes('AirMinum')) {
+                jenis = 'Water';
+                hariKe = buttonId.replace('btnCekDisiniAirMinum', '') || '1';
+            } else if (buttonId.includes('Istirihat')) {
+                jenis = 'Istirahat';
+                hariKe = buttonId.replace('btnCekDisiniIstirihat', '') || '1';
+            } else if (buttonId.includes('Tracking')) {
+                jenis = 'Tracking';
+                hariKe = buttonId.replace('btnCekDisiniTracking', '') || '1';
+            }
+            
+            if (jenis && hariKe) {
+                console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+                handleCekDisiniClick(jenis, hariKe);
+            }
+        });
     });
-  });
-  console.log('✅ Cek Disini buttons setup completed for all days');
+    console.log('✅ Cek Disini buttons setup completed for all days');
 }
 
 /**********************************************************
@@ -3726,55 +3729,59 @@ function setupPDFLinks() {
 * Memuat dan Menampilkan PDF *
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
-  console.log('loadPDF called:', { section, pdfUrl, title });
-  const pdfViewer    = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-  const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-
-  if (!pdfViewer || !pdfContainer) {
-    console.error('❌ PDF Viewer or Container not found for section:', section);
-    return;
-  }
-
-  // 🔒 Tutup semua PDF lain
-  document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-    pdf.style.display = 'none';
-  });
-
-  // Reset container
-  pdfContainer.innerHTML = '';
-
-  // Loading state
-  pdfContainer.innerHTML = `
-    <div class="pdf-loading">
-      <div class="spinner-border spinner-border-sm" role="status"></div>
-      <div class="mt-2">Memuat PDF, tunggu...</div>
-    </div>
-  `;
-
-  // Tampilkan viewer
-  pdfViewer.style.display = 'block';
-
-  // 🔧 FIX: cari tombol TANPA angka (sesuai HTML REVISI_56)
-  const base = section.replace(/\d+/g, '');
-  const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(base)}`);
-
-  if (cekDisiniBtn && cekDisiniBtn.parentNode) {
-    const parentParagraph = cekDisiniBtn.closest('p');
-    if (parentParagraph && parentParagraph.parentNode) {
-      parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
-      console.log('✅ PDF placed after button paragraph');
-    } else {
-      cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
-      console.log('✅ PDF placed after button');
+    console.log('loadPDF called:', { section, pdfUrl, title });
+    
+    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
+    
+    if (!pdfViewer || !pdfContainer) {
+        console.error('❌ PDF Viewer or Container not found for section:', section);
+        return;
     }
-  } else {
-    console.log('❌ Cek Disini button not found for section:', section);
-  }
-
-  // Load PDF
-  setTimeout(() => {
-    displayPDF(section, pdfUrl, title);
-  }, 300);
+    
+    // TUTUP SEMUA PDF LAIN TERLEBIH DAHULU
+    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+    });
+    
+    // Reset previous PDF
+    pdfContainer.innerHTML = '';
+    currentPDFData = {
+        section: section,
+        url: pdfUrl,
+        title: title
+    };
+    
+    // Show loading
+    pdfContainer.innerHTML = `
+        <div class="pdf-loading">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="mt-2">Memuat PDF, tunggu...</div>
+        </div>
+    `;
+    
+    // Show PDF viewer
+    pdfViewer.style.display = 'block';
+    
+    // Tempatkan PDF viewer di posisi yang tepat
+    const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(section)}`);
+    if (cekDisiniBtn && cekDisiniBtn.parentNode) {
+        // Tempatkan PDF viewer setelah parent paragraph dari tombol
+        const parentParagraph = cekDisiniBtn.closest('p');
+        if (parentParagraph && parentParagraph.parentNode) {
+            parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
+            console.log('✅ PDF placed after button paragraph');
+        } else {
+            // Fallback: tempatkan setelah tombol langsung
+            cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
+            console.log('✅ PDF placed after button');
+        }
+    } else {
+        console.log('❌ Cek Disini button not found for section:', section);
+    }
+    
+    // Load PDF setelah ditampilkan
+    setTimeout(() => { displayPDF(section, pdfUrl, title); }, 500);
 }
 
 /***************************************
