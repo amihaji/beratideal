@@ -3756,6 +3756,48 @@ function setupPDFLinks() {
 * Memuat dan Menampilkan PDF *
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('📄 loadPDF called:', { section, pdfUrl, title });
+    if (!pdfUrl) {
+        console.error('❌ PDF URL tidak valid');
+        return;
+    }
+
+    // 🔴 CARI / BUAT CONTAINER GLOBAL
+    let viewer = document.getElementById('globalPdfViewer');
+    if (!viewer) {
+        viewer = document.createElement('div');
+        viewer.id = 'globalPdfViewer';
+        viewer.style.position = 'fixed';
+        viewer.style.top = '0';
+        viewer.style.left = '0';
+        viewer.style.width = '100%';
+        viewer.style.height = '100%';
+        viewer.style.background = '#000';
+        viewer.style.zIndex = '9999';
+        viewer.style.display = 'flex';
+        viewer.style.flexDirection = 'column';
+
+        document.body.appendChild(viewer);
+    }
+
+    // 🔴 ISI VIEWER
+    viewer.innerHTML = `
+        <div style="padding:10px; background:#111; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+            <span>${title || 'PDF Viewer'}</span>
+            <button onclick="closeGlobalPDF()" style="background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">
+                ✕ Tutup
+            </button>
+        </div>
+        <iframe 
+            src="${pdfUrl}" 
+            style="flex:1; width:100%; border:none; background:#fff;">
+        </iframe>
+    `;
+    viewer.style.display = 'flex';
+    console.log('✅ PDF tampil di GLOBAL VIEWER:', pdfUrl);
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
   console.log('📄 loadPDF called:', { section, pdfUrl, title });
   // ============================
   // 🔴 FIX KRITIS: NORMALISASI SECTION
@@ -3809,62 +3851,6 @@ function loadPDF(section, pdfUrl, title = '') {
   wrapper.appendChild(iframe);
   container.appendChild(wrapper);
   console.log('✅ PDF berhasil ditampilkan:', pdfUrl);
-}
-
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('loadPDF called:', { section, pdfUrl, title });
-    
-    const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    
-    if (!pdfViewer || !pdfContainer) {
-        console.error('❌ PDF Viewer or Container not found for section:', section);
-        return;
-    }
-    
-    // TUTUP SEMUA PDF LAIN TERLEBIH DAHULU
-    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-    });
-    
-    // Reset previous PDF
-    pdfContainer.innerHTML = '';
-    currentPDFData = {
-        section: section,
-        url: pdfUrl,
-        title: title
-    };
-    
-    // Show loading
-    pdfContainer.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <div class="mt-2">Memuat PDF, tunggu...</div>
-        </div>
-    `;
-    
-    // Show PDF viewer
-    pdfViewer.style.display = 'block';
-    
-    // Tempatkan PDF viewer di posisi yang tepat
-    const cekDisiniBtn = document.getElementById(`btnCekDisini${capitalizeFirst(section)}`);
-    if (cekDisiniBtn && cekDisiniBtn.parentNode) {
-        // Tempatkan PDF viewer setelah parent paragraph dari tombol
-        const parentParagraph = cekDisiniBtn.closest('p');
-        if (parentParagraph && parentParagraph.parentNode) {
-            parentParagraph.parentNode.insertBefore(pdfViewer, parentParagraph.nextSibling);
-            console.log('✅ PDF placed after button paragraph');
-        } else {
-            // Fallback: tempatkan setelah tombol langsung
-            cekDisiniBtn.parentNode.insertBefore(pdfViewer, cekDisiniBtn.nextSibling);
-            console.log('✅ PDF placed after button');
-        }
-    } else {
-        console.log('❌ Cek Disini button not found for section:', section);
-    }
-    
-    // Load PDF setelah ditampilkan
-    setTimeout(() => { displayPDF(section, pdfUrl, title); }, 500);
 }
 
 /***************************************
@@ -4012,10 +3998,22 @@ function openPDFInNewTab(section) {
     }
 }
 
+function closeGlobalPDF() {
+    const viewer = document.getElementById('globalPdfViewer');
+    if (viewer) {
+        viewer.style.display = 'none';
+    }
+}
+
+function closePDF(section) {
+    console.log('⚠️ Redirect closePDF → closeGlobalPDF');
+    closeGlobalPDF();
+}
+
 /*******************************************
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
-function closePDF(section) {
+function BACKUP_closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
