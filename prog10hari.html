@@ -3066,28 +3066,46 @@ function BACKUP_setupCekDisiniButtons() {
 /**********************************************************
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
 ***********************************************************/
+function handleCekDisiniClick(jenis, hariKe) {
+  const jenisFix  = jenis.toLowerCase().trim();
+  const sectionId = `${jenisFix}Content${hariKe}`;
+  const section   = document.getElementById(sectionId);
+  if (!section) return;
+  // 🔴 AKTIFKAN FLAG
+  window.__PDF_OPENING__ = true;
+  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
+  loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
+  // reset flag
+  setTimeout(() => {
+    window.__PDF_OPENING__ = false;
+  }, 1000);
+}
 
 function BACKUP_handleCekDisiniClick(jenis, hariKe) {
-  console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
-  // ============================
-  // 🔴 FIX UTAMA: NORMALISASI jenis
-  // ============================
-  const jenisFix = jenis.toLowerCase().trim();
-  const sectionId = `${jenisFix}Content${hariKe}`;
-  const section = document.getElementById(sectionId);
-  if (!section) {
-    console.error('❌ Section tidak ditemukan:', sectionId);
-    return;
-  }
-  // ============================
-  // 📄 URL PDF
-  // ============================
-  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
-  console.log('📋 Button clicked:', { jenisFix, hariKe, sectionId });
-  // ============================
-  // 🚀 LOAD PDF
-  // ============================
-  loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
+    console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+    if (!jenis || !hariKe) {
+        console.error('❌ Parameter tidak valid:', { jenis, hariKe });
+        return;
+    }
+
+    const jenisFix = jenis.toLowerCase().trim();
+    const sectionId = `${jenisFix}Content${hariKe}`;
+    const section = document.getElementById(sectionId);
+
+    if (!section) {
+        console.error('❌ Section tidak ditemukan:', sectionId);
+        return;
+    }
+
+    // 🔴 FLAG GLOBAL: sedang buka PDF
+    window.__PDF_OPENING__ = true;
+    const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
+    console.log('📋 Button clicked:', { jenisFix, hariKe, sectionId });
+    loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
+    // reset flag (delay kecil biar aman)
+    setTimeout(() => {
+        window.__PDF_OPENING__ = false;
+    }, 1000);
 }
 
 // ********************************
@@ -4098,6 +4116,34 @@ function showSubmenu(targetId) {
 * Sembunyikan Submenu dan tidak meyembunyikan PDF *
 ***************************************************/
 function hideSubmenu(targetId) {
+  // 🔴 BLOCK jika sedang buka PDF
+  if (window.__PDF_OPENING__) {
+    console.log('⛔ Hide submenu dibatalkan (sedang buka PDF)');
+    return;
+  }
+ console.log('🔍 Menyembunyikan submenu:', targetId);
+  const targetContent = document.getElementById(targetId);
+  if (targetContent) {
+    // Hanya sembunyikan submenu content itu sendiri
+    targetContent.style.display = 'none';
+     // KEMBALIKAN KE POSISI SEMULA (setelah menu accordion)
+    const menuAccordion = document.getElementById('menuAccordion');
+    if (menuAccordion && menuAccordion.parentNode) {
+      menuAccordion.parentNode.insertBefore(targetContent, menuAccordion.nextSibling);
+      console.log('✅ Submenu dikembalikan ke posisi semula');
+    }
+    
+    // Scroll kembali ke menu yang aktif
+    const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
+    if (activeMenu) {
+      setTimeout(() => {
+        activeMenu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }
+}
+
+function BACKUP_hideSubmenu(targetId) {
   console.log('🔍 Menyembunyikan submenu:', targetId);
   
   const targetContent = document.getElementById(targetId);
@@ -4122,9 +4168,6 @@ function hideSubmenu(targetId) {
   }
 }
 
-/*******************************************
-* Cek Status Progress dan Terapkan ke UI   *
-********************************************/
 /*******************************************
 * Cek Status Progress dan Terapkan ke UI   *
 ********************************************/
