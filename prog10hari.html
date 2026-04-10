@@ -1305,6 +1305,7 @@ button[id^="btnCekDisini"] {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 <script>
+
 /*******************
 * Deklarasi Global *
 ********************/
@@ -3065,7 +3066,8 @@ function BACKUP_setupCekDisiniButtons() {
 /**********************************************************
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
 ***********************************************************/
-function handleCekDisiniClick(jenis, hariKe) {
+
+function BACKUP_handleCekDisiniClick(jenis, hariKe) {
   console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
   // ============================
   // 🔴 FIX UTAMA: NORMALISASI jenis
@@ -3087,26 +3089,6 @@ function handleCekDisiniClick(jenis, hariKe) {
   // ============================
   loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
 }
-
-function BACKUP_handleCekDisiniClick(jenis, hariKe) {
-  console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
-
-  // 🔴 FIX UTAMA: SECTION ID YANG BENAR
-  const sectionId = `${jenis}Content${hariKe}`;
-  const section = document.getElementById(sectionId);
-
-  if (!section) {
-    console.error('❌ Section tidak ditemukan:', sectionId);
-    return;
-  }
-
-  // 📄 URL PDF
-  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenis}_hariKe${hariKe}.pdf`;
-  console.log('📋 Button clicked:', { jenis, hariKe, sectionId });
-  // 🚀 LOAD PDF
-  loadPDF(section, pdfUrl, `${jenis} Hari ${hariKe}`);
-}
-
 
 // ********************************
 // ***** FUNGSI VIDEO PLAYER ******
