@@ -3067,6 +3067,29 @@ function BACKUP_setupCekDisiniButtons() {
 ***********************************************************/
 function handleCekDisiniClick(jenis, hariKe) {
   console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
+  // ============================
+  // 🔴 FIX UTAMA: NORMALISASI jenis
+  // ============================
+  const jenisFix = jenis.toLowerCase().trim();
+  const sectionId = `${jenisFix}Content${hariKe}`;
+  const section = document.getElementById(sectionId);
+  if (!section) {
+    console.error('❌ Section tidak ditemukan:', sectionId);
+    return;
+  }
+  // ============================
+  // 📄 URL PDF
+  // ============================
+  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
+  console.log('📋 Button clicked:', { jenisFix, hariKe, sectionId });
+  // ============================
+  // 🚀 LOAD PDF
+  // ============================
+  loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
+}
+
+function BACKUP_handleCekDisiniClick(jenis, hariKe) {
+  console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
 
   // 🔴 FIX UTAMA: SECTION ID YANG BENAR
   const sectionId = `${jenis}Content${hariKe}`;
@@ -3084,63 +3107,6 @@ function handleCekDisiniClick(jenis, hariKe) {
   loadPDF(section, pdfUrl, `${jenis} Hari ${hariKe}`);
 }
 
-function BACKUP_handleCekDisiniClick(jenis, hariKe) {
-    console.log(`📋 ${jenis} button clicked for day ${hariKe}`);
-    // Mapping jenis ke section dan nama file
-    const config = {
-        'Mealplan': {
-            section: 'mealplan',
-            fileName: `mealplan_hariKe${hariKe}.pdf`,
-            title: `Meal Plan Hari ${getDayName(hariKe)}`
-        },
-        'Workout': {
-            section: 'workout', 
-            fileName: `workout_hariKe${hariKe}.pdf`,
-            title: `Workout Hari ${getDayName(hariKe)}`
-        },
-        'Water': {
-            section: 'water',
-            fileName: `water_hariKe${hariKe}.pdf`,
-            title: `Water Reminder Hari ${getDayName(hariKe)}`
-        },
-        'Istirahat': {
-            section: 'istirahat',
-            fileName: `istirahat_hariKe${hariKe}.pdf`,
-            title: `Waktu Istirahat Hari ${getDayName(hariKe)}`
-        },
-        'Tracking': {
-            section: 'tracking',
-            fileName: `tracking_hariKe${hariKe}.pdf`,
-            title: `Data Tracking Hari ${getDayName(hariKe)}`
-        }
-    };
-    
-    const itemConfig = config[jenis];
-    if (itemConfig) {
-        const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${itemConfig.fileName}`;
-        const sectionId = `${itemConfig.section}${hariKe}`;
-        
-        // TUTUP SEMUA KONTEN LAIN KECUALI SUBMENU YANG SEDANG AKTIF
-        const currentSubmenu = document.querySelector(`#${jenis}Content${hariKe}`);
-        
-        // Hanya sembunyikan konten yang tidak relevan
-        document.querySelectorAll('.video-container').forEach(video => {
-            video.style.display = 'none';
-        });
-        
-        document.querySelectorAll('.playlist-container').forEach(playlist => {
-            playlist.style.display = 'none';
-        });
-        
-        // Tampilkan PDF viewer
-        loadPDF(sectionId, pdfUrl, itemConfig.title);
-        
-        // Tampilkan submenu jika belum terbuka
-        if (currentSubmenu && currentSubmenu.style.display === 'none') {
-            currentSubmenu.style.display = 'block';
-        }
-    }
-}
 
 // ********************************
 // ***** FUNGSI VIDEO PLAYER ******
