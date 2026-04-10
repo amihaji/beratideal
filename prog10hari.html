@@ -3771,6 +3771,39 @@ function setupPDFLinks() {
 * Memuat dan Menampilkan PDF *
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+  console.log('📄 loadPDF called:', { section, pdfUrl, title });
+  if (!section) {
+    console.error('❌ Section tidak ditemukan');
+    return;
+  }
+
+  // ============================
+  // 🔴 FIX UTAMA: cari container di dalam section
+  // ============================
+  const container =
+    section.querySelector('.pdf-viewer') ||
+    section.querySelector('.pdf-container') ||
+    section.querySelector('.pdf-wrapper') ||
+    section;
+
+  if (!container) {
+    console.error('❌ PDF container tidak ditemukan dalam section');
+    return;
+  }
+
+  // ============================
+  // RENDER PDF
+  // ============================
+  container.innerHTML = `
+    <div class="pdf-wrapper-inner">
+      ${title ? `<h5 style="margin-bottom:10px;">${title}</h5>` : ''}
+      <iframe src="${pdfUrl}" width="100%" height="500px" style="border:none;"></iframe>
+    </div>
+  `;
+  console.log('📄 PDF berhasil ditampilkan:', pdfUrl);
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('loadPDF called:', { section, pdfUrl, title });
     
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
