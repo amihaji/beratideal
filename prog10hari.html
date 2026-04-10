@@ -3772,35 +3772,58 @@ function setupPDFLinks() {
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
   console.log('📄 loadPDF called:', { section, pdfUrl, title });
-  if (!section) {
-    console.error('❌ Section tidak ditemukan');
+  // ============================
+  // 🔴 FIX KRITIS: NORMALISASI SECTION
+  // ============================
+  if (typeof section === 'string') {
+    section = document.getElementById(section);
+  }
+
+  if (!section || !(section instanceof Element)) {
+    console.error('❌ Section bukan element valid:', section);
     return;
   }
 
   // ============================
-  // 🔴 FIX UTAMA: cari container di dalam section
+  // 🔍 CARI CONTAINER
   // ============================
-  const container =
+  let container =
     section.querySelector('.pdf-viewer') ||
     section.querySelector('.pdf-container') ||
-    section.querySelector('.pdf-wrapper') ||
-    section;
+    section.querySelector('.pdf-wrapper');
 
+  // fallback terakhir
   if (!container) {
-    console.error('❌ PDF container tidak ditemukan dalam section');
-    return;
+    console.warn('⚠️ Container tidak ditemukan, pakai section langsung');
+    container = section;
   }
 
   // ============================
-  // RENDER PDF
+  // 🧹 CLEAR SEBELUM RENDER
   // ============================
-  container.innerHTML = `
-    <div class="pdf-wrapper-inner">
-      ${title ? `<h5 style="margin-bottom:10px;">${title}</h5>` : ''}
-      <iframe src="${pdfUrl}" width="100%" height="500px" style="border:none;"></iframe>
-    </div>
-  `;
-  console.log('📄 PDF berhasil ditampilkan:', pdfUrl);
+  container.innerHTML = '';
+
+  // ============================
+  // 📄 RENDER PDF
+  // ============================
+  const wrapper = document.createElement('div');
+  wrapper.className = 'pdf-wrapper-inner';
+  if (title) {
+    const h = document.createElement('h5');
+    h.textContent = title;
+    h.style.marginBottom = '10px';
+    wrapper.appendChild(h);
+  }
+
+  const iframe = document.createElement('iframe');
+  iframe.src = pdfUrl;
+  iframe.style.width = '100%';
+  iframe.style.height = '500px';
+  iframe.style.border = 'none';
+
+  wrapper.appendChild(iframe);
+  container.appendChild(wrapper);
+  console.log('✅ PDF berhasil ditampilkan:', pdfUrl);
 }
 
 function BACKUP_loadPDF(section, pdfUrl, title = '') {
