@@ -3067,45 +3067,22 @@ function BACKUP_setupCekDisiniButtons() {
 * Handle klik tombol Cek Disini untuk semua jenis dan hari
 ***********************************************************/
 function handleCekDisiniClick(jenis, hariKe) {
-  const jenisFix  = jenis.toLowerCase().trim();
-  const sectionId = `${jenisFix}Content${hariKe}`;
-  const section   = document.getElementById(sectionId);
-  if (!section) return;
-  // 🔴 AKTIFKAN FLAG
-  window.__PDF_OPENING__ = true;
-  const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
-  loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
-  // reset flag
-  setTimeout(() => {
-    window.__PDF_OPENING__ = false;
-  }, 1000);
-}
-
-function BACKUP_handleCekDisiniClick(jenis, hariKe) {
     console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
-    if (!jenis || !hariKe) {
-        console.error('❌ Parameter tidak valid:', { jenis, hariKe });
-        return;
+    if (!hariKe) return;
+    // 🔴 FIX DEFAULT untuk kasus kosong
+    if (!jenis || jenis.trim() === '') {
+        jenis = 'istirahat';
     }
 
     const jenisFix = jenis.toLowerCase().trim();
     const sectionId = `${jenisFix}Content${hariKe}`;
     const section = document.getElementById(sectionId);
-
     if (!section) {
         console.error('❌ Section tidak ditemukan:', sectionId);
         return;
     }
-
-    // 🔴 FLAG GLOBAL: sedang buka PDF
-    window.__PDF_OPENING__ = true;
     const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
-    console.log('📋 Button clicked:', { jenisFix, hariKe, sectionId });
     loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
-    // reset flag (delay kecil biar aman)
-    setTimeout(() => {
-        window.__PDF_OPENING__ = false;
-    }, 1000);
 }
 
 // ********************************
@@ -3757,100 +3734,32 @@ function setupPDFLinks() {
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl, title });
-    if (!pdfUrl) {
-        console.error('❌ PDF URL tidak valid');
+    if (!section) {
+        console.error('❌ Section tidak valid');
         return;
     }
 
-    // 🔴 CARI / BUAT CONTAINER GLOBAL
-    let viewer = document.getElementById('globalPdfViewer');
-    if (!viewer) {
-        viewer = document.createElement('div');
-        viewer.id = 'globalPdfViewer';
-        viewer.style.position = 'fixed';
-        viewer.style.top = '0';
-        viewer.style.left = '0';
-        viewer.style.width = '100%';
-        viewer.style.height = '100%';
-        viewer.style.background = '#000';
-        viewer.style.zIndex = '9999';
-        viewer.style.display = 'flex';
-        viewer.style.flexDirection = 'column';
+    let container = section.querySelector('.pdf-container');
+    // 🔴 jika belum ada container, buat
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        container.style.marginTop = '10px';
 
-        document.body.appendChild(viewer);
+        section.appendChild(container);
     }
 
-    // 🔴 ISI VIEWER
-    viewer.innerHTML = `
-        <div style="padding:10px; background:#111; color:#fff; display:flex; justify-content:space-between; align-items:center;">
-            <span>${title || 'PDF Viewer'}</span>
-            <button onclick="closeGlobalPDF()" style="background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">
-                ✕ Tutup
-            </button>
+    // 🔴 render PDF di dalam submenu
+    container.innerHTML = `
+        <div style="background:#f5f5f5; padding:8px; font-weight:bold;">
+            ${title}
         </div>
         <iframe 
             src="${pdfUrl}" 
-            style="flex:1; width:100%; border:none; background:#fff;">
+            style="width:100%; height:500px; border:none;">
         </iframe>
     `;
-    viewer.style.display = 'flex';
-    console.log('✅ PDF tampil di GLOBAL VIEWER:', pdfUrl);
-}
-
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-  console.log('📄 loadPDF called:', { section, pdfUrl, title });
-  // ============================
-  // 🔴 FIX KRITIS: NORMALISASI SECTION
-  // ============================
-  if (typeof section === 'string') {
-    section = document.getElementById(section);
-  }
-
-  if (!section || !(section instanceof Element)) {
-    console.error('❌ Section bukan element valid:', section);
-    return;
-  }
-
-  // ============================
-  // 🔍 CARI CONTAINER
-  // ============================
-  let container =
-    section.querySelector('.pdf-viewer') ||
-    section.querySelector('.pdf-container') ||
-    section.querySelector('.pdf-wrapper');
-
-  // fallback terakhir
-  if (!container) {
-    console.warn('⚠️ Container tidak ditemukan, pakai section langsung');
-    container = section;
-  }
-
-  // ============================
-  // 🧹 CLEAR SEBELUM RENDER
-  // ============================
-  container.innerHTML = '';
-
-  // ============================
-  // 📄 RENDER PDF
-  // ============================
-  const wrapper = document.createElement('div');
-  wrapper.className = 'pdf-wrapper-inner';
-  if (title) {
-    const h = document.createElement('h5');
-    h.textContent = title;
-    h.style.marginBottom = '10px';
-    wrapper.appendChild(h);
-  }
-
-  const iframe = document.createElement('iframe');
-  iframe.src = pdfUrl;
-  iframe.style.width = '100%';
-  iframe.style.height = '500px';
-  iframe.style.border = 'none';
-
-  wrapper.appendChild(iframe);
-  container.appendChild(wrapper);
-  console.log('✅ PDF berhasil ditampilkan:', pdfUrl);
+    console.log('✅ PDF tampil di SUBMENU');
 }
 
 /***************************************
@@ -3998,22 +3907,17 @@ function openPDFInNewTab(section) {
     }
 }
 
-function closeGlobalPDF() {
+function BACKUP_closeGlobalPDF() {
     const viewer = document.getElementById('globalPdfViewer');
     if (viewer) {
         viewer.style.display = 'none';
     }
 }
 
-function closePDF(section) {
-    console.log('⚠️ Redirect closePDF → closeGlobalPDF');
-    closeGlobalPDF();
-}
-
 /*******************************************
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
-function BACKUP_closePDF(section) {
+function closePDF(section) {
     console.log('Closing PDF for section:', section);
     const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
     const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
