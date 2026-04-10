@@ -3639,6 +3639,28 @@ let currentPDFData = {};
 * Fungsi Setup PDF Link *
 *************************/
 function setupPDFLinks() {
+    console.log('🔧 Setup PDF Panduan...');
+    const link = document.getElementById('pdfPanduanLink');
+    if (!link) {
+        console.error('❌ pdfPanduanLink tidak ditemukan');
+        return;
+    }
+
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const section = document.getElementById('panduanContent'); // 🔥 FIX
+        const pdfUrl = 'pdf/Panduan_Penggunaan_Aplikasi.pdf';
+        if (!section) {
+            console.error('❌ panduanContent tidak ditemukan');
+            return;
+        }
+        closeAllPDFs();
+        loadPDF(section, pdfUrl, 'Panduan Aplikasi');
+    });
+    console.log('✅ PDF Panduan link setup completed');
+}
+
+function BACKUP_setupPDFLinks() {
   document.querySelectorAll('.pdf-link').forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -3726,110 +3748,6 @@ function setupPanduanPDFLinks() {
     // } else {
        // console.error('❌ PDF Panduan link not found');
     }
-}
-
-/******************
-* Menampilkan PDF *
-*******************/
-function BACKUP_displayPDF(section, pdfUrl, title) {
-    console.log('Displaying PDF with PDF.js:', pdfUrl);
-    const pdfContainer = document.getElementById(`pdfContainer${capitalizeFirst(section)}`);
-    if (!pdfContainer) return;
-    
-    // Set up PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-    
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    const scale = 1.5;
-    function renderPage(num) {
-        pageRendering = true;
-        pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            canvas.className = 'pdfjs-canvas';
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            const renderTask = page.render(renderContext);
-            renderTask.promise.then(function() {
-                pageRendering = false;
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
-            
-            // Clear container dan tambahkan canvas DULUAN
-            const viewer = document.getElementById(`pdfjsViewer${capitalizeFirst(section)}`);
-            viewer.innerHTML = '';
-            viewer.appendChild(canvas);
-            
-            // Update page info
-            document.getElementById(`pdfjsPageInfo${capitalizeFirst(section)}`).textContent = 
-                `Hal: ${num} dari ${pdfDoc.numPages}`;
-                
-        }).catch(function(error) {
-            console.error('Error rendering page:', error);
-            // handlePDFError(section);
-        });
-    }
-    // Antrian render halaman
-    function queueRenderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-        } else {
-            renderPage(num);
-        }
-    }
-    // Ke halaman sebelumnya 
-    function onPrevPage() {
-        if (pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    }
-    // ke halaman berikutnya
-    function onNextPage() {
-        if (pageNum >= pdfDoc.numPages) return;
-        pageNum++;
-        queueRenderPage(pageNum);
-    }
-    
-    // Load the PDF
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
-        pdfDoc = pdfDoc_;
-        
-        // Update container - CONTROLS DIBAWAH SETELAH CANVAS
-        pdfContainer.innerHTML = `
-            <div class="pdfjs-viewer" id="pdfjsViewer${capitalizeFirst(section)}"></div>
-            <div class="pdfjs-controls">
-                <button class="btn btn-sm btn-outline-primary" onclick="onPrevPage${capitalizeFirst(section)}()">
-                    <i class="fas fa-chevron-left"></i> Sebelum
-                </button>
-                <span class="pdfjs-page-info" id="pdfjsPageInfo${capitalizeFirst(section)}">
-                    Hal: 1 dari ${pdfDoc.numPages}
-                </span>
-                <button class="btn btn-sm btn-outline-primary" onclick="onNextPage${capitalizeFirst(section)}()">
-                    Berikut <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        `;
-        // Render first page
-        renderPage(1);
-        // Store functions globally for button access
-        window[`onPrevPage${capitalizeFirst(section)}`] = onPrevPage;
-        window[`onNextPage${capitalizeFirst(section)}`] = onNextPage;
-    }).catch(function(error) {
-        console.error('Error loading PDF with PDF.js:', error);
-        // Fallback ke iframe
-        fallbackToIframe(section, pdfUrl);
-    });
 }
 
 /***************************************
