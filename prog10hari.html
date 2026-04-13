@@ -2659,6 +2659,83 @@ function updateSubmenuLinkUI(type, hariKe) {
     selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
   };
 
+  // =============================
+  // 🔥 KHUSUS MATERI (FIX UTAMA)
+  // =============================
+  if (type === 'materi') {
+    const container = document.getElementById(`pertemuanContent${hariKe}`);
+    if (!container) return;
+    link = container.querySelector(
+      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
+    );
+    if (!link) return;
+
+    // 🔥 AMBIL STATE DARI PROGRESS
+    const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
+    if (isDone) {
+      console.log(`🎯 UI Materi Hari ${hariKe}: SELESAI`);
+      link.classList.add('disabled');
+      link.style.pointerEvents = 'none';
+      link.style.opacity = '0.6';
+    } else {
+      console.log(`🎯 UI Materi Hari ${hariKe}: BELUM`);
+      link.classList.remove('disabled');
+      link.style.pointerEvents = 'auto';
+      link.style.opacity = '1';
+    }
+    return; // ⛔ STOP — jangan lanjut ke logic bawah
+  }
+
+  // =============================
+  // PERKENALAN tetap khusus
+  // =============================
+  if (type === 'perkenalan') {
+    const container = document.getElementById('perkenalanContent');
+    if (!container) return;
+    link = [...container.querySelectorAll('a.menu-item')]
+      .find(a => a.textContent.includes('Selesai Perkenalan'));
+  }
+
+  // =============================
+  // submenu lain
+  // =============================
+  else {
+    const selector = selectorMap[type];
+    if (selector) {
+      link = document.querySelector(selector);
+    }
+  }
+
+  if (!link) {
+    console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
+    return;
+  }
+
+  // cegah dobel centang
+  if (link.querySelector('.status-done')) return;
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-check-circle status-done';
+  icon.style.color = '#198754';
+  icon.style.marginLeft = '2px';
+  icon.style.fontSize = '0.9em';
+  link.appendChild(icon);
+  link.style.color = '#666';
+}
+
+
+function BACKUP_updateSubmenuLinkUI(type, hariKe) {
+  console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
+  let link = null;
+  const selectorMap = {
+    mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
+    workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
+    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
+    istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
+    tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
+    tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
+    selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
+  };
+
   // PERKENALAN tetap khusus
   if (type === 'perkenalan') {
     const container = document.getElementById('perkenalanContent');
