@@ -1806,7 +1806,6 @@ function applyExistingUserProgress(progress) {
       key: 'materiHari',
       action: (h) => {
         const isDone = progress[`materiHari${h}`] === true || progress[`materiHari${h}`] === "OK";
-
         const btn = document.getElementById(`btnMateriSelesaiHari${h}`);
 
         // ✅ RESET STATE (WAJIB)
@@ -4032,40 +4031,47 @@ function showSubmenuOnly(targetId) {
     }, 300);
 }
 
-/*************************************
-* Setup Materi Completion (FIX FINAL)
-**************************************/
+/*******************************************
+* Setup Materi Completion (FINAL FIXED) *
+*******************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
-
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
-
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
     if (!btn) continue;
 
-    // 🔥 AMBIL STATUS DARI GLOBAL
-    const isDone = window.userProgress?.[`materiHari${hariKe}`];
+    // 🔥 HAPUS EVENT LAMA (hindari double binding)
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
 
-    if (isDone === true || isDone === "OK") {
-      // ✅ SUDAH SELESAI → disable
-      btn.disabled = true;
-      btn.classList.add('completed');
-      btn.innerHTML = '<i class="fas fa-check-double"></i>';
-      btn.style.cursor = 'not-allowed';
-      console.log(`🔒 Materi hari ${hariKe} selesai (locked)`);
-
+    // 🔥 CEK PROGRESS DARI SERVER (SOURCE OF TRUTH)
+    const isDone = window.userProgress &&
+      (window.userProgress[`materiHari${hariKe}`] === true ||
+       window.userProgress[`materiHari${hariKe}`] === "OK");
+    if (isDone) {
+      // 🔒 SUDAH SELESAI → disable
+      newBtn.disabled = true;
+      newBtn.classList.add('disabled');
+      newBtn.style.cursor = 'not-allowed';
     } else {
-      // 🔓 BELUM SELESAI → HARUS ENABLE
-      btn.disabled = false;
-      btn.classList.remove('completed');
-      btn.innerHTML = '<i class="far fa-circle"></i>';
-      btn.style.cursor = 'pointer';
-
-      console.log(`🟢 Materi hari ${hariKe} aktif (clickable)`);
-      // 🔥 PENTING: bind ulang event klik
-      btn.onclick = function () {
-        completeMateri(hariKe);
-      };
+      // 🔓 BELUM → aktif
+      newBtn.disabled = false;
+      newBtn.classList.remove('disabled');
+      newBtn.style.cursor = 'pointer';
+      // ✅ PASANG EVENT CLICK (HANYA JIKA BELUM SELESAI)
+      newBtn.addEventListener('click', function () {
+        console.log(`✅ Klik Materi Selesai hari ${hariKe}`);
+        // 🔒 disable setelah klik
+        newBtn.disabled = true;
+        newBtn.classList.add('disabled');
+        newBtn.style.cursor = 'not-allowed';
+        // 🔁 simpan ke server
+        if (typeof simpanProgress === 'function') {
+          simpanProgress(`materiHari${hariKe}`, "OK");
+        }
+        // 🔁 update UI
+        updateSubmenuLinkUI('materi', hariKe);
+      });
     }
   }
 }
