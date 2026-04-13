@@ -2680,7 +2680,13 @@ function updateSubmenuLinkUI(type, hariKe) {
     );
 
     // 🔹 tombol selesai (optional, tidak boleh memutus flow)
-    const btnSelesai = container.querySelector('.btn-materi-selesai');
+    // const btnSelesai = container.querySelector('.btn-materi-selesai');
+    const btnSelesai =
+      container.querySelector('.btn-materi-selesai') ||
+      container.querySelector('button') ||
+      container.querySelector('[data-action="materi-selesai"]');
+
+
     const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
     // 🎯 CENTANG HIJAU
     if (isDone && linkMateri && !linkMateri.querySelector('.status-done')) {
