@@ -1937,7 +1937,33 @@ function disableButtonFully(el) {
 /*************************************
 * Handle tombol Materi Selesai
 **************************************/
+/*************************************
+* Handle tombol Materi Selesai
+**************************************/
 function handleMateriSelesai(hariKe) {
+  console.log(`✅ Klik Materi Selesai hari ${hariKe}`);
+
+  const btn = document.getElementById(`btnMateriSelesai${hariKe}`);
+  if (!btn) return;
+
+  // Update UI langsung (tanpa re-render global)
+  btn.disabled = true;
+  btn.classList.remove('btn-success');
+  btn.classList.add('btn-secondary');
+  btn.innerHTML = '<i class="fas fa-check-double"></i> Selesai';
+
+  // Update state lokal
+  if (!window.userProgress) window.userProgress = {};
+  window.userProgress[`materiHari${hariKe}`] = "OK";
+  // Simpan ke server
+  if (typeof simpanProgress === 'function') {
+    simpanProgress(`materiHari${hariKe}`, "OK");
+  } else if (typeof updateProgress === 'function') {
+    updateProgress(`materiHari${hariKe}`, "OK");
+  }
+}
+
+function BACKUP_handleMateriSelesai(hariKe) {
   console.log(`✅ Klik Materi Selesai hari ${hariKe}`);
   const btn = document.getElementById(`btnMateriSelesai${hariKe}`);
   if (!btn) return;
@@ -1968,7 +1994,34 @@ function handleMateriSelesai(hariKe) {
 /*************************************
 * Inject tombol Materi Selesai otomatis
 **************************************/
+/*************************************
+* Inject tombol + SYNC STATE LANGSUNG
+**************************************/
 function injectMateriSelesaiButton(hariKe) {
+  const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+  if (!container) return;
+
+  if (document.getElementById(`btnMateriSelesai${hariKe}`)) return;
+  const isDone = window.userProgress && 
+                 (window.userProgress[`materiHari${hariKe}`] === true || 
+                  window.userProgress[`materiHari${hariKe}`] === "OK");
+  const div = document.createElement('div');
+  div.className = 'mt-2 text-center';
+  div.innerHTML = `
+    <button id="btnMateriSelesai${hariKe}" 
+            class="btn btn-sm ${isDone ? 'btn-secondary' : 'btn-success'}"
+            ${isDone ? 'disabled' : ''}
+            onclick="handleMateriSelesai(${hariKe})">
+      <i class="fas ${isDone ? 'fa-check-double' : 'fa-check-circle'}"></i> 
+      ${isDone ? 'Selesai' : 'Materi Selesai'}
+    </button>
+  `;
+
+  container.appendChild(div);
+  console.log(`✅ Inject tombol Materi hari ${hariKe} | status: ${isDone ? 'DONE' : 'ACTIVE'}`);
+}
+
+function BACKUP_injectMateriSelesaiButton(hariKe) {
   const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
   if (!container) return;
 
@@ -8216,6 +8269,13 @@ if(e.target.classList.contains("emoji-search")){
   });
 }
 });
+
+/*************************************
+* SAFE GUARD - WAJIB ADA
+**************************************/
+if (typeof applyExistingUserProgress !== 'function') {
+  console.error('❌ applyExistingUserProgress belum terdefinisi');
+}
 
 </script>
 </body>
