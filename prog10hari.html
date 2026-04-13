@@ -1930,7 +1930,11 @@ function applyExistingUserProgress(progress) {
     });
   }
   console.log('✅ ApplyExistingUserProgress selesai tanpa konflik');
-  setupMateriCompletion();
+
+// 🔥 FINAL SYNC UI MATERI (WAJIB)
+for (let hariKe = 1; hariKe <= 10; hariKe++) {
+  updateMateriCompletionUI(hariKe);
+}
 }
 
 /************************************
@@ -2934,11 +2938,6 @@ function fetchProgressFromServer(userId) {
             }
             // APPLY PROGRESS
             applyExistingUserProgress(response);
-            // ✅ FINAL FIX (WAJIB DI SINI)
-            // update semua tombol materi setelah progress selesai
-            for (let hariKe = 1; hariKe <= 10; hariKe++) {
-                updateMateriCompletionUI(hariKe);
-            }
         }
         document.body.removeChild(script);
         delete window[callbackName];
