@@ -2914,37 +2914,36 @@ function checkProgressFallback(userId) {
   }
 }
 
-/*************************************************
-* Ambil progress dari server untuk user tertentu *
-**************************************************/
 function fetchProgressFromServer(userId) {
     const callbackName = 'cb_fetch_progress_' + Date.now();
     const script = document.createElement('script');
-   
     script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
         if (response.success) {
             // simpan global
             window.userProgress = response;
-            // simpan storage (biarkan)
+            // simpan storage
             localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
             localStorage.setItem('progressData', JSON.stringify(response));
-
-            // Tntukan user baru / lama
+            // cek user baru / lama
             const isUserBaru = response.perkenalan !== true;
+
             if (isUserBaru) {
-                // Hanya User baru → apply lock
                 applyLockSystem(response);
             }
-            // Semua User → restore progress
+            // APPLY PROGRESS
             applyExistingUserProgress(response);
-            updateMateriCompletionUI();  // Tambahan
+            // ✅ FINAL FIX (WAJIB DI SINI)
+            // update semua tombol materi setelah progress selesai
+            for (let hariKe = 1; hariKe <= 10; hariKe++) {
+                updateMateriCompletionUI(hariKe);
+            }
         }
         document.body.removeChild(script);
         delete window[callbackName];
     };
-    
+   
     script.onerror = () => {
         console.warn('⚠️ Gagal ambil progress dari server untuk user', userId);
         document.body.removeChild(script);
