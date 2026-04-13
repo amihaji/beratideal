@@ -2659,36 +2659,40 @@ function updateSubmenuLinkUI(type, hariKe) {
     selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
   };
 
-  // =============================
   // 🔥 KHUSUS MATERI (FIX UTAMA)
-  // =============================
   if (type === 'materi') {
     const container = document.getElementById(`pertemuanContent${hariKe}`);
     if (!container) return;
-    link = container.querySelector(
+    // 🔥 TARGET 1: tombol "Materi Selesai"
+    const btnSelesai = container.querySelector('.btn-materi-selesai');
+    // 🔥 TARGET 2: link video (biarkan tetap aktif)
+    const videoLink = container.querySelector(
       `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
     );
-    if (!link) return;
-
-    // 🔥 AMBIL STATE DARI PROGRESS
+    if (!btnSelesai) {
+      console.warn(`❌ Tombol Materi Selesai tidak ditemukan hari ${hariKe}`);
+      return;
+    }
     const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
     if (isDone) {
       console.log(`🎯 UI Materi Hari ${hariKe}: SELESAI`);
-      link.classList.add('disabled');
-      link.style.pointerEvents = 'none';
-      link.style.opacity = '0.6';
+      // ✅ disable tombol saja
+      btnSelesai.disabled = true;
+      btnSelesai.classList.add('disabled');
+      btnSelesai.style.opacity = '0.6';
+      btnSelesai.style.cursor = 'not-allowed';
+      // ❗ link video tetap aktif (tidak disentuh)
     } else {
       console.log(`🎯 UI Materi Hari ${hariKe}: BELUM`);
-      link.classList.remove('disabled');
-      link.style.pointerEvents = 'auto';
-      link.style.opacity = '1';
+      btnSelesai.disabled = false;
+      btnSelesai.classList.remove('disabled');
+      btnSelesai.style.opacity = '1';
+      btnSelesai.style.cursor = 'pointer';
     }
-    return; // ⛔ STOP — jangan lanjut ke logic bawah
+    return;
   }
 
-  // =============================
   // PERKENALAN tetap khusus
-  // =============================
   if (type === 'perkenalan') {
     const container = document.getElementById('perkenalanContent');
     if (!container) return;
@@ -2696,9 +2700,7 @@ function updateSubmenuLinkUI(type, hariKe) {
       .find(a => a.textContent.includes('Selesai Perkenalan'));
   }
 
-  // =============================
   // submenu lain
-  // =============================
   else {
     const selector = selectorMap[type];
     if (selector) {
