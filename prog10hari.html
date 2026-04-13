@@ -2646,7 +2646,104 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
+/*******************************************
+* Update Submenu Link UI dan Centang Hijau *
+********************************************/
 function updateSubmenuLinkUI(type, hariKe) {
+  console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
+  let link = null;
+  const selectorMap = {
+    mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
+    workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
+    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
+    istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
+    tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
+    tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
+    selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
+  };
+
+  // PERKENALAN (KHUSUS)
+  if (type === 'perkenalan') {
+    const container = document.getElementById('perkenalanContent');
+    if (!container) return;
+    link = [...container.querySelectorAll('a.menu-item')]
+      .find(a => a.textContent.includes('Selesai Perkenalan'));
+  }
+
+  // MATERI (KHUSUS - FIX UTAMA)
+  else if (type === 'materi') {
+    const container = document.getElementById(`pertemuanContent${hariKe}`);
+    if (!container) return;
+    // 🔹 link untuk centang
+    const linkMateri = container.querySelector(
+      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
+    );
+
+    // 🔹 tombol selesai (optional, tidak boleh memutus flow)
+    const btnSelesai = container.querySelector('.btn-materi-selesai');
+    const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
+    // 🎯 CENTANG HIJAU
+    if (isDone && linkMateri && !linkMateri.querySelector('.status-done')) {
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-check-circle status-done';
+      icon.style.color = '#198754';
+      icon.style.marginLeft = '2px';
+      icon.style.fontSize = '0.9em';
+      linkMateri.appendChild(icon);
+      linkMateri.style.color = '#666';
+
+      console.log(`✅ Centang materi hari ${hariKe} ditambahkan`);
+    }
+
+    // 🎯 TOMBOL SELESAI (READONLY MODE)
+    if (btnSelesai) {
+      if (isDone) {
+        btnSelesai.disabled = true;
+        btnSelesai.classList.add('disabled');
+        btnSelesai.style.opacity = '0.6';
+        btnSelesai.style.cursor = 'not-allowed';
+
+        console.log(`🔒 Tombol Materi Hari ${hariKe} disabled`);
+      } else {
+        btnSelesai.disabled = false;
+        btnSelesai.classList.remove('disabled');
+        btnSelesai.style.opacity = '1';
+        btnSelesai.style.cursor = 'pointer';
+      }
+    } else {
+      console.warn(`⚠️ Tombol Materi Selesai tidak ditemukan hari ${hariKe} (tidak fatal)`);
+    }
+    return; // penting: stop di sini agar tidak masuk ke logic lain
+  }
+
+  // SUBMENU LAIN (DEFAULT)
+  else {
+    const selector = selectorMap[type];
+    if (selector) {
+      link = document.querySelector(selector);
+    }
+  }
+
+  // VALIDASI LINK
+  if (!link) {
+    console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
+    return;
+  }
+
+  // CEGAH DOBEL CENTANG
+  if (link.querySelector('.status-done')) return;
+
+  // TAMBAH CENTANG
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-check-circle status-done';
+  icon.style.color = '#198754';
+  icon.style.marginLeft = '2px';
+  icon.style.fontSize = '0.9em';
+  link.appendChild(icon);
+  link.style.color = '#666';
+}
+
+function BACKUP_updateSubmenuLinkUI(type, hariKe) {
   console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
   let link = null;
   const selectorMap = {
@@ -2701,61 +2798,6 @@ function updateSubmenuLinkUI(type, hariKe) {
   }
 
   // submenu lain
-  else {
-    const selector = selectorMap[type];
-    if (selector) {
-      link = document.querySelector(selector);
-    }
-  }
-
-  if (!link) {
-    console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
-    return;
-  }
-
-  // cegah dobel centang
-  if (link.querySelector('.status-done')) return;
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-check-circle status-done';
-  icon.style.color = '#198754';
-  icon.style.marginLeft = '2px';
-  icon.style.fontSize = '0.9em';
-  link.appendChild(icon);
-  link.style.color = '#666';
-}
-
-
-function BACKUP_updateSubmenuLinkUI(type, hariKe) {
-  console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-  let link = null;
-  const selectorMap = {
-    mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
-    workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
-    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
-    istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
-    tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
-    tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
-    selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
-  };
-
-  // PERKENALAN tetap khusus
-  if (type === 'perkenalan') {
-    const container = document.getElementById('perkenalanContent');
-    if (!container) return;
-    link = [...container.querySelectorAll('a.menu-item')]
-      .find(a => a.textContent.includes('Selesai Perkenalan'));
-  }
-
-  // MATERI tetap khusus
-  else if (type === 'materi') {
-    const container = document.getElementById(`pertemuanContent${hariKe}`);
-    if (!container) return;
-    link = container.querySelector(
-      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
-    );
-  }
-
-  // submenu lain pakai mapping
   else {
     const selector = selectorMap[type];
     if (selector) {
