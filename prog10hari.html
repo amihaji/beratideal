@@ -1791,34 +1791,33 @@ function applyLockSystem(progress) {
 **************************************/
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
+
   window.userProgress = progress;
 
-  // PERKENALAN
+  // 1. PERKENALAN
   if (progress.perkenalan === true) {
     updateSubmenuLinkUI('perkenalan', 0);
     disableSelesaiPerkenalanButton();
     unlockModul(1);
   }
 
-  // KONFIGURASI PROGRESS SUBMENU
+  // 2. CONFIG PROGRESS
   const progressConfig = [
+
+    // ✅ MATERI (FIX UTAMA DI SINI)
     {
       key: 'materiHari',
       action: (h) => {
-        const isDone = progress[`materiHari${h}`] === true || progress[`materiHari${h}`] === "OK";
+
+        const isDone = progress[`materiHari${h}`];
         const btn = document.getElementById(`btnMateriSelesaiHari${h}`);
 
-        // ✅ RESET STATE (WAJIB)
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove('disabled');
-          btn.style.cursor = 'pointer';
-        }
+        if (isDone === true || isDone === "OK") {
 
-        if (isDone) {
-          // 🔒 jika sudah selesai
+          // 🔒 Lock video
           lockMateriVideo(h);
 
+          // 🔒 Disable tombol
           if (btn) {
             btn.disabled = true;
             btn.classList.add('disabled');
@@ -1827,14 +1826,25 @@ function applyExistingUserProgress(progress) {
 
           updateSubmenuLinkUI('materi', h);
           console.log(`🔒 Apply progress: materi hari ${h} selesai`);
+
         } else {
-          // 🔓 jika belum selesai
+
+          // 🔓 Unlock video
           unlockMateriVideo(h);
+
+          // 🟢 Enable tombol
+          if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+            btn.style.cursor = 'pointer';
+          }
+
           console.log(`🟢 Apply progress: materi hari ${h} aktif`);
         }
       }
     },
 
+    // MEAL PLAN
     {
       key: 'mealplanHari',
       action: (h) => {
@@ -1843,6 +1853,7 @@ function applyExistingUserProgress(progress) {
       }
     },
 
+    // WORKOUT
     {
       key: 'workoutHari',
       action: (h) => {
@@ -1851,6 +1862,7 @@ function applyExistingUserProgress(progress) {
       }
     },
 
+    // WATER
     {
       key: 'waterHari',
       action: (h) => {
@@ -1859,6 +1871,7 @@ function applyExistingUserProgress(progress) {
       }
     },
 
+    // ISTIRAHAT
     {
       key: 'istirahatHari',
       action: (h) => {
@@ -1867,6 +1880,7 @@ function applyExistingUserProgress(progress) {
       }
     },
 
+    // TRACKING
     {
       key: 'trackingHari',
       action: (h) => {
@@ -1874,42 +1888,48 @@ function applyExistingUserProgress(progress) {
         disableButtonsAfterCompletion(h, 'tracking');
       }
     },
-  
+
+    // TANYA COACH
     {
-      key:'tanyaHari',
-      action:(h)=>{
+      key: 'tanyaHari',
+      action: (h) => {
         console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-        updateSubmenuLinkUI('tanya',h);
-        disableButtonsAfterCompletion(h,'tanya');
+        updateSubmenuLinkUI('tanya', h);
+        disableButtonsAfterCompletion(h, 'tanya');
       }
     },
 
+    // SELESAI MODUL
     {
-      key:'selesaimodulHari',
-      action:(h)=>{
+      key: 'selesaimodulHari',
+      action: (h) => {
         console.log(`🔒 Restore Modul Selesai hari ${h}`);
-        updateSubmenuLinkUI('selesaimodul',h);
-        disableButtonsAfterCompletion(h,'selesaimodul');
+        updateSubmenuLinkUI('selesaimodul', h);
+        disableButtonsAfterCompletion(h, 'selesaimodul');
       }
     }
   ];
 
-  // 🔓 Unlock modul berikutnya jika modul sebelumnya selesai
+  // 3. UNLOCK MODUL BERDASARKAN SELESAI
   for (let i = 1; i <= 9; i++) {
     if (progress[`selesaimodul${i}`]) {
       unlockModul(i + 1);
     }
   }
 
-  // 🔁 APPLY SEMUA PROGRESS (HARI 1–10)
+  // 4. LOOP APPLY SEMUA HARI
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
     progressConfig.forEach(cfg => {
       const status = progress[`${cfg.key}${hariKe}`];
       if (status === true || status === "OK") {
         cfg.action(hariKe);
+      } else if (cfg.key === 'materiHari') {
+        // 🔥 khusus materi → tetap jalankan untuk set ENABLE
+        cfg.action(hariKe);
       }
     });
   }
+  console.log('✅ ApplyExistingUserProgress selesai tanpa konflik');
 }
 
 /************************************
@@ -4034,7 +4054,7 @@ function showSubmenuOnly(targetId) {
 /*******************************************
 * Setup Materi Completion (FINAL FIXED) *
 *******************************************/
-function setupMateriCompletion() {
+function BACKUP_setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
     const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
@@ -7998,13 +8018,6 @@ if(e.target.classList.contains("emoji-search")){
   });
 }
 });
-
-/*************************************
-* SAFE GUARD - WAJIB ADA
-**************************************/
-if (typeof applyExistingUserProgress !== 'function') {
-  console.error('❌ applyExistingUserProgress belum terdefinisi');
-}
 
 </script>
 </body>
