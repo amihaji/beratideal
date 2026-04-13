@@ -1930,6 +1930,7 @@ function applyExistingUserProgress(progress) {
     });
   }
   console.log('✅ ApplyExistingUserProgress selesai tanpa konflik');
+  setupMateriCompletion();
 }
 
 /************************************
@@ -2938,7 +2939,7 @@ function fetchProgressFromServer(userId) {
             }
             // Semua User → restore progress
             applyExistingUserProgress(response);
-            updateMateriCompletionUI();  // Tambahan
+            updateMateriCompletionUI(hariKe);  // Tambahan
         }
         document.body.removeChild(script);
         delete window[callbackName];
@@ -3056,26 +3057,24 @@ function checkMateriStatus(hariKe, progress) {
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
 **********************************/
-function updateMateriCompletionUI() {
-  // 🔒 Guard (hindari error undefined)
-  if (!window.userProgress) {
-    console.warn('⚠️ Progress belum siap, skip updateMateriCompletionUI');
-    return;
+function updateMateriCompletionUI(hariKe) {
+  const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
+  if (!btn) return;
+
+  const progress = window.userProgress || {};
+  const isDone = progress[`materiHari${hariKe}`] === true;
+
+  if (isDone) {
+    btn.disabled = true;
+    btn.classList.add('completed');
+    btn.style.cursor = 'not-allowed';
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('completed');
+    btn.style.cursor = 'pointer';
   }
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
-    if (!btn) continue;
-    const status = window.userProgress[`materiHari${hariKe}`];
-    if (status === true || status === "OK") {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-      btn.style.cursor = 'not-allowed';
-    } else {
-      btn.disabled = false;
-      btn.classList.remove('disabled');
-      btn.style.cursor = 'pointer';
-    }
-  }
+
+  console.log(`🎯 UI Materi Hari ${hariKe}:`, isDone ? 'SELESAI' : 'BELUM');
 }
 
 /********************************************
@@ -4053,32 +4052,15 @@ function showSubmenuOnly(targetId) {
 /*******************************************
 * Setup Materi Completion (FINAL FIXED) *
 *******************************************/
-/*******************************************
-* Setup Materi Completion (FINAL FIXED) *
-*******************************************/
-/*******************************************
-* Setup Materi Completion (FINAL FIXED) *
-*******************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
+  // ⛔ STOP kalau progress belum ada
+  if (!window.userProgress) {
+    console.warn('⛔ userProgress belum siap, skip setupMateriCompletion');
+    return;
+  }
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
-    if (!btn) continue;
-    // 🔁 reset event (hindari double binding)
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-
-    // ✅ hanya event handler
-    newBtn.addEventListener('click', function () {
-      console.log(`✅ Klik Materi Selesai hari ${hariKe}`);
-      newBtn.disabled = true;
-      newBtn.classList.add('disabled');
-      newBtn.style.cursor = 'not-allowed';
-      if (typeof simpanProgress === 'function') {
-        simpanProgress(`materiHari${hariKe}`, "OK");
-      }
-      updateSubmenuLinkUI('materi', hariKe);
-    });
+    updateMateriCompletionUI(hariKe);
   }
 }
 
