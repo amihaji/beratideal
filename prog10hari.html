@@ -894,15 +894,6 @@ button[id^="btnCekDisini"] {
                     </div>
                     <div id="videoPlayerPertemuan1"></div>
                   </div>
-
-                  <!-- ✅ TAMBAHKAN DI SINI TOMBOL VIDEO MATERI SELESAI -->
-                  <div class="mt-2 text-center">
-                    <button id="btnMateriSelesai1" 
-                            class="btn btn-primary btn-sm"
-                            onclick="handleMateriSelesai(1)">
-                      <i class="fas fa-check-circle"></i> Materi Selesai
-                    </button>
-                  </div>
                 </div>
   
                 <!-- MEAL PLAN HARI PERTAMA -->
@@ -1791,60 +1782,40 @@ function applyLockSystem(progress) {
 **************************************/
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
-
   window.userProgress = progress;
-
-  // 1. PERKENALAN
+  // PERKENALAN
   if (progress.perkenalan === true) {
     updateSubmenuLinkUI('perkenalan', 0);
     disableSelesaiPerkenalanButton();
     unlockModul(1);
   }
 
-  // 2. CONFIG PROGRESS
+  // KONFIGURASI PROGRESS SUBMENU
   const progressConfig = [
-
-    // ✅ MATERI (FIX UTAMA DI SINI)
     {
       key: 'materiHari',
       action: (h) => {
-
         const isDone = progress[`materiHari${h}`];
-        const btn = document.getElementById(`btnMateriSelesaiHari${h}`);
-
-        if (isDone === true || isDone === "OK") {
-
-          // 🔒 Lock video
-          lockMateriVideo(h);
-
-          // 🔒 Disable tombol
-          if (btn) {
-            btn.disabled = true;
-            btn.classList.add('disabled');
-            btn.style.cursor = 'not-allowed';
-          }
-
-          updateSubmenuLinkUI('materi', h);
-          console.log(`🔒 Apply progress: materi hari ${h} selesai`);
-
+        const btn    = document.getElementById(`btnMateriDone${h}`);
+        if (isDone === true) {
+            // 🔒 hanya kalau selesai
+            lockMateriVideo(h);
+            if (btn) disableButtonFully(btn);
+            updateSubmenuLinkUI('materi', h);
+            console.log(`🔒 Apply progress: materi hari ${h} selesai`);
         } else {
-
-          // 🔓 Unlock video
-          unlockMateriVideo(h);
-
-          // 🟢 Enable tombol
-          if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('disabled');
-            btn.style.cursor = 'pointer';
-          }
-
-          console.log(`🟢 Apply progress: materi hari ${h} aktif`);
+            // 🔓 kalau belum selesai → JANGAN disable
+            unlockMateriVideo(h);
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('completed');
+                btn.style.cursor = 'pointer';
+            }
+            console.log(`🟢 Apply progress: materi hari ${h} aktif`);
         }
       }
     },
 
-    // MEAL PLAN
     {
       key: 'mealplanHari',
       action: (h) => {
@@ -1853,7 +1824,6 @@ function applyExistingUserProgress(progress) {
       }
     },
 
-    // WORKOUT
     {
       key: 'workoutHari',
       action: (h) => {
@@ -1862,7 +1832,6 @@ function applyExistingUserProgress(progress) {
       }
     },
 
-    // WATER
     {
       key: 'waterHari',
       action: (h) => {
@@ -1871,7 +1840,6 @@ function applyExistingUserProgress(progress) {
       }
     },
 
-    // ISTIRAHAT
     {
       key: 'istirahatHari',
       action: (h) => {
@@ -1880,7 +1848,6 @@ function applyExistingUserProgress(progress) {
       }
     },
 
-    // TRACKING
     {
       key: 'trackingHari',
       action: (h) => {
@@ -1888,53 +1855,41 @@ function applyExistingUserProgress(progress) {
         disableButtonsAfterCompletion(h, 'tracking');
       }
     },
-
-    // TANYA COACH
+  
     {
-      key: 'tanyaHari',
-      action: (h) => {
+      key:'tanyaHari',
+      action:(h)=>{
         console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-        updateSubmenuLinkUI('tanya', h);
-        disableButtonsAfterCompletion(h, 'tanya');
+        updateSubmenuLinkUI('tanya',h);
+        disableButtonsAfterCompletion(h,'tanya');
       }
     },
 
-    // SELESAI MODUL
     {
-      key: 'selesaimodulHari',
-      action: (h) => {
+      key:'selesaimodulHari',
+      action:(h)=>{
         console.log(`🔒 Restore Modul Selesai hari ${h}`);
-        updateSubmenuLinkUI('selesaimodul', h);
-        disableButtonsAfterCompletion(h, 'selesaimodul');
+        updateSubmenuLinkUI('selesaimodul',h);
+        disableButtonsAfterCompletion(h,'selesaimodul');
       }
     }
   ];
 
-  // 3. UNLOCK MODUL BERDASARKAN SELESAI
   for (let i = 1; i <= 9; i++) {
-    if (progress[`selesaimodul${i}`]) {
-      unlockModul(i + 1);
-    }
+      if (progress[`selesaimodul${i}`]) {
+          unlockModul(i + 1);
+      }
   }
 
-  // 4. LOOP APPLY SEMUA HARI
+  // LOOP HARI 1 - 10
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
     progressConfig.forEach(cfg => {
       const status = progress[`${cfg.key}${hariKe}`];
       if (status === true || status === "OK") {
         cfg.action(hariKe);
-      } else if (cfg.key === 'materiHari') {
-        // 🔥 khusus materi → tetap jalankan untuk set ENABLE
-        cfg.action(hariKe);
       }
     });
   }
-  console.log('✅ ApplyExistingUserProgress selesai tanpa konflik');
-
-// 🔥 FINAL SYNC UI MATERI (WAJIB)
-for (let hariKe = 1; hariKe <= 10; hariKe++) {
-  updateMateriCompletionUI(hariKe);
-}
 }
 
 /************************************
@@ -1953,65 +1908,6 @@ function disableButtonFully(el) {
     }
     const parent = el.parentElement;
     if (parent) parent.style.cursor = 'default';
-}
-
-/*************************************
-* Handle tombol Materi Selesai
-**************************************/
-function handleMateriSelesai(hariKe) {
-  console.log(`✅ Klik Materi Selesai hari ${hariKe}`);
-
-  const btn = document.getElementById(`btnMateriSelesai${hariKe}`);
-  if (!btn) return;
-
-  // Update UI langsung (tanpa re-render global)
-  btn.disabled = true;
-  btn.classList.remove('btn-success');
-  btn.classList.add('btn-secondary');
-  btn.innerHTML = '<i class="fas fa-check-double"></i> Selesai';
-
-  // Update state lokal
-  if (!window.userProgress) window.userProgress = {};
-  window.userProgress[`materiHari${hariKe}`] = "OK";
-  // Simpan ke server
-  if (typeof simpanProgress === 'function') {
-    simpanProgress(`materiHari${hariKe}`, "OK");
-  } else if (typeof updateProgress === 'function') {
-    updateProgress(`materiHari${hariKe}`, "OK");
-  }
-}
-
-/*************************************
-* Inject tombol + fallback state aman
-**************************************/
-function injectMateriSelesaiButton(hariKe) {
-  const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
-  if (!container) return;
-
-  if (document.getElementById(`btnMateriSelesai${hariKe}`)) return;
-  // 🔥 fallback jika userProgress belum ada
-  let isDone = false;
-
-  if (window.userProgress) {
-    isDone = (
-      window.userProgress[`materiHari${hariKe}`] === true ||
-      window.userProgress[`materiHari${hariKe}`] === "OK"
-    );
-  }
-
-  const div = document.createElement('div');
-  div.className = 'mt-2 text-center';
-  div.innerHTML = `
-    <button id="btnMateriSelesai${hariKe}" 
-            class="btn btn-sm ${isDone ? 'btn-secondary' : 'btn-success'}"
-            ${isDone ? 'disabled' : ''}
-            onclick="handleMateriSelesai(${hariKe})">
-      <i class="fas ${isDone ? 'fa-check-double' : 'fa-check-circle'}"></i> 
-      ${isDone ? 'Selesai' : 'Materi Selesai'}
-    </button>
-  `;
-  container.appendChild(div);
-  console.log(`✅ Inject tombol Materi hari ${hariKe} | isDone:`, isDone);
 }
 
 /**********************
@@ -2608,18 +2504,12 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 
 /*****************************************
 * Disable Input dan Tombol Setelah Selesai
-* (FIX: JANGAN SENTUH MATERI)
 ******************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  // 🔥 FIX UTAMA: STOP jika materi
-  if (submenuType === 'materi') {
-    console.log(`⛔ Skip disable untuk materi hari ${hariKe}`);
-    return;
-  }
-
   const containerId = `${submenuType}Content${hariKe}`;
   const container   = document.getElementById(containerId);
+
   if (!container) {
     console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
     return;
@@ -2634,18 +2524,13 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   container.querySelectorAll('button').forEach(btn => {
     const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
     const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-
     if (!isCloseBtn && !isCekDisini) {
       btn.disabled = true;
     }
   });
-
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
-/*******************************************
-* Update Submenu Link UI dan Centang Hijau *
-********************************************/
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
@@ -2662,139 +2547,6 @@ function updateSubmenuLinkUI(type, hariKe) {
     selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
   };
 
-  // PERKENALAN (KHUSUS)
-  if (type === 'perkenalan') {
-    const container = document.getElementById('perkenalanContent');
-    if (!container) return;
-    link = [...container.querySelectorAll('a.menu-item')]
-      .find(a => a.textContent.includes('Selesai Perkenalan'));
-  }
-
-  // MATERI (KHUSUS - FIX UTAMA)
-  else if (type === 'materi') {
-    const container = document.getElementById(`pertemuanContent${hariKe}`);
-    if (!container) return;
-    // 🔹 link untuk centang
-    const linkMateri = container.querySelector(
-      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
-    );
-
-    // 🔹 tombol selesai (optional, tidak boleh memutus flow)
-    // const btnSelesai = container.querySelector('.btn-materi-selesai');
-    const btnSelesai =
-      container.querySelector('.btn-materi-selesai') ||
-      container.querySelector('button') ||
-      container.querySelector('[data-action="materi-selesai"]');
-
-
-    const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
-    // 🎯 CENTANG HIJAU
-    if (isDone && linkMateri && !linkMateri.querySelector('.status-done')) {
-      const icon = document.createElement('i');
-      icon.className = 'fas fa-check-circle status-done';
-      icon.style.color = '#198754';
-      icon.style.marginLeft = '2px';
-      icon.style.fontSize = '0.9em';
-      linkMateri.appendChild(icon);
-      linkMateri.style.color = '#666';
-
-      console.log(`✅ Centang materi hari ${hariKe} ditambahkan`);
-    }
-
-    // 🎯 TOMBOL SELESAI (READONLY MODE)
-    if (btnSelesai) {
-      if (isDone) {
-        btnSelesai.disabled = true;
-        btnSelesai.classList.add('disabled');
-        btnSelesai.style.opacity = '0.6';
-        btnSelesai.style.cursor = 'not-allowed';
-
-        console.log(`🔒 Tombol Materi Hari ${hariKe} disabled`);
-      } else {
-        btnSelesai.disabled = false;
-        btnSelesai.classList.remove('disabled');
-        btnSelesai.style.opacity = '1';
-        btnSelesai.style.cursor = 'pointer';
-      }
-    } else {
-      console.warn(`⚠️ Tombol Materi Selesai tidak ditemukan hari ${hariKe} (tidak fatal)`);
-    }
-    return; // penting: stop di sini agar tidak masuk ke logic lain
-  }
-
-  // SUBMENU LAIN (DEFAULT)
-  else {
-    const selector = selectorMap[type];
-    if (selector) {
-      link = document.querySelector(selector);
-    }
-  }
-
-  // VALIDASI LINK
-  if (!link) {
-    console.warn('❌ Submenu tidak ditemukan untuk:', type, hariKe);
-    return;
-  }
-
-  // CEGAH DOBEL CENTANG
-  if (link.querySelector('.status-done')) return;
-
-  // TAMBAH CENTANG
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-check-circle status-done';
-  icon.style.color = '#198754';
-  icon.style.marginLeft = '2px';
-  icon.style.fontSize = '0.9em';
-  link.appendChild(icon);
-  link.style.color = '#666';
-}
-
-function BACKUP_updateSubmenuLinkUI(type, hariKe) {
-  console.log(`🔄 Update submenu UI: ${type} hari ${hariKe}`);
-  let link = null;
-  const selectorMap = {
-    mealplan     : `a.menu-item.submenu-trigger[data-target="mealplanContent${hariKe}"]`,
-    workout      : `a.menu-item.submenu-trigger[data-target="workoutContent${hariKe}"]`,
-    water        : `a.menu-item.submenu-trigger[data-target="waterContent${hariKe}"]`,
-    istirahat    : `a.menu-item.submenu-trigger[data-target="istirahatContent${hariKe}"]`,
-    tracking     : `a.menu-item.submenu-trigger[data-target="trackingContent${hariKe}"]`,
-    tanya        : `a.menu-item.submenu-trigger[data-target="tanyaContent${hariKe}"]`,
-    selesaimodul : `a.menu-item.submenu-trigger[data-target="selesaimodulContent${hariKe}"]`,
-  };
-
-  // 🔥 KHUSUS MATERI (FIX UTAMA)
-  if (type === 'materi') {
-    const container = document.getElementById(`pertemuanContent${hariKe}`);
-    if (!container) return;
-    // 🔥 TARGET 1: tombol "Materi Selesai"
-    const btnSelesai = container.querySelector('.btn-materi-selesai');
-    // 🔥 TARGET 2: link video (biarkan tetap aktif)
-    const videoLink = container.querySelector(
-      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
-    );
-    if (!btnSelesai) {
-      console.warn(`❌ Tombol Materi Selesai tidak ditemukan hari ${hariKe}`);
-      return;
-    }
-    const isDone = window.userProgress?.[`materiHari${hariKe}`] === true;
-    if (isDone) {
-      console.log(`🎯 UI Materi Hari ${hariKe}: SELESAI`);
-      // ✅ disable tombol saja
-      btnSelesai.disabled = true;
-      btnSelesai.classList.add('disabled');
-      btnSelesai.style.opacity = '0.6';
-      btnSelesai.style.cursor = 'not-allowed';
-      // ❗ link video tetap aktif (tidak disentuh)
-    } else {
-      console.log(`🎯 UI Materi Hari ${hariKe}: BELUM`);
-      btnSelesai.disabled = false;
-      btnSelesai.classList.remove('disabled');
-      btnSelesai.style.opacity = '1';
-      btnSelesai.style.cursor = 'pointer';
-    }
-    return;
-  }
-
   // PERKENALAN tetap khusus
   if (type === 'perkenalan') {
     const container = document.getElementById('perkenalanContent');
@@ -2803,7 +2555,16 @@ function BACKUP_updateSubmenuLinkUI(type, hariKe) {
       .find(a => a.textContent.includes('Selesai Perkenalan'));
   }
 
-  // submenu lain
+  // MATERI tetap khusus
+  else if (type === 'materi') {
+    const container = document.getElementById(`pertemuanContent${hariKe}`);
+    if (!container) return;
+    link = container.querySelector(
+      `a.menu-item.video-link[data-section="Pertemuan${hariKe}"]`
+    );
+  }
+
+  // submenu lain pakai mapping
   else {
     const selector = selectorMap[type];
     if (selector) {
@@ -3045,31 +2806,36 @@ function checkProgressFallback(userId) {
   }
 }
 
+/*************************************************
+* Ambil progress dari server untuk user tertentu *
+**************************************************/
 function fetchProgressFromServer(userId) {
     const callbackName = 'cb_fetch_progress_' + Date.now();
     const script = document.createElement('script');
+   
     script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
         if (response.success) {
             // simpan global
             window.userProgress = response;
-            // simpan storage
+            // simpan storage (biarkan)
             localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
             localStorage.setItem('progressData', JSON.stringify(response));
-            // cek user baru / lama
-            const isUserBaru = response.perkenalan !== true;
 
+            // Tntukan user baru / lama
+            const isUserBaru = response.perkenalan !== true;
             if (isUserBaru) {
+                // Hanya User baru → apply lock
                 applyLockSystem(response);
             }
-            // APPLY PROGRESS
+            // Semua User → restore progress
             applyExistingUserProgress(response);
         }
         document.body.removeChild(script);
         delete window[callbackName];
     };
-   
+    
     script.onerror = () => {
         console.warn('⚠️ Gagal ambil progress dari server untuk user', userId);
         document.body.removeChild(script);
@@ -3079,68 +2845,70 @@ function fetchProgressFromServer(userId) {
 }
 
 /************************************
-* Terapkan progress ke UI - FIX ALL *
+* Terapkan progress ke UI - SIMPLE  *
 *************************************/
 function applyProgressToUI(progress) {
   console.log('🎯 Menerapkan progress ke UI');
-
-  // 1. PERKENALAN
+  
+  // 1. Perkenalan
   if (progress.perkenalan) {
     console.log('✅ Perkenalan sudah selesai');
-
+    // Update link "Selesai Perkenalan"
     const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
     perkenalanLinks.forEach(link => {
       if (link.textContent.includes('Selesai Perkenalan')) {
         link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan';
         link.style.color = '#666666';
+        // link.style.fontWeight = 'bold';
         link.style.pointerEvents = 'none';
       }
     });
-
+    // Unlock Modul Hari 1
     unlockModul(1);
   }
-
-  // 🔥 FIX UTAMA: LOOP SEMUA HARI (1–10)
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    // ✅ MATERI
-    const materiDone = progress[`materiHari${hariKe}`];
-    const btnMateri = document.getElementById(`btnMateriDone${hariKe}`);
-
-    if (materiDone) {
-      console.log(`✅ Materi Hari ${hariKe} sudah selesai`);
-
-      const materiLink = document.getElementById(`materiLink${hariKe}`);
-      if (materiLink) {
-        materiLink.innerHTML = materiLink.innerHTML + ' ✓';
-        materiLink.style.color = '#666666';
-      }
-
-      if (btnMateri) {
-        btnMateri.innerHTML = '<i class="fas fa-check-double"></i>';
-        btnMateri.classList.remove('btn-success');
-        btnMateri.classList.add('btn-secondary');
-        btnMateri.disabled = true;
-      }
-
-    } else {
-      // 🔥 INI YANG PENTING (BIAR HARI 2 ENABLE)
-      if (btnMateri) {
-        btnMateri.disabled = false;
-        btnMateri.classList.remove('btn-secondary');
-        btnMateri.classList.add('btn-success');
-      }
+  
+  // 2. Materi Hari1
+  if (progress.materiHari1) {
+    console.log('✅ Materi Hari 1 sudah selesai');
+    // Update link materi
+    const materiLink = document.getElementById('materiLink1');
+    if (materiLink) {
+      materiLink.innerHTML = materiLink.innerHTML + ' ✓';
+      materiLink.style.color = '#666666';
+      // materiLink.style.fontWeight = 'bold';
     }
+    
+    // Update tombol centang di video
+    const completeBtn = document.querySelector('#videoContainerPertemuan1 .complete-btn');
+    if (completeBtn) {
+      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.classList.remove('btn-success');
+      completeBtn.classList.add('btn-secondary');
+      completeBtn.disabled = true;
+    }
+  }
+  
+  // 3. Meal Plan Hari 1
+  if (progress.mealplanHari1) {
+    console.log('✅ Meal Plan Hari 1 sudah selesai');
+    
+    // Update link meal plan
+    const mealplanLinks = document.querySelectorAll('[onclick="uploadmealplan(1)"]');
+    mealplanLinks.forEach(link => {
+      link.innerHTML = `<i class="fas fa-utensils"></i>${hariKe}.2 Meal Plan - Hari ${getDayName(hariKe)} <i class="fas fa-check-circle text-success ms-1" style="font-size:0.9em"></i>`;
+      link.style.color = '#666666';
+      link.style.marginLeft = '2px';
+      // link.style.fontWeight = 'bold';
 
-    // ✅ MEAL PLAN
-    if (progress[`mealplanHari${hariKe}`]) {
-      console.log(`✅ Meal Plan Hari ${hariKe} sudah selesai`);
-
-      const selesaiBtn = document.getElementById(`btnSelesaiMealplan${hariKe}`);
-      if (selesaiBtn) {
-        selesaiBtn.disabled = true;
-        selesaiBtn.classList.remove('btn-success');
-        selesaiBtn.classList.add('btn-secondary');
-      }
+    });
+    
+    // Update tombol selesai meal plan
+    const selesaiBtn = document.getElementById('btnSelesaiMealplan1');
+    if (selesaiBtn) {
+      selesaiBtn.innerHTML =  
+      selesaiBtn.classList.remove('btn-secondary');
+      selesaiBtn.classList.add('btn-secondary');
+      selesaiBtn.disabled = true;
     }
   }
   console.log('✅ Progress berhasil diterapkan');
@@ -3182,24 +2950,28 @@ function checkMateriStatus(hariKe, progress) {
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
 **********************************/
-function updateMateriCompletionUI(hariKe) {
-  const btn = document.getElementById(`btnMateriSelesaiHari${hariKe}`);
-  if (!btn) return;
+function updateMateriCompletionUI(hariKe, progress) {
+    const isDone = progress[`materiHari${hariKe}`]; // ✅ FIX
+    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    if (!btn) return;
+    if (isDone) {
+        btn.classList.add('completed');
+        btn.disabled = true;
+        btn.style.cursor = 'not-allowed';
+    } else {
+        btn.classList.remove('completed');
+        btn.disabled = false;
+        btn.style.cursor = 'pointer';
+    }
+}
 
-  const progress = window.userProgress || {};
-  const isDone = progress[`materiHari${hariKe}`] === true;
-
-  if (isDone) {
-    btn.disabled = true;
-    btn.classList.add('completed');
-    btn.style.cursor = 'not-allowed';
-  } else {
-    btn.disabled = false;
-    btn.classList.remove('completed');
-    btn.style.cursor = 'pointer';
-  }
-
-  console.log(`🎯 UI Materi Hari ${hariKe}:`, isDone ? 'SELESAI' : 'BELUM');
+/******************************
+* SETUP MATERI COMPLETION (FIX)
+*******************************/
+function setupMateriCompletion(progress) {
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        updateMateriCompletionUI(hariKe, progress);
+    }
 }
 
 /********************************************
@@ -3341,19 +3113,16 @@ function setupAllLinks() {
 *******************************************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
     console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
-
     // Untuk Canva, buka di tab baru
     if (videoType === 'canva') {
         window.open(videoUrl, '_blank');
         return;
     }
-
     const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
     if (!videoContainer) {
         console.error('❌ Video container not found for section:', section);
         return;
     }
-
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
     const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
     const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
@@ -3364,7 +3133,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         showMessage('error', 'URL Youtube tidak valid');
         return;
     }
-
     // Close video di section lain
     closeAllVideos();
     
@@ -3379,11 +3147,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     
     // Show video container
     videoContainer.style.display = 'block';
-
-    // ✅ INI POSISI YANG BENAR
-    const hariKe = section.replace('Pertemuan', '');
-    injectMateriSelesaiButton(hariKe);
-
     // Update placeholder text
     let placeholderText = 'Klik untuk memuat video';
     if (videoType === 'youtube') {
@@ -3897,6 +3660,45 @@ function setupPDFLinks() {
     console.log('✅ PDF Panduan link setup completed');
 }
 
+function BACKUP_setupPDFLinks() {
+  document.querySelectorAll('.pdf-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const pdfUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua video container
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      
+      // Sembunyikan semua submenu content
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Sembunyikan semua PDF viewer terlebih dahulu
+      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+      });
+      
+      // Load PDF
+      loadPDF(section, pdfUrl, title);
+      
+      // Tampilkan PDF viewer di posisi yang tepat
+      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
+      if (pdfViewer) {
+        pdfViewer.style.display = 'block';
+        
+        // Sisipkan PDF viewer setelah link PDF yang diklik
+        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
+      }
+    });
+  });
+}
+
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
@@ -4174,19 +3976,72 @@ function showSubmenuOnly(targetId) {
     }, 300);
 }
 
-/*******************************************
-* Setup Materi Completion (FINAL FIXED) *
-*******************************************/
+/**********************************************
+* Memberikan tombol centang Materi (Hari 1–10)
+***********************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
-  // ⛔ STOP kalau progress belum ada
-  if (!window.userProgress) {
-    console.warn('⛔ userProgress belum siap, skip setupMateriCompletion');
-    return;
-  }
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    updateMateriCompletionUI(hariKe);
-  }
+
+  document.querySelectorAll('.video-container').forEach(container => {
+    const containerId = container.id;
+
+    if (!containerId.includes('Pertemuan')) return;
+
+    const hariKe = containerId.replace('videoContainerPertemuan', '');
+    const videoWrapper = container.querySelector('.video-wrapper');
+    if (!videoWrapper) return;
+
+    videoWrapper.style.position = 'relative';
+
+    let completeBtn = container.querySelector('.complete-btn');
+
+    // === BUAT TOMBOL JIKA BELUM ADA ===
+    if (!completeBtn) {
+      completeBtn = document.createElement('button');
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.className = 'btn btn-success btn-sm complete-btn';
+      completeBtn.id = `btnMateriDone${hariKe}`;
+      completeBtn.style.cssText = `
+        position: absolute; top: 10px; left: 10px; z-index: 25;
+        width: 35px; height: 35px; border-radius: 50%; padding: 0;
+        border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      `;
+
+      completeBtn.onclick = () => {
+        if (completeBtn.dataset.done === 'true') {
+          console.warn('⛔ Materi sudah diselesaikan');
+          return;
+        }
+
+        simpanMateri(hariKe);
+
+        // 🔒 KUNCI LANGSUNG DI UI
+        completeBtn.dataset.done = 'true';
+        completeBtn.disabled = true;
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.classList.remove('btn-success');
+        completeBtn.classList.add('btn-secondary');
+
+        // 💾 SIMPAN STATUS
+        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+
+        // ✅ UPDATE SUBMENU
+        updateSubmenuLinkUI('materi', hariKe);
+      };
+
+      videoWrapper.appendChild(completeBtn);
+      console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
+    }
+
+    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
+    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
+      completeBtn.dataset.done = 'true';
+      completeBtn.disabled = true;
+      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.classList.remove('btn-success');
+      completeBtn.classList.add('btn-secondary');
+    }
+  });
 }
 
 /*********************************************************************
