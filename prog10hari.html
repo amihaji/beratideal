@@ -1989,9 +1989,39 @@ function BACKUP_handleMateriSelesai(hariKe) {
 }
 
 /*************************************
-* Inject tombol + SYNC STATE LANGSUNG
+* Inject tombol + fallback state aman
 **************************************/
 function injectMateriSelesaiButton(hariKe) {
+  const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+  if (!container) return;
+
+  if (document.getElementById(`btnMateriSelesai${hariKe}`)) return;
+  // 🔥 fallback jika userProgress belum ada
+  let isDone = false;
+
+  if (window.userProgress) {
+    isDone = (
+      window.userProgress[`materiHari${hariKe}`] === true ||
+      window.userProgress[`materiHari${hariKe}`] === "OK"
+    );
+  }
+
+  const div = document.createElement('div');
+  div.className = 'mt-2 text-center';
+  div.innerHTML = `
+    <button id="btnMateriSelesai${hariKe}" 
+            class="btn btn-sm ${isDone ? 'btn-secondary' : 'btn-success'}"
+            ${isDone ? 'disabled' : ''}
+            onclick="handleMateriSelesai(${hariKe})">
+      <i class="fas ${isDone ? 'fa-check-double' : 'fa-check-circle'}"></i> 
+      ${isDone ? 'Selesai' : 'Materi Selesai'}
+    </button>
+  `;
+  container.appendChild(div);
+  console.log(`✅ Inject tombol Materi hari ${hariKe} | isDone:`, isDone);
+}
+
+function BACKUP_injectMateriSelesaiButton(hariKe) {
   const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
   if (!container) return;
 
@@ -2013,27 +2043,6 @@ function injectMateriSelesaiButton(hariKe) {
 
   container.appendChild(div);
   console.log(`✅ Inject tombol Materi hari ${hariKe} | status: ${isDone ? 'DONE' : 'ACTIVE'}`);
-}
-
-function BACKUP_injectMateriSelesaiButton(hariKe) {
-  const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
-  if (!container) return;
-
-  // Jangan double insert
-  if (document.getElementById(`btnMateriSelesai${hariKe}`)) return;
-
-  const div = document.createElement('div');
-  div.className = 'mt-2 text-center';
-  div.innerHTML = `
-    <button id="btnMateriSelesai${hariKe}" 
-            class="btn btn-success btn-sm"
-            onclick="handleMateriSelesai(${hariKe})">
-      <i class="fas fa-check-circle"></i> Materi Selesai
-    </button>
-  `;
-
-  container.appendChild(div);
-  console.log(`✅ Inject tombol Materi hari ${hariKe}`);
 }
 
 /**********************
