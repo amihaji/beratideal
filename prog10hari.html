@@ -1792,6 +1792,7 @@ function applyLockSystem(progress) {
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
   window.userProgress = progress;
+
   // PERKENALAN
   if (progress.perkenalan === true) {
     updateSubmenuLinkUI('perkenalan', 0);
@@ -1801,14 +1802,14 @@ function applyExistingUserProgress(progress) {
 
   // KONFIGURASI PROGRESS SUBMENU
   const progressConfig = [
-   {
+    {
       key: 'materiHari',
       action: (h) => {
         const isDone = progress[`materiHari${h}`] === true || progress[`materiHari${h}`] === "OK";
 
         const btn = document.getElementById(`btnMateriSelesaiHari${h}`);
 
-        // 🔥 WAJIB: pastikan tombol selalu ada state awal yang benar
+        // ✅ RESET STATE (WAJIB)
         if (btn) {
           btn.disabled = false;
           btn.classList.remove('disabled');
@@ -1816,7 +1817,7 @@ function applyExistingUserProgress(progress) {
         }
 
         if (isDone) {
-          // 🔒 hanya kalau selesai
+          // 🔒 jika sudah selesai
           lockMateriVideo(h);
 
           if (btn) {
@@ -1828,14 +1829,13 @@ function applyExistingUserProgress(progress) {
           updateSubmenuLinkUI('materi', h);
           console.log(`🔒 Apply progress: materi hari ${h} selesai`);
         } else {
-          // 🔓 kalau belum selesai
+          // 🔓 jika belum selesai
           unlockMateriVideo(h);
-
           console.log(`🟢 Apply progress: materi hari ${h} aktif`);
         }
       }
     },
-    
+
     {
       key: 'mealplanHari',
       action: (h) => {
@@ -1895,13 +1895,14 @@ function applyExistingUserProgress(progress) {
     }
   ];
 
+  // 🔓 Unlock modul berikutnya jika modul sebelumnya selesai
   for (let i = 1; i <= 9; i++) {
-      if (progress[`selesaimodul${i}`]) {
-          unlockModul(i + 1);
-      }
+    if (progress[`selesaimodul${i}`]) {
+      unlockModul(i + 1);
+    }
   }
 
-  // LOOP HARI 1 - 10
+  // 🔁 APPLY SEMUA PROGRESS (HARI 1–10)
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
     progressConfig.forEach(cfg => {
       const status = progress[`${cfg.key}${hariKe}`];
