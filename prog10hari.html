@@ -2524,6 +2524,37 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   container.querySelectorAll('button').forEach(btn => {
     const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
     const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
+
+    // 🔥 TAMBAHAN FIX DI SINI
+    const isMateriBtn = btn.id && btn.id.includes('btnMateriDone');
+
+    if (!isCloseBtn && !isCekDisini && !isMateriBtn) {
+      btn.disabled = true;
+    }
+  });
+
+  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
+  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
+  const containerId = `${submenuType}Content${hariKe}`;
+  const container   = document.getElementById(containerId);
+
+  if (!container) {
+    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
+    return;
+  }
+
+  // Disable semua input
+  container.querySelectorAll('input, textarea, select').forEach(el => {
+    el.disabled = true;
+  });
+
+  // Disable tombol kecuali yang diizinkan
+  container.querySelectorAll('button').forEach(btn => {
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
     if (!isCloseBtn && !isCekDisini) {
       btn.disabled = true;
     }
