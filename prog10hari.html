@@ -2060,7 +2060,63 @@ function updatePerkenalanUI() {
 /***********************************
  * Setup Seluruh Komponen Internal *
  * *********************************/
-function setupAllComponentsInternal(progress = {}) {
+function setupAllComponentsInternal() {
+  console.log('🔧 Setting up all components...');
+  // =========================
+  // 1. VALIDASI USER LOGIN
+  // =========================
+  if (!currentUser) {
+    console.error('❌ User belum login');
+    return;
+  }
+  console.log('👤 User is logged in:', currentUser);
+
+  // =========================
+  // 2. SETUP KOMPONEN AWAL
+  // =========================
+  setupPDFPanduan();
+  setupCekDisiniButtons();
+
+  // 🔥 WAJIB: CREATE tombol centang (HANYA SEKALI)
+  setupMateriCompletion();
+
+  // =========================
+  // 3. LOAD VIDEO + LOCK SYSTEM
+  // =========================
+  setupVideoLockingSystem();
+
+  // =========================
+  // 4. WORKOUT
+  // =========================
+  generateAllWorkoutForms();
+  initializeWorkoutDays();
+
+  // =========================
+  // 5. WATER
+  // =========================
+  initializeAllWaterReminderForms();
+
+  // =========================
+  // 6. VIDEO PLAYER
+  // =========================
+  initializeVideoPlayers();
+
+  // =========================
+  // 7. LOAD PROGRESS (INI YANG NGATUR STATE)
+  // =========================
+  loadCompleteProgress(currentUser)
+    .then(progress => {
+      console.log('📊 Complete progress response:', progress);
+      applyCompleteProgressToUI(progress);
+      console.log('✅ Complete progress loaded successfully');
+    })
+    .catch(err => {
+      console.error('❌ Gagal load progress:', err);
+    });
+  console.log('✅ All components setup complete');
+}
+
+ function BACKUP_setupAllComponentsInternal(progress = {}) {
     // 🔥 FIX: pastikan progress selalu ada
     if (!progress) progress = {};
 
@@ -2766,7 +2822,7 @@ function setupAllComponents() {
         console.log('✅ Complete progress loaded successfully');
         // 🔥 WAJIB TARUH DI SINI
         applyUnlockModul(progress);
-        setupMateriCompletion(progress);
+        // setupMateriCompletion(progress);
         for (let i = 1; i <= 10; i++) {
             checkMateriStatus(i, progress);
         }
@@ -2969,10 +3025,25 @@ function updateMateriCompletionUI(hariKe, progress) {
     }
 }
 
+function setupMateriCompletion() {
+  console.log('🔧 Setting up materi completion...');
+  document.querySelectorAll('.video-container').forEach((container, index) => {
+    const hariKe = index + 1;
+    // Cek jika tombol sudah ada → skip (anti double)
+    if (container.querySelector(`#btnMateriDone${hariKe}`)) return;
+    const btn = document.createElement('button');
+    btn.id = `btnMateriDone${hariKe}`;
+    btn.className = 'btn btn-success btn-sm mt-2';
+    btn.innerHTML = '✔ Tandai Selesai';
+    container.appendChild(btn);
+    console.log(`✅ Tombol centang ditambahkan: btnMateriDone${hariKe}`);
+  });
+}
+
 /******************************
 * SETUP MATERI COMPLETION (FIX)
 *******************************/
-function setupMateriCompletion(progress) {
+function BACKUP_setupMateriCompletion(progress) {
     for (let hariKe = 1; hariKe <= 10; hariKe++) {
         updateMateriCompletionUI(hariKe, progress);
     }
