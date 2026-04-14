@@ -2063,6 +2063,60 @@ function updatePerkenalanUI() {
 function setupAllComponentsInternal() {
   console.log('🔧 Setting up all components...');
   // =========================
+  // FIX CRITICAL ERROR
+  // =========================
+  if (!window.currentUser) {
+    console.error('❌ User belum login');
+    return;
+  }
+  console.log('👤 User is logged in:', window.currentUser);
+
+  // =========================
+  // SETUP AWAL
+  // =========================
+  setupPDFPanduan();
+  setupCekDisiniButtons();
+  setupMateriCompletion();
+
+  // =========================
+  // VIDEO SYSTEM (PENTING)
+  // =========================
+  setupVideoLockingSystem();
+
+  // =========================
+  // WORKOUT
+  // =========================
+  generateAllWorkoutForms();
+  initializeWorkoutDays();
+
+  // =========================
+  // WATER
+  // =========================
+  initializeAllWaterReminderForms();
+
+  // =========================
+  // VIDEO PLAYER (INI KRUSIAL)
+  // =========================
+  initializeVideoPlayers();
+
+  // =========================
+  // LOAD PROGRESS
+  // =========================
+  loadCompleteProgress(window.currentUser)
+    .then(progress => {
+      console.log('📊 Complete progress response:', progress);
+      applyCompleteProgressToUI(progress, 1);
+      console.log('✅ Complete progress loaded successfully');
+    })
+    .catch(err => {
+      console.error('❌ Gagal load progress:', err);
+    });
+  console.log('✅ All components setup complete');
+}
+
+function BACKUP_setupAllComponentsInternal() {
+  console.log('🔧 Setting up all components...');
+  // =========================
   // 1. VALIDASI USER LOGIN
   // =========================
   if (!currentUser) {
@@ -2116,89 +2170,7 @@ function setupAllComponentsInternal() {
   console.log('✅ All components setup complete');
 }
 
- function BACKUP_setupAllComponentsInternal(progress = {}) {
-    // 🔥 FIX: pastikan progress selalu ada
-    if (!progress) progress = {};
-
-    // Submenu triggers
-    document.querySelectorAll('.submenu-trigger').forEach(trigger => {
-        trigger.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.getAttribute('data-target');
-            showSubmenu(target);
-        });
-    });
-    
-    // Setup tombol close di semua submenu
-    document.querySelectorAll('.btn-close-header').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const targetId = this.closest('.submenu-content').id;
-            hideSubmenu(targetId);
-        });
-    });
-
-    // Setup video links
-    setupAllLinks();
-    // Setup playlist
-    setupPlaylistTriggers();
-    // Setup Materi Perkenalan
-    setupPerkenalanCompletion();
-    // Setup PDF links
-    setupPanduanPDFLinks();
-    // Setup tombol "Cek Disini"
-    setupCekDisiniButtons();
-    // Setup materi completion
-    // setupMateriCompletion();
-    // 🔥 FIX: gunakan progress yang valid
-    applyUnlockModul(progress);
-    // Cek Materi Status
-    for (let i = 1; i <= 10; i++) {
-        checkMateriStatus(i, progress);
-    }
-    // Setup meal plan
-    generateMealplanForms();
-    for (let i = 1; i <= 10; i++) {
-        checkMealplanStatus(i);
-        loadMealplanProgress(i);
-    }
-
-    // Setup tentang overlay
-    document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-    // Workout
-    generateWorkoutForms();
-    initializeAllWorkoutDays();
-    // Water
-    addWaterReminderStyles();
-    initializeAllWaterReminderForms();
-    for (let i = 1; i <= 10; i++) {
-        const waterLink = document.querySelector(`[onclick="waterReminder(${i})"]`);
-        if (waterLink) {
-            waterLink.onclick = function(e) {
-                e.preventDefault();
-                showWaterReminderForm(i);
-            };
-        }
-    }
-
-    document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
-        item.addEventListener('click', function () {
-            const hariKe = parseInt(
-                this.getAttribute('data-target').replace('waterContent', '')
-            );
-            window.activeWaterHari = hariKe;
-        });
-    });
-
-    document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
-        btn.disabled = true;
-    });
-
-    // Video
-    initializeAllVideoPlayers();
-    console.log('🔍 Testing server connection on startup...');
-}
-
-/**************************************
+ /**************************************
 * Update navbar untuk user yang login *
 ***************************************/
 function updateNavbarForLoggedInUser() {
@@ -2582,12 +2554,15 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   container.querySelectorAll('button').forEach(btn => {
     const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
     const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    // 🔥 FIX KRITIS (WAJIB)
+
+    // 🔥 FIX UTAMA
     const isMateriBtn = btn.id && btn.id.startsWith('btnMateriDone');
+
     if (!isCloseBtn && !isCekDisini && !isMateriBtn) {
       btn.disabled = true;
     }
   });
+
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
