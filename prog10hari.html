@@ -4021,6 +4021,22 @@ function showSubmenu(targetId) {
   targetContent.style.display = 'block';
   console.log('✅ Submenu ditampilkan');
   
+  // ✅ TAMBAHAN: Refresh status tombol materi jika ini submenu materi
+  if (targetId.startsWith('pertemuanContent')) {
+    const hariKe = targetId.replace('pertemuanContent','');
+    if (window.userProgress) {
+        checkMateriStatus(parseInt(hariKe), window.userProgress);
+    } else {
+        // fallback: ambil dari localStorage
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            const progressKey = `completeProgress_${userId}`;
+            const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
+            checkMateriStatus(parseInt(hariKe), saved);
+        }
+    }
+  }
+
   // AUTO ISI PESAN TANYA COACH
   if (targetId.startsWith('tanyaContent')) {
     const hariKe = targetId.replace('tanyaContent','');
