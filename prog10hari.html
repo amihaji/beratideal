@@ -1890,7 +1890,6 @@ function applyExistingUserProgress(progress) {
   }
 }
 
-
 function BACKUP_applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
   window.userProgress = progress;
@@ -3029,6 +3028,46 @@ function applyProgressToUI(progress) {
 * CHECK STATUS MATERI PER HARI (FIX)
 *************************************/
 function checkMateriStatus(hariKe, progress) {
+    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    if (!btn) return;
+
+    // Jika tidak ada progress, asumsikan materi belum selesai → enable tombol & unlock video
+    if (!progress) {
+        btn.disabled = false;
+        btn.classList.remove('completed');
+        btn.style.cursor = 'pointer';
+        unlockMateriVideo(hariKe);
+        console.log(`🟢 Materi hari ${hariKe} aktif (progress tidak tersedia)`);
+        return;
+    }
+    
+    // Cek apakah modul sebelumnya sudah selesai (kecuali hari 1)
+    if (hariKe > 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
+        lockMateriVideo(hariKe);
+        btn.disabled = true;
+        btn.classList.add('completed');
+        btn.style.cursor = 'not-allowed';
+        console.log(`🔒 Materi hari ${hariKe} terkunci karena modul sebelumnya belum selesai`);
+        return;
+    }
+    const status = progress[`materiHari${hariKe}`];
+    const isDone = (status === true || status === "OK");
+    if (isDone) {
+        btn.disabled = true;
+        btn.classList.add('completed');
+        btn.style.cursor = 'not-allowed';
+        lockMateriVideo(hariKe);
+        console.log(`🔒 Materi hari ${hariKe} selesai (status: ${status})`);
+    } else {
+        btn.disabled = false;
+        btn.classList.remove('completed');
+        btn.style.cursor = 'pointer';
+        unlockMateriVideo(hariKe);
+        console.log(`🟢 Materi hari ${hariKe} aktif (status: ${status})`);
+    }
+}
+
+function BACKUP_checkMateriStatus(hariKe, progress) {
     if (!progress) return;
     
     // Cek apakah modul sebelumnya sudah selesai (kecuali hari 1)
@@ -3066,39 +3105,6 @@ function checkMateriStatus(hariKe, progress) {
     }
 }
 
-function BACKUP_checkMateriStatus(hariKe, progress) {
-    if (!progress) return;
-    const status = progress[`materiHari${hariKe}`];
-    // 🔴 belum unlock modul sebelumnya → lock
-    if (hariKe !== 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
-        lockMateriVideo(hariKe);
-        return;
-    }
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
-
-    // 🔵 sudah selesai
-    if (status === true) {
-        btn.disabled = true;
-        btn.classList.add('completed');
-        btn.style.cursor = 'not-allowed';
-        lockMateriVideo(hariKe);
-        console.log(`🔒 Materi hari ${hariKe} selesai`);
-    } 
-    // 🟢 belum selesai → WAJIB unlock
-    else {
-        btn.disabled = false;
-        btn.classList.remove('completed');
-        btn.style.cursor = 'pointer';
-        // 🔥 INI YANG HILANG SEBELUMNYA
-        unlockMateriVideo(hariKe);
-        console.log(`🟢 Materi hari ${hariKe} aktif`);
-    }
-}
-
-/*********************************
-* UPDATE UI MATERI PER HARI (FIX)
-**********************************/
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
 **********************************/
@@ -3980,6 +3986,80 @@ function closeAllPDFs() {
 * Tampilkan Submenu & Tidak menyembunyikan PDF *
 ***********************************************/
 function showSubmenu(targetId) {
+  console.log('🔍 Menampilkan submenu:', targetId);
+  // TUTUP SEMUA SUBMENU LAIN
+  document.querySelectorAll('.submenu-content').forEach(content => {
+    if (content.id !== targetId) {
+      content.style.display = 'none';
+    }
+  });
+
+  const targetContent = document.getElementById(targetId);
+  if (!targetContent) {
+    console.error('❌ Target content tidak ditemukan:', targetId);
+    return;
+  }
+
+  // Cari trigger menu
+  const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
+  if (!triggerElement) {
+    console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
+    targetContent.style.display = 'block';
+    return;
+  }
+
+  console.log('✅ Trigger ditemukan:', triggerElement);
+  const parentMenuContent = triggerElement.closest('.menu-content');
+  if (!parentMenuContent) {
+    console.warn('⚠️ Menu content parent tidak ditemukan');
+    targetContent.style.display = 'block';
+    return;
+  }
+
+  console.log('✅ Menu content parent ditemukan');
+  // CEK apakah sudah berada di posisi yang benar
+  if (triggerElement.nextElementSibling !== targetContent) {
+    parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
+    console.log('📦 Submenu dipindahkan ke posisi yang benar');
+  }
+
+  // Tampilkan submenu
+  targetContent.style.display = 'block';
+  console.log('✅ Submenu ditampilkan');
+  
+  // ✅ TAMBAHAN: Refresh status tombol materi jika ini submenu materi
+  if (targetId.startsWith('pertemuanContent')) {
+    const hariKe = targetId.replace('pertemuanContent','');
+    if (window.userProgress) {
+        checkMateriStatus(parseInt(hariKe), window.userProgress);
+    } else {
+        // fallback: ambil dari localStorage
+        const userId = localStorage.getItem('userId');
+        if (userId) {
+            const progressKey = `completeProgress_${userId}`;
+            const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
+            checkMateriStatus(parseInt(hariKe), saved);
+        }
+    }
+  }
+
+  // AUTO ISI PESAN TANYA COACH
+  if (targetId.startsWith('tanyaContent')) {
+    const hariKe = targetId.replace('tanyaContent','');
+    isiPesanDefaultCoach(hariKe);
+  }
+
+  // Scroll halus
+  setTimeout(() => {
+    targetContent.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+    console.log('📜 Scroll ke submenu');
+  }, 120);
+}
+
+function BACKUP_showSubmenu(targetId) {
   console.log('🔍 Menampilkan submenu:', targetId);
   // TUTUP SEMUA SUBMENU LAIN
   document.querySelectorAll('.submenu-content').forEach(content => {
