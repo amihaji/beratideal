@@ -2617,6 +2617,40 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 ******************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
+  
+  // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
+  if (submenuType === 'materi') {
+    console.log(`✅ Materi hari ${hariKe} - tombol centang TIDAK di-disable via fungsi ini`);
+    return; // Keluar, tidak melakukan apa-apa
+  }
+  
+  const containerId = `${submenuType}Content${hariKe}`;
+  const container   = document.getElementById(containerId);
+
+  if (!container) {
+    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
+    return;
+  }
+
+  // Disable semua input
+  container.querySelectorAll('input, textarea, select').forEach(el => {
+    el.disabled = true;
+  });
+
+  // Disable tombol kecuali yang diizinkan
+  container.querySelectorAll('button').forEach(btn => {
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
+    
+    if (!isCloseBtn && !isCekDisini) {
+      btn.disabled = true;
+    }
+  });
+  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
+  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
   const containerId = `${submenuType}Content${hariKe}`;
   const container   = document.getElementById(containerId);
 
@@ -2647,32 +2681,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
         console.log(`✅ Tombol centang materi TIDAK di-disable`);
         return;
       }
-      btn.disabled = true;
-    }
-  });
-  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
-}
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  const containerId = `${submenuType}Content${hariKe}`;
-  const container   = document.getElementById(containerId);
-
-  if (!container) {
-    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
-    return;
-  }
-
-  // Disable semua input
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Disable tombol kecuali yang diizinkan
-  container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
-    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    if (!isCloseBtn && !isCekDisini) {
       btn.disabled = true;
     }
   });
