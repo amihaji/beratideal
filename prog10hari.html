@@ -1797,20 +1797,21 @@ function applyExistingUserProgress(progress) {
       action: (h) => {
         const isDone = progress[`materiHari${h}`];
         const btn    = document.getElementById(`btnMateriDone${h}`);
-
         if (isDone === true) {
-          lockMateriVideo(h);
-          if (btn) disableButtonFully(btn);
-          updateSubmenuLinkUI('materi', h);
-          console.log(`🔒 Apply progress: materi hari ${h} selesai`);
+            // 🔒 hanya kalau selesai
+            lockMateriVideo(h);
+            if (btn) disableButtonFully(btn);
+            updateSubmenuLinkUI('materi', h);
+            console.log(`🔒 Apply progress: materi hari ${h} selesai`);
         } else {
-          unlockMateriVideo(h);
-          if (btn) {
-            btn.disabled = false;
-            btn.classList.remove('completed');
-            btn.style.cursor = 'pointer';
-          }
-          console.log(`🟢 Apply progress: materi hari ${h} aktif`);
+            // 🔓 kalau belum selesai → JANGAN disable
+            unlockMateriVideo(h);
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('completed');
+                btn.style.cursor = 'pointer';
+            }
+            console.log(`🟢 Apply progress: materi hari ${h} aktif`);
         }
       }
     },
@@ -1873,40 +1874,15 @@ function applyExistingUserProgress(progress) {
       }
     }
   ];
-  // UNLOCK MODUL BERDASARKAN PROGRESS
+
   for (let i = 1; i <= 9; i++) {
-    if (progress[`selesaimodul${i}`]) {
-      unlockModul(i + 1);
-    }
+      if (progress[`selesaimodul${i}`]) {
+          unlockModul(i + 1);
+      }
   }
 
   // LOOP HARI 1 - 10
   for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    // ===== FIX KHUSUS MATERI (KRITIS) =====
-    const isDone = progress[`materiHari${hariKe}`];
-    const currentDay = progress.hariAktif || 1;
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (isDone === true) {
-      lockMateriVideo(hariKe);
-      if (btn) disableButtonFully(btn);
-      updateSubmenuLinkUI('materi', hariKe);
-      console.log(`🔒 FIX: materi hari ${hariKe} selesai`);
-    } 
-    else if (hariKe === currentDay) {
-      unlockMateriVideo(hariKe);
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.remove('completed');
-        btn.style.cursor = 'pointer';
-      }
-      console.log(`🟢 FIX: materi hari ${hariKe} aktif`);
-    } 
-    else {
-      lockMateriVideo(hariKe);
-    }
-    // ===== END FIX =====
-
-    // ===== LOGIC LAMA (TETAP) =====
     progressConfig.forEach(cfg => {
       const status = progress[`${cfg.key}${hariKe}`];
       if (status === true || status === "OK") {
@@ -1915,7 +1891,6 @@ function applyExistingUserProgress(progress) {
     });
   }
 }
-
 
 /************************************
 * Disable button secara TOTAL (UX) *
@@ -2356,56 +2331,6 @@ function applyCompleteProgressToUI(progress, hariKe) {
   if (!window.userProgress) {
     window.userProgress = {};
   }
-
-  if (progress.perkenalan === true) {
-    unlockModul(hariKe);
-  }
-  const progressMap = [
-    { field: 'materiHari1', type: 'materi' },
-    { field: 'mealplanHari1', type: 'mealplan' },
-    { field: 'workoutHari1', type: 'workout' },
-    { field: 'waterHari1', type: 'water' },
-    { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'trackingHari1', type: 'tracking' },
-    { field: 'tanyaHari1', type: 'tanya' }, 
-    { field: 'selesaimodulHari1', type: 'selesaimodul' } 
-  ];
-
-  progressMap.forEach(item => {
-    if (progress[item.field] === true || progress[item.field] === "OK") {
-      window.userProgress[item.field] = true;
-      // 🔥 FIX UTAMA: pakai hari dari field (bukan hariKe)
-      const hariField = parseInt(item.field.replace(/\D/g, ''));
-      updateSubmenuLinkUI(item.type, hariField);
-      disableButtonsAfterCompletion(hariField, item.type);
-    }
-  });
-
-  if (
-    progress.perkenalan ||
-    progress.materiHari1 ||
-    progress.mealplanHari1 ||
-    progress.workoutHari1 ||
-    progress.waterHari1 ||
-    progress.istirahatHari1 ||
-    progress.trackingHari1 ||
-    progress.tanyaHari1 ||
-    progress.selesaimodulHari1 
-  ) {
-    setTimeout(() => {
-      const header = document.querySelector(`[data-hari="${hariKe}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click();
-      }
-    }, 800);
-  }
-}
-
-function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
-  console.log('🎯 Applying COMPLETE progress to UI:', progress);
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
   if (progress.perkenalan === true) {
     unlockModul(hariKe);
   }
@@ -2580,112 +2505,30 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /*****************************************
 * Disable Input dan Tombol Setelah Selesai
 ******************************************/
-function disableButtonsAfterCompletion(hariKe, type) {
-  console.log('🔒 Disable', type, 'UI hari', hariKe);
+function disableButtonsAfterCompletion(hariKe, submenuType) {
+  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
+  const containerId = `${submenuType}Content${hariKe}`;
+  const container   = document.getElementById(containerId);
 
-  if (type === 'materi') {
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
+  if (!container) {
+    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
+    return;
+  }
 
-    // 🔥 CEK STATUS DULU (INI FIX UTAMA)
-    const isDoneLocal = localStorage.getItem(`materi_hari_${hariKe}`) === 'completed';
-    const isDoneServer = window.userProgress && window.userProgress[`materiHari${hariKe}`];
+  // Disable semua input
+  container.querySelectorAll('input, textarea, select').forEach(el => {
+    el.disabled = true;
+  });
 
-    if (isDoneLocal || isDoneServer) {
-      // ✅ HANYA DISABLE JIKA SUDAH SELESAI
+  // Disable tombol kecuali yang diizinkan
+  container.querySelectorAll('button').forEach(btn => {
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
+    if (!isCloseBtn && !isCekDisini) {
       btn.disabled = true;
-      btn.dataset.done = 'true';
-      btn.classList.add('disabled');
-      console.log(`✅ materi hari ${hariKe} di-disable (SUDAH SELESAI)`);
-    } else {
-      // 🔥 FIX: JANGAN DISABLE jika belum selesai
-      btn.disabled = false;
-      btn.dataset.done = 'false';
-      btn.classList.remove('disabled');
-      console.log(`🟢 materi hari ${hariKe} tetap aktif (BELUM SELESAI)`);
     }
-  }
-}
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, type) {
-  // 🔥 FIX UTAMA: hanya disable jika progress hari tersebut benar-benar selesai
-  if (!window.userProgress || !window.userProgress[`materiHari${hariKe}`]) {
-    return; // ⛔ stop, jangan disable
-  }
-
-  console.log(`🔒 Disable ${type} UI hari ${hariKe}`);
-
-  // ===== MATERI =====
-  if (type === 'materi') {
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== MEAL PLAN =====
-  if (type === 'mealplan') {
-    const btn = document.getElementById(`btnMealPlanDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== WORKOUT =====
-  if (type === 'workout') {
-    const btn = document.getElementById(`btnWorkoutDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== WATER =====
-  if (type === 'water') {
-    const btn = document.getElementById(`btnWaterDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== ISTIRAHAT =====
-  if (type === 'istirahat') {
-    const btn = document.getElementById(`btnIstirahatDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== TRACKING =====
-  if (type === 'tracking') {
-    const btn = document.getElementById(`btnTrackingDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== TANYA =====
-  if (type === 'tanya') {
-    const btn = document.getElementById(`btnTanyaDone${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
-
-  // ===== SELESAI MODUL =====
-  if (type === 'selesaimodul') {
-    const btn = document.getElementById(`btnSelesaiModul${hariKe}`);
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('disabled');
-    }
-  }
+  });
+  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
 /*******************************************
@@ -4136,7 +3979,7 @@ function showSubmenuOnly(targetId) {
 /**********************************************
 * Memberikan tombol centang Materi (Hari 1–10)
 ***********************************************/
-function BACKUP_setupMateriCompletion() {
+function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
 
   document.querySelectorAll('.video-container').forEach(container => {
@@ -4172,54 +4015,31 @@ function BACKUP_setupMateriCompletion() {
 
         simpanMateri(hariKe);
 
-        // 🔒 LOCK UI SETELAH SELESAI
+        // 🔒 KUNCI LANGSUNG DI UI
         completeBtn.dataset.done = 'true';
         completeBtn.disabled = true;
         completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
         completeBtn.classList.remove('btn-success');
         completeBtn.classList.add('btn-secondary');
 
-        // 💾 SIMPAN KE LOCAL
+        // 💾 SIMPAN STATUS
         localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
 
         // ✅ UPDATE SUBMENU
         updateSubmenuLinkUI('materi', hariKe);
-
-        // 🔥 TAMBAHAN: LOCK VIDEO SETELAH SELESAI
-        lockMateriVideo(hariKe);
       };
 
       videoWrapper.appendChild(completeBtn);
       console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
     }
 
-    // =====================================================
-    // 🔥 REVISI INTI (FIX BUG HARI 2)
-    // =====================================================
-    const isDoneLocal = localStorage.getItem(`materi_hari_${hariKe}`) === 'completed';
-    const isDoneServer = window.userProgress && window.userProgress[`materiHari${hariKe}`];
-
-    if (isDoneLocal || isDoneServer) {
-      // ✅ SUDAH SELESAI → LOCK
+    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
+    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
       completeBtn.dataset.done = 'true';
       completeBtn.disabled = true;
       completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
       completeBtn.classList.remove('btn-success');
       completeBtn.classList.add('btn-secondary');
-
-      // 🔥 WAJIB: LOCK VIDEO
-      lockMateriVideo(hariKe);
-
-    } else {
-      // ✅ BELUM SELESAI → ENABLE
-      completeBtn.dataset.done = 'false';
-      completeBtn.disabled = false;
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.classList.remove('btn-secondary');
-      completeBtn.classList.add('btn-success');
-
-      // 🔥 WAJIB: UNLOCK VIDEO (INI YANG MEMPERBAIKI BUG ANDA)
-      unlockMateriVideo(hariKe);
     }
   });
 }
@@ -4319,9 +4139,8 @@ async function selesaikanPerkenalan() {
  * FIX lockMateriVideo (JANGAN GLOBAL LOCK)
  *****************************************/
 function lockMateriVideo(hariKe) {
-    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    const container = document.getElementById(`materiContent${hariKe}`);
     if (!container) return;
-    container.classList.add('video-locked'); // konsisten dengan unlock
     container.style.pointerEvents = 'none';
     container.style.opacity = '0.6';
     console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
