@@ -2536,32 +2536,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  const containerId = `${submenuType}Content${hariKe}`;
-  const container   = document.getElementById(containerId);
-
-  if (!container) {
-    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
-    return;
-  }
-
-  // Disable semua input
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Disable tombol kecuali yang diizinkan
-  container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
-    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    if (!isCloseBtn && !isCekDisini) {
-      btn.disabled = true;
-    }
-  });
-  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
-}
-
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
@@ -3689,45 +3663,6 @@ function setupPDFLinks() {
         loadPDF(section, pdfUrl, 'Panduan Aplikasi');
     });
     console.log('✅ PDF Panduan link setup completed');
-}
-
-function BACKUP_setupPDFLinks() {
-  document.querySelectorAll('.pdf-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const section = this.getAttribute('data-section');
-      const pdfUrl = this.getAttribute('data-url');
-      const title = this.textContent.trim();
-      
-      // Sembunyikan semua video container
-      document.querySelectorAll('.video-container').forEach(video => {
-        video.style.display = 'none';
-      });
-      
-      // Sembunyikan semua submenu content
-      document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      
-      // Sembunyikan semua PDF viewer terlebih dahulu
-      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-      });
-      
-      // Load PDF
-      loadPDF(section, pdfUrl, title);
-      
-      // Tampilkan PDF viewer di posisi yang tepat
-      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-      if (pdfViewer) {
-        pdfViewer.style.display = 'block';
-        
-        // Sisipkan PDF viewer setelah link PDF yang diklik
-        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
-      }
-    });
-  });
 }
 
 /*****************************
