@@ -4349,6 +4349,15 @@ async function selesaikanPerkenalan() {
  * FIX lockMateriVideo (JANGAN GLOBAL LOCK)
  *****************************************/
 function lockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+    container.classList.add('video-locked'); // konsisten dengan unlock
+    container.style.pointerEvents = 'none';
+    container.style.opacity = '0.6';
+    console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
+}
+
+function BACKUP_lockMateriVideo(hariKe) {
     const container = document.getElementById(`materiContent${hariKe}`);
     if (!container) return;
     container.style.pointerEvents = 'none';
