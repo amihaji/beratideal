@@ -2555,7 +2555,88 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /*****************************************
 * Disable Input dan Tombol Setelah Selesai
 ******************************************/
-function disableButtonsAfterCompletion(hariKe, submenuType) {
+function disableButtonsAfterCompletion(hariKe, type) {
+  // 🔥 FIX UTAMA: hanya disable jika progress hari tersebut benar-benar selesai
+  if (!window.userProgress || !window.userProgress[`materiHari${hariKe}`]) {
+    return; // ⛔ stop, jangan disable
+  }
+
+  console.log(`🔒 Disable ${type} UI hari ${hariKe}`);
+
+  // ===== MATERI =====
+  if (type === 'materi') {
+    const btn = document.getElementById(`btnMateriDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== MEAL PLAN =====
+  if (type === 'mealplan') {
+    const btn = document.getElementById(`btnMealPlanDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== WORKOUT =====
+  if (type === 'workout') {
+    const btn = document.getElementById(`btnWorkoutDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== WATER =====
+  if (type === 'water') {
+    const btn = document.getElementById(`btnWaterDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== ISTIRAHAT =====
+  if (type === 'istirahat') {
+    const btn = document.getElementById(`btnIstirahatDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== TRACKING =====
+  if (type === 'tracking') {
+    const btn = document.getElementById(`btnTrackingDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== TANYA =====
+  if (type === 'tanya') {
+    const btn = document.getElementById(`btnTanyaDone${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+
+  // ===== SELESAI MODUL =====
+  if (type === 'selesaimodul') {
+    const btn = document.getElementById(`btnSelesaiModul${hariKe}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+    }
+  }
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
   const containerId = `${submenuType}Content${hariKe}`;
   const container   = document.getElementById(containerId);
