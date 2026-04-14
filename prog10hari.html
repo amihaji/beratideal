@@ -2062,47 +2062,31 @@ function updatePerkenalanUI() {
  * *********************************/
 function setupAllComponentsInternal() {
   console.log('🔧 Setting up all components...');
-  // =========================
-  // FIX CRITICAL ERROR
-  // =========================
-  if (!window.currentUser) {
+  // 🔥 FIX: ambil dari localStorage (bukan variable kosong)
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
     console.error('❌ User belum login');
     return;
   }
-  console.log('👤 User is logged in:', window.currentUser);
 
-  // =========================
-  // SETUP AWAL
-  // =========================
+  // SET GLOBAL
+  window.currentUser = userId;
+  console.log('👤 User is logged in:', userId);
+
   setupPDFPanduan();
   setupCekDisiniButtons();
   setupMateriCompletion();
 
-  // =========================
-  // VIDEO SYSTEM (PENTING)
-  // =========================
   setupVideoLockingSystem();
-
-  // =========================
-  // WORKOUT
-  // =========================
   generateAllWorkoutForms();
-  initializeWorkoutDays();
 
-  // =========================
-  // WATER
-  // =========================
+  initializeWorkoutDays();
   initializeAllWaterReminderForms();
 
-  // =========================
-  // VIDEO PLAYER (INI KRUSIAL)
-  // =========================
+  // 🔥 INI YANG SEBELUMNYA GAGAL JALAN
   initializeVideoPlayers();
 
-  // =========================
-  // LOAD PROGRESS
-  // =========================
-  loadCompleteProgress(window.currentUser)
+  loadCompleteProgress(userId)
     .then(progress => {
       console.log('📊 Complete progress response:', progress);
       applyCompleteProgressToUI(progress, 1);
@@ -2114,63 +2098,7 @@ function setupAllComponentsInternal() {
   console.log('✅ All components setup complete');
 }
 
-function BACKUP_setupAllComponentsInternal() {
-  console.log('🔧 Setting up all components...');
-  // =========================
-  // 1. VALIDASI USER LOGIN
-  // =========================
-  if (!currentUser) {
-    console.error('❌ User belum login');
-    return;
-  }
-  console.log('👤 User is logged in:', currentUser);
-
-  // =========================
-  // 2. SETUP KOMPONEN AWAL
-  // =========================
-  setupPDFPanduan();
-  setupCekDisiniButtons();
-
-  // 🔥 WAJIB: CREATE tombol centang (HANYA SEKALI)
-  setupMateriCompletion();
-
-  // =========================
-  // 3. LOAD VIDEO + LOCK SYSTEM
-  // =========================
-  setupVideoLockingSystem();
-
-  // =========================
-  // 4. WORKOUT
-  // =========================
-  generateAllWorkoutForms();
-  initializeWorkoutDays();
-
-  // =========================
-  // 5. WATER
-  // =========================
-  initializeAllWaterReminderForms();
-
-  // =========================
-  // 6. VIDEO PLAYER
-  // =========================
-  initializeVideoPlayers();
-
-  // =========================
-  // 7. LOAD PROGRESS (INI YANG NGATUR STATE)
-  // =========================
-  loadCompleteProgress(currentUser)
-    .then(progress => {
-      console.log('📊 Complete progress response:', progress);
-      applyCompleteProgressToUI(progress);
-      console.log('✅ Complete progress loaded successfully');
-    })
-    .catch(err => {
-      console.error('❌ Gagal load progress:', err);
-    });
-  console.log('✅ All components setup complete');
-}
-
- /**************************************
+/**************************************
 * Update navbar untuk user yang login *
 ***************************************/
 function updateNavbarForLoggedInUser() {
