@@ -1492,11 +1492,16 @@ function generateModulFromTemplate() {
       // TANYA COACH
       .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
 
-      // TAMBAHAN WAJIB (VIDEO ID)
+      // VIDEO ID
       .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
       .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
       .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
       .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
+
+      // ✅ TAMBAHKAN: Ganti onclick closeVideo
+      .replaceAll(/closeVideo\('Pertemuan1'\)/g, `closeVideo('Pertemuan${hariKe}')`)
+      .replaceAll(/closeVideo\("Pertemuan1"\)/g, `closeVideo("Pertemuan${hariKe}")`)
+
 
       // TAMBAHAN WAJIB (BUTTON)
       .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
@@ -1514,9 +1519,7 @@ function generateModulFromTemplate() {
       .replaceAll(/1\.7/g, `${hariKe}.7`)
       .replaceAll(/1\.8/g, `${hariKe}.8`)
       
-      // ✅ TAMBAHKAN: Ganti data-section="Pertemuan1" (dengan P besar)
-      //.replaceAll(/data-section="Pertemuan1"/g, `data-section="Pertemuan${hariKe}"`)
-      //.replaceAll(/data-section='Pertemuan1'/g, `data-section='Pertemuan${hariKe}'`);
+      // Ganti data-section="Pertemuan1"
       .replaceAll(/data-section=["']Pertemuan1["']/g, `data-section="Pertemuan${hariKe}"`);
 
     // VIDEO (GLOBAL FIX)
@@ -3758,7 +3761,36 @@ function extractYouTubeId(url) {
 /**********************************
 * Tutup Video di Section Tertentu *
 ***********************************/
+/**********************************
+* Tutup Video di Section Tertentu *
+***********************************/
 function closeVideo(section) {
+    console.log('Closing video for section:', section);
+    const videoContainer = document.getElementById(`videoContainer${section}`);
+    if (!videoContainer) return;
+    const videoPlayer      = document.getElementById(`videoPlayer${section}`);
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading     = document.getElementById(`videoLoading${section}`);
+    
+    // Stop video playback
+    if (videoPlayer) {
+        const iframe = videoPlayer.querySelector('iframe');
+        const localVideo = videoPlayer.querySelector('video');
+        
+        if (iframe) iframe.src = '';
+        if (localVideo) {
+            localVideo.pause();
+            localVideo.currentTime = 0;
+        }
+        videoPlayer.innerHTML = '';
+    }
+    videoContainer.style.display = 'none';
+    if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
+    if (videoLoading) videoLoading.style.display = 'none';
+    currentVideoData = {};
+}
+
+function BACKUP_closeVideo(section) {
     console.log('Closing video for section:', section);
     
     const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
