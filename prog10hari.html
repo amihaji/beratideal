@@ -3242,29 +3242,6 @@ function loadYouTubeVideo(videoPlayer, url) {
     }
 }
 
-function BACKUP_loadYouTubeVideo(videoPlayer, url) {
-    const videoId = extractYouTubeId(url);
-    console.log('YouTube ID extracted:', videoId);
-    
-    if (videoId) {
-        videoPlayer.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-            </iframe>
-        `;
-        console.log('YouTube iframe created');
-    } else {
-        console.error('Could not extract YouTube ID from URL:', url);
-        // Fallback: buka di tab baru
-        window.open(url, '_blank');
-        if (currentVideoData.section) {
-            closeVideo(currentVideoData.section);
-        }
-    }
-}
-
 /*********************
 * Memuat Video Local *
 **********************/
@@ -4479,120 +4456,6 @@ function updateMateriStatusUI(hariKe) {
   }
 }
 
-/************************
-* Jadwal Waktu Istirahat *
-*************************/   
-/* BACKUP ISTIRAHAT
-const radioIstirahat = document.getElementById("istirahatBtn");
-if (radioIstirahat) {
-  const hariKe  = 1; // jika dinamis, sesuaikan
-  const userId  = localStorage.getItem("userId");
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-1";
-  wrapper.innerHTML = `  
-    <h6><b>WAKTU ISTIRAHAT</b></h6>
-    <b>Mulai Istirahat Jam</b>
-    <div class="input-group mb-3">
-      <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
-    </div>
-
-    <b>Berapa Jam Istirahat</b>
-    <div class="input-group mb-3">
-      <div class="input-group-text"> 
-        <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
-      </div>
-      <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
-      </div>
-      <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
-      </div>
-      <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
-    </div>  
-
-    <div class="container p-0">
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
-        Simpan
-      </button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
-        Selesai Istirahat
-      </button>
-    </div>
-  `;
-
-  radioIstirahat.appendChild(wrapper);
-  const btnSimpan  = document.getElementById(`btnSimpanIstirahat${hariKe}`);
-  const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
-
-  // SIMPAN ISTIRAHAT
-  btnSimpan.addEventListener("click", async function () {
-    const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
-    const radioChecked = document.querySelector(
-      `input[name="istirahatHari${hariKe}"]:checked`
-    );
-
-    if (!jamMulai || !radioChecked) {
-      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `Pertemuan${hariKe}`);
-      return;
-    }
-
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "updateIstirahat",
-        userId,
-        hariKe,
-        jamMulai,
-        kualitas: radioChecked.value
-      })
-    });
-    const result = await response.text();
-    if (result === "OK") {
-      btnSelesai.disabled = false;
-      showMessage( 'success', 'Istirahat Tersimpan', 3000, `Pertemuan${hariKe}` );
-    }
-  });
-
-  //  SELESAI ISTIRAHAT
-  btnSelesai.addEventListener("click", async function () {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "completeIstirahat",
-        userId,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
-    if (result === "OK") {
-      // Disable semua input
-      wrapper.querySelectorAll("input").forEach(el => {
-        el.disabled = true;
-        el.style.cursor = "not-allowed";
-      });
-      showMessage( 'success', 'Istirahat Selesai', 3000, `Pertemuan${hariKe}` );
-
-      btnSimpan.disabled  = true;
-      btnSelesai.disabled = true;
-      btnSimpan.style.cursor  = "not-allowed";
-      btnSelesai.style.cursor = "not-allowed";
-      updateSubmenuLinkUI("istirahat", hariKe);
-    }
-  });
-}
-Akhir Backup Istirahat ********/
-
 /***************************
 * Input Data Kondisi Tubuh *
 ****************************/   
@@ -5329,85 +5192,6 @@ function setupWorkoutEventListeners(hariKe) {
   console.log(`✅ Workout listeners ready for day ${hariKe}`);
 }
 
- function BACKUP_setupWorkoutEventListeners(hariKe) {
-  console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
-
-  // TOMBOL SIMPAN
-  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
-  if (btnSimpan) {
-    const newBtnSimpan = btnSimpan.cloneNode(true);
-    btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
-
-    newBtnSimpan.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
-      const success = await simpanWorkoutData(hariKe);
-
-      if (success) {
-        const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-        if (btnSelesai) btnSelesai.disabled = false;
-      }
-    });
-  }
-
-  // TOMBOL SELESAI (FINAL)
-  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-  if (btnSelesai) {
-    btnSelesai.disabled = true;
-
-    const newBtnSelesai = btnSelesai.cloneNode(true);
-    btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
-
-    newBtnSelesai.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
-      const userId = localStorage.getItem('userId');
-      if (!userId) {
-        showMessage('error', 'Silakan login terlebih dahulu', 3000);
-        return;
-      }
-
-      try {
-        const response = await fetch(URL_PROGRAM_APP, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: new URLSearchParams({
-            action: 'completeWorkout',
-            userId: userId,
-            hariKe: hariKe
-          })
-        });
-
-        const result = await response.json();
-        console.log('📥 Complete workout response:', result);
-        if (result.success === true) {
-          // 🔒 LOCK UI
-          disableWorkoutUI(hariKe);
-          // ✅ CENTANG HIJAU
-          updateSubmenuLinkUI('workout', hariKe);
-          // ✅ GLOBAL PROGRESS
-          if (window.userProgress) {
-            window.userProgress[`workoutHari${hariKe}`] = true;
-          }
-          showMessage('success', 'Workout berhasil diselesaikan', 3000);
-        } else {
-          showMessage('error', result.message || 'Gagal menyelesaikan workout', 3000);
-        }
-
-      } catch (err) {
-        console.error(err);
-        showMessage('error', 'Gagal terhubung ke server', 3000);
-      }
-    });
-  }
-  console.log(`✅ Workout listeners ready for day ${hariKe}`);
-}
-
 /*******************************
 * Upload file kardio olahraga  *
 ********************************/
@@ -5879,26 +5663,6 @@ function initializeAllWorkoutDays() {
     }
     console.log('✅ All workout days initialized');
 }
-
-function BACKUP_initializeAllWorkoutDays() {
-    console.log('🔧 Initializing workout days (focus on day 1)...');
-     // Hanya fokus pada hari 1 dulu
-    const hariKe = 1;
-     // 1. Debug dulu untuk melihat apa yang ada
-    generateWorkoutForms(); // Fungsi debugging
-    // 2. Setup event listeners untuk hari 1
-    setupWorkoutEventListeners(hariKe);
-    // 3. Setup resistance (jika ada)
-    setupResistanceExercises(hariKe);
-    // 4. Cek jika sudah selesai
-    if (localStorage.getItem(`workoutHari${hariKe}`) === 'completed') {
-        console.log(`📊 Workout hari ${hariKe} sudah selesai`);
-        disableWorkoutUI(hariKe);
-        updateSubmenuLinkUI('workout', hariKe);
-    }
-    console.log('✅ Workout initialization complete for day 1');
-}
-
 
 /*******************************************
  * CREATE WORKOUT FORM HTML - FINAL FIX
