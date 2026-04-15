@@ -4756,10 +4756,27 @@ async function selesaikanPerkenalan() {
   }
 }
 
-/******************************************
- * FIX lockMateriVideo (JANGAN GLOBAL LOCK)
- *****************************************/
+/*********************************************
+ * FIX lockMateriVideo (JANGAN KUNCI TOMBOL X)
+ *********************************************/
 function lockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+    // Kunci container tapi KECUALIKAN tombol close
+    container.style.pointerEvents = 'none';
+    container.style.opacity = '0.6';
+    
+    // Aktifkan kembali tombol close
+    const closeBtn = container.querySelector('.close-video');
+    if (closeBtn) {
+        closeBtn.style.pointerEvents = 'auto';
+        closeBtn.style.opacity = '1';
+        closeBtn.style.cursor = 'pointer';
+    }
+    console.log(`🔒 Video materi hari ${hariKe} dikunci total (kecuali tombol X)`);
+}
+
+ function BACKUP_lockMateriVideo(hariKe) {
     const container = document.getElementById(`materiContent${hariKe}`);
     if (!container) return;
     container.style.pointerEvents = 'none';
