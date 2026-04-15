@@ -2481,53 +2481,6 @@ function applyCompleteProgressToUI(progress, hariKe) {
   }
 }
 
-function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
-  console.log('🎯 Applying COMPLETE progress to UI:', progress);
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
-  if (progress.perkenalan === true) {
-    unlockModul(hariKe);
-  }
-  const progressMap = [
-    { field: 'materiHari1', type: 'materi' },
-    { field: 'mealplanHari1', type: 'mealplan' },
-    { field: 'workoutHari1', type: 'workout' },
-    { field: 'waterHari1', type: 'water' },
-    { field: 'istirahatHari1', type: 'istirahat' },
-    { field: 'trackingHari1', type: 'tracking' },
-    { field: 'tanyaHari1', type: 'tanya' }, 
-    { field: 'selesaimodulHari1', type: 'selesaimodul' } 
-  ];
-  
-  progressMap.forEach(item => {
-    if (progress[item.field] === true || progress[item.field] === "OK") {
-      window.userProgress[item.field] = true;
-      updateSubmenuLinkUI(item.type, hariKe);
-      disableButtonsAfterCompletion(hariKe, item.type);
-    }
-  });
-
-  if (
-    progress.perkenalan ||
-    progress.materiHari1 ||
-    progress.mealplanHari1 ||
-    progress.workoutHari1 ||
-    progress.waterHari1 ||
-    progress.istirahatHari1 ||
-    progress.trackingHari1 ||
-    progress.tanyaHari1 ||
-    progress.selesaimodulHari1 
-  ) {
-    setTimeout(() => {
-      const header = document.querySelector(`[data-hari="${hariKe}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click();
-      }
-    }, 800);
-  }
-}
-
 /*****************************************
  * Load Saved Workout Data Dari Progress *
  *****************************************/
