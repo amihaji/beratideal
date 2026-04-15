@@ -1541,94 +1541,6 @@ function generateModulFromTemplate() {
   console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
 }
 
-function BACKUP_generateModulFromTemplate() {
-  // const modul1 = document.querySelector('[data-hari="1"]')?.closest('.menu-accordion-item');
-  const modul1 = document.getElementById('modulHari1Wrapper');
-  if (!modul1) {
-    console.error('❌ Modul 1 tidak ditemukan');
-    return;
-  }
-  const container = document.getElementById('containerModulAuto');
-  if (!container) return;
-  let html = '';
-  for (let hariKe = 2; hariKe <= 10; hariKe++) {
-    let clone = modul1.outerHTML;
-
-    // ==================================
-    // GANTI ID & TEXT AGAR STANDART SAMA
-    // ==================================
-    clone = clone
-      .replaceAll(/pertemuanContent1/g, `pertemuanContent${hariKe}`)
-      .replaceAll(/materiContent1/g, `materiContent${hariKe}`)
-      .replaceAll(/mealplanContent1/g, `mealplanContent${hariKe}`)
-      .replaceAll(/workoutContent1/g, `workoutContent${hariKe}`)
-      .replaceAll(/waterContent1/g, `waterContent${hariKe}`)
-      .replaceAll(/istirahatContent1/g, `istirahatContent${hariKe}`)
-      .replaceAll(/trackingContent1/g, `trackingContent${hariKe}`)
-      .replaceAll(/tanyaContent1/g, `tanyaContent${hariKe}`)
-      .replaceAll(/selesaimodulContent1/g, `selesaimodulContent${hariKe}`)
-      
-      .replaceAll(/data-section="pertemuan1"/g, `data-section="pertemuan${hariKe}"`)
-      .replaceAll(/data-section="materi1"/g, `data-section="materi${hariKe}"`)
-      .replaceAll(/data-section="mealplan1"/g, `data-section="mealplan${hariKe}"`)
-      .replaceAll(/data-section="workout1"/g, `data-section="workout${hariKe}"`)
-      .replaceAll(/data-section="water1"/g, `data-section="water${hariKe}"`)
-      .replaceAll(/data-section="istirahat1"/g, `data-section="istirahat${hariKe}"`)
-      .replaceAll(/data-section="tracking1"/g, `data-section="tracking${hariKe}"`)
-      .replaceAll(/data-section="tanya1"/g, `data-section="tanya${hariKe}"`)
-      .replaceAll(/data-section="selesaimodul1"/g, `data-section="selesaimodul${hariKe}"`)
-         
-      // MEALPLAN
-      .replaceAll(/jadwalmealplan-list/g, `jadwalmealplan-list${hariKe}`)
-      // WORKOUT
-      .replaceAll(/olahragaKardio-list/g, `olahragaKardio-list${hariKe}`)
-      .replaceAll(/olahragaResisten-list/g, `olahragaResisten-list${hariKe}`)
-      // WATER
-      .replaceAll(/airputihRadioBtn/g, `airputihRadioBtn${hariKe}`)
-      // TANYA COACH
-      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
-
-      // TAMBAHAN WAJIB (VIDEO ID)
-      .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
-      .replaceAll(/videoContainerPertemuan1/g, `videoContainerPertemuan${hariKe}`)
-      .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
-      .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
-
-      // TAMBAHAN WAJIB (BUTTON)
-      .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
-      .replaceAll(/selesaiModul\(1\)/g, `selesaiModul(${hariKe})`)
-
-      // TEXT
-      .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
-      .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
-      .replaceAll(/1\.1/g, `${hariKe}.1`)
-      .replaceAll(/1\.2/g, `${hariKe}.2`)
-      .replaceAll(/1\.3/g, `${hariKe}.3`)
-      .replaceAll(/1\.4/g, `${hariKe}.4`)
-      .replaceAll(/1\.5/g, `${hariKe}.5`)
-      .replaceAll(/1\.6/g, `${hariKe}.6`)
-      .replaceAll(/1\.7/g, `${hariKe}.7`)
-      .replaceAll(/1\.8/g, `${hariKe}.8`);
-
-    // VIDEO (GLOBAL FIX)
-    clone = clone.replaceAll(
-      /data-url="Video\/.*?\.mp4"/g,
-      `data-url="${fileMateri[hariKe].video}"`
-    );
-
-    // PDF
-    clone = clone
-      .replaceAll(/data-url="pdf\/mealplan1\.pdf"/g, fileMateri[hariKe].mealplan)
-      .replaceAll(/data-url="pdf\/workout1\.pdf"/g, fileMateri[hariKe].workout)
-      .replaceAll(/data-url="pdf\/water1\.pdf"/g, fileMateri[hariKe].water)
-      .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat)
-      .replaceAll(/data-url="pdf\/tracking1\.pdf"/g, fileMateri[hariKe].tracking);
-    html += clone;
-  }
-  container.innerHTML = html;
-  console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
-}
-
 /**********************************************
 * Tandai Submenu Selesai (Generic & Reusable) *
 ***********************************************/
@@ -1899,118 +1811,6 @@ function applyExistingUserProgress(progress) {
             updateSubmenuLinkUI('materi', h);
             console.log(`🔒 Apply progress: materi hari ${h} selesai`);
         } else {
-            unlockMateriVideo(h);
-            if (btn) {
-                btn.disabled = false;
-                btn.classList.remove('completed');
-                btn.style.cursor = 'pointer';
-            }
-            console.log(`🟢 Apply progress: materi hari ${h} aktif`);
-        }
-      }
-    },
-
-    {
-      key: 'mealplanHari',
-      action: (h) => {
-        lockmealplanUI(h);
-        updateSubmenuLinkUI('mealplan', h);
-      }
-    },
-
-    {
-      key: 'workoutHari',
-      action: (h) => {
-        updateSubmenuLinkUI('workout', h);
-        disableButtonsAfterCompletion(h, 'workout');
-      }
-    },
-
-    {
-      key: 'waterHari',
-      action: (h) => {
-        updateSubmenuLinkUI('water', h);
-        disableButtonsAfterCompletion(h, 'water');
-      }
-    },
-
-    {
-      key: 'istirahatHari',
-      action: (h) => {
-        updateSubmenuLinkUI('istirahat', h);
-        disableButtonsAfterCompletion(h, 'istirahat');
-      }
-    },
-
-    {
-      key: 'trackingHari',
-      action: (h) => {
-        updateSubmenuLinkUI('tracking', h);
-        disableButtonsAfterCompletion(h, 'tracking');
-      }
-    },
-  
-    {
-      key:'tanyaHari',
-      action:(h)=>{
-        console.log(`🔒 Restore Tanya Coach Hari ${h}`);
-        updateSubmenuLinkUI('tanya',h);
-        disableButtonsAfterCompletion(h,'tanya');
-      }
-    },
-
-    {
-      key:'selesaimodulHari',
-      action:(h)=>{
-        console.log(`🔒 Restore Modul Selesai hari ${h}`);
-        updateSubmenuLinkUI('selesaimodul',h);
-        disableButtonsAfterCompletion(h,'selesaimodul');
-      }
-    }
-  ];
-
-  for (let i = 1; i <= 9; i++) {
-      if (progress[`selesaimodul${i}`]) {
-          unlockModul(i + 1);
-      }
-  }
-
-  // LOOP HARI 1 - 10
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    progressConfig.forEach(cfg => {
-      const status = progress[`${cfg.key}${hariKe}`];
-      if (status === true || status === "OK") {
-        cfg.action(hariKe);
-      }
-    });
-  }
-}
-
-function BACKUP_applyExistingUserProgress(progress) {
-  console.log('📊 Apply Existing Progress FINAL');
-  window.userProgress = progress;
-  // PERKENALAN
-  if (progress.perkenalan === true) {
-    updateSubmenuLinkUI('perkenalan', 0);
-    disableSelesaiPerkenalanButton();
-    unlockModul(1);
-  }
-
-  // KONFIGURASI PROGRESS SUBMENU
-  const progressConfig = [
-    {
-      key: 'materiHari',
-      action: (h) => {
-        const isDone = progress[`materiHari${h}`];
-        const btn    = document.getElementById(`btnMateriDone${h}`);
-        if (isDone === true) {
-            // 🔒 hanya kalau selesai
-            lockMateriVideo(h);
-            if (btn) disableButtonFully(btn);
-            updateSubmenuLinkUI('materi', h);
-            console.log(`🔒 Apply progress: materi hari ${h} selesai`);
-        } else {
-            // 🔓 kalau belum selesai → JANGAN disable
             unlockMateriVideo(h);
             if (btn) {
                 btn.disabled = false;
@@ -2742,40 +2542,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  
-  // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
-  if (submenuType === 'materi') {
-    console.log(`✅ Materi hari ${hariKe} - tombol centang TIDAK di-disable via fungsi ini`);
-    return; // Keluar, tidak melakukan apa-apa
-  }
-  
-  const containerId = `${submenuType}Content${hariKe}`;
-  const container   = document.getElementById(containerId);
-
-  if (!container) {
-    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
-    return;
-  }
-
-  // Disable semua input
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Disable tombol kecuali yang diizinkan
-  container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
-    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    
-    if (!isCloseBtn && !isCekDisini) {
-      btn.disabled = true;
-    }
-  });
-  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
-}
-
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
@@ -3197,47 +2963,6 @@ function checkMateriStatus(hariKe, progress) {
     }
 }
 
-function BACKUP_checkMateriStatus(hariKe, progress) {
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
-
-    // Jika tidak ada progress, asumsikan materi belum selesai → enable tombol & unlock video
-    if (!progress) {
-        btn.disabled = false;
-        btn.classList.remove('completed');
-        btn.style.cursor = 'pointer';
-        unlockMateriVideo(hariKe);
-        console.log(`🟢 Materi hari ${hariKe} aktif (progress tidak tersedia)`);
-        return;
-    }
-    
-    // Cek apakah modul sebelumnya sudah selesai (kecuali hari 1)
-    if (hariKe > 1 && !progress[`selesaimodulHari${hariKe - 1}`]) {
-        lockMateriVideo(hariKe);
-        btn.disabled = true;
-        btn.classList.add('completed');
-        btn.style.cursor = 'not-allowed';
-        console.log(`🔒 Materi hari ${hariKe} terkunci karena modul sebelumnya belum selesai`);
-        return;
-    }
-    const status = progress[`materiHari${hariKe}`];
-    const isDone = (status === true || status === "OK");
-    if (isDone) {
-        btn.disabled = true;
-        btn.classList.add('completed');
-        btn.style.cursor = 'not-allowed';
-        lockMateriVideo(hariKe);
-        console.log(`🔒 Materi hari ${hariKe} selesai (status: ${status})`);
-    } else {
-        btn.disabled = false;
-        btn.classList.remove('completed');
-        btn.style.cursor = 'pointer';
-        unlockMateriVideo(hariKe);
-        console.log(`🟢 Materi hari ${hariKe} aktif (status: ${status})`);
-    }
-}
-
-
 /*********************************
 * UPDATE UI MATERI PER HARI (FIX)
 **********************************/
@@ -3259,21 +2984,6 @@ function updateMateriCompletionUI(hariKe, progress) {
         btn.disabled = false;
         btn.style.cursor = 'pointer';
         unlockMateriVideo(hariKe);
-    }
-}
-
-function BACKUP_updateMateriCompletionUI(hariKe, progress) {
-    const isDone = progress[`materiHari${hariKe}`]; // ✅ FIX
-    const btn = document.getElementById(`btnMateriDone${hariKe}`);
-    if (!btn) return;
-    if (isDone) {
-        btn.classList.add('completed');
-        btn.disabled = true;
-        btn.style.cursor = 'not-allowed';
-    } else {
-        btn.classList.remove('completed');
-        btn.disabled = false;
-        btn.style.cursor = 'pointer';
     }
 }
 
@@ -3418,52 +3128,6 @@ function setupAllLinks() {
   setupPDFLinks();
 }
 
-function BACKUP_setupAllLinks() {
-  // Setup video links
-  document.querySelectorAll('.video-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const section = this.getAttribute('data-section');
-      const videoType = this.getAttribute('data-type');
-      const videoUrl = this.getAttribute('data-url');
-      const title = this.textContent.trim();
-      
-      // Sembunyikan semua konten lain
-      document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      document.querySelectorAll('.video-container').forEach(video => {
-        video.style.display = 'none';
-      });
-      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-      });
-      
-      // Load video
-      // ✅ Gunakan section apa adanya (Pertemuan1, Pertemuan2, dst)
-      loadVideo(section, videoType, videoUrl, title);
-      
-      // Tampilkan video player di posisi yang tepat
-      const videoContainer = document.getElementById(`videoContainer${section}`);
-      if (videoContainer) {
-        videoContainer.style.display = 'block';
-        
-        // Sisipkan video container setelah link video yang diklik
-        this.parentNode.insertBefore(videoContainer, this.nextSibling);
-        
-        // Auto play video
-        setTimeout(() => {
-          playVideo(section);
-        }, 500);
-      }
-    });
-  });
-  
-  // Setup PDF links
-  setupPDFLinks();
-}
-
 /******************************************
 * Fungsi Memuat Video Berdasarkan Section *
 *******************************************/ 
@@ -3482,63 +3146,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
 
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    
-    // Validasi URL YouTube
-    if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
-        console.error('❌ Invalid YouTube URL:', videoUrl);
-        showMessage('error', 'URL Youtube tidak valid');
-        return;
-    }
-    // Close video di section lain
-    closeAllVideos();
-    
-    // Reset previous video 
-    if (videoPlayer) videoPlayer.innerHTML = '';
-    currentVideoData = {
-        section: section,
-        type: videoType,
-        url: videoUrl,
-        title: title
-    };
-    
-    // Show video container
-    videoContainer.style.display = 'block';
-    // Update placeholder text
-    let placeholderText = 'Klik untuk memuat video';
-    if (videoType === 'youtube') {
-        const youtubeId = extractYouTubeId(videoUrl);
-        placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
-    } else if (videoType === 'local') {
-        placeholderText = 'Klik untuk memuat video';
-    }
-    
-    if (videoPlaceholder) {
-        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
-        videoPlaceholder.style.display = 'flex';
-    }
-    if (videoLoading) videoLoading.style.display = 'none';
-    
-    // Auto play setelah ditampilkan
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
-}
-
-function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
-    console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
-    // Untuk Canva, buka di tab baru
-    if (videoType === 'canva') {
-        window.open(videoUrl, '_blank');
-        return;
-    }
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    if (!videoContainer) {
-        console.error('❌ Video container not found for section:', section);
-        return;
-    }
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
     const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
     const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
@@ -3619,37 +3226,6 @@ function playVideo(section) {
         const hariKe = getHariKeFromSection(section);
         if (hariKe && window.userProgress) {
             checkMateriStatus(hariKe, window.userProgress);
-        }
-    }, 1000);
-}
-
-function BACKUP_playVideo(section) {
-    console.log('playVideo called for section:', section);
-    
-    const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    const videoPlaceholder = videoContainer?.querySelector('.video-placeholder');
-    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    
-    if (!videoContainer || !videoPlayer) {
-        console.error('Video elements not found for section:', section);
-        return;
-    }
-    
-    // Hide placeholder, show loading
-    if (videoPlaceholder) videoPlaceholder.style.display = 'none';
-    if (videoLoading) videoLoading.style.display = 'flex';
-    
-    // Load video based on type
-    setTimeout(() => {
-        if (videoLoading) videoLoading.style.display = 'none';
-        
-        if (currentVideoData.type === 'youtube') {
-            console.log('Loading YouTube video:', currentVideoData.url);
-            loadYouTubeVideo(videoPlayer, currentVideoData.url);
-        } else if (currentVideoData.type === 'local') {
-            console.log('Loading local video:', currentVideoData.url);
-            loadLocalVideo(videoPlayer, currentVideoData.url);
         }
     }, 1000);
 }
@@ -3787,34 +3363,6 @@ function closeVideo(section) {
     videoContainer.style.display = 'none';
     if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
     if (videoLoading) videoLoading.style.display = 'none';
-    currentVideoData = {};
-}
-
-function BACKUP_closeVideo(section) {
-    console.log('Closing video for section:', section);
-    
-    const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-    if (!videoContainer) return;
-    
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    
-    // Stop video playback
-    const iframe = videoPlayer.querySelector('iframe');
-    const localVideo = videoPlayer.querySelector('video');
-    
-    if (iframe) iframe.src = '';
-    if (localVideo) {
-        localVideo.pause();
-        localVideo.currentTime = 0;
-    }
-    
-    videoPlayer.innerHTML = '';
-    videoContainer.style.display = 'none';
-    if (videoPlaceholder) videoPlaceholder.style.display = 'flex';
-    if (videoLoading) videoLoading.style.display = 'none';
-    
     currentVideoData = {};
 }
 
@@ -4141,45 +3689,6 @@ function setupPDFLinks() {
     console.log('✅ PDF Panduan link setup completed');
 }
 
-function BACKUP_setupPDFLinks() {
-  document.querySelectorAll('.pdf-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const section = this.getAttribute('data-section');
-      const pdfUrl = this.getAttribute('data-url');
-      const title = this.textContent.trim();
-      
-      // Sembunyikan semua video container
-      document.querySelectorAll('.video-container').forEach(video => {
-        video.style.display = 'none';
-      });
-      
-      // Sembunyikan semua submenu content
-      document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      
-      // Sembunyikan semua PDF viewer terlebih dahulu
-      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-      });
-      
-      // Load PDF
-      loadPDF(section, pdfUrl, title);
-      
-      // Tampilkan PDF viewer di posisi yang tepat
-      const pdfViewer = document.getElementById(`pdfViewer${capitalizeFirst(section)}`);
-      if (pdfViewer) {
-        pdfViewer.style.display = 'block';
-        
-        // Sisipkan PDF viewer setelah link PDF yang diklik
-        this.parentNode.insertBefore(pdfViewer, this.nextSibling);
-      }
-    });
-  });
-}
-
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
@@ -4288,80 +3797,6 @@ function closeAllPDFs() {
 * Tampilkan Submenu & Tidak menyembunyikan PDF *
 ***********************************************/
 function showSubmenu(targetId) {
-  console.log('🔍 Menampilkan submenu:', targetId);
-  // TUTUP SEMUA SUBMENU LAIN
-  document.querySelectorAll('.submenu-content').forEach(content => {
-    if (content.id !== targetId) {
-      content.style.display = 'none';
-    }
-  });
-
-  const targetContent = document.getElementById(targetId);
-  if (!targetContent) {
-    console.error('❌ Target content tidak ditemukan:', targetId);
-    return;
-  }
-
-  // Cari trigger menu
-  const triggerElement = document.querySelector(`[data-target="${targetId}"]`);
-  if (!triggerElement) {
-    console.error('❌ Trigger element tidak ditemukan untuk:', targetId);
-    targetContent.style.display = 'block';
-    return;
-  }
-
-  console.log('✅ Trigger ditemukan:', triggerElement);
-  const parentMenuContent = triggerElement.closest('.menu-content');
-  if (!parentMenuContent) {
-    console.warn('⚠️ Menu content parent tidak ditemukan');
-    targetContent.style.display = 'block';
-    return;
-  }
-
-  console.log('✅ Menu content parent ditemukan');
-  // CEK apakah sudah berada di posisi yang benar
-  if (triggerElement.nextElementSibling !== targetContent) {
-    parentMenuContent.insertBefore(targetContent, triggerElement.nextSibling);
-    console.log('📦 Submenu dipindahkan ke posisi yang benar');
-  }
-
-  // Tampilkan submenu
-  targetContent.style.display = 'block';
-  console.log('✅ Submenu ditampilkan');
-  
-  // ✅ TAMBAHAN: Refresh status tombol materi jika ini submenu materi
-  if (targetId.startsWith('pertemuanContent')) {
-    const hariKe = targetId.replace('pertemuanContent','');
-    if (window.userProgress) {
-        checkMateriStatus(parseInt(hariKe), window.userProgress);
-    } else {
-        // fallback: ambil dari localStorage
-        const userId = localStorage.getItem('userId');
-        if (userId) {
-            const progressKey = `completeProgress_${userId}`;
-            const saved = JSON.parse(localStorage.getItem(progressKey) || '{}');
-            checkMateriStatus(parseInt(hariKe), saved);
-        }
-    }
-  }
-
-  // AUTO ISI PESAN TANYA COACH
-  if (targetId.startsWith('tanyaContent')) {
-    const hariKe = targetId.replace('tanyaContent','');
-    isiPesanDefaultCoach(hariKe);
-  }
-
-  // Scroll halus
-  setTimeout(() => {
-    targetContent.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-    console.log('📜 Scroll ke submenu');
-  }, 120);
-}
-
-function BACKUP_showSubmenu(targetId) {
   console.log('🔍 Menampilkan submenu:', targetId);
   // TUTUP SEMUA SUBMENU LAIN
   document.querySelectorAll('.submenu-content').forEach(content => {
@@ -4632,71 +4067,6 @@ function setupMateriCompletion() {
   });
 }
 
-function BACKUP_setupMateriCompletion() {
-  console.log('🔧 Setting up materi completion...');
-
-  document.querySelectorAll('.video-container').forEach(container => {
-    const containerId = container.id;
-
-    if (!containerId.includes('Pertemuan')) return;
-
-    const hariKe = containerId.replace('videoContainerPertemuan', '');
-    const videoWrapper = container.querySelector('.video-wrapper');
-    if (!videoWrapper) return;
-
-    videoWrapper.style.position = 'relative';
-
-    let completeBtn = container.querySelector('.complete-btn');
-
-    // === BUAT TOMBOL JIKA BELUM ADA ===
-    if (!completeBtn) {
-      completeBtn = document.createElement('button');
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.className = 'btn btn-success btn-sm complete-btn';
-      completeBtn.id = `btnMateriDone${hariKe}`;
-      completeBtn.style.cssText = `
-        position: absolute; top: 10px; left: 10px; z-index: 25;
-        width: 35px; height: 35px; border-radius: 50%; padding: 0;
-        border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      `;
-
-      completeBtn.onclick = () => {
-        if (completeBtn.dataset.done === 'true') {
-          console.warn('⛔ Materi sudah diselesaikan');
-          return;
-        }
-
-        simpanMateri(hariKe);
-
-        // 🔒 KUNCI LANGSUNG DI UI
-        completeBtn.dataset.done = 'true';
-        completeBtn.disabled = true;
-        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-        completeBtn.classList.remove('btn-success');
-        completeBtn.classList.add('btn-secondary');
-
-        // 💾 SIMPAN STATUS
-        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-
-        // ✅ UPDATE SUBMENU
-        updateSubmenuLinkUI('materi', hariKe);
-      };
-
-      videoWrapper.appendChild(completeBtn);
-      console.log('✅ Tombol centang ditambahkan:', completeBtn.id);
-    }
-
-    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
-    if (localStorage.getItem(`materi_hari_${hariKe}`) === 'completed') {
-      completeBtn.dataset.done = 'true';
-      completeBtn.disabled = true;
-      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
-      completeBtn.classList.remove('btn-success');
-      completeBtn.classList.add('btn-secondary');
-    }
-  });
-}
-
 /*********************************************************************
 * Cari link "Selesai Perkenalan" dengan selector yang lebih spesifik *
 *********************************************************************/
@@ -4806,14 +4176,6 @@ function lockMateriVideo(hariKe) {
         closeBtn.style.cursor = 'pointer';
     }
     console.log(`🔒 Video materi hari ${hariKe} dikunci total (kecuali tombol X)`);
-}
-
- function BACKUP_lockMateriVideo(hariKe) {
-    const container = document.getElementById(`materiContent${hariKe}`);
-    if (!container) return;
-    container.style.pointerEvents = 'none';
-    container.style.opacity = '0.6';
-    console.log(`🔒 Video materi hari ${hariKe} dikunci total`);
 }
 
 /*************************
