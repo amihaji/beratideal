@@ -5296,6 +5296,44 @@ function setupWorkoutEventListeners(hariKe) {
     newBtnSimpan.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
+      console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
+      const success = await simpanWorkoutData(hariKe);
+      if (success) {
+        const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+        if (btnSelesai) btnSelesai.disabled = false;
+      }
+    });
+  }
+
+  // TOMBOL SELESAI
+  const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+  if (btnSelesai) {
+    btnSelesai.disabled = true;
+    const newBtnSelesai = btnSelesai.cloneNode(true);
+    btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
+
+    newBtnSelesai.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
+      await selesaiWorkout(hariKe);
+    });
+  }
+  console.log(`✅ Workout listeners ready for day ${hariKe}`);
+}
+
+ function BACKUP_setupWorkoutEventListeners(hariKe) {
+  console.log(`🔧 Setting up workout event listeners for day ${hariKe}`);
+
+  // TOMBOL SIMPAN
+  const btnSimpan = document.getElementById(`btnSimpanWorkout${hariKe}`);
+  if (btnSimpan) {
+    const newBtnSimpan = btnSimpan.cloneNode(true);
+    btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
+
+    newBtnSimpan.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
       console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
       const success = await simpanWorkoutData(hariKe);
@@ -5811,7 +5849,30 @@ function setupWorkoutForDay(hariKe) {
 /************************************************
  * INITIALIZE ALL WORKOUT DAYS - FIXED (Focus on day 1)
  ************************************************/
+/************************************************
+ * INITIALIZE ALL WORKOUT DAYS - FIXED (All Days)
+ ************************************************/
 function initializeAllWorkoutDays() {
+    console.log('🔧 Initializing workout days for ALL days...');
+    
+    // Loop untuk semua hari 1-10
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+        // Setup event listeners untuk setiap hari
+        setupWorkoutEventListeners(hariKe);
+        // Setup resistance exercises
+        setupResistanceExercises(hariKe);
+        // Cek jika sudah selesai (user lama)
+        if (localStorage.getItem(`workoutHari${hariKe}`) === 'completed' ||
+            (window.userProgress && window.userProgress[`workoutHari${hariKe}`] === true)) {
+            console.log(`📊 Workout hari ${hariKe} sudah selesai`);
+            disableWorkoutUI(hariKe);
+            updateSubmenuLinkUI('workout', hariKe);
+        }
+    }
+    console.log('✅ All workout days initialized');
+}
+
+function BACKUP_initializeAllWorkoutDays() {
     console.log('🔧 Initializing workout days (focus on day 1)...');
      // Hanya fokus pada hari 1 dulu
     const hariKe = 1;
@@ -5829,6 +5890,7 @@ function initializeAllWorkoutDays() {
     }
     console.log('✅ Workout initialization complete for day 1');
 }
+
 
 /*******************************************
  * CREATE WORKOUT FORM HTML - FINAL FIX
