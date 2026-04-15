@@ -5239,9 +5239,11 @@ async function selesaiWorkout(hariKe) {
       localStorage.setItem(`workoutHari${hariKe}`, 'completed');
       updateSubmenuLinkUI('workout', hariKe);
       disableWorkoutUI(hariKe);
-      showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `Pertemuan${hariKe}` );
+      // showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `Pertemuan${hariKe}` );
+      showMessage('success', `Workout hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
     } else {
-      showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `Pertemuan${hariKe}` );
+      // showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `Pertemuan${hariKe}` );
+      showMessage('error', result.message || `Gagal menyelesaikan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `Pertemuan${hariKe}`);
     }
 
   } catch (err) {
@@ -5549,10 +5551,11 @@ async function simpanWorkoutData(hariKe) {
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-      showMessage('success','Workout berhasil disimpan',3000,`Pertemuan${hariKe}`);
+      showMessage('success', `Data workout hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `Pertemuan${hariKe}`);
       return true;
     }
-    showMessage('error',result.message || 'Gagal menyimpan workout',3000,`Pertemuan${hariKe}`);
+    // showMessage('error',result.message || 'Gagal menyimpan workout',3000,`Pertemuan${hariKe}`);
+    showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `Pertemuan${hariKe}`);
     return false;
 
   } catch (error) {
