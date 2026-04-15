@@ -1788,9 +1788,6 @@ function applyLockSystem(progress) {
 /*************************************
 * Terapkan Progress User dari Server *
 **************************************/
-/*************************************
-* Terapkan Progress User dari Server *
-**************************************/
 function applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
   window.userProgress = progress;
@@ -2452,6 +2449,65 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 /* Apply Lengkap Progress UI *
 /*****************************/
 function applyCompleteProgressToUI(progress, hariKe) {
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+  if (progress.perkenalan === true) {
+    unlockModul(hariKe);
+  }
+   const progressMap = [
+    { field: 'materi', type: 'materi' },
+    { field: 'mealplan', type: 'mealplan' },
+    { field: 'workout', type: 'workout' },
+    { field: 'water', type: 'water' },
+    { field: 'istirahat', type: 'istirahat' },
+    { field: 'tracking', type: 'tracking' },
+    { field: 'tanya', type: 'tanya' }, 
+    { field: 'selesaimodul', type: 'selesaimodul' } 
+  ];
+  
+  // Loop untuk semua hari (1-10)
+  for (let h = 1; h <= 10; h++) {
+    progressMap.forEach(item => {
+      const fieldName = `${item.field}Hari${h}`;
+      if (progress[fieldName] === true || progress[fieldName] === "OK") {
+        window.userProgress[fieldName] = true;
+        updateSubmenuLinkUI(item.type, h);
+        disableButtonsAfterCompletion(h, item.type);
+      }
+    });
+  }
+  
+  progressMap.forEach(item => {
+    if (progress[item.field] === true || progress[item.field] === "OK") {
+      window.userProgress[item.field] = true;
+      updateSubmenuLinkUI(item.type, hariKe);
+      disableButtonsAfterCompletion(hariKe, item.type);
+    }
+  });
+
+  if (
+    progress.perkenalan ||
+    progress.materiHari1 ||
+    progress.mealplanHari1 ||
+    progress.workoutHari1 ||
+    progress.waterHari1 ||
+    progress.istirahatHari1 ||
+    progress.trackingHari1 ||
+    progress.tanyaHari1 ||
+    progress.selesaimodulHari1 
+  ) {
+    setTimeout(() => {
+      const header = document.querySelector(`[data-hari="${hariKe}"]`);
+      if (header && header.classList.contains('collapsed')) {
+        header.click();
+      }
+    }, 800);
+  }
+}
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
   if (!window.userProgress) {
     window.userProgress = {};
