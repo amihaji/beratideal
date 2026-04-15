@@ -3302,6 +3302,52 @@ function setupAllLinks() {
       });
       
       // Load video
+      // ✅ Gunakan section apa adanya (Pertemuan1, Pertemuan2, dst)
+      loadVideo(section, videoType, videoUrl, title);
+      
+      // Tampilkan video player di posisi yang tepat
+      const videoContainer = document.getElementById(`videoContainer${section}`);
+      if (videoContainer) {
+        videoContainer.style.display = 'block';
+        
+        // Sisipkan video container setelah link video yang diklik
+        this.parentNode.insertBefore(videoContainer, this.nextSibling);
+        
+        // Auto play video
+        setTimeout(() => {
+          playVideo(section);
+        }, 500);
+      }
+    });
+  });
+  
+  // Setup PDF links
+  setupPDFLinks();
+}
+
+function BACKUP_setupAllLinks() {
+  // Setup video links
+  document.querySelectorAll('.video-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const section = this.getAttribute('data-section');
+      const videoType = this.getAttribute('data-type');
+      const videoUrl = this.getAttribute('data-url');
+      const title = this.textContent.trim();
+      
+      // Sembunyikan semua konten lain
+      document.querySelectorAll('.submenu-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.querySelectorAll('.video-container').forEach(video => {
+        video.style.display = 'none';
+      });
+      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+        pdf.style.display = 'none';
+      });
+      
+      // Load video
       loadVideo(section, videoType, videoUrl, title);
       
       // Tampilkan video player di posisi yang tepat
@@ -3324,10 +3370,71 @@ function setupAllLinks() {
   setupPDFLinks();
 }
 
+
 /******************************************
 * Fungsi Memuat Video Berdasarkan Section *
 *******************************************/ 
 function loadVideo(section, videoType, videoUrl, title = '') {
+    console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
+    // Untuk Canva, buka di tab baru
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    // Tampilkan video player di posisi yang tepat
+    // ✅ PASTIKAN section menggunakan format yang benar (Pertemuan1, Pertemuan2, dst)
+    const videoContainer = document.getElementById(`videoContainer${section}`);
+    if (!videoContainer) {
+        console.error(`❌ Video container tidak ditemukan: videoContainer${section}`);
+        return;
+    }
+
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Validasi URL YouTube
+    if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
+        console.error('❌ Invalid YouTube URL:', videoUrl);
+        showMessage('error', 'URL Youtube tidak valid');
+        return;
+    }
+    // Close video di section lain
+    closeAllVideos();
+    
+    // Reset previous video 
+    if (videoPlayer) videoPlayer.innerHTML = '';
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl,
+        title: title
+    };
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    // Update placeholder text
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'youtube') {
+        const youtubeId = extractYouTubeId(videoUrl);
+        placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video';
+    }
+    
+    if (videoPlaceholder) {
+        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+        videoPlaceholder.style.display = 'flex';
+    }
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto play setelah ditampilkan
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
+function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
     console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
     // Untuk Canva, buka di tab baru
     if (videoType === 'canva') {
