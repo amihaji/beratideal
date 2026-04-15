@@ -3389,6 +3389,42 @@ function loadVideo(section, videoType, videoUrl, title = '') {
 ***********************************/
 function playVideo(section) {
     console.log('playVideo called for section:', section);
+    const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
+    const videoPlaceholder = videoContainer?.querySelector('.video-placeholder');
+    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    if (!videoContainer || !videoPlayer) {
+        console.error('Video elements not found for section:', section);
+        return;
+    }
+    
+    // Hide placeholder, show loading
+    if (videoPlaceholder) videoPlaceholder.style.display = 'none';
+    if (videoLoading) videoLoading.style.display = 'flex';
+ 
+    // Load video based on type
+    setTimeout(() => {
+        if (videoLoading) videoLoading.style.display = 'none';
+        
+        if (currentVideoData.type === 'youtube') {
+            console.log('Loading YouTube video:', currentVideoData.url);
+            loadYouTubeVideo(videoPlayer, currentVideoData.url);
+        } else if (currentVideoData.type === 'local') {
+            console.log('Loading local video:', currentVideoData.url);
+            loadLocalVideo(videoPlayer, currentVideoData.url);
+        }
+        
+        // ✅ PASTIKAN TOMBOL CENTANG ENABLED UNTUK MATERI YANG BELUM SELESAI
+        const hariKe = getHariKeFromSection(section);
+        if (hariKe && window.userProgress) {
+            checkMateriStatus(hariKe, window.userProgress);
+        }
+    }, 1000);
+}
+
+function BACKUP_playVideo(section) {
+    console.log('playVideo called for section:', section);
     
     const videoContainer   = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
     const videoPlaceholder = videoContainer?.querySelector('.video-placeholder');
