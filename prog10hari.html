@@ -2100,7 +2100,6 @@ function setupAllComponentsInternal(progress = {}) {
             };
         }
     }
-
     document.querySelectorAll('[data-target^="waterContent"]').forEach(item => {
         item.addEventListener('click', function () {
             const hariKe = parseInt(
@@ -2109,10 +2108,12 @@ function setupAllComponentsInternal(progress = {}) {
             window.activeWaterHari = hariKe;
         });
     });
-
     document.querySelectorAll('[id^="btnSelesaiWater"]').forEach(btn => {
         btn.disabled = true;
     });
+
+    // Istirahat - Inisialisasi form untuk semua hari
+    initializeIstirahatForms();
 
     // Video
     initializeAllVideoPlayers();
@@ -4481,129 +4482,6 @@ function updateMateriStatusUI(hariKe) {
 /************************
 * Jadwal Waktu Istirahat *
 *************************/   
-const userId = localStorage.getItem("userId");
-
-// Loop untuk semua hari 1-10
-for (let hariKe = 1; hariKe <= 10; hariKe++) {
-  const containerId = hariKe === 1 ? 'istirahatBtn' : `istirahatBtn${hariKe}`;
-  const radioIstirahat = document.getElementById(containerId);
-  
-  if (!radioIstirahat) {
-    console.warn(`⚠️ Container istirahat untuk hari ${hariKe} tidak ditemukan: ${containerId}`);
-    continue;
-  }
-  
-  // Cek apakah form sudah ada (hindari duplikasi)
-  if (radioIstirahat.querySelector(`#mulaiIstirahat${hariKe}`)) {
-    console.log(`✅ Form istirahat hari ${hariKe} sudah ada`);
-    continue;
-  }
-  
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-1";
-  wrapper.innerHTML = `  
-    <h6><b>WAKTU ISTIRAHAT</b></h6>
-    <b>Mulai Istirahat Jam</b>
-    <div class="input-group mb-3">
-      <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
-    </div>
-
-    <b>Berapa Jam Istirahat</b>
-    <div class="input-group mb-3">
-      <div class="input-group-text"> 
-        <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
-      </div>
-      <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
-      </div>
-      <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
-    </div>  
-    
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
-      </div>
-      <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
-    </div>  
-
-    <div class="container p-0">
-      <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
-        Simpan
-      </button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
-        Selesai Istirahat
-      </button>
-    </div>
-  `;
-
-  radioIstirahat.appendChild(wrapper);
-  
-  const btnSimpan  = document.getElementById(`btnSimpanIstirahat${hariKe}`);
-  const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
-
-  // SIMPAN ISTIRAHAT
-  btnSimpan.addEventListener("click", async function () {
-    const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
-    const radioChecked = document.querySelector(`input[name="istirahatHari${hariKe}"]:checked`);
-
-    if (!jamMulai || !radioChecked) {
-      showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `Pertemuan${hariKe}`);
-      return;
-    }
-
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "updateIstirahat",
-        userId,
-        hariKe,
-        jamMulai,
-        kualitas: radioChecked.value
-      })
-    });
-    const result = await response.text();
-    if (result === "OK") {
-      btnSelesai.disabled = false;
-      showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `Pertemuan${hariKe}`);
-    }
-  });
-
-  // SELESAI ISTIRAHAT
-  btnSelesai.addEventListener("click", async function () {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "completeIstirahat",
-        userId,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
-    if (result === "OK") {
-      wrapper.querySelectorAll("input").forEach(el => {
-        el.disabled = true;
-        el.style.cursor = "not-allowed";
-      });
-      showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
-
-      btnSimpan.disabled  = true;
-      btnSelesai.disabled = true;
-      btnSimpan.style.cursor  = "not-allowed";
-      btnSelesai.style.cursor = "not-allowed";
-      updateSubmenuLinkUI("istirahat", hariKe);
-    }
-  });
-  
-  console.log(`✅ Form istirahat hari ${hariKe} dibuat`);
-}
-
 /* BACKUP ISTIRAHAT
 const radioIstirahat = document.getElementById("istirahatBtn");
 if (radioIstirahat) {
@@ -7736,6 +7614,128 @@ function showWaterReminderForm(hariKe) {
       disableWaterAfterCompletion(hariKe);
     }
   }, 300);
+}
+
+
+/****************************
+* Inisialisasi Form Istirahat *
+*****************************/
+function initializeIstirahatForms() {
+  console.log('🔧 Initializing istirahat forms for all days...');
+  const userId = localStorage.getItem("userId");
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    const containerId = hariKe === 1 ? 'istirahatBtn' : `istirahatBtn${hariKe}`;
+    const radioIstirahat = document.getElementById(containerId);
+    
+    if (!radioIstirahat) {
+      console.warn(`⚠️ Container istirahat untuk hari ${hariKe} tidak ditemukan: ${containerId}`);
+      continue;
+    }
+    // Cek apakah form sudah ada (hindari duplikasi)
+    if (radioIstirahat.querySelector(`#mulaiIstirahat${hariKe}`)) {
+      console.log(`✅ Form istirahat hari ${hariKe} sudah ada`);
+      continue;
+    }
+    const wrapper = document.createElement("div");
+    wrapper.className = "mb-1";
+    wrapper.innerHTML = `  
+      <h6><b>WAKTU ISTIRAHAT</b></h6>
+      <b>Mulai Istirahat Jam</b>
+      <div class="input-group mb-3">
+        <input class="form-control" type="time" id="mulaiIstirahat${hariKe}">
+      </div>
+
+      <b>Berapa Jam Istirahat</b>
+      <div class="input-group mb-3">
+        <div class="input-group-text"> 
+          <input type="radio" name="istirahatHari${hariKe}" value="Kurang dari 6 jam">
+        </div>
+        <input type="text" class="form-control" value="Kurang dari 6 jam per malam" readonly>
+      </div>  
+      
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <input type="radio" name="istirahatHari${hariKe}" value="6 - 8 jam">
+        </div>
+        <input type="text" class="form-control" value="6 - 8 jam per malam" readonly>
+      </div>  
+      
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <input type="radio" name="istirahatHari${hariKe}" value="Lebih dari 8 jam">
+        </div>
+        <input type="text" class="form-control" value="Lebih dari 8 jam per malam" readonly>
+      </div>  
+
+      <div class="container p-0">
+        <button type="button" class="btn btn-primary btn-sm" id="btnSimpanIstirahat${hariKe}">
+          Simpan
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiIstirahat${hariKe}" disabled>
+          Selesai Istirahat
+        </button>
+      </div>
+    `;
+
+    radioIstirahat.appendChild(wrapper);
+    const btnSimpan  = document.getElementById(`btnSimpanIstirahat${hariKe}`);
+    const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
+
+    // SIMPAN ISTIRAHAT
+    btnSimpan.addEventListener("click", async function () {
+      const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
+      const radioChecked = document.querySelector(`input[name="istirahatHari${hariKe}"]:checked`);
+     if (!jamMulai || !radioChecked) {
+        showMessage('info', 'Lengkapi jam dan pilih durasi istirahat', 3000, `Pertemuan${hariKe}`);
+        return;
+      }
+
+      const response = await fetch(URL_PROGRAM_APP, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "updateIstirahat",
+          userId,
+          hariKe,
+          jamMulai,
+          kualitas: radioChecked.value
+        })
+      });
+      const result = await response.text();
+      if (result === "OK") {
+        btnSelesai.disabled = false;
+        showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `Pertemuan${hariKe}`);
+      }
+    });
+
+    // SELESAI ISTIRAHAT
+    btnSelesai.addEventListener("click", async function () {
+      const response = await fetch(URL_PROGRAM_APP, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "completeIstirahat",
+          userId,
+          hariKe
+        })
+      });
+
+      const result = await response.text();
+      if (result === "OK") {
+        wrapper.querySelectorAll("input").forEach(el => {
+          el.disabled = true;
+          el.style.cursor = "not-allowed";
+        });
+        showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
+        btnSimpan.disabled  = true;
+        btnSelesai.disabled = true;
+        btnSimpan.style.cursor  = "not-allowed";
+        btnSelesai.style.cursor = "not-allowed";
+        updateSubmenuLinkUI("istirahat", hariKe);
+      }
+    });
+    console.log(`✅ Form istirahat hari ${hariKe} dibuat`);
+  }
 }
 
 /***************************
