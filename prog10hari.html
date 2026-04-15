@@ -3280,6 +3280,49 @@ function initializeAllVideoPlayers() {
 * Setup Semua Link Video dan PDF *
 **********************************/
 function setupAllLinks() {
+  // Gunakan event delegation untuk video-link (termasuk yang digenerate dinamis)
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.video-link');
+    if (!link) return;
+    
+    e.preventDefault();
+    const section = link.getAttribute('data-section');
+    const videoType = link.getAttribute('data-type');
+    const videoUrl = link.getAttribute('data-url');
+    const title = link.textContent.trim();
+    
+    console.log('🎬 Video link clicked:', { section, videoType, videoUrl });
+    // Sembunyikan semua konten lain
+    document.querySelectorAll('.submenu-content').forEach(content => {
+      content.style.display = 'none';
+    });
+    document.querySelectorAll('.video-container').forEach(video => {
+      video.style.display = 'none';
+    });
+    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+      pdf.style.display = 'none';
+    });
+    
+    // Load video
+    loadVideo(section, videoType, videoUrl, title);
+    
+    // Tampilkan video player di posisi yang tepat
+    const videoContainer = document.getElementById(`videoContainer${section}`);
+    if (videoContainer) {
+      videoContainer.style.display = 'block';
+      // Sisipkan video container setelah link video yang diklik
+      link.parentNode.insertBefore(videoContainer, link.nextSibling);
+      // Auto play video
+      setTimeout(() => {playVideo(section);}, 500);
+    } else {
+      console.error(`❌ Video container tidak ditemukan: videoContainer${section}`);
+    }
+  });
+  // Setup PDF links
+  setupPDFLinks();
+}
+
+function BACKUP_setupAllLinks() {
   // Setup video links
   document.querySelectorAll('.video-link').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -3324,52 +3367,6 @@ function setupAllLinks() {
   // Setup PDF links
   setupPDFLinks();
 }
-
-function BACKUP_setupAllLinks() {
-  // Setup video links
-  document.querySelectorAll('.video-link').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const section = this.getAttribute('data-section');
-      const videoType = this.getAttribute('data-type');
-      const videoUrl = this.getAttribute('data-url');
-      const title = this.textContent.trim();
-      
-      // Sembunyikan semua konten lain
-      document.querySelectorAll('.submenu-content').forEach(content => {
-        content.style.display = 'none';
-      });
-      document.querySelectorAll('.video-container').forEach(video => {
-        video.style.display = 'none';
-      });
-      document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-        pdf.style.display = 'none';
-      });
-      
-      // Load video
-      loadVideo(section, videoType, videoUrl, title);
-      
-      // Tampilkan video player di posisi yang tepat
-      const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
-      if (videoContainer) {
-        videoContainer.style.display = 'block';
-        
-        // Sisipkan video container setelah link video yang diklik
-        this.parentNode.insertBefore(videoContainer, this.nextSibling);
-        
-        // Auto play video
-        setTimeout(() => {
-          playVideo(section);
-        }, 500);
-      }
-    });
-  });
-  
-  // Setup PDF links
-  setupPDFLinks();
-}
-
 
 /******************************************
 * Fungsi Memuat Video Berdasarkan Section *
