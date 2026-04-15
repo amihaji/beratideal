@@ -1493,8 +1493,11 @@ function generateModulFromTemplate() {
       .replaceAll(/istirahatBtn/g, `istirahatBtn${hariKe}`)
       // TRACKING
       .replaceAll(/kondisiTubuh/g, `kondisiTubuh${hariKe}`)
+     
       // TANYA COACH
-      .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
+      // Ganti onclick untuk Tanya Coach
+      .replaceAll(/kirimPesanCoach\(1\)/g, `kirimPesanCoach(${hariKe})`)
+      .replaceAll(/selesaiTanyaCoach\(1\)/g, `selesaiTanyaCoach(${hariKe})`)
 
       // VIDEO ID
       .replaceAll(/materiLink1/g, `materiLink${hariKe}`)
@@ -7604,6 +7607,42 @@ function initializeTrackingForms() {
  * Kirim Pesan WA ke Coach *
  ***************************/
 async function kirimPesanCoach(hariKe){
+  console.log("📤 Kirim pesan coach hari", hariKe);
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
+  
+  if(!pesan){
+    showMessage('info', 'Isi pesan terlebih dahulu', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      action: "kirimWaCoach",
+      userId: userId,
+      userName: userName,
+      hariKe: hariKe,
+      pesan: pesan,
+      noCoach: "08114499640"
+    })
+  });
+  
+  const result = await response.json();
+  console.log("📥 Response kirim WA:", result);
+  if(result.success){
+    document.getElementById(`btnSelesaiWA${hariKe}`).disabled = false;
+    showMessage('success', `Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim`, 3000, `Pertemuan${hariKe}`);
+  } else {
+    showMessage('error', `Pesan gagal terkirim`, 3000, `Pertemuan${hariKe}`);
+  }
+}
+
+ async function BACKUP_kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari",hariKe);
   const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
   if(!pesan){
@@ -7636,6 +7675,30 @@ async function kirimPesanCoach(hariKe){
  * Selesai tanya Coach *
  ***********************/
 async function selesaiTanyaCoach(hariKe){
+  const userId   = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+  const response = await fetch(URL_PROGRAM_APP, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      action: 'completeTanyaCoach',
+      userId,
+      userName,
+      hariKe
+    })
+  });
+  
+  const result = await response.json();
+  if(result.success){
+    updateSubmenuLinkUI('tanya', hariKe);
+    disableButtonsAfterCompletion(hariKe, 'tanya');
+    showMessage('success', `Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
+  }
+}
+
+ async function BACKUP_selesaiTanyaCoach(hariKe){
   const userId   = localStorage.getItem("userId");
   const userName = localStorage.getItem("userName");
   const response = await fetch(URL_PROGRAM_APP,{
