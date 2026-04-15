@@ -1489,8 +1489,10 @@ function generateModulFromTemplate() {
       .replaceAll(/olahragaResisten-list/g, `olahragaResisten-list${hariKe}`)
       // WATER
       .replaceAll(/airputihRadioBtn/g, `airputihRadioBtn${hariKe}`)
-      // ISNTIRAHAT
+      // ISTIRAHAT
       .replaceAll(/istirahatBtn/g, `istirahatBtn${hariKe}`)
+      // TRACKING
+      .replaceAll(/kondisiTubuh/g, `kondisiTubuh${hariKe}`)
       // TANYA COACH
       .replaceAll(/pesanCoach1/g, `pesanCoach${hariKe}`)      
 
@@ -1500,10 +1502,9 @@ function generateModulFromTemplate() {
       .replaceAll(/videoLoadingPertemuan1/g, `videoLoadingPertemuan${hariKe}`)
       .replaceAll(/videoPlayerPertemuan1/g, `videoPlayerPertemuan${hariKe}`)
 
-      // ✅ TAMBAHKAN: Ganti onclick closeVideo
+      // Ganti onclick closeVideo
       .replaceAll(/closeVideo\('Pertemuan1'\)/g, `closeVideo('Pertemuan${hariKe}')`)
       .replaceAll(/closeVideo\("Pertemuan1"\)/g, `closeVideo("Pertemuan${hariKe}")`)
-
 
       // TAMBAHAN WAJIB (BUTTON)
       .replaceAll(/btnSelesaiModul1/g, `btnSelesaiModul${hariKe}`)
@@ -2114,6 +2115,8 @@ function setupAllComponentsInternal(progress = {}) {
 
     // Istirahat - Inisialisasi form untuk semua hari
     initializeIstirahatForms();
+    // Tracking - Inisialisasi form untuk semua hari
+    initializeTrackingForms();
 
     // Video
     initializeAllVideoPlayers();
@@ -4452,105 +4455,6 @@ function updateMateriStatusUI(hariKe) {
     }
   }
 }
-
-/***************************
-* Input Data Kondisi Tubuh *
-****************************/   
-const inputKondisiTubuh = document.getElementById("kondisiTubuh");
-if (inputKondisiTubuh) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "mb-1"; /* "input-group mb-1 align-items-start"; */
-  wrapper.innerHTML = `  
-    <!-- Pilih Jenis Kelamin -->
-    <div class="input-group mt-3 mb-3">  
-      <div class="input-group-text">
-        <i class="fas fa-venus-mars"></i> 
-      </div>
-      <select class="form-select" id="jenisKelamin" required>
-        <option value="">Pilihan Jenis Kelamin...</option>
-        <option value="Pria">Pria</option>
-        <option value="Wanita">Wanita</option>
-      </select>
-    </div> 
-
-    <!-- Input Data Umur -->
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <i class="fas fa-user-alt" style="padding-left: 2px; padding-right:3px;"></i>
-      </div>
-      <input type="number" class="form-control" id="usia" placeholder="Input Usia Anda" min="18" max="80" required>
-    </div>  
-                  
-    <!-- Input Berat Badan -->
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
-      </div>
-      <input type="number" class="form-control" id="beratBadan" placeholder="Input Berat badan (kg)" min="40" max="150" required>
-    </div>  
-
-    <!-- Input Tinggi Badan -->
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
-      </div>
-      <input type="number" class="form-control" id="tinggiBadan" placeholder="Input Tinggi badan (cm)" min="100" max="190" required>
-    </div>  
-                  
-    <!-- Input Lingkar Pinggang -->
-    <div class="input-group mb-3">
-      <div class="input-group-text">
-        <i class="fas fa-ribbon"> </i>
-      </div>
-      <select class="form-select" id="lingkarPerut" style="max-width: 100%;" required>
-        <option value="">Pilih Ukuran Celana/Lingkar Perut...</option>
-        <option value="68">26 = Lingkar 68 cm</option>
-        <option value="70">27 = Lingkar 70 cm</option>
-        <option value="72">28 = Lingkar 72 cm</option>
-        <option value="74">29 = Lingkar 74 cm</option>
-        <option value="76">30 = Lingkar 76 cm</option>
-        <option value="78">31 = Lingkar 78 cm</option>
-        <option value="80">32 = Lingkar 80 cm</option>
-        <option value="82">33 = Lingkar 82 cm</option>
-        <option value="84">34 = Lingkar 84 cm</option>
-        <option value="86">35 = Lingkar 86 cm</option>
-        <option value="88">36 = Lingkar 88 cm</option>
-        <option value="90">37 = Lingkar 90 cm</option>
-        <option value="92">38 = Lingkar 92 cm</option>
-        <option value="94">39 = Lingkar 94 cm</option>
-        <option value="96">40 = Lingkar 96 cm</option>
-        <option value="98">41 = Lingkar 98 cm</option>
-        <option value="100">42 = Lingkar 100 cm</option> 
-        <option value="102">43 = Lingkar 102 cm</option>
-        <option value="104">44 = Lingkar 104 cm</option>
-        <option value="106">45 = Lingkar 106 cm</option>
-        <option value="108">46 = Lingkar 108 cm</option>
-        <option value="110">47 = Lingkar 110 cm</option>
-      </select>
-    </div>
-
-    <!-- Input Aktivitas Olahraga -->
-    <div class="input-group mt-3 mb-3">
-      <div class="input-group-text">
-        <i class="fas fa-dumbbell"></i> 
-      </div>
-      <select class="form-select" id="aktivitasOlahraga" style="max-width: 100%;" required>
-        <option value="">Pilihan Aktivitas Olahraga...</option>
-        <option value="Sedikit/Tidak Olahraga">Sedikit/Tidak Olahraga</option>
-        <option value="Olahraga ringan 1-3 hari/minggu">Olahraga ringan 1-3 hari/minggu</option>
-        <option value="Olahraga moderat 3-5 hari/minggu">Olahraga moderat 3-5 hari/minggu</option>
-        <option value="Olahraga berat 6-7 hari per minggu">Olahraga berat 6-7 hari/minggu</option>
-        <option value="Olahraga sangat aktif + Kegiatan fisik">Olahraga aktif + Kegiatan fisik</option>           
-      </select>
-    </div>
-
-    <div>
-      <button type="button" class="btn btn-primary   btn-sm" id="btnSimpanDataTracking1"  onclick="simpanDataTracking(1)"  data-bs-toggle="tooltip" title="Simpan Data Fisik"><i class="fa fa-pencil-square-o"></i> Simpan</button>
-      <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTracking1" onclick="selesaiDataTracking(1)" data-bs-toggle="tooltip" title="Selesai Data Tracking" disabled><i class="fa fa-check"></i> Selesai Tracking</button>
-    </div>
-  `;
-  inputKondisiTubuh.appendChild(wrapper);
-}   
 
 /************************
  * Simpan Data Tracking *
@@ -7496,6 +7400,203 @@ function initializeIstirahatForms() {
       }
     });
     console.log(`✅ Form istirahat hari ${hariKe} dibuat`);
+  }
+}
+
+/****************************
+* Inisialisasi Form Tracking *
+*****************************/
+function initializeTrackingForms() {
+  console.log('🔧 Initializing tracking forms for all days...');
+  const userId = localStorage.getItem("userId");
+  for (let hariKe = 1; hariKe <= 10; hariKe++) {
+    const containerId = hariKe === 1 ? 'kondisiTubuh' : `kondisiTubuh${hariKe}`;
+    const inputKondisiTubuh = document.getElementById(containerId);
+    
+    if (!inputKondisiTubuh) {
+      console.warn(`⚠️ Container tracking untuk hari ${hariKe} tidak ditemukan: ${containerId}`);
+      continue;
+    }
+    
+    // Cek apakah form sudah ada
+    if (inputKondisiTubuh.querySelector(`#jenisKelamin${hariKe}`)) {
+      console.log(`✅ Form tracking hari ${hariKe} sudah ada`);
+      continue;
+    }
+    const wrapper = document.createElement("div");
+    wrapper.className = "mb-1";
+    wrapper.innerHTML = `  
+      <!-- Pilih Jenis Kelamin -->
+      <div class="input-group mt-3 mb-3">  
+        <div class="input-group-text">
+          <i class="fas fa-venus-mars"></i> 
+        </div>
+        <select class="form-select" id="jenisKelamin${hariKe}" required>
+          <option value="">Pilihan Jenis Kelamin...</option>
+          <option value="Pria">Pria</option>
+          <option value="Wanita">Wanita</option>
+        </select>
+      </div> 
+
+      <!-- Input Data Umur -->
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <i class="fas fa-user-alt" style="padding-left: 2px; padding-right:3px;"></i>
+        </div>
+        <input type="number" class="form-control" id="usia${hariKe}" placeholder="Input Usia Anda" min="18" max="80" required>
+      </div>  
+                    
+      <!-- Input Berat Badan -->
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <i class="fas fa-weight" style="padding-left: 2px; padding-right:3px;"></i>
+        </div>
+        <input type="number" class="form-control" id="beratBadan${hariKe}" placeholder="Input Berat badan (kg)" min="40" max="150" required>
+      </div>  
+
+      <!-- Input Tinggi Badan -->
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <i class="fas fa-ruler-vertical" style="padding-left: 5px; padding-right: 6px;"></i>
+        </div>
+        <input type="number" class="form-control" id="tinggiBadan${hariKe}" placeholder="Input Tinggi badan (cm)" min="100" max="190" required>
+      </div>  
+                    
+      <!-- Input Lingkar Pinggang -->
+      <div class="input-group mb-3">
+        <div class="input-group-text">
+          <i class="fas fa-ribbon"> </i>
+        </div>
+        <select class="form-select" id="lingkarPerut${hariKe}" style="max-width: 100%;" required>
+          <option value="">Pilih Ukuran Celana/Lingkar Perut...</option>
+          <option value="68">26 = Lingkar 68 cm</option>
+          <option value="70">27 = Lingkar 70 cm</option>
+          <option value="72">28 = Lingkar 72 cm</option>
+          <option value="74">29 = Lingkar 74 cm</option>
+          <option value="76">30 = Lingkar 76 cm</option>
+          <option value="78">31 = Lingkar 78 cm</option>
+          <option value="80">32 = Lingkar 80 cm</option>
+          <option value="82">33 = Lingkar 82 cm</option>
+          <option value="84">34 = Lingkar 84 cm</option>
+          <option value="86">35 = Lingkar 86 cm</option>
+          <option value="88">36 = Lingkar 88 cm</option>
+          <option value="90">37 = Lingkar 90 cm</option>
+          <option value="92">38 = Lingkar 92 cm</option>
+          <option value="94">39 = Lingkar 94 cm</option>
+          <option value="96">40 = Lingkar 96 cm</option>
+          <option value="98">41 = Lingkar 98 cm</option>
+          <option value="100">42 = Lingkar 100 cm</option> 
+          <option value="102">43 = Lingkar 102 cm</option>
+          <option value="104">44 = Lingkar 104 cm</option>
+          <option value="106">45 = Lingkar 106 cm</option>
+          <option value="108">46 = Lingkar 108 cm</option>
+          <option value="110">47 = Lingkar 110 cm</option>
+        </select>
+      </div>
+
+      <!-- Input Aktivitas Olahraga -->
+      <div class="input-group mt-3 mb-3">
+        <div class="input-group-text">
+          <i class="fas fa-dumbbell"></i> 
+        </div>
+        <select class="form-select" id="aktivitasOlahraga${hariKe}" style="max-width: 100%;" required>
+          <option value="">Pilihan Aktivitas Olahraga...</option>
+          <option value="Sedikit/Tidak Olahraga">Sedikit/Tidak Olahraga</option>
+          <option value="Olahraga ringan 1-3 hari/minggu">Olahraga ringan 1-3 hari/minggu</option>
+          <option value="Olahraga moderat 3-5 hari/minggu">Olahraga moderat 3-5 hari/minggu</option>
+          <option value="Olahraga berat 6-7 hari per minggu">Olahraga berat 6-7 hari/minggu</option>
+          <option value="Olahraga sangat aktif + Kegiatan fisik">Olahraga aktif + Kegiatan fisik</option>           
+        </select>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnSimpanDataTracking${hariKe}">
+          <i class="fa fa-pencil-square-o"></i> Simpan
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btnSelesaiDataTracking${hariKe}" disabled>
+          <i class="fa fa-check"></i> Selesai Tracking
+        </button>
+      </div>
+    `;
+    
+    inputKondisiTubuh.appendChild(wrapper);
+    const btnSimpan = document.getElementById(`btnSimpanDataTracking${hariKe}`);
+    const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
+    
+    // SIMPAN DATA TRACKING
+    btnSimpan.addEventListener("click", async function() {
+      const jenisKelamin   = document.getElementById(`jenisKelamin${hariKe}`)?.value || "";
+      const usia           = document.getElementById(`usia${hariKe}`)?.value || "";
+      const tinggiBadan    = document.getElementById(`tinggiBadan${hariKe}`)?.value || "";
+      const beratBadan     = document.getElementById(`beratBadan${hariKe}`)?.value || "";
+      const lingkarPerut   = document.getElementById(`lingkarPerut${hariKe}`)?.value || "";
+      const aktivitasFisik = document.getElementById(`aktivitasOlahraga${hariKe}`)?.value || "";
+      
+      console.log("📤 Data Tracking hari", hariKe, ":", { jenisKelamin, usia, tinggiBadan, beratBadan, lingkarPerut, aktivitasFisik });
+      
+      if (!jenisKelamin || !usia || !tinggiBadan || !beratBadan || !lingkarPerut || !aktivitasFisik) {
+        showMessage('warning', 'Semua field harus diisi', 3000, `Pertemuan${hariKe}`);
+        return;
+      }
+      
+      try {
+        const response = await fetch(URL_PROGRAM_APP, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            action: 'updateDataTracking',
+            userId,
+            hariKe,
+            jenisKelamin,
+            usia,
+            tinggiBadan,
+            beratBadan,
+            lingkarPerut,
+            aktivitasFisik
+          })
+        });
+
+        const result = await response.text();
+        console.log("📥 Response Data Tracking:", result);
+        if (result === "OK") {
+          showMessage('success', `Data tracking hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `Pertemuan${hariKe}`);
+          btnSelesai.disabled = false;
+        } else {
+          showMessage('error', 'Gagal menyimpan data', 3000, `Pertemuan${hariKe}`);
+        }
+      } catch (error) {
+        console.error("❌ Error simpanDataTracking:", error);
+        showMessage('error', 'Terjadi kesalahan sistem', 3000, `Pertemuan${hariKe}`);
+      }
+    });
+    
+    // SELESAI DATA TRACKING
+    btnSelesai.addEventListener("click", async function() {
+      try {
+        const response = await fetch(URL_PROGRAM_APP, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+          body: new URLSearchParams({
+            action: 'completeDataTracking',
+            userId,
+            hariKe
+          })
+        });
+        const result = await response.json();
+        console.log("📥 Response Complete Tracking:", result);
+        if (result.success) {
+          disableButtonsAfterCompletion(hariKe, 'tracking');
+          updateSubmenuLinkUI('tracking', hariKe);
+          showMessage('success', `Data tracking hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
+        } else {
+          showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000, `Pertemuan${hariKe}`);
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('error', 'Terjadi kesalahan koneksi', 3000, `Pertemuan${hariKe}`);
+      }
+    });
+    console.log(`✅ Form tracking hari ${hariKe} dibuat`);
   }
 }
 
