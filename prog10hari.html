@@ -7608,6 +7608,55 @@ function initializeTrackingForms() {
  ***************************/
 async function kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari", hariKe);
+  const textarea = document.getElementById(`pesanCoach${hariKe}`);
+  if (!textarea) {
+    console.error(`❌ Textarea pesanCoach${hariKe} tidak ditemukan`);
+    showMessage('error', 'Form pesan tidak ditemukan', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+  
+  const pesan = textarea.value;
+  if(!pesan){
+    showMessage('info', 'Isi pesan terlebih dahulu', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        action: "kirimWaCoach",
+        userId: userId,
+        userName: userName,
+        hariKe: hariKe,
+        pesan: pesan,
+        noCoach: "08114499640"
+      })
+    });
+    
+    const result = await response.json();
+    console.log("📥 Response kirim WA:", result);
+    
+    if(result.success){
+      const btnSelesai = document.getElementById(`btnSelesaiWA${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+      showMessage('success', `Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim`, 3000, `Pertemuan${hariKe}`);
+    } else {
+      showMessage('error', `Pesan gagal terkirim`, 3000, `Pertemuan${hariKe}`);
+    }
+  } catch (error) {
+    console.error("❌ Error kirim WA:", error);
+    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `Pertemuan${hariKe}`);
+  }
+}
+
+ async function BACKUP_kirimPesanCoach(hariKe){
+  console.log("📤 Kirim pesan coach hari", hariKe);
   const userId = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
   const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
@@ -7642,39 +7691,60 @@ async function kirimPesanCoach(hariKe){
   }
 }
 
- async function BACKUP_kirimPesanCoach(hariKe){
-  console.log("📤 Kirim pesan coach hari",hariKe);
-  const pesan = document.getElementById(`pesanCoach${hariKe}`).value;
-  if(!pesan){
-    showMessage( 'info', 'Isi pesan terlebih dahulu', 3000 );
+/***********************
+ * Selesai tanya Coach *
+***********************/
+async function selesaiTanyaCoach(hariKe){
+  console.log("✅ Selesai tanya coach hari", hariKe);
+  
+  const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+  
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `Pertemuan${hariKe}`);
     return;
   }
 
-  const response = await fetch(URL_PROGRAM_APP,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/x-www-form-urlencoded"
-    },
-    body:new URLSearchParams({
-      action:"kirimWaCoach",
-      pesan:pesan,
-      noCoach:"08114499640"
-    })
-  });
-  const result = await response.json();
-  console.log("📥 Response kirim WA:",result);
-  if(result.success){
-    document.getElementById(`btnSelesaiWA${hariKe}`).disabled = false;
-    showMessage( 'success', 'Pesan anda berhasil terkirim', 3000 );
-  } else {
-    showMessage( 'error', 'Pesan anda gagal terkirim', 3000 );
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        action: 'completeTanyaCoach',
+        userId,
+        userName,
+        hariKe
+      })
+    });
+    
+    const result = await response.json();
+    console.log("📥 Response selesai tanya coach:", result);
+    
+    if(result.success){
+      updateSubmenuLinkUI('tanya', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'tanya');
+      // Disable textarea dan tombol
+      const textarea = document.getElementById(`pesanCoach${hariKe}`);
+      if (textarea) textarea.disabled = true;
+      
+      const btnKirim = document.querySelector(`#tanyaContent${hariKe} button[onclick*="kirimPesanCoach"]`);
+      if (btnKirim) btnKirim.disabled = true;
+ 
+      const btnSelesai = document.getElementById(`btnSelesaiWA${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = true;
+      showMessage('success', `Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `Pertemuan${hariKe}`);
+    } else {
+      showMessage('error', 'Gagal menyelesaikan tanya coach', 3000, `Pertemuan${hariKe}`);
+    }
+  } catch (error) {
+    console.error("❌ Error selesai tanya coach:", error);
+    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `Pertemuan${hariKe}`);
   }
 }
 
-/***********************
- * Selesai tanya Coach *
- ***********************/
-async function selesaiTanyaCoach(hariKe){
+ async function BACKUP_selesaiTanyaCoach(hariKe){
   const userId   = localStorage.getItem("userId");
   const userName = localStorage.getItem("userName");
   const response = await fetch(URL_PROGRAM_APP, {
@@ -7698,33 +7768,68 @@ async function selesaiTanyaCoach(hariKe){
   }
 }
 
- async function BACKUP_selesaiTanyaCoach(hariKe){
-  const userId   = localStorage.getItem("userId");
-  const userName = localStorage.getItem("userName");
-  const response = await fetch(URL_PROGRAM_APP,{
-    method:"POST",
-    headers:{
-      'Content-Type':'application/x-www-form-urlencoded'
-    },
-    body:new URLSearchParams({
-      action:'completeTanyaCoach',
-      userId,
-      userName,
-      hariKe
-    })
-  });
-  const result = await response.json();
-  if(result.success){
-    updateSubmenuLinkUI('tanya',hariKe);
-    disableButtonsAfterCompletion(hariKe, 'tanya');
-    showMessage( 'success', 'Cek WA anda untuk melihat pesan', 3000 );
-  }
-}
-
 /*************************************
  * Otomatis isi pesan WA di textarea *
 **************************************/
 function isiPesanDefaultCoach(hariKe){
+  console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
+  const textarea = document.getElementById(`pesanCoach${hariKe}`);
+  if(!textarea){
+    console.log(`❌ textarea pesanCoach${hariKe} tidak ditemukan`);
+    return;
+  }
+
+  // Jangan timpa jika user sudah mengetik
+  if(textarea.value.trim() !== ""){
+    console.log("⚠️ textarea sudah ada isi");
+    return;
+  }
+
+  // AMBIL NAMA USER
+  let namaUser = "Peserta Program";
+  const namaLocal = localStorage.getItem("userName");
+  if(namaLocal){
+    namaUser = namaLocal;
+  }
+
+  if(window.userProgress && window.userProgress.namaKonsumen){
+    namaUser = window.userProgress.namaKonsumen;
+  }
+
+  // NAMA HARI
+  const namaHari = {
+    1:"Pertama",
+    2:"Kedua",
+    3:"Ketiga",
+    4:"Keempat",
+    5:"Kelima",
+    6:"Keenam",
+    7:"Ketujuh",
+    8:"Kedelapan",
+    9:"Kesembilan",
+    10:"Kesepuluh"
+  };
+
+  const hariText = namaHari[hariKe] || hariKe;
+  
+  // TEMPLATE PESAN
+  textarea.value = `*Halo Coach* 👋
+Saya *${namaUser}*
+Peserta *Program Berat Ideal*
+Hari Program : *${hariKe} (${hariText})*
+
+Saya ingin bertanya mengenai materi hari ini.
+*Pertanyaan Saya:*
+.....................................
+
+Mohon arahan dari Coach 🙏
+-------------------------------------
+Balasan langsung ke WA ini`;
+  
+  console.log(`✅ Pesan default untuk hari ${hariKe} diisi`);
+}
+
+function BACKUP_isiPesanDefaultCoach(hariKe){
   console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
   const textarea = document.getElementById(`pesanCoach${hariKe}`);
   if(!textarea){
