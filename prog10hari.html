@@ -2467,7 +2467,7 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
         <div class="btn-group" role="group">
           <button type="button" class="btn btn-secondary btn-sm" disabled
                   data-bs-toggle="tooltip" title="Sudah selesai">
-            <i class="fas fa-check-double"></i>
+            <i class="fas fa-check""></i>
           </button>
         </div>
       </div>
@@ -2861,7 +2861,7 @@ function applyProgressToUI(progress) {
     const perkenalanLinks = document.querySelectorAll('#perkenalanContent .menu-item');
     perkenalanLinks.forEach(link => {
       if (link.textContent.includes('Selesai Perkenalan')) {
-        link.innerHTML = '<i class="fas fa-check-double"></i>Selesai Perkenalan';
+        link.innerHTML = '<i class="fas fa-check""></i>Selesai Perkenalan';
         link.style.color = '#666666';
         // link.style.fontWeight = 'bold';
         link.style.pointerEvents = 'none';
@@ -2885,7 +2885,7 @@ function applyProgressToUI(progress) {
     // Update tombol centang di video
     const completeBtn = document.querySelector('#videoContainerPertemuan1 .complete-btn');
     if (completeBtn) {
-      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.innerHTML = '<i class="fas fa-check""></i>';
       completeBtn.classList.remove('btn-success');
       completeBtn.classList.add('btn-secondary');
       completeBtn.disabled = true;
@@ -4013,7 +4013,7 @@ function setupMateriCompletion() {
       completeBtn.id = `btnMateriDone${hariKe}`;
      
       completeBtn.style.cssText = `
-        position: absolute; bottom: 0px; left: 10px; z-index: 25;
+        position: absolute; bottom: 8px; left: 10px; z-index: 25;
         width: 35px; height: 35px; border-radius: 50%; padding: 0;
         border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         background-color: #198754; color: white;
@@ -4029,7 +4029,7 @@ function setupMateriCompletion() {
         // 🔒 KUNCI LANGSUNG DI UI
         completeBtn.dataset.done = 'true';
         completeBtn.disabled = true;
-        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.innerHTML = '<i class="fas fa-check""></i>';
         completeBtn.classList.remove('btn-success');
         completeBtn.classList.add('btn-secondary');
         // 💾 SIMPAN STATUS
@@ -4050,7 +4050,7 @@ function setupMateriCompletion() {
     if (isCompleted) {
       completeBtn.dataset.done = 'true';
       completeBtn.disabled = true;
-      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.innerHTML = '<i class="fas fa-check""></i>';
       completeBtn.classList.remove('btn-success');
       completeBtn.classList.add('btn-secondary');
       console.log(`🔒 Materi hari ${hariKe} sudah selesai, tombol disabled`);
