@@ -3119,50 +3119,6 @@ function setupAllLinks() {
   setupPDFLinks();
 }
 
-function BACKUP_setupAllLinks() {
-  // Gunakan event delegation untuk video-link (termasuk yang digenerate dinamis)
-  document.addEventListener('click', function(e) {
-    const link = e.target.closest('.video-link');
-    if (!link) return;
-    
-    e.preventDefault();
-    const section = link.getAttribute('data-section');
-    const videoType = link.getAttribute('data-type');
-    const videoUrl = link.getAttribute('data-url');
-    const title = link.textContent.trim();
-    
-    console.log('🎬 Video link clicked:', { section, videoType, videoUrl });
-    // Sembunyikan semua konten lain
-    document.querySelectorAll('.submenu-content').forEach(content => {
-      content.style.display = 'none';
-    });
-    document.querySelectorAll('.video-container').forEach(video => {
-      video.style.display = 'none';
-    });
-    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
-      pdf.style.display = 'none';
-    });
-    
-    // Load video
-    loadVideo(section, videoType, videoUrl, title);
-    
-    // Tampilkan video player di posisi yang tepat
-    const videoContainer = document.getElementById(`videoContainer${section}`);
-    if (videoContainer) {
-      videoContainer.style.display = 'block';
-      // Sisipkan video container setelah link video yang diklik
-      link.parentNode.insertBefore(videoContainer, link.nextSibling);
-      // Auto play video
-      setTimeout(() => {playVideo(section);}, 500);
-    } else {
-      console.error(`❌ Video container tidak ditemukan: videoContainer${section}`);
-    }
-  });
-  // Setup PDF links
-  setupPDFLinks();
-}
-
-
 /******************************************
 * Fungsi Memuat Video Berdasarkan Section *
 *******************************************/ 
@@ -3183,67 +3139,6 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
 
-
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
-    
-    // Validasi URL YouTube
-    if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
-        console.error('❌ Invalid YouTube URL:', videoUrl);
-        showMessage('error', 'URL Youtube tidak valid');
-        return;
-    }
-    // Close video di section lain
-    closeAllVideos();
-    
-    // Reset previous video 
-    if (videoPlayer) videoPlayer.innerHTML = '';
-    currentVideoData = {
-        section: section,
-        type: videoType,
-        url: videoUrl,
-        title: title
-    };
-    
-    // Show video container
-    videoContainer.style.display = 'block';
-    // Update placeholder text
-    let placeholderText = 'Klik untuk memuat video';
-    if (videoType === 'youtube') {
-        const youtubeId = extractYouTubeId(videoUrl);
-        placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
-    } else if (videoType === 'local') {
-        placeholderText = 'Klik untuk memuat video';
-    }
-    
-    if (videoPlaceholder) {
-        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
-        videoPlaceholder.style.display = 'flex';
-    }
-    if (videoLoading) videoLoading.style.display = 'none';
-    
-    // Auto play setelah ditampilkan
-    setTimeout(() => {
-        playVideo(section);
-    }, 500);
-}
-
-function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
-    console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
-    // Untuk Canva, buka di tab baru
-    if (videoType === 'canva') {
-        window.open(videoUrl, '_blank');
-        return;
-    }
-    // Tampilkan video player di posisi yang tepat
-    // Pastikan section memiliki huruf besar di awal
-    const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
-    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
-    if (!videoContainer) {
-        console.error(`❌ Video container tidak ditemukan: videoContainer${formattedSection}`);
-        return;
-    }
 
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
     const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
@@ -3825,34 +3720,6 @@ function loadPDF(section, pdfUrl, title = '') {
             </iframe>
         `;
         sectionEl.appendChild(container);
-    }
-    console.log('✅ PDF tampil di SUBMENU');
-}
-
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('📄 loadPDF called:', { section, pdfUrl });
-    if (!section) return;
-    let viewer = section.querySelector('.pdf-viewer');
-    let container = section.querySelector('.pdf-container');
-
-    // kalau HTML lama ada → pakai
-    if (viewer && container) {
-        viewer.style.display = 'block';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-    } else {
-        // fallback kalau tidak ada
-        container = document.createElement('div');
-        container.className = 'pdf-container';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-        section.appendChild(container);
     }
     console.log('✅ PDF tampil di SUBMENU');
 }
@@ -4532,37 +4399,6 @@ async function selesaiModul(hariKe) {
   } catch (err) {
     console.error("❌ Error selesai Modul:", err);
     showMessage('error', 'Gagal menyelesaikan modul', 4000, `Pertemuan${hariKe}`);
-  }
-}
-
-async function BACKUP_selesaiModul(hariKe){
-const userId = localStorage.getItem('userId');
-if(!userId) return;
-console.log("🚀 Menyelesaikan Modul Hari",hariKe);
-try{
-  const response = await fetch(URL_PROGRAM_APP,{
-    method:"POST",
-    headers:{
-    "Content-Type":"application/x-www-form-urlencoded"
-    },
-    body:new URLSearchParams({
-    action:"completeModul",
-    userId:userId,
-    hariKe:hariKe
-    })
-  });
-    const data = await response.json();
-    console.log("📡 Response completeModul:",data);
-    if(data.success){
-      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}` );
-      // ✔ urutan parameter benar
-      updateSubmenuLinkUI('selesaimodul',hariKe);
-      disableButtonsAfterCompletion(hariKe,'selesaimodul');
-      unlockModul(hariKe+1);
-    }
-  }catch(err){
-    console.error("❌ Error selesai Modul:",err);
-    showMessage('error','Gagal menyelesaikan modul',4000,`Pertemuan${hariKe}`);
   }
 }
 
