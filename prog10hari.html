@@ -206,17 +206,15 @@ body { background-color: #f8f9fa; }
 .video-container {
     position: relative;
     width: 100%;
-    /* max-width: 800px; */
     max-width: 780px;
-    margin: 15px auto;
+    margin: 15px auto 15px auto;
+    padding-bottom: 50px; /* Tambahkan ruang di bawah untuk tombol */
     display: none;
     background: #000;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible; /* Ubah dari hidden ke visible agar tombol terlihat */
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    /* border: 3px solid #002266; */
     border: 3px solid #000000;
-    margin-bottom: 50px; /* Tambahkan ini untuk memberi ruang tombol */
 }
 .video-wrapper {
     position: relative;
@@ -263,8 +261,9 @@ body { background-color: #f8f9fa; }
 .video-loading .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
 .close-video {
     position: absolute;
-    bottom: -45px;
+    bottom: 5px;
     right: 10px;
+    top: auto;
     background: rgba(0,0,0,0.7);
     color: white;
     border: none;
@@ -279,6 +278,7 @@ body { background-color: #f8f9fa; }
     transition: all 0.3s ease;
     font-size: 14px;
 }
+
 .close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
 /***** Akhir Video Player Styles *****/
 
@@ -4004,15 +4004,6 @@ function setupMateriCompletion() {
     videoWrapper.style.position = 'relative';
     let completeBtn = container.querySelector('.complete-btn');
     
-    // Styling untuk tombol close di semua video container
-    // ====================================================
-    //document.querySelectorAll('.video-container .close-video').forEach(btn => {
-    //  btn.style.position = 'absolute';
-    //  btn.style.bottom = '-45px';
-    //  btn.style.right = '10px';
-    //  btn.style.top = 'auto';
-    //});
-
     // === BUAT TOMBOL JIKA BELUM ADA ===
     if (!completeBtn) {
       completeBtn = document.createElement('button');
@@ -4021,7 +4012,7 @@ function setupMateriCompletion() {
       completeBtn.id = `btnMateriDone${hariKe}`;
      
       completeBtn.style.cssText = `
-        position: absolute; bottom: -45px; left: 10px; z-index: 25;
+        position: absolute; bottom: 5px; left: 10px; z-index: 25;
         width: 35px; height: 35px; border-radius: 50%; padding: 0;
         border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         background-color: #198754; color: white;
