@@ -7606,7 +7606,7 @@ function initializeTrackingForms() {
 /***************************
  * Kirim Pesan WA ke Coach *
  ***************************/
-async function kirimPesanCoach(hariKe){
+async function BACKUP_kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari", hariKe);
   const textarea = document.getElementById(`pesanCoach${hariKe}`);
   if (!textarea) {
@@ -7771,7 +7771,132 @@ async function selesaiTanyaCoach(hariKe){
 /*************************************
  * Otomatis isi pesan WA di textarea *
 **************************************/
+/*************************************
+ * Otomatis isi pesan WA di textarea *
+**************************************/
 function isiPesanDefaultCoach(hariKe){
+  console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
+  
+  // Cari container tanya coach untuk hari ini
+  const container = document.getElementById(`tanyaContent${hariKe}`);
+  if (!container) {
+    console.log(`❌ Container tanyaContent${hariKe} tidak ditemukan`);
+    return;
+  }
+  
+  // Cari textarea di dalam container
+  const textarea = container.querySelector('textarea');
+  if(!textarea){
+    console.log(`❌ textarea di tanyaContent${hariKe} tidak ditemukan`);
+    return;
+  }
+
+  // Jangan timpa jika user sudah mengetik
+  if(textarea.value.trim() !== ""){
+    console.log("⚠️ textarea sudah ada isi");
+    return;
+  }
+
+  // AMBIL NAMA USER
+  let namaUser = "Peserta Program";
+  const namaLocal = localStorage.getItem("userName");
+  if(namaLocal){
+    namaUser = namaLocal;
+  }
+
+  if(window.userProgress && window.userProgress.namaKonsumen){
+    namaUser = window.userProgress.namaKonsumen;
+  }
+
+  // NAMA HARI
+  const namaHari = {
+    1:"Pertama", 2:"Kedua", 3:"Ketiga", 4:"Keempat", 5:"Kelima",
+    6:"Keenam", 7:"Ketujuh", 8:"Kedelapan", 9:"Kesembilan", 10:"Kesepuluh"
+  };
+
+  const hariText = namaHari[hariKe] || hariKe;
+  
+  // TEMPLATE PESAN
+  textarea.value = `*Halo Coach* 👋
+Saya *${namaUser}*
+Peserta *Program Berat Ideal*
+Hari Program : *${hariKe} (${hariText})*
+
+Saya ingin bertanya mengenai materi hari ini.
+*Pertanyaan Saya:*
+.....................................
+
+Mohon arahan dari Coach 🙏
+-------------------------------------
+Balasan langsung ke WA ini`;
+  
+  console.log(`✅ Pesan default untuk hari ${hariKe} diisi`);
+}
+
+/***************************
+ * Kirim Pesan WA ke Coach *
+ ***************************/
+async function kirimPesanCoach(hariKe){
+  console.log("📤 Kirim pesan coach hari", hariKe);
+  
+  // Cari container tanya coach untuk hari ini
+  const container = document.getElementById(`tanyaContent${hariKe}`);
+  if (!container) {
+    console.error(`❌ Container tanyaContent${hariKe} tidak ditemukan`);
+    showMessage('error', 'Form pesan tidak ditemukan', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+  
+  // Cari textarea di dalam container
+  const textarea = container.querySelector('textarea');
+  if (!textarea) {
+    console.error(`❌ Textarea di tanyaContent${hariKe} tidak ditemukan`);
+    showMessage('error', 'Form pesan tidak ditemukan', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+  
+  const pesan = textarea.value;
+  if(!pesan){
+    showMessage('info', 'Isi pesan terlebih dahulu', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "kirimWaCoach",
+        userId: userId,
+        userName: userName,
+        hariKe: hariKe,
+        pesan: pesan,
+        noCoach: "08114499640"
+      })
+    });
+    
+    const result = await response.json();
+    console.log("📥 Response kirim WA:", result);
+    
+    if(result.success){
+      // Cari tombol Selesai WA di dalam container
+      const btnSelesai = container.querySelector(`button[id*="SelesaiWA"]`) || 
+                         container.querySelector(`button[onclick*="selesaiTanyaCoach"]`);
+      if (btnSelesai) btnSelesai.disabled = false;
+      showMessage('success', `Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim`, 3000, `Pertemuan${hariKe}`);
+    } else {
+      showMessage('error', `Pesan gagal terkirim`, 3000, `Pertemuan${hariKe}`);
+    }
+  } catch (error) {
+    console.error("❌ Error kirim WA:", error);
+    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `Pertemuan${hariKe}`);
+  }
+}
+
+function BACKUP_isiPesanDefaultCoach(hariKe){
   console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
   const textarea = document.getElementById(`pesanCoach${hariKe}`);
   if(!textarea){
@@ -7827,96 +7952,6 @@ Mohon arahan dari Coach 🙏
 Balasan langsung ke WA ini`;
   
   console.log(`✅ Pesan default untuk hari ${hariKe} diisi`);
-}
-
-function BACKUP_isiPesanDefaultCoach(hariKe){
-  console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
-  const textarea = document.getElementById(`pesanCoach${hariKe}`);
-  if(!textarea){
-    console.log("❌ textarea tidak ditemukan");
-    return;
-  }
-
-  // Jangan timpa jika user sudah mengetik
-  if(textarea.value.trim() !== ""){
-    console.log("⚠️ textarea sudah ada isi");
-    return;
-  }
-
-  //  AMBIL NAMA USER
-  let namaUser = "Peserta Program";
-  const namaLocal = localStorage.getItem("userName");
-  if(namaLocal){
-    namaUser = namaLocal;
-  }
-
-  if(window.userProgress && window.userProgress.namaKonsumen){
-    namaUser = window.userProgress.namaKonsumen;
-  }
-
-  //   NAMA HARI
-   const namaHari = {
-    1:"Pertama",
-    2:"Kedua",
-    3:"Ketiga",
-    4:"Keempat",
-    5:"Kelima",
-    6:"Keenam",
-    7:"Ketujuh",
-    8:"Kedelapan",
-    9:"Kesembilan",
-    10:"Kesepuluh"
-  };
-
-  const hariText = namaHari[hariKe] || hariKe;
-  // TEMPLATE PESAN
-  textarea.value =
-`*Halo Coach* 👋
-Saya *${namaUser}*
-Peserta *Program Berat Ideal*
-Hari Program : *${hariKe} (${hariText})*
-
-Saya ingin bertanya mengenai materi hari ini.
-*Pertanyaan Saya:*
-.....................................
-
-Mohon arahan dari Coach 🙏
--------------------------------------
-Balasan langsung ke WA ini`;
-}
-
-/*************************
-* SELESAI MODUL HARI KE
-**************************/
-async function selesaiModul(hariKe){
-const userId = localStorage.getItem('userId');
-if(!userId) return;
-console.log("🚀 Menyelesaikan Modul Hari",hariKe);
-try{
-  const response = await fetch(URL_PROGRAM_APP,{
-    method:"POST",
-    headers:{
-    "Content-Type":"application/x-www-form-urlencoded"
-    },
-    body:new URLSearchParams({
-    action:"completeModul",
-    userId:userId,
-    hariKe:hariKe
-    })
-  });
-    const data = await response.json();
-    console.log("📡 Response completeModul:",data);
-    if(data.success){
-      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}` );
-      // ✔ urutan parameter benar
-      updateSubmenuLinkUI('selesaimodul',hariKe);
-      disableButtonsAfterCompletion(hariKe,'selesaimodul');
-      unlockModul(hariKe+1);
-    }
-  }catch(err){
-    console.error("❌ Error selesai Modul:",err);
-    showMessage('error','Gagal menyelesaikan modul',4000,`Pertemuan${hariKe}`);
-  }
 }
 
 /*******************************
