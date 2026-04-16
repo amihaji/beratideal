@@ -4042,6 +4042,9 @@ function setupMateriCompletion() {
      //   background-color: #198754; color: white;
      // `;
       
+      // Jangan set semua CSS via style.cssText, biarkan CSS class yang menangani
+      completeBtn.style.cssText = `bottom: 8px; left: 10px;`;
+
       completeBtn.onclick = () => {
         if (completeBtn.dataset.done === 'true') {
           console.warn('⛔ Materi sudah diselesaikan');
