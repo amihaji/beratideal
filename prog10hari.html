@@ -3233,8 +3233,10 @@ function loadYouTubeVideo(videoPlayer, url) {
     console.log('YouTube ID extracted:', videoId);
     
     if (videoId) {
+        // Kalau Ingin kuliatas HD 
+        // <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&vq=hd720" 
         videoPlayer.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&vq=hd720" 
+        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1"     
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowfullscreen>
@@ -3618,7 +3620,6 @@ function hidePlaylist(playlistId) {
 *****************************/
 function playVideoFromPlaylist(section, videoId, title) {
     console.log('🎬 Playing video from playlist:', { section, videoId, title });
-    
     const videoContainer = document.getElementById(`videoContainer${capitalizeFirst(section)}`);
     if (!videoContainer) {
         console.error('Video container not found for section:', section);
@@ -4012,7 +4013,7 @@ function setupMateriCompletion() {
       completeBtn.id = `btnMateriDone${hariKe}`;
      
       completeBtn.style.cssText = `
-        position: absolute; bottom: 2px; left: 10px; z-index: 25;
+        position: absolute; bottom: 0px; left: 10px; z-index: 25;
         width: 35px; height: 35px; border-radius: 50%; padding: 0;
         border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         background-color: #198754; color: white;
