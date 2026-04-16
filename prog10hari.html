@@ -4162,10 +4162,36 @@ async function selesaikanPerkenalan() {
   }
 }
 
-/*********************************************
+/************************************************
  * FIX lockMateriVideo (JANGAN KUNCI TOMBOL X)
- *********************************************/
+ * DAN JANGAN UBAH OPACITY AGAR VIDEO TETAP JELAS
+ ************************************************/
 function lockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+    // JANGAN ubah opacity atau pointer-events pada container utama
+    // container.style.pointerEvents = 'none';
+    // container.style.opacity = '0.6';
+    // Sebagai gantinya, kita hanya nonaktifkan tombol centang
+    const completeBtn = container.querySelector('.complete-btn');
+    if (completeBtn) {
+        completeBtn.disabled = true;
+        completeBtn.style.pointerEvents = 'none';
+        completeBtn.style.opacity = '0.6';
+    }
+    // Aktifkan kembali tombol close (seharusnya sudah enabled)
+    const closeBtn = container.querySelector('.close-video');
+    if (closeBtn) {
+        closeBtn.style.pointerEvents = 'auto';
+        closeBtn.style.opacity = '1';
+        closeBtn.style.cursor = 'pointer';
+    }
+    // Video player tetap bisa diinteraksi (progress bar bisa digerakkan)
+    // karena kita tidak mengunci container utama
+    console.log(`🔒 Video materi hari ${hariKe} dikunci (hanya tombol centang yang disabled)`);
+}
+
+function BACKUP_lockMateriVideo(hariKe) {
     const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
     if (!container) return;
     // Kunci container tapi KECUALIKAN tombol close
@@ -4186,6 +4212,22 @@ function lockMateriVideo(hariKe) {
  * FIX unlockMateriVideo 
  *************************/
 function unlockMateriVideo(hariKe) {
+    const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
+    if (!container) return;
+    container.classList.remove('video-locked');
+    container.style.opacity = '1';
+    container.style.pointerEvents = 'auto';
+    // Aktifkan kembali tombol centang
+    const completeBtn = container.querySelector('.complete-btn');
+    if (completeBtn) {
+        completeBtn.disabled = false;
+        completeBtn.style.pointerEvents = 'auto';
+        completeBtn.style.opacity = '1';
+    }
+    console.log(`🔓 Video materi hari ${hariKe} dibuka`);
+}
+
+function BACKUP_unlockMateriVideo(hariKe) {
     const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
     if (!container) return;
     container.classList.remove('video-locked');
