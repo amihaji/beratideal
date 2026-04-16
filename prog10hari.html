@@ -4336,6 +4336,88 @@ async function checkAndUnlockModulesForUser(userId) {
     }
 }
 
+/*************************
+* SELESAI MODUL HARI KE
+**************************/
+async function selesaiModul(hariKe) {
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    showMessage('error', 'Silakan login terlebih dahulu', 3000, `Pertemuan${hariKe}`);
+    return;
+  }
+  console.log("🚀 Menyelesaikan Modul Hari", hariKe);
+  try {
+    const response = await fetch(URL_PROGRAM_APP, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        action: "completeModul",
+        userId: userId,
+        hariKe: hariKe
+      })
+    });
+    
+    const data = await response.json();
+    console.log("📡 Response completeModul:", data);
+    
+    if (data.success) {
+      // Update UI
+      updateSubmenuLinkUI('selesaimodul', hariKe);
+      disableButtonsAfterCompletion(hariKe, 'selesaimodul');
+      
+      // Disable tombol Selesai Modul
+      const btnSelesai = document.getElementById(`btnSelesaiModul${hariKe}`);
+      if (btnSelesai) {
+        btnSelesai.disabled = true;
+        btnSelesai.style.cursor = 'not-allowed';
+      }
+      // Unlock modul berikutnya
+      if (hariKe < 10) {
+        unlockModul(hariKe + 1);
+      }
+      showMessage('success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}`);
+    } else {
+      showMessage('error', 'Gagal menyelesaikan modul', 4000, `Pertemuan${hariKe}`);
+    }
+  } catch (err) {
+    console.error("❌ Error selesai Modul:", err);
+    showMessage('error', 'Gagal menyelesaikan modul', 4000, `Pertemuan${hariKe}`);
+  }
+}
+
+async function BACKUP_selesaiModul(hariKe){
+const userId = localStorage.getItem('userId');
+if(!userId) return;
+console.log("🚀 Menyelesaikan Modul Hari",hariKe);
+try{
+  const response = await fetch(URL_PROGRAM_APP,{
+    method:"POST",
+    headers:{
+    "Content-Type":"application/x-www-form-urlencoded"
+    },
+    body:new URLSearchParams({
+    action:"completeModul",
+    userId:userId,
+    hariKe:hariKe
+    })
+  });
+    const data = await response.json();
+    console.log("📡 Response completeModul:",data);
+    if(data.success){
+      showMessage( 'success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}` );
+      // ✔ urutan parameter benar
+      updateSubmenuLinkUI('selesaimodul',hariKe);
+      disableButtonsAfterCompletion(hariKe,'selesaimodul');
+      unlockModul(hariKe+1);
+    }
+  }catch(err){
+    console.error("❌ Error selesai Modul:",err);
+    showMessage('error','Gagal menyelesaikan modul',4000,`Pertemuan${hariKe}`);
+  }
+}
+
 /************************************
 * Fetch progress dari server dengan Promise *
 *************************************/
