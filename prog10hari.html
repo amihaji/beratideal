@@ -3363,7 +3363,6 @@ function extractYouTubeId(url) {
             return videoId;
         }
     }
-    
     // Fallback: coba ekstrak dengan metode split
     try {
         if (url.includes('youtube.com/watch?v=')) {
@@ -3382,7 +3381,6 @@ function extractYouTubeId(url) {
     } catch (error) {
         console.error('Error in fallback extraction:', error);
     }
-    
     console.log('❌ No YouTube ID found in URL:', url);
     return null;
 }
@@ -3433,24 +3431,21 @@ function closeAllVideos() {
             closeVideo(section);
         }
     });
-    
+   
     // Tutup semua playlist
     document.querySelectorAll('.playlist-container').forEach(playlist => {
         playlist.style.display = 'none';
     });
-    
     // HANYA tutup submenu yang tidak sedang menampilkan PDF
     document.querySelectorAll('.submenu-content').forEach(content => {
         // Cek apakah di dalam submenu ini ada PDF yang sedang ditampilkan
         const pdfViewersInside = content.querySelectorAll('.pdf-viewer');
         let hasVisiblePDF = false;
-        
         pdfViewersInside.forEach(pdf => {
             if (pdf.style.display === 'block') {
                 hasVisiblePDF = true;
             }
         });
-        
         // Jika tidak ada PDF yang terlihat di submenu ini, sembunyikan
         if (!hasVisiblePDF) {
             content.style.display = 'none';
@@ -3463,10 +3458,8 @@ function closeAllVideos() {
 ************************/
 function validateYouTubeUrl(url) {
     console.log('🔍 Validating YouTube URL:', url);
-    
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
     const isValid = youtubeRegex.test(url);
-    
     console.log('✅ YouTube URL validation:', isValid);
     return isValid;
 }
