@@ -261,7 +261,7 @@ body { background-color: #f8f9fa; }
 .video-loading .spinner-border { width: 3rem; height: 3rem; color: #dc3545; }
 .close-video {
     position: absolute;
-    bottom: 8px;
+    bottom: -40px;
     right: 10px;
     top: auto;
     background: rgba(0,0,0,0.7);
@@ -282,7 +282,9 @@ body { background-color: #f8f9fa; }
 .close-video:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1); }
 /***** Akhir Video Player Styles *****/
 
+
 /* Posisi tombol centang - PAKSA */
+/*
 .video-container .video-wrapper .complete-btn,
 .video-container .complete-btn {
     position: absolute !important;
@@ -293,6 +295,7 @@ body { background-color: #f8f9fa; }
     z-index: 25 !important;
 }
 /* Posisi tombol close - PAKSA (memperkuat yang sudah ada) */
+/*
 .video-container .close-video {
     position: absolute !important;
     bottom: 8px !important;
@@ -301,6 +304,8 @@ body { background-color: #f8f9fa; }
     left: auto !important;
     z-index: 20 !important;
 }
+*/
+
 
 /***** Kunci Materi Video *****/  
 /* Kunci seluruh video */
@@ -4034,9 +4039,6 @@ function showSubmenuOnly(targetId) {
 /**********************************************
 * Memberikan tombol centang Materi (Hari 1–10)
 ***********************************************/
-/**********************************************
-* Memberikan tombol centang Materi (Hari 1–10)
-***********************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
   document.querySelectorAll('.video-container').forEach(container => {
@@ -4059,8 +4061,11 @@ function setupMateriCompletion() {
       
       // PAKSA POSISI DENGAN JAVASCRIPT
       completeBtn.style.position = 'absolute';
-      completeBtn.style.bottom = '8px';
+      // completeBtn.style.bottom = '8px';
+      // completeBtn.style.left = '10px';
+      completeBtn.style.bottom = '-40px';
       completeBtn.style.left = '10px';
+
       completeBtn.style.zIndex = '25';
       completeBtn.style.width = '35px';
       completeBtn.style.height = '35px';
