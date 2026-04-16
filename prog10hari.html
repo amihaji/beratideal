@@ -3102,6 +3102,51 @@ function setupAllLinks() {
     loadVideo(section, videoType, videoUrl, title);
     
     // Tampilkan video player di posisi yang tepat
+    // Pastikan section memiliki huruf besar di awal
+    const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
+    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
+    if (videoContainer) {
+      videoContainer.style.display = 'block';
+      // Sisipkan video container setelah link video yang diklik
+      link.parentNode.insertBefore(videoContainer, link.nextSibling);
+      // Auto play video
+      setTimeout(() => {playVideo(section);}, 500);
+    } else {
+      console.error(`❌ Video container tidak ditemukan: videoContainer${formattedSection}`);
+    }
+  });
+  // Setup PDF links
+  setupPDFLinks();
+}
+
+function BACKUP_setupAllLinks() {
+  // Gunakan event delegation untuk video-link (termasuk yang digenerate dinamis)
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('.video-link');
+    if (!link) return;
+    
+    e.preventDefault();
+    const section = link.getAttribute('data-section');
+    const videoType = link.getAttribute('data-type');
+    const videoUrl = link.getAttribute('data-url');
+    const title = link.textContent.trim();
+    
+    console.log('🎬 Video link clicked:', { section, videoType, videoUrl });
+    // Sembunyikan semua konten lain
+    document.querySelectorAll('.submenu-content').forEach(content => {
+      content.style.display = 'none';
+    });
+    document.querySelectorAll('.video-container').forEach(video => {
+      video.style.display = 'none';
+    });
+    document.querySelectorAll('.pdf-viewer').forEach(pdf => {
+      pdf.style.display = 'none';
+    });
+    
+    // Load video
+    loadVideo(section, videoType, videoUrl, title);
+    
+    // Tampilkan video player di posisi yang tepat
     const videoContainer = document.getElementById(`videoContainer${section}`);
     if (videoContainer) {
       videoContainer.style.display = 'block';
@@ -3116,6 +3161,7 @@ function setupAllLinks() {
   // Setup PDF links
   setupPDFLinks();
 }
+
 
 /******************************************
 * Fungsi Memuat Video Berdasarkan Section *
