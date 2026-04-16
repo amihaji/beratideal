@@ -820,8 +820,8 @@ button[id^="btnCekDisini"] {
                 </a>
 
                 <!-- Local Video -->
-                <a href="video/Live Best Your Best Life ! - 360.mp4" 
-                  class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life ! - 360.mp4">
+                <a href="video/Live Best Your Best Life.mp4" 
+                  class="menu-item video-link" data-section="perkenalan" data-type="local" data-url="video/Live Best Your Best Life.mp4">
                     3. Live Best Your Best Life !<i class="fa fa-play-circle"></i>
                 </a>
                 
@@ -3128,13 +3128,15 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
     // Tampilkan video player di posisi yang tepat
-    // Pastikan section memiliki huruf besar di awal
+    // Pastikan section memiliki huruf besar di awal (Panduan, Perkenalan, Pertemuan1, dll)
     const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
-    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
+    const videoContainer = document.getElementById(`videoContainer${formattedSection}`);
+    
     if (!videoContainer) {
         console.error(`❌ Video container tidak ditemukan: videoContainer${formattedSection}`);
         return;
     }
+
 
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
     const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
@@ -3189,16 +3191,17 @@ function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
     // Tampilkan video player di posisi yang tepat
-    // ✅ PASTIKAN section menggunakan format yang benar (Pertemuan1, Pertemuan2, dst)
-    const videoContainer = document.getElementById(`videoContainer${section}`);
+    // Pastikan section memiliki huruf besar di awal
+    const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
+    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
     if (!videoContainer) {
-        console.error(`❌ Video container tidak ditemukan: videoContainer${section}`);
+        console.error(`❌ Video container tidak ditemukan: videoContainer${formattedSection}`);
         return;
     }
 
     const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
-    const videoPlayer = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
     
     // Validasi URL YouTube
     if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
@@ -3387,17 +3390,17 @@ function extractYouTubeId(url) {
 /**********************************
 * Tutup Video di Section Tertentu *
 ***********************************/
-/**********************************
-* Tutup Video di Section Tertentu *
-***********************************/
 function closeVideo(section) {
     console.log('Closing video for section:', section);
-    const videoContainer = document.getElementById(`videoContainer${section}`);
-    if (!videoContainer) return;
-    const videoPlayer      = document.getElementById(`videoPlayer${section}`);
-    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
-    const videoLoading     = document.getElementById(`videoLoading${section}`);
+    // Pastikan section memiliki huruf besar di awal
+    const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
+    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
     
+    if (!videoContainer) return;
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoPlayer      = document.getElementById(`videoPlayer${formattedSection}`);
+    const videoLoading     = document.getElementById(`videoLoading${formattedSection}`);
+
     // Stop video playback
     if (videoPlayer) {
         const iframe = videoPlayer.querySelector('iframe');
