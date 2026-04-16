@@ -3128,6 +3128,67 @@ function loadVideo(section, videoType, videoUrl, title = '') {
         return;
     }
     // Tampilkan video player di posisi yang tepat
+    // Pastikan section memiliki huruf besar di awal
+    const formattedSection = section.charAt(0).toUpperCase() + section.slice(1);
+    const videoContainer   = document.getElementById(`videoContainer${formattedSection}`);
+    if (!videoContainer) {
+        console.error(`❌ Video container tidak ditemukan: videoContainer${formattedSection}`);
+        return;
+    }
+
+    const videoPlaceholder = videoContainer.querySelector('.video-placeholder');
+    const videoLoading     = document.getElementById(`videoLoading${capitalizeFirst(section)}`);
+    const videoPlayer      = document.getElementById(`videoPlayer${capitalizeFirst(section)}`);
+    
+    // Validasi URL YouTube
+    if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
+        console.error('❌ Invalid YouTube URL:', videoUrl);
+        showMessage('error', 'URL Youtube tidak valid');
+        return;
+    }
+    // Close video di section lain
+    closeAllVideos();
+    
+    // Reset previous video 
+    if (videoPlayer) videoPlayer.innerHTML = '';
+    currentVideoData = {
+        section: section,
+        type: videoType,
+        url: videoUrl,
+        title: title
+    };
+    
+    // Show video container
+    videoContainer.style.display = 'block';
+    // Update placeholder text
+    let placeholderText = 'Klik untuk memuat video';
+    if (videoType === 'youtube') {
+        const youtubeId = extractYouTubeId(videoUrl);
+        placeholderText = youtubeId ? 'Klik untuk memuat video dari YouTube' : 'URL YouTube tidak valid';
+    } else if (videoType === 'local') {
+        placeholderText = 'Klik untuk memuat video';
+    }
+    
+    if (videoPlaceholder) {
+        videoPlaceholder.querySelector('.video-placeholder-text').textContent = placeholderText;
+        videoPlaceholder.style.display = 'flex';
+    }
+    if (videoLoading) videoLoading.style.display = 'none';
+    
+    // Auto play setelah ditampilkan
+    setTimeout(() => {
+        playVideo(section);
+    }, 500);
+}
+
+function BACKUP_loadVideo(section, videoType, videoUrl, title = '') {
+    console.log('🎬 loadVideo called:', { section, videoType, videoUrl, title });
+    // Untuk Canva, buka di tab baru
+    if (videoType === 'canva') {
+        window.open(videoUrl, '_blank');
+        return;
+    }
+    // Tampilkan video player di posisi yang tepat
     // ✅ PASTIKAN section menggunakan format yang benar (Pertemuan1, Pertemuan2, dst)
     const videoContainer = document.getElementById(`videoContainer${section}`);
     if (!videoContainer) {
@@ -3682,6 +3743,51 @@ function setupPDFLinks() {
 * Memuat dan Menampilkan PDF *
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('📄 loadPDF called:', { section, pdfUrl });
+    
+    // Jika section adalah string (ID), cari elemennya
+    let sectionEl;
+    if (typeof section === 'string') {
+        sectionEl = document.getElementById(section);
+        if (!sectionEl) {
+            // Coba cari dengan format lain
+            sectionEl = document.getElementById(section + 'Content');
+        }
+    } else {
+        sectionEl = section;
+    }
+    
+    if (!sectionEl) {
+        console.error('❌ Section tidak ditemukan:', section);
+        return;
+    }
+    
+    let viewer = sectionEl.querySelector('.pdf-viewer');
+    let container = sectionEl.querySelector('.pdf-container');
+
+    // kalau HTML lama ada → pakai
+    if (viewer && container) {
+        viewer.style.display = 'block';
+        container.innerHTML = `
+            <iframe src="${pdfUrl}" 
+                style="width:100%; height:500px; border:none;">
+            </iframe>
+        `;
+    } else {
+        // fallback kalau tidak ada
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        container.innerHTML = `
+            <iframe src="${pdfUrl}" 
+                style="width:100%; height:500px; border:none;">
+            </iframe>
+        `;
+        sectionEl.appendChild(container);
+    }
+    console.log('✅ PDF tampil di SUBMENU');
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl });
     if (!section) return;
     let viewer = section.querySelector('.pdf-viewer');
