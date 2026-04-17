@@ -299,8 +299,8 @@ body { background-color: #f8f9fa; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    padding: 10px 0 5px 0;
+    gap: 15px;                   /* Ubah dari 20px menjadi 15px */
+    padding: 10px 0 5px 0;       /* Sesuaikan padding untuk bottom latar hitam */
     margin-top: 5px;
     position: relative;
     width: 100%;
@@ -315,17 +315,17 @@ body { background-color: #f8f9fa; }
     background-color: #cccccc;
 }
 .video-button-bar::before {
-    margin-right: 15px;
+    margin-right: 15px;          /* Ubah dari 20px menjadi 15px */
 }
 .video-button-bar::after {
-    margin-left: 15px;
+    margin-left: 15px;           /* Ubah dari 20px menjadi 15px */
 }
 
 /* Tombol Centang - Style */
 .video-button-bar .complete-btn {
     position: static !important;
-    width: 40px !important;
-    height: 40px !important;
+    width: 32px !important;               /* Ubah ukuran button dari 40px menjadi 32px */
+    height: 32px !important;              /* Ubah ukuran button dari 40px menjadi 32px */
     border-radius: 50% !important;
     border: 2px solid white !important;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
@@ -336,7 +336,7 @@ body { background-color: #f8f9fa; }
     justify-content: center !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
-    font-size: 16px !important;
+    font-size: 14px !important;         /* Ubah ukuran font button dari 16px menjadi 14px */
     padding: 0 !important;
     bottom: auto !important;
     left: auto !important;
@@ -358,8 +358,8 @@ body { background-color: #f8f9fa; }
 /* Tombol Close - Style */
 .video-button-bar .close-video {
     position: static !important;
-    width: 40px !important;
-    height: 40px !important;
+    width: 32px !important;             /* Ubah ukuran button dari 40px menjadi 32px */
+    height: 32px !important;            /* Ubah ukuran button dari 40px menjadi 32px */
     border-radius: 50% !important;
     border: none !important;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
@@ -370,7 +370,7 @@ body { background-color: #f8f9fa; }
     justify-content: center !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
-    font-size: 18px !important;
+    font-size: 16px !important;        /* Ubah ukuran font button dari 18px menjadi 16px */
     padding: 0 !important;
     bottom: auto !important;
     right: auto !important;
@@ -2246,9 +2246,10 @@ function setupAllComponentsInternal(progress = {}) {
     initializeIstirahatForms();
     // Tracking - Inisialisasi form untuk semua hari
     initializeTrackingForms();
-
     // Video
     initializeAllVideoPlayers();
+    // Setup tombol untuk video Panduan & Perkenalan
+    setupNonModulVideoButtons();
     console.log('🔍 Testing server connection on startup...');
 }
 
@@ -2916,6 +2917,10 @@ function setupAllComponents() {
   // Setup Semua Komponen Lainnya (Tetap jalan)
   setupAllComponentsInternal();
   console.log('✅ All components setup complete');
+  // Setup tombol untuk video Panduan & Perkenalan (pastikan terpasang)
+  setTimeout(() => {
+    setupNonModulVideoButtons();
+  }, 500);
 }
 
 /**************************
@@ -4116,9 +4121,6 @@ function showSubmenuOnly(targetId) {
 /**********************************************
 * Memberikan tombol centang Materi (Hari 1–10)
 ***********************************************/
-/**********************************************
-* Memberikan tombol centang Materi (Hari 1–10)
-***********************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
 
@@ -4183,10 +4185,8 @@ function setupMateriCompletion() {
       
       // Tambahkan tombol centang ke buttonBar (di depan tombol close)
       buttonBar.insertBefore(completeBtn, buttonBar.firstChild);
-      
       console.log('✅ Tombol centang ditambahkan ke buttonBar:', completeBtn.id);
     }
-
     // === AUTO-LOCK JIKA SUDAH COMPLETED ===
     const userId = localStorage.getItem('userId');
     const isCompleted = (userId && window.userProgress && window.userProgress[`materiHari${hariKe}`] === true) ||
@@ -4211,120 +4211,29 @@ function setupMateriCompletion() {
   });
 }
 
-function BACKUP_setupMateriCompletion() {
-  console.log('🔧 Setting up materi completion...');
-  document.querySelectorAll('.video-container').forEach(container => {
-    const containerId = container.id;
-    if (!containerId.includes('Pertemuan')) return;
-
-    const hariKe = containerId.replace('videoContainerPertemuan', '');
-    const videoWrapper = container.querySelector('.video-wrapper');
-    if (!videoWrapper) return;
-
-    videoWrapper.style.position = 'relative';
-    let completeBtn = container.querySelector('.complete-btn');
+/***********************************************
+* Setup Tombol untuk Video Panduan & Perkenalan
+************************************************/
+function setupNonModulVideoButtons() {
+  console.log('🔧 Setting up buttons for Panduan & Perkenalan videos...');
+  const nonModulContainers = ['videoContainerPanduan', 'videoContainerPerkenalan'];
+  nonModulContainers.forEach(containerId => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
     
-    // === BUAT TOMBOL JIKA BELUM ADA ===
-    if (!completeBtn) {
-      completeBtn = document.createElement('button');
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.className = 'btn btn-success btn-sm complete-btn';
-      completeBtn.id = `btnMateriDone${hariKe}`;
-      
-      // PAKSA POSISI DENGAN JAVASCRIPT
-      completeBtn.style.position = 'absolute';
-      // completeBtn.style.bottom = '8px';
-      // completeBtn.style.left = '10px';
-      completeBtn.style.bottom = '-40px';
-      completeBtn.style.left = '10px';
-
-      completeBtn.style.zIndex = '25';
-      completeBtn.style.width = '35px';
-      completeBtn.style.height = '35px';
-      completeBtn.style.borderRadius = '50%';
-      completeBtn.style.padding = '0';
-      completeBtn.style.border = '2px solid white';
-      completeBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
-      completeBtn.style.backgroundColor = '#198754';
-      completeBtn.style.color = 'white';
-      completeBtn.style.display = 'flex';
-      completeBtn.style.alignItems = 'center';
-      completeBtn.style.justifyContent = 'center';
-      completeBtn.style.cursor = 'pointer';
-      completeBtn.style.transition = 'all 0.3s ease';
-
-      completeBtn.onmouseenter = () => {
-        if (!completeBtn.disabled) {
-          completeBtn.style.transform = 'scale(1.1)';
-          completeBtn.style.backgroundColor = '#218838';
-        }
-      };
-      
-      completeBtn.onmouseleave = () => {
-        if (!completeBtn.disabled) {
-          completeBtn.style.transform = 'scale(1)';
-          completeBtn.style.backgroundColor = '#198754';
-        }
-      };
-
-      completeBtn.onclick = () => {
-        if (completeBtn.dataset.done === 'true') {
-          console.warn('⛔ Materi sudah diselesaikan');
-          return;
-        }
-
-        simpanMateri(hariKe);
-
-        // 🔒 KUNCI LANGSUNG DI UI
-        completeBtn.dataset.done = 'true';
-        completeBtn.disabled = true;
-        completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-        completeBtn.style.backgroundColor = '#6c757d';
-        completeBtn.style.cursor = 'not-allowed';
-        completeBtn.style.transform = 'scale(1)';
-
-        // 💾 SIMPAN STATUS
-        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-
-        // ✅ UPDATE SUBMENU
-        updateSubmenuLinkUI('materi', hariKe);
-      };
-
-      // PASTIKAN DITAMBAHKAN KE VIDEO-WRAPPER
-      videoWrapper.appendChild(completeBtn);
-      console.log('✅ Tombol centang ditambahkan ke videoWrapper:', completeBtn.id);
-
-    }
-    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
-    const userId = localStorage.getItem('userId');
-    const isCompleted = (userId && window.userProgress && window.userProgress[`materiHari${hariKe}`] === true) ||
-                        localStorage.getItem(`materi_hari_${hariKe}`) === 'completed';
-    
-    if (isCompleted) {
-      completeBtn.dataset.done = 'true';
-      completeBtn.disabled = true;
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.style.backgroundColor = '#6c757d';
-      completeBtn.style.cursor = 'not-allowed';
-      completeBtn.style.transform = 'scale(1)';
-      console.log(`🔒 Materi hari ${hariKe} sudah selesai, tombol disabled`);
-    } else {
-      completeBtn.dataset.done = 'false';
-      completeBtn.disabled = false;
-      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
-      completeBtn.style.backgroundColor = '#198754';
-      completeBtn.style.cursor = 'pointer';
-      console.log(`🟢 Materi hari ${hariKe} belum selesai, tombol enabled`);
-    }
-  });
-
-  // Pindahkan tombol close ke dalam video-wrapper
-  document.querySelectorAll('.video-container').forEach(container => {
-    const closeBtn = container.querySelector('.close-video');
-    const videoWrapper = container.querySelector('.video-wrapper');
-    if (closeBtn && videoWrapper && closeBtn.parentElement !== videoWrapper) {
-      videoWrapper.appendChild(closeBtn);
-      console.log('✅ Tombol close dipindahkan ke videoWrapper');
+    // Cek apakah button bar sudah ada
+    let buttonBar = container.querySelector('.video-button-bar');
+    if (!buttonBar) {
+      buttonBar = document.createElement('div');
+      buttonBar.className = 'video-button-bar';
+      // Pindahkan tombol close ke dalam buttonBar
+      const closeBtn = container.querySelector('.close-video');
+      if (closeBtn) {
+        buttonBar.appendChild(closeBtn);
+      }
+      // Tambahkan buttonBar ke container video
+      container.appendChild(buttonBar);
+      console.log(`✅ Button bar ditambahkan ke ${containerId}`);
     }
   });
 }
