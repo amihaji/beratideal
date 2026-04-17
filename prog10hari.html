@@ -4116,7 +4116,102 @@ function showSubmenuOnly(targetId) {
 /**********************************************
 * Memberikan tombol centang Materi (Hari 1–10)
 ***********************************************/
+/**********************************************
+* Memberikan tombol centang Materi (Hari 1–10)
+***********************************************/
 function setupMateriCompletion() {
+  console.log('🔧 Setting up materi completion...');
+
+  document.querySelectorAll('.video-container').forEach(container => {
+    const containerId = container.id;
+
+    if (!containerId.includes('Pertemuan')) return;
+
+    const hariKe = containerId.replace('videoContainerPertemuan', '');
+    const videoWrapper = container.querySelector('.video-wrapper');
+    if (!videoWrapper) return;
+
+    videoWrapper.style.position = 'relative';
+
+    let completeBtn = container.querySelector('.complete-btn');
+    
+    // === BUAT TOMBOL JIKA BELUM ADA ===
+    if (!completeBtn) {
+      completeBtn = document.createElement('button');
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.className = 'btn btn-success btn-sm complete-btn';
+      completeBtn.id = `btnMateriDone${hariKe}`;
+
+      completeBtn.onclick = () => {
+        if (completeBtn.dataset.done === 'true') {
+          console.warn('⛔ Materi sudah diselesaikan');
+          return;
+        }
+
+        simpanMateri(hariKe);
+
+        // 🔒 KUNCI LANGSUNG DI UI
+        completeBtn.dataset.done = 'true';
+        completeBtn.disabled = true;
+        completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        completeBtn.style.backgroundColor = '#6c757d';
+        completeBtn.style.cursor = 'not-allowed';
+        completeBtn.style.transform = 'scale(1)';
+
+        // 💾 SIMPAN STATUS
+        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+
+        // ✅ UPDATE SUBMENU
+        updateSubmenuLinkUI('materi', hariKe);
+      };
+
+      // Buat container untuk tombol-tombol (button bar)
+      let buttonBar = container.querySelector('.video-button-bar');
+      if (!buttonBar) {
+        buttonBar = document.createElement('div');
+        buttonBar.className = 'video-button-bar';
+        
+        // Pindahkan tombol close ke dalam buttonBar
+        const closeBtn = container.querySelector('.close-video');
+        if (closeBtn) {
+          buttonBar.appendChild(closeBtn);
+        }
+        
+        // Tambahkan buttonBar ke container video
+        container.appendChild(buttonBar);
+      }
+      
+      // Tambahkan tombol centang ke buttonBar (di depan tombol close)
+      buttonBar.insertBefore(completeBtn, buttonBar.firstChild);
+      
+      console.log('✅ Tombol centang ditambahkan ke buttonBar:', completeBtn.id);
+    }
+
+    // === AUTO-LOCK JIKA SUDAH COMPLETED ===
+    const userId = localStorage.getItem('userId');
+    const isCompleted = (userId && window.userProgress && window.userProgress[`materiHari${hariKe}`] === true) ||
+                        localStorage.getItem(`materi_hari_${hariKe}`) === 'completed';
+    
+    if (isCompleted) {
+      completeBtn.dataset.done = 'true';
+      completeBtn.disabled = true;
+      completeBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+      completeBtn.style.backgroundColor = '#6c757d';
+      completeBtn.style.cursor = 'not-allowed';
+      completeBtn.style.transform = 'scale(1)';
+      console.log(`🔒 Materi hari ${hariKe} sudah selesai, tombol disabled`);
+    } else {
+      completeBtn.dataset.done = 'false';
+      completeBtn.disabled = false;
+      completeBtn.innerHTML = '<i class="fas fa-check"></i>';
+      completeBtn.style.backgroundColor = '#198754';
+      completeBtn.style.cursor = 'pointer';
+      console.log(`🟢 Materi hari ${hariKe} belum selesai, tombol enabled`);
+    }
+  });
+}
+
+function BACKUP_setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
   document.querySelectorAll('.video-container').forEach(container => {
     const containerId = container.id;
