@@ -794,6 +794,7 @@ button[id^="btnCekDisini"] {
   .emoji-panel { max-width: 90vw; }
   
   /* PDF VIEWER MOBILE - TAMPIL DI DALAM FORM */
+  /*
   .pdf-viewer {
     display: block !important;
     width: 100% !important;
@@ -803,6 +804,15 @@ button[id^="btnCekDisini"] {
     overflow: visible !important;
     position: relative !important;
   }
+  */ 
+  .pdf-viewer {
+      display: none !important;  /* Tambahkan !important */
+      position: relative;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-top: none;
+  }
+
   .pdf-container {
     width: 100% !important;
     height: 500px !important;
@@ -937,13 +947,13 @@ button[id^="btnCekDisini"] {
                 <!-- Video Tutorial -->
                 <a href="https://www.youtube.com/watch?v=Zg_badTE2Ec" 
                   class="menu-item video-link" data-section="panduan" data-type="youtube" data-url="https://www.youtube.com/watch?v=Zg_badTE2Ec">
-                    1. Video Panduan Penggunaan Aplikasi<i class="fa fa-play-circle"></i>
+                    1. Video Penggunaan Aplikasi<i class="fa fa-play-circle"></i>
                 </a>
 
                 <!-- PDF Panduan Penggunaan Aplikasi -->
                 <a href="pdf/Panduan_Penggunaan_Aplikasi.pdf" 
                   class="menu-item" id="pdfPanduanLink">
-                    2. PDF Panduan Penggunaan Aplikasi<i class="far fa-file-pdf"></i>
+                    2. Pdf Penggunaan Aplikasi<i class="far fa-file-pdf"></i>
                 </a>
                 
                 <!-- PDF Viewer untuk Panduan -->
@@ -3906,6 +3916,75 @@ function setupPDFLinks() {
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl });
+    // Jika section adalah string (ID), cari elemennya
+    let sectionEl;
+    if (typeof section === 'string') {
+        sectionEl = document.getElementById(section);
+        if (!sectionEl) {
+            sectionEl = document.getElementById(section + 'Content');
+        }
+    } else {
+        sectionEl = section;
+    }
+    if (!sectionEl) {
+        console.error('❌ Section tidak ditemukan:', section);
+        return;
+    }
+    // Cari atau buat viewer
+    let viewer = sectionEl.querySelector('.pdf-viewer');
+    let container = sectionEl.querySelector('.pdf-container');
+    // Jika tidak ada viewer, buat baru
+    if (!viewer) {
+        viewer = document.createElement('div');
+        viewer.className = 'pdf-viewer';
+        sectionEl.appendChild(viewer);
+    }
+    // Buat container jika belum ada
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        viewer.appendChild(container);
+    }
+    // Hapus tombol close lama jika ada
+    const oldCloseBtn = viewer.querySelector('.close-pdf');
+    if (oldCloseBtn) oldCloseBtn.remove();
+    // Buat tombol close baru
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-pdf';
+    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+    closeBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        viewer.style.display = 'none';
+        container.innerHTML = '';
+        console.log('✅ PDF ditutup via tombol X');
+    };
+    viewer.appendChild(closeBtn);
+    // Deteksi mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    // Isi container dengan iframe
+    if (isMobile) {
+        container.innerHTML = `
+            <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true" 
+                style="width:100%; height:500px; border:none;" 
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
+            </iframe>
+        `;
+        console.log('✅ PDF ditampilkan dengan Google Docs Viewer (mobile)');
+    } else {
+        container.innerHTML = `
+            <iframe src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" 
+                style="width:100%; height:500px; border:none;">
+            </iframe>
+        `;
+        console.log('✅ PDF ditampilkan dengan iframe langsung (desktop)');
+    }
+    // Tampilkan viewer
+    viewer.style.display = 'block';
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
+    console.log('📄 loadPDF called:', { section, pdfUrl });
     
     // Jika section adalah string (ID), cari elemennya
     let sectionEl;
@@ -3975,51 +4054,6 @@ function loadPDF(section, pdfUrl, title = '') {
     }
 }
 
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('📄 loadPDF called:', { section, pdfUrl });
-    
-    // Jika section adalah string (ID), cari elemennya
-    let sectionEl;
-    if (typeof section === 'string') {
-        sectionEl = document.getElementById(section);
-        if (!sectionEl) {
-            // Coba cari dengan format lain
-            sectionEl = document.getElementById(section + 'Content');
-        }
-    } else {
-        sectionEl = section;
-    }
-    
-    if (!sectionEl) {
-        console.error('❌ Section tidak ditemukan:', section);
-        return;
-    }
-    
-    let viewer = sectionEl.querySelector('.pdf-viewer');
-    let container = sectionEl.querySelector('.pdf-container');
-
-    // kalau HTML lama ada → pakai
-    if (viewer && container) {
-        viewer.style.display = 'block';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-    } else {
-        // fallback kalau tidak ada
-        container = document.createElement('div');
-        container.className = 'pdf-container';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-        sectionEl.appendChild(container);
-    }
-    console.log('✅ PDF tampil di SUBMENU');
-}
-
 /***************************************
 * Setup link PDF - khusus Menu Panduan *
 ****************************************/
@@ -4064,10 +4098,31 @@ function openPDFInNewTab(section) {
 /*******************************************
 * Tutup PDF Viewer & Tidak menutup submenu *
 ********************************************/
-/*******************************************
-* Tutup PDF Viewer & Tidak menutup submenu *
-********************************************/
 function closePDF(sectionName) {
+    console.log('Closing PDF:', sectionName);
+    // Cari section yang sesuai
+    let sectionEl = document.getElementById(sectionName);
+    if (!sectionEl) {
+        sectionEl = document.getElementById(sectionName + 'Content');
+    }
+    if (sectionEl) {
+        const viewer = sectionEl.querySelector('.pdf-viewer');
+        const container = sectionEl.querySelector('.pdf-container');
+        if (viewer) viewer.style.display = 'none';
+        if (container) container.innerHTML = '';
+    } else {
+        // Fallback: tutup semua PDF viewer
+        document.querySelectorAll('.pdf-viewer').forEach(el => {
+          el.style.display = 'none';
+        });
+        document.querySelectorAll('.pdf-container').forEach(el => {
+          el.innerHTML = '';
+        });
+    }
+    console.log('✅ PDF berhasil ditutup');
+}
+
+function BACKUP_closePDF(sectionName) {
     console.log('Closing PDF:', sectionName);
     // Cari semua pdf-viewer dan sembunyikan
     document.querySelectorAll('.pdf-viewer').forEach(el => {
@@ -4076,18 +4131,6 @@ function closePDF(sectionName) {
     // Bersihkan isi pdf-container
     document.querySelectorAll('.pdf-container').forEach(el => {
         el.innerHTML = '';
-    });
-    console.log('✅ PDF berhasil ditutup');
-}
-
-function BACKUP_closePDF(sectionName) {
-    console.log('Closing PDF:', sectionName);
-    // 🔥 cari SEMUA kemungkinan (tidak tergantung ID lama)
-    document.querySelectorAll('.pdf-container').forEach(el => {
-        el.innerHTML = '';
-    });
-    document.querySelectorAll('.pdf-viewer').forEach(el => {
-        el.style.display = 'none';
     });
     console.log('✅ PDF berhasil ditutup');
 }
