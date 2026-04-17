@@ -813,6 +813,20 @@ button[id^="btnCekDisini"] {
       border-top: none;
   }
 
+  /* PDF Viewer Mobile */
+  .pdf-container {
+    width: 100% !important;
+    height: 500px !important;
+    max-height: 70vh !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .pdf-container iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+  }
+  
+  /*
   .pdf-container {
     width: 100% !important;
     height: 500px !important;
@@ -824,6 +838,8 @@ button[id^="btnCekDisini"] {
     border-radius: 4px !important;
   }
   .pdf-container iframe { width: 100% !important; height: 100% !important; border: none !important; }
+  */
+  
   /* Pastikan submenu content tidak memotong PDF */
   .submenu-content { overflow: visible !important; }
   /* Tombol close PDF - selalu terlihat */
@@ -3921,6 +3937,7 @@ function loadPDF(section, pdfUrl, title = '') {
     if (typeof section === 'string') {
         sectionEl = document.getElementById(section);
         if (!sectionEl) {
+            // Coba cari dengan format lain
             sectionEl = document.getElementById(section + 'Content');
         }
     } else {
@@ -3930,57 +3947,35 @@ function loadPDF(section, pdfUrl, title = '') {
         console.error('❌ Section tidak ditemukan:', section);
         return;
     }
-    // Cari atau buat viewer
     let viewer = sectionEl.querySelector('.pdf-viewer');
     let container = sectionEl.querySelector('.pdf-container');
-    // Jika tidak ada viewer, buat baru
-    if (!viewer) {
-        viewer = document.createElement('div');
-        viewer.className = 'pdf-viewer';
-        sectionEl.appendChild(viewer);
-    }
-    // Buat container jika belum ada
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'pdf-container';
-        viewer.appendChild(container);
-    }
-    // Hapus tombol close lama jika ada
-    const oldCloseBtn = viewer.querySelector('.close-pdf');
-    if (oldCloseBtn) oldCloseBtn.remove();
-    // Buat tombol close baru
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-pdf';
-    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-    closeBtn.onclick = function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        viewer.style.display = 'none';
-        container.innerHTML = '';
-        console.log('✅ PDF ditutup via tombol X');
-    };
-    viewer.appendChild(closeBtn);
     // Deteksi mobile
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    // Isi container dengan iframe
-    if (isMobile) {
+    // Pilih URL berdasarkan device
+    const embedUrl = isMobile 
+        ? `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`
+        : pdfUrl;
+
+    // kalau HTML lama ada → pakai
+    if (viewer && container) {
+        viewer.style.display = 'block';
         container.innerHTML = `
-            <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true" 
-                style="width:100%; height:500px; border:none;" 
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
-            </iframe>
-        `;
-        console.log('✅ PDF ditampilkan dengan Google Docs Viewer (mobile)');
-    } else {
-        container.innerHTML = `
-            <iframe src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1" 
+            <iframe src="${embedUrl}" 
                 style="width:100%; height:500px; border:none;">
             </iframe>
         `;
-        console.log('✅ PDF ditampilkan dengan iframe langsung (desktop)');
+    } else {
+        // fallback kalau tidak ada
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        container.innerHTML = `
+            <iframe src="${embedUrl}" 
+                style="width:100%; height:500px; border:none;">
+            </iframe>
+        `;
+        sectionEl.appendChild(container);
     }
-    // Tampilkan viewer
-    viewer.style.display = 'block';
+    console.log('✅ PDF tampil di SUBMENU');
 }
 
 function BACKUP_loadPDF(section, pdfUrl, title = '') {
