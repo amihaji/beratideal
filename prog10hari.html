@@ -795,7 +795,6 @@ button[id^="btnCekDisini"] {
   
    /* PDF VIEWER MOBILE - TAMPIL SEPERTI DESKTOP    */
   .pdf-viewer {
-    display: none !important;  /* Sembunyikan secara default */
     width: 100% !important;
     max-width: 100% !important;
     position: relative !important;
@@ -2316,6 +2315,10 @@ function setupAllComponentsInternal(progress = {}) {
     initializeAllVideoPlayers();
     // Setup tombol untuk video Panduan & Perkenalan
     setupNonModulVideoButtons();
+    // Sembunyikan semua PDF viewer saat halaman dimuat
+    document.querySelectorAll('.pdf-viewer').forEach(viewer => {
+      viewer.style.display = 'none';
+    });
     console.log('🔍 Testing server connection on startup...');
 }
 
