@@ -793,8 +793,15 @@ button[id^="btnCekDisini"] {
   /* Emoji Panel tidak pernah lebih lebar dari layar */
   .emoji-panel { max-width: 90vw; }
   
+  .pdf-viewer {
+    display: none !important;  /* Sembunyikan secara default */
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+  }
   /* PDF VIEWER MOBILE - TAMPIL SEPERTI DESKTOP    */
   /*
+  
   .pdf-viewer {
     display: block !important;
     width: 100% !important;
@@ -833,7 +840,7 @@ button[id^="btnCekDisini"] {
     cursor: pointer !important;
   }
   */
-  
+
   /* VIDEO PLAYER MOBILE */
   .video-container { margin-bottom: 10px !important; padding-bottom: 5px !important; }
   .video-button-bar { gap: 12px !important; padding: 5px 0 !important; }
@@ -3244,28 +3251,6 @@ function handleCekDisiniClick(jenis, hariKe) {
     loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
 }
 
-function BACKUP_handleCekDisiniClick(jenis, hariKe) {
-    console.log(`📄 Handling Cek Disini: ${jenis} for day ${hariKe}`);
-    if (!jenis || !hariKe) return;
-    const jenisFix  = jenis.toLowerCase().trim();
-    const sectionId = `${jenisFix}Content${hariKe}`;
-    const section   = document.getElementById(sectionId);
-    if (!section) {
-        console.error('❌ Section tidak ditemukan:', sectionId);
-        return;
-    }
-    const pdfUrl = `https://amihaji.github.io/beratideal/pdf/${jenisFix}_hariKe${hariKe}.pdf`;
-    // Jangan panggil closeAllPDFs dulu, biarkan loadPDF yang menangani
-    // closeAllPDFs();
-    // Sembunyikan pdf-viewer lain, tapi jangan yang akan dipakai
-    document.querySelectorAll('.pdf-viewer').forEach(el => {
-        if (!section.contains(el)) {
-            el.style.display = 'none';
-        }
-    });
-    loadPDF(section, pdfUrl, `${jenisFix} Hari ${hariKe}`);
-}
-
 // ********************************
 // ***** FUNGSI VIDEO PLAYER ******
 // ********************************
@@ -3899,28 +3884,6 @@ function setupPDFLinks() {
     console.log('✅ PDF Panduan link setup completed');
 }
 
-function BACKUP_setupPDFLinks() {
-    console.log('🔧 Setup PDF Panduan...');
-    const link = document.getElementById('pdfPanduanLink');
-    if (!link) {
-        console.error('❌ pdfPanduanLink tidak ditemukan');
-        return;
-    }
-
-    link.addEventListener('click', function (e) {
-        e.preventDefault();
-        const section = document.getElementById('panduanContent'); // 🔥 FIX
-        const pdfUrl = 'pdf/Panduan_Penggunaan_Aplikasi.pdf';
-        if (!section) {
-            console.error('❌ panduanContent tidak ditemukan');
-            return;
-        }
-        closeAllPDFs();
-        loadPDF(section, pdfUrl, 'Panduan Aplikasi');
-    });
-    console.log('✅ PDF Panduan link setup completed');
-}
-
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
@@ -3952,65 +3915,6 @@ function loadPDF(section, pdfUrl, title = '') {
     console.log('✅ PDF tampil di SUBMENU');
 }
 
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('📄 loadPDF called:', { section, pdfUrl });
-    
-    // Jika section adalah string (ID), cari elemennya
-    let sectionEl;
-    if (typeof section === 'string') {
-        sectionEl = document.getElementById(section);
-        if (!sectionEl) {
-            sectionEl = document.getElementById(section + 'Content');
-        }
-    } else {
-        sectionEl = section;
-    }
-    
-    if (!sectionEl) {
-        console.error('❌ Section tidak ditemukan:', section);
-        return;
-    }
-    
-    let viewer = sectionEl.querySelector('.pdf-viewer');
-    let container = sectionEl.querySelector('.pdf-container');
-
-    // Deteksi mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    
-    // kalau HTML lama ada → pakai
-    if (viewer && container) {
-        viewer.style.display = 'block';
-        
-        if (isMobile) {
-            // Gunakan PDF.js untuk mobile
-            renderPDFWithPDFJS(container, pdfUrl);
-        } else {
-            // Desktop: iframe langsung
-            container.innerHTML = `
-                <iframe src="${pdfUrl}" 
-                    style="width:100%; height:500px; border:none;">
-                </iframe>
-            `;
-        }
-    } else {
-        // fallback kalau tidak ada
-        container = document.createElement('div');
-        container.className = 'pdf-container';
-        
-        if (isMobile) {
-            renderPDFWithPDFJS(container, pdfUrl);
-        } else {
-            container.innerHTML = `
-                <iframe src="${pdfUrl}" 
-                    style="width:100%; height:500px; border:none;">
-                </iframe>
-            `;
-        }
-        sectionEl.appendChild(container);
-    }
-    console.log('✅ PDF tampil di SUBMENU');
-}
-
 /***************************************
 * Setup link PDF - khusus Menu Panduan *
 ****************************************/
@@ -4026,22 +3930,6 @@ function setupPanduanPDFLinks() {
         });
         
         console.log('✅ PDF Panduan link setup completed');
-    }
-}
-
-function BACKUP_setupPanduanPDFLinks() {
-    const panduanPDFLink = document.getElementById('pdfPanduanLink');
-    if (panduanPDFLink) {
-        // Hapus href yang menyebabkan navigasi
-        panduanPDFLink.href = "#";
-        // Tambahkan event listener baru
-        panduanPDFLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            loadPDF('panduan', 'pdf/Panduan_Penggunaan_Aplikasi.pdf', 'PDF Panduan Penggunaan Aplikasi');
-        });
-        console.log('✅ PDF Panduan link setup completed');
-    // } else {
-       // console.error('❌ PDF Panduan link not found');
     }
 }
 
