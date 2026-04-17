@@ -4046,34 +4046,6 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     });
 }
 
-function BACKUP_loadPDF(section, pdfUrl, title = '') {
-    console.log('📄 loadPDF called:', { section, pdfUrl });
-    if (!section) return;
-    let viewer = section.querySelector('.pdf-viewer');
-    let container = section.querySelector('.pdf-container');
-
-    // kalau HTML lama ada → pakai
-    if (viewer && container) {
-        viewer.style.display = 'block';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-    } else {
-        // fallback kalau tidak ada
-        container = document.createElement('div');
-        container.className = 'pdf-container';
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
-        `;
-        section.appendChild(container);
-    }
-    console.log('✅ PDF tampil di SUBMENU');
-}
-
 /***************************************
 * Setup link PDF - khusus Menu Panduan *
 ****************************************/
