@@ -4196,24 +4196,9 @@ function setupMateriCompletion() {
       };
 
       // PASTIKAN DITAMBAHKAN KE VIDEO-WRAPPER
-      // videoWrapper.appendChild(completeBtn);
-      // console.log('✅ Tombol centang ditambahkan ke videoWrapper:', completeBtn.id);
+      videoWrapper.appendChild(completeBtn);
+      console.log('✅ Tombol centang ditambahkan ke videoWrapper:', completeBtn.id);
 
-      // Buat container untuk tombol-tombol
-      let buttonBar = container.querySelector('.video-button-bar');
-      if (!buttonBar) {
-        buttonBar = document.createElement('div');
-        buttonBar.className = 'video-button-bar';
-        // Pindahkan tombol close ke dalam buttonBar
-        const closeBtn = container.querySelector('.close-video');
-        if (closeBtn) {
-          buttonBar.appendChild(closeBtn);
-        }
-        // Tambahkan buttonBar ke container video
-        container.appendChild(buttonBar);
-      }
-      // Tambahkan tombol centang ke buttonBar (di depan tombol close)
-      buttonBar.insertBefore(completeBtn, buttonBar.firstChild);
     }
     // === AUTO-LOCK JIKA SUDAH COMPLETED ===
     const userId = localStorage.getItem('userId');
