@@ -768,17 +768,12 @@ button[id^="btnCekDisini"] {
       flex-direction: row; 
       margin-bottom: 1rem;
   }
-  .navbar-nav:not(.mx-auto) .nav-item, .navbar-nav:not(.mx-auto) .main-menu-link { 
-    width: 100%;
-  }
-  body {
-    background-color: #ffffff !important;
-  }
-  .container {
-    margin: 0 !important;
-    padding: 0 !important;
-    max-width: 100% !important;
-  }
+  .navbar-nav:not(.mx-auto) .nav-item, 
+  .navbar-nav:not(.mx-auto) .main-menu-link { width: 100%; }
+  
+  body { background-color: #ffffff !important; }
+  .container { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+  
   /* Hilangkan border,shadow mobile only */
   .card {
     border: none !important;
@@ -786,66 +781,90 @@ button[id^="btnCekDisini"] {
     box-shadow: none !important;
     margin: 0 !important;
   }
-  .card-body {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-   /* Jarak konten dari sisi layar (mobile only) */
-  .container, .container-fluid, .menu-content, .submenu-content {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
+  .card-body { padding-left: 0 !important;padding-right: 0 !important; }
+  /* Jarak konten dari sisi layar (mobile only) */
+  .container, .container-fluid, 
+  .menu-content, .submenu-content { padding-left: 10px !important; padding-right: 10px !important; }
   /* Supaya teks panjang tidak nempel di card */
-  .card, .menu-item, .video-container, .playlist-container {
-    margin-left: 2px;
-    margin-right: 2px;
-  }
-  /* Emoji list */ 
-  .emoji-list span{
-    font-size:20px;
-    padding:3px;
-  }
-  /* Emoji Panel tidak pernah lebih lebar dari layar.*/
-  .emoji-panel{
-    max-width:90vw;
-  }
+  .card, .menu-item, .video-container, .playlist-container { margin-left: 2px; margin-right: 2px;}
   
-  /* PDF Viewer Mobile - Pastikan tetap tampil di dalam form */
+  /* Emoji list */ 
+  .emoji-list span { font-size: 20px; padding: 3px; }
+  /* Emoji Panel tidak pernah lebih lebar dari layar */
+  .emoji-panel { max-width: 90vw; }
+  
+  /* PDF VIEWER MOBILE - TAMPIL DI DALAM FORM */
   .pdf-viewer {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
-    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
   }
-  
   .pdf-container {
     width: 100% !important;
-    height: 400px !important;
-    max-height: 60vh !important;
-    overflow: auto !important;
+    height: 500px !important;
+    max-height: 70vh !important;
+    overflow: hidden !important;
     -webkit-overflow-scrolling: touch !important;
+    position: relative !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
   }
-  
-  .pdf-container iframe {
-    width: 100% !important;
-    height: 100% !important;
-    border: none !important;
-  }
-  
+  .pdf-container iframe { width: 100% !important; height: 100% !important; border: none !important; }
   /* Pastikan submenu content tidak memotong PDF */
-  .submenu-content {
-    overflow: visible !important;
-  }
-  
-  /* Tombol close PDF tetap terlihat */
+  .submenu-content { overflow: visible !important; }
+  /* Tombol close PDF - selalu terlihat */
   .close-pdf {
-    z-index: 30 !important;
+    position: absolute !important;
     top: 5px !important;
     right: 5px !important;
+    z-index: 30 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
   }
+  .close-pdf:hover { 
+    background: rgba(220, 53, 69, 0.9) !important;
+    transform: scale(1.1) !important;
+  }
+  
+  /* VIDEO PLAYER MOBILE */
+  .video-container { margin-bottom: 10px !important; padding-bottom: 40px !important; }
+  .video-button-bar { gap: 12px !important; padding: 5px 0 !important; }
+  .video-button-bar::before { margin-right: 12px !important; }
+  .video-button-bar::after { margin-left: 12px !important; }
+  .video-button-bar .complete-btn,
+  .video-button-bar .close-video { width: 36px !important; height: 36px !important; font-size: 14px !important; }
+  
+  /* FORM TRACKING MOBILE - INPUT LEBIH KECIL */
+  .submenu-content input, .submenu-content select, .submenu-content textarea { font-size: 14px !important; }
+  
+  .submenu-content .btn { font-size: 13px !important; padding: 6px 10px !important; }
+  
+  /* MEAL PLAN UPLOAD - TOMBOL LEBIH KECIL */
+  .input-group .btn-outline-secondary { padding: 4px 8px !important; font-size: 12px !important; }
+  
+  /* TANYA COACH - TEXTAREA MOBILE */
+  .tanya-coach-box textarea { font-size: 14px !important; min-height: 120px !important; }
+  
+  .action-row { flex-wrap: wrap !important; gap: 6px !important; }
+  .action-row .btn { font-size: 12px !important; padding: 6px 8px !important; }
+  .emoji-box { width: 100% !important; }
+  .emoji-toggle { width: 100% !important; }
 }
 /***** AKHIR TAMPILAN MOBILE *****/
-
 </style>
 </head>
 
@@ -3868,6 +3887,80 @@ function setupPDFLinks() {
 * Memuat dan Menampilkan PDF *
 ******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('📄 loadPDF called:', { section, pdfUrl });
+    
+    // Jika section adalah string (ID), cari elemennya
+    let sectionEl;
+    if (typeof section === 'string') {
+        sectionEl = document.getElementById(section);
+        if (!sectionEl) {
+            sectionEl = document.getElementById(section + 'Content');
+        }
+    } else {
+        sectionEl = section;
+    }
+    
+    if (!sectionEl) {
+        console.error('❌ Section tidak ditemukan:', section);
+        return;
+    }
+    
+    let viewer = sectionEl.querySelector('.pdf-viewer');
+    let container = sectionEl.querySelector('.pdf-container');
+    
+    // Jika tidak ada viewer/container, buat baru
+    if (!viewer) {
+        viewer = document.createElement('div');
+        viewer.className = 'pdf-viewer';
+        viewer.style.display = 'block';
+        sectionEl.appendChild(viewer);
+    }
+    
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        viewer.appendChild(container);
+    }
+    
+    // Tampilkan viewer
+    viewer.style.display = 'block';
+    
+    // Deteksi mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
+    if (isMobile) {
+        // Gunakan Google Docs Viewer untuk mobile (lebih ringan)
+        container.innerHTML = `
+            <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true" 
+                style="width:100%; height:500px; border:none;" 
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
+            </iframe>
+        `;
+        console.log('✅ PDF ditampilkan dengan Google Docs Viewer (mobile)');
+    } else {
+        // Desktop: tetap gunakan iframe langsung
+        container.innerHTML = `
+            <iframe src="${pdfUrl}" 
+                style="width:100%; height:500px; border:none;">
+            </iframe>
+        `;
+        console.log('✅ PDF ditampilkan dengan iframe langsung (desktop)');
+    }
+    
+    // Tambahkan tombol close jika belum ada
+    if (!viewer.querySelector('.close-pdf')) {
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'close-pdf';
+        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        closeBtn.onclick = function() {
+            viewer.style.display = 'none';
+            container.innerHTML = '';
+        };
+        viewer.appendChild(closeBtn);
+    }
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl });
     
     // Jika section adalah string (ID), cari elemennya
