@@ -770,7 +770,6 @@ button[id^="btnCekDisini"] {
   }
   .navbar-nav:not(.mx-auto) .nav-item, .navbar-nav:not(.mx-auto) .main-menu-link { 
     width: 100%;
-    /* width: 50%; */
   }
   body {
     background-color: #ffffff !important;
@@ -809,6 +808,40 @@ button[id^="btnCekDisini"] {
   /* Emoji Panel tidak pernah lebih lebar dari layar.*/
   .emoji-panel{
     max-width:90vw;
+  }
+  
+  /* PDF Viewer Mobile - Pastikan tetap tampil di dalam form */
+  .pdf-viewer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  .pdf-container {
+    width: 100% !important;
+    height: 400px !important;
+    max-height: 60vh !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .pdf-container iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+  }
+  
+  /* Pastikan submenu content tidak memotong PDF */
+  .submenu-content {
+    overflow: visible !important;
+  }
+  
+  /* Tombol close PDF tetap terlihat */
+  .close-pdf {
+    z-index: 30 !important;
+    top: 5px !important;
+    right: 5px !important;
   }
 }
 /***** AKHIR TAMPILAN MOBILE *****/
