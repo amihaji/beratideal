@@ -1345,9 +1345,10 @@ button[id^="btnCekDisini"] {
               <div style="border-left-style:solid; border-left-color:#b1b1b1; border-width: 4px; padding-left: 10px; margin-top: 10px;">
               --->
               <div>              
-                <p><b>Apakah semua materi dan aktifitas yang ada</b></br> 
-                <b>di Modul Pertama</b></br>
-                <b>sudah diselesaikan dan dipahami dengan baik ?</b></br> 
+                <p><b>Apakah semua materi dan aktifitas</b></br> 
+                <b>yang ada di Modul Pertama</b></br>
+                <b>sudah diselesaikan dan dipahami</b></br> 
+                <b>dengan baik ?</b></br> 
                 <b>Kalau YA, maka klik "Selesai Modul"</b></br>
                 <b>untuk lanjut ke Modul berikutnya</b></p>
                 <button class="btn btn-success mt-2" id="btnSelesaiModul1" onclick="selesaiModul(1)" ><i class="fas fa-check"></i> Selesai Modul</button>
@@ -2024,91 +2025,6 @@ function applyExistingUserProgress(progress) {
   }, 500); // Delay 500ms untuk memastikan DOM siap
 }
 
-function BACKUP_applyExistingUserProgress(progress) {
-  console.log('📊 Apply Existing Progress FINAL');
-  console.log('📊 Progress data received:', JSON.stringify(progress, null, 2));
-  window.userProgress = progress;
-  
-  // PERKENALAN
-  if (progress.perkenalan === true) {
-    updateSubmenuLinkUI('perkenalan', 0);
-    disableSelesaiPerkenalanButton();
-    unlockModul(1);
-  }
-
-  // Unlock modul berikutnya berdasarkan selesai modul
-  for (let i = 1; i <= 9; i++) {
-    if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-      unlockModul(i + 1);
-    }
-  }
-
-  // GUNAKAN setTimeout UNTUK MEMASTIKAN DOM SIAP
-  setTimeout(() => {
-    // LOOP HARI 1 - 10 untuk semua submenu
-    for (let hariKe = 1; hariKe <= 10; hariKe++) {
-      
-      // Materi
-      if (progress[`materiHari${hariKe}`] === true || progress[`materiHari${hariKe}`] === "OK") {
-        lockMateriVideo(hariKe);
-        const btn = document.getElementById(`btnMateriDone${hariKe}`);
-        if (btn) disableButtonFully(btn);
-        updateSubmenuLinkUI('materi', hariKe);
-        console.log(`🔒 Apply progress: materi hari ${hariKe} selesai`);
-      }
-      
-      // Mealplan
-      if (progress[`mealplanHari${hariKe}`] === true || progress[`mealplanHari${hariKe}`] === "OK") {
-        lockmealplanUI(hariKe);
-        updateSubmenuLinkUI('mealplan', hariKe);
-        console.log(`🔒 Apply progress: mealplan hari ${hariKe} selesai`);
-      }
-      
-      // Workout
-      if (progress[`workoutHari${hariKe}`] === true || progress[`workoutHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('workout', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'workout');
-        console.log(`🔒 Apply progress: workout hari ${hariKe} selesai`);
-      }
-      
-      // Water
-      if (progress[`waterHari${hariKe}`] === true || progress[`waterHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('water', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'water');
-        console.log(`🔒 Apply progress: water hari ${hariKe} selesai`);
-      }
-      
-      // Istirahat
-      if (progress[`istirahatHari${hariKe}`] === true || progress[`istirahatHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('istirahat', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'istirahat');
-        console.log(`🔒 Apply progress: istirahat hari ${hariKe} selesai`);
-      }
-      
-      // Tracking
-      if (progress[`trackingHari${hariKe}`] === true || progress[`trackingHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('tracking', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'tracking');
-        console.log(`🔒 Apply progress: tracking hari ${hariKe} selesai`);
-      }
-      
-      // Tanya Coach
-      if (progress[`tanyaHari${hariKe}`] === true || progress[`tanyaHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('tanya', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'tanya');
-        console.log(`🔒 Apply progress: tanya hari ${hariKe} selesai`);
-      }
-      
-      // Selesai Modul
-      if (progress[`selesaimodulHari${hariKe}`] === true || progress[`selesaimodulHari${hariKe}`] === "OK") {
-        updateSubmenuLinkUI('selesaimodul', hariKe);
-        disableButtonsAfterCompletion(hariKe, 'selesaimodul');
-        console.log(`🔒 Apply progress: selesaimodul hari ${hariKe} selesai`);
-      }
-    }
-  }, 500); // Delay 500ms untuk memastikan DOM siap
-}
-
 /************************************
 * Disable button secara TOTAL (UX) *
 ************************************/
@@ -2552,67 +2468,6 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
   });
 }
 
-async function BACKUP_loadCompleteProgressFromServer(userId, hariKe = 1) {
-  return new Promise((resolve, reject) => {
-    console.log(`📡 Loading COMPLETE progress for ${userId}, day ${hariKe}`);
-    const callbackName = 'cb_complete_progress_' + Date.now();
-    const script = document.createElement('script');
-    script.src =
-      `${URL_PROGRAM_APP}?action=getUserCompleteProgress` +
-      `&userId=${encodeURIComponent(userId)}` +
-      `&hariKe=${hariKe}` +
-      `&callback=${callbackName}`;
-
-    window[callbackName] = function (response) {
-      console.log('📊 Complete progress response:', response);
-      try {
-        if (response && response.success) {
-          // Simpan Nama Konsumen ke localstorage dari sheet PROGRAM kolom E (Nama Konsumen)
-          if (
-            response.workoutData &&
-            response.workoutData.namaKonsumen &&
-            response.workoutData.namaKonsumen.trim() !== ''
-          ) {
-            localStorage.setItem(
-              'namaKonsumen',
-              response.workoutData.namaKonsumen.trim()
-            );
-            console.log(
-              '👤 Nama Konsumen disimpan:',
-              response.workoutData.namaKonsumen
-            );
-          }
-          // Simpan complete progress user
-          localStorage.setItem(
-            `completeProgress_${userId}`,
-            JSON.stringify(response)
-          );
-          // Apply ke UI (materi, mealplan, workout, dll)
-          applyCompleteProgressToUI(response, hariKe);
-          resolve(response);
-        } else {
-          console.error('❌ Failed to load complete progress:', response);
-          reject(new Error(response?.error || 'Unknown error'));
-        }
-      } catch (err) {
-        console.error('❌ Error processing progress:', err);
-        reject(err);
-      }
-      // Cleanup
-      document.body.removeChild(script);
-      delete window[callbackName];
-    };
-
-    script.onerror = () => {
-      console.error('❌ Script error loading complete progress');
-      document.body.removeChild(script);
-      delete window[callbackName];
-      reject(new Error('Failed to load progress'));
-    };
-    document.body.appendChild(script);
-  });
-}
-
 /*****************************
 /* Apply Lengkap Progress UI *
 /*****************************/
@@ -2659,65 +2514,6 @@ function applyCompleteProgressToUI(progress, hariKe) {
   
   // JANGAN terapkan UI di sini, biarkan applyExistingUserProgress yang menangani
   console.log('✅ Complete progress loaded, UI will be applied by applyExistingUserProgress');
-}
-
-function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
-  console.log('🎯 Applying COMPLETE progress to UI:', progress);
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
-  if (progress.perkenalan === true) {
-    unlockModul(hariKe);
-  }
-   const progressMap = [
-    { field: 'materi', type: 'materi' },
-    { field: 'mealplan', type: 'mealplan' },
-    { field: 'workout', type: 'workout' },
-    { field: 'water', type: 'water' },
-    { field: 'istirahat', type: 'istirahat' },
-    { field: 'tracking', type: 'tracking' },
-    { field: 'tanya', type: 'tanya' }, 
-    { field: 'selesaimodul', type: 'selesaimodul' } 
-  ];
-  
-  // Loop untuk semua hari (1-10)
-  for (let h = 1; h <= 10; h++) {
-    progressMap.forEach(item => {
-      const fieldName = `${item.field}Hari${h}`;
-      if (progress[fieldName] === true || progress[fieldName] === "OK") {
-        window.userProgress[fieldName] = true;
-        updateSubmenuLinkUI(item.type, h);
-        disableButtonsAfterCompletion(h, item.type);
-      }
-    });
-  }
-  
-  progressMap.forEach(item => {
-    if (progress[item.field] === true || progress[item.field] === "OK") {
-      window.userProgress[item.field] = true;
-      updateSubmenuLinkUI(item.type, hariKe);
-      disableButtonsAfterCompletion(hariKe, item.type);
-    }
-  });
-
-  if (
-    progress.perkenalan ||
-    progress.materiHari1 ||
-    progress.mealplanHari1 ||
-    progress.workoutHari1 ||
-    progress.waterHari1 ||
-    progress.istirahatHari1 ||
-    progress.trackingHari1 ||
-    progress.tanyaHari1 ||
-    progress.selesaimodulHari1 
-  ) {
-    setTimeout(() => {
-      const header = document.querySelector(`[data-hari="${hariKe}"]`);
-      if (header && header.classList.contains('collapsed')) {
-        header.click();
-      }
-    }, 800);
-  }
 }
 
 /*****************************************
