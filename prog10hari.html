@@ -3915,13 +3915,8 @@ function loadPDF(section, pdfUrl, title = '') {
         
         if (isMobile) {
             // Gunakan PDF.js untuk mobile
-               container.innerHTML = `
-                <iframe src="${pdfUrl}" 
-                    style="width:100%; height:500px; border:none;">
-                </iframe>
-            `;
-            // container.innerHTML = '';
-            // renderPDFWithPDFJS(container, pdfUrl);
+            container.innerHTML = '';
+            renderPDFWithPDFJS(container, pdfUrl);
         } else {
             // Desktop: iframe langsung
             container.innerHTML = `
