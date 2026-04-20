@@ -2026,6 +2026,7 @@ function applyExistingUserProgress(progress) {
 
 function BACKUP_applyExistingUserProgress(progress) {
   console.log('📊 Apply Existing Progress FINAL');
+  console.log('📊 Progress data received:', JSON.stringify(progress, null, 2));
   window.userProgress = progress;
   
   // PERKENALAN
@@ -2042,67 +2043,70 @@ function BACKUP_applyExistingUserProgress(progress) {
     }
   }
 
-  // LOOP HARI 1 - 10 untuk semua submenu
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    
-    // Materi
-    if (progress[`materiHari${hariKe}`] === true || progress[`materiHari${hariKe}`] === "OK") {
-      lockMateriVideo(hariKe);
-      const btn = document.getElementById(`btnMateriDone${hariKe}`);
-      if (btn) disableButtonFully(btn);
-      updateSubmenuLinkUI('materi', hariKe);
-      console.log(`🔒 Apply progress: materi hari ${hariKe} selesai`);
+  // GUNAKAN setTimeout UNTUK MEMASTIKAN DOM SIAP
+  setTimeout(() => {
+    // LOOP HARI 1 - 10 untuk semua submenu
+    for (let hariKe = 1; hariKe <= 10; hariKe++) {
+      
+      // Materi
+      if (progress[`materiHari${hariKe}`] === true || progress[`materiHari${hariKe}`] === "OK") {
+        lockMateriVideo(hariKe);
+        const btn = document.getElementById(`btnMateriDone${hariKe}`);
+        if (btn) disableButtonFully(btn);
+        updateSubmenuLinkUI('materi', hariKe);
+        console.log(`🔒 Apply progress: materi hari ${hariKe} selesai`);
+      }
+      
+      // Mealplan
+      if (progress[`mealplanHari${hariKe}`] === true || progress[`mealplanHari${hariKe}`] === "OK") {
+        lockmealplanUI(hariKe);
+        updateSubmenuLinkUI('mealplan', hariKe);
+        console.log(`🔒 Apply progress: mealplan hari ${hariKe} selesai`);
+      }
+      
+      // Workout
+      if (progress[`workoutHari${hariKe}`] === true || progress[`workoutHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('workout', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'workout');
+        console.log(`🔒 Apply progress: workout hari ${hariKe} selesai`);
+      }
+      
+      // Water
+      if (progress[`waterHari${hariKe}`] === true || progress[`waterHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('water', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'water');
+        console.log(`🔒 Apply progress: water hari ${hariKe} selesai`);
+      }
+      
+      // Istirahat
+      if (progress[`istirahatHari${hariKe}`] === true || progress[`istirahatHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('istirahat', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'istirahat');
+        console.log(`🔒 Apply progress: istirahat hari ${hariKe} selesai`);
+      }
+      
+      // Tracking
+      if (progress[`trackingHari${hariKe}`] === true || progress[`trackingHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('tracking', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'tracking');
+        console.log(`🔒 Apply progress: tracking hari ${hariKe} selesai`);
+      }
+      
+      // Tanya Coach
+      if (progress[`tanyaHari${hariKe}`] === true || progress[`tanyaHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('tanya', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'tanya');
+        console.log(`🔒 Apply progress: tanya hari ${hariKe} selesai`);
+      }
+      
+      // Selesai Modul
+      if (progress[`selesaimodulHari${hariKe}`] === true || progress[`selesaimodulHari${hariKe}`] === "OK") {
+        updateSubmenuLinkUI('selesaimodul', hariKe);
+        disableButtonsAfterCompletion(hariKe, 'selesaimodul');
+        console.log(`🔒 Apply progress: selesaimodul hari ${hariKe} selesai`);
+      }
     }
-    
-    // Mealplan
-    if (progress[`mealplanHari${hariKe}`] === true || progress[`mealplanHari${hariKe}`] === "OK") {
-      lockmealplanUI(hariKe);
-      updateSubmenuLinkUI('mealplan', hariKe);
-      console.log(`🔒 Apply progress: mealplan hari ${hariKe} selesai`);
-    }
-    
-    // Workout
-    if (progress[`workoutHari${hariKe}`] === true || progress[`workoutHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('workout', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'workout');
-      console.log(`🔒 Apply progress: workout hari ${hariKe} selesai`);
-    }
-    
-    // Water
-    if (progress[`waterHari${hariKe}`] === true || progress[`waterHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('water', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'water');
-      console.log(`🔒 Apply progress: water hari ${hariKe} selesai`);
-    }
-    
-    // Istirahat
-    if (progress[`istirahatHari${hariKe}`] === true || progress[`istirahatHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('istirahat', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'istirahat');
-      console.log(`🔒 Apply progress: istirahat hari ${hariKe} selesai`);
-    }
-    
-    // Tracking
-    if (progress[`trackingHari${hariKe}`] === true || progress[`trackingHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('tracking', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'tracking');
-      console.log(`🔒 Apply progress: tracking hari ${hariKe} selesai`);
-    }
-    
-    // Tanya Coach
-    if (progress[`tanyaHari${hariKe}`] === true || progress[`tanyaHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('tanya', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'tanya');
-      console.log(`🔒 Apply progress: tanya hari ${hariKe} selesai`);
-    }
-    
-    // Selesai Modul
-    if (progress[`selesaimodulHari${hariKe}`] === true || progress[`selesaimodulHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('selesaimodul', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'selesaimodul');
-      console.log(`🔒 Apply progress: selesaimodul hari ${hariKe} selesai`);
-    }
-  }
+  }, 500); // Delay 500ms untuk memastikan DOM siap
 }
 
 /************************************
@@ -2613,6 +2617,51 @@ async function BACKUP_loadCompleteProgressFromServer(userId, hariKe = 1) {
 /* Apply Lengkap Progress UI *
 /*****************************/
 function applyCompleteProgressToUI(progress, hariKe) {
+  console.log('🎯 Applying COMPLETE progress to UI:', progress);
+  if (!window.userProgress) {
+    window.userProgress = {};
+  }
+  
+  // HANYA unlock modul, jangan terapkan UI di sini
+  // UI akan diterapkan oleh applyExistingUserProgress
+  if (progress.perkenalan === true) {
+    unlockModul(hariKe);
+  }
+  
+  // Unlock modul berikutnya berdasarkan selesai modul
+  for (let i = 1; i <= 9; i++) {
+    if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
+      unlockModul(i + 1);
+    }
+  }
+  
+  // Simpan progress ke window.userProgress untuk digunakan nanti
+  const progressMap = [
+    { field: 'materi', type: 'materi' },
+    { field: 'mealplan', type: 'mealplan' },
+    { field: 'workout', type: 'workout' },
+    { field: 'water', type: 'water' },
+    { field: 'istirahat', type: 'istirahat' },
+    { field: 'tracking', type: 'tracking' },
+    { field: 'tanya', type: 'tanya' }, 
+    { field: 'selesaimodul', type: 'selesaimodul' } 
+  ];
+  
+  // Loop untuk semua hari (1-10) - simpan ke window.userProgress
+  for (let h = 1; h <= 10; h++) {
+    progressMap.forEach(item => {
+      const fieldName = `${item.field}Hari${h}`;
+      if (progress[fieldName] === true || progress[fieldName] === "OK") {
+        window.userProgress[fieldName] = true;
+      }
+    });
+  }
+  
+  // JANGAN terapkan UI di sini, biarkan applyExistingUserProgress yang menangani
+  console.log('✅ Complete progress loaded, UI will be applied by applyExistingUserProgress');
+}
+
+function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
   console.log('🎯 Applying COMPLETE progress to UI:', progress);
   if (!window.userProgress) {
     window.userProgress = {};
