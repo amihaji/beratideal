@@ -561,31 +561,33 @@ body { background-color: #f8f9fa; }
     border-bottom: none;
 }
 .pdfjs-page-info { font-size: 14px; color: #666;}
-/* Toolbar PDF */
-/*
-.pdf-toolbar button:hover { background: #777 !important; }
-.pdf-toolbar button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
-.pdf-container { position: relative; }
-*/
 
-/* Toolbar PDF - Warna Abu-abu Muda */
+/* Toolbar PDF */
 .pdf-toolbar { background: #e0e0e0 !important; color: #333 !important; }
-.pdf-toolbar button {
+.pdf-toolbar-btn {
     background: #f5f5f5 !important;
     color: #333 !important;
     border: 1px solid #ccc !important;
+    transition: all 0.2s ease !important;
 }
-.pdf-toolbar button:hover { background: #d0d0d0 !important; }
-.pdf-toolbar button:disabled {
+.pdf-toolbar-btn:hover { background: #d0d0d0 !important; }
+.pdf-toolbar-btn:disabled {
     background: #eee !important;
     color: #999 !important;
     border-color: #ddd !important;
     cursor: not-allowed !important;
     opacity: 0.7 !important;
 }
+.pdf-close-btn:hover {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+}
 .pdf-toolbar span { color: #333 !important; }
-/* Canvas Container - Latar Abu-abu Sangat Muda */
-.pdf-container { position: relative; }
+/* Canvas Container */
+.pdf-container {
+    position: relative;
+}
 /***** Akhir PDF.js Viewer Styles *****/
 
 /* Style untuk tombol centang video */
@@ -3986,6 +3988,330 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     container.style.height = '500px';
     container.style.overflow = 'hidden';
     
+    // Deteksi mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    
+    // Buat toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'pdf-toolbar';
+    toolbar.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 4px 4px 0 0;
+        flex-wrap: wrap;
+    `;
+    
+    // === ROW 1: Navigasi + Close ===
+    const row1 = document.createElement('div');
+    row1.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    `;
+    
+    // Tombol Previous
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '◀';
+    prevBtn.className = 'pdf-toolbar-btn';
+    prevBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    prevBtn.disabled = true;
+    
+    // Info halaman
+    const pageInfo = document.createElement('span');
+    pageInfo.style.cssText = 'font-size: 13px; min-width: 100px; text-align: center;';
+    pageInfo.textContent = 'Halaman 1 / 1';
+    
+    // Tombol Next
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '▶';
+    nextBtn.className = 'pdf-toolbar-btn';
+    nextBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    nextBtn.disabled = true;
+    
+    // Tombol Close (X) - menyatu di toolbar
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '✕';
+    closeBtn.className = 'pdf-toolbar-btn pdf-close-btn';
+    closeBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        color: #333;
+        border: 1px solid #ccc;
+        margin-left: 5px;
+    `;
+    closeBtn.title = 'Tutup PDF';
+    closeBtn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const viewer = container.closest('.pdf-viewer');
+        if (viewer) {
+            viewer.style.display = 'none';
+            container.innerHTML = '';
+        }
+        console.log('✅ PDF ditutup via tombol X');
+    };
+    
+    row1.appendChild(prevBtn);
+    row1.appendChild(pageInfo);
+    row1.appendChild(nextBtn);
+    row1.appendChild(closeBtn);
+    
+    // === ROW 2: Zoom + Rotate (hanya untuk mobile tampil di bawah) ===
+    const row2 = document.createElement('div');
+    row2.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    `;
+    
+    // Tombol Zoom Out
+    const zoomOutBtn = document.createElement('button');
+    zoomOutBtn.innerHTML = '🔍-';
+    zoomOutBtn.className = 'pdf-toolbar-btn';
+    zoomOutBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    // Zoom info
+    const zoomInfo = document.createElement('span');
+    zoomInfo.style.cssText = 'font-size: 12px; min-width: 50px; text-align: center;';
+    zoomInfo.textContent = '100%';
+    
+    // Tombol Zoom In
+    const zoomInBtn = document.createElement('button');
+    zoomInBtn.innerHTML = '🔍+';
+    zoomInBtn.className = 'pdf-toolbar-btn';
+    zoomInBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    // Tombol Rotate
+    const rotateBtn = document.createElement('button');
+    rotateBtn.innerHTML = '↻';
+    rotateBtn.className = 'pdf-toolbar-btn';
+    rotateBtn.style.cssText = `
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    row2.appendChild(zoomOutBtn);
+    row2.appendChild(zoomInfo);
+    row2.appendChild(zoomInBtn);
+    row2.appendChild(rotateBtn);
+    
+    // Susunan toolbar
+    if (isMobile) {
+        // Mobile: row1 di atas, row2 di bawah
+        toolbar.appendChild(row1);
+        toolbar.appendChild(row2);
+    } else {
+        // Desktop: semua dalam satu baris
+        row1.insertBefore(zoomOutBtn, closeBtn);
+        row1.insertBefore(zoomInfo, closeBtn);
+        row1.insertBefore(zoomInBtn, closeBtn);
+        row1.insertBefore(rotateBtn, closeBtn);
+        toolbar.appendChild(row1);
+    }
+    
+    // Container untuk canvas
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = `
+        flex: 1;
+        overflow: auto;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    `;
+    
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = `
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        background: white;
+    `;
+    canvasContainer.appendChild(canvas);
+    
+    container.appendChild(toolbar);
+    container.appendChild(canvasContainer);
+    
+    // Loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #666;
+    `;
+    loadingDiv.innerHTML = '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>';
+    canvasContainer.style.position = 'relative';
+    canvasContainer.appendChild(loadingDiv);
+    
+    // Fungsi render halaman
+    function renderPage(num) {
+        pageRendering = true;
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({ scale: scale, rotation: rotation });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            const renderContext = {
+                canvasContext: canvas.getContext('2d'),
+                viewport: viewport
+            };
+            
+            const renderTask = page.render(renderContext);
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                loadingDiv.style.display = 'none';
+                
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+        
+        pageInfo.textContent = `Halaman ${num} / ${pdfDoc.numPages}`;
+        prevBtn.disabled = (num <= 1);
+        nextBtn.disabled = (num >= pdfDoc.numPages);
+        zoomInfo.textContent = Math.round(scale * 100) + '%';
+    }
+    
+    // Fungsi queue render
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+    
+    // Event listeners
+    prevBtn.addEventListener('click', function() {
+        if (pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    });
+    
+    nextBtn.addEventListener('click', function() {
+        if (pageNum >= pdfDoc.numPages) return;
+        pageNum++;
+        queueRenderPage(pageNum);
+    });
+    
+    zoomInBtn.addEventListener('click', function() {
+        if (scale >= 3.0) return;
+        scale += 0.25;
+        queueRenderPage(pageNum);
+    });
+    
+    zoomOutBtn.addEventListener('click', function() {
+        if (scale <= 0.5) return;
+        scale -= 0.25;
+        queueRenderPage(pageNum);
+    });
+    
+    rotateBtn.addEventListener('click', function() {
+        rotation = (rotation + 90) % 360;
+        queueRenderPage(pageNum);
+    });
+    
+    // Load PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+        pdfDoc = pdf;
+        pageInfo.textContent = `Halaman 1 / ${pdf.numPages}`;
+        prevBtn.disabled = true;
+        nextBtn.disabled = (pdf.numPages <= 1);
+        
+        renderPage(pageNum);
+        loadingDiv.remove();
+    }).catch(function(error) {
+        console.error('❌ Error loading PDF:', error);
+        container.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5;">
+                <p style="color: red;">Gagal memuat PDF. <a href="${pdfUrl}" target="_blank">Buka di tab baru</a></p>
+            </div>
+        `;
+    });
+}
+
+function BACKUP_renderPDFWithPDFJS(container, pdfUrl) {
+    console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
+    
+    // Variabel untuk PDF.js
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.0;
+    let rotation = 0;
+    
+    // Bersihkan container
+    container.innerHTML = '';
+    container.style.backgroundColor = '#f5f5f5';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.height = '500px';
+    container.style.overflow = 'hidden';
+    
     // Buat toolbar
     const toolbar = document.createElement('div');
     toolbar.className = 'pdf-toolbar';
@@ -4173,248 +4499,6 @@ function renderPDFWithPDFJS(container, pdfUrl) {
         pageInfo.textContent = `Halaman 1 / ${pdf.numPages}`;
         prevBtn.disabled = true;
         nextBtn.disabled = (pdf.numPages <= 1);
-        renderPage(pageNum);
-        loadingDiv.remove();
-    }).catch(function(error) {
-        console.error('❌ Error loading PDF:', error);
-        container.innerHTML = `
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5;">
-                <p style="color: red;">Gagal memuat PDF. <a href="${pdfUrl}" target="_blank">Buka di tab baru</a></p>
-            </div>
-        `;
-    });
-}
-
-function BACKUP_renderPDFWithPDFJS(container, pdfUrl) {
-    console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
-    
-    // Variabel untuk PDF.js
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    let scale = 1.0;
-    let rotation = 0;
-    
-    // Bersihkan container
-    container.innerHTML = '';
-    container.style.backgroundColor = '#f5f5f5';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.height = '500px';
-    container.style.overflow = 'hidden';
-    
-    // Buat toolbar
-    const toolbar = document.createElement('div');
-    toolbar.className = 'pdf-toolbar';
-    toolbar.style.cssText = `
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 8px;
-        background: #333;
-        color: white;
-        border-radius: 4px 4px 0 0;
-        flex-wrap: wrap;
-    `;
-    
-    // Info halaman
-    const pageInfo = document.createElement('span');
-    pageInfo.style.cssText = 'margin-right: 10px; font-size: 14px;';
-    pageInfo.textContent = 'Halaman 1 / 1';
-    
-    // Tombol Previous
-    const prevBtn = document.createElement('button');
-    prevBtn.innerHTML = '◀';
-    prevBtn.style.cssText = `
-        background: #555;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 12px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
-    prevBtn.disabled = true;
-    
-    // Tombol Next
-    const nextBtn = document.createElement('button');
-    nextBtn.innerHTML = '▶';
-    nextBtn.style.cssText = `
-        background: #555;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 12px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
-    nextBtn.disabled = true;
-    
-    // Tombol Zoom In
-    const zoomInBtn = document.createElement('button');
-    zoomInBtn.innerHTML = '🔍+';
-    zoomInBtn.style.cssText = `
-        background: #555;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 12px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
-    
-    // Tombol Zoom Out
-    const zoomOutBtn = document.createElement('button');
-    zoomOutBtn.innerHTML = '🔍-';
-    zoomOutBtn.style.cssText = `
-        background: #555;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 12px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
-    
-    // Tombol Rotate
-    const rotateBtn = document.createElement('button');
-    rotateBtn.innerHTML = '↻';
-    rotateBtn.style.cssText = `
-        background: #555;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 5px 12px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
-    
-    // Zoom info
-    const zoomInfo = document.createElement('span');
-    zoomInfo.style.cssText = 'margin-left: 10px; font-size: 12px;';
-    zoomInfo.textContent = '100%';
-    
-    toolbar.appendChild(pageInfo);
-    toolbar.appendChild(prevBtn);
-    toolbar.appendChild(nextBtn);
-    toolbar.appendChild(zoomOutBtn);
-    toolbar.appendChild(zoomInfo);
-    toolbar.appendChild(zoomInBtn);
-    toolbar.appendChild(rotateBtn);
-    
-    // Container untuk canvas
-    const canvasContainer = document.createElement('div');
-    canvasContainer.style.cssText = `
-        flex: 1;
-        overflow: auto;
-        background: #666;
-        display: flex;
-        justify-content: center;
-        padding: 10px;
-    `;
-    
-    const canvas = document.createElement('canvas');
-    canvas.style.cssText = `
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        background: white;
-    `;
-    canvasContainer.appendChild(canvas);
-    
-    container.appendChild(toolbar);
-    container.appendChild(canvasContainer);
-    
-    // Loading indicator
-    const loadingDiv = document.createElement('div');
-    loadingDiv.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-    `;
-    loadingDiv.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>';
-    canvasContainer.style.position = 'relative';
-    canvasContainer.appendChild(loadingDiv);
-    
-    // Fungsi render halaman
-    function renderPage(num) {
-        pageRendering = true;
-        pdfDoc.getPage(num).then(function(page) {
-            const viewport = page.getViewport({ scale: scale, rotation: rotation });
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            
-            const renderContext = {
-                canvasContext: canvas.getContext('2d'),
-                viewport: viewport
-            };
-            
-            const renderTask = page.render(renderContext);
-            renderTask.promise.then(function() {
-                pageRendering = false;
-                loadingDiv.style.display = 'none';
-                
-                if (pageNumPending !== null) {
-                    renderPage(pageNumPending);
-                    pageNumPending = null;
-                }
-            });
-        });
-        
-        pageInfo.textContent = `Halaman ${num} / ${pdfDoc.numPages}`;
-        prevBtn.disabled = (num <= 1);
-        nextBtn.disabled = (num >= pdfDoc.numPages);
-        zoomInfo.textContent = Math.round(scale * 100) + '%';
-    }
-    
-    // Fungsi queue render
-    function queueRenderPage(num) {
-        if (pageRendering) {
-            pageNumPending = num;
-        } else {
-            renderPage(num);
-        }
-    }
-    
-    // Event listeners
-    prevBtn.addEventListener('click', function() {
-        if (pageNum <= 1) return;
-        pageNum--;
-        queueRenderPage(pageNum);
-    });
-    
-    nextBtn.addEventListener('click', function() {
-        if (pageNum >= pdfDoc.numPages) return;
-        pageNum++;
-        queueRenderPage(pageNum);
-    });
-    
-    zoomInBtn.addEventListener('click', function() {
-        if (scale >= 3.0) return;
-        scale += 0.25;
-        queueRenderPage(pageNum);
-    });
-    
-    zoomOutBtn.addEventListener('click', function() {
-        if (scale <= 0.5) return;
-        scale -= 0.25;
-        queueRenderPage(pageNum);
-    });
-    
-    rotateBtn.addEventListener('click', function() {
-        rotation = (rotation + 90) % 360;
-        queueRenderPage(pageNum);
-    });
-    
-    // Load PDF
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
-        pdfDoc = pdf;
-        pageInfo.textContent = `Halaman 1 / ${pdf.numPages}`;
-        prevBtn.disabled = true;
-        nextBtn.disabled = (pdf.numPages <= 1);
-        
         renderPage(pageNum);
         loadingDiv.remove();
     }).catch(function(error) {
