@@ -562,8 +562,29 @@ body { background-color: #f8f9fa; }
 }
 .pdfjs-page-info { font-size: 14px; color: #666;}
 /* Toolbar PDF */
+/*
 .pdf-toolbar button:hover { background: #777 !important; }
 .pdf-toolbar button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+.pdf-container { position: relative; }
+*/
+
+/* Toolbar PDF - Warna Abu-abu Muda */
+.pdf-toolbar { background: #e0e0e0 !important; color: #333 !important; }
+.pdf-toolbar button {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+}
+.pdf-toolbar button:hover { background: #d0d0d0 !important; }
+.pdf-toolbar button:disabled {
+    background: #eee !important;
+    color: #999 !important;
+    border-color: #ddd !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+.pdf-toolbar span { color: #333 !important; }
+/* Canvas Container - Latar Abu-abu Sangat Muda */
 .pdf-container { position: relative; }
 /***** Akhir PDF.js Viewer Styles *****/
 
@@ -3944,12 +3965,227 @@ function BACKUP_loadPDF(section, pdfUrl, title = '') {
 
 /*****************************
 * Render PDF dengan PDF.js   *
-******************************/
-/*****************************
-* Render PDF dengan PDF.js   *
 * Dengan Toolbar Kustom      *
 ******************************/
 function renderPDFWithPDFJS(container, pdfUrl) {
+    console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
+    
+    // Variabel untuk PDF.js
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.0;
+    let rotation = 0;
+    
+    // Bersihkan container
+    container.innerHTML = '';
+    container.style.backgroundColor = '#f5f5f5';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.height = '500px';
+    container.style.overflow = 'hidden';
+    
+    // Buat toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'pdf-toolbar';
+    toolbar.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 4px 4px 0 0;
+        flex-wrap: wrap;
+    `;
+    
+    // Info halaman
+    const pageInfo = document.createElement('span');
+    pageInfo.style.cssText = 'margin-right: 10px; font-size: 14px;';
+    pageInfo.textContent = 'Halaman 1 / 1';
+    
+    // Tombol Previous
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '◀';
+    prevBtn.style.cssText = `
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    prevBtn.disabled = true;
+    
+    // Tombol Next
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '▶';
+    nextBtn.style.cssText = `
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    nextBtn.disabled = true;
+    
+    // Tombol Zoom In
+    const zoomInBtn = document.createElement('button');
+    zoomInBtn.innerHTML = '🔍+';
+    zoomInBtn.style.cssText = `
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Tombol Zoom Out
+    const zoomOutBtn = document.createElement('button');
+    zoomOutBtn.innerHTML = '🔍-';
+    zoomOutBtn.style.cssText = `
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Tombol Rotate
+    const rotateBtn = document.createElement('button');
+    rotateBtn.innerHTML = '↻';
+    rotateBtn.style.cssText = `
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Zoom info
+    const zoomInfo = document.createElement('span');
+    zoomInfo.style.cssText = 'margin-left: 10px; font-size: 12px;';
+    zoomInfo.textContent = '100%';
+    
+    toolbar.appendChild(pageInfo);
+    toolbar.appendChild(prevBtn);
+    toolbar.appendChild(nextBtn);
+    toolbar.appendChild(zoomOutBtn);
+    toolbar.appendChild(zoomInfo);
+    toolbar.appendChild(zoomInBtn);
+    toolbar.appendChild(rotateBtn);
+    
+    // Container untuk canvas
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = `
+        flex: 1;
+        overflow: auto;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    `;
+    
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = `
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        background: white;
+    `;
+    canvasContainer.appendChild(canvas);
+    
+    container.appendChild(toolbar);
+    container.appendChild(canvasContainer);
+    
+    // Loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #666;
+    `;
+    loadingDiv.innerHTML = '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>';
+    canvasContainer.style.position = 'relative';
+    canvasContainer.appendChild(loadingDiv);
+    
+    // Fungsi render halaman
+    function renderPage(num) {
+        pageRendering = true;
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({ scale: scale, rotation: rotation });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            const renderContext = {
+                canvasContext: canvas.getContext('2d'),
+                viewport: viewport
+            };
+            const renderTask = page.render(renderContext);
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                loadingDiv.style.display = 'none';
+                
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+        pageInfo.textContent = `Halaman ${num} / ${pdfDoc.numPages}`;
+        prevBtn.disabled = (num <= 1);
+        nextBtn.disabled = (num >= pdfDoc.numPages);
+        zoomInfo.textContent = Math.round(scale * 100) + '%';
+    }
+    
+    // Fungsi queue render
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+    
+    // Event listeners
+    prevBtn.addEventListener('click', function() {
+        if (pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    });
+    nextBtn.addEventListener('click', function() {
+        if (pageNum >= pdfDoc.numPages) return;
+        pageNum++;
+        queueRenderPage(pageNum);
+    });
+    zoomInBtn.addEventListener('click', function() {
+        if (scale >= 3.0) return;
+        scale += 0.25;
+        queueRenderPage(pageNum);
+    });
+    zoomOutBtn.addEventListener('click', function() {
+        if (scale <= 0.5) return;
+        scale -= 0.25;
+        queueRenderPage(pageNum);
+    });
+    rotateBtn.addEventListener('click', function() {
+        rotation = (rotation + 90) % 360;
+        queueRenderPage(pageNum);
+    });
+    
+    // Load PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+        pdfDoc = pdf;
+        pageInfo.textContent = `Halaman 1 / ${pdf.numPages}`;
+        prevBtn.disabled = true;
+        nextBtn.disabled = (pdf.numPages <= 1);
+        renderPage(pageNum);
+        loadingDiv.remove();
+    }).catch(function(error) {
+        console.error('❌ Error loading PDF:', error);
+        container.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5;">
+                <p style="color: red;">Gagal memuat PDF. <a href="${pdfUrl}" target="_blank">Buka di tab baru</a></p>
+            </div>
+        `;
+    });
+}
+
+function BACKUP_renderPDFWithPDFJS(container, pdfUrl) {
     console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
     
     // Variabel untuk PDF.js
@@ -4187,106 +4423,6 @@ function renderPDFWithPDFJS(container, pdfUrl) {
             <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5;">
                 <p style="color: red;">Gagal memuat PDF. <a href="${pdfUrl}" target="_blank">Buka di tab baru</a></p>
             </div>
-        `;
-    });
-}
-
-function BACKUP_renderPDFWithPDFJS(container, pdfUrl) {
-    console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
-    
-    // Tampilkan loading
-    container.innerHTML = `
-        <div style="display: flex; justify-content: center; align-items: center; height: 500px; background: #f5f5f5;">
-            <div style="text-align: center;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p style="margin-top: 10px; color: #666;">Memuat PDF...</p>
-            </div>
-        </div>
-    `;
-    
-    // Gunakan PDF.js
-    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
-        console.log('✅ PDF loaded, total pages:', pdf.numPages);       
-        // Bersihkan loading
-        container.innerHTML = '';       
-        // Buat container untuk semua halaman
-        const pagesContainer = document.createElement('div');
-        pagesContainer.style.width = '100%';
-        pagesContainer.style.height = '500px';
-        pagesContainer.style.overflow = 'auto';
-        pagesContainer.style.backgroundColor = '#f5f5f5';
-        pagesContainer.style.padding = '10px';
-        
-        // Render halaman pertama saja (untuk performa)
-        pdf.getPage(1).then(function(page) {
-            const containerWidth = container.clientWidth - 40;
-            const viewport = page.getViewport({ scale: 1.0 });
-            const scale = containerWidth / viewport.width;
-            const scaledViewport = page.getViewport({ scale: scale });          
-            const canvas = document.createElement('canvas');
-            canvas.style.display = 'block';
-            canvas.style.margin = '0 auto';
-            canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-            canvas.style.maxWidth = '100%';
-            canvas.height = scaledViewport.height;
-            canvas.width = scaledViewport.width;
-            
-            const context = canvas.getContext('2d');
-            const renderContext = {
-                canvasContext: context,
-                viewport: scaledViewport
-            };
-            
-            page.render(renderContext).promise.then(function() {
-                console.log('✅ Halaman 1 dirender');
-            });          
-            pagesContainer.appendChild(canvas);      
-            // Tambahkan info halaman jika lebih dari 1 halaman
-            if (pdf.numPages > 1) {
-                const pageInfo = document.createElement('p');
-                pageInfo.style.textAlign = 'center';
-                pageInfo.style.marginTop = '10px';
-                pageInfo.style.color = '#666';
-                pageInfo.style.fontSize = '12px';
-                pageInfo.innerHTML = `Halaman 1 dari ${pdf.numPages} halaman<br><small>Scroll untuk melihat lebih banyak</small>`;
-                pagesContainer.appendChild(pageInfo);
-            }
-        });
-        
-        // Render halaman lainnya
-        for (let pageNum = 2; pageNum <= pdf.numPages; pageNum++) {
-            pdf.getPage(pageNum).then(function(page) {
-                const containerWidth = container.clientWidth - 40;
-                const viewport = page.getViewport({ scale: 1.0 });
-                const scale = containerWidth / viewport.width;
-                const scaledViewport = page.getViewport({ scale: scale });          
-                const canvas = document.createElement('canvas');
-                canvas.style.display = 'block';
-                canvas.style.margin = '20px auto 0 auto';
-                canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-                canvas.style.maxWidth = '100%';
-                canvas.height = scaledViewport.height;
-                canvas.width = scaledViewport.width;
-                
-                const context = canvas.getContext('2d');
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: scaledViewport
-                };             
-                page.render(renderContext);
-                pagesContainer.appendChild(canvas);
-            });
-        }        
-        container.appendChild(pagesContainer);  
-    }).catch(function(error) {
-        console.error('❌ Error loading PDF:', error);
-        // Fallback ke iframe jika PDF.js gagal
-        container.innerHTML = `
-            <iframe src="${pdfUrl}" 
-                style="width:100%; height:500px; border:none;">
-            </iframe>
         `;
     });
 }
