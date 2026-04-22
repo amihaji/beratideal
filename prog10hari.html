@@ -561,6 +561,10 @@ body { background-color: #f8f9fa; }
     border-bottom: none;
 }
 .pdfjs-page-info { font-size: 14px; color: #666;}
+/* Toolbar PDF */
+.pdf-toolbar button:hover { background: #777 !important; }
+.pdf-toolbar button:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+.pdf-container { position: relative; }
 /***** Akhir PDF.js Viewer Styles *****/
 
 /* Style untuk tombol centang video */
@@ -2032,106 +2036,6 @@ function applyExistingUserProgress(progress) {
   }
 }
 
-function BACKUP_applyExistingUserProgress(progress) {
-  console.log('📊 Apply Existing Progress FINAL');
-  console.log('📊 Progress data received:', JSON.stringify(progress, null, 2));
-  window.userProgress = progress;
-  
-  // PERKENALAN
-  if (progress.perkenalan === true) {
-    updateSubmenuLinkUI('perkenalan', 0);
-    disableSelesaiPerkenalanButton();
-    unlockModul(1);
-  }
-
-  // Unlock modul berikutnya berdasarkan selesai modul
-  for (let i = 1; i <= 9; i++) {
-    if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-      unlockModul(i + 1);
-    }
-  }
-
-  // Fungsi untuk menerapkan progress dengan retry
-  const applyWithRetry = (hariKe, retryCount = 0) => {
-    if (retryCount > 5) {
-      console.warn(`⚠️ Gagal menerapkan progress untuk hari ${hariKe} setelah 5 kali percobaan`);
-      return;
-    }
-    
-    const container = document.getElementById(`pertemuanContent${hariKe}`);
-    if (!container && hariKe <= 10) {
-      // DOM belum siap, coba lagi nanti
-      setTimeout(() => applyWithRetry(hariKe, retryCount + 1), 200);
-      return;
-    }
-    
-    // Materi
-    if (progress[`materiHari${hariKe}`] === true || progress[`materiHari${hariKe}`] === "OK") {
-      lockMateriVideo(hariKe);
-      const btn = document.getElementById(`btnMateriDone${hariKe}`);
-      if (btn) disableButtonFully(btn);
-      updateSubmenuLinkUI('materi', hariKe);
-      console.log(`🔒 Apply progress: materi hari ${hariKe} selesai`);
-    }
-    
-    // Mealplan
-    if (progress[`mealplanHari${hariKe}`] === true || progress[`mealplanHari${hariKe}`] === "OK") {
-      lockmealplanUI(hariKe);
-      updateSubmenuLinkUI('mealplan', hariKe);
-      console.log(`🔒 Apply progress: mealplan hari ${hariKe} selesai`);
-    }
-    
-    // Workout
-    if (progress[`workoutHari${hariKe}`] === true || progress[`workoutHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('workout', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'workout');
-      console.log(`🔒 Apply progress: workout hari ${hariKe} selesai`);
-    }
-    
-    // Water
-    if (progress[`waterHari${hariKe}`] === true || progress[`waterHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('water', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'water');
-      console.log(`🔒 Apply progress: water hari ${hariKe} selesai`);
-    }
-    
-    // Istirahat
-    if (progress[`istirahatHari${hariKe}`] === true || progress[`istirahatHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('istirahat', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'istirahat');
-      console.log(`🔒 Apply progress: istirahat hari ${hariKe} selesai`);
-    }
-    
-    // Tracking
-    if (progress[`trackingHari${hariKe}`] === true || progress[`trackingHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('tracking', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'tracking');
-      console.log(`🔒 Apply progress: tracking hari ${hariKe} selesai`);
-    }
-    
-    // Tanya Coach
-    if (progress[`tanyaHari${hariKe}`] === true || progress[`tanyaHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('tanya', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'tanya');
-      console.log(`🔒 Apply progress: tanya hari ${hariKe} selesai`);
-    }
-    
-    // Selesai Modul
-    if (progress[`selesaimodulHari${hariKe}`] === true || progress[`selesaimodulHari${hariKe}`] === "OK") {
-      updateSubmenuLinkUI('selesaimodul', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'selesaimodul');
-      console.log(`🔒 Apply progress: selesaimodul hari ${hariKe} selesai`);
-    }
-  };
-
-  // Terapkan progress untuk semua hari dengan delay yang berbeda
-  for (let hariKe = 1; hariKe <= 10; hariKe++) {
-    setTimeout(() => {
-      applyWithRetry(hariKe);
-    }, 300 + (hariKe * 100)); // Delay bertahap: 400ms, 500ms, 600ms, dst.
-  }
-}
-
 /************************************
 * Disable button secara TOTAL (UX) *
 ************************************/
@@ -2621,39 +2525,6 @@ function applyCompleteProgressToUI(progress, hariKe) {
   };
   // Mulai pengecekan
   requestAnimationFrame(unlockWhenReady);
-}
-
-function BACKUP_applyCompleteProgressToUI(progress, hariKe) {
-  console.log('🎯 Applying COMPLETE progress to UI (unlock only)');
-  if (!window.userProgress) {
-    window.userProgress = {};
-  }
-  
-  // HANYA unlock modul, jangan terapkan UI di sini
-  if (progress.perkenalan === true) {
-    unlockModul(hariKe);
-  }
-  
-  // Unlock modul berikutnya
-  for (let i = 1; i <= 9; i++) {
-    if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-      unlockModul(i + 1);
-    }
-  }
-  
-  // Simpan progress ke window.userProgress
-  const progressMap = [
-    'materi', 'mealplan', 'workout', 'water', 'istirahat', 'tracking', 'tanya', 'selesaimodul'
-  ];
-  for (let h = 1; h <= 10; h++) {
-    progressMap.forEach(field => {
-      const fieldName = `${field}Hari${h}`;
-      if (progress[fieldName] === true || progress[fieldName] === "OK") {
-        window.userProgress[fieldName] = true;
-      }
-    });
-  }
-  console.log('✅ Unlock selesai, UI akan diterapkan oleh applyExistingUserProgress');
 }
 
 /*****************************************
@@ -3969,7 +3840,49 @@ function setupPDFLinks() {
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
+/*****************************
+* Memuat dan Menampilkan PDF *
+******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
+    console.log('📄 loadPDF called:', { section, pdfUrl });
+    
+    // Jika section adalah string (ID), cari elemennya
+    let sectionEl;
+    if (typeof section === 'string') {
+        sectionEl = document.getElementById(section);
+        if (!sectionEl) {
+            sectionEl = document.getElementById(section + 'Content');
+        }
+    } else {
+        sectionEl = section;
+    }
+    
+    if (!sectionEl) {
+        console.error('❌ Section tidak ditemukan:', section);
+        return;
+    }
+    
+    let viewer = sectionEl.querySelector('.pdf-viewer');
+    let container = sectionEl.querySelector('.pdf-container');
+    
+    // kalau HTML lama ada → pakai
+    if (viewer && container) {
+        viewer.style.display = 'block';
+        container.innerHTML = '';
+        // Gunakan PDF.js untuk semua device agar toolbar bisa dikustomisasi
+        renderPDFWithPDFJS(container, pdfUrl);
+    } else {
+        // fallback kalau tidak ada
+        container = document.createElement('div');
+        container.className = 'pdf-container';
+        // Gunakan PDF.js untuk semua device
+        renderPDFWithPDFJS(container, pdfUrl);
+        sectionEl.appendChild(container);
+    }
+    console.log('✅ PDF tampil di SUBMENU');
+}
+
+function BACKUP_loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl });
     
     // Jika section adalah string (ID), cari elemennya
@@ -4032,7 +3945,253 @@ function loadPDF(section, pdfUrl, title = '') {
 /*****************************
 * Render PDF dengan PDF.js   *
 ******************************/
+/*****************************
+* Render PDF dengan PDF.js   *
+* Dengan Toolbar Kustom      *
+******************************/
 function renderPDFWithPDFJS(container, pdfUrl) {
+    console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
+    
+    // Variabel untuk PDF.js
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.0;
+    let rotation = 0;
+    
+    // Bersihkan container
+    container.innerHTML = '';
+    container.style.backgroundColor = '#f5f5f5';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.height = '500px';
+    container.style.overflow = 'hidden';
+    
+    // Buat toolbar
+    const toolbar = document.createElement('div');
+    toolbar.className = 'pdf-toolbar';
+    toolbar.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 8px;
+        background: #333;
+        color: white;
+        border-radius: 4px 4px 0 0;
+        flex-wrap: wrap;
+    `;
+    
+    // Info halaman
+    const pageInfo = document.createElement('span');
+    pageInfo.style.cssText = 'margin-right: 10px; font-size: 14px;';
+    pageInfo.textContent = 'Halaman 1 / 1';
+    
+    // Tombol Previous
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '◀';
+    prevBtn.style.cssText = `
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    prevBtn.disabled = true;
+    
+    // Tombol Next
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '▶';
+    nextBtn.style.cssText = `
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    nextBtn.disabled = true;
+    
+    // Tombol Zoom In
+    const zoomInBtn = document.createElement('button');
+    zoomInBtn.innerHTML = '🔍+';
+    zoomInBtn.style.cssText = `
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Tombol Zoom Out
+    const zoomOutBtn = document.createElement('button');
+    zoomOutBtn.innerHTML = '🔍-';
+    zoomOutBtn.style.cssText = `
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Tombol Rotate
+    const rotateBtn = document.createElement('button');
+    rotateBtn.innerHTML = '↻';
+    rotateBtn.style.cssText = `
+        background: #555;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    
+    // Zoom info
+    const zoomInfo = document.createElement('span');
+    zoomInfo.style.cssText = 'margin-left: 10px; font-size: 12px;';
+    zoomInfo.textContent = '100%';
+    
+    toolbar.appendChild(pageInfo);
+    toolbar.appendChild(prevBtn);
+    toolbar.appendChild(nextBtn);
+    toolbar.appendChild(zoomOutBtn);
+    toolbar.appendChild(zoomInfo);
+    toolbar.appendChild(zoomInBtn);
+    toolbar.appendChild(rotateBtn);
+    
+    // Container untuk canvas
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = `
+        flex: 1;
+        overflow: auto;
+        background: #666;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    `;
+    
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = `
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        background: white;
+    `;
+    canvasContainer.appendChild(canvas);
+    
+    container.appendChild(toolbar);
+    container.appendChild(canvasContainer);
+    
+    // Loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+    `;
+    loadingDiv.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>';
+    canvasContainer.style.position = 'relative';
+    canvasContainer.appendChild(loadingDiv);
+    
+    // Fungsi render halaman
+    function renderPage(num) {
+        pageRendering = true;
+        pdfDoc.getPage(num).then(function(page) {
+            const viewport = page.getViewport({ scale: scale, rotation: rotation });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            const renderContext = {
+                canvasContext: canvas.getContext('2d'),
+                viewport: viewport
+            };
+            
+            const renderTask = page.render(renderContext);
+            renderTask.promise.then(function() {
+                pageRendering = false;
+                loadingDiv.style.display = 'none';
+                
+                if (pageNumPending !== null) {
+                    renderPage(pageNumPending);
+                    pageNumPending = null;
+                }
+            });
+        });
+        
+        pageInfo.textContent = `Halaman ${num} / ${pdfDoc.numPages}`;
+        prevBtn.disabled = (num <= 1);
+        nextBtn.disabled = (num >= pdfDoc.numPages);
+        zoomInfo.textContent = Math.round(scale * 100) + '%';
+    }
+    
+    // Fungsi queue render
+    function queueRenderPage(num) {
+        if (pageRendering) {
+            pageNumPending = num;
+        } else {
+            renderPage(num);
+        }
+    }
+    
+    // Event listeners
+    prevBtn.addEventListener('click', function() {
+        if (pageNum <= 1) return;
+        pageNum--;
+        queueRenderPage(pageNum);
+    });
+    
+    nextBtn.addEventListener('click', function() {
+        if (pageNum >= pdfDoc.numPages) return;
+        pageNum++;
+        queueRenderPage(pageNum);
+    });
+    
+    zoomInBtn.addEventListener('click', function() {
+        if (scale >= 3.0) return;
+        scale += 0.25;
+        queueRenderPage(pageNum);
+    });
+    
+    zoomOutBtn.addEventListener('click', function() {
+        if (scale <= 0.5) return;
+        scale -= 0.25;
+        queueRenderPage(pageNum);
+    });
+    
+    rotateBtn.addEventListener('click', function() {
+        rotation = (rotation + 90) % 360;
+        queueRenderPage(pageNum);
+    });
+    
+    // Load PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+        pdfDoc = pdf;
+        pageInfo.textContent = `Halaman 1 / ${pdf.numPages}`;
+        prevBtn.disabled = true;
+        nextBtn.disabled = (pdf.numPages <= 1);
+        
+        renderPage(pageNum);
+        loadingDiv.remove();
+    }).catch(function(error) {
+        console.error('❌ Error loading PDF:', error);
+        container.innerHTML = `
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5;">
+                <p style="color: red;">Gagal memuat PDF. <a href="${pdfUrl}" target="_blank">Buka di tab baru</a></p>
+            </div>
+        `;
+    });
+}
+
+function BACKUP_renderPDFWithPDFJS(container, pdfUrl) {
     console.log('📄 Rendering PDF with PDF.js:', pdfUrl);
     
     // Tampilkan loading
