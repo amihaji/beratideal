@@ -3844,9 +3844,6 @@ function setupPDFLinks() {
 /*****************************
 * Memuat dan Menampilkan PDF *
 ******************************/ 
-/*****************************
-* Memuat dan Menampilkan PDF *
-******************************/ 
 function loadPDF(section, pdfUrl, title = '') {
     console.log('📄 loadPDF called:', { section, pdfUrl });
     
@@ -3868,8 +3865,7 @@ function loadPDF(section, pdfUrl, title = '') {
     
     let viewer = sectionEl.querySelector('.pdf-viewer');
     let container = sectionEl.querySelector('.pdf-container');
-    
-    // kalau HTML lama ada → pakai
+        // kalau HTML lama ada → pakai
     if (viewer && container) {
         viewer.style.display = 'block';
         container.innerHTML = '';
@@ -3925,7 +3921,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     // Tombol Zoom Out
     const zoomOutBtn = document.createElement('button');
     // zoomOutBtn.innerHTML = '🔍-';
-    zoomOutBtn.className = 'pdf-toolbar-btn fas fa-search-minus';
+    zoomOutBtn.className = 'pdf-toolbar-btn';
+    zoomOutBtn.innerHTML = '<i class="fas fa-search-minus"></i>';
     zoomOutBtn.style.cssText = `
         width: 32px;
         height: 32px;
@@ -3946,7 +3943,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     // Tombol Zoom In
     const zoomInBtn = document.createElement('button');
     // zoomInBtn.innerHTML = '🔍+';
-    zoomInBtn.className = 'pdf-toolbar-btn fas fa-search-plus';
+    zoomInBtn.className  = 'pdf-toolbar-btn';
+    zoomOutBtn.innerHTML = '<i class="fas fa-search-plus"></i>';
     zoomInBtn.style.cssText = `
         width: 32px;
         height: 32px;
@@ -3962,7 +3960,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     // Tombol Rotate
     const rotateBtn = document.createElement('button');
     // rotateBtn.innerHTML = '↻';
-    rotateBtn.className = 'pdf-toolbar-btn fas fa-redo';
+    rotateBtn.className = 'pdf-toolbar-btn';
+    rotateBtn.innerHTML = '<i class="fas fa-redo"></i>';
     rotateBtn.style.cssText = `
         width: 32px;
         height: 32px;
@@ -4024,7 +4023,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     // Tombol Previous
     const prevBtn = document.createElement('button');
     //prevBtn.innerHTML = '◀';
-    prevBtn.className = 'pdf-toolbar-btn fas fa-caret-left';
+    prevBtn.className = 'pdf-toolbar-btn';
+    prevBtn.innerHTML = '<i class="fas fa-caret-left"></i>';
     prevBtn.style.cssText = `
         width: 32px;
         height: 32px;
@@ -4046,7 +4046,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     // Tombol Next
     const nextBtn = document.createElement('button');
     // nextBtn.innerHTML = '▶';
-    nextBtn.className = 'pdf-toolbar-btn fas fa-caret-right';
+    nextBtn.className = 'pdf-toolbar-btn';
+    nextBtn.innerHTML = '<i class="fas fa-caret-right"></i>';
     nextBtn.style.cssText = `
         width: 32px;
         height: 32px;
