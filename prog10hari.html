@@ -4121,23 +4121,18 @@ function renderPDFWithPDFJS(container, pdfUrl) {
         justify-content: center;
         padding: 10px;
     `;
-    
+
     const canvas = document.createElement('canvas');
     canvas.style.cssText = `
         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         background: white;
         display: inline-block;
         margin: 0 auto;
+        max-width: none;
+        width: auto;
+        height: auto;
     `;
-
-    /*
-    const canvas = document.createElement('canvas');
-    canvas.style.cssText = `
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        background: white;
-    `;
-    */
-
+   
     canvasContainer.appendChild(canvas);
     
     // Susunan container
