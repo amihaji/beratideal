@@ -488,10 +488,32 @@ body { background-color: #f8f9fa; }
     border: 1px solid #dee2e6;
     border-top: none;
 }
-.pdf-container { width: 100%; height: 500px; scrollbar-width: none; overflow-x: hidden; }
-.pdf-container::-webkit-scrollbar { display: none; }                
-.pdf-container iframe { width: 100%; height: 100%; border: none; overflow-x: hidden !important; }
-.pdf-viewer::-webkit-scrollbar { width: 0px; display: none; }
+.pdf-container {
+    width: 100%;
+    height: 500px;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    position: relative;
+}
+/* SEMBUNYIKAN scrollbar hanya untuk iframe (desktop), tapi tetap bisa di-scroll */
+.pdf-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Untuk PDF.js renderer - scrollbar tetap muncul */
+.pdf-viewer .pdf-container > div {
+    overflow: auto !important;
+    max-height: 100% !important;
+}
+.pdf-viewer .pdf-container canvas {
+    display: block !important;
+}
+.pdf-viewer::-webkit-scrollbar {
+    width: 0px;
+    display: none;
+}
 .pdf-header {
     padding: 12px 15px;
     background: #f8f9fa;
@@ -500,8 +522,15 @@ body { background-color: #f8f9fa; }
     justify-content: between;
     align-items: center;
 }
-.pdf-title { font-weight: 600; color: #333; flex: 1; }
-.pdf-actions { display: flex; gap: 10px; }
+.pdf-title {
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+}
+.pdf-actions {
+    display: flex;
+    gap: 10px;
+}
 .pdf-loading {
     padding: 30px 20px;
     text-align: center;
@@ -530,18 +559,36 @@ body { background-color: #f8f9fa; }
     transition: all 0.3s ease;
     font-size: 14px;
 }
-.close-pdf:hover { background: rgba(220, 53, 69, 0.9); transform: scale(1.1);}
+.close-pdf:hover {
+    background: rgba(220, 53, 69, 0.9);
+    transform: scale(1.1);
+}
+
+/* Sembunyikan tombol close PDF yang lama */
+.pdf-viewer > .close-pdf {
+    display: none !important;
+}
+
 /* Toolbar PDF - Warna Abu-abu Muda */
-.pdf-toolbar { background: #e0e0e0 !important; color: #333 !important; }
-.pdf-header-toolbar { border-bottom: 1px solid #ccc !important; }
-.pdf-footer-toolbar { border-top: 1px solid #ccc !important; }
-.pdf-toolbar-btn { 
+.pdf-toolbar {
+    background: #e0e0e0 !important;
+    color: #333 !important;
+}
+.pdf-header-toolbar {
+    border-bottom: 1px solid #ccc !important;
+}
+.pdf-footer-toolbar {
+    border-top: 1px solid #ccc !important;
+}
+.pdf-toolbar-btn {
     background: #f5f5f5 !important;
     color: #333 !important;
     border: 1px solid #ccc !important;
     transition: all 0.2s ease !important;
 }
-.pdf-toolbar-btn:hover { background: #d0d0d0 !important; }
+.pdf-toolbar-btn:hover {
+    background: #d0d0d0 !important;
+}
 .pdf-toolbar-btn:disabled {
     background: #eee !important;
     color: #999 !important;
@@ -554,24 +601,24 @@ body { background-color: #f8f9fa; }
     color: white !important;
     border-color: #dc3545 !important;
 }
-.pdf-toolbar span { color: #333 !important; }
-/* Canvas Container */
-.pdf-container {position: relative; }
+.pdf-toolbar span {
+    color: #333 !important;
+}
 /***** Akhir PDF Viewer Styles *****/
 
 /***** PDF.js Viewer Styles *****/
-.pdfjs-viewer { 
-    width: 100%; 
-    height: 500px; 
-    border: 1px solid #ddd; 
-    overflow: auto; 
+.pdfjs-viewer {
+    width: 100%;
+    height: 500px;
+    border: 1px solid #ddd;
+    overflow: auto;
     background: #f5f5f5;
 }
-.pdfjs-canvas { 
-    display: block; 
-    margin: 0 auto; 
+.pdfjs-canvas {
+    display: block;
+    margin: 0 auto;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    max-width: 100%; /* TAMBAH INI - pastikan tidak melebihi container */
+    max-width: 100%;
 }
 .pdfjs-controls {
     padding: 10px;
@@ -582,11 +629,14 @@ body { background-color: #f8f9fa; }
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    margin-top: 10px;            /* PINDAH KE BAWAH - tambahkan margin-top dan border-top */
+    margin-top: 10px;
     border-top: 1px solid #ddd;
     border-bottom: none;
 }
-.pdfjs-page-info { font-size: 14px; color: #666;}
+.pdfjs-page-info {
+    font-size: 14px;
+    color: #666;
+}
 /***** Akhir PDF.js Viewer Styles *****/
 
 /* Style untuk tombol centang video */
@@ -4075,7 +4125,18 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     canvas.style.cssText = `
         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         background: white;
+        display: inline-block;
+        margin: 0 auto;
     `;
+
+    /*
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = `
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        background: white;
+    `;
+    */
+   
     canvasContainer.appendChild(canvas);
     
     // Susunan container
