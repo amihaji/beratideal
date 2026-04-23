@@ -4143,31 +4143,39 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     
     // Event listeners
     prevBtn.addEventListener('click', function() {
+        console.log('◀ Previous diklik, pageNum:', pageNum);
         if (pageNum <= 1) return;
         pageNum--;
         queueRenderPage(pageNum);
     });
     
     nextBtn.addEventListener('click', function() {
+        console.log('▶ Next diklik, pageNum:', pageNum);
         if (pageNum >= pdfDoc.numPages) return;
         pageNum++;
         queueRenderPage(pageNum);
     });
     
     zoomInBtn.addEventListener('click', function() {
+        console.log('🔍+ Zoom In diklik, scale sebelum:', scale);
         if (scale >= 3.0) return;
         scale += 0.25;
+        console.log('🔍+ Zoom In, scale sesudah:', scale);
         queueRenderPage(pageNum);
     });
     
     zoomOutBtn.addEventListener('click', function() {
+        console.log('🔍- Zoom Out diklik, scale sebelum:', scale);
         if (scale <= 0.5) return;
         scale -= 0.25;
+        console.log('🔍- Zoom Out, scale sesudah:', scale);
         queueRenderPage(pageNum);
     });
     
     rotateBtn.addEventListener('click', function() {
+        console.log('↻ Rotate diklik, rotation sebelum:', rotation);
         rotation = (rotation + 90) % 360;
+        console.log('↻ Rotate, rotation sesudah:', rotation);
         queueRenderPage(pageNum);
     });
     
