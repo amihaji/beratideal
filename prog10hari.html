@@ -4049,10 +4049,11 @@ function renderPDFWithPDFJS(container, pdfUrl) {
         }
         console.log('✅ PDF ditutup via tombol X');
     };
-    
+  
+    // Susunan Header Toolbar
+    headerToolbar.appendChild(zoomInBtn);
     headerToolbar.appendChild(zoomOutBtn);
     headerToolbar.appendChild(zoomInfo);
-    headerToolbar.appendChild(zoomInBtn);
     headerToolbar.appendChild(rotateBtn);
     headerToolbar.appendChild(closeBtn);
     
@@ -4107,6 +4108,7 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     `;
     nextBtn.disabled = true;
     
+    // Susunan Footer Toolbar
     footerToolbar.appendChild(prevBtn);
     footerToolbar.appendChild(pageInfo);
     footerToolbar.appendChild(nextBtn);
