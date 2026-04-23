@@ -4111,33 +4111,38 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     footerToolbar.appendChild(pageInfo);
     footerToolbar.appendChild(nextBtn);
     
-    // Container untuk canvas
-    const canvasContainer = document.createElement('div');
-    canvasContainer.style.cssText = `
+    // Container untuk canvas dengan wrapper untuk scroll
+    const canvasWrapper = document.createElement('div');
+    canvasWrapper.style.cssText = `
         flex: 1;
         overflow: auto;
         background: #f5f5f5;
-        display: flex;
-        justify-content: center;
         padding: 10px;
+        min-height: 0;
     `;
-
+    
+    // Container untuk centering canvas
+    const canvasContainer = document.createElement('div');
+    canvasContainer.style.cssText = `
+        display: inline-block;
+        min-width: 100%;
+        text-align: center;
+    `;
+    
     const canvas = document.createElement('canvas');
     canvas.style.cssText = `
         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         background: white;
         display: inline-block;
         margin: 0 auto;
-        max-width: none;
-        width: auto;
-        height: auto;
     `;
-   
-    canvasContainer.appendChild(canvas);
     
-    // Susunan container
+    canvasContainer.appendChild(canvas);
+    canvasWrapper.appendChild(canvasContainer);
+    
+    // Ganti canvasContainer dengan canvasWrapper di dalam container
     container.appendChild(headerToolbar);
-    container.appendChild(canvasContainer);
+    container.appendChild(canvasWrapper);
     container.appendChild(footerToolbar);
     
     // Loading indicator
@@ -4150,8 +4155,8 @@ function renderPDFWithPDFJS(container, pdfUrl) {
         color: #666;
     `;
     loadingDiv.innerHTML = '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>';
-    canvasContainer.style.position = 'relative';
-    canvasContainer.appendChild(loadingDiv);
+    canvasWrapper.style.position = 'relative';
+    canvasWrapper.appendChild(loadingDiv);
     
     // Fungsi render halaman
     function renderPage(num) {
