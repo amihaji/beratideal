@@ -4098,11 +4098,13 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     
     // Fungsi render halaman
     function renderPage(num) {
+        console.log('🎨 renderPage called, num:', num, 'scale:', scale, 'rotation:', rotation);
         pageRendering = true;
         pdfDoc.getPage(num).then(function(page) {
+            console.log('📄 Page loaded, creating viewport with scale:', scale);
             const viewport = page.getViewport({ scale: scale, rotation: rotation });
-            canvas.height  = viewport.height;
-            canvas.width   = viewport.width;
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
             
             const renderContext = {
                 canvasContext: canvas.getContext('2d'),
@@ -4111,6 +4113,7 @@ function renderPDFWithPDFJS(container, pdfUrl) {
             
             const renderTask = page.render(renderContext);
             renderTask.promise.then(function() {
+                console.log('✅ Render selesai');
                 pageRendering = false;
                 loadingDiv.style.display = 'none';
                 
@@ -4126,11 +4129,13 @@ function renderPDFWithPDFJS(container, pdfUrl) {
         nextBtn.disabled = (num >= pdfDoc.numPages);
         zoomInfo.textContent = Math.round(scale * 100) + '%';
     }
-    
+        
     // Fungsi queue render
     function queueRenderPage(num) {
+        console.log('📋 queueRenderPage called, pageNum:', num, 'pageRendering:', pageRendering);
         if (pageRendering) {
             pageNumPending = num;
+            console.log('⏳ Render pending untuk halaman:', num);
         } else {
             renderPage(num);
         }
@@ -4153,6 +4158,10 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     
     zoomInBtn.addEventListener('click', function() {
         console.log('🔍+ Zoom In diklik, scale sebelum:', scale);
+        if (!pdfDoc) {
+            console.warn('⚠️ PDF belum dimuat, zoom dibatalkan');
+            return;
+        }
         if (scale >= 3.0) return;
         scale += 0.25;
         console.log('🔍+ Zoom In, scale sesudah:', scale);
@@ -4161,6 +4170,10 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     
     zoomOutBtn.addEventListener('click', function() {
         console.log('🔍- Zoom Out diklik, scale sebelum:', scale);
+        if (!pdfDoc) {
+            console.warn('⚠️ PDF belum dimuat, zoom dibatalkan');
+            return;
+        }
         if (scale <= 0.5) return;
         scale -= 0.25;
         console.log('🔍- Zoom Out, scale sesudah:', scale);
@@ -4169,6 +4182,10 @@ function renderPDFWithPDFJS(container, pdfUrl) {
     
     rotateBtn.addEventListener('click', function() {
         console.log('↻ Rotate diklik, rotation sebelum:', rotation);
+        if (!pdfDoc) {
+            console.warn('⚠️ PDF belum dimuat, rotate dibatalkan');
+            return;
+        }
         rotation = (rotation + 90) % 360;
         console.log('↻ Rotate, rotation sesudah:', rotation);
         queueRenderPage(pageNum);
