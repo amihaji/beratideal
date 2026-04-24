@@ -1343,7 +1343,8 @@ button[id^="btnCekDisini"] {
           </div>
           
           <!-- 1.7 Tanya Coach Content -->
-          <div class="submenu-content" id="tanyaContent1" style="display: none;">
+          <!-- <div class="submenu-content" id="tanyaContent1" style="display: none;"> -->
+          <div class="submenu-content" style="display: none;">
             <div class="border p-3 bg-light mt-2 mb-2">
               <div class="card-title p-1 mb-2 position-relative" style="text-align:center; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
                 <h6 class="mt-1 mb-1">Tanyakan Pada Coach Anda ! </h6>
@@ -8359,7 +8360,7 @@ async function selesaiTanyaCoach(hariKe){
  
       const btnSelesai = document.getElementById(`btnSelesaiWA${hariKe}`);
       if (btnSelesai) btnSelesai.disabled = true;
-      showMessage('success', 'Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai', 3000, `tanyaContent${hariKe}`);
+      showMessage('success', `Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `tanyaContent${hariKe}`);
     } else {
       showMessage('error', 'Gagal menyelesaikan tanya coach', 3000, `tanyaContent${hariKe}`);
     }
