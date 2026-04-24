@@ -1402,7 +1402,7 @@ button[id^="btnCekDisini"] {
                 <b>sudah diselesaikan dan dipahami dengan baik ?</b></br> 
                 <b>Kalau YA, maka klik "Selesai Modul"</b></br>
                 <b>untuk lanjut ke Modul berikutnya</b></p>
-                <button class="btn btn-success mt-2" id="btnSelesaiModul1" onclick="selesaiModul(1)" ><i class="fas fa-check"></i> Selesai Modul</button>
+                <button class="btn btn-success mt-2" style="text-align:center" id="btnSelesaiModul1" onclick="selesaiModul(1)" ><i class="fas fa-check"></i> Selesai Modul</button>
               </div>
             </div>  
           </div>
@@ -2820,9 +2820,8 @@ function updateSubmenuLinkUI(type, hariKe) {
 **************************/
 function showSubmenuReadOnly(targetId) {
     console.log(`👁️ Showing submenu ${targetId} in READ-ONLY mode`);
-    // Ekstrak hariKe dari targetId (misal: "workoutContent1" → 1)
-    const hariKe = targetId.replace(/\D/g, '') || 1;
-    const submenuType = targetId.replace(/Content\d+/, ''); // "workout"
+    const hariKe      = targetId.replace(/\D/g, '') || 1;
+    const submenuType = targetId.replace(/Content\d+/, ''); 
     console.log(`📅 Detected: day ${hariKe}, type: ${submenuType}`);
     const targetContent = document.getElementById(targetId);
     if (!targetContent) {
@@ -2999,18 +2998,15 @@ function setupAllComponents() {
         // fallback jika server gagal
         checkProgressFallback(userId);
       });
-
   } else {
     console.log('⚠️ No user logged in or session expired');
     // User Belum Login, Lock Semua Modul
     applyLockForNewUser();
   }
-
   // 🔥 WAJIB: generate modul dulu
   generateModulFromTemplate();
-   // WAJIB DIULANG
+  // WAJIB DIULANG
   setupAccordionToggle();
-
   // Setup Semua Komponen Lainnya (Tetap jalan)
   setupAllComponentsInternal();
   console.log('✅ All components setup complete');
@@ -3026,7 +3022,7 @@ function setupAllComponents() {
 function checkProgressFallback(userId) {
   console.log('🔄 Using fallback progress check for user:', userId);
   // Cek dari localStorage
-  const progressKey = `completeProgress_${userId}`;
+  const progressKey   = `completeProgress_${userId}`;
   const savedProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
   
   if (savedProgress.success) {
@@ -4514,13 +4510,10 @@ function checkAndApplyButtonStatus(userId, hariKe) {
 *****************************************************/
 function showSubmenuOnly(targetId) {
     console.log(`👁️ Showing submenu ${targetId} in read-only mode`);
-    
     const targetContent = document.getElementById(targetId);
     if (!targetContent) return;
-    
     // Tampilkan submenu
     showSubmenu(targetId);
-    
     // Apply read-only styling
     setTimeout(() => {
         // Disable semua tombol aksi
@@ -4564,18 +4557,13 @@ function showSubmenuOnly(targetId) {
 ***********************************************/
 function setupMateriCompletion() {
   console.log('🔧 Setting up materi completion...');
-
   document.querySelectorAll('.video-container').forEach(container => {
     const containerId = container.id;
-
     if (!containerId.includes('Pertemuan')) return;
-
     const hariKe = containerId.replace('videoContainerPertemuan', '');
     const videoWrapper = container.querySelector('.video-wrapper');
     if (!videoWrapper) return;
-
     videoWrapper.style.position = 'relative';
-
     let completeBtn = container.querySelector('.complete-btn');
     
     // === BUAT TOMBOL JIKA BELUM ADA ===
@@ -4777,10 +4765,6 @@ async function selesaikanPerkenalan() {
 function lockMateriVideo(hariKe) {
     const container = document.getElementById(`videoContainerPertemuan${hariKe}`);
     if (!container) return;
-    // JANGAN ubah opacity atau pointer-events pada container utama
-    // container.style.pointerEvents = 'none';
-    // container.style.opacity = '0.6';
-    // Sebagai gantinya, kita hanya nonaktifkan tombol centang
     const completeBtn = container.querySelector('.complete-btn');
     if (completeBtn) {
         completeBtn.disabled = true;
@@ -4794,8 +4778,6 @@ function lockMateriVideo(hariKe) {
         closeBtn.style.opacity = '1';
         closeBtn.style.cursor = 'pointer';
     }
-    // Video player tetap bisa diinteraksi (progress bar bisa digerakkan)
-    // karena kita tidak mengunci container utama
     console.log(`🔒 Video materi hari ${hariKe} dikunci (hanya tombol centang yang disabled)`);
 }
 
