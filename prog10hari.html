@@ -792,20 +792,20 @@ background:#e0e0e0;
 }
 
 /**** Rata tengah konten Selesai Modul ****/
-#selesaimodulContent1 .border > div:last-child,
-[id^="selesaimodulContent"] .border > div:last-child {
+[id^="selesaimodulContent"] .btn:disabled,
+[id^="selesaimodulContent"] .btn-secondary:disabled,
+[id^="selesaimodulContent"] button:disabled {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
     text-align: center !important;
-    padding-left: 0 !important;
 }
-/* Tombol Selesai Modul tetap di tengah */
-[id^="selesaimodulContent"] .btn {
-    margin-left: auto;
-    margin-right: auto;
-    display: inline-block;
-}
-/* Teks paragraf rata tengah */
-[id^="selesaimodulContent"] p {
+/* FIX: Container tombol Selesai Modul */
+[id^="selesaimodulContent"] .border > div:last-child,
+[id^="selesaimodulContent"] div:has(>.btn) {
     text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
 }
 /**** Akhir Rata tengah konten Selesai Modul ****/
 
@@ -2727,10 +2727,62 @@ function addResistanceExerciseFromSaved(hariKe, exerciseName) {
 /*****************************************
 * Disable Input dan Tombol Setelah Selesai
 ******************************************/
-/*****************************************
-* Disable Input dan Tombol Setelah Selesai
-******************************************/
 function disableButtonsAfterCompletion(hariKe, submenuType) {
+  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
+  // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
+  if (submenuType === 'materi') {
+    console.log(`✅ Materi hari ${hariKe} - tombol centang TIDAK di-disable via fungsi ini`);
+    return;
+  }
+  const containerId = `${submenuType}Content${hariKe}`;
+  const container   = document.getElementById(containerId);
+  if (!container) {
+    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
+    return;
+  }
+  // Disable semua input
+  container.querySelectorAll('input, textarea, select').forEach(el => {
+    el.disabled = true;
+  });
+  // Disable tombol kecuali yang diizinkan
+  container.querySelectorAll('button').forEach(btn => {
+    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
+    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
+    if (!isCloseBtn && !isCekDisini) {
+      btn.disabled = true;
+      
+      // 🔧 FIX: Untuk tombol Selesai Modul, pertahankan styling agar tetap rata tengah
+      if (submenuType === 'selesaimodul') {
+        // Ubah class tapi tetap pertahankan styling
+        if (btn.classList.contains('btn-success')) {
+          btn.classList.remove('btn-success');
+          btn.classList.add('btn-secondary');
+        }
+        // Terapkan styling dengan !important untuk mengalahkan CSS lain
+        btn.style.setProperty('margin-left', 'auto', 'important');
+        btn.style.setProperty('margin-right', 'auto', 'important');
+        btn.style.setProperty('display', 'block', 'important');
+        btn.style.setProperty('text-align', 'center', 'important');
+        
+        // Pastikan parent container juga rata tengah
+        const parentDiv = btn.closest('.border > div, .text-left, .mt-4');
+        if (parentDiv) {
+          parentDiv.style.setProperty('text-align', 'center', 'important');
+          parentDiv.style.setProperty('display', 'flex', 'important');
+          parentDiv.style.setProperty('justify-content', 'center', 'important');
+        }
+      } else {
+        if (btn.classList.contains('btn-primary') || btn.classList.contains('btn-success')) {
+          btn.classList.remove('btn-primary', 'btn-success');
+          btn.classList.add('btn-secondary');
+        }
+      }
+    }
+  });
+  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
+}
+
+function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
   // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
   if (submenuType === 'materi') {
@@ -2772,37 +2824,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
           btn.classList.add('btn-secondary');
         }
       }
-    }
-  });
-  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
-}
-
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
-  if (submenuType === 'materi') {
-    console.log(`✅ Materi hari ${hariKe} - tombol centang TIDAK di-disable via fungsi ini`);
-    return; // Keluar, tidak melakukan apa-apa
-  }
-  
-  const containerId = `${submenuType}Content${hariKe}`;
-  const container   = document.getElementById(containerId);
-  if (!container) {
-    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
-    return;
-  }
-
-  // Disable semua input
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Disable tombol kecuali yang diizinkan
-  container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
-    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    if (!isCloseBtn && !isCekDisini) {
-      btn.disabled = true;
     }
   });
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
@@ -5011,9 +5032,6 @@ async function checkAndUnlockModulesForUser(userId) {
 /*************************
 * SELESAI MODUL HARI KE
 **************************/
-/*************************
-* SELESAI MODUL HARI KE
-**************************/
 async function selesaiModul(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
@@ -5047,10 +5065,19 @@ async function selesaiModul(hariKe) {
       if (btnSelesai) {
         btnSelesai.disabled = true;
         btnSelesai.style.cursor = 'not-allowed';
-        // 🔧 FIX: Pastikan tombol tetap rata tengah setelah disabled
-        btnSelesai.style.marginLeft = 'auto';
-        btnSelesai.style.marginRight = 'auto';
-        btnSelesai.style.display = 'inline-block';
+        // 🔧 FIX: Terapkan styling dengan !important
+        btnSelesai.style.setProperty('margin-left', 'auto', 'important');
+        btnSelesai.style.setProperty('margin-right', 'auto', 'important');
+        btnSelesai.style.setProperty('display', 'block', 'important');
+        btnSelesai.style.setProperty('text-align', 'center', 'important');
+        
+        // Pastikan container juga rata tengah
+        const container = btnSelesai.closest('.border > div, .text-left');
+        if (container) {
+          container.style.setProperty('text-align', 'center', 'important');
+          container.style.setProperty('display', 'flex', 'important');
+          container.style.setProperty('justify-content', 'center', 'important');
+        }
       }
       // Unlock modul berikutnya
       if (hariKe < 10) {
@@ -5099,6 +5126,10 @@ async function BACKUP_selesaiModul(hariKe) {
       if (btnSelesai) {
         btnSelesai.disabled = true;
         btnSelesai.style.cursor = 'not-allowed';
+        // 🔧 FIX: Pastikan tombol tetap rata tengah setelah disabled
+        btnSelesai.style.marginLeft = 'auto';
+        btnSelesai.style.marginRight = 'auto';
+        btnSelesai.style.display = 'inline-block';
       }
       // Unlock modul berikutnya
       if (hariKe < 10) {
