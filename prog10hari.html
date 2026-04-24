@@ -8483,7 +8483,7 @@ async function kirimPesanCoach(hariKe){
       const btnSelesai = container.querySelector(`button[id*="SelesaiWA"]`) || 
                          container.querySelector(`button[onclick*="selesaiTanyaCoach"]`);
       if (btnSelesai) btnSelesai.disabled = false;
-      showMessage('success', 'Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim', 3000, `tanyaContent${hariKe}`);
+      showMessage('success', 'Pesan untuk coach, berhasil terkirim', 3000, `tanyaContent${hariKe}`);
     } else {
       showMessage('error', 'Pesan gagal terkirim', 3000, `tanyaContent${hariKe}`);
     }
@@ -8699,83 +8699,6 @@ function showMessage(type, message, duration = 3000, targetId = null) {
                         messageElement.remove();
                     }
                 }, 300);
-            }
-        }, duration);
-    }
-    return messageElement;
-}
-
-/**************************************************************************
- * Fungsi universal untuk menampilkan pesan
- * @param {string} type - Tipe pesan: 'success', 'error', 'warning', 'info'
- * @param {string} message - Pesan yang akan ditampilkan
- * @param {number} duration - Durasi tampil (ms), 0 = tidak auto-hide
- * @param {string} menuTarget - Target menu (otomatis detect jika null)
- **************************************************************************/
-function BACKUP_showMessage(type, message, duration = 3000, menuTarget = null) {
-    // Auto-detect menu target jika tidak diberikan
-    if (!menuTarget) {
-        const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
-        if (activeMenu && activeMenu.hasAttribute('data-hari')) {
-            const hariKe = activeMenu.getAttribute('data-hari');
-            menuTarget = `Pertemuan${hariKe}`;
-        }
-    }
-    // Konfigurasi tipe pesan
-    const typeConfig = {
-        success: { cssClass: 'notification-success', icon: 'fas fa-check-circle' },
-        error: { cssClass: 'notification-error', icon: 'fas fa-times-circle' },
-        warning: { cssClass: 'notification-warning', icon: 'fas fa-exclamation-circle' },
-        info: { cssClass: 'notification-info', icon: 'fas fa-info-circle' }
-    };
-
-    const config = typeConfig[type] || typeConfig.info;
-    // Buat element pesan
-    const messageElement = document.createElement('div');
-    messageElement.className = `notification-message w-100 mb-2 ${config.cssClass}`;
-    // Jika toast, tambahkan class khusus
-    if (menuTarget === 'toast') {
-        messageElement.classList.add('toast-message');
-        menuTarget = null; // Reset untuk toast
-    }
-    messageElement.innerHTML = `
-        <i class="pesan-notif-icon me-2 ${config.icon}"></i>
-        <span class="flex-grow-1">${message}</span>
-        <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
-    `;
-    // Tentukan target container
-    let targetContainer = document.body;
-    if (menuTarget) {
-        const menuElement = document.getElementById(menuTarget + 'Content');
-        if (menuElement) {
-            const menuContent = menuElement.querySelector('.menu-content');
-            if (menuContent) {
-                targetContainer = menuContent;
-            }
-        }
-    } else {
-        // Untuk pesan general, cari container yang aktif
-        const activeMenu = document.querySelector('.menu-header:not(.collapsed)');
-        if (activeMenu && activeMenu.hasAttribute('data-hari')) {
-            const hariKe = activeMenu.getAttribute('data-hari');
-            const menuElement = document.getElementById(`pertemuanContent${hariKe}`);
-            if (menuElement) {
-                const menuContent = menuElement.querySelector('.menu-content');
-                if (menuContent) {
-                    targetContainer = menuContent;
-                }
-            }
-        }
-    }
-    // Tambahkan pesan ke container
-    targetContainer.insertBefore(messageElement, targetContainer.firstChild);
-    messageElement.style.display = 'flex';
-
-    // Auto-hide jika duration > 0
-    if (duration > 0) {
-        setTimeout(() => {
-            if (messageElement.parentElement) {
-                messageElement.remove();
             }
         }, duration);
     }
