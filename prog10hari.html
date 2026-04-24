@@ -1532,7 +1532,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.classList.contains('disabled')) {
                 e.preventDefault();
                 e.stopPropagation();
-                // showMessage('warning', 'Selesaikan Perkenalan terlebih dahulu!', 3000);
                 showMessage('warning', 'Selesaikan Perkenalan terlebih dahulu!', 3000, `perkenalanContent`);
                 return;
             }
@@ -1910,7 +1909,6 @@ function setupAccordionToggle() {
             if (this.classList.contains('disabled')) {
                 e.preventDefault();
                 e.stopPropagation();
-                //showMessage('warning', 'Selesaikan Perkenalan terlebih dahulu!', 3000);
                 showMessage('warning', 'Selesaikan Perkenalan terlebih dahulu!', 3000, `perkenalanContent`);
                 return;
             }
@@ -3377,7 +3375,7 @@ function loadVideo(section, videoType, videoUrl, title = '') {
     // Validasi URL YouTube
     if (videoType === 'youtube' && !validateYouTubeUrl(videoUrl)) {
         console.error('❌ Invalid YouTube URL:', videoUrl);
-        showMessage('error', 'URL Youtube tidak valid');
+        showMessage('error', 'URL Youtube tidak valid',3000);
         return;
     }
     // Close video di section lain
@@ -3499,7 +3497,7 @@ function loadLocalVideo(videoPlayer, url) {
     if (videoElement) {
         videoElement.onerror = function() {
             console.error('Error loading local video:', url);
-            showMessage('error', 'Video tidak dapat dimuat');
+            showMessage('error', 'Video tidak dapat dimuat',3000);
             if (currentVideoData.section) {
                 closeVideo(currentVideoData.section);
             }
@@ -4897,7 +4895,6 @@ function disableCheckButton(sectionId) {
 *******************************************/
 function selesaiMateri(hariKe) {
     console.log(`✅ Menyelesaikan Materi hari ${hariKe}`);
-    //showMessage('success', `Materi hari ${hariKe} selesai!`, 3000, `Pertemuan${hariKe}`);
     showMessage('success', `Materi hari ${hariKe} selesai!`, 3000, `pertemuanContent${hariKe}`);
     saveMateriStatus(hariKe, true);
     // unlock next modul jika perlu
@@ -4985,8 +4982,7 @@ async function checkAndUnlockModulesForUser(userId) {
 async function selesaiModul(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    // showMessage('error', 'Silakan login terlebih dahulu', 3000, `Pertemuan${hariKe}`);
-    showMessage('success', 'Silahkan login terlebih dahulu', 3000, `pertemuanContent${hariKe}`);
+    showMessage('success', 'Silahkan login terlebih dahulu', 3000, `selesaimodulContent${hariKe}`);
     return;
   }
   console.log("🚀 Menyelesaikan Modul Hari", hariKe);
@@ -5021,14 +5017,13 @@ async function selesaiModul(hariKe) {
       if (hariKe < 10) {
         unlockModul(hariKe + 1);
       }
-      //showMessage('success', `Modul Hari ${hariKe} berhasil diselesaikan`, 3000, `Pertemuan${hariKe}`);
-      showMessage('success', 'Modul Hari $(hariKe} berhasil diselesaikan', 3000, `pertemuanContent${hariKe}`);
+      showMessage('success', `Modul hari ${hariKe} berhasil diselesaikan`, 3000, `selesaimodulContent${hariKe}`);
     } else {
-      showMessage('error', 'Gagal menyelesaikan modul', 3000, `pertemuanContent${hariKe}`);
+      showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
     }
   } catch (err) {
     console.error("❌ Error selesai Modul:", err);
-    showMessage('error', 'Gagal menyelesaikan modul', 3000, `pertemuanContent${hariKe}`);
+    showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
   }
 }
 
@@ -5176,7 +5171,6 @@ async function simpanDataTracking(hariKe) {
   });
   // Validasi lengkap
   if (!jenisKelamin || !usia || !tinggiBadan || !beratBadan || !lingkarPerut || !aktivitasFisik) {
-    //showMessage('warning', 'Semua field harus diisi', 3000);
     showMessage('warning', 'Semua field harus diisi', 3000, `trackingContent${hariKe}`);
     return;
   }
@@ -5200,18 +5194,15 @@ async function simpanDataTracking(hariKe) {
     const result = await response.text();
     console.log("📥 Response Data Tracking:", result);
     if (result === "OK") {
-      //showMessage('success', 'Data Tracking berhasil disimpan', 3000);
       showMessage('warning', 'Data Tracking berhasil disimpan', 3000, `trackingContent${hariKe}`);
       // Enable tombol selesai
       const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
       if (btnSelesai) btnSelesai.disabled = false;
     } else {
-      //showMessage('error', 'Gagal menyimpan data', 3000);
       showMessage('error', 'Gagal menyimpan data', 3000, `trackingContent${hariKe}`);
     }
   } catch (error) {
     console.error("❌ Error simpanDataTracking:", error);
-    //showMessage('error', 'Terjadi kesalahan sistem', 3000);
     showMessage('error', 'Terjadi kesalahan sistem', 3000, `trackingContent${hariKe}`);
   }
 }
@@ -5224,7 +5215,6 @@ async function selesaiDataTracking(hariKe) {
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
   if (!userId) {
-    //showMessage('error', 'User tidak ditemukan', 3000);
     showMessage('error', 'User tidak ditemukan', 3000, `trackingContent${hariKe}`);
     return;
   }
@@ -5249,12 +5239,10 @@ async function selesaiDataTracking(hariKe) {
       // ✅ Centang hijau dengan nama yang BENAR
       updateSubmenuLinkUI('tracking', hariKe);
     } else {
-      // showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000);
       showMessage('error', 'Gagal menyimpan Data Tracking', 3000, `trackingContent${hariKe}`);
     }
   } catch (error) {
     console.error(error);
-    // showMessage('error', 'Terjadi kesalahan koneksi', 3000);
     showMessage('error', 'Terjadi kesalahan koneksi', 3000, `trackingContent${hariKe}`);
   }
 }
@@ -5286,7 +5274,6 @@ function showMealplanUploadForm(hariKe) {
         // Scroll ke form
         setTimeout(() => { mealplanContent.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     } else {
-        // showMessage('error', 'Form meal plan tidak ditemukan', 3000, `Pertemuan${hariKe}`);
         showMessage('error', 'Form meal plan tidak ditemukan', 3000, `mealplanContent${hariKe}`);
     }
 }
@@ -5339,12 +5326,10 @@ async function uploadMealItem(hariKe, mealType) {
           localStorage.setItem(key, 'done');
           console.log(`✅ ${mealType} hari ${hariKe} selesai`);
         } else {
-          // showMessage('error', 'Gagal Upload', 3000);
           showMessage('error', 'Gagal Upload', 3000, `mealplanContent${hariKe}`);
         }
       } catch (err) {
         console.error('❌ Upload error:', err);
-        // showMessage('error','Terjadi kesalahan saat upload', 3000);
         showMessage('error', 'Terjadi kesalahan saat upload', 3000, `mealplanContent${hariKe}`);
       }
     };
@@ -5717,10 +5702,8 @@ async function selesaiWorkout(hariKe) {
       localStorage.setItem(`workoutHari${hariKe}`, 'completed');
       updateSubmenuLinkUI('workout', hariKe);
       disableWorkoutUI(hariKe);
-      // showMessage( 'success', 'Workout hari ini berhasil diselesaikan', 3000, `Pertemuan${hariKe}` );
-      showMessage('success', `Workout hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `workoutContent${hariKe}`);
+      showMessage('success', 'Workout hari selesai', 3000, `workoutContent${hariKe}`);
     } else {
-      // showMessage( 'error', result.message || 'Gagal menyelesaikan workout', 3000, `Pertemuan${hariKe}` );
       showMessage('error', result.message || `Gagal menyelesaikan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     }
 
@@ -5834,7 +5817,6 @@ async function uploadKardioFile(hariKe) {
     input.click();
   } catch (err) {
     console.error('❌ Upload kardio gagal:', err);
-    // showMessage('error', err.message, 3000);
     showMessage('error', err.message, 3000, `workoutContent${hariKe}`);
   }
 }
@@ -5950,10 +5932,9 @@ async function simpanWorkoutData(hariKe) {
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-      showMessage('success', `Data workout hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `workoutContent${hariKe}`);
+      showMessage('success', 'Data workout hari tersimpan', 3000, `workoutContent${hariKe}`);
       return true;
     }
-    // showMessage('error',result.message || 'Gagal menyimpan workout',3000,`Pertemuan${hariKe}`);
     showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     return false;
 
@@ -6446,7 +6427,6 @@ function addSelectedExercise(hariKe) {
     const selectElement = document.getElementById(`selectExercise${hariKe}`);
     const exerciseName = selectElement.value;
     if (!exerciseName) {
-        // showMessage('warning', 'Pilih exercise terlebih dahulu', 3000);
         showMessage('warning', `Pilih exercise terlebih dahulu`, 3000, `workoutContent${hariKe}`);
         return;
     }
@@ -7088,7 +7068,6 @@ async function simpanWaterReminder(hariKe) {
   const radio  = document.querySelector(`input[name="asupanAir${hariKe}"]:checked`);
 
   if (!radio) {
-    // showMessage('warning', 'Pilih jumlah asupan air terlebih dahulu', 3000);
     showMessage('warning', `Pilih jumlah asupan air terlebih dahulu`, 3000, `waterContent${hariKe}`);
     return;
   }
@@ -7128,8 +7107,7 @@ async function simpanWaterReminder(hariKe) {
 async function selesaiWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
-    // showMessage('error', 'Silakan login terlebih dahulu', 3000);
-    showMessage('error', `Silahkan login terlebih dahulu`, 3000, `waterContent${hariKe}`);
+     showMessage('error', 'Silahkan login terlebih dahulu', 3000, `waterContent${hariKe}`);
     return;
   }
 
@@ -7156,13 +7134,11 @@ async function selesaiWaterReminder(hariKe) {
       // ✅ UPDATE SUBMENU ICON CENTANG
       updateSubmenuLinkUI('water', hariKe);
     } else {
-      // showMessage('error', 'Gagal menyelesaikan Water Reminder', 3000);
       showMessage( 'error', 'Gagal menyelesaikan Water Reminder', 3000, `waterContent${hariKe}` );
     }
 
   } catch (err) {
     console.error('❌ Error selesai water:', err);
-    // showMessage('error', 'Terjadi kesalahan koneksi', 3000);
     showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `waterContent${hariKe}` );
   }
 }
@@ -7759,7 +7735,6 @@ function resetWaterReminderModul(modul, hariKe) {
   
   // Reset menu icon
   updateWaterMenuIconModul(modul, hariKe); // Akan menghapus badge
-  // showMessage( 'info', `Water reminder Modul ${modul}, Hari ${hariKe} telah direset`, 3000,`waterContent${hariKe}`);
   console.log(`🔄 Water reminder M${modul}D${hariKe} di-reset`);
 }
 
@@ -8080,7 +8055,7 @@ function initializeIstirahatForms() {
       const result = await response.text();
       if (result === "OK") {
         btnSelesai.disabled = false;
-        showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `istirahatContent${hariKe}`);
+        showMessage('success', 'Istirahat hari tersimpan', 3000, `istirahatContent${hariKe}`);
       }
     });
 
@@ -8102,7 +8077,7 @@ function initializeIstirahatForms() {
           el.disabled = true;
           el.style.cursor = "not-allowed";
         });
-        showMessage('success', `Istirahat hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `istirahatContent${hariKe}`);
+        showMessage('success', 'Istirahat selesai', 3000, `istirahatContent${hariKe}`);
         btnSimpan.disabled  = true;
         btnSelesai.disabled = true;
         btnSimpan.style.cursor  = "not-allowed";
@@ -8270,7 +8245,7 @@ function initializeTrackingForms() {
         const result = await response.text();
         console.log("📥 Response Data Tracking:", result);
         if (result === "OK") {
-          showMessage('success', `Data tracking hari ${getDayName(hariKe).toLowerCase()} tersimpan`, 3000, `trackingContent${hariKe}`);
+          showMessage('success', 'Data tracking tersimpan', 3000, `trackingContent${hariKe}`);
           btnSelesai.disabled = false;
         } else {
           showMessage('error', 'Gagal menyimpan data', 3000, `trackingContent${hariKe}`);
@@ -8354,7 +8329,7 @@ async function selesaiTanyaCoach(hariKe){
  
       const btnSelesai = document.getElementById(`btnSelesaiWA${hariKe}`);
       if (btnSelesai) btnSelesai.disabled = true;
-      showMessage('success', `Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `tanyaContent${hariKe}`);
+      showMessage('success', 'Tanya coach hari ini selesai', 3000, `tanyaContent${hariKe}`);
     } else {
       showMessage('error', 'Gagal menyelesaikan tanya coach', 3000, `tanyaContent${hariKe}`);
     }
@@ -8479,8 +8454,6 @@ async function kirimPesanCoach(hariKe){
                          container.querySelector(`button[onclick*="selesaiTanyaCoach"]`);
       if (btnSelesai) btnSelesai.disabled = false;
       showMessage('success', 'Pesan untuk coach, berhasil terkirim', 3000, `tanyaContent${hariKe}`);
-    //} else {
-    //  showMessage('error', 'Pesan gagal terkirim', 3000, `tanyaContent${hariKe}`);
     }
   } catch (error) {
     console.error("❌ Error kirim WA:", error);
