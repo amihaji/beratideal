@@ -1713,9 +1713,8 @@ function generateModulFromTemplate() {
       // TEXT
       .replaceAll(/data-hari="1"/g, `data-hari="${hariKe}"`)
       .replaceAll(/Hari Pertama/g, `Hari ${getDayName(hariKe)}`)
-      .replaceAll(/Modul Pertama/g, `Modul ${getDayName(hariKe)}`)           // ✅ TAMBAHKAN INI
-      .replaceAll(/di Modul Pertama/g, `di Modul ${getDayName(hariKe)}`)     // ✅ TAMBAHKAN INI
-
+      .replaceAll(/Modul Pertama/g, `Modul ${getDayName(hariKe)}`)          
+      .replaceAll(/di Modul Pertama/g, `di Modul ${getDayName(hariKe)}`)     
       .replaceAll(/1\.1/g, `${hariKe}.1`)
       .replaceAll(/1\.2/g, `${hariKe}.2`)
       .replaceAll(/1\.3/g, `${hariKe}.3`)
@@ -1724,6 +1723,8 @@ function generateModulFromTemplate() {
       .replaceAll(/1\.6/g, `${hariKe}.6`)
       .replaceAll(/1\.7/g, `${hariKe}.7`)
       .replaceAll(/1\.8/g, `${hariKe}.8`)
+      .replaceAll(/1\.9/g, `${hariKe}.9`)
+      .replaceAll(/1\.10/g, `${hariKe}.10`)
       
       // Ganti data-section="Pertemuan1"
       .replaceAll(/data-section=["']Pertemuan1["']/g, `data-section="Pertemuan${hariKe}"`);
@@ -8355,7 +8356,7 @@ async function selesaiTanyaCoach(hariKe){
  
       const btnSelesai = document.getElementById(`btnSelesaiWA${hariKe}`);
       if (btnSelesai) btnSelesai.disabled = true;
-      showMessage('success', `Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai`, 3000, `tanyaContent${hariKe}`);
+      showMessage('success', 'Tanya coach hari ${getDayName(hariKe).toLowerCase()} selesai', 3000, `tanyaContent${hariKe}`);
     } else {
       showMessage('error', 'Gagal menyelesaikan tanya coach', 3000, `tanyaContent${hariKe}`);
     }
@@ -8479,9 +8480,9 @@ async function kirimPesanCoach(hariKe){
       const btnSelesai = container.querySelector(`button[id*="SelesaiWA"]`) || 
                          container.querySelector(`button[onclick*="selesaiTanyaCoach"]`);
       if (btnSelesai) btnSelesai.disabled = false;
-      showMessage('success', `Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim`, 3000, `tanyaContent${hariKe}`);
+      showMessage('success', 'Pesan untuk coach hari ${getDayName(hariKe).toLowerCase()} berhasil terkirim', 3000, `tanyaContent${hariKe}`);
     } else {
-      showMessage('error', `Pesan gagal terkirim`, 3000, `tanyaContent${hariKe}`);
+      showMessage('error', 'Pesan gagal terkirim', 3000, `tanyaContent${hariKe}`);
     }
   } catch (error) {
     console.error("❌ Error kirim WA:", error);
