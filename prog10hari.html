@@ -2786,53 +2786,6 @@ function disableButtonsAfterCompletion(hariKe, submenuType) {
   console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
 }
 
-function BACKUP_disableButtonsAfterCompletion(hariKe, submenuType) {
-  console.log(`🔒 Disable ${submenuType} UI hari ${hariKe}`);
-  // KHUSUS MATERI: JANGAN DISABLE TOMBOL CENTANG
-  if (submenuType === 'materi') {
-    console.log(`✅ Materi hari ${hariKe} - tombol centang TIDAK di-disable via fungsi ini`);
-    return;
-  }
-  
-  const containerId = `${submenuType}Content${hariKe}`;
-  const container   = document.getElementById(containerId);
-  if (!container) {
-    console.warn(`⚠️ Container tidak ditemukan: ${containerId}`);
-    return;
-  }
-
-  // Disable semua input
-  container.querySelectorAll('input, textarea, select').forEach(el => {
-    el.disabled = true;
-  });
-
-  // Disable tombol kecuali yang diizinkan
-  container.querySelectorAll('button').forEach(btn => {
-    const isCloseBtn  = btn.classList.contains('btn-close-header') || btn.classList.contains('close-pdf');
-    const isCekDisini = btn.id && btn.id.includes('btnCekDisini');
-    if (!isCloseBtn && !isCekDisini) {
-      btn.disabled = true;
-      
-      // 🔧 FIX: Untuk tombol Selesai Modul, pertahankan styling agar tetap rata tengah
-      if (submenuType === 'selesaimodul') {
-        if (btn.classList.contains('btn-success')) {
-          btn.classList.remove('btn-success');
-          btn.classList.add('btn-secondary');
-        }
-        btn.style.marginLeft = 'auto';
-        btn.style.marginRight = 'auto';
-        btn.style.display = 'inline-block';
-      } else {
-        if (btn.classList.contains('btn-primary') || btn.classList.contains('btn-success')) {
-          btn.classList.remove('btn-primary', 'btn-success');
-          btn.classList.add('btn-secondary');
-        }
-      }
-    }
-  });
-  console.log(`✅ ${submenuType} hari ${hariKe} berhasil di-disable`);
-}
-
 /*******************************************
 * Update Submenu Link UI dan Centang Hijau *
 ********************************************/
@@ -5097,57 +5050,6 @@ async function selesaiModul(hariKe) {
   }
 }
 
-async function BACKUP_selesaiModul(hariKe) {
-  const userId = localStorage.getItem('userId');
-  if (!userId) {
-    showMessage('success', 'Silahkan login terlebih dahulu', 3000, `selesaimodulContent${hariKe}`);
-    return;
-  }
-  console.log("🚀 Menyelesaikan Modul Hari", hariKe);
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        action: "completeModul",
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-    
-    const data = await response.json();
-    console.log("📡 Response completeModul:", data);
-    
-    if (data.success) {
-      // Update UI
-      updateSubmenuLinkUI('selesaimodul', hariKe);
-      disableButtonsAfterCompletion(hariKe, 'selesaimodul');
-      
-      // Disable tombol Selesai Modul
-      const btnSelesai = document.getElementById(`btnSelesaiModul${hariKe}`);
-      if (btnSelesai) {
-        btnSelesai.disabled = true;
-        btnSelesai.style.cursor = 'not-allowed';
-        // 🔧 FIX: Pastikan tombol tetap rata tengah setelah disabled
-        btnSelesai.style.marginLeft = 'auto';
-        btnSelesai.style.marginRight = 'auto';
-        btnSelesai.style.display = 'inline-block';
-      }
-      // Unlock modul berikutnya
-      if (hariKe < 10) {
-        unlockModul(hariKe + 1);
-      }
-      showMessage('success', `Modul hari ${hariKe} berhasil diselesaikan`, 3000, `selesaimodulContent${hariKe}`);
-    } else {
-      showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
-    }
-  } catch (err) {
-    console.error("❌ Error selesai Modul:", err);
-    showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
-  }
-}
 
 /************************************
 * Fetch progress dari server dengan Promise *
@@ -7210,6 +7112,7 @@ async function simpanWaterReminder(hariKe) {
   console.log('📥 Response water:', result);
   if (result === 'OK') {
     showMessage('success', 'Asupan air berhasil disimpan', 3000, `waterContent${hariKe}` );
+    //btnSimpan.disabled = true;   // DISABLED SETELAH TERSIMPAN
     // Aktifkan tombol selesai
     const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
     if (btnSelesai) btnSelesai.disabled = false;
@@ -8826,149 +8729,6 @@ function showMessage(type, message, duration = 3000, targetId = null) {
     return messageElement;
 }
 
-function BACKUP_showMessage(type, message, duration = 3000, targetId = null) {
-    console.log('📢 showMessage called:', { type, message, duration, targetId });
-    
-    // Konfigurasi tipe pesan
-    const typeConfig = {
-        success: { cssClass: 'notification-success', icon: 'fas fa-check-circle' },
-        error: { cssClass: 'notification-error', icon: 'fas fa-times-circle' },
-        warning: { cssClass: 'notification-warning', icon: 'fas fa-exclamation-circle' },
-        info: { cssClass: 'notification-info', icon: 'fas fa-info-circle' }
-    };
-
-    const config = typeConfig[type] || typeConfig.info;
-    // Buat element pesan
-    const messageElement = document.createElement('div');
-    messageElement.className = `notification-message ${config.cssClass}`;
-    messageElement.style.cssText = 'display: flex !important; align-items: center; justify-content: space-between; margin: 10px 0;';
-    messageElement.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="${config.icon}" style="font-size: 18px;"></i>
-            <span>${message}</span>
-        </div>
-        <button type="button" class="btn-close btn-close-sm" style="font-size: 10px;" onclick="this.parentElement.remove()"></button>
-    `;
-    
-    // Tentukan target container
-    let targetContainer = null;
-    let buttonArea = null;
-    
-    // Cari berdasarkan targetId yang diberikan
-    if (targetId) {
-        // Coba cari container dengan ID exact
-        targetContainer = document.getElementById(targetId);
-        // Jika tidak ditemukan, cari submenu content
-        if (!targetContainer) {
-            targetContainer = document.getElementById(targetId + 'Content');
-        }
-        // Jika masih tidak ditemukan, coba dengan awalan
-        if (!targetContainer && (targetId.startsWith('mealplan') || targetId.startsWith('workout') || 
-            targetId.startsWith('water') || targetId.startsWith('istirahat') || targetId.startsWith('tracking') ||
-            targetId.startsWith('tanya') || targetId.startsWith('selesaimodul') || targetId.startsWith('pertemuan'))) {
-            targetContainer = document.getElementById(targetId);
-            if (!targetContainer && !targetId.endsWith('Content')) {
-                targetContainer = document.getElementById(targetId + 'Content');
-            }
-        }
-    }
-    
-    // Jika tidak ada target spesifik, cari submenu yang sedang aktif
-    if (!targetContainer) {
-        const visibleSubmenus = document.querySelectorAll('.submenu-content[style*="display: block"], .submenu-content[style*="display:block"]');
-        if (visibleSubmenus.length > 0) {
-            targetContainer = visibleSubmenus[0];
-        }
-    }
-    
-    // Jika masih tidak ada container, cari menu content yang sedang terbuka
-    if (!targetContainer) {
-        const openMenu = document.querySelector('.menu-content[style*="display: block"], .menu-content[style*="display:block"]');
-        if (openMenu) {
-            targetContainer = openMenu;
-        }
-    }
-    // Fallback ke card-body
-    if (!targetContainer) {
-        targetContainer = document.querySelector('.card-body');
-    }
-    // Fallback terakhir ke body
-    if (!targetContainer) {
-        targetContainer = document.body;
-    }
-    
-    // ========== CARI TOMBOL "SELESAI" ==========
-    // Cari tombol dengan teks "Selesai" di dalam container
-    const allButtons = targetContainer.querySelectorAll('button');
-    let selesaiButton = null;
-        for (const btn of allButtons) {
-        const btnText = btn.textContent || '';
-        // Cari tombol Selesai (bukan "Cek Disini" atau tombol upload)
-        if ((btnText.includes('Selesai') || btnText.includes('selesai')) && 
-            !btnText.includes('Cek Disini') &&
-            !btn.id?.includes('CekDisini')) {
-            selesaiButton = btn;
-            break;
-        }
-    }
-    
-    // Jika ada tombol Selesai, tempatkan pesan SETELAH tombol tersebut
-    if (selesaiButton && selesaiButton.parentElement) {
-        // Cari parent container dari tombol Selesai
-        let parentForInsert = selesaiButton.closest('.d-flex, .mt-4, .water-actions, .text-left, .action-row, .border > div');
-        if (parentForInsert) {
-            // Sisipkan pesan setelah parent container tombol
-            parentForInsert.insertAdjacentElement('afterend', messageElement);
-        } else {
-            // Jika tidak ada parent container, sisipkan setelah tombol
-            selesaiButton.insertAdjacentElement('afterend', messageElement);
-        }
-    } else {
-        // Fallback: cari area tombol umum
-        const buttonAreaSelectors = [
-            '.water-actions .text-left',
-            '.water-actions',
-            '.action-row',
-            '.mt-4 .d-flex',
-            '.mt-4',
-            '.text-left'
-        ];
-        for (const selector of buttonAreaSelectors) {
-            const area = targetContainer.querySelector(selector);
-            if (area) {
-                area.insertAdjacentElement('afterend', messageElement);
-                break;
-            }
-        }
-       // Jika masih tidak ada, tambahkan di akhir container
-        if (!messageElement.parentElement) {
-            targetContainer.appendChild(messageElement);
-        }
-    }
-    
-    // Scroll ke pesan dengan smooth
-    setTimeout(() => {
-        if (messageElement && messageElement.parentElement) {
-            messageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, 100);
-    // Auto-hide jika duration > 0
-    if (duration > 0) {
-        setTimeout(() => {
-            if (messageElement && messageElement.parentElement) {
-                messageElement.style.opacity = '0';
-                messageElement.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => {
-                    if (messageElement && messageElement.parentElement) {
-                        messageElement.remove();
-                    }
-                }, 300);
-            }
-        }, duration);
-    }
-    return messageElement;
-}
-
 /**************************
  * Database Emoji Picker
  * ***********************/
@@ -9092,6 +8852,7 @@ if(e.target.classList.contains("emoji-search")){
   });
 }
 });
+
 
 </script>
 </body>
