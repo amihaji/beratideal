@@ -9144,13 +9144,21 @@ function buatGrafik(trackingData) {
 }
 
 // Event listener untuk dashboard
+// Cara 1: Menggunakan event delegation yang lebih spesifik
 document.addEventListener('click', function(e) {
-    const dashboardHeader = e.target.closest('[data-bs-target="#dasboardFitTrack"]');
-    if (dashboardHeader) {
-        console.log('🖱️ Dashboard menu clicked - memuat data...');
+    // Cek apakah yang diklik adalah tombol header dashboard
+    const clickedElement = e.target;
+    
+    // Cek apakah klik pada tombol header atau di dalamnya
+    const isDashboardButton = clickedElement.closest('[data-bs-target="#dasboardFitTrack"]');
+    
+    if (isDashboardButton) {
+        console.log('🖱️ Dashboard button clicked!');
+        // Beri sedikit delay agar collapse sempat terbuka
         setTimeout(function() {
+            console.log('📊 Memanggil loadDashboardData...');
             loadDashboardData();
-        }, 500);
+        }, 300);
     }
 });
 
