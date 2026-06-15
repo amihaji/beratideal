@@ -9144,22 +9144,31 @@ function buatGrafik(trackingData) {
 }
 
 // Event listener untuk dashboard
-// Cara 1: Menggunakan event delegation yang lebih spesifik
-document.addEventListener('click', function(e) {
-    // Cek apakah yang diklik adalah tombol header dashboard
-    const clickedElement = e.target;
+// Cara 2: Juga pasang listener pada tombol saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Cari semua tombol yang membuka dashboard
+    const dashboardButtons = document.querySelectorAll('[data-bs-target="#dasboardFitTrack"]');
+    dashboardButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            console.log('🖱️ Dashboard button clicked (direct)');
+            setTimeout(function() {
+                loadDashboardData();
+            }, 300);
+        });
+    });
     
-    // Cek apakah klik pada tombol header atau di dalamnya
-    const isDashboardButton = clickedElement.closest('[data-bs-target="#dasboardFitTrack"]');
-    
-    if (isDashboardButton) {
-        console.log('🖱️ Dashboard button clicked!');
-        // Beri sedikit delay agar collapse sempat terbuka
-        setTimeout(function() {
-            console.log('📊 Memanggil loadDashboardData...');
-            loadDashboardData();
-        }, 300);
-    }
+    // Juga cari tombol dengan class menu-header yang menuju ke dashboard
+    const menuHeaders = document.querySelectorAll('.menu-header');
+    menuHeaders.forEach(function(header) {
+        if (header.getAttribute('data-bs-target') === '#dasboardFitTrack') {
+            header.addEventListener('click', function() {
+                console.log('🖱️ Dashboard header clicked');
+                setTimeout(function() {
+                    loadDashboardData();
+                }, 300);
+            });
+        }
+    });
 });
 
 /************************************
