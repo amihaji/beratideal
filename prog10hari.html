@@ -1648,9 +1648,13 @@ function logout() {
     window.location.href = 'loginFC.html';
 }
 
-/***********************************************
+/************************************************
 * GENERATE MODUL DARI TEMPLATE MODUL1 
-* Data Tracking HANYA untuk Hari 1, 5, dan 10
+* Data Tracking HANYA untuk Hari 1, 5, dan 10 
+* yang lainya disembunyikan
+************************************************/
+/***********************************************
+* GENERATE MODUL DARI TEMPLATE MODUL1 (AMAN)
 ***********************************************/
 function generateModulFromTemplate() {
   const modul1 = document.getElementById('modulHari1Wrapper');
@@ -1662,6 +1666,9 @@ function generateModulFromTemplate() {
   if (!container) return;
   
   let html = '';
+  
+  // Daftar hari yang TIDAK boleh menampilkan Data Tracking (baik form maupun menu)
+  const hariTanpaTracking = [2, 3, 4, 6, 7, 8, 9];
   
   for (let hariKe = 2; hariKe <= 10; hariKe++) {
     let clone = modul1.outerHTML;
@@ -1753,23 +1760,22 @@ function generateModulFromTemplate() {
       .replaceAll(/data-url="pdf\/istirahat1\.pdf"/g, fileMateri[hariKe].istirahat)
       .replaceAll(/data-url="pdf\/tracking1\.pdf"/g, fileMateri[hariKe].tracking);
     
-    // ========================================================
-    // 🔥 SEMBUNYIKAN  FORM DATA TRACKING UNTUK HARI TERTENTU
+    // ============================================================
+    // 🔥 SEMBUNYIKAN MENU LINK DATA TRACKING UNTUK HARI TERTENTU
     // Data Tracking HANYA untuk Hari 1, 5, dan 10
-    // ========================================================
-    const hariTracking = [1, 5, 10];
-    
-    if (!hariTracking.includes(hariKe)) {
-      // 1. Sembunyikan submenu tracking content
-      clone = clone.replace(
-        /(<div class="submenu-content" id="trackingContent\d+" style="display: none;">)/,
-        '<div class="submenu-content" id="trackingContent' + hariKe + '" style="display: none; display: none !important;">'
+    // ============================================================
+    if (hariTanpaTracking.includes(hariKe)) {
+      // 1. Sembunyikan menu link Data Tracking (2.6, 3.6, 4.6, 6.6, 7.6, 8.6 dan 9.6)
+      const menuLinkRegex = new RegExp(
+        `<a href="#" class="menu-item submenu-trigger" data-target="trackingContent${hariKe}">[\\s\\S]*?${hariKe}\\.6 Data Tracking Hari [^<]+</a>`,
+        'gi'
       );
+      clone = clone.replace(menuLinkRegex, '');
       
-      // 2. Tambahkan class "hidden-tracking" untuk memudahkan styling tambahan
+      // 2. Sembunyikan submenu tracking content
       clone = clone.replace(
-        /(<div class="submenu-content" id="trackingContent\d+")/,
-        '$1 data-tracking-hidden="true"'
+        new RegExp(`(<div class="submenu-content" id="trackingContent${hariKe}" style="display: none;">)`, 'gi'),
+        '<div class="submenu-content" id="trackingContent' + hariKe + '" style="display: none; display: none !important;" data-tracking-hidden="true">'
       );
     }
     
@@ -1792,8 +1798,9 @@ function generateModulFromTemplate() {
   }
   
   console.log('✅ Modul 2-10 + Video + PDF AUTO LOAD (FIXED)');
-  console.log('📊 Data Tracking hanya untuk hari 1, 5, 10 - lainnya disembunyikan');
+  console.log('📊 Data Tracking (menu & form) hanya untuk hari 1, 5, 10 - lainnya disembunyikan');
 }
+
 
 /******************************************************************
 * GENERATE MODUL DARI TEMPLATE MODUL1 
