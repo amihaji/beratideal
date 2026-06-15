@@ -1563,7 +1563,7 @@ button[id^="btnCekDisini"] {
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxovpvbjeFLbNbMnhiEgGx8905af4hvxow8__Z5lofMJJ4GHGPF4Tdz4k_JqbY8-HEn/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzoM9KZ6OxNQtxTpi1RME0RaXG9-0YhOsJgl6WYteG1YHfz1wG8jI8V1rlUE31gSlEU/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 // Variabel global untuk Chart.js
@@ -8946,13 +8946,186 @@ function showMessage(type, message, duration = 3000, targetId = null) {
     return messageElement;
 }
 
-/******************************************
- * DASHBOARD - Mengambil Data dari Server
-******************************************/
-/**********************************************
- * DASHBOARD - Versi Sederhana
- **********************************************/
+/********************************************
+ * Memuat data dashboard dari SERVER (REAL)
+ ********************************************/
 function loadDashboardData() {
+    console.log('📊 loadDashboardData dipanggil - mengambil data dari server...');
+    
+    const dashboardContainer = document.getElementById('dashboardContent');
+    if (!dashboardContainer) {
+        console.error('❌ Element dashboardContent tidak ditemukan');
+        return;
+    }
+    
+    // Tampilkan loading
+    dashboardContainer.innerHTML = `
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Mengambil data dari server...</p>
+        </div>
+    `;
+    
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        dashboardContainer.innerHTML = `
+            <div class="text-center p-5 text-danger">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                <p>Silakan login terlebih dahulu</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Panggil data dari server
+    fetchDashboardDataFromServer(userId);
+}
+
+/**********************************************
+ * Fetch data dashboard dari server via JSONP
+ **********************************************/
+function fetchDashboardDataFromServer(userId) {
+    const callbackName = 'cb_dashboard_' + Date.now();
+    const script = document.createElement('script');
+    
+    script.src = `${URL_PROGRAM_APP}?action=getDashboardData&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    
+    window[callbackName] = function(response) {
+        console.log('📊 Dashboard response dari server:', response);
+        
+        if (response && response.success) {
+            // Konversi data dari server ke format yang sesuai untuk dashboard
+            const dashboardData = konversiDataServer(response);
+            tampilkanDashboardSederhana(dashboardData);
+        } else {
+            // Jika tidak ada data, tampilkan pesan
+            const container = document.getElementById('dashboardContent');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center p-5">
+                        <i class="fas fa-chart-line fa-4x mb-3" style="color: #ccc;"></i>
+                        <p>Belum ada data tracking yang tersedia.</p>
+                        <p class="small text-muted">Data akan muncul setelah menyelesaikan:<br>
+                        ✅ Data Tracking Hari ke-1<br>
+                        ✅ Data Tracking Hari ke-5<br>
+                        ✅ Data Tracking Hari ke-10</p>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Cleanup
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    script.onerror = function() {
+        console.error('❌ Gagal mengambil data dashboard dari server');
+        const container = document.getElementById('dashboardContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center p-5">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                    <p>Gagal terhubung ke server.</p>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                        <i class="fas fa-sync-alt"></i> Coba Lagi
+                    </button>
+                </div>
+            `;
+        }
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    // Timeout 10 detik
+    setTimeout(function() {
+        if (window[callbackName]) {
+            console.warn('⚠️ Dashboard request timeout');
+            const container = document.getElementById('dashboardContent');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center p-5">
+                        <i class="fas fa-clock fa-3x mb-3" style="color: #ffc107;"></i>
+                        <p>Request timeout. Silakan coba lagi.</p>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                            <i class="fas fa-sync-alt"></i> Coba Lagi
+                        </button>
+                    </div>
+                `;
+            }
+            document.body.removeChild(script);
+            delete window[callbackName];
+        }
+    }, 10000);
+    
+    document.body.appendChild(script);
+}
+
+/**********************************************
+ * Konversi data dari server ke format dashboard
+ **********************************************/
+function konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    // Data Profile
+    const profile = serverData.profile || {};
+    
+    // Data Tracking untuk grafik
+    const trackingDataRaw = serverData.trackingData || [];
+    const trackingData = trackingDataRaw.map(function(item) {
+        return {
+            hari: item.hari || 'Hari ' + item.hariKe,
+            beratBadan: parseFloat(item.beratBadan) || 0,
+            lingkarPerut: parseFloat(item.lingkarPerut) || 0
+        };
+    });
+    
+    // Jika trackingData kosong, buat data default dari yang tersedia
+    if (trackingData.length === 0) {
+        console.log('⚠️ Tidak ada data tracking, menggunakan data dari profile');
+        // Coba ambil dari profile jika ada
+        if (profile.beratBadan && profile.lingkarPerut) {
+            trackingData.push({
+                hari: 'Hari 1',
+                beratBadan: parseFloat(profile.beratBadan) || 0,
+                lingkarPerut: parseFloat(profile.lingkarPerut) || 0
+            });
+        }
+    }
+    
+    // Data Evaluasi
+    const evaluasi = serverData.evaluasi || {};
+    
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: {
+            bbIdeal: evaluasi.bbIdeal || '-',
+            imt: evaluasi.imt || '-',
+            lemakTubuh: evaluasi.lemakTubuh || '-',
+            lemakPerut: evaluasi.lemakPerut || '-',
+            massaOtot: evaluasi.massaOtot || '-',
+            bmr: evaluasi.bmr || '-',
+            kalori: evaluasi.kalori || '-',
+            protein: evaluasi.protein || '-',
+            kesimpulan: evaluasi.kesimpulan || '-',
+            rekomendasi: evaluasi.rekomendasi || '-'
+        }
+    };
+}
+
+function BACKUP_loadDashboardData() {
     console.log('📊 loadDashboardData dipanggil');
     
     const dashboardContainer = document.getElementById('dashboardContent');
@@ -9144,7 +9317,6 @@ function buatGrafik(trackingData) {
 }
 
 // Event listener untuk dashboard
-// Cara 2: Juga pasang listener pada tombol saat halaman dimuat
 document.addEventListener('DOMContentLoaded', function() {
     // Cari semua tombol yang membuka dashboard
     const dashboardButtons = document.querySelectorAll('[data-bs-target="#dasboardFitTrack"]');
