@@ -833,6 +833,50 @@ button[id^="btnCekDisini"] {
   cursor: pointer !important;
 }
 
+/***** DASHBOARD STYLES *****/
+.dashboard-container {
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+}
+.dashboard-profile-table td, 
+.dashboard-profile-table th {
+    padding: 8px;
+    vertical-align: middle;
+}
+.dashboard-evaluasi-table {
+    font-size: 13px;
+}
+.dashboard-evaluasi-table th,
+.dashboard-evaluasi-table td {
+    padding: 8px;
+    vertical-align: middle;
+}
+
+/* Chart di dashboard */
+.chart-container {
+    position: relative;
+    margin: 20px 0;
+    height: 300px;
+    width: 100%;
+}
+.chart-loading {
+    text-align: center;
+    padding: 50px;
+    color: #666;
+}
+.chart-error {
+    text-align: center;
+    padding: 50px;
+    color: #dc3545;
+}
+.dashboard-nodata {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
 /*****************************
 /* TAMPILAN MOBILE RESPONSIVE
 /*****************************/
@@ -1470,15 +1514,18 @@ button[id^="btnCekDisini"] {
             <div class="collapse" id="dasboardFitTrack" data-bs-parent="#menuAccordion">
               <div class="border p-3 bg-light mt-2 mb-2">
                 <div class="card-title p-1 mb-2 position-relative" style="text-align:left; color: #ffffff; text-shadow: #bebebe; background-color: #002266; border-bottom-style:solid; border-bottom-color:#facc00; border-width:5px;">
-                  <h6 class="mt-1 mb-1"><i class="fas fa-dumbbell"> Dashboard Fit Track</i></h6>
-                  <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('selesaiDashboard')">
+                  <h6 class="mt-1 mb-1"><i class="fas fa-chart-line"></i> Dashboard Fit Track</h6>
+                  <button type="button" class="btn-close-header position-absolute top-50 end-0 translate-middle-y me-2" onclick="hideSubmenu('dasboardFitTrack')">
                     <i class="fas fa-times"></i>
                   </button>
                 </div>
-                <div style="text-align: left; font-size: 10px;">              
-                  <p><i class="fas fa-heartbeat"> Kesehatan</i></b></br> 
-                  <b><i class="fas fa-dumbbell"> Tingkat Kebugaran</i></b></br> 
-                  <b><i class="fas fa-chart-line"> Grafik Fit Track</i></b></br> 
+                <div id="dashboardContent" style="min-height: 400px;">
+                  <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memuat data dashboard...</p>
+                  </div>
                 </div>
               </div>  
             </div>
@@ -1509,14 +1556,20 @@ button[id^="btnCekDisini"] {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
 
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyv1nVPbJAtnWpTd8aCdsBwOSLxmJOsMoYaZl2kcH0YdJ7pKwbCJcisR29NErncjK2F/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyDB6N67NqodoXxBwRW0NHrAUyMTcmWx8VTUQXofL8p9pxDo93BE18IHbOVD0JLjRsI/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
+
+// Variabel global untuk Chart.js
+let beratChart   = null;
+let lingkarChart = null;
+
 const fileMateri = {};
 for (let i = 1; i <= 10; i++) {
   fileMateri[i] = {
@@ -3514,6 +3567,14 @@ function setupAllLinks() {
       pdf.style.display = 'none';
     });
     
+    // Event listener untuk dashboard ketika menu dibuka
+    const dashboardHeader = e.target.closest('[data-bs-target="#dasboardFitTrack"]');
+    if (dashboardHeader) {
+        setTimeout(() => {
+            loadDashboardData();
+        }, 300);
+    }
+
     // Load video
     loadVideo(section, videoType, videoUrl, title);
     
@@ -8891,6 +8952,374 @@ function showMessage(type, message, duration = 3000, targetId = null) {
         }, duration);
     }
     return messageElement;
+}
+
+/******************************************
+ * DASHBOARD - Mengambil Data dari Server
+******************************************/
+
+/***********************************
+ * Memuat data dashboard dari server
+ ***********************************/
+async function loadDashboardData() {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
+    if (!userId) {
+        showMessage('warning', 'Silakan login terlebih dahulu', 3000);
+        return;
+    }
+    
+    const dashboardContainer = document.getElementById('dashboardContent');
+    if (!dashboardContainer) return;
+    
+    // Tampilkan loading
+    dashboardContainer.innerHTML = `
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat data dashboard...</p>
+        </div>
+    `;
+    
+    try {
+        // Panggil server untuk mengambil data dashboard
+        const data = await fetchDashboardDataFromServer(userId);
+        
+        if (data && data.success) {
+            // Tampilkan dashboard
+            renderDashboard(data);
+        } else {
+            dashboardContainer.innerHTML = `
+                <div class="dashboard-nodata">
+                    <i class="fas fa-chart-line fa-3x mb-3" style="color: #ccc;"></i>
+                    <p>Belum ada data tracking yang tersedia.</p>
+                    <p class="small text-muted">Data tracking akan muncul setelah menyelesaikan:<br>
+                    Hari 1, Hari 5, dan Hari 10</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        dashboardContainer.innerHTML = `
+            <div class="dashboard-nodata">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                <p>Gagal memuat data dashboard.</p>
+                <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                    <i class="fas fa-sync-alt"></i> Coba Lagi
+                </button>
+            </div>
+        `;
+    }
+}
+
+/*********************************************
+ * Fetch data dashboard dari server via JSONP
+ *********************************************/
+function fetchDashboardDataFromServer(userId) {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'cb_dashboard_' + Date.now();
+        const script = document.createElement('script');
+        
+        script.src = `${URL_PROGRAM_APP}?action=getDashboardData&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+        
+        window[callbackName] = function(response) {
+            console.log('📊 Dashboard response:', response);
+            resolve(response);
+            document.body.removeChild(script);
+            delete window[callbackName];
+        };
+        
+        script.onerror = () => {
+            console.error('❌ Failed to fetch dashboard data');
+            reject(new Error('Failed to fetch dashboard data'));
+            document.body.removeChild(script);
+            delete window[callbackName];
+        };
+        
+        document.body.appendChild(script);
+    });
+}
+
+/**************************
+ * Render Dashboard ke HTML
+ **************************/
+function renderDashboard(data) {
+    const dashboardContainer = document.getElementById('dashboardContent');
+    if (!dashboardContainer) return;
+    
+    // Data Profile (dari hari ke-1 atau data terbaru)
+    const profile = data.profile || {};
+    
+    // Data Tracking untuk Grafik
+    const trackingData = data.trackingData || [];
+    
+    // Persiapkan data untuk grafik
+    const labels = [];
+    const beratValues = [];
+    const lingkarValues = [];
+    
+    trackingData.forEach(item => {
+        labels.push(item.hari || `Hari ${item.hariKe}`);
+        beratValues.push(item.beratBadan || 0);
+        lingkarValues.push(item.lingkarPerut || 0);
+    });
+    
+    // Data Evaluasi (dari hari ke-10 atau data terbaru)
+    const evaluasi = data.evaluasi || {};
+    
+    const html = `
+        <div class="dashboard-container">
+            <!-- DATA PROFILE -->
+            <h6 class="mb-3"><i class="fas fa-user-circle me-2"></i>Data Profile Peserta</h6>
+            <table class="table table-bordered dashboard-profile-table">
+                <tbody>
+                    <tr><th style="background-color:#e8f4fd; width:35%;">Nama</th><td>${profile.namaKonsumen || data.nama || '-'}</td></tr>
+                    <tr><th style="background-color:#e8f4fd;">Jenis Kelamin</th><td>${profile.jenisKelamin || '-'}</td></tr>
+                    <tr><th style="background-color:#e8f4fd;">Usia</th><td>${profile.usia || '-'} tahun</td></tr>
+                    <tr><th style="background-color:#e8f4fd;">Tinggi Badan</th><td>${profile.tinggiBadan || '-'} cm</td></tr>
+                    <tr><th style="background-color:#e8f4fd;">Aktivitas Fisik</th><td>${profile.aktivitasFisik || '-'}</td></tr>
+                </tbody>
+            </table>
+            
+            <!-- DATA PERKEMBANGAN (GRAFIK) -->
+            <h6 class="mt-4 mb-3"><i class="fas fa-chart-line me-2"></i>Grafik Perkembangan</h6>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fas fa-weight-scale me-1"></i> Perkembangan Berat Badan (kg)
+                        </div>
+                        <div class="card-body">
+                            <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fas fa-ribbon me-1"></i> Perkembangan Lingkar Perut (cm)
+                        </div>
+                        <div class="card-body">
+                            <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DATA EVALUASI HASIL PERHITUNGAN -->
+            <h6 class="mt-4 mb-3"><i class="fas fa-heartbeat me-2"></i>Hasil Evaluasi (Hari ke-10)</h6>
+            <div style="overflow-x: auto;">
+                <table class="table table-bordered dashboard-evaluasi-table">
+                    <thead>
+                        <tr>
+                            <th style="background-color:#e8f4fd; width:25%;">Parameter</th>
+                            <th style="background-color:#e8f4fd; width:10%; text-align:center;">Hasil</th>
+                            <th style="background-color:#e8f4fd; width:15%; text-align:center;">Referensi</th>
+                            <th style="background-color:#e8f4fd; width:5%; text-align:center;">Satuan</th>
+                            <th style="background-color:#e8f4fd; width:45%;">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Berat Badan Ideal</strong></td>
+                            <td style="text-align:center;">${evaluasi.bbIdeal || '-'}</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">kg</td>
+                            <td>Berat badan ideal berdasarkan tinggi badan dan usia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IMT (Indeks Massa Tubuh)</strong></td>
+                            <td style="text-align:center;">${evaluasi.imt || '-'}</td>
+                            <td style="text-align:center;">18.5 - 24.9</td>
+                            <td style="text-align:center;">-</td>
+                            <td>${getIMTKeterangan(evaluasi.imt)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Persentase Lemak Tubuh</strong></td>
+                            <td style="text-align:center;">${evaluasi.lemakTubuh || '-'}</td>
+                            <td style="text-align:center;">Pria: 10-20%<br>Wanita: 18-28%</td>
+                            <td style="text-align:center;">%</td>
+                            <td>${getLemakKeterangan(evaluasi.lemakTubuh, profile.jenisKelamin)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lemak Perut</strong></td>
+                            <td style="text-align:center;">${evaluasi.lemakPerut || '-'}</td>
+                            <td style="text-align:center;">< 80 cm (P)<br>< 90 cm (W)</td>
+                            <td style="text-align:center;">cm</td>
+                            <td>${getLemakPerutKeterangan(evaluasi.lemakPerut, profile.jenisKelamin)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Massa Otot</strong></td>
+                            <td style="text-align:center;">${evaluasi.massaOtot || '-'}</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">kg</td>
+                            <td>Massa otot tubuh</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BMR (Basal Metabolic Rate)</strong></td>
+                            <td style="text-align:center;">${evaluasi.bmr || '-'}</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">kalori</td>
+                            <td>Kebutuhan kalori basal tubuh</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kebutuhan Kalori Harian</strong></td>
+                            <td style="text-align:center;">${evaluasi.kalori || '-'}</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">kalori</td>
+                            <td>Kebutuhan kalori dengan aktivitas fisik</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kebutuhan Protein</strong></td>
+                            <td style="text-align:center;">${evaluasi.protein || '-'}</td>
+                            <td style="text-align:center;">-</td>
+                            <td style="text-align:center;">gram</td>
+                            <td>Kebutuhan protein harian</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- KESIMPULAN & REKOMENDASI -->
+            <h6 class="mt-4 mb-3"><i class="fas fa-clipboard-check me-2"></i>Kesimpulan & Rekomendasi</h6>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th style="background-color:#e8f4fd; width:20%;">Kesimpulan</th>
+                        <td>${evaluasi.kesimpulan || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:#e8f4fd;">Rekomendasi</th>
+                        <td>${evaluasi.rekomendasi || '-'}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    dashboardContainer.innerHTML = html;
+    
+    // Render grafik setelah HTML dimuat
+    setTimeout(() => {
+        renderCharts(labels, beratValues, lingkarValues);
+    }, 100);
+}
+
+/*************************************
+ * Render grafik menggunakan Chart.js
+ *************************************/
+function renderCharts(labels, beratValues, lingkarValues) {
+    // Grafik Berat Badan
+    const beratCtx = document.getElementById('beratChartCanvas')?.getContext('2d');
+    if (beratCtx) {
+        if (beratChart) beratChart.destroy();
+        beratChart = new Chart(beratCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Berat Badan (kg)',
+                    data: beratValues,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#28a745'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.raw} kg` } }
+                },
+                scales: {
+                    y: { title: { display: true, text: 'Berat Badan (kg)' }, beginAtZero: false }
+                }
+            }
+        });
+    }
+    
+    // Grafik Lingkar Perut
+    const lingkarCtx = document.getElementById('lingkarChartCanvas')?.getContext('2d');
+    if (lingkarCtx) {
+        if (lingkarChart) lingkarChart.destroy();
+        lingkarChart = new Chart(lingkarCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Lingkar Perut (cm)',
+                    data: lingkarValues,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.raw} cm` } }
+                },
+                scales: {
+                    y: { title: { display: true, text: 'Lingkar Perut (cm)' }, beginAtZero: false }
+                }
+            }
+        });
+    }
+}
+
+/************************************
+/ Fungsi bantu untuk keterangan IMT
+************************************/
+function getIMTKeterangan(imt) {
+    if (!imt) return '-';
+    const nilai = parseFloat(imt);
+    if (nilai < 18.5) return 'Kekurangan berat badan';
+    if (nilai >= 18.5 && nilai <= 24.9) return 'Normal (Ideal)';
+    if (nilai >= 25 && nilai <= 29.9) return 'Kelebihan berat badan';
+    return 'Obesitas';
+}
+
+/*************************************
+/ Fungsi bantu untuk keterangan Lemak
+**************************************/
+function getLemakKeterangan(lemak, jenkel) {
+    if (!lemak) return '-';
+    const nilai = parseFloat(lemak);
+    if (jenkel === 'Pria') {
+        if (nilai < 10) return 'Rendah';
+        if (nilai >= 10 && nilai <= 20) return 'Normal';
+        return 'Tinggi';
+    } else {
+        if (nilai < 18) return 'Rendah';
+        if (nilai >= 18 && nilai <= 28) return 'Normal';
+        return 'Tinggi';
+    }
+}
+
+/********************************************
+ * Fungsi bantu untuk keterangan Lemak Perut
+ ********************************************/
+function getLemakPerutKeterangan(lingkar, jenkel) {
+    if (!lingkar) return '-';
+    const nilai = parseFloat(lingkar);
+    if (jenkel === 'Pria') {
+        return nilai < 90 ? 'Normal' : 'Berisiko (Obesitas sentral)';
+    } else {
+        return nilai < 80 ? 'Normal' : 'Berisiko (Obesitas sentral)';
+    }
 }
 
 /**************************
