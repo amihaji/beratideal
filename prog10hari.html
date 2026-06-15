@@ -8964,7 +8964,7 @@ function loadDashboardData() {
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2">Mengambil data dari server...</p>
+            <p class="mt-2">loading data ...</p>
         </div>
     `;
     
@@ -9125,46 +9125,6 @@ function konversiDataServer(serverData) {
     };
 }
 
-function BACKUP_loadDashboardData() {
-    console.log('📊 loadDashboardData dipanggil');
-    
-    const dashboardContainer = document.getElementById('dashboardContent');
-    if (!dashboardContainer) {
-        console.error('❌ Element dashboardContent tidak ditemukan');
-        return;
-    }
-    
-    // Data dummy untuk testing
-    const dummyData = {
-        profile: {
-            namaKonsumen: 'Ami Haji',
-            jenisKelamin: 'Pria',
-            usia: '30',
-            tinggiBadan: '170',
-            aktivitasFisik: 'Olahraga moderat 3-5 hari/minggu'
-        },
-        trackingData: [
-            { hari: 'Hari 1', beratBadan: 75, lingkarPerut: 90 },
-            { hari: 'Hari 5', beratBadan: 73, lingkarPerut: 86 },
-            { hari: 'Hari 10', beratBadan: 70, lingkarPerut: 82 }
-        ],
-        evaluasi: {
-            bbIdeal: '65',
-            imt: '24.2',
-            lemakTubuh: '18',
-            lemakPerut: '82',
-            massaOtot: '52',
-            bmr: '1650',
-            kalori: '2200',
-            protein: '75',
-            kesimpulan: 'Kondisi cukup baik, pertahankan!',
-            rekomendasi: 'Tingkatkan konsistensi olahraga dan jaga pola makan sehat.'
-        }
-    };
-    
-    // Tampilkan dashboard dengan data dummy
-    tampilkanDashboardSederhana(dummyData);
-}
 
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
@@ -9201,8 +9161,8 @@ function tampilkanDashboardSederhana(data) {
                     <i class="fas fa-chart-line"></i> Grafik Perkembangan
                 </div>
                 <div class="card-body">
-                    <canvas id="beratChartCanvas" style="height: 250px; width: 100%; margin-bottom: 30px;"></canvas>
-                    <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                    <canvas id="beratChartCanvas" style="height: 100px; width: 100%; margin-bottom: 30px;"></canvas>
+                    <canvas id="lingkarChartCanvas" style="height: 100px; width: 100%;"></canvas>
                 </div>
             </div>
             
