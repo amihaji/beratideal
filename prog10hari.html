@@ -1563,7 +1563,7 @@ button[id^="btnCekDisini"] {
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyDB6N67NqodoXxBwRW0NHrAUyMTcmWx8VTUQXofL8p9pxDo93BE18IHbOVD0JLjRsI/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxYYLYEhpPin-D-a6qxKoh9HRlJmRYud6f5pFMhB4DWY63_Uor4TdKv4HuQacButzb7/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 // Variabel global untuk Chart.js
@@ -3567,14 +3567,6 @@ function setupAllLinks() {
       pdf.style.display = 'none';
     });
     
-    // Event listener untuk dashboard ketika menu dibuka
-    const dashboardHeader = e.target.closest('[data-bs-target="#dasboardFitTrack"]');
-    if (dashboardHeader) {
-        setTimeout(() => {
-            loadDashboardData();
-        }, 300);
-    }
-
     // Load video
     loadVideo(section, videoType, videoUrl, title);
     
@@ -8958,6 +8950,18 @@ function showMessage(type, message, duration = 3000, targetId = null) {
  * DASHBOARD - Mengambil Data dari Server
 ******************************************/
 
+// Event listener untuk dashboard ketika menu dibuka
+document.addEventListener('click', function(e) {
+    // Cek apakah yang diklik adalah header dashboard
+    const dashboardHeader = e.target.closest('[data-bs-target="#dasboardFitTrack"]');
+    if (dashboardHeader) {
+        console.log('🖱️ Dashboard menu clicked');
+        setTimeout(() => {
+            loadDashboardData();
+        }, 500);
+    }
+});
+
 /***********************************
  * Memuat data dashboard dari server
  ***********************************/
@@ -9014,9 +9018,9 @@ async function loadDashboardData() {
     }
 }
 
-/*********************************************
+/**********************************************
  * Fetch data dashboard dari server via JSONP
- *********************************************/
+ **********************************************/
 function fetchDashboardDataFromServer(userId) {
     return new Promise((resolve, reject) => {
         const callbackName = 'cb_dashboard_' + Date.now();
@@ -9038,16 +9042,31 @@ function fetchDashboardDataFromServer(userId) {
             delete window[callbackName];
         };
         
+        // Timeout 10 detik
+        setTimeout(() => {
+            if (window[callbackName]) {
+                console.warn('⚠️ Dashboard request timeout');
+                reject(new Error('Request timeout'));
+                document.body.removeChild(script);
+                delete window[callbackName];
+            }
+        }, 10000);
+        
         document.body.appendChild(script);
     });
 }
 
-/**************************
+/**********************************************
  * Render Dashboard ke HTML
- **************************/
+ **********************************************/
 function renderDashboard(data) {
+    console.log('🎨 Rendering dashboard with data:', data);
+    
     const dashboardContainer = document.getElementById('dashboardContent');
-    if (!dashboardContainer) return;
+    if (!dashboardContainer) {
+        console.error('❌ dashboardContent element not found');
+        return;
+    }
     
     // Data Profile (dari hari ke-1 atau data terbaru)
     const profile = data.profile || {};
@@ -9062,140 +9081,156 @@ function renderDashboard(data) {
     
     trackingData.forEach(item => {
         labels.push(item.hari || `Hari ${item.hariKe}`);
-        beratValues.push(item.beratBadan || 0);
-        lingkarValues.push(item.lingkarPerut || 0);
+        beratValues.push(parseFloat(item.beratBadan) || 0);
+        lingkarValues.push(parseFloat(item.lingkarPerut) || 0);
     });
     
     // Data Evaluasi (dari hari ke-10 atau data terbaru)
     const evaluasi = data.evaluasi || {};
     
+    // Cek apakah ada data
+    const hasData = profile.namaKonsumen || trackingData.length > 0 || evaluasi.bbIdeal;
+    
+    if (!hasData) {
+        dashboardContainer.innerHTML = `
+            <div class="dashboard-nodata text-center p-5">
+                <i class="fas fa-chart-line fa-4x mb-3" style="color: #ccc;"></i>
+                <h6>Belum Ada Data Dashboard</h6>
+                <p class="text-muted small">Data akan muncul setelah Anda menyelesaikan:</p>
+                <ul class="text-muted small list-unstyled">
+                    <li>✓ Data Tracking Hari ke-1</li>
+                    <li>✓ Data Tracking Hari ke-5</li>
+                    <li>✓ Data Tracking Hari ke-10</li>
+                </ul>
+                <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
     const html = `
-        <div class="dashboard-container">
+        <div class="dashboard-container p-3">
             <!-- DATA PROFILE -->
-            <h6 class="mb-3"><i class="fas fa-user-circle me-2"></i>Data Profile Peserta</h6>
-            <table class="table table-bordered dashboard-profile-table">
-                <tbody>
-                    <tr><th style="background-color:#e8f4fd; width:35%;">Nama</th><td>${profile.namaKonsumen || data.nama || '-'}</td></tr>
-                    <tr><th style="background-color:#e8f4fd;">Jenis Kelamin</th><td>${profile.jenisKelamin || '-'}</td></tr>
-                    <tr><th style="background-color:#e8f4fd;">Usia</th><td>${profile.usia || '-'} tahun</td></tr>
-                    <tr><th style="background-color:#e8f4fd;">Tinggi Badan</th><td>${profile.tinggiBadan || '-'} cm</td></tr>
-                    <tr><th style="background-color:#e8f4fd;">Aktivitas Fisik</th><td>${profile.aktivitasFisik || '-'}</td></tr>
-                </tbody>
-            </table>
-            
-            <!-- DATA PERKEMBANGAN (GRAFIK) -->
-            <h6 class="mt-4 mb-3"><i class="fas fa-chart-line me-2"></i>Grafik Perkembangan</h6>
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <div class="card mb-3">
-                        <div class="card-header bg-primary text-white">
-                            <i class="fas fa-weight-scale me-1"></i> Perkembangan Berat Badan (kg)
-                        </div>
-                        <div class="card-body">
-                            <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
-                        </div>
-                    </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-user-circle me-2"></i> Data Profile Peserta
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="card mb-3">
-                        <div class="card-header bg-primary text-white">
-                            <i class="fas fa-ribbon me-1"></i> Perkembangan Lingkar Perut (cm)
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0">
+                        <tbody>
+                            <tr><th style="width:35%; background:#e8f4fd;">Nama</th><td>${profile.namaKonsumen || '-'}</td></tr>
+                            <tr><th style="background:#e8f4fd;">Jenis Kelamin</th><td>${profile.jenisKelamin || '-'}</td></tr>
+                            <tr><th style="background:#e8f4fd;">Usia</th><td>${profile.usia || '-'} tahun</td></tr>
+                            <tr><th style="background:#e8f4fd;">Tinggi Badan</th><td>${profile.tinggiBadan || '-'} cm</td></tr>
+                            <tr><th style="background:#e8f4fd;">Aktivitas Fisik</th><td>${profile.aktivitasFisik || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- GRAFIK PERKEMBANGAN -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-chart-line me-2"></i> Grafik Perkembangan
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <i class="fas fa-weight-scale me-1"></i> Berat Badan (kg)
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                        <div class="col-12 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <i class="fas fa-ribbon me-1"></i> Lingkar Perut (cm)
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- DATA EVALUASI HASIL PERHITUNGAN -->
-            <h6 class="mt-4 mb-3"><i class="fas fa-heartbeat me-2"></i>Hasil Evaluasi (Hari ke-10)</h6>
-            <div style="overflow-x: auto;">
-                <table class="table table-bordered dashboard-evaluasi-table">
-                    <thead>
-                        <tr>
-                            <th style="background-color:#e8f4fd; width:25%;">Parameter</th>
-                            <th style="background-color:#e8f4fd; width:10%; text-align:center;">Hasil</th>
-                            <th style="background-color:#e8f4fd; width:15%; text-align:center;">Referensi</th>
-                            <th style="background-color:#e8f4fd; width:5%; text-align:center;">Satuan</th>
-                            <th style="background-color:#e8f4fd; width:45%;">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Berat Badan Ideal</strong></td>
-                            <td style="text-align:center;">${evaluasi.bbIdeal || '-'}</td>
-                            <td style="text-align:center;">-</td>
-                            <td style="text-align:center;">kg</td>
-                            <td>Berat badan ideal berdasarkan tinggi badan dan usia</td>
-                        </tr>
-                        <tr>
-                            <td><strong>IMT (Indeks Massa Tubuh)</strong></td>
-                            <td style="text-align:center;">${evaluasi.imt || '-'}</td>
-                            <td style="text-align:center;">18.5 - 24.9</td>
-                            <td style="text-align:center;">-</td>
-                            <td>${getIMTKeterangan(evaluasi.imt)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Persentase Lemak Tubuh</strong></td>
-                            <td style="text-align:center;">${evaluasi.lemakTubuh || '-'}</td>
-                            <td style="text-align:center;">Pria: 10-20%<br>Wanita: 18-28%</td>
-                            <td style="text-align:center;">%</td>
-                            <td>${getLemakKeterangan(evaluasi.lemakTubuh, profile.jenisKelamin)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Lemak Perut</strong></td>
-                            <td style="text-align:center;">${evaluasi.lemakPerut || '-'}</td>
-                            <td style="text-align:center;">< 80 cm (P)<br>< 90 cm (W)</td>
-                            <td style="text-align:center;">cm</td>
-                            <td>${getLemakPerutKeterangan(evaluasi.lemakPerut, profile.jenisKelamin)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Massa Otot</strong></td>
-                            <td style="text-align:center;">${evaluasi.massaOtot || '-'}</td>
-                            <td style="text-align:center;">-</td>
-                            <td style="text-align:center;">kg</td>
-                            <td>Massa otot tubuh</td>
-                        </tr>
-                        <tr>
-                            <td><strong>BMR (Basal Metabolic Rate)</strong></td>
-                            <td style="text-align:center;">${evaluasi.bmr || '-'}</td>
-                            <td style="text-align:center;">-</td>
-                            <td style="text-align:center;">kalori</td>
-                            <td>Kebutuhan kalori basal tubuh</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Kebutuhan Kalori Harian</strong></td>
-                            <td style="text-align:center;">${evaluasi.kalori || '-'}</td>
-                            <td style="text-align:center;">-</td>
-                            <td style="text-align:center;">kalori</td>
-                            <td>Kebutuhan kalori dengan aktivitas fisik</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Kebutuhan Protein</strong></td>
-                            <td style="text-align:center;">${evaluasi.protein || '-'}</td>
-                            <td style="text-align:center;">-</td>
-                            <td style="text-align:center;">gram</td>
-                            <td>Kebutuhan protein harian</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- HASIL EVALUASI -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-heartbeat me-2"></i> Hasil Evaluasi (Hari ke-10)
+                </div>
+                <div class="card-body p-0">
+                    <div style="overflow-x: auto;">
+                        <table class="table table-bordered mb-0">
+                            <thead>
+                                <tr style="background:#e8f4fd;">
+                                    <th style="width:30%;">Parameter</th>
+                                    <th style="width:10%; text-align:center;">Hasil</th>
+                                    <th style="width:15%; text-align:center;">Referensi</th>
+                                    <th style="width:5%; text-align:center;">Satuan</th>
+                                    <th style="width:40%;">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Berat Badan Ideal</strong></td>
+                                    <td style="text-align:center;">${evaluasi.bbIdeal || '-'}</td>
+                                    <td style="text-align:center;">-</td><td style="text-align:center;">kg</td>
+                                    <td>Berat badan ideal berdasarkan tinggi badan dan usia</td></tr>
+                                <tr><td><strong>IMT</strong></td>
+                                    <td style="text-align:center;">${evaluasi.imt || '-'}</td>
+                                    <td style="text-align:center;">18.5 - 24.9</td><td style="text-align:center;">-</td>
+                                    <td>${getIMTKeterangan(evaluasi.imt)}</td></tr>
+                                <tr><td><strong>Persentase Lemak Tubuh</strong></td>
+                                    <td style="text-align:center;">${evaluasi.lemakTubuh || '-'}</td>
+                                    <td style="text-align:center;">Pria: 10-20%<br>Wanita: 18-28%</td>
+                                    <td style="text-align:center;">%</td>
+                                    <td>${getLemakKeterangan(evaluasi.lemakTubuh, profile.jenisKelamin)}</td></tr>
+                                <tr><td><strong>Lemak Perut</strong></td>
+                                    <td style="text-align:center;">${evaluasi.lemakPerut || '-'}</td>
+                                    <td style="text-align:center;">< 90 cm (Pria)<br>< 80 cm (Wanita)</td>
+                                    <td style="text-align:center;">cm</td>
+                                    <td>${getLemakPerutKeterangan(evaluasi.lemakPerut, profile.jenisKelamin)}</td></tr>
+                                <tr><td><strong>Massa Otot</strong></td>
+                                    <td style="text-align:center;">${evaluasi.massaOtot || '-'}</td>
+                                    <td style="text-align:center;">-</td><td style="text-align:center;">kg</td>
+                                    <td>Massa otot tubuh</td></tr>
+                                <tr><td><strong>BMR</strong></td>
+                                    <td style="text-align:center;">${evaluasi.bmr || '-'}</td>
+                                    <td style="text-align:center;">-</td><td style="text-align:center;">kalori</td>
+                                    <td>Kebutuhan kalori basal tubuh</td></tr>
+                                <tr><td><strong>Kebutuhan Kalori Harian</strong></td>
+                                    <td style="text-align:center;">${evaluasi.kalori || '-'}</td>
+                                    <td style="text-align:center;">-</td><td style="text-align:center;">kalori</td>
+                                    <td>Kebutuhan kalori dengan aktivitas fisik</td></tr>
+                                <tr><td><strong>Kebutuhan Protein</strong></td>
+                                    <td style="text-align:center;">${evaluasi.protein || '-'}</td>
+                                    <td style="text-align:center;">-</td><td style="text-align:center;">gram</td>
+                                    <td>Kebutuhan protein harian</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
             <!-- KESIMPULAN & REKOMENDASI -->
-            <h6 class="mt-4 mb-3"><i class="fas fa-clipboard-check me-2"></i>Kesimpulan & Rekomendasi</h6>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th style="background-color:#e8f4fd; width:20%;">Kesimpulan</th>
-                        <td>${evaluasi.kesimpulan || '-'}</td>
-                    </tr>
-                    <tr>
-                        <th style="background-color:#e8f4fd;">Rekomendasi</th>
-                        <td>${evaluasi.rekomendasi || '-'}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-clipboard-check me-2"></i> Kesimpulan & Rekomendasi
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <tr><th style="width:20%; background:#e8f4fd;">Kesimpulan</th><td>${evaluasi.kesimpulan || '-'}</td></tr>
+                        <tr><th style="background:#e8f4fd;">Rekomendasi</th><td>${evaluasi.rekomendasi || '-'}</td></tr>
+                    </table>
+                </div>
+            </div>
         </div>
     `;
     
@@ -9204,7 +9239,7 @@ function renderDashboard(data) {
     // Render grafik setelah HTML dimuat
     setTimeout(() => {
         renderCharts(labels, beratValues, lingkarValues);
-    }, 100);
+    }, 200);
 }
 
 /*************************************
@@ -9446,6 +9481,74 @@ if(e.target.classList.contains("emoji-search")){
 }
 });
 
+/**********************************************
+ * Test Dashboard dengan Data Dummy
+ **********************************************/
+function testDashboardWithDummyData() {
+    const dummyData = {
+        success: true,
+        profile: {
+            namaKonsumen: 'Ami Haji',
+            jenisKelamin: 'Pria',
+            usia: '30',
+            tinggiBadan: '170',
+            aktivitasFisik: 'Olahraga moderat 3-5 hari/minggu'
+        },
+        trackingData: [
+            { hariKe: 1, hari: 'Hari 1', beratBadan: '75', lingkarPerut: '85' },
+            { hariKe: 5, hari: 'Hari 5', beratBadan: '73', lingkarPerut: '82' },
+            { hariKe: 10, hari: 'Hari 10', beratBadan: '70', lingkarPerut: '78' }
+        ],
+        evaluasi: {
+            bbIdeal: '65',
+            imt: '24.2',
+            lemakTubuh: '18',
+            lemakPerut: '78',
+            massaOtot: '52',
+            bmr: '1650',
+            kalori: '2200',
+            protein: '75',
+            kesimpulan: 'Kondisi cukup baik',
+            rekomendasi: 'Tingkatkan konsistensi olahraga'
+        }
+    };
+    renderDashboard(dummyData);
+}
+
+/**********************************************
+ * Test Koneksi ke Server
+ **********************************************/
+async function testServerConnection() {
+    console.log('🔍 Testing server connection...');
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.log('❌ No user logged in');
+        return;
+    }
+    
+    const callbackName = 'cb_test_' + Date.now();
+    const script = document.createElement('script');
+    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    
+    window[callbackName] = function(response) {
+        console.log('✅ Server response:', response);
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    script.onerror = () => {
+        console.error('❌ Server connection failed');
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    document.body.appendChild(script);
+}
+
+// Panggil test saat load
+setTimeout(() => {
+    testServerConnection();
+}, 2000);
 
 </script>
 </body>
