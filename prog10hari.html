@@ -8965,7 +8965,95 @@ document.addEventListener('click', function(e) {
 /***********************************
  * Memuat data dashboard dari server
  ***********************************/
+/**********************************************
+ * Memuat data dashboard dari server
+ **********************************************/
 async function loadDashboardData() {
+    const userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+        showMessage('warning', 'Silakan login terlebih dahulu', 3000);
+        return;
+    }
+    
+    const dashboardContainer = document.getElementById('dashboardContent');
+    if (!dashboardContainer) return;
+    
+    // Tampilkan loading
+    dashboardContainer.innerHTML = `
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat data dashboard...</p>
+        </div>
+    `;
+    
+    // DATA DUMMY SEMENTARA (UNTUK TESTING)
+    // Hapus ini setelah backend getDashboardData berfungsi
+    const dummyData = {
+        success: true,
+        profile: {
+            namaKonsumen: 'Ami Haji',
+            jenisKelamin: 'Pria',
+            usia: '30',
+            tinggiBadan: '170',
+            aktivitasFisik: 'Olahraga moderat 3-5 hari/minggu'
+        },
+        trackingData: [
+            { hariKe: 1, hari: 'Hari 1', beratBadan: '75', lingkarPerut: '90' },
+            { hariKe: 5, hari: 'Hari 5', beratBadan: '73', lingkarPerut: '86' },
+            { hariKe: 10, hari: 'Hari 10', beratBadan: '70', lingkarPerut: '82' }
+        ],
+        evaluasi: {
+            bbIdeal: '65',
+            imt: '24.2',
+            lemakTubuh: '18',
+            lemakPerut: '82',
+            massaOtot: '52',
+            bmr: '1650',
+            kalori: '2200',
+            protein: '75',
+            kesimpulan: 'Kondisi cukup baik',
+            rekomendasi: 'Pertahankan pola makan sehat dan rutin olahraga'
+        }
+    };
+    
+    // Gunakan data dummy untuk testing
+    renderDashboard(dummyData);
+    
+    /* 
+    // Kode asli untuk mengambil dari server - UNCOMMENT setelah backend siap
+    try {
+        const data = await fetchDashboardDataFromServer(userId);
+        if (data && data.success) {
+            renderDashboard(data);
+        } else {
+            dashboardContainer.innerHTML = `
+                <div class="dashboard-nodata text-center p-5">
+                    <i class="fas fa-chart-line fa-4x mb-3" style="color: #ccc;"></i>
+                    <p>Belum ada data tracking yang tersedia.</p>
+                    <p class="small text-muted">Data tracking akan muncul setelah menyelesaikan:<br>
+                    Hari 1, Hari 5, dan Hari 10</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        dashboardContainer.innerHTML = `
+            <div class="dashboard-nodata text-center p-5">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                <p>Gagal memuat data dashboard.</p>
+                <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                    <i class="fas fa-sync-alt"></i> Coba Lagi
+                </button>
+            </div>
+        `;
+    }
+    */
+}
+
+async function BACKUP_loadDashboardData() {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
