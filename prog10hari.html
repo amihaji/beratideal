@@ -1564,7 +1564,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzOiaEQCeGsHfcogwQ4Wi-97-uFBVKCsrzf-GlAvUsEVeHv9IqN_YrvvVLDJn2g5Z5tKQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyggRLC3qwvv03lZvOy1AjJXyOMeBrmzIZDn8opi9uoUo4UeORR9SXWjsPBNOf2WbjJpw/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -9074,12 +9074,14 @@ function konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
     var profile = serverData.profile || {};
-    var trackingDataRaw = serverData.trackingData || [];
+    var trackingDataRaw = serverData.trackingData || []; // SEMUA data untuk grafik
     var evaluasi = serverData.evaluasi || {};
     var totalPoint = serverData.totalPoint || 0;
     var modulSelesai = serverData.modulSelesai || '0';
     
-    // ===== PROSES DATA TRACKING UNTUK GRAFIK =====
+    console.log('📊 Data tracking untuk grafik:', trackingDataRaw);
+    
+    // ===== PROSES DATA TRACKING UNTUK GRAFIK (SEMUA DATA) =====
     var trackingData = [];
     if (trackingDataRaw.length > 0) {
         trackingDataRaw.forEach(function(item) {
@@ -9091,6 +9093,7 @@ function konversiDataServer(serverData) {
             });
         });
     }
+    console.log('📊 Data tracking untuk grafik (final):', trackingData);
     
     // ===== EVALUASI SUDAH DIHITUNG DI BACKEND =====
     var evaluasiFinal = {
@@ -9123,7 +9126,7 @@ function konversiDataServer(serverData) {
             tinggiBadan: profile.tinggiBadan || '-',
             aktivitasFisik: profile.aktivitasFisik || '-'
         },
-        trackingData: trackingData,
+        trackingData: trackingData, // SEMUA data untuk grafik
         evaluasi: evaluasiFinal,
         totalPoint: totalPoint,
         modulSelesai: modulSelesai
