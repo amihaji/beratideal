@@ -1564,7 +1564,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwN3FNMbrISaV6NMBX1GBx_EyU4WXhgyl3GQvbVCIprVnYhCD3pb9jvqe6P4uG357o6-A/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzOiaEQCeGsHfcogwQ4Wi-97-uFBVKCsrzf-GlAvUsEVeHv9IqN_YrvvVLDJn2g5Z5tKQ/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -9070,10 +9070,67 @@ function fetchDashboardDataFromServer(userId) {
 /**********************************************
  Konversi data dari server ke format dashboard
 **********************************************/
-/**********************************************
- * Konversi data dari server ke format dashboard
- **********************************************/
 function konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    var profile = serverData.profile || {};
+    var trackingDataRaw = serverData.trackingData || [];
+    var evaluasi = serverData.evaluasi || {};
+    var totalPoint = serverData.totalPoint || 0;
+    var modulSelesai = serverData.modulSelesai || '0';
+    
+    // ===== PROSES DATA TRACKING UNTUK GRAFIK =====
+    var trackingData = [];
+    if (trackingDataRaw.length > 0) {
+        trackingDataRaw.forEach(function(item) {
+            trackingData.push({
+                hari: item.hari || 'Hari ' + item.hariKe,
+                hariKe: item.hariKe || 1,
+                beratBadan: parseFloat(item.beratBadan) || 0,
+                lingkarPerut: parseFloat(item.lingkarPerut) || 0
+            });
+        });
+    }
+    
+    // ===== EVALUASI SUDAH DIHITUNG DI BACKEND =====
+    var evaluasiFinal = {
+        beratBadan: evaluasi.beratBadan || '-',
+        lingkarPerut: evaluasi.lingkarPerut || '-',
+        label: evaluasi.label || 'Belum ada data',
+        bbIdeal: evaluasi.bbIdeal || '-',
+        imt: evaluasi.imt || '-',
+        lemakTubuh: evaluasi.lemakTubuh || '-',
+        lemakPerut: evaluasi.lemakPerut || '-',
+        massaOtot: evaluasi.massaOtot || '-',
+        bmr: evaluasi.bmr || '-',
+        kalori: evaluasi.kalori || '-',
+        protein: evaluasi.protein || '-',
+        skor: evaluasi.skor || '-',
+        kesimpulan: evaluasi.kesimpulan || 'Belum tersedia',
+        rekomendasi: evaluasi.rekomendasi || 'Belum tersedia',
+        isModul10: (modulSelesai === '10'),
+        isModul5_9: (modulSelesai === '5-9'),
+        isModul1_4: (modulSelesai === '1-4')
+    };
+    
+    console.log('📊 Evaluasi final:', evaluasiFinal);
+    
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: evaluasiFinal,
+        totalPoint: totalPoint,
+        modulSelesai: modulSelesai
+    };
+}
+
+function BACKUP_konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
     var profile = serverData.profile || {};
@@ -9158,77 +9215,9 @@ function konversiDataServer(serverData) {
     };
 }
 
-function BACKUP_konversiDataServer(serverData) {
-    console.log('🔄 Konversi data server:', serverData);
-    
-    var profile = serverData.profile || {};
-    var trackingDataRaw = serverData.trackingData || [];
-    var evaluasi = serverData.evaluasi || {};
-    var totalPoint = serverData.totalPoint || 0;
-    
-    console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
-    
-    // ===== PROSES SEMUA DATA TRACKING =====
-    var trackingData = [];
-    var beratTerbaru = '-';
-    var lingkarTerbaru = '-';
-    
-    if (trackingDataRaw.length > 0) {
-        // Proses semua data tracking yang ada
-        trackingDataRaw.forEach(function(item) {
-            trackingData.push({
-                hari: item.hari || 'Hari ' + item.hariKe,
-                hariKe: item.hariKe || 1,
-                beratBadan: parseFloat(item.beratBadan) || 0,
-                lingkarPerut: parseFloat(item.lingkarPerut) || 0
-            });
-        });
-        
-        // Ambil data terakhir untuk evaluasi
-        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
-        beratTerbaru = lastItem.beratBadan || '-';
-        lingkarTerbaru = lastItem.lingkarPerut || '-';
-        console.log('✅ Data tracking total:', trackingData.length, 'item');
-        console.log('✅ Data tracking terakhir:', lastItem.hari, 'Berat:', beratTerbaru);
-    } else {
-        console.log('⚠️ Tidak ada data tracking');
-    }
-    
-    // ===== PROSES EVALUASI =====
-    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
-                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
-    
-    var evaluasiFinal = {
-        beratBadan: beratTerbaru,
-        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
-        imt: hasEvaluasi ? evaluasi.imt : '-',
-        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
-        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
-        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
-        bmr: hasEvaluasi ? evaluasi.bmr : '-',
-        kalori: hasEvaluasi ? evaluasi.kalori : '-',
-        protein: hasEvaluasi ? evaluasi.protein : '-',
-        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10',
-        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai'
-    };
-    
-    return {
-        profile: {
-            namaKonsumen: profile.namaKonsumen || '-',
-            jenisKelamin: profile.jenisKelamin || '-',
-            usia: profile.usia || '-',
-            tinggiBadan: profile.tinggiBadan || '-',
-            aktivitasFisik: profile.aktivitasFisik || '-'
-        },
-        trackingData: trackingData,
-        evaluasi: evaluasiFinal,
-        totalPoint: totalPoint
-    };
-}
-
- /******************************
- * Tampilkan Dasboard Peserta
- ******************************/
+/******************************
+* Tampilkan Dasboard Peserta
+******************************/
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
     
