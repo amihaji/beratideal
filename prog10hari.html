@@ -9372,11 +9372,11 @@ function tampilkanDashboardSederhana(data) {
                     ${hasChartData ? `
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <h6 class="text-center">BB (kg)</h6>
+                            <h6 class="text-center">Berat Badan</h6>
                             <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                         <div class="col-12 col-md-6">
-                            <h6 class="text-center">LP (cm)</h6>
+                            <h6 class="text-center">Lingkar Perut</h6>
                             <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                     </div>
@@ -9608,7 +9608,7 @@ function buatGrafik(trackingData) {
                         title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
                     },
                     y: { 
-                        title: { display: true, text: 'Berat Badan' },
+                        title: { display: true, text: 'BB (kg)' },
                         beginAtZero: false,
                         min: Math.max(0, Math.min.apply(null, beratFinal) - 5)
                     }
@@ -9628,8 +9628,8 @@ function buatGrafik(trackingData) {
         
         // Tentukan warna berdasarkan jumlah data
         var borderColor = '#ff3300';
-        var bgColor =  'rgba(0, 255, 236, 0.1)' ;
-        //          'rgba(0, 123, 255, 0.1)';
+        var bgColor =  'rgba(255, 99, 71, 0.2)' ;
+        // 'rgba(0, 123, 255, 0.1)';
         var pointColor = '#ff3300';
         
         window.lingkarChartInstance = new Chart(lingkarCtx, {
@@ -9674,7 +9674,7 @@ function buatGrafik(trackingData) {
                         title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
                     },
                     y: { 
-                        title: { display: true, text: 'Lingkar Perut' },
+                        title: { display: true, text: 'LP (cm)' },
                         beginAtZero: false,
                         min: Math.max(0, Math.min.apply(null, lingkarFinal) - 5)
                     }
