@@ -9249,17 +9249,6 @@ function tampilkanDashboardSederhana(data) {
     // Cek apakah evaluasi kosong
     const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
     
-    /*
-    // Tentukan label untuk grafik
-    var chartLabel = '';
-    if (tracking.length > 0) {
-        var hariList = tracking.map(function(item) { return item.hari; });
-        chartLabel = hariList.join(' → ');
-    } else {
-        chartLabel = 'Belum ada data';
-    }
-    */
-
     // Tentukan label untuk grafik berdasarkan modul terakhir
     var labelModul = data.labelModul || 'Belum ada data';
     var chartLabel = labelModul;
@@ -9479,7 +9468,7 @@ function tampilkanDashboardSederhana(data) {
                 window.lingkarChartInstance.destroy();
                 window.lingkarChartInstance = null;
             }
-            buatGrafik(trackingData);
+            buatGrafik(tracking);
         }, 300);
     }
 }
