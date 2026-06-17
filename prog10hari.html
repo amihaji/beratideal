@@ -8835,11 +8835,11 @@ function showMessage(type, message, duration = 3000, targetId = null) {
     messageElement.className = `notification-message ${config.cssClass}`;
     messageElement.style.cssText = 'display: flex !important; align-items: center; justify-content: space-between; margin: 10px 0;';
     messageElement.innerHTML = `
-        <div style="display: flex; align-items: left; gap: 10px;">
+        <div style="display: flex !important; align-items: left; gap: 10px;">
             <i class="${config.icon}" style="font-size: 18px;"></i>
             <span>${message}</span>
         </div>
-        <button type="button" class="btn-close btn-close-sm" style="align-items: right; font-size: 10px;" onclick="this.parentElement.remove()"></button>
+        <button type="button" class="display: flex !important; btn-close btn-close-sm" style="align-items: right; font-size: 10px;" onclick="this.parentElement.remove()"></button>
     `;
     
     // Tentukan target container
