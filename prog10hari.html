@@ -9087,16 +9087,21 @@ function konversiDataServer(serverData) {
     var hariTerbaru = '-';
     
     if (trackingDataRaw.length > 0) {
-        // Ambil data terakhir (yang paling update)
-        var item = trackingDataRaw[trackingDataRaw.length - 1];
-        trackingData.push({
-            hari: item.hari || 'Hari ' + item.hariKe,
-            beratBadan: parseFloat(item.beratBadan) || 0,
-            lingkarPerut: parseFloat(item.lingkarPerut) || 0
+        // Proses semua data tracking yang ada
+        trackingDataRaw.forEach(function(item) {
+            trackingData.push({
+                hari: item.hari || 'Hari ' + item.hariKe,
+                hariKe: item.hariKe || 1,
+                beratBadan: parseFloat(item.beratBadan) || 0,
+                lingkarPerut: parseFloat(item.lingkarPerut) || 0
+            });
         });
-        beratTerbaru = item.beratBadan || '-';
-        lingkarTerbaru = item.lingkarPerut || '-';
-        hariTerbaru = item.hari || 'Hari ' + item.hariKe;
+        
+        // Ambil data terakhir untuk ditampilkan di hasil evaluasi
+        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
+        beratTerbaru = lastItem.beratBadan || '-';
+        lingkarTerbaru = lastItem.lingkarPerut || '-';
+        hariTerbaru = lastItem.hari || 'Hari ' + lastItem.hariKe;
         console.log('✅ Data tracking TERBARU:', hariTerbaru, 'Berat:', beratTerbaru);
     } else {
         console.log('⚠️ Tidak ada data tracking');
@@ -9108,70 +9113,6 @@ function konversiDataServer(serverData) {
     
     console.log('📊 Evaluasi hasData:', hasEvaluasi);
     
-    var evaluasiFinal = {
-        beratBadan: beratTerbaru,
-        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
-        imt: hasEvaluasi ? evaluasi.imt : '-',
-        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
-        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
-        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
-        bmr: hasEvaluasi ? evaluasi.bmr : '-',
-        kalori: hasEvaluasi ? evaluasi.kalori : '-',
-        protein: hasEvaluasi ? evaluasi.protein : '-',
-        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap',
-        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap'
-    };
-    
-    return {
-        profile: {
-            namaKonsumen: profile.namaKonsumen || '-',
-            jenisKelamin: profile.jenisKelamin || '-',
-            usia: profile.usia || '-',
-            tinggiBadan: profile.tinggiBadan || '-',
-            aktivitasFisik: profile.aktivitasFisik || '-'
-        },
-        trackingData: trackingData,
-        evaluasi: evaluasiFinal,
-        totalPoint: totalPoint
-    };
-}
-
-function BACKUP_konversiDataServer(serverData) {
-    console.log('🔄 Konversi data server:', serverData);
-    
-    var profile = serverData.profile || {};
-    var trackingDataRaw = serverData.trackingData || [];
-    var evaluasi = serverData.evaluasi || {};
-    var totalPoint = serverData.totalPoint || 0;
-    
-    console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
-    
-    // Data Tracking untuk grafik
-    var trackingData = [];
-    var beratTerbaru = '-';
-    var lingkarTerbaru = '-';
-    
-    if (trackingDataRaw.length > 0) {
-        var item = trackingDataRaw[0];
-        trackingData.push({
-            hari: item.hari || 'Hari ' + item.hariKe,
-            beratBadan: parseFloat(item.beratBadan) || 0,
-            lingkarPerut: parseFloat(item.lingkarPerut) || 0
-        });
-        beratTerbaru = item.beratBadan || '-';
-        lingkarTerbaru = item.lingkarPerut || '-';
-        console.log('✅ Data tracking untuk grafik:', item.hari, 'Berat:', beratTerbaru);
-    } else {
-        console.log('⚠️ Tidak ada data tracking');
-    }
-    
-    // Cek apakah evaluasi ada data
-    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
-                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
-    
-    console.log('📊 Evaluasi hasData:', hasEvaluasi);
-    
-    // Data Evaluasi
     var evaluasiFinal = {
         beratBadan: beratTerbaru,
         bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
@@ -9729,6 +9670,9 @@ function tukarPoint(totalPoint) {
 /******************************
  * Buat Grafik dengan Chart.js
  *****************************/
+/**********************************************
+ * Buat Grafik dengan Chart.js - Versi Garis
+ **********************************************/
 function buatGrafik(trackingData) {
     console.log('📊 Membuat grafik dengan data:', trackingData);
     
@@ -9737,13 +9681,52 @@ function buatGrafik(trackingData) {
         return;
     }
     
-    var labels = trackingData.map(function(item) { return item.hari; });
-    var beratData = trackingData.map(function(item) { return item.beratBadan; });
-    var lingkarData = trackingData.map(function(item) { return item.lingkarPerut; });
+    // Data untuk grafik
+    var labels = [];
+    var beratData = [];
+    var lingkarData = [];
     
-    console.log('📊 Label grafik:', labels);
-    console.log('📊 Data berat:', beratData);
-    console.log('📊 Data lingkar:', lingkarData);
+    // Buat data untuk semua titik (1, 5, 10)
+    var hariMapping = {
+        1: { label: 'Hari 1', berat: null, lingkar: null },
+        5: { label: 'Hari 5', berat: null, lingkar: null },
+        10: { label: 'Hari 10', berat: null, lingkar: null }
+    };
+    
+    // Isi data dari trackingData
+    trackingData.forEach(function(item) {
+        var hariKe = item.hariKe || 1;
+        if (hariMapping[hariKe]) {
+            hariMapping[hariKe].berat = item.beratBadan || null;
+            hariMapping[hariKe].lingkar = item.lingkarPerut || null;
+        }
+    });
+    
+    // Buat array untuk grafik (hanya titik yang ada datanya)
+    var hariKeys = [1, 5, 10];
+    var labelsFinal = [];
+    var beratFinal = [];
+    var lingkarFinal = [];
+    
+    hariKeys.forEach(function(hari) {
+        var data = hariMapping[hari];
+        // Jika ada data berat atau lingkar, tampilkan titik
+        if (data.berat !== null || data.lingkar !== null) {
+            labelsFinal.push(data.label);
+            beratFinal.push(data.berat);
+            lingkarFinal.push(data.lingkar);
+        }
+    });
+    
+    // Jika hanya ada 1 titik data, grafik tetap tampil dengan 1 titik
+    if (labelsFinal.length === 0) {
+        console.log('⚠️ Tidak ada data yang valid untuk grafik');
+        return;
+    }
+    
+    console.log('📊 Label final:', labelsFinal);
+    console.log('📊 Data berat final:', beratFinal);
+    console.log('📊 Data lingkar final:', lingkarFinal);
     
     // === GRAFIK BERAT BADAN ===
     var beratCtx = document.getElementById('beratChartCanvas');
@@ -9753,17 +9736,28 @@ function buatGrafik(trackingData) {
             window.beratChartInstance = null;
         }
         
+        // Tentukan warna berdasarkan jumlah data
+        var borderColor = '#28a745';
+        var bgColor = 'rgba(40, 167, 69, 0.1)';
+        var pointColor = '#28a745';
+        
         window.beratChartInstance = new Chart(beratCtx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: labels,
+                labels: labelsFinal,
                 datasets: [{
                     label: 'Berat Badan (kg)',
-                    data: beratData,
-                    backgroundColor: 'rgba(40, 167, 69, 0.6)',
-                    borderColor: '#28a745',
-                    borderWidth: 2,
-                    borderRadius: 5
+                    data: beratFinal,
+                    borderColor: borderColor,
+                    backgroundColor: bgColor,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 8,
+                    pointBackgroundColor: pointColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 12
                 }]
             },
             options: {
@@ -9772,21 +9766,26 @@ function buatGrafik(trackingData) {
                 plugins: {
                     legend: { 
                         position: 'top',
-                        labels: { font: { size: 12 } }
+                        labels: { font: { size: 12, weight: 'bold' } }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.raw + ' kg';
+                                var label = context.dataset.label || '';
+                                var value = context.raw;
+                                return label + ': ' + value + ' kg';
                             }
                         }
                     }
                 },
                 scales: {
+                    x: {
+                        title: { display: true, text: 'Hari ke-', font: { weight: 'bold' } }
+                    },
                     y: { 
                         title: { display: true, text: 'Berat Badan (kg)' },
                         beginAtZero: false,
-                        min: Math.max(0, Math.min.apply(null, beratData) - 5)
+                        min: Math.max(0, Math.min.apply(null, beratFinal) - 5)
                     }
                 }
             }
@@ -9802,17 +9801,28 @@ function buatGrafik(trackingData) {
             window.lingkarChartInstance = null;
         }
         
+        // Tentukan warna berdasarkan jumlah data
+        var borderColor = '#007bff';
+        var bgColor = 'rgba(0, 123, 255, 0.1)';
+        var pointColor = '#007bff';
+        
         window.lingkarChartInstance = new Chart(lingkarCtx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: labels,
+                labels: labelsFinal,
                 datasets: [{
                     label: 'Lingkar Perut (cm)',
-                    data: lingkarData,
-                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
-                    borderColor: '#007bff',
-                    borderWidth: 2,
-                    borderRadius: 5
+                    data: lingkarFinal,
+                    borderColor: borderColor,
+                    backgroundColor: bgColor,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 8,
+                    pointBackgroundColor: pointColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 12
                 }]
             },
             options: {
@@ -9821,21 +9831,26 @@ function buatGrafik(trackingData) {
                 plugins: {
                     legend: { 
                         position: 'top',
-                        labels: { font: { size: 12 } }
+                        labels: { font: { size: 12, weight: 'bold' } }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.raw + ' cm';
+                                var label = context.dataset.label || '';
+                                var value = context.raw;
+                                return label + ': ' + value + ' cm';
                             }
                         }
                     }
                 },
                 scales: {
+                    x: {
+                        title: { display: true, text: 'Hari ke-', font: { weight: 'bold' } }
+                    },
                     y: { 
                         title: { display: true, text: 'Lingkar Perut (cm)' },
                         beginAtZero: false,
-                        min: Math.max(0, Math.min.apply(null, lingkarData) - 5)
+                        min: Math.max(0, Math.min.apply(null, lingkarFinal) - 5)
                     }
                 }
             }
