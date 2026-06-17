@@ -9080,6 +9080,91 @@ function konversiDataServer(serverData) {
     var trackingDataRaw = serverData.trackingData || [];
     var evaluasi = serverData.evaluasi || {};
     var totalPoint = serverData.totalPoint || 0;
+    var modulTerakhir = serverData.modulTerakhir || 0;
+    
+    console.log('📊 Modul terakhir:', modulTerakhir);
+    console.log('📊 Data tracking dari server:', trackingDataRaw);
+    
+    // ===== PROSES DATA TRACKING =====
+    var trackingData = [];
+    var beratTerbaru = '-';
+    var lingkarTerbaru = '-';
+    var hariTerbaru = '-';
+    
+    if (trackingDataRaw.length > 0) {
+        // Proses semua data tracking yang ada
+        trackingDataRaw.forEach(function(item) {
+            trackingData.push({
+                hari: item.hari || 'Hari ' + item.hariKe,
+                hariKe: item.hariKe || 1,
+                beratBadan: parseFloat(item.beratBadan) || 0,
+                lingkarPerut: parseFloat(item.lingkarPerut) || 0
+            });
+        });
+        
+        // Ambil data terakhir
+        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
+        beratTerbaru = lastItem.beratBadan || '-';
+        lingkarTerbaru = lastItem.lingkarPerut || '-';
+        hariTerbaru = lastItem.hari || 'Hari ' + lastItem.hariKe;
+        console.log('✅ Data tracking untuk dashboard:', hariTerbaru, 'Berat:', beratTerbaru);
+    } else {
+        console.log('⚠️ Tidak ada data tracking');
+    }
+    
+    // ===== PROSES EVALUASI =====
+    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
+                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
+    
+    var evaluasiFinal = {
+        beratBadan: beratTerbaru,
+        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
+        imt: hasEvaluasi ? evaluasi.imt : '-',
+        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
+        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
+        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
+        bmr: hasEvaluasi ? evaluasi.bmr : '-',
+        kalori: hasEvaluasi ? evaluasi.kalori : '-',
+        protein: hasEvaluasi ? evaluasi.protein : '-',
+        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10',
+        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai'
+    };
+    
+    // Tentukan label modul untuk ditampilkan
+    var labelModul = '';
+    if (modulTerakhir >= 10) {
+        labelModul = 'Hari ke-10';
+    } else if (modulTerakhir >= 5) {
+        labelModul = 'Hari ke-5';
+    } else if (modulTerakhir >= 1) {
+        labelModul = 'Hari ke-1';
+    } else {
+        labelModul = 'Belum ada data';
+    }
+    
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: evaluasiFinal,
+        totalPoint: totalPoint,
+        modulTerakhir: modulTerakhir,
+        labelModul: labelModul
+    };
+}
+
+function BACKUP_konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    var profile = serverData.profile || {};
+    var trackingDataRaw = serverData.trackingData || [];
+    var evaluasi = serverData.evaluasi || {};
+    var totalPoint = serverData.totalPoint || 0;
     
     console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
     
@@ -9164,6 +9249,7 @@ function tampilkanDashboardSederhana(data) {
     // Cek apakah evaluasi kosong
     const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
     
+    /*
     // Tentukan label untuk grafik
     var chartLabel = '';
     if (tracking.length > 0) {
@@ -9172,7 +9258,15 @@ function tampilkanDashboardSederhana(data) {
     } else {
         chartLabel = 'Belum ada data';
     }
-    
+    */
+
+    // Tentukan label untuk grafik berdasarkan modul terakhir
+    var labelModul = data.labelModul || 'Belum ada data';
+    var chartLabel = labelModul;
+    if (tracking.length > 0 && tracking[0].hari) {
+        chartLabel = tracking[0].hari;
+    }
+
     // Data evaluasi dengan referensi
     const evaluasiData = [
         { 
@@ -9280,13 +9374,11 @@ function tampilkanDashboardSederhana(data) {
             
             <!-- GRAFIK PERKEMBANGAN -->
             <div class="card mb-3">
+                // Di bagian HTML grafik, ubah header menjadi:
                 <div class="card-header bg-primary text-white">
-                    <!-- TIDAK AKTIF  
-                      <i class="fas fa-chart-line"></i> Grafik Perkembangan ${chartLabel ? '- ' + chartLabel : ''} 
-                    -->
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan 
-                    
+                    <i class="fas fa-chart-line"></i> Grafik Perkembangan - ${chartLabel}
                 </div>
+
                 <div class="card-body">
                     ${hasChartData ? `
                     <div class="row">
