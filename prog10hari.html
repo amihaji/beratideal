@@ -9480,7 +9480,7 @@ function tampilkanDashboardSederhana(data) {
                 window.lingkarChartInstance.destroy();
                 window.lingkarChartInstance = null;
             }
-            buatGrafik(tracking);
+            buatGrafik(trackingData);
         }, 300);
     }
 }
@@ -9524,9 +9524,9 @@ function buatGrafik(trackingData) {
     
     // Buat data untuk semua titik (1, 5, 10)
     var hariMapping = {
-        1: { label: 'Hari 1', berat: null, lingkar: null },
-        5: { label: 'Hari 5', berat: null, lingkar: null },
-        10: { label: 'Hari 10', berat: null, lingkar: null }
+        1: { label: 'H1', berat: null, lingkar: null },
+        5: { label: 'H5', berat: null, lingkar: null },
+        10: { label: 'H10', berat: null, lingkar: null }
     };
     
     // Isi data dari trackingData
@@ -9616,7 +9616,7 @@ function buatGrafik(trackingData) {
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'Hari ke-', font: { weight: 'bold' } }
+                        title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
                     },
                     y: { 
                         title: { display: true, text: 'Berat Badan (kg)' },
