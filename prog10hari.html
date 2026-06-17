@@ -1563,7 +1563,7 @@ button[id^="btnCekDisini"] {
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyyyv-Fs6_OBmsqu4boxYpcLz_Al5OSRzsrlqRO-OfQ6ZIOFxmR6nIzWSpSRpbt01dG/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbySB735o04kiH3mQW9hs9PBWrdBkOZlbRaSaPgLNdIw2GjnyBZMjzJTDr-hd53754GG/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 // Variabel global untuk Chart.js
@@ -9078,28 +9078,54 @@ function konversiDataServer(serverData) {
     var totalPoint = serverData.totalPoint || 0;
     var hariTerakhir = serverData.hariTerakhirTracking || 0;
     
-    console.log('📊 Hari terakhir tracking:', hariTerakhir);
-    console.log('📊 Tracking data dari server:', trackingDataRaw);
-    
-    // Data Tracking untuk grafik - gunakan data yang sudah diproses oleh server
+    // Ambil data tracking terakhir (hanya 1 item terakhir)
     var trackingData = [];
-    for (var i = 0; i < trackingDataRaw.length; i++) {
-        var item = trackingDataRaw[i];
-        trackingData.push({
-            hari: item.hari || 'Hari ' + item.hariKe,
-            beratBadan: parseFloat(item.beratBadan) || 0,
-            lingkarPerut: parseFloat(item.lingkarPerut) || 0
-        });
-    }
-    
-    // Cari berat badan terbaru dari trackingData (yang sudah dipilih server)
     var beratTerbaru = '-';
-    if (trackingData.length > 0) {
-        var lastItem = trackingData[trackingData.length - 1];
+    var lingkarTerbaru = '-';
+    
+    if (trackingDataRaw.length > 0) {
+        // Ambil data terakhir dari array
+        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
+        trackingData.push({
+            hari: lastItem.hari || 'Hari ' + lastItem.hariKe,
+            beratBadan: parseFloat(lastItem.beratBadan) || 0,
+            lingkarPerut: parseFloat(lastItem.lingkarPerut) || 0
+        });
         beratTerbaru = lastItem.beratBadan || '-';
+        lingkarTerbaru = lastItem.lingkarPerut || '-';
+    } else {
+        // Jika tidak ada data tracking, coba dari profile
+        if (profile.beratBadan && profile.beratBadan !== '') {
+            beratTerbaru = profile.beratBadan;
+            trackingData.push({
+                hari: 'Hari 1',
+                beratBadan: parseFloat(profile.beratBadan) || 0,
+                lingkarPerut: parseFloat(profile.lingkarPerut) || 0
+            });
+        }
     }
     
-    // Data Evaluasi dengan Berat Badan dan Total Point
+    // Data Evaluasi - jika kosong, beri nilai default
+    var evaluasiFinal = {
+        beratBadan: beratTerbaru,
+        bbIdeal: evaluasi.bbIdeal || '-',
+        imt: evaluasi.imt || '-',
+        lemakTubuh: evaluasi.lemakTubuh || '-',
+        lemakPerut: evaluasi.lemakPerut || '-',
+        massaOtot: evaluasi.massaOtot || '-',
+        bmr: evaluasi.bmr || '-',
+        kalori: evaluasi.kalori || '-',
+        protein: evaluasi.protein || '-',
+        kesimpulan: evaluasi.kesimpulan || '-',
+        rekomendasi: evaluasi.rekomendasi || '-'
+    };
+    
+    // Jika evaluasi kosong (belum selesai modul 10), tampilkan pesan
+    if (evaluasi.bbIdeal === '' || evaluasi.bbIdeal === '-') {
+        evaluasiFinal.kesimpulan = 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap';
+        evaluasiFinal.rekomendasi = 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap';
+    }
+    
     return {
         profile: {
             namaKonsumen: profile.namaKonsumen || '-',
@@ -9109,19 +9135,7 @@ function konversiDataServer(serverData) {
             aktivitasFisik: profile.aktivitasFisik || '-'
         },
         trackingData: trackingData,
-        evaluasi: {
-            beratBadan: beratTerbaru,
-            bbIdeal: evaluasi.bbIdeal || '-',
-            imt: evaluasi.imt || '-',
-            lemakTubuh: evaluasi.lemakTubuh || '-',
-            lemakPerut: evaluasi.lemakPerut || '-',
-            massaOtot: evaluasi.massaOtot || '-',
-            bmr: evaluasi.bmr || '-',
-            kalori: evaluasi.kalori || '-',
-            protein: evaluasi.protein || '-',
-            kesimpulan: evaluasi.kesimpulan || '-',
-            rekomendasi: evaluasi.rekomendasi || '-'
-        },
+        evaluasi: evaluasiFinal,
         totalPoint: totalPoint
     };
 }
@@ -9242,7 +9256,234 @@ function konversiDataServer(serverData) {
     };
 }
 
+/******************************
+ * Tampilkan Dasboard Peserta
+ ******************************/
 function tampilkanDashboardSederhana(data) {
+    console.log('🎨 Menampilkan dashboard dengan data:', data);
+    const container = document.getElementById('dashboardContent');
+    if (!container) return;
+    
+    const profile = data.profile || {};
+    const tracking = data.trackingData || [];
+    const evaluasi = data.evaluasi || {};
+    const totalPoint = data.totalPoint || 0;
+    
+    // Tentukan referensi berdasarkan jenis kelamin
+    const jenkel = profile.jenisKelamin || 'Pria';
+    const refLemakTubuh = (jenkel === 'Pria') ? '10 - 20%' : '18 - 28%';
+    const refLemakPerut = (jenkel === 'Pria') ? '< 90 cm' : '< 80 cm';
+    const refIMT = '18.5 - 24.9';
+    
+    // Cek apakah evaluasi kosong
+    const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
+    
+    // Data evaluasi dengan referensi
+    const evaluasiData = [
+        { 
+            parameter: 'Berat Badan', 
+            hasil: evaluasi.beratBadan || '-', 
+            referensi: 'Sesuai target program',
+            satuan: 'kg'
+        },
+        { 
+            parameter: 'IMT', 
+            hasil: evaluasi.imt || '-', 
+            referensi: refIMT,
+            satuan: ''
+        },
+        { 
+            parameter: 'Lemak Tubuh', 
+            hasil: evaluasi.lemakTubuh || '-', 
+            referensi: refLemakTubuh,
+            satuan: '%'
+        },
+        { 
+            parameter: 'Lemak Perut', 
+            hasil: evaluasi.lemakPerut || '-', 
+            referensi: refLemakPerut,
+            satuan: 'cm'
+        },
+        { 
+            parameter: 'Massa Otot', 
+            hasil: evaluasi.massaOtot || '-', 
+            referensi: 'Sesuai target',
+            satuan: 'kg'
+        },
+        { 
+            parameter: 'BMR', 
+            hasil: evaluasi.bmr || '-', 
+            referensi: 'Sesuai kebutuhan basal',
+            satuan: 'kalori'
+        },
+        { 
+            parameter: 'Kebutuhan Kalori', 
+            hasil: evaluasi.kalori || '-', 
+            referensi: 'Sesuai aktivitas fisik',
+            satuan: 'kalori'
+        },
+        { 
+            parameter: 'Kebutuhan Protein', 
+            hasil: evaluasi.protein || '-', 
+            referensi: 'Sesuai berat badan & aktivitas',
+            satuan: 'gram'
+        }
+    ];
+    
+    // Buat baris tabel evaluasi
+    var evaluasiRows = '';
+    for (var i = 0; i < evaluasiData.length; i++) {
+        var item = evaluasiData[i];
+        // Jika hasilnya '-' atau kosong, beri warna abu-abu
+        var isKosong = (item.hasil === '-' || item.hasil === '');
+        var rowStyle = isKosong ? 'color: #999;' : '';
+        evaluasiRows += `
+            <tr style="${rowStyle}">
+                <td><strong>${item.parameter}</strong></td>
+                <td style="text-align: center;">${item.hasil} ${item.satuan}</td>
+                <td style="text-align: center;">${item.referensi}</td>
+            </tr>
+        `;
+    }
+    
+    // Tentukan badge warna berdasarkan total point
+    var pointBadgeClass = 'bg-secondary';
+    var pointMessage = '';
+    if (totalPoint >= 50) {
+        pointBadgeClass = 'bg-success';
+        pointMessage = '<span class="badge bg-info ms-2">🏆 Luar biasa! Anda berhak mendapatkan reward spesial!</span>';
+    } else if (totalPoint >= 30) {
+        pointBadgeClass = 'bg-warning text-dark';
+        pointMessage = '<span class="badge bg-info ms-2">👍 Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
+    } else if (totalPoint > 0) {
+        pointBadgeClass = 'bg-secondary';
+        pointMessage = '<span class="badge bg-info ms-2">💪 Semangat! Konsisten untuk kumpulkan lebih banyak point!</span>';
+    } else {
+        pointMessage = '<span class="badge bg-info ms-2">📝 Belum ada point, selesaikan program untuk mengumpulkan point!</span>';
+    }
+    
+    // Cek apakah ada data grafik
+    var hasChartData = tracking.length > 0;
+    
+    // Buat HTML lengkap
+    var html = `
+        <div style="padding: 10px;">
+            <!-- DATA PROFILE -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-user-circle"></i> Data Profile Peserta
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-sm">
+                        <tr><th style="width:40%;">Nama</th><td>${profile.namaKonsumen || '-'}</td></tr>
+                        <tr><th>Jenis Kelamin</th><td>${profile.jenisKelamin || '-'}</td></tr>
+                        <tr><th>Usia</th><td>${profile.usia || '-'} tahun</td></tr>
+                        <tr><th>Tinggi Badan</th><td>${profile.tinggiBadan || '-'} cm</td></tr>
+                        <tr><th>Aktivitas Fisik</th><td>${profile.aktivitasFisik || '-'}</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- GRAFIK PERKEMBANGAN -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-chart-line"></i> Grafik Perkembangan
+                </div>
+                <div class="card-body">
+                    ${hasChartData ? `
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
+                        </div>
+                    </div>
+                    ` : `
+                    <div class="text-center p-4">
+                        <i class="fas fa-chart-line fa-3x mb-3" style="color: #ccc;"></i>
+                        <p class="text-muted">Belum ada data tracking untuk ditampilkan.</p>
+                        <p class="small text-muted">Data akan muncul setelah menyelesaikan tracking di Hari ke-1, 5, atau 10.</p>
+                    </div>
+                    `}
+                </div>
+            </div>
+            
+            <!-- HASIL EVALUASI -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia - Selesaikan Modul ke-10)' : '(Hari ke-10)'}
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead style="background-color: #e8f4fd;">
+                            <tr>
+                                <th style="width:35%;">Parameter</th>
+                                <th style="width:25%; text-align:center;">Hasil</th>
+                                <th style="width:40%; text-align:center;">Referensi (Ideal)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${evaluasiRows}
+                        </tbody>
+                    </table>
+                    ${isEvaluasiKosong ? `
+                    <div class="text-center p-2 bg-light">
+                        <small class="text-muted"><i class="fas fa-info-circle"></i> Data evaluasi lengkap akan tersedia setelah menyelesaikan Modul ke-10</small>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <!-- KESIMPULAN & REKOMENDASI -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-clipboard-check"></i> Kesimpulan & Rekomendasi
+                </div>
+                <div class="card-body">
+                    <p><strong>Kesimpulan:</strong> ${evaluasi.kesimpulan || '-'}</p>
+                    <p><strong>Rekomendasi:</strong> ${evaluasi.rekomendasi || '-'}</p>
+                </div>
+            </div>
+            
+            <!-- POINT REWARD -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-star"></i> Point Reward
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <span class="display-4 fw-bold ${pointBadgeClass}" style="padding: 10px 25px; border-radius: 50px; font-size: 2rem;">
+                            ${totalPoint}
+                        </span>
+                        <span class="ms-2">Point</span>
+                        ${pointMessage}
+                    </div>
+                    <p class="mb-2">
+                        <i class="fas fa-gift text-warning"></i> 
+                        <strong>Total point anda yang terkumpul selama 10 hari sebanyak: ${totalPoint} Point</strong>
+                    </p>
+                    <p class="text-muted small">
+                        Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
+                    </p>
+                    <button class="btn btn-outline-success btn-sm mt-2" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    // Buat grafik setelah HTML siap (hanya jika ada data)
+    if (hasChartData) {
+        setTimeout(function() {
+            buatGrafik(tracking);
+        }, 200);
+    }
+}
+
+function BACKUP_tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
     
     const container = document.getElementById('dashboardContent');
