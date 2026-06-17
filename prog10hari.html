@@ -9080,6 +9080,72 @@ function konversiDataServer(serverData) {
     
     console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
     
+    // ===== PROSES DATA TRACKING =====
+    var trackingData = [];
+    var beratTerbaru = '-';
+    var lingkarTerbaru = '-';
+    var hariTerbaru = '-';
+    
+    if (trackingDataRaw.length > 0) {
+        // Ambil data terakhir (yang paling update)
+        var item = trackingDataRaw[trackingDataRaw.length - 1];
+        trackingData.push({
+            hari: item.hari || 'Hari ' + item.hariKe,
+            beratBadan: parseFloat(item.beratBadan) || 0,
+            lingkarPerut: parseFloat(item.lingkarPerut) || 0
+        });
+        beratTerbaru = item.beratBadan || '-';
+        lingkarTerbaru = item.lingkarPerut || '-';
+        hariTerbaru = item.hari || 'Hari ' + item.hariKe;
+        console.log('✅ Data tracking TERBARU:', hariTerbaru, 'Berat:', beratTerbaru);
+    } else {
+        console.log('⚠️ Tidak ada data tracking');
+    }
+    
+    // ===== PROSES EVALUASI =====
+    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
+                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
+    
+    console.log('📊 Evaluasi hasData:', hasEvaluasi);
+    
+    var evaluasiFinal = {
+        beratBadan: beratTerbaru,
+        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
+        imt: hasEvaluasi ? evaluasi.imt : '-',
+        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
+        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
+        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
+        bmr: hasEvaluasi ? evaluasi.bmr : '-',
+        kalori: hasEvaluasi ? evaluasi.kalori : '-',
+        protein: hasEvaluasi ? evaluasi.protein : '-',
+        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap',
+        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap'
+    };
+    
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: evaluasiFinal,
+        totalPoint: totalPoint
+    };
+}
+
+function BACKUP_konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    var profile = serverData.profile || {};
+    var trackingDataRaw = serverData.trackingData || [];
+    var evaluasi = serverData.evaluasi || {};
+    var totalPoint = serverData.totalPoint || 0;
+    
+    console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
+    
     // Data Tracking untuk grafik
     var trackingData = [];
     var beratTerbaru = '-';
@@ -9305,7 +9371,6 @@ function tampilkanDashboardSederhana(data) {
     
     // Cek apakah ada data grafik
     var hasChartData = tracking.length > 0;
-    var chartDataLabel = hasChartData ? tracking[0].hari : 'Belum ada data';
     
     // Buat HTML lengkap
     var html = `
@@ -9329,7 +9394,7 @@ function tampilkanDashboardSederhana(data) {
             <!-- GRAFIK PERKEMBANGAN -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan - ${chartDataLabel}
+                    <i class="fas fa-chart-line"></i> Grafik Perkembangan - ${chartLabel}
                 </div>
                 <div class="card-body">
                     ${hasChartData ? `
@@ -9423,6 +9488,15 @@ function tampilkanDashboardSederhana(data) {
     // Buat grafik setelah HTML siap (hanya jika ada data)
     if (hasChartData) {
         setTimeout(function() {
+            // Hapus grafik lama sebelum membuat baru
+            if (window.beratChartInstance) {
+                window.beratChartInstance.destroy();
+                window.beratChartInstance = null;
+            }
+            if (window.lingkarChartInstance) {
+                window.lingkarChartInstance.destroy();
+                window.lingkarChartInstance = null;
+            }
             buatGrafik(tracking);
         }, 300);
     }
@@ -9652,7 +9726,125 @@ function tukarPoint(totalPoint) {
     }
 }
 
+/******************************
+ * Buat Grafik dengan Chart.js
+ *****************************/
 function buatGrafik(trackingData) {
+    console.log('📊 Membuat grafik dengan data:', trackingData);
+    
+    if (!trackingData || trackingData.length === 0) {
+        console.log('⚠️ Tidak ada data untuk grafik');
+        return;
+    }
+    
+    var labels = trackingData.map(function(item) { return item.hari; });
+    var beratData = trackingData.map(function(item) { return item.beratBadan; });
+    var lingkarData = trackingData.map(function(item) { return item.lingkarPerut; });
+    
+    console.log('📊 Label grafik:', labels);
+    console.log('📊 Data berat:', beratData);
+    console.log('📊 Data lingkar:', lingkarData);
+    
+    // === GRAFIK BERAT BADAN ===
+    var beratCtx = document.getElementById('beratChartCanvas');
+    if (beratCtx) {
+        if (window.beratChartInstance) {
+            window.beratChartInstance.destroy();
+            window.beratChartInstance = null;
+        }
+        
+        window.beratChartInstance = new Chart(beratCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Berat Badan (kg)',
+                    data: beratData,
+                    backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                    borderColor: '#28a745',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: { font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' kg';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        title: { display: true, text: 'Berat Badan (kg)' },
+                        beginAtZero: false,
+                        min: Math.max(0, Math.min.apply(null, beratData) - 5)
+                    }
+                }
+            }
+        });
+        console.log('✅ Grafik berat badan selesai');
+    }
+    
+    // === GRAFIK LINGKAR PERUT ===
+    var lingkarCtx = document.getElementById('lingkarChartCanvas');
+    if (lingkarCtx) {
+        if (window.lingkarChartInstance) {
+            window.lingkarChartInstance.destroy();
+            window.lingkarChartInstance = null;
+        }
+        
+        window.lingkarChartInstance = new Chart(lingkarCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Lingkar Perut (cm)',
+                    data: lingkarData,
+                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                    borderColor: '#007bff',
+                    borderWidth: 2,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: { font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' cm';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        title: { display: true, text: 'Lingkar Perut (cm)' },
+                        beginAtZero: false,
+                        min: Math.max(0, Math.min.apply(null, lingkarData) - 5)
+                    }
+                }
+            }
+        });
+        console.log('✅ Grafik lingkar perut selesai');
+    }
+}
+
+function BACKUP_buatGrafik(trackingData) {
     console.log('📊 Membuat grafik dengan data:', trackingData);
     
     const labels = trackingData.map(item => item.hari);
