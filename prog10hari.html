@@ -1564,7 +1564,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzGzmenKThxtA_ZUPCMEFM_bEclUa_GTO6Tc6_yK4u3GlbjqYJb2kntHHXltt2rbAM4IQ/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwN3FNMbrISaV6NMBX1GBx_EyU4WXhgyl3GQvbVCIprVnYhCD3pb9jvqe6P4uG357o6-A/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -9141,64 +9141,7 @@ function konversiDataServer(serverData) {
     };
 }
 
- function BACKUP_konversiDataServer(serverData) {
-    console.log('🔄 Konversi data server:', serverData);
-    
-    const profile = serverData.profile || {};
-    const trackingDataRaw = serverData.trackingData || [];
-    const evaluasi = serverData.evaluasi || {};
-    
-    // Cari berat badan terbaru dari trackingData (Hari ke-10)
-    let beratTerbaru = '-';
-    for (var i = 0; i < trackingDataRaw.length; i++) {
-        if (trackingDataRaw[i].hariKe === 10) {
-            beratTerbaru = trackingDataRaw[i].beratBadan || '-';
-            break;
-        }
-    }
-    // Jika tidak ada tracking hari 10, coba dari profile
-    if (beratTerbaru === '-' && profile.beratBadan) {
-        beratTerbaru = profile.beratBadan;
-    }
-    
-    // Data Tracking untuk grafik
-    var trackingData = [];
-    for (var i = 0; i < trackingDataRaw.length; i++) {
-        var item = trackingDataRaw[i];
-        trackingData.push({
-            hari: item.hari || 'Hari ' + item.hariKe,
-            beratBadan: parseFloat(item.beratBadan) || 0,
-            lingkarPerut: parseFloat(item.lingkarPerut) || 0
-        });
-    }
-    
-    // Data Evaluasi dengan Berat Badan
-    return {
-        profile: {
-            namaKonsumen: profile.namaKonsumen || '-',
-            jenisKelamin: profile.jenisKelamin || '-',
-            usia: profile.usia || '-',
-            tinggiBadan: profile.tinggiBadan || '-',
-            aktivitasFisik: profile.aktivitasFisik || '-'
-        },
-        trackingData: trackingData,
-        evaluasi: {
-            beratBadan: beratTerbaru,
-            bbIdeal: evaluasi.bbIdeal || '-',
-            imt: evaluasi.imt || '-',
-            lemakTubuh: evaluasi.lemakTubuh || '-',
-            lemakPerut: evaluasi.lemakPerut || '-',
-            massaOtot: evaluasi.massaOtot || '-',
-            bmr: evaluasi.bmr || '-',
-            kalori: evaluasi.kalori || '-',
-            protein: evaluasi.protein || '-',
-            kesimpulan: evaluasi.kesimpulan || '-',
-            rekomendasi: evaluasi.rekomendasi || '-'
-        }
-    };
-}
-
-/******************************
+ /******************************
  * Tampilkan Dasboard Peserta
  ******************************/
 function tampilkanDashboardSederhana(data) {
@@ -9338,7 +9281,11 @@ function tampilkanDashboardSederhana(data) {
             <!-- GRAFIK PERKEMBANGAN -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan ${chartLabel ? '- ' + chartLabel : ''}
+                    <!-- TIDAK AKTIF  
+                      <i class="fas fa-chart-line"></i> Grafik Perkembangan ${chartLabel ? '- ' + chartLabel : ''} 
+                    -->
+                    <i class="fas fa-chart-line"></i> Grafik Perkembangan 
+                    
                 </div>
                 <div class="card-body">
                     ${hasChartData ? `
@@ -9365,7 +9312,7 @@ function tampilkanDashboardSederhana(data) {
             <!-- HASIL EVALUASI -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia)' : '(Hari ke-10)'}
+                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia)' : '(Hari 10)'}
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-bordered table-sm mb-0">
@@ -9444,209 +9391,6 @@ function tampilkanDashboardSederhana(data) {
             buatGrafik(tracking);
         }, 300);
     }
-}
-
-function BACKUP_tampilkanDashboardSederhana(data) {
-    console.log('🎨 Menampilkan dashboard dengan data:', data);
-    
-    const container = document.getElementById('dashboardContent');
-    if (!container) return;
-    
-    const profile = data.profile || {};
-    const tracking = data.trackingData || [];
-    const evaluasi = data.evaluasi || {};
-    const totalPoint = data.totalPoint || 0;
-    
-    // Tentukan referensi berdasarkan jenis kelamin
-    const jenkel = profile.jenisKelamin || 'Pria';
-    const refLemakTubuh = (jenkel === 'Pria') ? '10 - 20%' : '18 - 28%';
-    const refLemakPerut = (jenkel === 'Pria') ? '< 90 cm' : '< 80 cm';
-    const refIMT = '18.5 - 24.9';
-    
-    // Data evaluasi dengan referensi
-    const evaluasiData = [
-        { 
-            parameter: 'Berat Badan', 
-            hasil: evaluasi.beratBadan || '-', 
-            referensi: 'Sesuai target program',
-            satuan: 'kg'
-        },
-        { 
-            parameter: 'IMT', 
-            hasil: evaluasi.imt || '-', 
-            referensi: refIMT,
-            satuan: ''
-        },
-        { 
-            parameter: 'Lemak Tubuh', 
-            hasil: evaluasi.lemakTubuh || '-', 
-            referensi: refLemakTubuh,
-            satuan: '%'
-        },
-        { 
-            parameter: 'Lemak Perut', 
-            hasil: evaluasi.lemakPerut || '-', 
-            referensi: refLemakPerut,
-            satuan: 'cm'
-        },
-        { 
-            parameter: 'Massa Otot', 
-            hasil: evaluasi.massaOtot || '-', 
-            referensi: 'Sesuai target',
-            satuan: 'kg'
-        },
-        { 
-            parameter: 'BMR', 
-            hasil: evaluasi.bmr || '-', 
-            referensi: 'Sesuai kebutuhan basal',
-            satuan: 'kalori'
-        },
-        { 
-            parameter: 'Kebutuhan Kalori', 
-            hasil: evaluasi.kalori || '-', 
-            referensi: 'Sesuai aktivitas fisik',
-            satuan: 'kalori'
-        },
-        { 
-            parameter: 'Kebutuhan Protein', 
-            hasil: evaluasi.protein || '-', 
-            referensi: 'Sesuai berat badan & aktivitas',
-            satuan: 'gram'
-        }
-    ];
-    
-    // Tentukan badge warna berdasarkan total point
-    let pointBadgeClass = 'bg-secondary';
-    let pointMessage = '';
-    if (totalPoint >= 50) {
-        pointBadgeClass = 'bg-success';
-        pointMessage = '<span class="badge bg-info ms-2">🏆 Luar biasa! Anda berhak mendapatkan reward spesial!</span>';
-    } else if (totalPoint >= 30) {
-        pointBadgeClass = 'bg-warning text-dark';
-        pointMessage = '<span class="badge bg-info ms-2">👍 Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
-    } else if (totalPoint > 0) {
-        pointBadgeClass = 'bg-secondary';
-        pointMessage = '<span class="badge bg-info ms-2">💪 Semangat! Konsisten untuk kumpulkan lebih banyak point!</span>';
-    } else {
-        pointMessage = '<span class="badge bg-info ms-2">📝 Belum ada point, selesaikan program untuk mengumpulkan point!</span>';
-    }
-    
-    // Buat baris tabel evaluasi
-    let evaluasiRows = '';
-    for (var i = 0; i < evaluasiData.length; i++) {
-        var item = evaluasiData[i];
-        evaluasiRows += `
-            <tr>
-                <td><strong>${item.parameter}</strong></td>
-                <td style="text-align: center;">${item.hasil} ${item.satuan}</td>
-                <td style="text-align: center;">${item.referensi}</td>
-            </tr>
-        `;
-    }
-    
-    // Buat HTML lengkap
-    let html = `
-        <div style="padding: 10px;">
-            <!-- DATA PROFILE -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-user-circle"></i> Data Profile Peserta
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered table-sm">
-                        <tr><th style="width:40%;">Nama</th><td>${profile.namaKonsumen || '-'}</td></tr>
-                        <tr><th>Jenis Kelamin</th><td>${profile.jenisKelamin || '-'}</td></tr>
-                        <tr><th>Usia</th><td>${profile.usia || '-'} tahun</td></tr>
-                        <tr><th>Tinggi Badan</th><td>${profile.tinggiBadan || '-'} cm</td></tr>
-                        <tr><th>Aktivitas Fisik</th><td>${profile.aktivitasFisik || '-'}</td></tr>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- GRAFIK PERKEMBANGAN -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- HASIL EVALUASI -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi (Hari ke-10)
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-bordered table-sm mb-0">
-                        <thead style="background-color: #e8f4fd;">
-                            <tr>
-                                <th style="width:35%;">Parameter</th>
-                                <th style="width:25%; text-align:center;">Hasil</th>
-                                <th style="width:40%; text-align:center;">Referensi (Ideal)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${evaluasiRows}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- KESIMPULAN & REKOMENDASI -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-clipboard-check"></i> Kesimpulan & Rekomendasi
-                </div>
-                <div class="card-body">
-                    <p><strong>Kesimpulan:</strong> ${evaluasi.kesimpulan || '-'}</p>
-                    <p><strong>Rekomendasi:</strong> ${evaluasi.rekomendasi || '-'}</p>
-                </div>
-            </div>
-            
-            <!-- POINT REWARD -->
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-star"></i> Point Reward
-                </div>
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <span class="display-4 fw-bold ${pointBadgeClass}" style="padding: 10px 25px; border-radius: 50px; font-size: 1rem;">
-                            ${totalPoint}
-                        </span>
-                        <span class="ms-2 mt-5">Point</span>
-                        ${pointMessage}
-                    </div>
-                    <p class="mb-2">
-                        <i class="fas fa-gift text-warning"></i> 
-                        <strong>Total point anda yang terkumpul selama 10 hari sebanyak: ${totalPoint} Point</strong>
-                    </p>
-                    <p class="text-muted small">
-                        Tukarkan point anda untuk mendapatkan reward dari kami berupa</br>
-                        <strong>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
-                    </p>
-                    <button class="btn btn-outline-success btn-sm mt-2" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
-                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML = html;
-    
-    // Buat grafik setelah HTML siap
-    setTimeout(function() {
-        buatGrafik(tracking);
-    }, 200);
 }
 
 // Fungsi untuk menukar point (bisa dikembangkan sesuai kebutuhan)
@@ -9852,76 +9596,6 @@ function buatGrafik(trackingData) {
                         beginAtZero: false,
                         min: Math.max(0, Math.min.apply(null, lingkarFinal) - 5)
                     }
-                }
-            }
-        });
-        console.log('✅ Grafik lingkar perut selesai');
-    }
-}
-
-function BACKUP_buatGrafik(trackingData) {
-    console.log('📊 Membuat grafik dengan data:', trackingData);
-    
-    const labels = trackingData.map(item => item.hari);
-    const beratData = trackingData.map(item => item.beratBadan);
-    const lingkarData = trackingData.map(item => item.lingkarPerut);
-    
-    // Grafik Berat Badan
-    const beratCtx = document.getElementById('beratChartCanvas');
-    if (beratCtx) {
-        if (beratChart) beratChart.destroy();
-        beratChart = new Chart(beratCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Berat Badan (kg)',
-                    data: beratData,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#28a745'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { position: 'top' }
-                }
-            }
-        });
-        console.log('✅ Grafik berat badan selesai');
-    }
-    
-    // Grafik Lingkar Perut
-    const lingkarCtx = document.getElementById('lingkarChartCanvas');
-    if (lingkarCtx) {
-        if (lingkarChart) lingkarChart.destroy();
-        lingkarChart = new Chart(lingkarCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Lingkar Perut (cm)',
-                    data: lingkarData,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 6,
-                    pointBackgroundColor: '#007bff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { position: 'top' }
                 }
             }
         });
