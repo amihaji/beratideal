@@ -9372,11 +9372,11 @@ function tampilkanDashboardSederhana(data) {
                     ${hasChartData ? `
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <h6 class="text-center">Berat Badan (kg)</h6>
+                            <h6 class="text-center">BB (kg)</h6>
                             <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                         <div class="col-12 col-md-6">
-                            <h6 class="text-center">Lingkar Perut (cm)</h6>
+                            <h6 class="text-center">LP (cm)</h6>
                             <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                     </div>
@@ -9563,7 +9563,7 @@ function buatGrafik(trackingData) {
         
         // Tentukan warna berdasarkan jumlah data
         var borderColor = '#28a745';
-        var bgColor = 'rgba(40, 167, 69, 0.1)';
+        var bgColor = 'rgba(255, 99, 71, 0.2)';
         var pointColor = '#28a745';
         
         window.beratChartInstance = new Chart(beratCtx, {
@@ -9608,7 +9608,7 @@ function buatGrafik(trackingData) {
                         title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
                     },
                     y: { 
-                        title: { display: true, text: 'Berat Badan (kg)' },
+                        title: { display: true, text: 'Berat Badan' },
                         beginAtZero: false,
                         min: Math.max(0, Math.min.apply(null, beratFinal) - 5)
                     }
@@ -9671,10 +9671,10 @@ function buatGrafik(trackingData) {
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'Hari ke-', font: { weight: 'bold' } }
+                        title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
                     },
                     y: { 
-                        title: { display: true, text: 'Lingkar Perut (cm)' },
+                        title: { display: true, text: 'Lingkar Perut' },
                         beginAtZero: false,
                         min: Math.max(0, Math.min.apply(null, lingkarFinal) - 5)
                     }
