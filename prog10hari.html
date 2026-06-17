@@ -797,14 +797,14 @@ background:#e0e0e0;
     margin-left: auto !important;
     margin-right: auto !important;
     display: block !important;
-    text-align: left !important;
+    text-align: center !important;
 }
 /* FIX: Container tombol Selesai Modul */
 [id^="selesaimodulContent"] .border > div:last-child,
 [id^="selesaimodulContent"] div:has(>.btn) {
-    text-align: left !important;
+    text-align: center !important;
     display: flex !important;
-    justify-content: left !important;
+    justify-content: center !important;
 }
 /**** Akhir Rata tengah konten Selesai Modul ****/
 
@@ -9130,91 +9130,6 @@ function konversiDataServer(serverData) {
         evaluasi: evaluasiFinal,
         totalPoint: totalPoint,
         modulSelesai: modulSelesai
-    };
-}
-
-function BACKUP_konversiDataServer(serverData) {
-    console.log('🔄 Konversi data server:', serverData);
-    
-    var profile = serverData.profile || {};
-    var trackingDataRaw = serverData.trackingData || [];
-    var evaluasi = serverData.evaluasi || {};
-    var totalPoint = serverData.totalPoint || 0;
-    var modulTerakhir = serverData.modulTerakhir || 0;
-    
-    console.log('📊 Modul terakhir:', modulTerakhir);
-    console.log('📊 Data tracking dari server:', trackingDataRaw);
-    
-    // ===== PROSES DATA TRACKING =====
-    var trackingData = [];
-    var beratTerbaru = '-';
-    var lingkarTerbaru = '-';
-    var hariTerbaru = '-';
-    
-    if (trackingDataRaw.length > 0) {
-        // Proses semua data tracking yang ada
-        trackingDataRaw.forEach(function(item) {
-            trackingData.push({
-                hari: item.hari || 'Hari ' + item.hariKe,
-                hariKe: item.hariKe || 1,
-                beratBadan: parseFloat(item.beratBadan) || 0,
-                lingkarPerut: parseFloat(item.lingkarPerut) || 0
-            });
-        });
-        
-        // Ambil data terakhir
-        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
-        beratTerbaru = lastItem.beratBadan || '-';
-        lingkarTerbaru = lastItem.lingkarPerut || '-';
-        hariTerbaru = lastItem.hari || 'Hari ' + lastItem.hariKe;
-        console.log('✅ Data tracking untuk dashboard:', hariTerbaru, 'Berat:', beratTerbaru);
-    } else {
-        console.log('⚠️ Tidak ada data tracking');
-    }
-    
-    // ===== PROSES EVALUASI =====
-    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
-                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
-    
-    var evaluasiFinal = {
-        beratBadan: beratTerbaru,
-        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
-        imt: hasEvaluasi ? evaluasi.imt : '-',
-        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
-        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
-        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
-        bmr: hasEvaluasi ? evaluasi.bmr : '-',
-        kalori: hasEvaluasi ? evaluasi.kalori : '-',
-        protein: hasEvaluasi ? evaluasi.protein : '-',
-        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10',
-        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai'
-    };
-    
-    // Tentukan label modul untuk ditampilkan
-    var labelModul = '';
-    if (modulTerakhir >= 10) {
-        labelModul = 'H10';
-    } else if (modulTerakhir >= 5) {
-        labelModul = 'H5';
-    } else if (modulTerakhir >= 1) {
-        labelModul = 'H1';
-    } else {
-        labelModul = 'Belum ada data';
-    }
-    
-    return {
-        profile: {
-            namaKonsumen: profile.namaKonsumen || '-',
-            jenisKelamin: profile.jenisKelamin || '-',
-            usia: profile.usia || '-',
-            tinggiBadan: profile.tinggiBadan || '-',
-            aktivitasFisik: profile.aktivitasFisik || '-'
-        },
-        trackingData: trackingData,
-        evaluasi: evaluasiFinal,
-        totalPoint: totalPoint,
-        modulTerakhir: modulTerakhir,
-        labelModul: labelModul
     };
 }
 
