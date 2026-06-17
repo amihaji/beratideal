@@ -1563,7 +1563,7 @@ button[id^="btnCekDisini"] {
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycby9naLJmyEBNpYaF4_bQSkZPO_unxIGNWxPc_9-AIcwx7tX4nGKmaW1RcJMg8KhTrQs/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzI97p8Z_VS2tgaKE9oUKLyhDYBVlWL4VfoWpHNSWPvC5El_mYyCqNMLtQe-_nr27Gd/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 // Variabel global untuk Chart.js
@@ -8637,7 +8637,7 @@ Isi pertanyaan anda disini..............
 
 Mohon arahan dari Coach 🙏
 ----------------------------------------
-Balasan langsung ke WA ini`;
+Balasan langsung ke Nomor WA Saya ini : ...........`;
   
   console.log(`✅ Pesan default untuk hari ${hariKe} diisi`);
 }
@@ -9067,9 +9067,66 @@ function fetchDashboardDataFromServer(userId) {
 }
 
 /**********************************************
- * Konversi data dari server ke format dashboard
- **********************************************/
+ Konversi data dari server ke format dashboard
+**********************************************/
 function konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    var profile = serverData.profile || {};
+    var trackingDataRaw = serverData.trackingData || [];
+    var evaluasi = serverData.evaluasi || {};
+    var totalPoint = serverData.totalPoint || 0;
+    var hariTerakhir = serverData.hariTerakhirTracking || 0;
+    
+    console.log('📊 Hari terakhir tracking:', hariTerakhir);
+    console.log('📊 Tracking data dari server:', trackingDataRaw);
+    
+    // Data Tracking untuk grafik - gunakan data yang sudah diproses oleh server
+    var trackingData = [];
+    for (var i = 0; i < trackingDataRaw.length; i++) {
+        var item = trackingDataRaw[i];
+        trackingData.push({
+            hari: item.hari || 'Hari ' + item.hariKe,
+            beratBadan: parseFloat(item.beratBadan) || 0,
+            lingkarPerut: parseFloat(item.lingkarPerut) || 0
+        });
+    }
+    
+    // Cari berat badan terbaru dari trackingData (yang sudah dipilih server)
+    var beratTerbaru = '-';
+    if (trackingData.length > 0) {
+        var lastItem = trackingData[trackingData.length - 1];
+        beratTerbaru = lastItem.beratBadan || '-';
+    }
+    
+    // Data Evaluasi dengan Berat Badan dan Total Point
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: {
+            beratBadan: beratTerbaru,
+            bbIdeal: evaluasi.bbIdeal || '-',
+            imt: evaluasi.imt || '-',
+            lemakTubuh: evaluasi.lemakTubuh || '-',
+            lemakPerut: evaluasi.lemakPerut || '-',
+            massaOtot: evaluasi.massaOtot || '-',
+            bmr: evaluasi.bmr || '-',
+            kalori: evaluasi.kalori || '-',
+            protein: evaluasi.protein || '-',
+            kesimpulan: evaluasi.kesimpulan || '-',
+            rekomendasi: evaluasi.rekomendasi || '-'
+        },
+        totalPoint: totalPoint
+    };
+}
+
+ function BACKUP_konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
     const profile = serverData.profile || {};
@@ -9830,6 +9887,136 @@ if(e.target.classList.contains("emoji-search")){
   });
 }
 });
+
+/*****************************************
+ * AUTO CLEAR CACHE & REFRESH SAAT LOGIN
+ *****************************************/
+
+/*****************************************
+ * Hapus cache browser (tanpa konfirmasi)
+ ****************************************/
+function autoClearBrowserCache() {
+    console.log('🗑️ Auto clear cache browser...');
+    
+    // Simpan data login sementara
+    const tempUserId = localStorage.getItem('userId');
+    const tempUserName = localStorage.getItem('userName');
+    
+    // Hapus semua localStorage yang terkait progress (tapi jangan hapus data login)
+    const keysToRemove = [
+        'progressData',
+        'userProgress',
+        'userProgressData',
+        'completeProgress',
+        'aksesList',
+        'userToken',
+        'userLevel'
+    ];
+    
+    // Hapus keys yang sudah ditentukan
+    for (var i = 0; i < keysToRemove.length; i++) {
+        localStorage.removeItem(keysToRemove[i]);
+    }
+    
+    // Hapus semua progress per user (jika ada userId)
+    if (tempUserId) {
+        localStorage.removeItem(`progressData_${tempUserId}`);
+        localStorage.removeItem(`completeProgress_${tempUserId}`);
+    }
+    
+    // Hapus semua data workout sementara
+    for (var h = 1; h <= 10; h++) {
+        localStorage.removeItem(`workoutSavedHari${h}`);
+        localStorage.removeItem(`workoutHari${h}`);
+        localStorage.removeItem(`materi_hari_${h}`);
+        localStorage.removeItem(`mealplan_hari_${h}`);
+        localStorage.removeItem(`water_hari_${h}_saved`);
+        localStorage.removeItem(`water_hari_${h}_completed`);
+        localStorage.removeItem(`workout_start_time_${h}`);
+        localStorage.removeItem(`workout_stop_time_${h}`);
+        localStorage.removeItem(`workout_kardio_type_${h}`);
+        localStorage.removeItem(`workout_kardio_filename_${h}`);
+        localStorage.removeItem(`workout_kardio_file_${h}`);
+        localStorage.removeItem(`workout_status_${h}`);
+        localStorage.removeItem(`resistance-${h}-`);
+    }
+    
+    // Hapus juga data meal plan
+    for (var h = 1; h <= 10; h++) {
+        var mealTypes = ['sarapan', 'cemilanPagi', 'makanSiang', 'cemilanSore', 'makanMalam'];
+        for (var m = 0; m < mealTypes.length; m++) {
+            localStorage.removeItem(`meal_${h}_${mealTypes[m]}`);
+            localStorage.removeItem(`mealFile_${h}_${mealTypes[m]}`);
+        }
+        localStorage.removeItem(`mealplanHari${h}`);
+        localStorage.removeItem(`mealplan_hari_${h}`);
+    }
+    
+    console.log('✅ Auto clear cache selesai');
+}
+
+/**************************************************
+ * Refresh progress dari server (tanpa konfirmasi)
+ **************************************************/
+function autoRefreshProgressFromServer() {
+    console.log('🔄 Auto refresh progress dari server...');
+    
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        console.log('⚠️ Tidak ada user ID, skip auto refresh');
+        return;
+    }
+    
+    // Panggil fetch progress dari server (ambil data terbaru)
+    const callbackName = 'cb_auto_refresh_' + Date.now();
+    const script = document.createElement('script');
+    
+    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    
+    window[callbackName] = function(response) {
+        console.log('📡 Auto refresh response:', response);
+        if (response && response.success) {
+            // Update global progress
+            window.userProgress = response;
+            // Simpan ke localStorage
+            localStorage.setItem(`progressData_${userId}`, JSON.stringify(response));
+            localStorage.setItem('progressData', JSON.stringify(response));
+            console.log('✅ Auto refresh progress berhasil');
+        } else {
+            console.log('⚠️ Auto refresh progress gagal');
+        }
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    script.onerror = function() {
+        console.log('⚠️ Auto refresh progress - koneksi gagal');
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    document.body.appendChild(script);
+}
+
+/*********************************************
+ * Fungsi utama yang dijalankan saat login
+ * Menggabungkan clear cache dan refresh data
+ *********************************************/
+function onUserLogin() {
+    console.log('🔐 User login detected - menjalankan auto clear & refresh...');
+    
+    // 1. Hapus cache browser
+    autoClearBrowserCache();
+    
+    // 2. Refresh data dari server (ambil data terbaru)
+    autoRefreshProgressFromServer();
+    
+    // 3. Reload halaman setelah 1.5 detik untuk menerapkan perubahan
+    setTimeout(function() {
+        console.log('🔄 Reload halaman untuk menerapkan data fresh...');
+        window.location.reload();
+    }, 1500);
+}
 
 </script>
 </body>
