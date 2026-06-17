@@ -9070,9 +9070,6 @@ function fetchDashboardDataFromServer(userId) {
 /**********************************************
  Konversi data dari server ke format dashboard
 **********************************************/
-/**********************************************
- * Konversi data dari server ke format dashboard
- **********************************************/
 function konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
@@ -9080,34 +9077,33 @@ function konversiDataServer(serverData) {
     var trackingDataRaw = serverData.trackingData || [];
     var evaluasi = serverData.evaluasi || {};
     var totalPoint = serverData.totalPoint || 0;
-    var hariTerakhir = serverData.hariTerakhirTracking || 0;
     
-    console.log('📊 Data tracking dari server:', trackingDataRaw);
-    console.log('📊 Hari terakhir tracking:', hariTerakhir);
+    console.log('📊 Data tracking dari server (RAW):', trackingDataRaw);
     
-    // Data Tracking untuk grafik - gunakan data yang sudah diproses server
+    // Data Tracking untuk grafik
     var trackingData = [];
-    for (var i = 0; i < trackingDataRaw.length; i++) {
-        var item = trackingDataRaw[i];
+    var beratTerbaru = '-';
+    var lingkarTerbaru = '-';
+    
+    if (trackingDataRaw.length > 0) {
+        var item = trackingDataRaw[0];
         trackingData.push({
             hari: item.hari || 'Hari ' + item.hariKe,
             beratBadan: parseFloat(item.beratBadan) || 0,
             lingkarPerut: parseFloat(item.lingkarPerut) || 0
         });
-    }
-    
-    // Ambil berat badan terbaru dari trackingData
-    var beratTerbaru = '-';
-    var lingkarTerbaru = '-';
-    if (trackingData.length > 0) {
-        var lastItem = trackingData[trackingData.length - 1];
-        beratTerbaru = lastItem.beratBadan || '-';
-        lingkarTerbaru = lastItem.lingkarPerut || '-';
+        beratTerbaru = item.beratBadan || '-';
+        lingkarTerbaru = item.lingkarPerut || '-';
+        console.log('✅ Data tracking untuk grafik:', item.hari, 'Berat:', beratTerbaru);
+    } else {
+        console.log('⚠️ Tidak ada data tracking');
     }
     
     // Cek apakah evaluasi ada data
     var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
                       (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
+    
+    console.log('📊 Evaluasi hasData:', hasEvaluasi);
     
     // Data Evaluasi
     var evaluasiFinal = {
@@ -9123,8 +9119,6 @@ function konversiDataServer(serverData) {
         kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap',
         rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap'
     };
-    
-    console.log('📊 Data evaluasi final:', evaluasiFinal);
     
     return {
         profile: {
