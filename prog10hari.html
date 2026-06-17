@@ -1563,7 +1563,7 @@ button[id^="btnCekDisini"] {
 /*******************
 * Deklarasi Global *
 ********************/
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbySB735o04kiH3mQW9hs9PBWrdBkOZlbRaSaPgLNdIw2GjnyBZMjzJTDr-hd53754GG/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyLieZ-eX4epCHbl2BEgzDT2wXXpx1tXabFw_aTbDnU7VJEUjE7snwBJ76jdjwB8bCs/exec';
 const PLAYLIST_JSON_URL = './data/playlist.json';   // Daftar Video Resep Makanan & Minuman
 
 // Variabel global untuk Chart.js
@@ -9069,6 +9069,9 @@ function fetchDashboardDataFromServer(userId) {
 /**********************************************
  Konversi data dari server ke format dashboard
 **********************************************/
+/**********************************************
+ * Konversi data dari server ke format dashboard
+ **********************************************/
 function konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
@@ -9078,53 +9081,49 @@ function konversiDataServer(serverData) {
     var totalPoint = serverData.totalPoint || 0;
     var hariTerakhir = serverData.hariTerakhirTracking || 0;
     
-    // Ambil data tracking terakhir (hanya 1 item terakhir)
+    console.log('📊 Data tracking dari server:', trackingDataRaw);
+    console.log('📊 Hari terakhir tracking:', hariTerakhir);
+    
+    // Data Tracking untuk grafik - gunakan data yang sudah diproses server
     var trackingData = [];
+    for (var i = 0; i < trackingDataRaw.length; i++) {
+        var item = trackingDataRaw[i];
+        trackingData.push({
+            hari: item.hari || 'Hari ' + item.hariKe,
+            beratBadan: parseFloat(item.beratBadan) || 0,
+            lingkarPerut: parseFloat(item.lingkarPerut) || 0
+        });
+    }
+    
+    // Ambil berat badan terbaru dari trackingData
     var beratTerbaru = '-';
     var lingkarTerbaru = '-';
-    
-    if (trackingDataRaw.length > 0) {
-        // Ambil data terakhir dari array
-        var lastItem = trackingDataRaw[trackingDataRaw.length - 1];
-        trackingData.push({
-            hari: lastItem.hari || 'Hari ' + lastItem.hariKe,
-            beratBadan: parseFloat(lastItem.beratBadan) || 0,
-            lingkarPerut: parseFloat(lastItem.lingkarPerut) || 0
-        });
+    if (trackingData.length > 0) {
+        var lastItem = trackingData[trackingData.length - 1];
         beratTerbaru = lastItem.beratBadan || '-';
         lingkarTerbaru = lastItem.lingkarPerut || '-';
-    } else {
-        // Jika tidak ada data tracking, coba dari profile
-        if (profile.beratBadan && profile.beratBadan !== '') {
-            beratTerbaru = profile.beratBadan;
-            trackingData.push({
-                hari: 'Hari 1',
-                beratBadan: parseFloat(profile.beratBadan) || 0,
-                lingkarPerut: parseFloat(profile.lingkarPerut) || 0
-            });
-        }
     }
     
-    // Data Evaluasi - jika kosong, beri nilai default
+    // Cek apakah evaluasi ada data
+    var hasEvaluasi = (evaluasi.bbIdeal && evaluasi.bbIdeal !== '' && evaluasi.bbIdeal !== '-') ||
+                      (evaluasi.imt && evaluasi.imt !== '' && evaluasi.imt !== '-');
+    
+    // Data Evaluasi
     var evaluasiFinal = {
         beratBadan: beratTerbaru,
-        bbIdeal: evaluasi.bbIdeal || '-',
-        imt: evaluasi.imt || '-',
-        lemakTubuh: evaluasi.lemakTubuh || '-',
-        lemakPerut: evaluasi.lemakPerut || '-',
-        massaOtot: evaluasi.massaOtot || '-',
-        bmr: evaluasi.bmr || '-',
-        kalori: evaluasi.kalori || '-',
-        protein: evaluasi.protein || '-',
-        kesimpulan: evaluasi.kesimpulan || '-',
-        rekomendasi: evaluasi.rekomendasi || '-'
+        bbIdeal: hasEvaluasi ? evaluasi.bbIdeal : '-',
+        imt: hasEvaluasi ? evaluasi.imt : '-',
+        lemakTubuh: hasEvaluasi ? evaluasi.lemakTubuh : '-',
+        lemakPerut: hasEvaluasi ? evaluasi.lemakPerut : '-',
+        massaOtot: hasEvaluasi ? evaluasi.massaOtot : '-',
+        bmr: hasEvaluasi ? evaluasi.bmr : '-',
+        kalori: hasEvaluasi ? evaluasi.kalori : '-',
+        protein: hasEvaluasi ? evaluasi.protein : '-',
+        kesimpulan: hasEvaluasi ? evaluasi.kesimpulan : 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap',
+        rekomendasi: hasEvaluasi ? evaluasi.rekomendasi : 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap'
     };
     
-    // Jika evaluasi kosong (belum selesai modul 10), tampilkan pesan
-    if (evaluasi.bbIdeal === '' || evaluasi.bbIdeal === '-') {
-        evaluasiFinal.kesimpulan = 'Belum tersedia - Selesaikan Modul ke-10 untuk melihat hasil evaluasi lengkap';
-        evaluasiFinal.rekomendasi = 'Lanjutkan program sampai selesai untuk mendapatkan rekomendasi lengkap';
-    }
+    console.log('📊 Data evaluasi final:', evaluasiFinal);
     
     return {
         profile: {
@@ -9261,6 +9260,7 @@ function konversiDataServer(serverData) {
  ******************************/
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
+    
     const container = document.getElementById('dashboardContent');
     if (!container) return;
     
@@ -9277,6 +9277,12 @@ function tampilkanDashboardSederhana(data) {
     
     // Cek apakah evaluasi kosong
     const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
+    
+    // Tentukan label hari untuk grafik
+    var chartLabel = 'Hari Ini';
+    if (tracking.length > 0) {
+        chartLabel = tracking[0].hari || 'Hari Ini';
+    }
     
     // Data evaluasi dengan referensi
     const evaluasiData = [
@@ -9334,7 +9340,6 @@ function tampilkanDashboardSederhana(data) {
     var evaluasiRows = '';
     for (var i = 0; i < evaluasiData.length; i++) {
         var item = evaluasiData[i];
-        // Jika hasilnya '-' atau kosong, beri warna abu-abu
         var isKosong = (item.hasil === '-' || item.hasil === '');
         var rowStyle = isKosong ? 'color: #999;' : '';
         evaluasiRows += `
@@ -9364,6 +9369,7 @@ function tampilkanDashboardSederhana(data) {
     
     // Cek apakah ada data grafik
     var hasChartData = tracking.length > 0;
+    var chartDataLabel = hasChartData ? tracking[0].hari : 'Belum ada data';
     
     // Buat HTML lengkap
     var html = `
@@ -9387,15 +9393,17 @@ function tampilkanDashboardSederhana(data) {
             <!-- GRAFIK PERKEMBANGAN -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan
+                    <i class="fas fa-chart-line"></i> Grafik Perkembangan - ${chartDataLabel}
                 </div>
                 <div class="card-body">
                     ${hasChartData ? `
                     <div class="row">
                         <div class="col-12 col-md-6">
+                            <h6 class="text-center">Berat Badan (kg)</h6>
                             <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                         <div class="col-12 col-md-6">
+                            <h6 class="text-center">Lingkar Perut (cm)</h6>
                             <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
                         </div>
                     </div>
@@ -9412,7 +9420,7 @@ function tampilkanDashboardSederhana(data) {
             <!-- HASIL EVALUASI -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia - Selesaikan Modul ke-10)' : '(Hari ke-10)'}
+                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia)' : '(Hari ke-10)'}
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-bordered table-sm mb-0">
@@ -9475,11 +9483,12 @@ function tampilkanDashboardSederhana(data) {
     `;
     
     container.innerHTML = html;
+    
     // Buat grafik setelah HTML siap (hanya jika ada data)
     if (hasChartData) {
         setTimeout(function() {
             buatGrafik(tracking);
-        }, 200);
+        }, 300);
     }
 }
 
