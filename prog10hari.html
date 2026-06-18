@@ -1745,6 +1745,7 @@ function logout() {
     // Clear general data
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userHP');
     localStorage.removeItem('userToken');
     localStorage.removeItem('userLevel');
     localStorage.removeItem('progressData'); // General progress data
@@ -3260,6 +3261,7 @@ function setupAllComponents() {
   // DATA LOGIN
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName'); 
+  const userHP   = localStorage.getItem('userHP');
   // Accordian Toggle
   setupAccordionToggle();
   // Cek Login User
@@ -8599,7 +8601,8 @@ async function selesaiTanyaCoach(hariKe){
   
   const userId = localStorage.getItem("userId");
   const userName = localStorage.getItem("userName");
-  
+  const userHP = localStorage.getItem("userHP");
+    
   if (!userId) {
     showMessage('error', 'Silakan login terlebih dahulu', 3000, `tanyaContent${hariKe}`);
     return;
@@ -8615,6 +8618,7 @@ async function selesaiTanyaCoach(hariKe){
         action: 'completeTanyaCoach',
         userId,
         userName,
+        userHP,
         hariKe
       })
     });
