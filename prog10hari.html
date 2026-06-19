@@ -1590,7 +1590,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzFlcnOTsK3P43ZTaV-Gu83C8_bk8D7TYZ9Ku8u0r-OZ08YkapCulO7_PtTduOCP4W-5w/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz4PbzNlNc-TPnQiN4qp_Tr6j2Z3u2SLadtPTgmgPB9M0wIie7-_ct1Yl8GNyiF0dPeUg/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -2761,6 +2761,13 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
               response.workoutData.namaKonsumen
             );
           }
+          
+          // Simpan Nomor HP ke localStorage jika tersedia di response
+          if (response.userHP) {
+            localStorage.setItem('userHP', response.userHP);
+            console.log('📱 Nomor HP disimpan dari complete progress:', response.userHP);
+          }
+          
           // Simpan complete progress user
           localStorage.setItem(
             `completeProgress_${userId}`,
