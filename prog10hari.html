@@ -1590,7 +1590,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxYa5rzkHNuclTCqS35BkkrhUPzEIt02jvsGGCotCMtyrR_BH9IsEfGRooCfCTSLw-CYg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwRK30Wv8qTpsA7NZYtJgnOOezjy28q6BrpumWLCimB25r_pplldpB_UFhGinZnikhd/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -2517,6 +2517,7 @@ function updatePerkenalanUI() {
  * Setup Seluruh Komponen Internal *
  * *********************************/
 function setupAllComponentsInternal(progress = {}) {
+    console.log('🔧 setupAllComponentsInternal dipanggil dengan progress:', progress);
     // 🔥 FIX: pastikan progress selalu ada
     if (!progress) progress = {};
 
@@ -2735,6 +2736,8 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
 
     window[callbackName] = function (response) {
       console.log('📊 Complete progress response:', response);
+      console.log('📊 Complete progress response FULL OBJECT:', JSON.parse(JSON.stringify(response)));
+      console.log('📊 Complete progress keys:', Object.keys(response));
       try {
         if (response && response.success) {
           // Simpan Nama Konsumen ke localstorage dari sheet PROGRAM kolom E (Nama Konsumen)
