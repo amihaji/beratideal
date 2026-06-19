@@ -8618,6 +8618,10 @@ async function selesaiTanyaCoach(hariKe){
 function isiPesanDefaultCoach(hariKe){
   console.log("✏️ Isi pesan otomatis Tanya Coach hari", hariKe);
   
+  // Debug: Lihat semua isi localStorage
+  console.log("📦 Isi localStorage:", Object.keys(localStorage).map(k => `${k}: ${localStorage.getItem(k)}`));
+  console.log("📦 Isi window.userProgress:", window.userProgress);
+  
   // Cari container tanya coach untuk hari ini
   const container = document.getElementById(`tanyaContent${hariKe}`);
   if (!container) {
@@ -8649,15 +8653,21 @@ function isiPesanDefaultCoach(hariKe){
     namaUser = window.userProgress.namaKonsumen;
   }
 
-  // AMBIL NOMOR WA USER
+  // AMBIL NOMOR WA USER - Cek semua kemungkinan!
   let nomorWA = "...........";
   const hpLocal = localStorage.getItem("userHP");
   if(hpLocal){
     nomorWA = hpLocal;
+    console.log("✅ Ditemukan userHP dari localStorage:", hpLocal);
   }
 
-  if(window.userProgress && window.userProgress.nomorHP){
-    nomorWA = window.userProgress.nomorHP;
+  // Cek semua kemungkinan field di window.userProgress
+  if(window.userProgress){
+    if(window.userProgress.nomorHP) { nomorWA = window.userProgress.nomorHP; console.log("✅ Ditemukan nomorHP dari userProgress"); }
+    else if(window.userProgress.hp) { nomorWA = window.userProgress.hp; console.log("✅ Ditemukan hp dari userProgress"); }
+    else if(window.userProgress.telepon) { nomorWA = window.userProgress.telepon; console.log("✅ Ditemukan telepon dari userProgress"); }
+    else if(window.userProgress.noHP) { nomorWA = window.userProgress.noHP; console.log("✅ Ditemukan noHP dari userProgress"); }
+    else if(window.userProgress.userHP) { nomorWA = window.userProgress.userHP; console.log("✅ Ditemukan userHP dari userProgress"); }
   }
 
   // NAMA HARI
@@ -8681,7 +8691,7 @@ Mohon arahan dari Coach 🙏
 ----------------------------------------
 Balasan langsung ke Nomor WA Saya ini : ${nomorWA}`;
   
-  console.log(`✅ Pesan default untuk hari ${hariKe} diisi`);
+  console.log(`✅ Pesan default untuk hari ${hariKe} diisi, nomorWA: ${nomorWA}`);
 }
 
 /***************************
