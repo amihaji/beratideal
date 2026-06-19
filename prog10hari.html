@@ -2430,6 +2430,12 @@ function applyUnlockModul(progress) {
         lockModul(i);
     }
 
+    // Jika perkenalan selesai → UNLOCK Modul Hari 1!
+    if (progress.perkenalan === true) {
+        console.log('🔓 Perkenalan selesai → UNLOCK Modul Hari 1');
+        unlockModul(1);
+    }
+
     // 🔥 FIX: terima true dan "OK"
     for (let i = 1; i <= 9; i++) {
         console.log(`🔍 Cek selesaimodulHari${i} =`, progress[`selesaimodulHari${i}`]);
@@ -2449,7 +2455,10 @@ function unlockModul(hariKe) {
     console.log(`🔓 Attempting to unlock Modul Hari ${hariKe}`);
 
     const modulHeader = document.querySelector(`[data-hari="${hariKe}"]`);
-    if (!modulHeader) return;
+    if (!modulHeader) {
+        console.warn(`⚠️ Modul Hari ${hariKe} tidak ditemukan di DOM!`);
+        return;
+    }
 
     modulHeader.classList.remove('disabled');
     modulHeader.style.pointerEvents = 'auto';
@@ -2463,9 +2472,12 @@ function unlockModul(hariKe) {
     // 🔥 FIX ICON (HANYA 1 ICON)
     let icon = modulHeader.querySelector('.status-lock, .status-unlock');
 
+    console.log(`🔍 Icon ditemukan untuk Modul Hari ${hariKe}:`, icon);
+
     if (icon) {
         icon.className = 'fas fa-unlock status-unlock';
         icon.style.color = '#000e3d';
+        console.log(`✅ Icon untuk Modul Hari ${hariKe} diubah menjadi UNLOCK`);
     }
 
     console.log(`✅ Modul Hari ${hariKe} UNLOCKED`);
