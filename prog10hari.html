@@ -5994,7 +5994,7 @@ async function selesaiWorkout(hariKe) {
       localStorage.setItem(`workoutHari${hariKe}`, 'completed');
       updateSubmenuLinkUI('workout', hariKe);
       disableWorkoutUI(hariKe);
-      showMessage('success', 'Workout hari selesai', 3000, `workoutContent${hariKe}`);
+      showMessage('success', 'Workout selesai', 3000, `workoutContent${hariKe}`);
     } else {
       showMessage('error', result.message || `Gagal menyelesaikan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     }
@@ -6224,7 +6224,7 @@ async function simpanWorkoutData(hariKe) {
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
-      showMessage('success', 'Data workout hari tersimpan', 3000, `workoutContent${hariKe}`);
+      showMessage('success', 'Data workout tersimpan', 3000, `workoutContent${hariKe}`);
       return true;
     }
     showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
