@@ -1611,7 +1611,7 @@ for (let i = 1; i <= 10; i++) {
 /***************************************
 * Load Semua Elements DOMContentLoaded *
 ***************************************/
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Aplikasi dimulai...');
 
     // 1. Accordian Toggle (PERTAMA)
@@ -1668,18 +1668,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // Setup Menu Accordian toggle
     setupAccordionToggle();
-    // Seetup semua komponen
-    setupAllComponents();
-    // SetUp Materi
-    setupMateriCompletion();
-    // 2. Cek Status User dan Apply Lock
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      console.log('🔄 Ambil progress dari server untuk user:', userId);
-      fetchProgressFromServer(userId);
-    } else {
-      console.log('⚠️ Tidak ada user ID, mungkin redirect ke login');
-    }
+    // Setup semua komponen (async, tunggu selesai)
+    console.log('🔧 Memulai setupAllComponents...');
+    await setupAllComponents();
     console.log('✅ Aplikasi siap');
 });
 
@@ -2430,17 +2421,23 @@ function lockModul(hariKe) {
 * FUNGSI KONTROL MANAGER (yang memutuskan modul mana dibuka)
 ************************************************************/
 function applyUnlockModul(progress) {
+    console.log('🔓 applyUnlockModul() dipanggil dengan progress:', progress);
+    
     // Lock semua dulu
     for (let i = 2; i <= 10; i++) {
+        console.log(`🔒 Locking Modul Hari ${i}`);
         lockModul(i);
     }
 
     // 🔥 FIX: terima true dan "OK"
     for (let i = 1; i <= 9; i++) {
+        console.log(`🔍 Cek selesaimodulHari${i} =`, progress[`selesaimodulHari${i}`]);
         if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
+            console.log(`✅ Unlock Modul Hari ${i + 1}`);
             unlockModul(i + 1);
         }
     }
+    console.log('🔓 applyUnlockModul() SELESAI');
 }
 
 /************************************************
@@ -2820,29 +2817,25 @@ function applyCompleteProgressToUI(progress, hariKe) {
     });
   }
   
-  // Fungsi untuk unlock modul ketika DOM siap
-  const unlockWhenReady = () => {
-    const modul4Header = document.querySelector('[data-hari="4"]');
-    
-    // Jika Modul 4 sudah ada di DOM, berarti semua modul sudah siap
-    if (modul4Header) {
-      if (progress.perkenalan === true) {
-        unlockModul(hariKe);
-      }
-      
-      for (let i = 1; i <= 9; i++) {
-        if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-          unlockModul(i + 1);
-        }
-      }
-      console.log('✅ Unlock modul selesai (DOM siap)');
-    } else {
-      // DOM belum siap, coba lagi di frame berikutnya
-      requestAnimationFrame(unlockWhenReady);
-    }
-  };
-  // Mulai pengecekan
-  requestAnimationFrame(unlockWhenReady);
+  // 🔥 NONAKTIFKAN SEMENTARA unlockWhenReady di applyCompleteProgressToUI (biar tidak override)
+  console.log('⏸️ applyCompleteProgressToUI: unlockWhenReady dinonaktifkan sementara');
+  // const unlockWhenReady = () => {
+  //   const modul4Header = document.querySelector('[data-hari="4"]');
+  //   if (modul4Header) {
+  //     if (progress.perkenalan === true) {
+  //       unlockModul(hariKe);
+  //     }
+  //     for (let i = 1; i <= 9; i++) {
+  //       if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
+  //         unlockModul(i + 1);
+  //       }
+  //     }
+  //     console.log('✅ Unlock modul selesai (DOM siap)');
+  //   } else {
+  //     requestAnimationFrame(unlockWhenReady);
+  //   }
+  // };
+  // requestAnimationFrame(unlockWhenReady);
 }
 
 /*****************************************
