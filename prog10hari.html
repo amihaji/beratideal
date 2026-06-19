@@ -8582,7 +8582,7 @@ async function selesaiTanyaCoach(hariKe){
         action: 'completeTanyaCoach',
         userId,
         userName,
-        // userHP,
+        userHP,
         hariKe
       })
     });
@@ -8714,6 +8714,7 @@ async function kirimPesanCoach(hariKe){
 
   const userId = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
+  const userHP = localStorage.getItem('userHP');
 
   try {
     const response = await fetch(URL_PROGRAM_APP, {
@@ -8726,7 +8727,7 @@ async function kirimPesanCoach(hariKe){
         hariKe: hariKe,
         pesan: pesan,
         // noAdmin: "081149908600"             // Admin Send untuk kirim pesan
-        noKonsumen: "085343974043",
+        noKonsumen: userHP,
         noCoach: "08114499640"
       })
     });
