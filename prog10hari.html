@@ -2243,28 +2243,29 @@ function applyExistingUserProgress(progress) {
     disableSelesaiPerkenalanButton();
   }
 
+  // ⚠️ NONAKTIFKAN UNLOCK MODUL DISINI (SUDAH DILAKUKAN DI applyUnlockModul)
   // Fungsi untuk unlock modul ketika DOM siap
-  const unlockWhenReady = () => {
-    const modul4Header = document.querySelector('[data-hari="4"]');
-    
-    if (modul4Header) {
-      if (progress.perkenalan === true) {
-        unlockModul(1);
-      }
-      
-      for (let i = 1; i <= 9; i++) {
-        if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-          unlockModul(i + 1);
-        }
-      }
-      console.log('✅ Unlock modul selesai (DOM siap)');
-    } else {
-      // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
-      requestAnimationFrame(unlockWhenReady);
-    }
-  };
-  // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
-  requestAnimationFrame(unlockWhenReady);
+  // const unlockWhenReady = () => {
+  //   const modul4Header = document.querySelector('[data-hari="4"]');
+  //   
+  //   if (modul4Header) {
+  //     if (progress.perkenalan === true) {
+  //       unlockModul(1);
+  //     }
+  //     
+  //     for (let i = 1; i <= 9; i++) {
+  //       if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
+  //         unlockModul(i + 1);
+  //       }
+  //     }
+  //     console.log('✅ Unlock modul selesai (DOM siap)');
+  //   } else {
+  //     // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
+  //     requestAnimationFrame(unlockWhenReady);
+  //   }
+  // };
+  // // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
+  // requestAnimationFrame(unlockWhenReady);
 
   // Fungsi untuk menerapkan UI progress dengan pengecekan DOM
   const applyUIWhenReady = (hariKe, retryCount = 0) => {
@@ -3290,6 +3291,7 @@ async function setupAllComponents() {
   if (userId && progress.success) {
     applyUnlockModul(progress);
     setupMateriCompletion(progress);
+    applyExistingUserProgress(progress); // TAMBAHKAN INI UNTUK ICON CENTANG!
     for (let i = 1; i <= 10; i++) {
       checkMateriStatus(i, progress);
     }
