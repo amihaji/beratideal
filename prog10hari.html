@@ -3227,18 +3227,25 @@ function applyReadOnlyModeToSubmenu(container) {
 /****************************
 * Update Setup All Komponen *
 *****************************/
-function setupAllComponents() {
+async function setupAllComponents() {
   console.log('🔧 Setting up all components...');
   // DATA LOGIN
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName'); 
   const userHP   = localStorage.getItem('userHP');
-  // Accordian Toggle
+  
+  // 1. Accordian Toggle
   setupAccordionToggle();
+  
+  // 2. Generate modul terlebih dahulu (wajib sebelum setup lainnya!)
+  console.log('🔧 Generating modules from template...');
+  generateModulFromTemplate();
+  
   // Cek Login User
+  let progress = {};
   if (userId) {
     console.log('👤 User is logged in:', userId);
-    // Update Navbar (Icon Useer dan Logout)
+    // Update Navbar (Icon User dan Logout)
     updateNavbarForLoggedInUser();
     // Sapaan Personal User Berdasarkan Waktu Akses
     const namaTampil = userName && userName.trim() !== '' ? userName : userId;
@@ -3263,33 +3270,41 @@ function setupAllComponents() {
       elGreetingNameInline.innerText = namaTampil;
     }
 
-    // Load Progress Lengkap dari server
-    loadCompleteProgressFromServer(userId, 1)
-      .then(progress => {
-        console.log('✅ Complete progress loaded successfully');
-        // 🔥 WAJIB TARUH DI SINI
-        applyUnlockModul(progress);
-        setupMateriCompletion(progress);
-        for (let i = 1; i <= 10; i++) {
-            checkMateriStatus(i, progress);
-        }
-      })
-      .catch(error => {
-        console.error('❌ Error loading complete progress:', error);
-        // fallback jika server gagal
-        checkProgressFallback(userId);
-      });
+    // 3. Load Progress Lengkap dari server (await agar selesai dulu!)
+    try {
+      progress = await loadCompleteProgressFromServer(userId, 1);
+      console.log('✅ Complete progress loaded successfully');
+    } catch (error) {
+      console.error('❌ Error loading complete progress:', error);
+      // fallback jika server gagal
+      checkProgressFallback(userId);
+      // Ambil progress dari localStorage sebagai fallback
+      const progressKey = `completeProgress_${userId}`;
+      const savedProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+      if (savedProgress.success) {
+        progress = savedProgress;
+      }
+    }
   } else {
     console.log('⚠️ No user logged in or session expired');
     // User Belum Login, Lock Semua Modul
     applyLockForNewUser();
   }
-  // 🔥 WAJIB: generate modul dulu
-  generateModulFromTemplate();
-  // WAJIB DIULANG
+  
+  // 4. Setup Semua Komponen Lainnya dengan progress yang sudah diload!
+  console.log('🔧 Setting up all internal components with progress...');
   setupAccordionToggle();
-  // Setup Semua Komponen Lainnya (Tetap jalan)
-  setupAllComponentsInternal();
+  setupAllComponentsInternal(progress);
+  
+  // 5. Apply unlock dan setup materi dengan progress yang valid!
+  if (userId && progress.success) {
+    applyUnlockModul(progress);
+    setupMateriCompletion(progress);
+    for (let i = 1; i <= 10; i++) {
+      checkMateriStatus(i, progress);
+    }
+  }
+  
   console.log('✅ All components setup complete');
   // Setup tombol untuk video Panduan & Perkenalan (pastikan terpasang)
   setTimeout(() => {
@@ -9959,20 +9974,17 @@ function autoRefreshProgressFromServer() {
  * Fungsi utama yang dijalankan saat login
  * Menggabungkan clear cache dan refresh data
  *********************************************/
-function onUserLogin() {
+async function onUserLogin() {
     console.log('🔐 User login detected - menjalankan auto clear & refresh...');
     
     // 1. Hapus cache browser
     autoClearBrowserCache();
     
-    // 2. Refresh data dari server (ambil data terbaru)
-    autoRefreshProgressFromServer();
-    
-    // 3. Reload halaman setelah 1.5 detik untuk menerapkan perubahan
-    setTimeout(function() {
-        console.log('🔄 Reload halaman untuk menerapkan data fresh...');
-        window.location.reload();
-    }, 1500);
+    // 2. Tunggu sebentar lalu jalankan setupAllComponents() untuk refresh semua data
+    setTimeout(async function() {
+        console.log('🔄 Menjalankan setup ulang semua komponen...');
+        await setupAllComponents();
+    }, 500);
 }
 
 </script>
