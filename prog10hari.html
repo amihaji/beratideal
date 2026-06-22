@@ -928,6 +928,10 @@ button[id^="btnCekDisini"] {
   }
   .card-body { padding-left: 0 !important;padding-right: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
   .table { margin-bottom: 0 !important; }
+  /* Kecuali untuk card-body di Point Reward */
+  .point-reward-container {
+    padding: 2rem !important;
+  }
   /* Jarak konten dari sisi layar (mobile only) */
   .container, .container-fluid, 
   .menu-content, .submenu-content { padding-left: 10px !important; padding-right: 10px !important; }
@@ -954,6 +958,25 @@ button[id^="btnCekDisini"] {
   .emoji-toggle { width: 100% !important; }
 }
 /***** AKHIR TAMPILAN MOBILE *****/
+/* CSS untuk Point Reward */
+.point-reward-container {
+  padding: 2rem !important;
+}
+.point-circle {
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 50% !important;
+  font-size: 2.5rem !important;
+}
+.point-wrapper {
+  margin: 2rem 0 !important;
+}
+.point-message {
+  margin: 1.5rem 0 !important;
+}
 </style>
 </head>
 
@@ -9421,19 +9444,19 @@ function tampilkanDashboardSederhana(data) {
                 <div class="card-header bg-success text-white">
                     <i class="fas fa-star"></i> Point Reward
                 </div>
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <span class="display-4 fw-bold ${pointBadgeClass}" style="padding: 10px 25px; border-radius: 50px; font-size: 2rem;">
+                <div class="card-body text-center" style="padding: 2rem;">
+                    <div style="margin: 2rem 0;">
+                        <span class="display-4 fw-bold ${pointBadgeClass}" style="display: inline-flex; justify-content: center; align-items: center; width: 120px; height: 120px; border-radius: 50%; font-size: 2.5rem;">
                             ${totalPoint}
                         </span>
-                        <span class="ms-2">Point</span>
+                        <span class="ms-3" style="font-size: 1.2rem;">Point</span>
                         ${pointMessage}
                     </div>
-                    <p class="mb-2">
+                    <p class="mb-2" style="margin: 1.5rem 0;">
                         <i class="fas fa-gift text-warning"></i> 
                         <strong>Total point anda yang terkumpul selama 10 hari sebanyak: ${totalPoint} Point</strong>
                     </p>
-                    <p class="text-muted small">
+                    <p class="text-muted small" style="margin: 1.5rem 0;">
                         Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
                     </p>
                     <button class="btn btn-outline-success btn-sm mt-2" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
