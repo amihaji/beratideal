@@ -1615,7 +1615,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxslH9StyHk9yrn-nWPzNT2ke9-gatCMWOtd3FpQNusha2o5aK-DiVOzOC7Z8BO3nDlQg/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwNLYWLQxo9qWmWLmx2KgeeBrYmkkZK7B3fHxvsodLVtiU7xfVYao2FCSEGlky8If0jfA/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -8532,7 +8532,7 @@ function initializeTrackingForms() {
     const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
     
     // SIMPAN DATA TRACKING
-    btnSimpan.addEventListener("click", async function() {
+    btnSimpan.addEventListener("click", function() {
       const jenisKelamin   = document.getElementById(`jenisKelamin${hariKe}`)?.value || "";
       const usia           = document.getElementById(`usia${hariKe}`)?.value || "";
       const tinggiBadan    = document.getElementById(`tinggiBadan${hariKe}`)?.value || "";
@@ -8547,50 +8547,35 @@ function initializeTrackingForms() {
         return;
       }
       
-      try {
-        const response = await fetch(URL_PROGRAM_APP, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            action: 'updateDataTracking',
-            userId,
-            hariKe,
-            jenisKelamin,
-            usia,
-            tinggiBadan,
-            beratBadan,
-            lingkarPerut,
-            aktivitasFisik
-          })
-        });
-
-        const result = await response.text();
+      kirimKeServer({
+        action: 'updateDataTracking',
+        userId,
+        hariKe,
+        jenisKelamin,
+        usia,
+        tinggiBadan,
+        beratBadan,
+        lingkarPerut,
+        aktivitasFisik
+      }, function(result) {
         console.log("📥 Response Data Tracking:", result);
-        if (result === "OK") {
+        // Handle both plain "OK" and JSON {"success": true} responses
+        if (result === "OK" || (result && result.success)) {
           showMessage('success', 'Data tracking tersimpan', 3000, `trackingContent${hariKe}`);
           btnSelesai.disabled = false;
         } else {
           showMessage('error', 'Gagal menyimpan data', 3000, `trackingContent${hariKe}`);
         }
-      } catch (error) {
-        console.error("❌ Error simpanDataTracking:", error);
-        showMessage('error', 'Terjadi kesalahan sistem', 3000, `trackingContent${hariKe}`);
-      }
+      });
     });
     
     // SELESAI DATA TRACKING
-    btnSelesai.addEventListener("click", async function() {
-      try {
-        const response = await fetch(URL_PROGRAM_APP, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-          body: new URLSearchParams({
-            action: 'completeDataTracking',
-            userId,
-            hariKe
-          })
-        });
-        const result = await response.json();
+    btnSelesai.addEventListener("click", function() {
+      kirimKeServer({
+        action: 'completeDataTracking',
+        userId,
+        hariKe
+      }, function(result) {
         console.log("📥 Response Complete Tracking:", result);
         if (result.success) {
           disableButtonsAfterCompletion(hariKe, 'tracking');
@@ -8599,10 +8584,7 @@ function initializeTrackingForms() {
         } else {
           showMessage('error', 'Gagal menyelesaikan Data Tracking', 3000, `trackingContent${hariKe}`);
         }
-      } catch (error) {
-        console.error(error);
-        showMessage('error', 'Terjadi kesalahan koneksi', 3000, `trackingContent${hariKe}`);
-      }
+      });
     });
     console.log(`✅ Form tracking hari ${hariKe} dibuat`);
   }
