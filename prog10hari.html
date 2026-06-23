@@ -1615,7 +1615,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbwNLYWLQxo9qWmWLmx2KgeeBrYmkkZK7B3fHxvsodLVtiU7xfVYao2FCSEGlky8If0jfA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbyU_Rvj6M-i8U6W9uX-F7Mem1CmS9hN7Yhn6SYW7E-qqfujLEncgFSb7JzfZB2r8_jhLQ/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -5010,7 +5010,7 @@ function setupPerkenalanCompletion() {
 /*****************************
 * Simpan & Kunci Materi Hari *
 *****************************/
-async function simpanMateri(hariKe) {
+function simpanMateri(hariKe) {
     console.log('🎯 Tombol centang diklik untuk hari:', hariKe);
     const userId   = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
@@ -5024,63 +5024,55 @@ async function simpanMateri(hariKe) {
         return;
     }
 
-    const response = await fetch(URL_PROGRAM_APP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            action: 'updateMateri',
-            userId,
-            userName,
-            hariKe
-        })
+    kirimKeServer({
+        action: 'updateMateri',
+        userId,
+        userName,
+        hariKe
+    }, function(result) {
+        console.log('📥 Response updateMateri:', result);
+        // Handle both "OK" string and JSON {success: true}
+        if ((typeof result === 'string' && result.includes('OK')) || (result && result.success)) {
+            // ✅ simpan status lokal
+            localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
+            // 🔒 KUNCI VIDEO TOTAL
+            lockMateriVideo(hariKe);
+            const btn = document.getElementById(`btnMateriDone${hariKe}`);
+            // 🔒 KUNCI TOTAL TOMBOL
+            disableButtonFully(btn);
+            // 🟢 UPDATE SUBMENU (1.1, 2.1, dst)
+            updateSubmenuLinkUI('materi', hariKe);
+            console.log(`✅ Materi hari ${hariKe} berhasil disimpan & dikunci`);
+        }
     });
-
-    const result = await response.text();
-    console.log('📥 Response updateMateri:', result);
-    if (result && result.includes('OK')) {
-        // ✅ simpan status lokal
-        localStorage.setItem(`materi_hari_${hariKe}`, 'completed');
-        // 🔒 KUNCI VIDEO TOTAL
-        lockMateriVideo(hariKe);
-        const btn = document.getElementById(`btnMateriDone${hariKe}`);
-        // 🔒 KUNCI TOTAL TOMBOL
-        disableButtonFully(btn);
-        // 🟢 UPDATE SUBMENU (1.1, 2.1, dst)
-        updateSubmenuLinkUI('materi', hariKe);
-        console.log(`✅ Materi hari ${hariKe} berhasil disimpan & dikunci`);
-    }
 }
 
 /********************************************
 * Selesaikan perkenalan unlock Hari Pertama *
 ********************************************/
-async function selesaikanPerkenalan() {
+function selesaikanPerkenalan() {
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
   if (!userId) return;
 
   console.log('✅ Menyelesaikan perkenalan');
 
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updatePerkenalan',
-      userId,
-      userName
-    })
+  kirimKeServer({
+    action: 'updatePerkenalan',
+    userId,
+    userName
+  }, function(result) {
+    console.log('📥 Response updatePerkenalan:', result);
+    // Handle both "OK" string and JSON {success: true}
+    if ((typeof result === 'string' && result.includes('OK')) || (result && result.success)) {
+      // 🔓 1️⃣ UNLOCK DULU (INI PALING PENTING)
+      unlockModul(1);
+      // 🔒 2️⃣ DISABLE tombol "Selesai Perkenalan" saja
+      disableSelesaiPerkenalanButton();
+      // ✅ 3️⃣ BARU update UI submenu (SETELAH unlock)
+      updateSubmenuLinkUI('perkenalan', 0);
+    }
   });
-
-  const result = await response.text();
-  console.log('📥 Response updatePerkenalan:', result);
-  if (result && result.includes('OK')) {
-    // 🔓 1️⃣ UNLOCK DULU (INI PALING PENTING)
-    unlockModul(1);
-    // 🔒 2️⃣ DISABLE tombol "Selesai Perkenalan" saja
-    disableSelesaiPerkenalanButton();
-    // ✅ 3️⃣ BARU update UI submenu (SETELAH unlock)
-    updateSubmenuLinkUI('perkenalan', 0);
-  }
 }
 
 /************************************************
@@ -5286,27 +5278,19 @@ async function checkAndUnlockModulesForUser(userId) {
 /*************************
 * SELESAI MODUL HARI KE
 **************************/
-async function selesaiModul(hariKe) {
+function selesaiModul(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
     showMessage('success', 'Silahkan login terlebih dahulu', 3000, `selesaimodulContent${hariKe}`);
     return;
   }
   console.log("🚀 Menyelesaikan Modul Hari", hariKe);
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        action: "completeModul",
-        userId: userId,
-        hariKe: hariKe
-      })
-    });
-    
-    const data = await response.json();
+
+  kirimKeServer({
+    action: "completeModul",
+    userId: userId,
+    hariKe: hariKe
+  }, function(data) {
     console.log("📡 Response completeModul:", data);
     
     if (data.success) {
@@ -5341,10 +5325,7 @@ async function selesaiModul(hariKe) {
     } else {
       showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
     }
-  } catch (err) {
-    console.error("❌ Error selesai Modul:", err);
-    showMessage('error', 'Gagal menyelesaikan modul', 3000, `selesaimodulContent${hariKe}`);
-  }
+  });
 }
 
 
@@ -5474,7 +5455,7 @@ function updateMateriStatusUI(hariKe) {
 /************************
  * Simpan Data Tracking *
  * *********************/
-async function simpanDataTracking(hariKe) {
+function simpanDataTracking(hariKe) {
   const userId         = localStorage.getItem('userId');
   const jenisKelamin   = document.getElementById("jenisKelamin")?.value || "";
   const usia           = document.getElementById("usia")?.value || "";
@@ -5495,26 +5476,21 @@ async function simpanDataTracking(hariKe) {
     showMessage('warning', 'Semua field harus diisi', 3000, `trackingContent${hariKe}`);
     return;
   }
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'updateDataTracking',
-        userId,
-        hariKe,
-        jenisKelamin,
-        usia,
-        tinggiBadan,
-        beratBadan,
-        lingkarPerut,
-        aktivitasFisik
-      })
-    });
 
-    const result = await response.text();
+  kirimKeServer({
+    action: 'updateDataTracking',
+    userId,
+    hariKe,
+    jenisKelamin,
+    usia,
+    tinggiBadan,
+    beratBadan,
+    lingkarPerut,
+    aktivitasFisik
+  }, function(result) {
     console.log("📥 Response Data Tracking:", result);
-    if (result === "OK") {
+    // Handle both "OK" string and JSON {success: true}
+    if ((typeof result === 'string' && result === "OK") || (result && result.success)) {
       showMessage('warning', 'Data Tracking berhasil disimpan', 3000, `trackingContent${hariKe}`);
       // Enable tombol selesai
       const btnSelesai = document.getElementById(`btnSelesaiDataTracking${hariKe}`);
@@ -5522,16 +5498,13 @@ async function simpanDataTracking(hariKe) {
     } else {
       showMessage('error', 'Gagal menyimpan data', 3000, `trackingContent${hariKe}`);
     }
-  } catch (error) {
-    console.error("❌ Error simpanDataTracking:", error);
-    showMessage('error', 'Terjadi kesalahan sistem', 3000, `trackingContent${hariKe}`);
-  }
+  });
 }
 
 /**********************************************
 * Selesaikan Data Tracking dan disable tombol *
 ***********************************************/
-async function selesaiDataTracking(hariKe) {
+function selesaiDataTracking(hariKe) {
   console.log("Selesai Tracking Clicked");
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
@@ -5539,20 +5512,13 @@ async function selesaiDataTracking(hariKe) {
     showMessage('error', 'User tidak ditemukan', 3000, `trackingContent${hariKe}`);
     return;
   }
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-      },
-      body: new URLSearchParams({
-        action: 'completeDataTracking',
-        userId,
-        userName,
-        hariKe
-      })
-    });
-    const result = await response.json();
+
+  kirimKeServer({
+    action: 'completeDataTracking',
+    userId,
+    userName,
+    hariKe
+  }, function(result) {
     console.log("📥 Response Complete Tracking:", result);
     if (result.success) {
       // 🔒 Lock UI dengan nama yang BENAR
@@ -5562,10 +5528,7 @@ async function selesaiDataTracking(hariKe) {
     } else {
       showMessage('error', 'Gagal menyimpan Data Tracking', 3000, `trackingContent${hariKe}`);
     }
-  } catch (error) {
-    console.error(error);
-    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `trackingContent${hariKe}`);
-  }
+  });
 }
 
 /***********************************************
@@ -5662,65 +5625,31 @@ async function uploadMealItem(hariKe, mealType) {
 /************************
 * Upload file ke server *
 *************************/
-async function uploadToServer(hariKe, mealType, fileData, fileName) {
-  const userId   = localStorage.getItem('userId');
-  const userName = localStorage.getItem('userName');
-  if (!userId) {
-    console.error('❌ User belum login');
-    return { success: false, message: 'Silakan login terlebih dahulu' };
-  }
+function uploadToServer(hariKe, mealType, fileData, fileName) {
+  return new Promise((resolve, reject) => {
+    const userId   = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    if (!userId) {
+      console.error('❌ User belum login');
+      resolve({ success: false, message: 'Silakan login terlebih dahulu' });
+      return;
+    }
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        action: 'uploadMealPlan',
-        userId,
-        userName,
-        hariKe,
-        mealType,
-        file: fileData,
-        fileName
-      })
+    window.__lastMealUpload = { hariKe, mealType, fileName };
+
+    kirimKeServer({
+      action: 'uploadMealPlan',
+      userId,
+      userName,
+      hariKe,
+      mealType,
+      file: fileData,
+      fileName
+    }, function(result) {
+      console.log('📥 Upload callback result:', result);
+      resolve(result);
     });
-
-    let raw = await response.text();
-    console.log('📥 Upload response RAW:', raw);
-    if (!raw) {
-      return { success: false, message: 'Response kosong dari server' };
-    }
-
-    // 🔥 BERSIHKAN RESPONSE (kasus undefined({...}))
-    let clean = raw.trim();
-    if (clean.startsWith('undefined')) {
-      clean = clean.replace(/^undefined/, '');
-    }
-    if (clean.startsWith('(') && clean.endsWith(')')) {
-      clean = clean.slice(1, -1);
-    }
-
-    // 🧠 PARSE JSON
-    try {
-      const parsed = JSON.parse(clean);
-      return parsed;
-    } catch (err) {
-      console.error('❌ JSON parse gagal:', clean);
-      return {
-        success: false,
-        message: 'Format response server tidak valid'
-      };
-    }
-
-  } catch (error) {
-    console.error('❌ Server error:', error);
-    return {
-      success: false,
-      message: 'Gagal terhubung ke server'
-    };
-  }
+  });
 }
 
 /*********************************
@@ -5757,7 +5686,7 @@ function getMealTypeName(mealType) {
 * Selesaikan Meal Plan – FINAL FIX
 * (TIDAK menyentuh container)
 *************************************/
-async function selesaiMealplan(hariKe) {
+function selesaiMealplan(hariKe) {
     console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
     // 1️⃣ VALIDASI SEMUA ITEM SUDAH UPLOAD
@@ -5771,30 +5700,26 @@ async function selesaiMealplan(hariKe) {
     if (!userId) return;
 
     // 2️⃣ SIMPAN STATUS OK KE SHEET (KOLOM Q)
-    const response = await fetch(URL_PROGRAM_APP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            action: 'updateMealPlan',
-            userId,
-            userName,
-            hariKe
-        })
+    kirimKeServer({
+        action: 'updateMealPlan',
+        userId,
+        userName,
+        hariKe
+    }, function(result) {
+        console.log('📥 Update Meal Plan:', result);
+        // Handle both "OK" string and JSON {success: true}
+        if ((typeof result === 'string' && result.includes('OK')) || (result && result.success)) {
+            // 3️⃣ SIMPAN STATUS LOKAL
+            localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
+            showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealplanContent${hariKe}` );
+            // 4️⃣ KUNCI UI lockmealplanUI
+            lockmealplanUI(hariKe);
+            // 5️⃣ CENTANG SUBMENU
+            updateSubmenuLinkUI('mealplan', hariKe);
+            // ❌ PENTING: TIDAK ADA KODE YANG MENYENTUH CONTAINER
+            console.log(`✅ Meal Plan hari ${hariKe} selesai (X & PDF aman)`);
+        }
     });
-
-    const result = await response.text();
-    console.log('📥 Update Meal Plan:', result);
-    if (result && result.includes('OK')) {
-        // 3️⃣ SIMPAN STATUS LOKAL
-        localStorage.setItem(`mealplanHari${hariKe}`, 'OK');
-        showMessage( 'success', 'Meal Plan Tersimpan dan Selesai', 3000, `mealplanContent${hariKe}` );
-        // 4️⃣ KUNCI UI lockmealplanUI
-        lockmealplanUI(hariKe);
-        // 5️⃣ CENTANG SUBMENU
-        updateSubmenuLinkUI('mealplan', hariKe);
-        // ❌ PENTING: TIDAK ADA KODE YANG MENYENTUH CONTAINER
-        console.log(`✅ Meal Plan hari ${hariKe} selesai (X & PDF aman)`);
-    }
 }
 
 /*****************************************
@@ -5977,7 +5902,7 @@ function createMealplanFormHTML(hariKe) {
 /*************************************
  * SELESAIKAN WORKOUT (FINAL VERSION)
  *************************************/
-async function selesaiWorkout(hariKe) {
+function selesaiWorkout(hariKe) {
   console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
 
   // 🔒 USER LAMA → LANGSUNG KELUAR (READ ONLY)
@@ -5999,21 +5924,12 @@ async function selesaiWorkout(hariKe) {
     return;
   }
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-      },
-      body: new URLSearchParams({
-        action: 'completeWorkout',
-        userId,
-        userName,
-        hariKe
-      })
-    });
-
-    const result = await response.json();
+  kirimKeServer({
+    action: 'completeWorkout',
+    userId,
+    userName,
+    hariKe
+  }, function(result) {
     console.log('📥 Complete workout response:', result);
 
     if (result.success === true) {
@@ -6027,11 +5943,7 @@ async function selesaiWorkout(hariKe) {
     } else {
       showMessage('error', result.message || `Gagal menyelesaikan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     }
-
-  } catch (err) {
-    console.error('❌ Error complete workout:', err);
-    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `workoutContent${hariKe}` );
-  }
+  });
 }
 
 /****************************************
@@ -6077,15 +5989,11 @@ function setupWorkoutEventListeners(hariKe) {
     const newBtnSimpan = btnSimpan.cloneNode(true);
     btnSimpan.parentNode.replaceChild(newBtnSimpan, btnSimpan);
 
-    newBtnSimpan.addEventListener('click', async (e) => {
+    newBtnSimpan.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
-      const success = await simpanWorkoutData(hariKe);
-      if (success) {
-        const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
-        if (btnSelesai) btnSelesai.disabled = false;
-      }
+      simpanWorkoutData(hariKe);
     });
   }
 
@@ -6096,11 +6004,11 @@ function setupWorkoutEventListeners(hariKe) {
     const newBtnSelesai = btnSelesai.cloneNode(true);
     btnSelesai.parentNode.replaceChild(newBtnSelesai, btnSelesai);
 
-    newBtnSelesai.addEventListener('click', async (e) => {
+    newBtnSelesai.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       console.log(`🏁 Menyelesaikan workout hari ${hariKe}`);
-      await selesaiWorkout(hariKe);
+      selesaiWorkout(hariKe);
     });
   }
   console.log(`✅ Workout listeners ready for day ${hariKe}`);
@@ -6193,7 +6101,7 @@ function setStopTimeKardio(hariKe) {
 /*********************************
  * Simpan data workout ke server 
  *********************************/
-async function simpanWorkoutData(hariKe) {
+function simpanWorkoutData(hariKe) {
   console.log(`💾 Tombol Simpan diklik hari ${hariKe}`);
   const userId   = localStorage.getItem('userId');
   const userName = localStorage.getItem('userName');
@@ -6222,48 +6130,38 @@ async function simpanWorkoutData(hariKe) {
   const kardioFileBase64 = localStorage.getItem(`kardioFile_${hariKe}`) || '';
 
   // 🚀 KIRIM KE SERVER (STRUKTUR TIDAK DIUBAH)
-  try {
-    const workoutData = {
-      kardioType,
-      startTime,
-      stopTime,
-      resistenExercises: resistanceData.resistenExercises,
-      totalSets: resistanceData.totalSets,
-      totalReps: resistanceData.totalReps,
-      totalMinutes: resistanceData.totalMinutes
-    };
-    console.log('📤 Payload workout FINAL:', workoutData);
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        action: 'updateWorkout',
-        userId,
-        userName,
-        hariKe,
-        workoutData: JSON.stringify(workoutData),
-        kardioFile: kardioFileBase64
-      })
-    });
-
-    const result = await response.json();
+  const workoutData = {
+    kardioType,
+    startTime,
+    stopTime,
+    resistenExercises: resistanceData.resistenExercises,
+    totalSets: resistanceData.totalSets,
+    totalReps: resistanceData.totalReps,
+    totalMinutes: resistanceData.totalMinutes
+  };
+  console.log('📤 Payload workout FINAL:', workoutData);
+  
+  kirimKeServer({
+    action: 'updateWorkout',
+    userId,
+    userName,
+    hariKe,
+    workoutData: JSON.stringify(workoutData),
+    kardioFile: kardioFileBase64
+  }, function(result) {
     console.log('📥 Response server:', result);
 
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
       showMessage('success', 'Data workout tersimpan', 3000, `workoutContent${hariKe}`);
-      return true;
+      const btnSelesai = document.getElementById(`btnSelesaiWorkout${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+    } else {
+      showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     }
-    showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
-    return false;
-
-  } catch (error) {
-    console.error(error);
-    showMessage('error','Terjadi kesalahan koneksi',3000,`workoutContent${hariKe}`);
-    return false;
-  }
+  });
+  
+  return true;
 }
 
 function ambilDataWorkoutHari(hariKe) {
@@ -7384,7 +7282,7 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
 /*********************************
 * SIMPAN DATA ASUPAN AIR (WATER) *
 *********************************/
-async function simpanWaterReminder(hariKe) {
+function simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   const radio  = document.querySelector(`input[name="asupanAir${hariKe}"]:checked`);
 
@@ -7395,58 +7293,50 @@ async function simpanWaterReminder(hariKe) {
 
   const asupanAir = radio.value;
   console.log('📤 Kirim water:', { userId, hariKe, asupanAir });
-  const response = await fetch(URL_PROGRAM_APP, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'updateWater',
-      userId,
-      hariKe,
-      asupanAir
-    })
+  
+  kirimKeServer({
+    action: 'updateWater',
+    userId,
+    hariKe,
+    asupanAir
+  }, function(result) {
+    console.log('📥 Response water:', result);
+    // Handle both "OK" string and JSON {success: true}
+    if ((typeof result === 'string' && result === 'OK') || (result && result.success)) {
+      showMessage('success', 'Asupan air berhasil disimpan', 3000, `waterContent${hariKe}` );
+      //btnSimpan.disabled = true;   // DISABLED SETELAH TERSIMPAN
+      // Aktifkan tombol selesai
+      const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
+      if (btnSelesai) btnSelesai.disabled = false;
+    }
+    // 🔒 Jika user lama sudah selesai → langsung lock
+    if (
+      window.userProgress &&
+        window.userProgress[`waterHari${hariKe}`] === true
+    ) {
+      disableButtonsAfterCompletion(hariKe, 'water');
+    }
   });
-  const result = await response.text();
-  console.log('📥 Response water:', result);
-  if (result === 'OK') {
-    showMessage('success', 'Asupan air berhasil disimpan', 3000, `waterContent${hariKe}` );
-    //btnSimpan.disabled = true;   // DISABLED SETELAH TERSIMPAN
-    // Aktifkan tombol selesai
-    const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
-    if (btnSelesai) btnSelesai.disabled = false;
-  }
-  // 🔒 Jika user lama sudah selesai → langsung lock
-  if (
-    window.userProgress &&
-      window.userProgress[`waterHari${hariKe}`] === true
-  ) {
-    disableButtonsAfterCompletion(hariKe, 'water');
-  }
 }
 
 /****************************
 * Selesaikan Water Reminder *
 *****************************/
-async function selesaiWaterReminder(hariKe) {
+function selesaiWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   if (!userId) {
      showMessage('error', 'Silahkan login terlebih dahulu', 3000, `waterContent${hariKe}`);
     return;
   }
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        action: 'completeWater',
-        userId,
-        hariKe
-      })
-    });
-
-    const result = await response.text();
+  kirimKeServer({
+    action: 'completeWater',
+    userId,
+    hariKe
+  }, function(result) {
     console.log('📥 Complete water response:', result);
-    if (result === 'OK') {
+    // Handle both "OK" string and JSON {success: true}
+    if ((typeof result === 'string' && result === 'OK') || (result && result.success)) {
       // 🔥 SET PROGRESS FRONTEND (PENTING UNTUK USER LAMA)
       if (!window.userProgress) window.userProgress = {};
       window.userProgress[`waterHari${hariKe}`] = true;
@@ -7458,11 +7348,7 @@ async function selesaiWaterReminder(hariKe) {
     } else {
       showMessage( 'error', 'Gagal menyelesaikan Water Reminder', 3000, `waterContent${hariKe}` );
     }
-
-  } catch (err) {
-    console.error('❌ Error selesai water:', err);
-    showMessage( 'error', 'Terjadi kesalahan koneksi', 3000, `waterContent${hariKe}` );
-  }
+  });
 }
 
 function disableWaterAfterCompletion(hariKe) {
@@ -8355,7 +8241,7 @@ function initializeIstirahatForms() {
     const btnSelesai = document.getElementById(`btnSelesaiIstirahat${hariKe}`);
 
     // SIMPAN ISTIRAHAT
-    btnSimpan.addEventListener("click", async function () {
+    btnSimpan.addEventListener("click", function () {
       const jamMulai = document.getElementById(`mulaiIstirahat${hariKe}`).value;
       const radioChecked = document.querySelector(`input[name="istirahatHari${hariKe}"]:checked`);
      if (!jamMulai || !radioChecked) {
@@ -8363,49 +8249,42 @@ function initializeIstirahatForms() {
         return;
       }
 
-      const response = await fetch(URL_PROGRAM_APP, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          action: "updateIstirahat",
-          userId,
-          hariKe,
-          jamMulai,
-          kualitas: radioChecked.value
-        })
+      kirimKeServer({
+        action: "updateIstirahat",
+        userId,
+        hariKe,
+        jamMulai,
+        kualitas: radioChecked.value
+      }, function(result) {
+        // Handle both "OK" string and JSON {success: true}
+        if ((typeof result === 'string' && result === "OK") || (result && result.success)) {
+          btnSelesai.disabled = false;
+          showMessage('success', 'Istirahat hari tersimpan', 3000, `istirahatContent${hariKe}`);
+        }
       });
-      const result = await response.text();
-      if (result === "OK") {
-        btnSelesai.disabled = false;
-        showMessage('success', 'Istirahat hari tersimpan', 3000, `istirahatContent${hariKe}`);
-      }
     });
 
     // SELESAI ISTIRAHAT
-    btnSelesai.addEventListener("click", async function () {
-      const response = await fetch(URL_PROGRAM_APP, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          action: "completeIstirahat",
-          userId,
-          hariKe
-        })
+    btnSelesai.addEventListener("click", function () {
+      kirimKeServer({
+        action: "completeIstirahat",
+        userId,
+        hariKe
+      }, function(result) {
+        // Handle both "OK" string and JSON {success: true}
+        if ((typeof result === 'string' && result === "OK") || (result && result.success)) {
+          wrapper.querySelectorAll("input").forEach(el => {
+            el.disabled = true;
+            el.style.cursor = "not-allowed";
+          });
+          showMessage('success', 'Istirahat selesai', 3000, `istirahatContent${hariKe}`);
+          btnSimpan.disabled  = true;
+          btnSelesai.disabled = true;
+          btnSimpan.style.cursor  = "not-allowed";
+          btnSelesai.style.cursor = "not-allowed";
+          updateSubmenuLinkUI("istirahat", hariKe);
+        }
       });
-
-      const result = await response.text();
-      if (result === "OK") {
-        wrapper.querySelectorAll("input").forEach(el => {
-          el.disabled = true;
-          el.style.cursor = "not-allowed";
-        });
-        showMessage('success', 'Istirahat selesai', 3000, `istirahatContent${hariKe}`);
-        btnSimpan.disabled  = true;
-        btnSelesai.disabled = true;
-        btnSimpan.style.cursor  = "not-allowed";
-        btnSelesai.style.cursor = "not-allowed";
-        updateSubmenuLinkUI("istirahat", hariKe);
-      }
     });
     console.log(`✅ Form istirahat hari ${hariKe} dibuat`);
   }
@@ -8593,7 +8472,7 @@ function initializeTrackingForms() {
 /***********************
  * Selesai tanya Coach *
 ***********************/
-async function selesaiTanyaCoach(hariKe){
+function selesaiTanyaCoach(hariKe){
   console.log("✅ Selesai tanya coach hari", hariKe);
   
   const userId = localStorage.getItem("userId");
@@ -8605,22 +8484,13 @@ async function selesaiTanyaCoach(hariKe){
     return;
   }
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        action: 'completeTanyaCoach',
-        userId,
-        userName,
-        userHP,
-        hariKe
-      })
-    });
-    
-    const result = await response.json();
+  kirimKeServer({
+    action: 'completeTanyaCoach',
+    userId,
+    userName,
+    userHP,
+    hariKe
+  }, function(result) {
     console.log("📥 Response selesai tanya coach:", result);
     
     if(result.success){
@@ -8639,10 +8509,7 @@ async function selesaiTanyaCoach(hariKe){
     } else {
       showMessage('error', 'Gagal menyelesaikan tanya coach', 3000, `tanyaContent${hariKe}`);
     }
-  } catch (error) {
-    console.error("❌ Error selesai tanya coach:", error);
-    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `tanyaContent${hariKe}`);
-  }
+  });
 }
 
 /*************************************
@@ -8731,7 +8598,7 @@ Balasan langsung ke Nomor WA Saya ini : ${nomorWA}`;
 /***************************
  * Kirim Pesan WA ke Coach *
  ***************************/
-async function kirimPesanCoach(hariKe){
+function kirimPesanCoach(hariKe){
   console.log("📤 Kirim pesan coach hari", hariKe);
   
   // Cari container tanya coach untuk hari ini
@@ -8760,23 +8627,15 @@ async function kirimPesanCoach(hariKe){
   const userName = localStorage.getItem('userName');
   const userHP = localStorage.getItem('userHP');
 
-  try {
-    const response = await fetch(URL_PROGRAM_APP, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        action: "kirimWaCoach",
-        userId: userId,
-        userName: userName,
-        hariKe: hariKe,
-        pesan: pesan,
-        // noAdmin: "081149908600"             // Admin Send untuk kirim pesan
-        noKonsumen: userHP,
-        noCoach: "08114499640"
-      })
-    });
-    
-    const result = await response.json();
+  kirimKeServer({
+    action: "kirimWaCoach",
+    userId: userId,
+    userName: userName,
+    hariKe: hariKe,
+    pesan: pesan,
+    noKonsumen: userHP,
+    noCoach: "08114499640"
+  }, function(result) {
     console.log("📥 Response kirim WA:", result);
     
     if(result.success){
@@ -8786,10 +8645,7 @@ async function kirimPesanCoach(hariKe){
       if (btnSelesai) btnSelesai.disabled = false;
       showMessage('success', 'Pesan untuk coach, berhasil terkirim', 3000, `tanyaContent${hariKe}`);
     }
-  } catch (error) {
-    console.error("❌ Error kirim WA:", error);
-    showMessage('error', 'Terjadi kesalahan koneksi', 3000, `tanyaContent${hariKe}`);
-  }
+  });
 }
 
 /*******************************
