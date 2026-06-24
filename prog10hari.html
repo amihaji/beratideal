@@ -5654,15 +5654,17 @@ function uploadToServer(hariKe, mealType, fileData, fileName) {
         })
       });
 
+      // Baca response sebagai TEXT terlebih dahulu (agar bisa diparsing dua kali)
+      const responseText = await response.text();
+      console.log('📥 Upload response text:', responseText);
+
       let result;
       try {
-        // Coba parse sebagai JSON
-        result = await response.json();
+        // Coba parse text sebagai JSON
+        result = JSON.parse(responseText);
       } catch (e) {
-        // Jika bukan JSON, coba sebagai text
-        const text = await response.text();
-        console.log('📥 Upload response text:', text);
-        result = { success: text === 'OK', message: text };
+        // Jika bukan JSON, buat object manual
+        result = { success: responseText === 'OK', message: responseText };
       }
 
       console.log('📥 Upload result:', result);
