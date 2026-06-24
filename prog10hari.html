@@ -1615,7 +1615,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycby6FCGEAvf-XZHf5Epe7Kzs0Ch_W5sbdMr7GBZHRNKPEQq-2MaVz8VZvUjn4U2F29YZvA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw6wUIIDqj-VKPBiStixQoI-LDiY1kbiPyJpzsyQUOdprlpYkkPDHVMbauyJJUikbwLsw/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -9120,8 +9120,8 @@ function konversiDataServer(serverData) {
     };
 }
 
-/******************************
-* Tampilkan Dasboard Peserta
+/*****************************
+* Tampilkan Dasboard Peserta *
 ******************************/
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
@@ -9220,10 +9220,10 @@ function tampilkanDashboardSederhana(data) {
     // Tentukan badge warna berdasarkan total point
     var pointBadgeClass = 'bg-secondary';
     var pointMessage = '';
-    if (totalPoint >= 50) {
+    if (totalPoint >= 500) {
         pointBadgeClass = 'bg-success';
         pointMessage = '<span class="badge bg-info ms-2">🏆 Luar biasa! Anda berhak reward spesial!</span>';
-    } else if (totalPoint >= 30) {
+    } else if (totalPoint >= 250) {
         pointBadgeClass = 'bg-warning text-dark';
         pointMessage = '<span class="badge bg-info ms-2">👍 Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
     } else if (totalPoint > 0) {
@@ -9368,22 +9368,21 @@ function tampilkanDashboardSederhana(data) {
     }
 }
 
-// Fungsi untuk menukar point (bisa dikembangkan sesuai kebutuhan)
+/*****************************
+* Fungsi untuk menukar point *
+******************************/
 function tukarPoint(totalPoint) {
     if (totalPoint === 0) {
         showMessage('warning', 'Maaf, Anda belum memiliki point untuk ditukarkan.', 3000);
         return;
     }
-    
     // Tampilkan konfirmasi
     if (confirm(`Anda memiliki ${totalPoint} Point.\n\nApakah Anda yakin ingin menukarkan point Anda dengan voucher belanja produk Herbalife?\n\nVoucher akan dikirimkan via WhatsApp dalam 1x24 jam.`)) {
         // Simpan request penukaran point
         const userId = localStorage.getItem('userId');
         const userName = localStorage.getItem('userName');
-        
         // Kirim notifikasi ke admin (opsional, bisa ditambahkan nanti)
         showMessage('success', `Terima kasih! Permintaan penukaran ${totalPoint} Point Anda telah kami terima. Voucher akan dikirim ke WhatsApp Anda.`, 5000);
-        
         // Bisa tambahkan logika untuk menyimpan request penukaran ke server
         console.log('Penukaran point:', { userId, userName, totalPoint, tanggal: new Date() });
     }
@@ -9447,7 +9446,7 @@ function buatGrafik(trackingData) {
     console.log('📊 Data berat final:', beratFinal);
     console.log('📊 Data lingkar final:', lingkarFinal);
     
-    // === GRAFIK BERAT BADAN ===
+    // Grafik Berat Badan
     var beratCtx = document.getElementById('beratChartCanvas');
     if (beratCtx) {
         if (window.beratChartInstance) {
@@ -9512,7 +9511,7 @@ function buatGrafik(trackingData) {
         console.log('✅ Grafik berat badan selesai');
     }
     
-    // === GRAFIK LINGKAR PERUT ===
+    // Grafik Lingkar Perut
     var lingkarCtx = document.getElementById('lingkarChartCanvas');
     if (lingkarCtx) {
         if (window.lingkarChartInstance) {
