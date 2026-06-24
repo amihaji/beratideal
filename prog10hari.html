@@ -9219,7 +9219,7 @@ function tampilkanDashboardSederhana(data) {
     }
     
     // Tentukan badge warna berdasarkan total point
-    // var pointBadgeClass = 'bg-secondary';
+    var pointBadgeClass = 'bg-secondary';
     var pointMessage = '';
     
     // Point maksimum adalah 50 per hari × 10 hari = 500
@@ -9227,16 +9227,16 @@ function tampilkanDashboardSederhana(data) {
     var pointPercentage = Math.round((totalPoint / maxPoint) * 100);
     
     if (totalPoint >= 500) { 	
-        //pointBadgeClass = 'bg-success';
-        pointMessage = '<span class="fas fa-award ms-2"> Luar biasa! Anda berhak reward spesial!</span>';
+        pointBadgeClass = 'bg-success';
+        pointMessage = '<i class="fas fa-award ms-2"> Luar biasa! Anda berhak reward spesial!</i>';
     } else if (totalPoint >= 250) {
-        //pointBadgeClass = 'bg-secondary';
+        pointBadgeClass = 'bg-secondary';
         pointMessage = '<i class="fas fa-handshake ms-2"> Bagus! Tingkatkan lagi untuk reward maksimal!</i>';
     } else if (totalPoint >= 50) {
-        //pointBadgeClass = 'bg-info';
-        pointMessage = '<i class="far fa-thumbs-up ms-2"> Semangat! Konsisten untuk kumpulkan point!</span>';
+        pointBadgeClass = 'bg-info';
+        pointMessage = '<i class="far fa-thumbs-up ms-2"> Semangat! Konsisten untuk kumpulkan point!</i>';
     } else if (totalPoint > 0) {
-        //pointBadgeClass = 'bg-warning text-dark'; 
+        pointBadgeClass = 'bg-warning text-dark'; 
         pointMessage = '<i class="fas fa-clipboard-check ms-2"> Mulai kumpulkan point Anda!</i>';
     } else {
         pointMessage = '<i class="fas fa-tasks"> Belum ada point, selesaikan seluruh program!</i>';
@@ -9447,7 +9447,7 @@ function tampilkanDashboardSederhana(data) {
                 </div>
                 <div class="card-body text-center" style="padding: 1rem;">
                     <div style="margin: 1rem 0;">
-                        <span class="display-4 fw-bold" style="display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">
+                        <span class="display-4 fw-bold ${pointBadgeClass}" style="display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">
                             ${totalPoint}
                         </span>
                         <span class="ms-3" style="margin-right:-5px; font-size:20px; font-weight:20px;">Point</span>
