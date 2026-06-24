@@ -6164,17 +6164,32 @@ function simpanWorkoutData(hariKe) {
     totalMinutes: resistanceData.totalMinutes
   };
   console.log('📤 Payload workout FINAL:', workoutData);
-  
-  kirimKeServer({
-    action: 'updateWorkout',
-    userId,
-    userName,
-    hariKe,
-    workoutData: JSON.stringify(workoutData),
-    kardioFile: kardioFileBase64
-  }, function(result) {
-    console.log('📥 Response server:', result);
 
+  // GUNAKAN POST REQUEST SEPERTI UPLOAD MEAL PLAN
+  fetch(URL_PROGRAM_APP, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      action: 'updateWorkout',
+      userId,
+      userName,
+      hariKe,
+      workoutData: JSON.stringify(workoutData),
+      kardioFile: kardioFileBase64
+    })
+  })
+  .then(async response => {
+    const responseText = await response.text();
+    console.log('📥 Workout response text:', responseText);
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      result = { success: responseText === 'OK', message: responseText };
+    }
+    console.log('📥 Response server:', result);
     if (result.success === true) {
       localStorage.setItem(`workoutSavedHari${hariKe}`, 'true');
       showMessage('success', 'Data workout tersimpan', 3000, `workoutContent${hariKe}`);
@@ -6183,6 +6198,10 @@ function simpanWorkoutData(hariKe) {
     } else {
       showMessage('error', result.message || `Gagal menyimpan workout hari ${getDayName(hariKe).toLowerCase()}`, 3000, `workoutContent${hariKe}`);
     }
+  })
+  .catch(err => {
+    console.error('❌ Workout error:', err);
+    showMessage('error', `Terjadi kesalahan saat menyimpan workout`, 3000, `workoutContent${hariKe}`);
   });
   
   return true;
