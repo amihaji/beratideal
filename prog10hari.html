@@ -9219,27 +9219,27 @@ function tampilkanDashboardSederhana(data) {
     }
     
     // Tentukan badge warna berdasarkan total point
-    var pointBadgeClass = 'bg-secondary';
+    // var pointBadgeClass = 'bg-secondary';
     var pointMessage = '';
     
     // Point maksimum adalah 50 per hari × 10 hari = 500
     var maxPoint = 500;
     var pointPercentage = Math.round((totalPoint / maxPoint) * 100);
     
-    if (totalPoint >= 500) {
-        pointBadgeClass = 'bg-success';
-        pointMessage = '<span class="badge bg-info ms-2">🏆 Luar biasa! Anda berhak reward spesial!</span>';
+    if (totalPoint >= 500) { 	
+        //pointBadgeClass = 'bg-success';
+        pointMessage = '<span class="fas fa-award ms-2"> Luar biasa! Anda berhak reward spesial!</span>';
     } else if (totalPoint >= 250) {
-        pointBadgeClass = 'bg-secondary';
-        pointMessage = '<span class="badge bg-info ms-2 far fa-thumbs-up"> Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
+        //pointBadgeClass = 'bg-secondary';
+        pointMessage = '<i class="fas fa-handshake ms-2"> Bagus! Tingkatkan lagi untuk reward maksimal!</i>';
     } else if (totalPoint >= 50) {
-        pointBadgeClass = 'bg-info';
-        pointMessage = '<span class="badge bg-info ms-2">💪 Semangat! Konsisten untuk kumpulkan point!</span>';
+        //pointBadgeClass = 'bg-info';
+        pointMessage = '<i class="far fa-thumbs-up ms-2"> Semangat! Konsisten untuk kumpulkan point!</span>';
     } else if (totalPoint > 0) {
-        pointBadgeClass = 'bg-warning text-dark'; 
-        pointMessage = '<span class="badge bg-info ms-2">📝 Mulai kumpulkan point Anda!</span>';
+        //pointBadgeClass = 'bg-warning text-dark'; 
+        pointMessage = '<i class="fas fa-clipboard-check ms-2"> Mulai kumpulkan point Anda!</i>';
     } else {
-        pointMessage = '<span class="badge bg-info ms-2">📝 Belum ada point, selesaikan seluruh program!</span>';
+        pointMessage = '<i class="fas fa-tasks"> Belum ada point, selesaikan seluruh program!</i>';
     }
     
     // Buat rincian point per hari
