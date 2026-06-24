@@ -9230,13 +9230,13 @@ function tampilkanDashboardSederhana(data) {
         pointBadgeClass = 'bg-success';
         pointMessage = '<span class="badge bg-info ms-2">🏆 Luar biasa! Anda berhak reward spesial!</span>';
     } else if (totalPoint >= 250) {
-        pointBadgeClass = 'bg-warning text-dark';
-        pointMessage = '<span class="badge bg-info ms-2">👍 Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
+        pointBadgeClass = 'bg-secondary';
+        pointMessage = '<span class="badge bg-info ms-2 far fa-thumbs-up"> Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
     } else if (totalPoint >= 50) {
         pointBadgeClass = 'bg-info';
         pointMessage = '<span class="badge bg-info ms-2">💪 Semangat! Konsisten untuk kumpulkan point!</span>';
     } else if (totalPoint > 0) {
-        pointBadgeClass = 'bg-secondary';
+        pointBadgeClass = 'bg-warning text-dark'; 
         pointMessage = '<span class="badge bg-info ms-2">📝 Mulai kumpulkan point Anda!</span>';
     } else {
         pointMessage = '<span class="badge bg-info ms-2">📝 Belum ada point, selesaikan seluruh program!</span>';
@@ -9455,7 +9455,7 @@ function tampilkanDashboardSederhana(data) {
                     </div>
                     <p class="mb-2" style="margin: 0.8rem 0;">
                         <i class="fas fa-gift text-warning"></i> 
-                        <strong>Total point anda yang terkumpul selama 10 hari sebanyak: ${totalPoint} Point</strong>
+                        <strong>Total point anda yang terkumpul selema ini sebanyak: ${totalPoint} Point</strong>
                         ${totalPoint > 0 ? `<br><small class="text-muted">(${Math.round((totalPoint/500)*100)}% dari target 500 point)</small>` : ''}
                     </p>
                     ${detailPointHTML}
