@@ -1597,7 +1597,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz_nhJaznZPB1rq0luUDiFkhYcDz3VB_F7t7BdzxEYpnPjPhgL9FXLaBCoEqU0gACoV-A/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbxPH4tC63lxYDWtszqDjYFW2SNQe0oRbxpzamFM7KbRI2yYftHwoeuwTQlBiV9kFHAn6A/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -8940,6 +8940,90 @@ function fetchDashboardDataFromServer(userId) {
         if (response && response.success) {
             // Konversi data dari server ke format yang sesuai untuk dashboard
             const dashboardData = konversiDataServer(response);
+            
+            // 🔥 LOG UNTUK VERIFIKASI DATA POINT PER HARI
+            console.log('📊 Data point per hari setelah konversi:', dashboardData.pointPerHari);
+            
+            tampilkanDashboardSederhana(dashboardData);
+        } else {
+            // Jika tidak ada data, tampilkan pesan
+            const container = document.getElementById('dashboardContent');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center p-5">
+                        <i class="fas fa-chart-line fa-4x mb-3" style="color: #ccc;"></i>
+                        <p>Belum ada data tracking yang tersedia.</p>
+                        <p class="small text-muted">Data akan muncul setelah menyelesaikan:<br>
+                        ✅ Data Tracking Hari ke-1<br>
+                        ✅ Data Tracking Hari ke-5<br>
+                        ✅ Data Tracking Hari ke-10</p>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Cleanup
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    script.onerror = function() {
+        console.error('❌ Gagal mengambil data dashboard dari server');
+        const container = document.getElementById('dashboardContent');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center p-5">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                    <p>Gagal terhubung ke server.</p>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                        <i class="fas fa-sync-alt"></i> Coba Lagi
+                    </button>
+                </div>
+            `;
+        }
+        document.body.removeChild(script);
+        delete window[callbackName];
+    };
+    
+    // Timeout 10 detik
+    setTimeout(function() {
+        if (window[callbackName]) {
+            console.warn('⚠️ Dashboard request timeout');
+            const container = document.getElementById('dashboardContent');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center p-5">
+                        <i class="fas fa-clock fa-3x mb-3" style="color: #ffc107;"></i>
+                        <p>Request timeout. Silakan coba lagi.</p>
+                        <button class="btn btn-primary btn-sm mt-2" onclick="loadDashboardData()">
+                            <i class="fas fa-sync-alt"></i> Coba Lagi
+                        </button>
+                    </div>
+                `;
+            }
+            document.body.removeChild(script);
+            delete window[callbackName];
+        }
+    }, 10000);
+    
+    document.body.appendChild(script);
+}
+
+ function BACKUP_fetchDashboardDataFromServer(userId) {
+    const callbackName = 'cb_dashboard_' + Date.now();
+    const script = document.createElement('script');
+    
+    script.src = `${URL_PROGRAM_APP}?action=getDashboardData&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    
+    window[callbackName] = function(response) {
+        console.log('📊 Dashboard response dari server:', response);
+        
+        if (response && response.success) {
+            // Konversi data dari server ke format yang sesuai untuk dashboard
+            const dashboardData = konversiDataServer(response);
             tampilkanDashboardSederhana(dashboardData);
         } else {
             // Jika tidak ada data, tampilkan pesan
@@ -9011,7 +9095,76 @@ function fetchDashboardDataFromServer(userId) {
 /**********************************************
  Konversi data dari server ke format dashboard
 **********************************************/
+/**********************************************
+ Konversi data dari server ke format dashboard
+**********************************************/
 function konversiDataServer(serverData) {
+    console.log('🔄 Konversi data server:', serverData);
+    
+    var profile = serverData.profile || {};
+    var trackingDataRaw = serverData.trackingData || [];
+    var evaluasi = serverData.evaluasi || {};
+    var totalPoint = serverData.totalPoint || 0;
+    var modulSelesai = serverData.modulSelesai || '0';
+    var pointPerHari = serverData.pointPerHari || {}; // 🔥 TAMBAHKAN INI
+    
+    console.log('📊 Data tracking untuk grafik:', trackingDataRaw);
+    
+    // ===== PROSES DATA TRACKING UNTUK GRAFIK (SEMUA DATA) =====
+    var trackingData = [];
+    if (trackingDataRaw.length > 0) {
+        trackingDataRaw.forEach(function(item) {
+            trackingData.push({
+                hari: item.hari || 'Hari ' + item.hariKe,
+                hariKe: item.hariKe || 1,
+                beratBadan: parseFloat(item.beratBadan) || 0,
+                lingkarPerut: parseFloat(item.lingkarPerut) || 0
+            });
+        });
+    }
+    console.log('📊 Data tracking untuk grafik (final):', trackingData);
+    
+    // ===== EVALUASI SUDAH DIHITUNG DI BACKEND =====
+    var evaluasiFinal = {
+        beratBadan: evaluasi.beratBadan || '-',
+        lingkarPerut: evaluasi.lingkarPerut || '-',
+        label: evaluasi.label || 'Belum ada data',
+        bbIdeal: evaluasi.bbIdeal || '-',
+        imt: evaluasi.imt || '-',
+        lemakTubuh: evaluasi.lemakTubuh || '-',
+        lemakPerut: evaluasi.lemakPerut || '-',
+        massaOtot: evaluasi.massaOtot || '-',
+        bmr: evaluasi.bmr || '-',
+        kalori: evaluasi.kalori || '-',
+        protein: evaluasi.protein || '-',
+        skor: evaluasi.skor || '-',
+        kesimpulan: evaluasi.kesimpulan || 'Belum tersedia',
+        rekomendasi: evaluasi.rekomendasi || 'Belum tersedia',
+        isModul10: (modulSelesai === '10'),
+        isModul5_9: (modulSelesai === '5-9'),
+        isModul1_4: (modulSelesai === '1-4')
+    };
+    
+    console.log('📊 Evaluasi final:', evaluasiFinal);
+    
+    // 🔥 KEMBALIKAN DATA LENGKAP DENGAN POINT PER HARI
+    return {
+        profile: {
+            namaKonsumen: profile.namaKonsumen || '-',
+            jenisKelamin: profile.jenisKelamin || '-',
+            usia: profile.usia || '-',
+            tinggiBadan: profile.tinggiBadan || '-',
+            aktivitasFisik: profile.aktivitasFisik || '-'
+        },
+        trackingData: trackingData,
+        evaluasi: evaluasiFinal,
+        totalPoint: totalPoint,
+        modulSelesai: modulSelesai,
+        pointPerHari: pointPerHari // 🔥 TAMBAHKAN INI
+    };
+}
+
+function BACKUP_konversiDataServer(serverData) {
     console.log('🔄 Konversi data server:', serverData);
     
     var profile = serverData.profile || {};
