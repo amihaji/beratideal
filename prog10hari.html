@@ -9320,37 +9320,7 @@ function tampilkanDashboardSederhana(data) {
                 </p>
             </div>
         `;
-      } else { 
-        if (totalPoint > 0) {
-        var html = `
-            <!-- POINT REWARD -->
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-star"></i> Point Reward
-                </div>
-                <div class="card-body text-center" style="padding: 1rem;">
-                    <div style="margin: 1rem 0;">
-                        <span class="display-4 fw-bold ${pointBadgeClass}" style="display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">
-                            ${totalPoint}
-                        </span>
-                        ${pointMessage}
-                    </div>
-                    <p class="mb-2" style="margin: 0.8rem 0;">
-                        <i class="fas fa-gift text-warning"></i> 
-                        <strong>Total point anda yang terkumpul selema ini sebanyak: ${totalPoint} Point</strong>
-                        ${totalPoint > 0 ? `<br><small class="text-muted">(${Math.round((totalPoint/500)*100)}% dari target 500 point)</small>` : ''}
-                    </p>
-                    ${detailPointHTML}
-                    <p class="text-muted small" style="margin: 0.8rem 0;">
-                      Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
-                    </p>
-                    <button class="btn btn-outline-success btn-sm mt-1 mb-3" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
-                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
-                    </button>
-                </div>
-            </div>
-         `;
-       }
+      }  
     }         
      
     
@@ -9445,6 +9415,33 @@ function tampilkanDashboardSederhana(data) {
                 </div>
             </div>
             
+            <!-- POINT REWARD -->
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-star"></i> Point Reward
+                </div>
+                <div class="card-body text-center" style="padding: 1rem;">
+                    <div style="margin: 1rem 0;">
+                        <span class="display-4 fw-bold ${pointBadgeClass}" style="display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">
+                            ${totalPoint}
+                        </span>
+                        ${pointMessage}
+                    </div>
+                    <p class="mb-2" style="margin: 0.8rem 0;">
+                        <i class="fas fa-gift text-warning"></i> 
+                        <strong>Total point anda yang terkumpul selema ini sebanyak: ${totalPoint} Point</strong>
+                        ${totalPoint > 0 ? `<br><small class="text-muted">(${Math.round((totalPoint/500)*100)}% dari target 500 point)</small>` : ''}
+                    </p>
+                    ${detailPointHTML}
+                    <p class="text-muted small" style="margin: 0.8rem 0;">
+                      Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
+                    </p>
+                    <button class="btn btn-outline-success btn-sm mt-1 mb-3" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
+                    </button>
+                </div>
+            </div>
+       
             <!-- KESIMPULAN & REKOMENDASI -->
             <div class="card mb-3 shadow">
                 <div class="card-header bg-primary text-white">
@@ -9457,8 +9454,7 @@ function tampilkanDashboardSederhana(data) {
             </div>
         </div>
     `;
-    } 
-
+    
     container.innerHTML = html;
     
     // Buat grafik setelah HTML siap (hanya jika ada data)
