@@ -9253,25 +9253,30 @@ function tampilkanDashboardSederhana(data) {
         
         var totalStatusText = '';
         var totalStatusClass = '';
+        var totalStatusIcon = '';
+        
         if (totalPointDisplay >= 500) {
-            totalStatusText = '🎯 Sempurna!';
+            totalStatusIcon = '<i class="fas fa-trophy"></i>';
+            totalStatusText = ' Sempurna!';
             totalStatusClass = 'text-success';
         } else if (totalPointDisplay >= 250) {
-            totalStatusText = '📈 Baik';
+            totalStatusIcon = '<i class="fas fa-chart-line"></i>';
+            totalStatusText = ' Baik';
             totalStatusClass = 'text-warning';
         } else if (totalPointDisplay > 0) {
-            totalStatusText = '📊 Teruskan!';
+            totalStatusIcon = '<i class="fas fa-arrow-up"></i>';
+            totalStatusText = ' Teruskan!';
             totalStatusClass = 'text-info';
         } else {
-            totalStatusText = '⏳ Belum ada';
+            totalStatusIcon = '<i class="fas fa-clock"></i>';
+            totalStatusText = ' Belum ada';
             totalStatusClass = 'text-muted';
         }
-        
         detailPointHTML = `
             <div class="mt-4">
                 <h6 class="text-start"><i class="fas fa-list-ul"></i> Rincian Point per Hari:</h6>
                 <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
+                    <table class="table table-sm table-bordered" style="font-size:14px">
                         <thead class="table-light">
                             <tr>
                                 <th style="width:25%;">Hari</th>
