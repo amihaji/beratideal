@@ -1597,7 +1597,7 @@ button[id^="btnCekDisini"] {
 * Deklarasi Global *
 ********************/
 // url database dbProgram
-const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbw7QKLh98dBmy0hM0hbkz3muQ2GW7M4uri13ymoz3dpaByxVrH7Ft1pBrBxx3PbKzaepA/exec';
+const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbz_nhJaznZPB1rq0luUDiFkhYcDz3VB_F7t7BdzxEYpnPjPhgL9FXLaBCoEqU0gACoV-A/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -2250,30 +2250,6 @@ function applyExistingUserProgress(progress) {
     disableSelesaiPerkenalanButton();
   }
 
-  // ⚠️ NONAKTIFKAN UNLOCK MODUL DISINI (SUDAH DILAKUKAN DI applyUnlockModul)
-  // Fungsi untuk unlock modul ketika DOM siap
-  // const unlockWhenReady = () => {
-  //   const modul4Header = document.querySelector('[data-hari="4"]');
-  //   
-  //   if (modul4Header) {
-  //     if (progress.perkenalan === true) {
-  //       unlockModul(1);
-  //     }
-  //     
-  //     for (let i = 1; i <= 9; i++) {
-  //       if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-  //         unlockModul(i + 1);
-  //       }
-  //     }
-  //     console.log('✅ Unlock modul selesai (DOM siap)');
-  //   } else {
-  //     // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
-  //     requestAnimationFrame(unlockWhenReady);
-  //   }
-  // };
-  // // Perintah untuk mengecek kapan DOM siap, tanpa menambah delay signifikan.
-  // requestAnimationFrame(unlockWhenReady);
-
   // Fungsi untuk menerapkan UI progress dengan pengecekan DOM
   const applyUIWhenReady = (hariKe, retryCount = 0) => {
     if (retryCount > 20) {
@@ -2839,26 +2815,7 @@ function applyCompleteProgressToUI(progress, hariKe) {
       }
     });
   }
-  
-  // 🔥 NONAKTIFKAN SEMENTARA unlockWhenReady di applyCompleteProgressToUI (biar tidak override)
   console.log('⏸️ applyCompleteProgressToUI: unlockWhenReady dinonaktifkan sementara');
-  // const unlockWhenReady = () => {
-  //   const modul4Header = document.querySelector('[data-hari="4"]');
-  //   if (modul4Header) {
-  //     if (progress.perkenalan === true) {
-  //       unlockModul(hariKe);
-  //     }
-  //     for (let i = 1; i <= 9; i++) {
-  //       if (progress[`selesaimodulHari${i}`] === true || progress[`selesaimodulHari${i}`] === "OK") {
-  //         unlockModul(i + 1);
-  //       }
-  //     }
-  //     console.log('✅ Unlock modul selesai (DOM siap)');
-  //   } else {
-  //     requestAnimationFrame(unlockWhenReady);
-  //   }
-  // };
-  // requestAnimationFrame(unlockWhenReady);
 }
 
 /*****************************************
@@ -5161,6 +5118,9 @@ function checkPerkenalanStatus() {
   }
 }
 
+/**********************
+* Non Aktifkan Button *
+***********************/
 function disableCheckButton(sectionId) {
   const btn = document.querySelector(
     `#${sectionId} .btn-check, #${sectionId} .btn-selesai, #${sectionId} a[onclick*="simpan"]`
@@ -5311,9 +5271,9 @@ function selesaiModul(hariKe) {
 }
 
 
-/************************************
+/********************************************
 * Fetch progress dari server dengan Promise *
-*************************************/
+*********************************************/
 function fetchUserProgressFromServer(userId) {
     return new Promise((resolve, reject) => {
         const callbackName = 'cb_user_progress_' + Date.now();
@@ -5339,9 +5299,9 @@ function fetchUserProgressFromServer(userId) {
     });
 }
 
-/************************************
+/****************************************************
 * Check progress dari localStorage sebagai fallback *
-*************************************/
+*****************************************************/
 function checkProgressFromLocalStorage(userId) {
     console.log('📂 Checking progress from localStorage for user:', userId);
     
@@ -5688,10 +5648,9 @@ function getMealTypeName(mealType) {
     return mealNames[mealType] || mealType;
 }
 
-/*************************************
-* Selesaikan Meal Plan – FINAL FIX
-* (TIDAK menyentuh container)
-*************************************/
+/************************
+* Selesaikan Meal Plan  *
+*************************/
 function selesaiMealplan(hariKe) {
     console.log(`🍽️ Menyelesaikan Meal Plan hari ${hariKe}`);
 
@@ -5728,9 +5687,9 @@ function selesaiMealplan(hariKe) {
     });
 }
 
-/*****************************************
- * Restore Meal Plan setelah reload      *
- *****************************************/
+/************************************
+ * Restore Meal Plan setelah reload *
+ ************************************/
 function restoreMealplanState(hariKe) {
   const mealTypes = [
     'sarapan',
@@ -6189,6 +6148,9 @@ function simpanWorkoutData(hariKe) {
   return true;
 }
 
+/******************************
+ * Ambil data workout perhari * 
+ ******************************/
 function ambilDataWorkoutHari(hariKe) {
     console.log(`📊 Ambil data workout hari ${hariKe}`);
 
@@ -6226,6 +6188,9 @@ function ambilDataWorkoutHari(hariKe) {
     };
 }
 
+/***************************
+ * Non aktifkan UI workout * 
+ ***************************/
 function disableWorkoutUI(hariKe) {
   const container = document.getElementById(`workoutContent${hariKe}`);
   if (!container) return;
@@ -6243,6 +6208,9 @@ function disableWorkoutUI(hariKe) {
   console.log(`🔒 Workout UI hari ${hariKe} dikunci total`);
 }
 
+/********************************
+ * Tandai workout sudah selesai * 
+ ********************************/
 function tandaiWorkoutSelesai(hariKe) {
   const btn = document.querySelector(
     `.submenu-trigger[data-target="workoutContent${hariKe}"]`
@@ -6286,6 +6254,9 @@ function saveWorkoutStatus(hariKe, status) {
   }
 }
 
+/************************
+ * Update Progress Icon * 
+ ************************/
 function updateProgressIcon(module, hariKe) {
   // Update icon centang di menu
   const moduleItem = document.getElementById(`${module}ReminderItem`) ||
@@ -6438,10 +6409,9 @@ function loadSavedWorkoutData(hariKe) {
     }
 }
 
-/************************************************
- * SETUP WORKOUT FOR DAY - FIXED
- * Inisialisasi semua event listener untuk workout
- ************************************************/
+/********************************
+ * Setup workout untuk perhari  *
+ ********************************/
 function setupWorkoutForDay(hariKe) {
   console.log(`🔧 Setup workout untuk hari ${hariKe}`);
   // 1️⃣ Event listener utama workout (simpan & selesai)
@@ -6473,9 +6443,9 @@ function setupWorkoutForDay(hariKe) {
   loadSavedWorkoutData(hariKe);
 }
 
-/************************************************
- * INITIALIZE ALL WORKOUT DAYS - FIXED (All Days)
- ************************************************/
+/********************************
+ * Inisialisasi Seluruh workout
+ ********************************/
 function initializeAllWorkoutDays() {
     console.log('🔧 Initializing workout days for ALL days...');
     
@@ -6496,9 +6466,9 @@ function initializeAllWorkoutDays() {
     console.log('✅ All workout days initialized');
 }
 
-/*******************************************
- * CREATE WORKOUT FORM HTML - FINAL FIX
- *******************************************/
+/**************************
+ * Buat Workout dari HTML *
+ **************************/
 function createWorkoutFormHTML(hariKe) {
     return `
         <!-- Pilih Jenis Olahraga Kardio -->
@@ -6581,9 +6551,9 @@ function createWorkoutFormHTML(hariKe) {
     `;
 }
 
-/*******************************************
- * GENERATE WORKOUT FORMS - FIXED SIMPLE
- *******************************************/
+/*************************
+ * Generate Form Workout *
+ *************************/
 function generateWorkoutForms() {
     console.log('🔧 Generating workout forms for all days...');
     
@@ -6616,9 +6586,9 @@ function generateWorkoutForms() {
     }
 }
 
-/*******************************************
- * SHOW RESISTANCE MODAL - Jika belum ada
- *******************************************/
+/****************************
+ * Tampilkan Modal Resisten *
+ ****************************/
 function showResistanceModal(hariKe) {
     // Buat modal sederhana untuk memilih exercise
     const exerciseTypes = [
@@ -6664,9 +6634,9 @@ function showResistanceModal(hariKe) {
     modal.show();
 }
 
-/*******************************************
- * ADD SELECTED EXERCISE - FINAL FIX
- *******************************************/
+/*******************************
+ * Tambahkan Pilihan Excercise *
+ *******************************/
 function addSelectedExercise(hariKe) {
     const selectElement = document.getElementById(`selectExercise${hariKe}`);
     const exerciseName = selectElement.value;
@@ -6694,21 +6664,22 @@ function addSelectedExercise(hariKe) {
     resistenInput.value = current.join(',');
 }
 
-/*******************************************
- * SETUP RESISTANCE EXERCISES - FIXED FINAL
- *******************************************/
+/****************************
+ * Setup Resisten Excercise *
+ ****************************/
 function setupResistanceExercises(hariKe) {
     console.log(`🏋️ Setup resistance exercises hari ${hariKe}`);
-    
     const resistanceContainer = document.getElementById(`selectedResistanceContainer${hariKe}`);
     if (!resistanceContainer) {
         console.log(`ℹ️ Resistance container not found, will be created when needed`);
         return;
     }
-    
-    console.log(`✅ Resistance container ready for day ${hariKe}`);
+   console.log(`✅ Resistance container ready for day ${hariKe}`);
 }
  
+/*******************
+ * Workout komplit *
+ *******************/
 function isWorkoutCompleted(hariKe) {
     // Prioritas 1: data dari server
     if (window.userProgress && window.userProgress[`workoutHari${hariKe}`] === true) {
@@ -6728,18 +6699,14 @@ function applyWorkoutReadOnlyMode(hariKe) {
     console.log(`🟢 applyWorkoutReadOnlyMode SKIP (USER BARU) hari ${hariKe}`);
     return;
   }
-
   console.log(`🔒 Apply READ ONLY workout hari ${hariKe}`);
-
   disableWorkoutUI(hariKe);
-
   // ✅ X & Cek Disini TETAP AKTIF
   enableCloseAndCekDisini(`workoutContent${hariKe}`);
 }
 
 /************************************************
- * DISABLE WORKOUT UI - FIXED
- * Nonaktifkan semua input kecuali Cek Disini dan X
+ * Nonaktifkan Workout kecuali Cek Disini dan X *
  ************************************************/
 function disableWorkoutUI(hariKe) {
     console.log(`🔒 Disabling workout UI hari ${hariKe}`);
@@ -6978,9 +6945,9 @@ function loadSavedResistanceData(hariKe) {
     });
 }
 
-/*******************************************
- * GET RESISTANCE DATA FOR SERVER - FIXED
- *******************************************/
+/***********************************
+ * Ambil Resisten data dari server *
+ ***********************************/
 function getResistanceDataForServer(hariKe) {
   let exercises = [];
   let totalSets = 0;
@@ -7108,9 +7075,9 @@ function generateWaterReminderForm(hariKe, containerId = null) {
     return wrapper;
 }
 
-/*************************************
- * Setup tombol Water Reminder
- *************************************/
+/*******************************
+ * Setup tombol Water Reminder *
+ *******************************/
 function setupWaterButtons(hariKe) {
   const btnSimpan  = document.getElementById(`btnSimpanWater${hariKe}`);
   const btnSelesai = document.getElementById(`btnSelesaiWater${hariKe}`);
@@ -7124,8 +7091,8 @@ function setupWaterButtons(hariKe) {
 }
 
 /*********************************************************
- * LOAD SAVED STATUS - Dipanggil saat buka water reminder
- ********************************************************/
+ * Load Save Status - Dipanggil saat buka water reminder *
+ *********************************************************/
 function loadWaterReminderStatus(hariKe) {
     console.log(`💧 Load status water hari ${hariKe}`);
     // Cek jika sudah disimpan
@@ -7196,7 +7163,7 @@ function loadWaterReminderStatus(hariKe) {
 }
 
 /******************************
- * BUKA WATER REMINDER SUBMENU
+ * Buka Sumbeu Water Reminder *
  ******************************/
 function waterReminder(hariKe) {
   const container = document.getElementById(`waterContent${hariKe}`);
@@ -7238,8 +7205,8 @@ function waterReminder(hariKe) {
   }
 }
 
-/**************************************************
- * GENERATE RADIO BUTTONS UNTUK PILIHAN AIR MINUM
+/*************************************************
+ * Generate Radiao Buttons utk pilihan Air Minum *
  *************************************************/
 function generateWaterRadioButtons(hariKe) {
   const container = document.getElementById(`waterRadioContainer${hariKe}`);
@@ -7267,9 +7234,9 @@ function generateWaterRadioButtons(hariKe) {
 }
 
 
-/********************************************
- *  AMBIL NILAI WATER REMINDER (HARI KE-x)
- *******************************************/
+/****************************************
+ * Ambil Nilai Water Reminder hari ke X *
+ ****************************************/
 function getWaterHari(hariKe) {
   const checked = document.querySelector(
     `input[name="waterHari${hariKe}"]:checked`
@@ -7278,8 +7245,8 @@ function getWaterHari(hariKe) {
 }
 
 /**************************************************
- * ENABLE / DISABLE SEMUA KOMPONEN WATER REMINDER
- ************************************************/
+ * Enable / Disable Semua Komponen Water Reminder *
+ **************************************************/
 function setWaterComponentsDisabled(hariKe, isDisabled) {
   // radio buttons
   document
@@ -7304,9 +7271,9 @@ function setWaterComponentsDisabled(hariKe, isDisabled) {
   }
 }
 
-/*********************************
-* SIMPAN DATA ASUPAN AIR (WATER) *
-*********************************/
+/**************************
+* Simpan Data Asupan Air *
+**************************/
 function simpanWaterReminder(hariKe) {
   const userId = localStorage.getItem('userId');
   const radio  = document.querySelector(`input[name="asupanAir${hariKe}"]:checked`);
@@ -7376,6 +7343,9 @@ function selesaiWaterReminder(hariKe) {
   });
 }
 
+/********************************
+* Disable Water Setelah komplit *
+*********************************/
 function disableWaterAfterCompletion(hariKe) {
   // disable radio
   document
@@ -7487,10 +7457,10 @@ function setSubmenuDisabled(hariKe, containerPrefix, disabled = true) {
   });
 }
 
-/***************************************************
+/***********************************************
  * SETUP RADIO BUTTONS UNTUK WATER REMINDER
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ ***********************************************/
 function setupWaterRadioButtons(hariKe) {
     const radioName = 'asupanAir' + hariKe;
     const radios = document.querySelectorAll(`input[name="${radioName}"]`);
@@ -7511,10 +7481,10 @@ function setupWaterRadioButtons(hariKe) {
     });
 }
 
-/***************************************************
+/*****************************************
  * CEK STATUS WATER REMINDER
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ *****************************************/
 function checkWaterStatus(hariKe) {
   const saved = localStorage.getItem('water_saved_hari_' + hariKe);
   const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
@@ -7526,10 +7496,10 @@ function checkWaterStatus(hariKe) {
   }
 }
 
-/***************************************************
+/*****************************************
  * LOAD DATA YANG SUDAH DISIMPAN
  * @param {number} hariKe - Nomor hari
- ***************************************************/
+ *****************************************/
 function loadWaterReminderData(hariKe) {
     console.log(`💾 Load water data hari ${hariKe}`);
     
@@ -7905,11 +7875,11 @@ function checkWaterStatusModul(modul, hariKe) {
   return false;
 }
 
-/**
+/**********************************************
  * RESET WATER REMINDER UNTUK MODUL (TESTING)
  * @param {number} modul - Nomor modul
  * @param {number} hariKe - Nomor hari
- */
+ **********************************************/
 function resetWaterReminderModul(modul, hariKe) {
   if (!confirm(`Reset Water Reminder Modul ${modul}, Hari ${hariKe}?`)) return;
   
@@ -8051,6 +8021,9 @@ function disableWaterRadioButtons(hariKe) {
   });
 }
 
+/*****************************
+ * Non Aktifkan Water Button *
+ *****************************/
 function disableAllWaterButtons(hariKe) {
   const btnSimpan = document.getElementById('btnSimpanWater' + hariKe);
   const btnSelesai = document.getElementById('btnSelesaiWater' + hariKe);
@@ -8058,7 +8031,6 @@ function disableAllWaterButtons(hariKe) {
   if (btnSimpan) btnSimpan.disabled = true;
   if (btnSelesai) btnSelesai.disabled = true;
 }
-
 
 /****************************************************
 /* FUNGSI UTAMA: Initialize Water Reminder Forms *
@@ -8201,9 +8173,9 @@ function showWaterReminderForm(hariKe) {
 }
 
 
-/****************************
+/******************************
 * Inisialisasi Form Istirahat *
-*****************************/
+*******************************/
 function initializeIstirahatForms() {
   console.log('🔧 Initializing istirahat forms for all days...');
   const userId = localStorage.getItem("userId");
@@ -9103,9 +9075,6 @@ function konversiDataServer(serverData) {
 }
 
 /*****************************
-* Tampilkan Dasboard Peserta *
-******************************/
-/*****************************
 * Tampilkan Dashboard Peserta
 ******************************/
 function tampilkanDashboardSederhana(data) {
@@ -9491,375 +9460,6 @@ function tampilkanDashboardSederhana(data) {
     }
 }
 
-function BACKUP_tampilkanDashboardSederhana(data) {
-    console.log('🎨 Menampilkan dashboard dengan data:', data);
-    
-    const container = document.getElementById('dashboardContent');
-    if (!container) return;
-    
-    const profile = data.profile || {};
-    const tracking = data.trackingData || [];
-    const evaluasi = data.evaluasi || {};
-    const totalPoint = data.totalPoint || 0;
-    const pointPerHari = data.pointPerHari || {};
-    
-    // Tentukan referensi berdasarkan jenis kelamin
-    const jenkel = profile.jenisKelamin || 'Pria';
-    const refLemakTubuh = (jenkel === 'Pria') ? '10 - 20%' : '18 - 28%';
-    const refLemakPerut = (jenkel === 'Pria') ? '< 90 cm' : '< 80 cm';
-    const refIMT = '18.5 - 24.9';
-    
-    // Cek apakah evaluasi kosong
-    const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
-    
-    // Tentukan label untuk grafik berdasarkan modul terakhir
-    var labelModul = data.labelModul || 'Belum ada data';
-    var chartLabel = labelModul;
-    if (tracking.length > 0 && tracking[0].hari) {
-        chartLabel = tracking[0].hari;
-    }
-
-    // Data evaluasi dengan referensi
-    const evaluasiData = [
-        { 
-            parameter: 'Berat Badan', 
-            hasil: evaluasi.beratBadan || '-', 
-            referensi: 'Sesuai target',
-            satuan: 'kg'
-        },
-        { 
-            parameter: 'IMT', 
-            hasil: evaluasi.imt || '-', 
-            referensi: refIMT,
-            satuan: ''
-        },
-        { 
-            parameter: 'Lemak Tubuh', 
-            hasil: evaluasi.lemakTubuh || '-', 
-            referensi: refLemakTubuh,
-            satuan: '%'
-        },
-        { 
-            parameter: 'Lemak Perut', 
-            hasil: evaluasi.lemakPerut || '-', 
-            referensi: refLemakPerut,
-            satuan: 'cm'
-        },
-        { 
-            parameter: 'Massa Otot', 
-            hasil: evaluasi.massaOtot || '-', 
-            referensi: 'Sesuai target',
-            satuan: 'kg'
-        },
-        { 
-            parameter: 'BMR', 
-            hasil: evaluasi.bmr || '-', 
-            referensi: 'Sesuai kebutuhan',
-            satuan: 'kal'
-        },
-        { 
-            parameter: 'Kebutuhan Kalori', 
-            hasil: evaluasi.kalori || '-', 
-            referensi: 'Sesuai aktivitas',
-            satuan: 'kal'
-        },
-        { 
-            parameter: 'Kebutuhan Protein', 
-            hasil: evaluasi.protein || '-', 
-            referensi: 'Sesuai BB & aktivitas',
-            satuan: 'gr'
-        }
-    ];
-    
-    // Buat baris tabel evaluasi
-    var evaluasiRows = '';
-    for (var i = 0; i < evaluasiData.length; i++) {
-        var item = evaluasiData[i];
-        var isKosong = (item.hasil === '-' || item.hasil === '');
-        var rowStyle = isKosong ? 'color: #999;' : '';
-        evaluasiRows += `
-            <tr style="${rowStyle}">
-                <td><strong>${item.parameter}</strong></td>
-                <td style="text-align: center;">${item.hasil} ${item.satuan}</td>
-                <td style="text-align: center;">${item.referensi}</td>
-            </tr>
-        `;
-    }
-    
-    // Tentukan badge warna berdasarkan total point
-    var pointBadgeClass = 'bg-secondary';
-    var pointMessage = '';
-    
-    // Point maksimum adalah 50 per hari × 10 hari = 500
-    var maxPoint = 500;
-    var pointPercentage = Math.round((totalPoint / maxPoint) * 100);
-    
-    if (totalPoint >= 500) { 	
-        pointBadgeClass = 'bg-success';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-award ms-2" style="font-size:14px"> Luar biasa! Anda berhak reward spesial!</i>';
-    } else if (totalPoint >= 250) {
-        pointBadgeClass = 'bg-secondary';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-handshake ms-2" style="font-size:14px"> Bagus! Tingkatkan lagi untuk reward maksimal!</i>';
-    } else if (totalPoint >= 50) {
-        pointBadgeClass = 'bg-info';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="far fa-thumbs-up ms-2" style="font-size:14px"> Semangat! Konsisten untuk kumpulkan point!</i>';
-    } else if (totalPoint > 0) {
-        pointBadgeClass = 'bg-warning text-dark'; 
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-clipboard-check ms-2" style="font-size:14px"> Mulai kumpulkan point Anda!</i>';
-    } else {
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-tasks ms-2" style="font-size:14px"> Belum ada point, selesaikan seluruh program!</i>';
-    }
-    
-    // Buat rincian point per hari
-    var detailPointHTML = '';
-    if (pointPerHari && Object.keys(pointPerHari).length > 0) {
-        var pointDetailRows = '';
-        var sortedDays = Object.keys(pointPerHari).sort(function(a, b) {
-            return parseInt(a) - parseInt(b);
-        });
-        var totalPointDisplay = 0;
-        
-        for (var d = 0; d < sortedDays.length; d++) {
-            var day = sortedDays[d];
-            var point = pointPerHari[day] || 0;
-            totalPointDisplay += point;
-            var statusText = '';
-            var statusClass = '';
-            if (point === 50) {
-                statusText = '✅ Lengkap';
-                statusClass = 'text-success';
-            } else if (point >= 30) {
-                statusText = '⚠️ Sebagian';
-                statusClass = 'text-warning';
-            } else if (point > 0) {
-                statusText = '❌ Belum optimal';
-                statusClass = 'text-danger';
-            } else {
-                statusText = '⬜ Belum dikerjakan';
-                statusClass = 'text-muted';
-            }
-            
-            pointDetailRows += `
-                <tr>
-                    <td><strong>Hari ${day}</strong></td>
-                    <td class="text-center fw-bold">${point}</td>
-                    <td class="text-center ${statusClass}">${statusText}</td>
-                </tr>
-            `;
-        }
-        
-        // Cek apakah ada hari yang hilang (1-10)
-        var allDays = [1,2,3,4,5,6,7,8,9,10];
-        for (var a = 0; a < allDays.length; a++) {
-            var dayCheck = allDays[a];
-            if (!pointPerHari[dayCheck]) {
-                // Hari ini tidak ada di pointPerHari, tambahkan sebagai belum dikerjakan
-                // Tapi hanya jika hari tersebut seharusnya sudah lewat (berdasarkan modul terakhir)
-                // Kita akan tambahkan di sini sebagai informasi
-            }
-        }
-        
-        var totalStatusText = '';
-        var totalStatusClass = '';
-        if (totalPointDisplay >= 500) {
-            totalStatusText = '🎯 Sempurna!';
-            totalStatusClass = 'text-success';
-        } else if (totalPointDisplay >= 250) {
-            totalStatusText = '📈 Baik';
-            totalStatusClass = 'text-warning';
-        } else if (totalPointDisplay > 0) {
-            totalStatusText = '📊 Teruskan!';
-            totalStatusClass = 'text-info';
-        } else {
-            totalStatusText = '⏳ Belum ada';
-            totalStatusClass = 'text-muted';
-        }
-        
-        detailPointHTML = `
-            <div class="mt-4">
-                <h6 class="text-start"><i class="fas fa-list-ul"></i> Rincian Point per Hari:</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:25%;">Hari</th>
-                                <th style="width:25%; text-align:center;">Point</th>
-                                <th style="width:50%; text-align:center;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${pointDetailRows}
-                        </tbody>
-                        <tfoot class="table-secondary">
-                            <tr>
-                                <th><strong>Total</strong></th>
-                                <th class="text-center fw-bold">${totalPointDisplay}</th>
-                                <th class="text-center fw-bold ${totalStatusClass}">${totalStatusText}</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <p class="text-muted small">
-                    <i class="fas fa-info-circle"></i> 
-                    Point maksimum per hari = <strong>50</strong> (Meal Plan 15 + Workout 15 + Water 5 + Istirahat 15)<br>
-                    Total point maksimum 10 hari = <strong>500</strong>
-                </p>
-            </div>
-        `;
-      }  
-    }         
-     
-    
-    // Cek apakah ada data grafik
-    var hasChartData = tracking.length > 0;
-    
-    // Buat HTML lengkap
-    var html = `
-        <div style="dashboard-container">
-            <!-- DATA PROFILE -->
-            <div class="card mb-3 shadow">
-                <div class="card-header bg-primary text-white ">
-                    <i class="fas fa-user-circle"></i> Data Profile Peserta
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm dashboard-table">
-                        <tr>
-                          <th style="width:40%;">Nama</th>
-                          <td style="width:60%;">${profile.namaKonsumen || '-'}</td>
-                        </tr>
-                        <tr>
-                          <th>Jenis Kelamin</th>
-                          <td>${profile.jenisKelamin || '-'}</td>
-                        </tr>
-                        <tr>
-                          <th>Usia</th>
-                          <td>${profile.usia || '-'} tahun</td>
-                        </tr>
-                        <tr>
-                          <th>Tinggi Badan</th>
-                          <td>${profile.tinggiBadan || '-'} cm</td>
-                        </tr>
-                        <tr>
-                          <th>Aktivitas Fisik</th>
-                          <td>${profile.aktivitasFisik || '-'}</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- GRAFIK PERKEMBANGAN -->
-            <div class="card mb-3 shadow">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-chart-line"></i> Grafik Perkembangan 
-                </div>
-
-                <div class="card-body">
-                    ${hasChartData ? `
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <h6 class="text-center">Berat Badan</h6>
-                            <canvas id="beratChartCanvas" style="height: 250px; width: 100%;"></canvas>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <h6 class="text-center">Lingkar Perut</h6>
-                            <canvas id="lingkarChartCanvas" style="height: 250px; width: 100%;"></canvas>
-                        </div>
-                    </div>
-                    ` : `
-                    <div class="text-center p-4">
-                        <i class="fas fa-chart-line fa-3x mb-3" style="color: #ccc;"></i>
-                        <p class="text-muted">Belum ada data tracking untuk ditampilkan.</p>
-                        <p class="small text-muted">Data akan muncul setelah menyelesaikan tracking di Hari ke-1, 5, atau 10.</p>
-                    </div>
-                    `}
-                </div>
-            </div>
-            
-            <!-- EVALUASI -->
-            <div class="card mb-3 shadow">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-heartbeat"></i> Hasil Evaluasi ${isEvaluasiKosong ? '(Belum Tersedia)' : ''}
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm dashboard-table">
-                        <thead style="background-color: #e8f4fd;">
-                            <tr>
-                                <th style="width:35%;">Parameter</th>
-                                <th style="width:25%; text-align:center;">Hasil</th>
-                                <th style="width:40%; text-align:center;">Referensi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${evaluasiRows}
-                        </tbody>
-                    </table>
-                    ${isEvaluasiKosong ? `
-                    <div class="text-center p-2 bg-light">
-                        <small class="text-muted"><i class="fas fa-info-circle"></i> Data evaluasi lengkap akan tersedia setelah menyelesaikan Modul ke-10</small>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-            
-            <!-- POINT REWARD -->
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-star"></i> Point Reward
-                </div>
-                <div class="card-body text-center" style="padding: 1rem;">
-                    <div style="margin: 1rem 0;">
-                        <span class="display-4 fw-bold ${pointBadgeClass}" style="display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">
-                            ${totalPoint}
-                        </span>
-                        ${pointMessage}
-                    </div>
-                    <p class="mb-2" style="margin: 0.8rem 0;">
-                        <i class="fas fa-gift text-warning"></i> 
-                        <strong>Total point anda yang terkumpul selema ini sebanyak: ${totalPoint} Point</strong>
-                        ${totalPoint > 0 ? `<br><small class="text-muted">(${Math.round((totalPoint/500)*100)}% dari target 500 point)</small>` : ''}
-                    </p>
-                    ${detailPointHTML}
-                    <p class="text-muted small" style="margin: 0.8rem 0;">
-                      Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
-                    </p>
-                    <button class="btn btn-outline-success btn-sm mt-1 mb-3" onclick="tukarPoint(${totalPoint})" ${totalPoint === 0 ? 'disabled' : ''}>
-                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
-                    </button>
-                </div>
-            </div>
-       
-            <!-- KESIMPULAN & REKOMENDASI -->
-            <div class="card mb-3 shadow">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-clipboard-check"></i> Kesimpulan & Rekomendasi
-                </div>
-                <div class="card-body">
-                    <p><strong>Kesimpulan:</strong> ${evaluasi.kesimpulan || '-'}</p>
-                    <p><strong>Rekomendasi:</strong> ${evaluasi.rekomendasi || '-'}</p>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML = html;
-    
-    // Buat grafik setelah HTML siap (hanya jika ada data)
-    if (hasChartData) {
-        setTimeout(function() {
-            // Hapus grafik lama sebelum membuat baru
-            if (window.beratChartInstance) {
-                window.beratChartInstance.destroy();
-                window.beratChartInstance = null;
-            }
-            if (window.lingkarChartInstance) {
-                window.lingkarChartInstance.destroy();
-                window.lingkarChartInstance = null;
-            }
-            buatGrafik(tracking);
-        }, 300);
-    }
-
-
 /*****************************
 * Fungsi untuk menukar point *
 ******************************/
@@ -10069,7 +9669,9 @@ function buatGrafik(trackingData) {
     }
 }
 
-// Event listener untuk dashboard
+/*********************************
+* Event listener untuk dashboard *
+**********************************/
 document.addEventListener('DOMContentLoaded', function() {
     // Cari semua tombol yang membuka dashboard
     const dashboardButtons = document.querySelectorAll('[data-bs-target="#dasboardFitTrack"]');
@@ -10097,7 +9699,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /************************************
-/ Fungsi bantu untuk keterangan IMT
+* Fungsi bantu untuk keterangan IMT
 ************************************/
 function getIMTKeterangan(imt) {
     if (!imt) return '-';
@@ -10109,7 +9711,7 @@ function getIMTKeterangan(imt) {
 }
 
 /*************************************
-/ Fungsi bantu untuk keterangan Lemak
+* Fungsi bantu untuk keterangan Lemak
 **************************************/
 function getLemakKeterangan(lemak, jenkel) {
     if (!lemak) return '-';
@@ -10168,9 +9770,9 @@ activity:[
 ]
 };
 
-/********************
- * Emoji Picker
- *******************/
+/**********************
+ * Modal Emoji Picker *
+ **********************/
 document.addEventListener("click",function(e){
 
 // buka panel
@@ -10198,9 +9800,9 @@ if(e.target.parentElement &&
 }
 });
 
-/*******************
- * Render Emoji
- *******************/
+/*************************
+ * Tampilkan Render Emoji
+ *************************/
 function showEmoji(panel,cat){
 const list=panel.querySelector(".emoji-list");
 list.innerHTML="";
