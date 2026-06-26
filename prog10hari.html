@@ -9203,7 +9203,7 @@ function tampilkanDashboardSederhana(data) {
         pointBadgeClass = 'bg-warning text=dark';
         pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-tasks ms-2" style="font-size:14px"> Belum ada point, selesaikan seluruh program!</i>';
     }
-    
+
     // Buat rincian point per hari
     var detailPointHTML = '';
     if (pointPerHari && Object.keys(pointPerHari).length > 0) {
@@ -9219,17 +9219,23 @@ function tampilkanDashboardSederhana(data) {
             totalPointDisplay += point;
             var statusText = '';
             var statusClass = '';
+            var statusIcon = '';
+            
             if (point === 50) {
-                statusText = '✅ Lengkap';
+                statusIcon = '<i class="fas fa-check-circle"></i>';
+                statusText = ' Lengkap';
                 statusClass = 'text-success';
             } else if (point >= 30) {
-                statusText = '⚠️ Sebagian';
+                statusIcon = '<i class="fas fa-exclamation-circle"></i>';
+                statusText = ' Sebagian';
                 statusClass = 'text-warning';
             } else if (point > 0) {
-                statusText = '❌ Belum optimal';
+                statusIcon = '<i class="fas fa-times-circle"></i>';
+                statusText = ' Belum optimal';
                 statusClass = 'text-danger';
             } else {
-                statusText = '⬜ Belum dikerjakan';
+                statusIcon = '<i class="far fa-circle"></i>';
+                statusText = ' Belum dikerjakan';
                 statusClass = 'text-muted';
             }
             
@@ -9237,11 +9243,11 @@ function tampilkanDashboardSederhana(data) {
                 <tr>
                     <td><strong>Hari ${day}</strong></td>
                     <td class="text-center fw-bold">${point}</td>
-                    <td class="text-center ${statusClass}">${statusText}</td>
+                    <td class="text-center ${statusClass}">${statusIcon} ${statusText}</td>
                 </tr>
             `;
-        }
-        
+        }    
+
         // Cek apakah ada hari yang hilang (1-10)
         var allDays = [1,2,3,4,5,6,7,8,9,10];
          for (var d = 0; d < sortedDays.length; d++) {
