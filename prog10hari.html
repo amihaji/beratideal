@@ -9102,6 +9102,10 @@ function tampilkanDashboardSederhana(data) {
     const refLemakPerut = (jenkel === 'Pria') ? '< 90 cm' : '< 80 cm';
     const refIMT = '18.5 - 24.9';
     
+    // 🔥 AMBIL NILAI BERAT IDEAL DARI EVALUASI
+    var beratIdeal = evaluasi.bbIdeal || '-';
+    var refBeratBadan = (beratIdeal !== '-') ? beratIdeal + ' kg' : 'Sesuai target';
+    
     // Cek apakah evaluasi kosong
     const isEvaluasiKosong = evaluasi.bbIdeal === '-' || evaluasi.bbIdeal === '';
     
@@ -9117,7 +9121,7 @@ function tampilkanDashboardSederhana(data) {
         { 
             parameter: 'Berat Badan', 
             hasil: evaluasi.beratBadan || '-', 
-            referensi: 'Sesuai target',
+            referensi: refBeratBadan,
             satuan: 'kg'
         },
         { 
@@ -9452,24 +9456,6 @@ function tampilkanDashboardSederhana(data) {
     
     container.innerHTML = html;
     
-    // Buat grafik setelah HTML siap (hanya jika ada data)
-    /*
-    if (hasChartData) {
-        setTimeout(function() {
-            // Hapus grafik lama sebelum membuat baru
-            if (window.beratChartInstance) {
-                window.beratChartInstance.destroy();
-                window.beratChartInstance = null;
-            }
-            if (window.lingkarChartInstance) {
-                window.lingkarChartInstance.destroy();
-                window.lingkarChartInstance = null;
-            }
-            buatGrafik(tracking);
-        }, 300);
-    }
-    */
-
     // Buat grafik setelah HTML siap (hanya jika ada data)
     if (hasChartData) {
         setTimeout(function() {
