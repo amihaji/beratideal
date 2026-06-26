@@ -9084,9 +9084,6 @@ function konversiDataServer(serverData) {
 /*****************************
 * Tampilkan Dashboard Peserta
 ******************************/
-/*****************************
-* Tampilkan Dashboard Peserta
-******************************/
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
     
@@ -9136,7 +9133,7 @@ function tampilkanDashboardSederhana(data) {
             satuan: '%'
         },
         { 
-            parameter: 'Lemak Perut', 
+            parameter: 'Lingkar Perut', 
             hasil: evaluasi.lemakPerut || '-', 
             referensi: refLemakPerut,
             satuan: 'cm'
@@ -9456,6 +9453,7 @@ function tampilkanDashboardSederhana(data) {
     container.innerHTML = html;
     
     // Buat grafik setelah HTML siap (hanya jika ada data)
+    /*
     if (hasChartData) {
         setTimeout(function() {
             // Hapus grafik lama sebelum membuat baru
@@ -9468,6 +9466,28 @@ function tampilkanDashboardSederhana(data) {
                 window.lingkarChartInstance = null;
             }
             buatGrafik(tracking);
+        }, 300);
+    }
+    */
+
+    // Buat grafik setelah HTML siap (hanya jika ada data)
+    if (hasChartData) {
+        setTimeout(function() {
+            // Hapus grafik lama sebelum membuat baru
+            if (window.beratChartInstance) {
+                window.beratChartInstance.destroy();
+                window.beratChartInstance = null;
+            }
+            if (window.lingkarChartInstance) {
+                window.lingkarChartInstance.destroy();
+                window.lingkarChartInstance = null;
+            }
+            // 🔥 KIRIMKAN DATA EVALUASI (TERMASUK JENIS KELAMIN)
+            var evaluasiWithGender = {
+                bbIdeal: evaluasi.bbIdeal,
+                jenisKelamin: profile.jenisKelamin || 'Pria'
+            };
+            buatGrafik(tracking, evaluasiWithGender);
         }, 300);
     }
 }
@@ -9494,8 +9514,259 @@ function tukarPoint(totalPoint) {
 
 /**********************************************
  * Buat Grafik dengan Chart.js - Versi Garis
+ * Dengan Perbandingan Berat Ideal & Lingkar Ideal
  **********************************************/
-function buatGrafik(trackingData) {
+function buatGrafik(trackingData, evaluasiData) {
+    console.log('📊 Membuat grafik dengan data:', trackingData);
+    console.log('📊 Data evaluasi:', evaluasiData);
+    
+    if (!trackingData || trackingData.length === 0) {
+        console.log('⚠️ Tidak ada data untuk grafik');
+        return;
+    }
+    
+    // Ambil data ideal dari evaluasi
+    var beratIdeal = parseFloat(evaluasiData.bbIdeal) || 0;
+    var lingkarIdeal = 0;
+    
+    // Tentukan lingkar perut ideal berdasarkan jenis kelamin dari profile
+    // Kita ambil dari data evaluasi atau dari profile
+    var jenkel = 'Pria';
+    if (evaluasiData.jenisKelamin) {
+        jenkel = evaluasiData.jenisKelamin;
+    }
+    lingkarIdeal = (jenkel === 'Pria') ? 90 : 80;
+    
+    console.log('📊 Berat Ideal:', beratIdeal);
+    console.log('📊 Lingkar Ideal:', lingkarIdeal);
+    
+    // Data untuk grafik
+    var labels = [];
+    var beratData = [];
+    var lingkarData = [];
+    
+    // Buat data untuk semua titik (1, 5, 10)
+    var hariMapping = {
+        1: { label: 'H1', berat: null, lingkar: null },
+        5: { label: 'H5', berat: null, lingkar: null },
+        10: { label: 'H10', berat: null, lingkar: null }
+    };
+    
+    // Isi data dari trackingData
+    trackingData.forEach(function(item) {
+        var hariKe = item.hariKe || 1;
+        if (hariMapping[hariKe]) {
+            hariMapping[hariKe].berat = item.beratBadan || null;
+            hariMapping[hariKe].lingkar = item.lingkarPerut || null;
+        }
+    });
+    
+    // Buat array untuk grafik (hanya titik yang ada datanya)
+    var hariKeys = [1, 5, 10];
+    var labelsFinal = [];
+    var beratFinal = [];
+    var lingkarFinal = [];
+    
+    hariKeys.forEach(function(hari) {
+        var data = hariMapping[hari];
+        // Jika ada data berat atau lingkar, tampilkan titik
+        if (data.berat !== null || data.lingkar !== null) {
+            labelsFinal.push(data.label);
+            beratFinal.push(data.berat);
+            lingkarFinal.push(data.lingkar);
+        }
+    });
+    
+    // Jika hanya ada 1 titik data, grafik tetap tampil dengan 1 titik
+    if (labelsFinal.length === 0) {
+        console.log('⚠️ Tidak ada data yang valid untuk grafik');
+        return;
+    }
+    
+    console.log('📊 Label final:', labelsFinal);
+    console.log('📊 Data berat final:', beratFinal);
+    console.log('📊 Data lingkar final:', lingkarFinal);
+    
+    // 🔥 BUAT GRAFIK BERAT BADAN DENGAN GARIS IDEAL
+    var beratCtx = document.getElementById('beratChartCanvas');
+    if (beratCtx) {
+        if (window.beratChartInstance) {
+            window.beratChartInstance.destroy();
+            window.beratChartInstance = null;
+        }
+        
+        // Siapkan data untuk garis berat ideal (nilai konstan sepanjang hari)
+        var beratIdealData = [];
+        for (var i = 0; i < labelsFinal.length; i++) {
+            beratIdealData.push(beratIdeal);
+        }
+        
+        window.beratChartInstance = new Chart(beratCtx, {
+            type: 'line',
+            data: {
+                labels: labelsFinal,
+                datasets: [
+                    {
+                        label: 'Berat Badan (kg)',
+                        data: beratFinal,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 8,
+                        pointBackgroundColor: '#28a745',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 12
+                    },
+                    {
+                        label: 'Berat Ideal (kg)',
+                        data: beratIdealData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.05)',
+                        borderWidth: 2,
+                        borderDash: [8, 6],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { 
+                            font: { size: 12, weight: 'bold' },
+                            usePointStyle: true,
+                            pointStyle: 'line'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                var value = context.raw;
+                                if (context.datasetIndex === 0) {
+                                    return label + ': ' + value + ' kg';
+                                } else {
+                                    return label + ': ' + value + ' kg (target)';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
+                    },
+                    y: { 
+                        title: { display: true, text: 'BB (kg)' },
+                        beginAtZero: false,
+                        min: Math.max(0, Math.min.apply(null, beratFinal.concat(beratIdeal)) - 5)
+                    }
+                }
+            }
+        });
+        console.log('✅ Grafik berat badan dengan garis ideal selesai');
+    }
+    
+    // 🔥 BUAT GRAFIK LINGKAR PERUT DENGAN GARIS IDEAL
+    var lingkarCtx = document.getElementById('lingkarChartCanvas');
+    if (lingkarCtx) {
+        if (window.lingkarChartInstance) {
+            window.lingkarChartInstance.destroy();
+            window.lingkarChartInstance = null;
+        }
+        
+        // Siapkan data untuk garis lingkar ideal (nilai konstan sepanjang hari)
+        var lingkarIdealData = [];
+        for (var i = 0; i < labelsFinal.length; i++) {
+            lingkarIdealData.push(lingkarIdeal);
+        }
+        
+        window.lingkarChartInstance = new Chart(lingkarCtx, {
+            type: 'line',
+            data: {
+                labels: labelsFinal,
+                datasets: [
+                    {
+                        label: 'Lingkar Perut (cm)',
+                        data: lingkarFinal,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.1,
+                        pointRadius: 8,
+                        pointBackgroundColor: '#007bff',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 12
+                    },
+                    {
+                        label: 'Lingkar Ideal (cm)',
+                        data: lingkarIdealData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.05)',
+                        borderWidth: 2,
+                        borderDash: [8, 6],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        pointHitRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { 
+                            font: { size: 12, weight: 'bold' },
+                            usePointStyle: true,
+                            pointStyle: 'line'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                var value = context.raw;
+                                if (context.datasetIndex === 0) {
+                                    return label + ': ' + value + ' cm';
+                                } else {
+                                    return label + ': ' + value + ' cm (target)';
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Hari ke', font: { weight: 'bold' } }
+                    },
+                    y: { 
+                        title: { display: true, text: 'LP (cm)' },
+                        beginAtZero: false,
+                        min: Math.max(0, Math.min.apply(null, lingkarFinal.concat(lingkarIdeal)) - 5)
+                    }
+                }
+            }
+        });
+        console.log('✅ Grafik lingkar perut dengan garis ideal selesai');
+    }
+}
+
+ function BACKUP_buatGrafik(trackingData) {
     console.log('📊 Membuat grafik dengan data:', trackingData);
     
     if (!trackingData || trackingData.length === 0) {
@@ -9739,9 +10010,9 @@ function getLemakKeterangan(lemak, jenkel) {
     }
 }
 
-/********************************************
- * Fungsi bantu untuk keterangan Lemak Perut
- ********************************************/
+/***********************************************************
+ * Fungsi bantu untuk keterangan Lingkar Perut/Lemak Perut
+ **********************************************************/
 function getLemakPerutKeterangan(lingkar, jenkel) {
     if (!lingkar) return '-';
     const nilai = parseFloat(lingkar);
