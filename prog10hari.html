@@ -9084,6 +9084,9 @@ function konversiDataServer(serverData) {
 /*****************************
 * Tampilkan Dashboard Peserta
 ******************************/
+/*****************************
+* Tampilkan Dashboard Peserta
+******************************/
 function tampilkanDashboardSederhana(data) {
     console.log('🎨 Menampilkan dashboard dengan data:', data);
     
@@ -9189,21 +9192,21 @@ function tampilkanDashboardSederhana(data) {
     
     if (totalPoint >= 500) {
         pointBadgeClass = 'bg-success';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-award ms-2" style="font-size:14px"> Luar biasa! Anda berhak reward spesial!</i>';
+        pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="fas fa-award ms-2" style="font-size:14px; color: #ffd700;"></i> Luar biasa! Anda berhak reward spesial!</span>';
     } else if (totalPoint >= 250) {
         pointBadgeClass = 'bg-secondary';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-handshake ms-2" style="font-size:14px"> Bagus! Tingkatkan lagi untuk reward maksimal!</i>';
+        pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="fas fa-handshake ms-2" style="font-size:14px;"></i> Bagus! Tingkatkan lagi untuk reward maksimal!</span>';
     } else if (totalPoint >= 50) {
         pointBadgeClass = 'bg-info';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="far fa-thumbs-up ms-2" style="font-size:14px"> Semangat! Konsisten untuk kumpulkan point!</i>';
+        pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="far fa-thumbs-up ms-2" style="font-size:14px;"></i> Semangat! Konsisten untuk kumpulkan point!</span>';
     } else if (totalPoint > 0) {
         pointBadgeClass = 'bg-secondary';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-clipboard-check ms-2" style="font-size:14px"> Mulai kumpulkan point Anda!</i>';
+        pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="fas fa-clipboard-check ms-2" style="font-size:14px;"></i> Mulai kumpulkan point Anda!</span>';
     } else {
-        pointBadgeClass = 'bg-warning text=dark';
-        pointMessage = '<style="font-size:14px;"><strong>Point</strong> <i class="fas fa-tasks ms-2" style="font-size:14px"> Belum ada point, selesaikan seluruh program!</i>';
+        pointBadgeClass = 'bg-warning text-dark';
+        pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="fas fa-tasks ms-2" style="font-size:14px;"></i> Belum ada point, selesaikan seluruh program!</span>';
     }
-
+    
     // Buat rincian point per hari
     var detailPointHTML = '';
     if (pointPerHari && Object.keys(pointPerHari).length > 0) {
@@ -9243,51 +9246,31 @@ function tampilkanDashboardSederhana(data) {
                 <tr>
                     <td><strong>Hari ${day}</strong></td>
                     <td class="text-center fw-bold">${point}</td>
-                    <td class="text-center ${statusClass}">${statusIcon} ${statusText}</td>
+                    <td class="text-center ${statusClass}">${statusIcon}${statusText}</td>
                 </tr>
             `;
-        }    
-
-        // Cek apakah ada hari yang hilang (1-10)
-        var allDays = [1,2,3,4,5,6,7,8,9,10];
-         for (var d = 0; d < sortedDays.length; d++) {
-        var day = sortedDays[d];
-        var point = pointPerHari[day] || 0;
-        totalPointDisplay += point;
-        var statusText = '';
-        var statusClass = '';
-        var statusIcon = '';
-        
-        if (point === 50) {
-            statusIcon = '<i class="fas fa-check-circle"></i>';
-            statusText = ' Lengkap';
-            statusClass = 'text-success';
-        } else if (point >= 30) {
-            statusIcon = '<i class="fas fa-exclamation-circle"></i>';
-            statusText = ' Sebagian';
-            statusClass = 'text-warning';
-        } else if (point > 0) {
-            statusIcon = '<i class="fas fa-times-circle"></i>';
-            statusText = ' Belum optimal';
-            statusClass = 'text-danger';
-        } else {
-            statusIcon = '<i class="far fa-circle"></i>';
-            statusText = ' Belum dikerjakan';
-            statusClass = 'text-muted';
         }
-        pointDetailRows += `
-            <tr>
-                <td><strong>Hari ${day}</strong></td>
-                <td class="text-center fw-bold">${point}</td>
-                <td class="text-center ${statusClass}">${statusIcon} ${statusText}</td>
-            </tr>
-        `;
-       }
-
+        
+        var totalStatusText = '';
+        var totalStatusClass = '';
+        if (totalPointDisplay >= 500) {
+            totalStatusText = '🎯 Sempurna!';
+            totalStatusClass = 'text-success';
+        } else if (totalPointDisplay >= 250) {
+            totalStatusText = '📈 Baik';
+            totalStatusClass = 'text-warning';
+        } else if (totalPointDisplay > 0) {
+            totalStatusText = '📊 Teruskan!';
+            totalStatusClass = 'text-info';
+        } else {
+            totalStatusText = '⏳ Belum ada';
+            totalStatusClass = 'text-muted';
+        }
+        
         detailPointHTML = `
             <div class="mt-4">
                 <h6 class="text-start"><i class="fas fa-list-ul"></i> Rincian Point per Hari:</h6>
-                <div class="table-responsive" style="font-size:14px">
+                <div class="table-responsive">
                     <table class="table table-sm table-bordered">
                         <thead class="table-light">
                             <tr>
@@ -9315,9 +9298,7 @@ function tampilkanDashboardSederhana(data) {
                 </p>
             </div>
         `;
-    }
-    /*
-    else {
+    } else {
         // Jika tidak ada point per hari, tapi totalPoint > 0, tampilkan info sederhana
         if (totalPoint > 0) {
             detailPointHTML = `
@@ -9331,8 +9312,7 @@ function tampilkanDashboardSederhana(data) {
             `;
         }
     }
-    */
-
+    
     // Cek apakah ada data grafik
     var hasChartData = tracking.length > 0;
     
