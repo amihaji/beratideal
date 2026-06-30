@@ -202,9 +202,6 @@ Dashboard Admin untuk :
                             <h1 class="h2 mb-1">Data Peserta</h1>
                             <p class="text-muted">Kelola dan pantau progress seluruh peserta</p>
                         </div>
-                        <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                            <i class="bi bi-plus-lg me-1"></i>Tambah Peserta
-                        </button>
                     </div>
                 </div>
             </div>
@@ -245,7 +242,7 @@ Dashboard Admin untuk :
             <div class="row mb-4">
                 <div class="col-12">
                     <h1 class="h2 mb-1">Program</h1>
-                    <p class="text-muted">Detail program fitness yang tersedia</p>
+                    <p class="text-muted">Detail program BERATideal yang tersedia</p>
                 </div>
             </div>
 
@@ -289,10 +286,49 @@ Dashboard Admin untuk :
                 </div>
             </div>
         </div>
+
+        <!-- Setup User Page -->
+        <div id="analytics-page" class="page-content" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="h2 mb-1">Setup User</h1>
+                    <p class="text-muted">Untuk konfigurasi user dan level user</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Daftar Tabel User</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="tabelUser" height="400"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Input Data User</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="frmUser">
+                            <!-- DISINI BUAT FORM -->    
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-plus-lg me-1"></i>Tambah User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Add Student Modal -->
-    <div class="modal fade" id="addStudentModal" tabindex="-1">
+    <!-- Add User Baru -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -302,36 +338,38 @@ Dashboard Admin untuk :
                 <form id="addStudentForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="studentName" class="form-label">Nama Lengkap</label>
+                            <label for="studentName" class="form-label">User ID</label>
                             <input type="text" class="form-control" id="studentName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="studentEmail" class="form-label">Email</label>
+                            <label for="studentEmail" class="form-label">Nama User</label>
                             <input type="email" class="form-control" id="studentEmail" required>
                         </div>
                         <div class="mb-3">
-                            <label for="studentProgram" class="form-label">Program</label>
-                            <select class="form-select" id="studentProgram" required>
-                                <option value="">Pilih Program</option>
-                                <option value="Turun Berat Badan">Turun Berat Badan</option>
-                                <option value="Naik Berat Badan">Naik Berat Badan</option>
-                                <option value="Jaga Stamina">Jaga Stamina</option>
-                            </select>
+                            <label for="studentEmail" class="form-label">Email User</label>
+                            <input type="email" class="form-control" id="studentEmail" required>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="initialWeight" class="form-label">Berat Awal (kg)</label>
-                                <input type="number" class="form-control" id="initialWeight" step="0.1" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="targetWeight" class="form-label">Target Berat (kg)</label>
-                                <input type="number" class="form-control" id="targetWeight" step="0.1" required>
-                            </div>
+                        <div class="mb-3">
+                            <label for="studentEmail" class="form-label">HP User</label>
+                            <input type="email" class="form-control" id="studentEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentEmail" class="form-label">Password</label>
+                            <input type="email" class="form-control" id="studentEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentProgram" class="form-label">Level User</label>
+                            <select class="form-select" id="studentProgram" required>
+                                <option value="">Pilih level User</option>
+                                <option value="admin">admin</option>
+                                <option value="member">member</option>
+                                <option value="peserta">peserta</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Tambah Peserta</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
