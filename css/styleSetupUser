@@ -1,0 +1,165 @@
+/* Custom Styles for setupUser pada Dashboard.html */
+body { 
+    background-color: #f8f9fa; 
+}
+.table-hover tbody tr:hover { 
+    background-color: #f2f2f2; 
+    cursor: pointer; 
+}
+.actions-col { 
+    width: 220px; 
+    text-align: center; 
+    white-space: nowrap; 
+}
+
+/************************/
+/* Pengaturan Icon-icon */
+/************************/
+/* Default semua icon (enabled & disabled) tidak terlihat */
+/* Ikon default (hidden) */
+.action-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+    margin: 0 5px;
+    cursor: pointer;
+    color: #6c757d;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 15px;
+}
+
+/* Saat hover ke baris, semua icon disabled akan muncul */
+tr:hover .action-icon {
+    opacity: 1;
+}
+/* Hover efek untuk ikon aktif */
+.action-icon:hover {
+    color: red;
+    background-color: #e0e0e0;
+}
+/* Disabled icon – tidak bisa diklik dan tidak bereaksi saat hover */
+.action-icon.disabled {
+    pointer-events: none;
+    color: #bbb !important;
+    background-color: transparent !important;
+}
+
+.sticky-header th { 
+    position: sticky; 
+    top: 0; 
+    background-color: #003366; 
+    color: white; 
+    z-index: 2; 
+    font-size:15px;
+}
+.title-box { 
+    background-color: #003366; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+}
+.title-box i { margin-right: 10px; }
+.button-box { 
+    background: white; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    padding: 10px; 
+    margin: 15px 0; 
+}
+.btn-group-vertical-responsive { 
+    display: flex; 
+    flex-direction: row; 
+    gap: 10px; 
+}
+
+.table-box { 
+    background: white; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    padding: 10px; 
+}
+.table-wrapper { 
+    max-height: 450px; 
+    overflow-y: auto; 
+}
+
+/* Notifikasi Message Box */
+.notification-message {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 10px; /* agar icon dan teks tidak dempet */
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/* Spinner Untuk tabel user */
+.loading-overlay {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hak Akses */
+.hak-akses-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+.hak-akses-item {
+  display: flex;
+  align-items: center;
+  padding-right: 60px;
+  padding-left: 3px;
+}
+.hak-akses-item label {
+  margin-left: 10px;
+  min-width: 75px;
+}
+
+/****************************/
+/* Tampilan Vertikal Mobile */
+/****************************/
+@media (max-width: 591.98px) {
+    .sticky-header th tr { 
+       font-size:15px;
+       white-space: nowrap !important;
+    }
+    /* Membuat tabel bisa discroll horizontal di layar kecil */
+    .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    }
+    /* Menjaga sel tidak membungkus isi */
+    .table th, .table td {
+    white-space: nowrap;
+    }
+    .btn-group-vertical-responsive {
+       flex-direction: column !important;
+       align-items: stretch !important;
+       gap: 6px; /* jarak antar tombol */
+    }
+    .btn-group-vertical-responsive button,
+    .btn-group-vertical-responsive a {
+       width: 100% !important;
+       text-align: center;
+    }
+}

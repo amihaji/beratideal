@@ -21,6 +21,7 @@ Dashboard Admin untuk :
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link href="css/styleDashboard.css" rel="stylesheet">
+    <link href="css/styleSetupUser.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
@@ -295,7 +296,7 @@ Dashboard Admin untuk :
                     <p class="text-muted">Untuk konfigurasi user dan level user</p>
                 </div>
             </div>
-
+            <!-- TIDAK AKTIF 
             <div class="col-lg-8 mb-4">
                 <div class="card h-100">
                     <div class="card-header">
@@ -321,9 +322,12 @@ Dashboard Admin untuk :
                         </div>
                     </div>
                 </div>
-
-            
             </div>
+            BATAS AKHIR -->
+            <secton class="page-content" id="setupuser">
+                <!-- disini tampil setupuser.html -->
+            </section>
+
         </div>
     </div>
 
@@ -410,5 +414,9 @@ Dashboard Admin untuk :
     <!-- Custom JS -->
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsSheet.js"></script>
+    <script>
+        const mSetupuser = document.getElementById('setupuser')
+        fetch('./setupuser.html').then(snap => snap.text()).then(result => {mSetupuser.innerHTML = result;})
+    </script>
 </body>
 </html>

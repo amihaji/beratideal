@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup User - KitWorks</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body { 
+    background-color: #f8f9fa; 
+}
+.table-hover tbody tr:hover { 
+    background-color: #f2f2f2; 
+    cursor: pointer; 
+}
+.actions-col { 
+    width: 220px; 
+    text-align: center; 
+    white-space: nowrap; 
+}
+
+/************************/
+/* Pengaturan Icon-icon */
+/************************/
+/* Default semua icon (enabled & disabled) tidak terlihat */
+/* Ikon default (hidden) */
+.action-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+    margin: 0 5px;
+    cursor: pointer;
+    color: #6c757d;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 15px;
+}
+
+/* Saat hover ke baris, semua icon disabled akan muncul */
+tr:hover .action-icon {
+    opacity: 1;
+}
+/* Hover efek untuk ikon aktif */
+.action-icon:hover {
+    color: red;
+    background-color: #e0e0e0;
+}
+/* Disabled icon – tidak bisa diklik dan tidak bereaksi saat hover */
+.action-icon.disabled {
+    pointer-events: none;
+    color: #bbb !important;
+    background-color: transparent !important;
+}
+
+.sticky-header th { 
+    position: sticky; 
+    top: 0; 
+    background-color: #003366; 
+    color: white; 
+    z-index: 2; 
+    font-size:15px;
+}
+.title-box { 
+    background-color: #003366; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+}
+.title-box i { margin-right: 10px; }
+.button-box { 
+    background: white; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    padding: 10px; 
+    margin: 15px 0; 
+}
+.btn-group-vertical-responsive { 
+    display: flex; 
+    flex-direction: row; 
+    gap: 10px; 
+}
+
+.table-box { 
+    background: white; 
+    border-radius: 5px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    padding: 10px; 
+}
+.table-wrapper { 
+    max-height: 450px; 
+    overflow-y: auto; 
+}
+
+/* Notifikasi Message Box */
+.notification-message {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 10px; /* agar icon dan teks tidak dempet */
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/* Spinner Untuk tabel user */
+.loading-overlay {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hak Akses */
+.hak-akses-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+.hak-akses-item {
+  display: flex;
+  align-items: center;
+  padding-right: 60px;
+  padding-left: 3px;
+}
+.hak-akses-item label {
+  margin-left: 10px;
+  min-width: 75px;
+}
+
+/****************************/
+/* Tampilan Vertikal Mobile */
+/****************************/
+@media (max-width: 591.98px) {
+    .sticky-header th tr { 
+       font-size:15px;
+       white-space: nowrap !important;
+    }
+    /* Membuat tabel bisa discroll horizontal di layar kecil */
+    .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    }
+    /* Menjaga sel tidak membungkus isi */
+    .table th, .table td {
+    white-space: nowrap;
+    }
+    .btn-group-vertical-responsive {
+       flex-direction: column !important;
+       align-items: stretch !important;
+       gap: 6px; /* jarak antar tombol */
+    }
+    .btn-group-vertical-responsive button,
+    .btn-group-vertical-responsive a {
+       width: 100% !important;
+       text-align: center;
+    }
+}
+</style>
+</head>
+
+<body class="p-2 p-sm-3">
+<div class="container">
+<div class="title-box mb-3">
+    <i class="fas fa-user-cog fa-lg"></i>
+    <h6 class="mb-0">SETUP USER</h6>
+</div>
+
+<!-- Tombol Form Setup User -->
+<div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
+    <div>
+       <button class="btn btn-primary btn-sm mb-1" id="addUserButton"><i class="fas fa-plus"></i> Tambah User</button>
+       <button class="btn btn-primary btn-sm mb-1" onclick="showLogNotifForm()"><i class="fas fa-list"></i> Log Notif</button>
+    </div>
+    <div>
+       <a href="https://amihaji.github.io/kitworks/index.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
+    </div>
+</div>
+
+<!-- Notifikasi Pesan -->
+<div id="pesanNotification" class="notification-message">
+    <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+</div>
+    <!-- Tabel Daftar User -->
+    <div class="table-box">
+        <div class="table-wrapper">
+        <table class="table table-hover table-striped table-bordered align-middle text-center">
+            <thead class="sticky-header"><h6 class="mb-2">Daftar User ID</h6>
+                <tr>
+                    <th>User id</th>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>HP</th>
+                    <th>Pass</th>
+                    <th>Level</th>
+                    <th>Salah</th>
+                    <th>Log</th>
+                    <th>Set</th>
+                    <th>Flc</th>
+                    <th>Est</th>
+                    <th>We</th>
+                    <th>Fol</th>
+                    <th>Crm</th>
+                    <th class="actions-col">Aksi</th>
+                </tr>
+            </thead>
+            <!-- Loading Overlay -->
+            <div id="loadingOverlayUser" class="loading-overlay" style="display:none; align-content: center;">
+               <div class="spinner-border text-primary" role="status"></div>
+            </div>   
+            <tbody id="userTableBody" style="font-size: small;"><tr><td colspan="15">Memuat data user ...</td></tr>
+               <!-- Data akan diisi oleh JavaScript di sini -->  
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add/Edit -->
+<div class="modal fade" id="modalUser" tabindex="-1" data-mode="add">
+<div class="modal-dialog">
+<form id="userForm" class="modal-content">
+    <div class="modal-header" style="background-color:#003366; color:white;">
+        <h6 id="judulModal" class="modal-title">Tambah User</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" id="mode" value="add">
+        <div class="mb-2"><label>User ID</label><input type="text" id="userId" class="form-control" required></div>
+        <div class="mb-2"><label>Nama User</label><input type="text" id="userName" class="form-control" required></div>
+        <div class="mb-2"><label>Email</label><input type="email" id="userEmail" class="form-control" required></div>
+        <div class="mb-2"><label>HP</label><input type="text" id="userHP" class="form-control" required></div>
+        <div class="mb-2"><label>Password</label><input type="text" id="userPass" class="form-control" required></div>
+        <div class="mb-2"><label>Level</label>
+            <select id="userLevel" class="form-select" required>
+                <option value="Admin">Admin</option>
+                <option value="Member">Member</option>
+                <option value="User">User</option>
+            </select>
+        </div>
+        <div class="mb-2"><label>Salah</label><input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required></div>
+        <div class="form-group">
+            <label>Hak Akses, pilih (Y/N):</label>
+            <div class="hak-akses-group">
+                <div class="hak-akses-item">
+                <label>1. Login :</label>
+                    <label><input type="radio" name="aksesLogin" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesLogin" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>2. Setting :</label>
+                    <label><input type="radio" name="aksesSetting" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesSetting" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>3. FLC :</label>
+                    <label><input type="radio" name="aksesFLC" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesFLC" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>4. EstiH :</label>
+                    <label><input type="radio" name="aksesEstiH" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesEstiH" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>5. WE :</label>
+                    <label><input type="radio" name="aksesWE" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesWE" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>6. Follow :</label>
+                    <label><input type="radio" name="aksesFollow" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesFollow" value="N"> No</label>
+                </div>
+                <div class="hak-akses-item">
+                <label>7. CRM :</label>
+                    <label><input type="radio" name="aksesCRM" value="Y" checked> Yes</label>
+                    <label><input type="radio" name="aksesCRM" value="N"> No</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer flex-column align-items-start">
+        <!-- Notifikasi Pesan -->
+        <div id="pesanNotifModalBox" class="notification-message w-100 mb-2" style="display: none;">
+           <i id="pesanNotifModalIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifModalText"></span>
+        </div>
+        <!-- Tombol-tombol untuk Modal Add dan Edit -->
+        <div class="w-100 d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary btn-sm" id="saveUserBtn"><i class="fas fa-save"></i> Simpan</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+<!-- Form Log Notifikasi -->
+<div id="logNotifForm" class="container" style="display:none">
+    <div class="title-box mb-3">
+        <i class="fas fa-list-alt fa-lg"></i>
+        <h6 class="mb-0">Log Notifikasi</h6>
+    </div>
+
+    <!-- Baris Tombol Filtere dan Aksi Form Log Notifikasi -->
+    <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">    
+        <div class="dropdown">
+            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-filter"></i> Filter Status
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('AKTIFASI')">Aktifasi</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERESET')">Tereset</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERKUNCI')">Terkunci</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('SEMUA')">Semua</a></li>
+            </ul>
+        </div>
+        <div>    
+            <button class="btn btn-danger btn-sm mb-2" onclick="deleteAllLogNotif()">
+                <i class="fas fa-trash"></i> Hapus Semua
+            </button>
+            <button class="btn btn-secondary btn-sm mb-2" onclick="kembaliKeSetupUser()">
+                <i class="fas fa-sign-out-alt"></i> Kembali
+            </button>
+        </div>
+    </div>
+    
+    <!-- Pesan notifikasi -->
+    <div id="pesanNotification" class="notification-message">
+        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+    </div>
+    
+    <!-- Tabel Log Notifikasi -->
+    <div class="table-box">
+        <div class="table-wrapper">
+            <table class="table table-hover table-striped table-bordered align-middle text-center">
+                <thead class="sticky-header"><h6 class="mb-0">DAFTAR LOG USER</h6>    
+                <tr>
+                    <th>Waktu</th>
+                    <th>User ID</th>
+                    <th>Nama</th>
+                    <th>Email</th>
+                    <th>No HP</th>
+                    <th>Pass</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <!-- Loading Overlay -->
+                <div id="loadingOverlayLog" class="loading-overlay" style="display:none; align-content: center ;">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+                <tbody id="logNotifTableBody" style="font-size: small;"><tr><td colspan="7">Memuat log notifikasi...</td></tr></tbody>
+            </table>
+        </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<SCRIPT>
+// ********* Deklarasi  Public **********
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz9p_96OA6GD27ofLcXVs4o_XCvIyjuDrKwSw6InqJpkLEojY6zvYmggCOPN9pU3-7yVA/exec';
+// **************************************
+
+// **********************************
+// Tampilkan Spinner Loading Overlay
+// **************************************
+function showLoading(show, target = 'user') {
+  const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayUser';
+  const overlay = document.getElementById(overlayId);
+  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+// *************************************
+// Fungsi untuk load awal Tabel User id
+// *************************************
+document.addEventListener('DOMContentLoaded', loadUserTable);
+  document.getElementById('addUserButton').addEventListener('click', () => {
+  document.getElementById('mode').value = 'add';
+  document.getElementById('userForm').reset();
+  document.getElementById('userId').disabled = false;
+  document.getElementById('judulModal').textContent = 'INPUT USER';
+  new bootstrap.Modal(document.getElementById('modalUser')).show();
+});
+
+// *************************************
+// Fungsi untuk memanggil Tabel User Id
+// *************************************
+function loadUserTable() {
+    showLoading(true,'user');
+    const callbackName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    script.src = `${URL_APPS_SCRIPT}?action=getTabelUser&callback=${callbackName}`;
+
+    window[callbackName] = function(data) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="14">Tidak ada data user.</td></tr>';
+            showLoading(false,'user');
+            return;
+        }
+
+        data.forEach(row => {
+            const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
+                login, setting, flc, estih, we, followup, crm] = row;
+
+            let editState     = '';
+            let aktifasiState = '';
+            let deleteState   = '';
+            let unlockState   = 'disabled';
+            let kirimState    = 'disabled';
+
+            const salahCount = parseInt(salah) || 0;
+            const unlockFlag = localStorage.getItem('notifReady_' + userId);
+
+            if (salahCount >= 3) {
+                editState     = 'disabled';
+                aktifasiState = 'disabled';
+                deleteState   = 'disabled';
+                unlockState   = '';
+                kirimState    = 'disabled';
+            } else if (unlockFlag === 'true') {
+                editState     = 'disabled';
+                aktifasiState = 'disabled';
+                deleteState   = 'disabled';
+                unlockState   = 'disabled';
+                kirimState    = '';
+            }
+
+            const tr = document.createElement('tr');
+            tr.id = `row_${userId}`; // Untuk mengupdate baris record di tabel 
+
+            tr.innerHTML = `
+                <td>${userId}</td>
+                <td>${namaUser}</td>
+                <td>${emailUser}</td>
+                <td>${hpUser}</td>
+                <td>${passUser}</td>
+                <td>${levelUser}</td>
+                <td>${salah}</td>
+                <td>${login}</td>
+                <td>${setting}</td>
+                <td>${flc}</td>
+                <td>${estih}</td>
+                <td>${we}</td>
+                <td>${followup}</td>
+                <td>${crm}</td>
+                <td class="actions-col">
+
+                    <!-- <i class="fas fa-edit action-icon ${editState}" title="Edit User" onclick="editUser('${userId}')"></i> -->
+
+                    <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
+                        userId: '${userId}', userName: '${namaUser}', userEmail: '${emailUser}', userHP: '${hpUser}',userPass: '${passUser}',userLevel: '${levelUser}',
+                        aksesLogin: '${login}', aksesSetting: '${setting}', aksesFLC: '${flc}', aksesEstiH: '${estih}', aksesWE: '${we}', aksesFollowup: '${followup}', aksesCRM: '${crm}'
+                    })"></i>
+                    <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
+                    <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
+                    <i class="fas fa-unlock action-icon ${unlockState}" title="Aktifkan User" onclick="unlockUser('${userId}')"></i>
+                    <i class="fas fa-paper-plane action-icon ${kirimState}" title="Kirim Notif Reset User" onclick="sendNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+        showLoading(false,'user');
+        delete window[callbackName];
+        document.body.removeChild(script);
+    };
+
+    script.onerror = function() {
+        showPesan('error',' ERROR : Gagal mengambil data user!');
+        showLoading(false,'user');
+        delete window[callbackName];
+    };
+    document.body.appendChild(script);
+}
+
+// **********************************
+// Fungsi untuk kembali ke setup user
+// **********************************
+function kembaliKeSetupUser() {
+  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup User
+  document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
+  loadUserTable(); // Refresh data user
+}
+
+// ********************************************
+// Fungsi untuk memanggil Tabel Log Notifikasi 
+// ********************************************
+function loadLogNotifTable() {
+  showLoading(true, 'log');
+  const callbackName = 'cb_' + Date.now();
+  const script       = document.createElement('script');
+  script.src         = `${URL_APPS_SCRIPT}?action=getLogNotif&callback=${callbackName}`;
+
+  window[callbackName] = function(data) {
+    const tbody = document.getElementById('logNotifTableBody');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7">Tidak ada log notifikasi.</td></tr>';
+      showLoading(false, 'log');
+      return;
+    }
+
+    data.forEach(row => {
+      const [waktu, userId, nama, email, hp, pass, status] = row;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${waktu}</td>
+        <td>${userId}</td>
+        <td>${nama}</td>
+        <td>${email}</td>
+        <td>${hp}</td>
+        <td>${pass}</td>
+        <td>${status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    showLoading(false, 'log');
+    delete window[callbackName];
+    document.body.removeChild(script);
+  };
+
+  script.onerror = function() {
+    showPesan('error', ' ERROR : Gagal mengambil data log notifikasi!');
+    showLoading(true, 'log');
+    delete window[callbackName];
+    document.body.removeChild(script);
+  };
+
+  document.body.appendChild(script);
+}
+
+// ***************************************************
+// Sembunyikan tombol Setup User saat tampil Log Notif
+// ***************************************************
+function showLogNotifForm() {
+  // Sembunyikan elemen-elemen Setup User
+  document.querySelector('.container').style.display    = 'none';  // Sembunyikan semua form Setup User
+  document.getElementById('logNotifForm').style.display = 'block'; // Tampilkan form Log Notifikasi
+  loadLogNotifTable(); // Load datanya
+}
+
+// **************************
+// Fungsi untuk menambah user
+// **************************
+function addUser() {
+    const userId     = document.getElementById('userId').value.trim().toLowerCase();
+    document.getElementById('userId').value = userId;
+    const userName   = document.getElementById('userName').value.trim().toUpperCase();
+    document.getElementById('userName').value = userName;
+    const userEmail  = document.getElementById('userEmail').value.trim();
+    const userHP     = document.getElementById('userHP').value.trim();
+    const userPass   = document.getElementById('userPass').value.trim();
+    const userLevel  = document.getElementById('userLevel').value;
+
+    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
+    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
+    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
+    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
+    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
+    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
+    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
+
+    // Validasi
+    if (!validateUserForm()) return;
+
+    // Cek duplikasi User ID di tabel
+    const rows = document.querySelectorAll('#userTableBody tr');
+    for (let row of rows) {
+        const cellUserId = row.children[0]?.textContent?.trim();
+        if (cellUserId === userId) {
+            showPesanModal("warning", " WARNING : User ID sudah digunakan.");
+            return;
+        }
+    }
+
+    const callbackName = 'cb_' + Date.now();
+    window[callbackName] = function(response) {
+        if (response.success) {
+            showPesanModal('success', ' SUKSES : ' + response.message);
+            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
+            loadUserTable();
+        } else {
+            showPesanModal('error', ' ERROR : Gagal menyimpan data');
+        }
+        delete window[callbackName];
+    };
+
+    const params = new URLSearchParams({
+        action: 'addUser',
+        userId, userName, userEmail, userHP, userPass, userLevel,
+        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        callback: callbackName
+    });
+
+    const script = document.createElement('script');
+    script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    document.body.appendChild(script);
+}
+
+// ******************************
+// Fungsi untuk mengedit user id
+// ******************************
+function editUser() {
+    const userId     = document.getElementById('userId').value.trim().toLowerCase();
+    document.getElementById('userId').value = userId;
+    const userName   = document.getElementById('userName').value.trim().toUpperCase();
+    document.getElementById('userName').value = userName;
+    const userEmail  = document.getElementById('userEmail').value.trim();
+    const userHP     = document.getElementById('userHP').value.trim();
+    const userPass   = document.getElementById('userPass').value.trim();
+    const userLevel  = document.getElementById('userLevel').value;
+
+    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
+    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
+    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
+    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
+    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
+    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
+    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
+
+    // Validasi
+    if (!validateUserForm()) return;
+
+    const callbackName = 'cb_' + Date.now();
+    window[callbackName] = function(res) {
+        if (res.status === "success") {
+            showPesanModal("success", " SUKSES : " + res.message);
+            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
+            loadUserTable();
+            document.getElementById("modalUser").setAttribute("data-mode", "add");
+        } else {
+            showPesanModal("error", " ERROR : " + res.message);
+        }
+        delete window[callbackName];
+    };
+
+    const params = new URLSearchParams({
+        action: 'editUser',
+        userId, userName, userEmail, userHP, userPass, userLevel,
+        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        callback: callbackName
+    });
+
+    const script = document.createElement("script");
+    script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    document.body.appendChild(script);
+}
+
+// **************************************
+// Fungsi untuk pengaturan tombol simpan
+// **************************************
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById("saveUserBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const mode = document.getElementById("modalUser").getAttribute("data-mode");
+      if (mode === "edit") {
+        editUser();
+      } else {
+        addUser();
+      }
+    });
+  }
+});
+
+// ******************************
+// Fungsi untuk menghapus user id
+// ******************************
+function deleteUser(userId) {
+  if (!confirm("Yakin ingin menghapus user ini?")) return;
+
+  const callback = 'cb_' + Date.now();
+  window[callback] = function(response) {
+    if (response.status === 'success') {
+       showPesan('success', " SUKSES : " + response.message);
+       loadUserTable(); // Refresh tabel
+    }
+    delete window[callback];
+  };
+
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=deleteUser&userId=${encodeURIComponent(userId)}&callback=${callback}`;
+  document.body.appendChild(script);
+}
+
+// ***************************
+// Fungsi untuk reset user id
+// ***************************
+function unlockUser(userId) {
+  if (!confirm("Anda yakin untuk unlock user ini?")) return;
+  const callbackName = 'cbUnlock_' + Date.now();
+  window[callbackName] = (res) => {
+    if (res.status === 'success') {
+      showPesan('success', " SUKSES : " + res.message);
+      localStorage.setItem('notifReady_' + userId, 'true');
+      const row = document.getElementById(`row_${userId}`);
+      if (row) {
+        const cols = row.getElementsByTagName('td');
+        if (cols.length >= 7) cols[6].textContent = '0';
+        row.querySelector('.fa-edit')?.classList.add('disabled');
+        row.querySelector('.fa-user-secret')?.classList.remove('disabled');
+        row.querySelector('.fa-trash-alt')?.classList.add('disabled');
+        row.querySelector('.fa-unlock')?.classList.add('disabled');
+        row.querySelector('.fa-paper-plane')?.classList.remove('disabled');
+      }
+    } else showPesan('error', " ERROR : Reset Login gagal " + res.message);
+      delete window[callbackName];
+  };
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=unlockUser&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+  document.body.appendChild(script);
+}
+
+// *************************************************
+// Fungsi untuk mengirim notifikasi ke wa dan email
+// *************************************************
+function sendNotif(userId, userName, userEmail, userHP, userPass) {
+    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
+
+    const callback = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    script.src = `${URL_APPS_SCRIPT}?action=sendNotifUser` +
+        `&userId=${encodeURIComponent(userId)}` +
+        `&userName=${encodeURIComponent(userName)}` +
+        `&userEmail=${encodeURIComponent(userEmail)}` +
+        `&userHP=${encodeURIComponent(userHP)}` +
+        `&userPass=${encodeURIComponent(userPass)}` +
+        `&callback=${callback}`;
+
+    window[callback] = function (response) {
+        console.log("Respon kirim:", response);
+        if (response.status === 'success') {
+            showPesan('success', " SUKSES : " + response.message);
+            localStorage.removeItem('notifReady_' + userId);
+            loadUserTable(); // reload tampilan icon
+        } else {
+            showPesan('error', " ERROR : " + response.message);
+        }
+
+        delete window[callback];
+        document.body.removeChild(script);
+    };
+
+    script.onerror = () => {
+        showPesan('error', " ERROR : Gagal terhubung ke server");
+        delete window[callback];
+        document.body.removeChild(script);
+    };
+
+    document.body.appendChild(script);
+}
+
+// *******************************
+// Fungsi untuk Mengaktifasi User
+// *******************************
+function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
+    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
+
+    const callback = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    script.src = `${URL_APPS_SCRIPT}?action=aktifasiUser` +
+        `&userId=${encodeURIComponent(userId)}` +
+        `&userName=${encodeURIComponent(userName)}` +
+        `&userEmail=${encodeURIComponent(userEmail)}` +
+        `&userHP=${encodeURIComponent(userHP)}` +
+        `&userPass=${encodeURIComponent(userPass)}` +
+        `&callback=${callback}`;
+
+    window[callback] = function (response) {
+        console.log("Respon kirim:", response);
+        if (response.status === 'success') {
+            showPesan('success', " SUKSES : " + response.message);
+            localStorage.removeItem('notifReady_' + userId);
+            loadUserTable(); // reload tampilan icon
+        } else {
+            showPesan('error', " ERROR : " + response.message);
+        }
+
+        delete window[callback];
+        document.body.removeChild(script);
+    };
+
+    script.onerror = () => {
+        showPesan('error', " ERROR : Gagal terhubung ke server");
+        delete window[callback];
+        document.body.removeChild(script);
+    };
+
+    document.body.appendChild(script);
+}
+
+// **********************
+// Mengupdate Baris Icon
+// *********************
+function updateRowIcons(row, mode) {
+    const icons = row.querySelectorAll('.action-icon');
+    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
+
+    if (mode === 'unlock') {
+        editIcon.classList.add('disabled');
+        aktifasiIcon.classList.add('disabled');
+        delIcon.classList.add('disabled');
+        unlockIcon.classList.add('disabled');
+        kirimIcon.classList.remove('disabled');
+    } else if (mode === 'kirim') {
+        editIcon.classList.remove('disabled');
+        aktifasiIcon.classList.remove('disabled');
+        delIcon.classList.remove('disabled');
+        unlockIcon.classList.add('disabled');
+        kirimIcon.classList.add('disabled');
+    }
+}
+
+// ********************************
+// Menghapus Seluruh log Notifikasi
+// ********************************
+function deleteAllLogNotif() {
+  if (!confirm("Yakin ingin menghapus semua log notifikasi?")) return;
+
+  const callback = 'cb_' + Date.now();
+  const script   = document.createElement('script');
+  script.src     = `${URL_APPS_SCRIPT}?action=deleteAllLogNotif&callback=${callback}`;
+
+  window[callback] = function(response) {
+    if (response.status === 'success') {
+      showPesan("success", "Semua log berhasil dihapus");
+      loadLogNotifTable(); // Refresh tabel log
+    } else {
+      showPesan("error", "Gagal menghapus log");
+    }
+    delete window[callback];
+    document.body.removeChild(script);
+  };
+
+  script.onerror = function() {
+    showPesan("error", "Tidak dapat terhubung ke server");
+    delete window[callback];
+    document.body.removeChild(script);
+  };
+
+  document.body.appendChild(script);
+}
+
+// *****************************************
+// Pesan Notifikasi untuk di Form Tabel User
+// *****************************************
+function showPesan(type, message, duration = 3000) {
+  const box      = document.getElementById('pesanNotification');
+  const icon     = document.getElementById('pesanNotifIcon');
+  const text     = document.getElementById('pesanNotifText');
+
+  // Reset class
+  box.className  = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  text.textContent  = message;
+  box.style.display = 'flex';
+  setTimeout(() => {box.style.display = 'none';}, duration);
+}
+
+// **************************************************
+// Pesan Notifikasi untuk di Form Modal Add dan Edit
+// **************************************************
+function showPesanModal(type, message, duration = 3000) {
+  const boxModal  = document.getElementById('pesanNotifModalBox');
+  const iconModal = document.getElementById('pesanNotifModalIcon');
+  const textModal = document.getElementById('pesanNotifModalText');
+
+  // Reset class
+  boxModal.className  = 'notification-message w-100 mb-2';
+  iconModal.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    boxModal.classList.add('notification-error');
+    iconModal.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxModal.classList.add('notification-success');
+    iconModal.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxModal.classList.add('notification-warning');
+    iconModal.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textModal.textContent  = message;
+  boxModal.style.display = 'flex';
+  setTimeout(() => {
+    boxModal.style.display = 'none';
+  }, duration);
+}
+
+
+// **************************
+// Tampilkan Modal Edit User
+// ************************** 
+function showEditModal(userData) {
+  // Isi input dari userData
+  document.getElementById('judulModal').textContent = 'EDIT USER';
+  document.getElementById('userId').disabled = true;
+  document.getElementById("userId").value    = userData.userId;
+  document.getElementById("userName").value  = userData.userName;
+  document.getElementById("userEmail").value = userData.userEmail;
+  document.getElementById("userHP").value    = userData.userHP;
+  document.getElementById("userPass").value  = userData.userPass;
+  document.getElementById("userLevel").value = userData.userLevel;
+
+  // Set radio akses
+  const akses = ['Login','Setting','FLC','EstiH','WE','Followup','CRM'];
+  akses.forEach(aksesName => {
+    const val   = userData['akses'+aksesName] || 'N';
+    const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
+    if (radio) radio.checked = true;
+  });
+
+  // Tampilkan modal & ubah mode
+  document.getElementById("modalUser").setAttribute("data-mode", "edit");
+  new bootstrap.Modal(document.getElementById("modalUser")).show();
+}
+
+// **********************
+// Validasi Form User
+// ********************** 
+function validateUserForm() {
+    const userId    = document.getElementById('userId').value.trim().toLowerCase();
+    document.getElementById('userId').value = userId;
+    const userName  = document.getElementById('userName').value.trim().toUpperCase();
+    document.getElementById('userName').value = userName;
+
+    const userEmail = document.getElementById('userEmail').value.trim();
+    const userHP    = document.getElementById('userHP').value.trim();
+    const userPass  = document.getElementById('userPass').value.trim();
+
+    const userIdPattern   = /^[a-z0-9]{6,8}$/;                       // hanya huruf kecil & angka, panjang 6–8
+    const userNamePattern = /^[A-Z\s]{3,20}$/;                       // hanya huruf besar & angka, panjang 3–20
+    const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const hpPattern       = /^[0-9]{10,14}$/;                        // hanya angka, panjang 10–14
+    const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+=\-{}[\]:;"'<>,.?/\\]{6,8}$/;
+
+    if (!userIdPattern.test(userId)) {
+        showPesanModal("warning", " WARNING : User ID huruf kecil/angka 6-8 karakter.");
+        return false;
+    }
+    if (!userNamePattern.test(userName)) {
+        showPesanModal("warning", " WARNING : Nama huruf besar dan 3-20 karakter.");
+        return false;
+    }
+    if (!emailPattern.test(userEmail)) {
+        showPesanModal("warning", " WARNING : Format email tidak valid.");
+        return false;
+    }
+    if (!hpPattern.test(userHP)) {
+        showPesanModal("warning", " WARNING : Nomor HP harus 10-14 digit angka.");
+        return false;
+    }
+    if (!passwordPattern.test(userPass)) {
+        showPesanModal("warning", " WARNING : Pass 6-8 karakter kombinasi huruf,angka,simbol.");
+        return false;
+    }
+    return true;
+}
+
+// *****************************
+// Filter Log Notifikasi
+// *****************************   
+function filterLogNotif(status) {
+    const rows = document.querySelectorAll('#logNotifTableBody tr');
+    rows.forEach(row => {
+        const statusText = row.cells[6]?.textContent?.trim().toUpperCase();
+        if (status === 'SEMUA' || statusText === status.toUpperCase()) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</SCRIPT>
+</body>
+</html>
