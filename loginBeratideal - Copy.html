@@ -109,64 +109,51 @@
   * Deklarasi Global *
   ********************/ 
   // url user dbUser
-  const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzfQn5z4i0npKSILePPuZmniu1jrSGAjHsCG7WKqPSn-CnvQzIVY2EIK96wz_LYpbXhAQ/exec';  
+  const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxmX8FCsqkBMcUn1kwiBQYWrQJUnzRUMSl8Pyv-DNHfGFS_45ZoADCywxueHJbAEW5AhA/exec';  
   
-  document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('btnLoginSubmit').addEventListener('click', function () {
-      const userId     = document.getElementById('userId').value.trim().toLowerCase();
-                         document.getElementById('userId').value = userId;
-      const userPass   = document.getElementById('userPass').value.trim();
-      const btnText    = document.getElementById('loginBtnText');
-      const btnSpinner = document.getElementById('loginBtnSpinner');
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('btnLoginSubmit').addEventListener('click', function () {
+        const userId     = document.getElementById('userId').value.trim().toLowerCase();
+                           document.getElementById('userId').value = userId;
+        const userPass   = document.getElementById('userPass').value.trim();
+        const btnText    = document.getElementById('loginBtnText');
+        const btnSpinner = document.getElementById('loginBtnSpinner');
 
-      if (!userId || !userPass) {
-        showNotification('warning', 'WARNING : User ID dan Password harus diisi!');
-        return;
-      }
+        if (!userId || !userPass) {
+          showNotification('warning', 'WARNING : User ID dan Password harus diisi!');
+          return;
+        }
 
-      // Tampilkan spinner dan teks tunggu
-      btnText.classList.add('d-none');
-      btnSpinner.classList.remove('d-none');
-      document.getElementById('loginWaitText').classList.remove('d-none');
+        // Tampilkan spinner dan teks tunggu
+        btnText.classList.add('d-none');
+        btnSpinner.classList.remove('d-none');
+        document.getElementById('loginWaitText').classList.remove('d-none');
 
-      const callbackName = 'cb_' + Date.now();
-      const script = document.createElement('script');
-      script.src = `${URL_APPS_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
+        const callbackName = 'cb_' + Date.now();
+        const script = document.createElement('script');
+        script.src = `${URL_APPS_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
 
-      window[callbackName] = function (response) {
-        // 🔍 DEBUG LOGIN RESPONSE
-        console.log('LOGIN RESPONSE:', response);
-        
-        if (response.status === 'success' && response.loggedIn) {
-          // Simpan session
-          localStorage.setItem('userId', response.userId);
-          localStorage.setItem('userName', response.userName);
-          localStorage.setItem('userHP', response.userHP);     
-          localStorage.setItem('userToken', response.token);
-          localStorage.setItem('userLevel', response.level);
-
-          console.log('✅ Login berhasil, level:', response.level);
+        // Di loginFC.html, setelah login berhasil:
+        window[callbackName] = function (response) {
+          // ... login success handling ...
           
-          // 🔥 TENTUKAN HALAMAN REDIRECT BERDASARKAN LEVEL
-          var redirectPage = 'prog10hari.html'; // default
-          var level = (response.level || '').toLowerCase();
-          
-          if (level === 'admin') {
-            redirectPage = 'dashAdmin.html';
-          } else if (level === 'member') {
-            redirectPage = 'dashMember.html';
-          } else {
-            // Peserta atau level lain
-            redirectPage = 'prog10hari.html';
-          }
-          
-          console.log('🔄 Redirect ke:', redirectPage);
-          
-          // AMBIL PROGRESS DARI SERVER (hanya untuk Peserta)
-          if (level === 'peserta' || level === '' || level === 'user') {
+          // 🔍 DEBUG LOGIN RESPONSE (WAJIB UNTUK CEK)
+          console.log('LOGIN RESPONSE:', response);
+          if (response.status === 'success' && response.loggedIn) {
+            // Simpan session
+            localStorage.setItem('userId', response.userId);
+            localStorage.setItem('userName', response.userName); // 🔑 WAJIB
+            localStorage.setItem('userHP', response.userHP);     
+            localStorage.setItem('userToken', response.token);
+            localStorage.setItem('userLevel', response.level);
+
+            console.log('✅ Login berhasil, ambil progress...');
+            
+            // AMBIL PROGRESS DARI SERVER
             const progressCallback = 'cb_progress_' + Date.now();
             const progressScript = document.createElement('script');
             
+            // GUNAKAN URL YANG SAMA DENGAN ACTION LAINNYA
             progressScript.src = `${URL_APPS_SCRIPT}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
             
             window[progressCallback] = function(progressData) {
@@ -185,10 +172,12 @@
               if (progressData.mealplanHari1) {
                 localStorage.setItem('mealplan_hari_1', 'completed');
               }
+              // 🔥 PANGGIL FUNGSI INI SETELAH LOGIN BERHASIL
+              onUserLogin();  // <-- TAMBAHKAN INI
               
               showNotification('success', 'Login berhasil! Mengarahkan...');
               setTimeout(() => {
-                window.location.href = redirectPage;
+                window.location.href = 'prog10hari.html';
               }, 1000);
               
               document.body.removeChild(progressScript);
@@ -199,70 +188,57 @@
               console.warn('⚠️ Gagal ambil progress, lanjut tanpa progress');
               showNotification('success', 'Login berhasil! Mengarahkan...');
               setTimeout(() => {
-                window.location.href = redirectPage;
+                window.location.href = 'prog10hari.html';
               }, 1000);
               document.body.removeChild(progressScript);
               delete window[progressCallback];
             };
             
             document.body.appendChild(progressScript);
+            
           } else {
-            // Admin atau Member - langsung redirect tanpa ambil progress
-            showNotification('success', 'Login berhasil! Mengarahkan...');
-            setTimeout(() => {
-              window.location.href = redirectPage;
-            }, 1000);
+            showNotification('error', response.message || 'Login gagal!');
           }
           
-        } else {
-          showNotification('error', response.message || 'Login gagal!');
-        }
-        
-        // Sembunyikan spinner
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-        document.getElementById('loginWaitText').classList.add('d-none');
-        
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
-      
-      script.onerror = () => {
-        showNotification('error', 'ERROR : Gagal terhubung ke server!');
-        btnText.classList.remove('d-none');
-        btnSpinner.classList.add('d-none');
-        document.getElementById('loginWaitText').classList.add('d-none');
-        document.body.removeChild(script);
-        delete window[callbackName];
-      };
+          document.body.removeChild(script);
+          delete window[callbackName];
+        };
+        script.onerror = () => {
+          showNotification('error', 'ERROR : Gagal terhubung ke server!');
+          btnText.classList.remove('d-none');
+          btnSpinner.classList.add('d-none');
+          document.getElementById('loginWaitText').classList.add('d-none');
+          document.body.removeChild(script);
+          delete window[callbackName];
+        };
 
-      document.body.appendChild(script);
+        document.body.appendChild(script);
+      });
     });
-  });
 
-  function showNotification(type, message, duration = 3000) {
-    const box = document.getElementById('notificationBox');
-    const icon = document.getElementById('pesanNotifIcon');
-    const text = document.getElementById('pesanNotifText');
+    function showNotification(type, message, duration = 3000) {
+      const box = document.getElementById('notificationBox');
+      const icon = document.getElementById('pesanNotifIcon');
+      const text = document.getElementById('pesanNotifText');
 
-    box.className = 'notification-message w-100 mb-2';
-    icon.className = 'pesan-notif-icon me-2';
+      box.className = 'notification-message w-100 mb-2';
+      icon.className = 'pesan-notif-icon me-2';
 
-    if (type === 'error') {
-      box.classList.add('notification-error');
-      icon.classList.add('fas', 'fa-times-circle');
-    } else if (type === 'success') {
-      box.classList.add('notification-success');
-      icon.classList.add('fas', 'fa-check-circle');
-    } else if (type === 'warning') {
-      box.classList.add('notification-warning');
-      icon.classList.add('fas', 'fa-exclamation-circle');
+      if (type === 'error') {
+        box.classList.add('notification-error');
+        icon.classList.add('fas', 'fa-times-circle');
+      } else if (type === 'success') {
+        box.classList.add('notification-success');
+        icon.classList.add('fas', 'fa-check-circle');
+      } else if (type === 'warning') {
+        box.classList.add('notification-warning');
+        icon.classList.add('fas', 'fa-exclamation-circle');
+      }
+
+      text.textContent = message;
+      box.style.display = 'flex';
+      setTimeout(() => { box.style.display = 'none'; }, duration);
     }
-
-    text.textContent = message;
-    box.style.display = 'flex';
-    setTimeout(() => { box.style.display = 'none'; }, duration);
-  }
   </script>
 </body>
 </html>
