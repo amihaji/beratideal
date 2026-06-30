@@ -296,38 +296,9 @@ Dashboard Admin untuk :
                     <p class="text-muted">Untuk konfigurasi user dan level user</p>
                 </div>
             </div>
-            <!-- TIDAK AKTIF 
-            <div class="col-lg-8 mb-4">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Input Data User</h5>
-                    </div>
-                    <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        <i class="bi bi-plus-lg me-1"></i> Tambah User
-                    </button>
-                    <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        <i class="bi bi-plus-lg me-1"></i> Log Notif User
-                    </button>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-8 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Daftar Tabel User</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="tabelUser" height="400"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            BATAS AKHIR -->
-            <secton class="page-content" id="setupuser">
-                <!-- disini tampil setupuser.html -->
+            <section class="page-content" id="setupuser">
+                <!-- disini tampil setupUser.html -->
             </section>
-
         </div>
     </div>
 
@@ -415,15 +386,23 @@ Dashboard Admin untuk :
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsSheet.js"></script>
     <script>
-        const setupuser = document.getElementById('setupuser');
-        //fetch('./setupUser.html').then(snap => snap.text()).then(result => {
-        //    setupuser.innerHTML = result;
-        //})
-        fetch('./setupUser.html').then(function (snap) {
-            snap.text().then(function (result) {
-                setupuser.innerHTML = result;
-            })
+
+    fetch('https://amihaji.github.io/beratideal/setupUser.html')
+        .then(function (snap) {
+            if (!snap.ok) {
+                throw new Error('Gagal mengambil file: ' + snap.status);
+            }
+            return snap.text();
         })
+        .then(function (result) {
+            setupuser.innerHTML = result;
+            // Tampilkan div utama setelah konten berhasil dimuat
+            document.getElementById('setupuser-page').style.display = 'block';
+        })
+        .catch(function (error) {
+            console.error('Error:', error);
+            setupuser.innerHTML = '<p style="color:red;">Gagal memuat konten Setup User.</p>';
+        });
     </script>
 </body>
 </html>
