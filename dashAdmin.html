@@ -387,21 +387,39 @@ Dashboard Admin untuk :
     <script src="js/jsSheetDashboard.js"></script>
     <script>
     const setupuser = document.getElementById('setupuser');
+    
+    // Tampilkan indikator loading
+    setupuser.innerHTML = '<p>⏳ Memuat konten...</p>';
+    
     fetch('https://amihaji.github.io/beratideal/setupUser.html')
-        .then(function (snap) {
-            if (!snap.ok) {
-                throw new Error('Gagal mengambil file: ' + snap.status);
+        .then(function (response) {
+            console.log('Status Response:', response.status);
+            console.log('Response OK?', response.ok);
+            
+            if (!response.ok) {
+                throw new Error('HTTP Error: ' + response.status + ' - ' + response.statusText);
             }
-            return snap.text();
+            return response.text();
         })
-        .then(function (result) {
-            setupuser.innerHTML = result;
-            // Tampilkan div utama setelah konten berhasil dimuat
+        .then(function (htmlContent) {
+            console.log('Konten berhasil diambil, panjang:', htmlContent.length);
+            setupuser.innerHTML = htmlContent;
             document.getElementById('setupuser-page').style.display = 'block';
         })
         .catch(function (error) {
-            console.error('Error:', error);
-            setupuser.innerHTML = '<p style="color:red;">Gagal memuat konten Setup User.</p>';
+            console.error('❌ ERROR DETAIL:', error);
+            setupuser.innerHTML = `
+                <div style="color: red; padding: 20px; border: 1px solid red; background: #ffeeee;">
+                    <h3>Gagal Memuat Setup User</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Tips:</strong></p>
+                    <ul>
+                        <li>Pastikan file <strong>setupUser.html</strong> ada di repository GitHub</li>
+                        <li>Periksa nama file (case sensitive)</li>
+                        <li>Buka console browser (F12) untuk melihat detail error</li>
+                    </ul>
+                </div>
+            `;
         });
     </script>
 </body>
