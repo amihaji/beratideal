@@ -415,8 +415,15 @@ Dashboard Admin untuk :
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsSheet.js"></script>
     <script>
-        const mSetupuser = document.getElementById('setupuser')
-        fetch('./setupUser.html').then(snap => snap.text()).then(result => {mSetupuser.innerHTML = result;})
+        const setupuser = document.getElementById('setupuser');
+        //fetch('./setupUser.html').then(snap => snap.text()).then(result => {
+        //    setupuser.innerHTML = result;
+        //})
+        fetch('./setupUser.html').then(function (snap) {
+            snap.text().then(function (result) {
+                setupuser.innerHTML = result;
+            })
+        })
     </script>
 </body>
 </html>
