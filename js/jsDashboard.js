@@ -75,6 +75,12 @@ function showPage(pageName) {
         case 'analytics':
             renderAnalytics();
             break;
+        case 'setupuser':
+            renderSetupuser();
+            break;
+        case 'lognotif':
+            renderLognotif();
+            break;        
     }
 }
 
