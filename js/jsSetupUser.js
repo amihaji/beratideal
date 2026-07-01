@@ -37,7 +37,7 @@ function loadUserTable() {
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="14">Tidak ada data user.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="15">Tidak ada data user.</td></tr>';
             showLoading(false,'user');
             return;
         }
