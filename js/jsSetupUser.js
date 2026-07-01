@@ -180,7 +180,7 @@ function loadLogNotifTable() {
 function showLogNotifForm() {
   // Sembunyikan elemen-elemen Setup User
   document.querySelector('.container').style.display    = 'none';  // Sembunyikan semua form Setup User
-  document.getElementById('logNotifForm').style.display = 'block'; // Tampilkan form Log Notifikasi
+  document.getElementById('nav-lognotifForm').style.display = 'block'; // Tampilkan form Log Notifikasi
   loadLogNotifTable(); // Load datanya
 }
 
