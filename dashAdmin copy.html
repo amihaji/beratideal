@@ -296,46 +296,9 @@ Dashboard Admin untuk :
                     <p class="text-muted">Untuk konfigurasi user dan level user</p>
                 </div>
             </div>
-            
-            <!-- Notifikasi Pesan -->
-            <div id="pesanNotification" class="notification-message">
-                <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+            <div class="page-content" id="setupuser" style="display: none;">
+                <!-- disini tampil setupUser.html -->
             </div>
-                <!-- Tabel Daftar User -->
-                <div class="table-box">
-                    <div class="table-wrapper">
-                    <table class="table table-hover table-striped table-bordered align-middle text-center">
-                        <thead class="sticky-header"><h6 class="mb-2">Daftar User ID</h6>
-                            <tr>
-                                <th>User id</th>
-                                <th>Nama</th>
-                                <th>Email</th>
-                                <th>HP</th>
-                                <th>Pass</th>
-                                <th>Level</th>
-                                <th>Salah</th>
-                                <th>Log</th>
-                                <th>Set</th>
-                                <th>Flc</th>
-                                <th>Est</th>
-                                <th>We</th>
-                                <th>Fol</th>
-                                <th>Crm</th>
-                                <th class="actions-col">Aksi</th>
-                            </tr>
-                        </thead>
-                        <!-- Loading Overlay -->
-                        <div id="loadingOverlayUser" class="loading-overlay" style="display:none; align-content: center;">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        </div>   
-                        <tbody id="userTableBody" style="font-size: small;"><tr><td colspan="15">Memuat data user ...</td></tr>
-                        <!-- Data akan diisi oleh JavaScript di sini -->  
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -344,7 +307,7 @@ Dashboard Admin untuk :
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah User Baru</h5>
+                    <h5 class="modal-title">Tambah Peserta Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="addStudentForm">
@@ -422,5 +385,43 @@ Dashboard Admin untuk :
     <!-- Custom JS -->
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsSheetDashboard.js"></script>
+    <script>
+    const setupuser = document.getElementById('setupuser');
+    
+    // Tampilkan indikator loading
+    setupuser.innerHTML = '<p>⏳ Memuat konten...</p>';
+    
+    fetch('https://amihaji.github.io/beratideal/setupUser.html')
+        .then(function (response) {
+            console.log('Status Response:', response.status);
+            console.log('Response OK?', response.ok);
+            
+            if (!response.ok) {
+                throw new Error('HTTP Error: ' + response.status + ' - ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(function (htmlContent) {
+            console.log('Konten berhasil diambil, panjang:', htmlContent.length);
+            setupuser.innerHTML = htmlContent;
+            document.getElementById('setupuser-page').style.display = 'block';
+            document.getElementById('setupuser').style.display = 'block';
+        })
+        .catch(function (error) {
+            console.error('❌ ERROR DETAIL:', error);
+            setupuser.innerHTML = `
+                <div style="color: red; padding: 20px; border: 1px solid red; background: #ffeeee;">
+                    <h3>Gagal Memuat Setup User</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Tips:</strong></p>
+                    <ul>
+                        <li>Pastikan file <strong>setupUser.html</strong> ada di repository GitHub</li>
+                        <li>Periksa nama file (case sensitive)</li>
+                        <li>Buka console browser (F12) untuk melihat detail error</li>
+                    </ul>
+                </div>
+            `;
+        });
+    </script>
 </body>
 </html>
