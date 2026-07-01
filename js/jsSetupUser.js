@@ -44,7 +44,7 @@ function loadUserTable() {
 
         data.forEach(row => {
             const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-                login, setting, flc, estih, we, followup, crm] = row;
+                login, setting, fc, adm, mem, we, crm,coach] = row;
 
             let editState     = '';
             let aktifasiState = '';
@@ -82,18 +82,30 @@ function loadUserTable() {
                 <td>${salah}</td>
                 <td>${login}</td>
                 <td>${setting}</td>
-                <td>${flc}</td>
-                <td>${estih}</td>
-                <td>${we}</td>
-                <td>${followup}</td>
+                <td>${fc}</td>
+                <td>${adm}</td>
+                <td>${mem}</td>
                 <td>${crm}</td>
+                <td>${coach}</td>
                 <td class="actions-col">
 
                     <!-- <i class="fas fa-edit action-icon ${editState}" title="Edit User" onclick="editUser('${userId}')"></i> -->
 
                     <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
-                        userId: '${userId}', userName: '${namaUser}', userEmail: '${emailUser}', userHP: '${hpUser}',userPass: '${passUser}',userLevel: '${levelUser}',
-                        aksesLogin: '${login}', aksesSetting: '${setting}', aksesFLC: '${flc}', aksesEstiH: '${estih}', aksesWE: '${we}', aksesFollowup: '${followup}', aksesCRM: '${crm}'
+                        userId: '${userId}', 
+                        userName: '${namaUser}', 
+                        userEmail: '${emailUser}', 
+                        userHP: '${hpUser}',
+                        userPass: '${passUser}',
+                        userLevel: '${levelUser}',
+                        aksesLogin: '${login}', 
+                        aksesSetting: '${setting}', 
+                        aksesFC: '${fc}', 
+                        aksesDashAdmin: '${adm}', 
+                        aksesDashMember: '${mem}', 
+                        aksesDashWE: '${we}', 
+                        aksesDashCRM: '${crm}', 
+                        aksesCoach: '${coach}'
                     })"></i>
                     <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
                     <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
@@ -197,13 +209,14 @@ function addUser() {
     const userPass   = document.getElementById('userPass').value.trim();
     const userLevel  = document.getElementById('userLevel').value;
 
-    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
-    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
-    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
-    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
-    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
-    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
+    const aksesLogin      = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
+    const aksesSetting    = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
+    const aksesFC         = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
+    const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
+    const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
+    const aksesDashWE     = document.querySelector('input[name="aksesDashWE')?.value || 'N';
+    const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
+    const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
     // Validasi
     if (!validateUserForm()) return;
@@ -233,7 +246,7 @@ function addUser() {
     const params = new URLSearchParams({
         action: 'addUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin ,aksesDashMember, aksesDashWE , aksesDashCRM, aksesCoach,
         callback: callbackName
     });
 
@@ -257,11 +270,13 @@ function editUser() {
 
     const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
     const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
-    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
-    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
-    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
-    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
+    const aksesFC      = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
+    const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
+    const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
+    const aksesDashWE     = document.querySelector('input[name="aksesDashWE')?.value || 'N';
+    const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
+    const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
+
 
     // Validasi
     if (!validateUserForm()) return;
@@ -282,7 +297,7 @@ function editUser() {
     const params = new URLSearchParams({
         action: 'editUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin ,aksesDashMember, aksesDashWE , aksesDashCRM, aksesCoach,
         callback: callbackName
     });
 
