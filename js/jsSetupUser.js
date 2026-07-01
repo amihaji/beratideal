@@ -44,7 +44,7 @@ function loadUserTable() {
 
         data.forEach(row => {
             const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-                login, setting, fc, adm, mem, we, crm,coach] = row;
+                login, setting, fc, adm, mem, we, crm, coach] = row;
 
             let editState     = '';
             let aktifasiState = '';
