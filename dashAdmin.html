@@ -296,7 +296,7 @@ Dashboard Admin untuk :
                     <p class="text-muted">Untuk konfigurasi user dan level user</p>
                 </div>
             </div>
-            <div class="page-content" id="setupuser">
+            <div class="page-content" id="setupuser" style="display: none;">
                 <!-- disini tampil setupUser.html -->
             </div>
         </div>
@@ -405,6 +405,7 @@ Dashboard Admin untuk :
             console.log('Konten berhasil diambil, panjang:', htmlContent.length);
             setupuser.innerHTML = htmlContent;
             document.getElementById('setupuser-page').style.display = 'block';
+            document.getElementById('setupuser').style.display = 'block';
         })
         .catch(function (error) {
             console.error('❌ ERROR DETAIL:', error);
