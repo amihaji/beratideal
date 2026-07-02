@@ -1,5 +1,5 @@
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyCXTw8u_-50XmbRG4zuOzzSMAQjd6mNDZk6DAU3DppgrM2454urI6YziYlfsQT7N1zCA/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzpp_sMvj78d4dlaUgZDxP7MeZNNjbtqucPDe7iNuz6xLG57B2rLlD9fySF51gib57lzg/exec';
 // **************************************
 
 // **********************************
