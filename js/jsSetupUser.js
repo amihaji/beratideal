@@ -53,11 +53,19 @@ function showLoading(show, target = 'user') {
 // *************************************
 document.addEventListener('DOMContentLoaded', loadUserTable);
   document.getElementById('addUserButton').addEventListener('click', () => {
+  const modalUser = document.getElementById('modalUser');
+  modalUser.setAttribute('data-mode', 'add');
   document.getElementById('mode').value = 'add';
   document.getElementById('userForm').reset();
   document.getElementById('userId').disabled = false;
   document.getElementById('judulModal').textContent = 'INPUT USER';
-  new bootstrap.Modal(document.getElementById('modalUser')).show();
+  
+  // Reset radio buttons (akses) to default (Yes for all)
+  document.querySelectorAll('input[type="radio"][name^="akses"]').forEach(radio => {
+    if (radio.value === 'Y') radio.checked = true;
+  });
+  
+  new bootstrap.Modal(modalUser).show();
 });
 
 // *************************************
@@ -270,6 +278,8 @@ function addUser() {
     }
 
     const callbackName = 'cb_' + Date.now();
+    const script = document.createElement('script'); // Declare script BEFORE callback!
+    
     window[callbackName] = function(response) {
         if (response.success) {
             handleUserModalSuccess(response.message);
@@ -277,7 +287,7 @@ function addUser() {
             showPesanModal('error', ' ERROR : Gagal menyimpan data');
         }
         delete window[callbackName];
-        document.body.removeChild(script);
+        if (document.body.contains(script)) document.body.removeChild(script);
     };
 
     const params = new URLSearchParams({
@@ -287,7 +297,6 @@ function addUser() {
         callback: callbackName
     });
 
-    const script = document.createElement('script');
     script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
     document.body.appendChild(script);
 }
@@ -319,6 +328,8 @@ function editUser() {
     if (!validateUserForm()) return;
 
     const callbackName = 'cb_' + Date.now();
+    const script = document.createElement('script'); // Declare script BEFORE callback!
+    
     window[callbackName] = function(res) {
         if (res.status === "success") {
             handleUserModalSuccess(res.message);
@@ -327,7 +338,7 @@ function editUser() {
             showPesanModal("error", " ERROR : " + res.message);
         }
         delete window[callbackName];
-        document.body.removeChild(script);
+        if (document.body.contains(script)) document.body.removeChild(script);
     };
 
     const params = new URLSearchParams({
@@ -337,7 +348,6 @@ function editUser() {
         callback: callbackName
     });
 
-    const script = document.createElement("script");
     script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
     document.body.appendChild(script);
 }
@@ -346,10 +356,10 @@ function editUser() {
 // Fungsi untuk pengaturan tombol simpan
 // **************************************
 document.addEventListener('DOMContentLoaded', () => {
-  const saveBtn = document.getElementById("saveUserBtn");
-  if (saveBtn) {
-    saveBtn.addEventListener("click", (e) => {
-      e.preventDefault();
+  const userForm = document.getElementById("userForm");
+  if (userForm) {
+    userForm.addEventListener("submit", (e) => {
+      e.preventDefault(); // Prevent default form submission
       const mode = document.getElementById("modalUser").getAttribute("data-mode");
       if (mode === "edit") {
         editUser();

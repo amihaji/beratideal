@@ -28,11 +28,14 @@ function initializeApp() {
 
 function setupEventListeners() {
     // Search functionality
-    document.getElementById('searchStudent').addEventListener('input', filterStudents);
-    document.getElementById('filterProgram').addEventListener('change', filterStudents);
+    const searchStudent = document.getElementById('searchStudent');
+    const filterProgram = document.getElementById('filterProgram');
+    if (searchStudent) searchStudent.addEventListener('input', filterStudents);
+    if (filterProgram) filterProgram.addEventListener('change', filterStudents);
     
-    // Add student form
-    document.getElementById('addStudentForm').addEventListener('submit', handleAddStudent);
+    // Add student form (only if exists)
+    const addStudentForm = document.getElementById('addStudentForm');
+    if (addStudentForm) addStudentForm.addEventListener('submit', handleAddStudent);
     
     // Navigation active state
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -76,10 +79,12 @@ function showPage(pageName) {
             renderAnalytics();
             break;
         case 'setupuser':
-            renderSetupuser();
+            // Setup user page will load user table automatically
+            loadUserTable(); // Make sure this function exists in jsSetupUser.js
             break;
         case 'lognotif':
-            renderLognotif();
+            // Log notif page will load log table automatically
+            loadLogNotifTable(); // Make sure this function exists in jsSetupUser.js
             break;        
     }
 }
