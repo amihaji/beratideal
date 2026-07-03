@@ -2,6 +2,7 @@
 const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzpp_sMvj78d4dlaUgZDxP7MeZNNjbtqucPDe7iNuz6xLG57B2rLlD9fySF51gib57lzg/exec';
 let confirmCallback = null;
 let confirmModal = null;
+let pesanModalTimer = null;
 // **************************************
 
 // ********* Modal Konfirmasi Kustom **********
@@ -271,13 +272,12 @@ function addUser() {
     const callbackName = 'cb_' + Date.now();
     window[callbackName] = function(response) {
         if (response.success) {
-            showPesanModal('success', ' SUKSES : ' + response.message);
-            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
-            loadUserTable();
+            handleUserModalSuccess(response.message);
         } else {
             showPesanModal('error', ' ERROR : Gagal menyimpan data');
         }
         delete window[callbackName];
+        document.body.removeChild(script);
     };
 
     const params = new URLSearchParams({
@@ -321,14 +321,13 @@ function editUser() {
     const callbackName = 'cb_' + Date.now();
     window[callbackName] = function(res) {
         if (res.status === "success") {
-            showPesanModal("success", " SUKSES : " + res.message);
-            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
-            loadUserTable();
+            handleUserModalSuccess(res.message);
             document.getElementById("modalUser").setAttribute("data-mode", "add");
         } else {
             showPesanModal("error", " ERROR : " + res.message);
         }
         delete window[callbackName];
+        document.body.removeChild(script);
     };
 
     const params = new URLSearchParams({
@@ -578,8 +577,12 @@ function showPesanModal(type, message, duration = 3000) {
   const textModal = document.getElementById('pesanNotifModalText');
 
   // Reset class
-  boxModal.className  = 'notification-message w-100 mb-2';
+  boxModal.className  = 'notification-message modal-user-message';
   iconModal.className = 'pesan-notif-icon me-2';
+  if (pesanModalTimer) {
+    clearTimeout(pesanModalTimer);
+    pesanModalTimer = null;
+  }
 
   if (type === 'error') {
     boxModal.classList.add('notification-error');
@@ -594,9 +597,24 @@ function showPesanModal(type, message, duration = 3000) {
 
   textModal.textContent  = message;
   boxModal.style.display = 'flex';
+  if (duration > 0) {
+    pesanModalTimer = setTimeout(() => {
+      boxModal.style.display = 'none';
+      pesanModalTimer = null;
+    }, duration);
+  }
+}
+
+function handleUserModalSuccess(message) {
+  const modalEl = document.getElementById("modalUser");
+  const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+
+  showPesanModal("success", " SUKSES : " + message, 1200);
+
   setTimeout(() => {
-    boxModal.style.display = 'none';
-  }, duration);
+    modalInstance.hide();
+    loadUserTable();
+  }, 1200);
 }
 
 
