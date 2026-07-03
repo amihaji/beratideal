@@ -1,5 +1,5 @@
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzpp_sMvj78d4dlaUgZDxP7MeZNNjbtqucPDe7iNuz6xLG57B2rLlD9fySF51gib57lzg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyV2yrrJ56r0mDkllyQ26TuX8-QRPbgISGPYKtsmIqT6_scrqIvUsakYnWDKiS49HpKwA/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
