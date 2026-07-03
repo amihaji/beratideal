@@ -432,12 +432,12 @@ Dashboard Admin untuk :
                    
                 <div class="input-group mt-2">
                   <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
-                  <input type="text" id="userId" class="form-control" placeholder="Input user ID" oninput="this.value = this.value.toLowerCase().substring(0, 8)" maxlength="8" pattern="[A-Za-z ]+" required >
+                  <input type="text" id="userId" class="form-control" placeholder="Input user ID" oninput="this.value = this.value.toLowerCase().substring(0, 8)" minlength="6" maxlength="8" pattern="^[^\sA-Z]{6,8}$" title="User ID 6-8 karakter, tanpa spasi dan tanpa huruf besar." required>
                 </div>
 
                 <div class="input-group mt-2">
                   <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
-                  <input type="text" id="userName" class="form-control" placeholder="Input nama user" oninput="this.value = this.value.toLowerCase().substring(0, 20)" maxlength="20" pattern="[A-Za-z ]+" required >
+                  <input type="text" id="userName" class="form-control" placeholder="Input nama user" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama user 3-20 karakter, huruf kecil dan spasi saja." required>
                 </div>
 
                 <div class="input-group mt-2">
@@ -447,12 +447,12 @@ Dashboard Admin untuk :
                 
                 <div class="input-group mt-2">
                   <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
-                  <input type="text" id="userHP" class="form-control" placeholder="Input nomor handphone" required pattern="[0-9]{10,14}" required>
+                  <input type="text" id="userHP" class="form-control" placeholder="Input nomor handphone" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor handphone harus 10-14 digit angka." required>
                 </div>
 
                 <div class="input-group mt-2">
                   <span class="input-group-text"><i class="fas fa-key"></i></span>
-                  <input type="text" id="userPass" class="form-control" placeholder="Input password" required>
+                  <input type="text" id="userPass" class="form-control" placeholder="Input password" minlength="6" maxlength="8" pattern="^[^\s]{6,8}$" title="Password 6-8 karakter, tanpa spasi." required>
                 </div>
 
                 <div class="input-group mt-2">

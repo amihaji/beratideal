@@ -239,7 +239,7 @@ function showLogNotifForm() {
 function addUser() {
     const userId     = document.getElementById('userId').value.trim().toLowerCase();
     document.getElementById('userId').value = userId;
-    const userName   = document.getElementById('userName').value.trim().toUpperCase();
+    const userName   = document.getElementById('userName').value.trim().toLowerCase();
     document.getElementById('userName').value = userName;
     const userEmail  = document.getElementById('userEmail').value.trim();
     const userHP     = document.getElementById('userHP').value.trim();
@@ -298,7 +298,7 @@ function addUser() {
 function editUser() {
     const userId     = document.getElementById('userId').value.trim().toLowerCase();
     document.getElementById('userId').value = userId;
-    const userName   = document.getElementById('userName').value.trim().toUpperCase();
+    const userName   = document.getElementById('userName').value.trim().toLowerCase();
     document.getElementById('userName').value = userName;
     const userEmail  = document.getElementById('userEmail').value.trim();
     const userHP     = document.getElementById('userHP').value.trim();
@@ -633,25 +633,25 @@ function showEditModal(userData) {
 function validateUserForm() {
     const userId    = document.getElementById('userId').value.trim().toLowerCase();
     document.getElementById('userId').value = userId;
-    const userName  = document.getElementById('userName').value.trim().toUpperCase();
+    const userName  = document.getElementById('userName').value.trim().toLowerCase();
     document.getElementById('userName').value = userName;
 
     const userEmail = document.getElementById('userEmail').value.trim();
     const userHP    = document.getElementById('userHP').value.trim();
     const userPass  = document.getElementById('userPass').value.trim();
 
-    const userIdPattern   = /^[a-z0-9]{6,8}$/;                       // hanya huruf kecil & angka, panjang 6–8
-    const userNamePattern = /^[A-Z\s]{3,20}$/;                       // hanya huruf besar & angka, panjang 3–20
+    const userIdPattern   = /^(?!.*\s)(?!.*[A-Z]).{6,8}$/;           // 6-8 karakter, tanpa spasi & tanpa huruf besar
+    const userNamePattern = /^[a-z\s]{3,20}$/;                       // hanya huruf kecil dan spasi, panjang 3-20
     const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const hpPattern       = /^[0-9]{10,14}$/;                        // hanya angka, panjang 10–14
-    const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+=\-{}[\]:;"'<>,.?/\\]{6,8}$/;
+    const passwordPattern = /^(?!.*\s).{6,8}$/;                      // 6-8 karakter, kombinasi bebas tanpa spasi
 
     if (!userIdPattern.test(userId)) {
-        showPesanModal("warning", " WARNING : User ID huruf kecil/angka 6-8 karakter.");
+        showPesanModal("warning", " WARNING : User ID 6-8 karakter, tanpa spasi dan tanpa huruf besar.");
         return false;
     }
     if (!userNamePattern.test(userName)) {
-        showPesanModal("warning", " WARNING : Nama huruf besar dan 3-20 karakter.");
+        showPesanModal("warning", " WARNING : Nama user 3-20 karakter, huruf kecil dan spasi saja.");
         return false;
     }
     if (!emailPattern.test(userEmail)) {
@@ -663,7 +663,7 @@ function validateUserForm() {
         return false;
     }
     if (!passwordPattern.test(userPass)) {
-        showPesanModal("warning", " WARNING : Pass 6-8 karakter kombinasi huruf,angka,simbol.");
+        showPesanModal("warning", " WARNING : Password 6-8 karakter, boleh kombinasi bebas tanpa spasi.");
         return false;
     }
     return true;
