@@ -305,6 +305,8 @@ function addUser() {
 // Fungsi untuk mengedit user id
 // ******************************
 function editUser() {
+    console.log('=== editUser() dipanggil ===');
+    
     const userId     = document.getElementById('userId').value.trim().toLowerCase();
     document.getElementById('userId').value = userId;
     const userName   = document.getElementById('userName').value.trim().toLowerCase();
@@ -323,18 +325,31 @@ function editUser() {
     const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
     const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
+    console.log('Data yang akan dikirim edit:');
+    console.log({userId, userName, userEmail, userHP, userPass, userLevel, 
+      aksesLogin, aksesSetting, aksesFC, aksesDashAdmin, aksesDashMember, 
+      aksesDashWE, aksesDashCRM, aksesCoach});
 
     // Validasi
-    if (!validateUserForm()) return;
+    if (!validateUserForm()) {
+      console.log('Validasi gagal, keluar dari editUser');
+      return;
+    }
+    console.log('Validasi berhasil');
 
     const callbackName = 'cb_' + Date.now();
+    console.log('Callback name:', callbackName);
     const script = document.createElement('script'); // Declare script BEFORE callback!
     
     window[callbackName] = function(res) {
+        console.log('=== Callback editUser dipanggil ===');
+        console.log('Respon dari server:', res);
         if (res.status === "success") {
+            console.log('Edit berhasil, memanggil handleUserModalSuccess');
             handleUserModalSuccess(res.message);
             document.getElementById("modalUser").setAttribute("data-mode", "add");
         } else {
+            console.log('Edit gagal:', res.message);
             showPesanModal("error", " ERROR : " + res.message);
         }
         delete window[callbackName];
@@ -348,22 +363,33 @@ function editUser() {
         callback: callbackName
     });
 
-    script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    const fullUrl = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    console.log('URL yang akan dipanggil:', fullUrl);
+    script.src = fullUrl;
     document.body.appendChild(script);
+    console.log('Script appended, menunggu respon...');
 }
 
 // **************************************
 // Fungsi untuk pengaturan tombol simpan
 // **************************************
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('=== jsSetupUser.js DOMContentLoaded ===');
   const userForm = document.getElementById("userForm");
+  console.log('userForm element:', userForm);
+  
   if (userForm) {
     userForm.addEventListener("submit", (e) => {
+      console.log('=== userForm SUBMIT event dipicu ===');
       e.preventDefault(); // Prevent default form submission
       const mode = document.getElementById("modalUser").getAttribute("data-mode");
+      console.log('Current mode:', mode);
+      
       if (mode === "edit") {
+        console.log('Memanggil editUser()');
         editUser();
       } else {
+        console.log('Memanggil addUser()');
         addUser();
       }
     });
@@ -632,6 +658,9 @@ function handleUserModalSuccess(message) {
 // Tampilkan Modal Edit User
 // ************************** 
 function showEditModal(userData) {
+  console.log('=== showEditModal dipanggil ===');
+  console.log('userData:', userData);
+  
   // Isi input dari userData
   document.getElementById('judulModal').textContent = 'EDIT USER';
   document.getElementById('userId').disabled = true;
@@ -647,12 +676,17 @@ function showEditModal(userData) {
   aksesList.forEach(aksesName => {
     const val = userData['akses' + aksesName] || 'N';
     const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
+    console.log(`akses${aksesName}:`, val, radio);
     if (radio) radio.checked = true;
   });
 
   // Tampilkan modal & ubah mode
-  document.getElementById("modalUser").setAttribute("data-mode", "edit");
-  new bootstrap.Modal(document.getElementById("modalUser")).show();
+  const modalUser = document.getElementById("modalUser");
+  modalUser.setAttribute("data-mode", "edit");
+  console.log('modalUser data-mode set to:', modalUser.getAttribute("data-mode"));
+  
+  new bootstrap.Modal(modalUser).show();
+  console.log('=== Modal Edit ditampilkan ===');
 }
 
 // **********************
