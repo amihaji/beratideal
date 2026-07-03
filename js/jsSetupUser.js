@@ -1,6 +1,42 @@
 // ********* Deklarasi  Public **********
 const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzpp_sMvj78d4dlaUgZDxP7MeZNNjbtqucPDe7iNuz6xLG57B2rLlD9fySF51gib57lzg/exec';
+let confirmCallback = null;
+let confirmModal = null;
 // **************************************
+
+// ********* Modal Konfirmasi Kustom **********
+function showConfirm(message, title = 'Konfirmasi') {
+    return new Promise((resolve) => {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        
+        if (!confirmModal) {
+            confirmModal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+        }
+        
+        // Remove previous event listeners
+        const okBtn = document.getElementById('confirmOkBtn');
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        // Add new event listeners
+        newOkBtn.addEventListener('click', () => {
+            confirmModal.hide();
+            resolve(true);
+        });
+        
+        newCancelBtn.addEventListener('click', () => {
+            confirmModal.hide();
+            resolve(false);
+        });
+        
+        confirmModal.show();
+    });
+}
 
 // **********************************
 // Tampilkan Spinner Loading Overlay
@@ -328,8 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ******************************
 // Fungsi untuk menghapus user id
 // ******************************
-function deleteUser(userId) {
-  if (!confirm("Yakin ingin menghapus user ini?")) return;
+async function deleteUser(userId) {
+  const confirmed = await showConfirm("Yakin ingin menghapus user ini?", "Konfirmasi Hapus");
+  if (!confirmed) return;
 
   const callback = 'cb_' + Date.now();
   window[callback] = function(response) {
@@ -348,8 +385,9 @@ function deleteUser(userId) {
 // ***************************
 // Fungsi untuk reset user id
 // ***************************
-function unlockUser(userId) {
-  if (!confirm("Anda yakin untuk unlock user ini?")) return;
+async function unlockUser(userId) {
+  const confirmed = await showConfirm("Anda yakin untuk unlock user ini?", "Konfirmasi Unlock");
+  if (!confirmed) return;
   const callbackName = 'cbUnlock_' + Date.now();
   window[callbackName] = (res) => {
     if (res.status === 'success') {
@@ -476,8 +514,9 @@ function updateRowIcons(row, mode) {
 // ********************************
 // Menghapus Seluruh log Notifikasi
 // ********************************
-function deleteAllLogNotif() {
-  if (!confirm("Yakin ingin menghapus semua log notifikasi?")) return;
+async function deleteAllLogNotif() {
+  const confirmed = await showConfirm("Yakin ingin menghapus semua log notifikasi?", "Konfirmasi Hapus Semua Log");
+  if (!confirmed) return;
 
   const callback = 'cb_' + Date.now();
   const script   = document.createElement('script');
