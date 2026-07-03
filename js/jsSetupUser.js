@@ -37,7 +37,7 @@ function loadUserTable() {
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="15">Tidak ada data user.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="16">Tidak ada data user.</td></tr>';
             showLoading(false,'user');
             return;
         }
@@ -85,9 +85,10 @@ function loadUserTable() {
                 <td>${fc}</td>
                 <td>${adm}</td>
                 <td>${mem}</td>
+                <td>${we}</td>
                 <td>${crm}</td>
                 <td>${coach}</td>
-                <td class="actions-col"${aksi}>
+                <td class="actions-col">
 
                     <!-- <i class="fas fa-edit action-icon ${editState}" title="Edit User" onclick="editUser('${userId}')"></i> -->
 
