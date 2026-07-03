@@ -423,7 +423,7 @@ Dashboard Admin untuk :
     <div class="modal fade" id="modalUser" tabindex="-1" data-mode="add">
         <div class="modal-dialog">
         <form id="userForm" class="modal-content">
-            <div class="modal-header" style="background-color:#003366; color:white;">
+            <div class="modal-header bg-primary text-white">
                 <h6 id="judulModal" class="modal-title">Tambah User</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -469,79 +469,95 @@ Dashboard Admin untuk :
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                   <input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required>
                 </div>
-                <!-- BATAS TIDAK GUNAKAN ---
-                <div class="mb-2"><label>User ID</label><input type="text" id="userId" class="form-control" required></div>
-                <div class="mb-2"><label>Nama User</label><input type="text" id="userName" class="form-control" required></div>
-                <div class="mb-2"><label>Email</label><input type="email" id="userEmail" class="form-control" required></div>
-                <div class="mb-2"><label>HP</label><input type="text" id="userHP" class="form-control" required></div>
-                <div class="mb-2"><label>Password</label><input type="text" id="userPass" class="form-control" required></div>
-                <div class="mb-2"><label>Level</label>
-                    <select id="userLevel" class="form-select" required>
-                        <option value="Admin">Admin</option>
-                        <option value="Member">Member</option>
-                        <option value="User">User</option>
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label>Salah</label>
-                    <input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required>
-                </div>
-                ---- BATAS AKHIR  -->
-                
-                <div class="form-group">
-                    <label>Hak Akses, pilih (Y/N):</label>
-                    <div class="hak-akses-group">
-                        <div class="hak-akses-item">
-                        <label>1. Login :</label>
-                            <label><input type="radio" name="aksesLogin" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesLogin" value="N"> No</label>
+                            
+                <div class="akses-panel mt-3">
+                    <div class="akses-panel-header">
+                        <h6 class="mb-1">Hak Akses</h6>
+                        <p class="mb-0 text-muted">Pilih izin akses untuk setiap menu pengguna.</p>
+                    </div>
+                    <div class="akses-grid">
+                        <div class="akses-row">
+                            <span class="akses-label">1. Login</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses Login">
+                                <input type="radio" class="btn-check" name="aksesLogin" id="aksesLoginY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesLoginY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesLogin" id="aksesLoginN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesLoginN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>2. Setting :</label>
-                            <label><input type="radio" name="aksesSetting" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesSetting" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">2. Setting</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses Setting">
+                                <input type="radio" class="btn-check" name="aksesSetting" id="aksesSettingY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesSettingY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesSetting" id="aksesSettingN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesSettingN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>3. FC :</label>
-                            <label><input type="radio" name="aksesFC" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesFC" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">3. FC</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses FC">
+                                <input type="radio" class="btn-check" name="aksesFC" id="aksesFCY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesFCY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesFC" id="aksesFCN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesFCN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>4. Admin :</label>
-                            <label><input type="radio" name="aksesDashAdmin" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesDashAdmin" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">4. Admin</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses Admin">
+                                <input type="radio" class="btn-check" name="aksesDashAdmin" id="aksesDashAdminY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesDashAdminY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesDashAdmin" id="aksesDashAdminN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesDashAdminN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>5. Member :</label>
-                            <label><input type="radio" name="aksesDashMember" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesDashMember" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">5. Member</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses Member">
+                                <input type="radio" class="btn-check" name="aksesDashMember" id="aksesDashMemberY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesDashMemberY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesDashMember" id="aksesDashMemberN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesDashMemberN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>6. WE :</label>
-                            <label><input type="radio" name="aksesDashWE" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesDashWE" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">6. WE</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses WE">
+                                <input type="radio" class="btn-check" name="aksesDashWE" id="aksesDashWEY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesDashWEY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesDashWE" id="aksesDashWEN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesDashWEN">No</label>
+                            </div>
                         </div>
-                        <div class="hak-akses-item">
-                        <label>7. CRM :</label>
-                            <label><input type="radio" name="aksesDashCRM" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesDashCRM" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">7. CRM</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses CRM">
+                                <input type="radio" class="btn-check" name="aksesDashCRM" id="aksesDashCRMY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesDashCRMY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesDashCRM" id="aksesDashCRMN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesDashCRMN">No</label>
+                            </div>
                         </div>
-                        <label>8. Coach :</label>
-                            <label><input type="radio" name="aksesCoach" value="Y" checked> Yes</label>
-                            <label><input type="radio" name="aksesCoach" value="N"> No</label>
+                        <div class="akses-row">
+                            <span class="akses-label">8. Coach</span>
+                            <div class="akses-choice-group" role="group" aria-label="Hak akses Coach">
+                                <input type="radio" class="btn-check" name="aksesCoach" id="aksesCoachY" value="Y" checked>
+                                <label class="btn btn-outline-primary btn-sm" for="aksesCoachY">Yes</label>
+                                <input type="radio" class="btn-check" name="aksesCoach" id="aksesCoachN" value="N">
+                                <label class="btn btn-outline-secondary btn-sm" for="aksesCoachN">No</label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex-column align-items-start">
-                <!-- Notifikasi Pesan -->
-                <div id="pesanNotifModalBox" class="notification-message w-100 mb-2" style="display: none;">
-                    <i id="pesanNotifModalIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifModalText"></span>
-                </div>
-                <!-- Tombol-tombol untuk Modal Add dan Edit -->
-                <div class="w-100 d-flex justify-content-end gap-2">
+            <div class="modal-footer modal-user-footer">
+                <div class="modal-user-actions">
                     <button type="submit" class="btn btn-primary btn-sm" id="saveUserBtn"><i class="fas fa-save"></i> Simpan</button>
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
+                </div>
+                <div id="pesanNotifModalBox" class="notification-message modal-user-message" style="display: none;">
+                    <i id="pesanNotifModalIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifModalText"></span>
                 </div>
             </div>
         </form>

@@ -159,20 +159,72 @@ tr:hover .action-icon {
 }
 
 /* Hak Akses */
-.hak-akses-group {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 5px;
+.akses-panel {
+    margin-top: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 1rem;
+    background-color: #f8fbff;
+    overflow: hidden;
 }
-.hak-akses-item {
-  display: flex;
-  align-items: center;
-  padding-right: 60px;
-  padding-left: 3px;
+.akses-panel-header {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(180deg, rgba(13, 110, 253, 0.08), rgba(13, 110, 253, 0.02));
 }
-.hak-akses-item label {
-  margin-left: 10px;
-  min-width: 75px;
+.akses-panel-header h6 {
+    color: #0d6efd;
+    font-weight: 600;
+}
+.akses-grid {
+    display: grid;
+    gap: 0;
+}
+.akses-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #ffffff;
+}
+.akses-row:last-child {
+    border-bottom: none;
+}
+.akses-label {
+    font-weight: 500;
+    color: #212529;
+}
+.akses-choice-group {
+    display: inline-flex;
+    gap: 0.5rem;
+}
+.akses-choice-group .btn {
+    min-width: 64px;
+    margin-bottom: 0;
+}
+
+/* Footer modal Add/Edit */
+.modal-user-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+.modal-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+.modal-user-actions .btn {
+    margin-bottom: 0;
+}
+.modal-user-message {
+    flex: 1;
+    width: auto;
+    margin-left: auto;
 }
 /***** BATAS AKHIR SETUP USER ******
 
@@ -349,7 +401,7 @@ tr:hover .action-icon {
        text-align: center;
     }
     
-    /* Tombol dan pesan menjadi vertikal di mobile */
+    /* Tombol dan pesan Setup menjadi vertikal di mobile */
     .d-flex.align-items-center.gap-2 {
         flex-direction: column;
         align-items: stretch !important;
@@ -361,6 +413,31 @@ tr:hover .action-icon {
     .notification-message {
         width: 100% !important;
         justify-content: center;
+    }
+    .akses-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .akses-choice-group {
+        width: 100%;
+    }
+    .akses-choice-group .btn {
+        flex: 1;
+    }
+    .modal-user-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .modal-user-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    .modal-user-actions .btn {
+        width: 100%;
+    }
+    .modal-user-message {
+        width: 100%;
+        margin-left: 0;
     }
 }
 
@@ -406,7 +483,7 @@ tr:hover .action-icon {
        text-align: center;
     }
     
-    /* Tombol dan pesan menjadi vertikal di mobile kecil */
+    /* Tombol dan pesan Setup menjadi vertikal di mobile kecil */
     .d-flex.align-items-center.gap-2 {
         flex-direction: column;
         align-items: stretch !important;
@@ -418,6 +495,35 @@ tr:hover .action-icon {
     .notification-message {
         width: 100% !important;
         justify-content: center;
+    }
+    .akses-row {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.75rem;
+    }
+    .akses-panel-header {
+        padding: 0.75rem;
+    }
+    .akses-choice-group {
+        width: 100%;
+    }
+    .akses-choice-group .btn {
+        flex: 1;
+    }
+    .modal-user-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .modal-user-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    .modal-user-actions .btn {
+        width: 100%;
+    }
+    .modal-user-message {
+        width: 100%;
+        margin-left: 0;
     }
 }
 
