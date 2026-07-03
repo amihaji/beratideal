@@ -5,6 +5,7 @@ let confirmModal = null;
 let pesanModalTimer = null;
 // **************************************
 
+
 // ********* Modal Konfirmasi Kustom **********
 function showConfirm(message, title = 'Konfirmasi') {
     return new Promise((resolve) => {
@@ -19,7 +20,6 @@ function showConfirm(message, title = 'Konfirmasi') {
         const okBtn = document.getElementById('confirmOkBtn');
         const newOkBtn = okBtn.cloneNode(true);
         okBtn.parentNode.replaceChild(newOkBtn, okBtn);
-        
         const cancelBtn = document.getElementById('confirmCancelBtn');
         const newCancelBtn = cancelBtn.cloneNode(true);
         cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
@@ -29,7 +29,6 @@ function showConfirm(message, title = 'Konfirmasi') {
             confirmModal.hide();
             resolve(true);
         });
-        
         newCancelBtn.addEventListener('click', () => {
             confirmModal.hide();
             resolve(false);
