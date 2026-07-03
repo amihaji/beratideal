@@ -252,7 +252,7 @@ function addUser() {
     const aksesFC         = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
     const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
     const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
-    const aksesDashWE     = document.querySelector('input[name="aksesDashWE')?.value || 'N';
+    const aksesDashWE     = document.querySelector('input[name="aksesDashWE"]:checked')?.value || 'N';
     const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
     const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
@@ -310,7 +310,7 @@ function editUser() {
     const aksesFC      = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
     const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
     const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
-    const aksesDashWE     = document.querySelector('input[name="aksesDashWE')?.value || 'N';
+    const aksesDashWE     = document.querySelector('input[name="aksesDashWE"]:checked')?.value || 'N';
     const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
     const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
@@ -633,9 +633,9 @@ function showEditModal(userData) {
   document.getElementById("userLevel").value = userData.userLevel;
 
   // Set radio akses
-  const akses = ['Login','Setting','FLC','EstiH','WE','Followup','CRM'];
-  akses.forEach(aksesName => {
-    const val   = userData['akses'+aksesName] || 'N';
+  const aksesList = ['Login', 'Setting', 'FC', 'DashAdmin', 'DashMember', 'DashWE', 'DashCRM', 'Coach'];
+  aksesList.forEach(aksesName => {
+    const val = userData['akses' + aksesName] || 'N';
     const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
     if (radio) radio.checked = true;
   });
