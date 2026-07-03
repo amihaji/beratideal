@@ -5,7 +5,6 @@ let confirmModal = null;
 let pesanModalTimer = null;
 // **************************************
 
-
 // ********* Modal Konfirmasi Kustom **********
 function showConfirm(message, title = 'Konfirmasi') {
     return new Promise((resolve) => {
@@ -15,8 +14,7 @@ function showConfirm(message, title = 'Konfirmasi') {
         if (!confirmModal) {
             confirmModal = new bootstrap.Modal(document.getElementById('modalConfirm'));
         }
-        
-        // Remove previous event listeners
+       // Remove previous event listeners
         const okBtn = document.getElementById('confirmOkBtn');
         const newOkBtn = okBtn.cloneNode(true);
         okBtn.parentNode.replaceChild(newOkBtn, okBtn);
