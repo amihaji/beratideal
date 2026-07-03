@@ -246,6 +246,7 @@ function showLogNotifForm() {
 // Fungsi untuk menambah user
 // **************************
 function addUser() {
+    console.log('=== addUser() dipanggil ===');
     const userId     = document.getElementById('userId').value.trim().toLowerCase();
     document.getElementById('userId').value = userId;
     const userName   = document.getElementById('userName').value.trim().toLowerCase();
@@ -265,7 +266,11 @@ function addUser() {
     const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
     // Validasi
-    if (!validateUserForm()) return;
+    if (!validateUserForm()) {
+      console.log('Validasi gagal, keluar dari addUser');
+      return;
+    }
+    console.log('Validasi berhasil addUser');
 
     // Cek duplikasi User ID di tabel
     const rows = document.querySelectorAll('#userTableBody tr');
@@ -281,11 +286,20 @@ function addUser() {
     const script = document.createElement('script'); // Declare script BEFORE callback!
     
     window[callbackName] = function(response) {
+        console.log('=== Callback addUser dipanggil ===');
+        console.log('Respon server addUser:', response);
         if (response.success) {
             handleUserModalSuccess(response.message);
         } else {
             showPesanModal('error', ' ERROR : Gagal menyimpan data');
         }
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+    };
+
+    script.onerror = function() {
+        console.error('=== ERROR addUser: Gagal memuat script ===');
+        showPesanModal('error', ' ERROR : Gagal terhubung ke server (addUser)');
         delete window[callbackName];
         if (document.body.contains(script)) document.body.removeChild(script);
     };
@@ -297,8 +311,11 @@ function addUser() {
         callback: callbackName
     });
 
-    script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    const fullUrl = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    console.log('URL addUser:', fullUrl);
+    script.src = fullUrl;
     document.body.appendChild(script);
+    console.log('Script addUser appended');
 }
 
 // ******************************
@@ -352,6 +369,13 @@ function editUser() {
             console.log('Edit gagal:', res.message);
             showPesanModal("error", " ERROR : " + res.message);
         }
+        delete window[callbackName];
+        if (document.body.contains(script)) document.body.removeChild(script);
+    };
+
+    script.onerror = function() {
+        console.error('=== ERROR editUser: Gagal memuat script ===');
+        showPesanModal('error', ' ERROR : Gagal terhubung ke server (editUser)');
         delete window[callbackName];
         if (document.body.contains(script)) document.body.removeChild(script);
     };
