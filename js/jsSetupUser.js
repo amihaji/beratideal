@@ -321,7 +321,7 @@ function addUser() {
 // ******************************
 // Fungsi untuk mengedit user id
 // ******************************
-function editUser() {
+async function editUser() {
     console.log('=== editUser() dipanggil ===');
     
     const userId     = document.getElementById('userId').value.trim().toLowerCase();
@@ -354,44 +354,44 @@ function editUser() {
     }
     console.log('Validasi berhasil');
 
-    const callbackName = 'cb_' + Date.now();
-    console.log('Callback name:', callbackName);
-    const script = document.createElement('script'); // Declare script BEFORE callback!
-    
-    window[callbackName] = function(res) {
-        console.log('=== Callback editUser dipanggil ===');
-        console.log('Respon dari server:', res);
-        if (res.status === "success") {
-            console.log('Edit berhasil, memanggil handleUserModalSuccess');
-            handleUserModalSuccess(res.message);
-            document.getElementById("modalUser").setAttribute("data-mode", "add");
-        } else {
-            console.log('Edit gagal:', res.message);
-            showPesanModal("error", " ERROR : " + res.message);
-        }
-        delete window[callbackName];
-        if (document.body.contains(script)) document.body.removeChild(script);
-    };
-
-    script.onerror = function() {
-        console.error('=== ERROR editUser: Gagal memuat script ===');
-        showPesanModal('error', ' ERROR : Gagal terhubung ke server (editUser)');
-        delete window[callbackName];
-        if (document.body.contains(script)) document.body.removeChild(script);
-    };
-
     const params = new URLSearchParams({
         action: 'editUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin ,aksesDashMember, aksesDashWE , aksesDashCRM, aksesCoach,
-        callback: callbackName
+        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin, aksesDashMember, aksesDashWE, aksesDashCRM, aksesCoach
     });
 
     const fullUrl = `${URL_APPS_SCRIPT}?${params.toString()}`;
-    console.log('URL yang akan dipanggil:', fullUrl);
-    script.src = fullUrl;
-    document.body.appendChild(script);
-    console.log('Script appended, menunggu respon...');
+    console.log('URL yang akan dipanggil dengan Fetch:', fullUrl);
+
+    try {
+        const response = await fetch(fullUrl);
+        console.log('Status response:', response.status);
+        console.log('Status text:', response.statusText);
+        
+        const text = await response.text();
+        console.log('Respon server (text):', text);
+        
+        // Coba parse JSON
+        try {
+            const res = JSON.parse(text);
+            console.log('Respon server (JSON):', res);
+            
+            if (res.status === "success") {
+                console.log('Edit berhasil, memanggil handleUserModalSuccess');
+                handleUserModalSuccess(res.message);
+                document.getElementById("modalUser").setAttribute("data-mode", "add");
+            } else {
+                console.log('Edit gagal:', res.message);
+                showPesanModal("error", " ERROR : " + res.message);
+            }
+        } catch (e) {
+            console.error('Gagal parse JSON:', e);
+            showPesanModal('error', ' ERROR : Respon server tidak valid (JSON)');
+        }
+    } catch (error) {
+        console.error('=== ERROR editUser (Fetch):', error);
+        showPesanModal('error', ' ERROR : ' + error.message);
+    }
 }
 
 // **************************************
