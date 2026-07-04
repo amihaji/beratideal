@@ -13,13 +13,13 @@ TABELWETOOLS :
 - Mendata hasil dari WETOOLS
 *****************************************************************************/
 
-// Deklarasi Global 
+// ********* Deklarasi Variabel Public **********
 // url dbProgram untuk aplikasi : prog10hari
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx8-dB1zfM2Wh1v-iX4G0y21F6-JMG40ntUkZhNE3HfJPXlw0yrMjsU0pA/exec';
 
-/**
+/*****************************************
  * Load students data from Google Sheets
- */
+ *****************************************/
 async function loadStudentsFromSheets() {
     try {
         const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getStudents`);

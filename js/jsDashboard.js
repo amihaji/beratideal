@@ -4,7 +4,7 @@ TAMPILAN DASHBOARD UNTUK :
 FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 ***************************************************************/
 
-// Global Variables
+// ********* Deklarasi Variabel Public **********
 let currentPage = 'dashboard';
 let studentsData = [];
 let programsData = [];

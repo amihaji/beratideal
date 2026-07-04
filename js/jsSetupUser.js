@@ -12,7 +12,7 @@ LOGNOTIF:
 
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycby69gcneMsGYQWmvEQsWRdNFsziCCksI2pC4RWEFdyBOtrrJ5BteBvuDgW3vxnRT90S5w/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyE4BXsgDryevUOBCtsPXr8cvW2KkoJ5WdoFqB7vxbhY73RhxIGwFJzjC6VSRBUDwDyhQ/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
