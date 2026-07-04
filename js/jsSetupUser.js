@@ -86,7 +86,7 @@ function loadUserTable() {
 
         data.forEach(row => {
             const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-                login, setting, fc, adm, mem, we, crm, coach, aksi] = row;
+                login, setting, fc, adm, mem, we, crm, coach] = row;
 
             let editState     = '';
             let aktifasiState = '';
@@ -131,9 +131,6 @@ function loadUserTable() {
                 <td>${crm}</td>
                 <td>${coach}</td>
                 <td class="actions-col">
-
-                    <!-- <i class="fas fa-edit action-icon ${editState}" title="Edit User" onclick="editUser('${userId}')"></i> -->
-
                     <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
                         userId: '${userId}', 
                         userName: '${namaUser}', 
