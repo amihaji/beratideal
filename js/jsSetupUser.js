@@ -466,8 +466,24 @@ async function unlockUser(userId) {
 // *************************************************
 // Fungsi untuk mengirim notifikasi ke wa dan email
 // *************************************************
+function normalizeWhatsAppNumber(phoneNumber) {
+    const digitsOnly = String(phoneNumber || '').replace(/\D/g, '');
+
+    if (!digitsOnly) return '';
+    if (digitsOnly.startsWith('62')) return digitsOnly;
+    if (digitsOnly.startsWith('0')) return `62${digitsOnly.slice(1)}`;
+
+    return digitsOnly;
+}
+
 function sendNotif(userId, userName, userEmail, userHP, userPass) {
-    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
+    const waNumber = normalizeWhatsAppNumber(userHP);
+    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, waNumber, userPass);
+
+    if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
+        showPesan('error', " ERROR : Nomor WhatsApp user tidak valid.");
+        return;
+    }
 
     const callback = 'cb_' + Date.now();
     const script = document.createElement('script');
@@ -475,7 +491,7 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
         `&userId=${encodeURIComponent(userId)}` +
         `&userName=${encodeURIComponent(userName)}` +
         `&userEmail=${encodeURIComponent(userEmail)}` +
-        `&userHP=${encodeURIComponent(userHP)}` +
+        `&userHP=${encodeURIComponent(waNumber)}` +
         `&userPass=${encodeURIComponent(userPass)}` +
         `&callback=${callback}`;
 
@@ -506,7 +522,13 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
 // Fungsi untuk Mengaktifasi User
 // *******************************
 function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
-    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
+    const waNumber = normalizeWhatsAppNumber(userHP);
+    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, waNumber, userPass);
+
+    if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
+        showPesan('error', " ERROR : Nomor WhatsApp user tidak valid.");
+        return;
+    }
 
     const callback = 'cb_' + Date.now();
     const script = document.createElement('script');
@@ -514,7 +536,7 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
         `&userId=${encodeURIComponent(userId)}` +
         `&userName=${encodeURIComponent(userName)}` +
         `&userEmail=${encodeURIComponent(userEmail)}` +
-        `&userHP=${encodeURIComponent(userHP)}` +
+        `&userHP=${encodeURIComponent(waNumber)}` +
         `&userPass=${encodeURIComponent(userPass)}` +
         `&callback=${callback}`;
 
