@@ -1,5 +1,5 @@
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyV2yrrJ56r0mDkllyQ26TuX8-QRPbgISGPYKtsmIqT6_scrqIvUsakYnWDKiS49HpKwA/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwYtlFzoS9cGxsn0lDOuuttvKvTeFhADLOGS8wkWS-Nu5fqzAIFFbyKTpbhkYeshDtP/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
@@ -501,6 +501,8 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
             showPesan('success', " SUKSES : " + response.message);
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
+        } else if (response.status === 'partial') {
+            showPesan('warning', " WARNING : " + response.message, 5000);
         } else {
             showPesan('error', " ERROR : " + response.message);
         }
@@ -546,6 +548,8 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
             showPesan('success', " SUKSES : " + response.message);
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
+        } else if (response.status === 'partial') {
+            showPesan('warning', " WARNING : " + response.message, 5000);
         } else {
             showPesan('error', " ERROR : " + response.message);
         }
