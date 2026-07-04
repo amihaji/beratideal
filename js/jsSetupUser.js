@@ -1,4 +1,17 @@
+/*******************************************
+APLIKASI BERATIDEAL
+SETUP USER 
+- DATABASE : dbUser (TabelUser dan LogNotif)
+TABELUSER
+- Membuat user,Edit, Delete 
+- Kirim notification ke user
+- Mengatur level user
+LOGNOTIF:
+- Log User
+*******************************************/
+
 // ********* Deklarasi  Public **********
+// url database :  dbUser (TabelUser dan LogNotif)
 const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycby69gcneMsGYQWmvEQsWRdNFsziCCksI2pC4RWEFdyBOtrrJ5BteBvuDgW3vxnRT90S5w/exec';
 let confirmCallback = null;
 let confirmModal = null;

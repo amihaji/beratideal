@@ -1,4 +1,8 @@
-// FitTracker Main Application JavaScript
+/**************************************************************
+APLIKASI BERATIDEAL
+TAMPILAN DASHBOARD UNTUK :
+FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
+***************************************************************/
 
 // Global Variables
 let currentPage = 'dashboard';

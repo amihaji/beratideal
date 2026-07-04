@@ -1,3 +1,18 @@
+/****************************************************************************
+APLIKASI BERATIDEAL
+- DATABASE : dbProgram (program, datakonsumen dan tabelwetools)
+DASHBOARD UNTUK :
+PROGRAM 
+- Mendata seluruh aktifitas peserta program mulai dari modul1 hingga modul10
+- Resept Healthy snaking
+- Dashboard peserta program
+DATAKONSUMEN : 
+- Mendata tgl daftar peserta program
+- mendata data pribadi peserta program
+TABELWETOOLS : 
+- Mendata hasil dari WETOOLS
+*****************************************************************************/
+
 // Deklarasi Global 
 // url dbProgram untuk aplikasi : prog10hari
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx8-dB1zfM2Wh1v-iX4G0y21F6-JMG40ntUkZhNE3HfJPXlw0yrMjsU0pA/exec';
