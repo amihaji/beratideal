@@ -16,6 +16,7 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyE4BXsgDryevUO
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
+let currentLogNotifFilter = 'SEMUA';
 // **************************************
 
 // ********* Modal Konfirmasi Kustom **********
@@ -224,6 +225,7 @@ function loadLogNotifTable() {
       `;
       tbody.appendChild(tr);
     });
+    filterLogNotif(currentLogNotifFilter || 'SEMUA');
     showLoading(false, 'log');
     delete window[callbackName];
     document.body.removeChild(script);
@@ -606,28 +608,53 @@ function updateRowIcons(row, mode) {
 // Menghapus Seluruh log Notifikasi
 // ********************************
 async function deleteAllLogNotif() {
-  const confirmed = await showConfirm("Yakin ingin menghapus semua log notifikasi?", "Konfirmasi Hapus Semua Log");
+  return deleteLogNotif('SEMUA');
+}
+
+async function deleteLogNotif(forceStatus) {
+  const status = String(forceStatus || currentLogNotifFilter || 'SEMUA').trim().toUpperCase();
+  const label = status === 'SEMUA' ? 'semua log notifikasi' : `log notifikasi status "${status}"`;
+  const confirmed = await showConfirm(`Yakin ingin menghapus ${label}?`, "Konfirmasi Hapus Log");
   if (!confirmed) return;
 
   const callback = 'cb_' + Date.now();
-  const script   = document.createElement('script');
-  script.src     = `${URL_APPS_SCRIPT}?action=deleteAllLogNotif&callback=${callback}`;
+  const script = document.createElement('script');
+  const timeoutMs = 12000;
+  let finished = false;
+
+  const action = status === 'SEMUA' ? 'deleteAllLogNotif' : 'deleteLogNotifByStatus';
+  const statusParam = status === 'SEMUA' ? '' : `&status=${encodeURIComponent(status)}`;
+  script.src = `${URL_APPS_SCRIPT}?action=${action}${statusParam}&callback=${callback}`;
+
+  const timeoutId = setTimeout(() => {
+    if (finished) return;
+    finished = true;
+    showPesan("error", "ERROR : Tidak ada respon dari server");
+    delete window[callback];
+    if (document.body.contains(script)) document.body.removeChild(script);
+  }, timeoutMs);
 
   window[callback] = function(response) {
-    if (response.status === 'success') {
-      showPesan("success", "Semua log berhasil dihapus");
-      loadLogNotifTable(); // Refresh tabel log
+    if (finished) return;
+    finished = true;
+    clearTimeout(timeoutId);
+    if (response && response.status === 'success') {
+      showPesan("success", response.message || "Log berhasil dihapus");
+      loadLogNotifTable();
     } else {
-      showPesan("error", "Gagal menghapus log");
+      showPesan("error", (response && response.message) ? response.message : "Gagal menghapus log");
     }
     delete window[callback];
-    document.body.removeChild(script);
+    if (document.body.contains(script)) document.body.removeChild(script);
   };
 
   script.onerror = function() {
+    if (finished) return;
+    finished = true;
+    clearTimeout(timeoutId);
     showPesan("error", "Tidak dapat terhubung ke server");
     delete window[callback];
-    document.body.removeChild(script);
+    if (document.body.contains(script)) document.body.removeChild(script);
   };
 
   document.body.appendChild(script);
@@ -795,10 +822,11 @@ function validateUserForm() {
 // Filter Log Notifikasi
 // *****************************   
 function filterLogNotif(status) {
+    currentLogNotifFilter = String(status || 'SEMUA').trim().toUpperCase();
     const rows = document.querySelectorAll('#logNotifTableBody tr');
     rows.forEach(row => {
         const statusText = row.cells[6]?.textContent?.trim().toUpperCase();
-        if (status === 'SEMUA' || statusText === status.toUpperCase()) {
+        if (currentLogNotifFilter === 'SEMUA' || statusText === currentLogNotifFilter) {
             row.style.display = '';
         } else {
             row.style.display = 'none';
