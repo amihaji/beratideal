@@ -629,7 +629,11 @@ async function deleteLogNotif(forceStatus) {
   const timeoutId = setTimeout(() => {
     if (finished) return;
     finished = true;
-    showPesan("error", "ERROR : Tidak ada respon dari server");
+    if (status === 'SEMUA') {
+      showPesan("error", "ERROR : Tidak ada respon dari server");
+    } else {
+      showPesan("error", `ERROR : Hapus log status "${status}" belum didukung server (action deleteLogNotifByStatus)`);
+    }
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
   }, timeoutMs);
