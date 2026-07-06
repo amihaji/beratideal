@@ -637,12 +637,16 @@ async function deleteAllLogNotif() {
 // Pesan Notifikasi untuk di Form Tabel User
 // *****************************************
 function showPesan(type, message, duration = 3000) {
-  const box      = document.getElementById('pesanNotification');
-  const icon     = document.getElementById('pesanNotifIcon');
-  const text     = document.getElementById('pesanNotifText');
+  const boxes = document.querySelectorAll('#pesanNotification');
+  const box = Array.from(boxes).find((el) => el && el.offsetParent !== null) || boxes[0];
+  if (!box) return;
 
-  // Reset class
-  box.className  = 'notification-message';
+  const icon = box.querySelector('[id="pesanNotifIcon"]') || document.getElementById('pesanNotifIcon');
+  const text = box.querySelector('[id="pesanNotifText"]') || document.getElementById('pesanNotifText');
+  if (!icon || !text) return;
+
+  box.classList.remove('notification-error', 'notification-success', 'notification-warning');
+  box.classList.add('notification-message');
   icon.className = 'pesan-notif-icon';
 
   if (type === 'error') {
