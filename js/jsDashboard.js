@@ -90,6 +90,9 @@ function showPage(pageName) {
             // Log notif page will load log table automatically
             loadLogNotifTable(); // Make sure this function exists in jsSetupUser.js
             break;        
+        case 'followupwe':
+            if (typeof loadTableData === 'function') loadTableData();
+            break;
     }
 }
 

@@ -22,7 +22,6 @@ const userLevel  = localStorage.getItem('userLevel') || 'User';
 // ******************************************************
 
 // Defenisikan semua constanta 
-const loadingOverlay       = document.getElementById('loadingOverlay');
 const editModal            = new bootstrap.Modal(document.getElementById('editModal'));
 const viewModal            = new bootstrap.Modal(document.getElementById('viewModal'));
 const startFollowUpButton  = document.getElementById('startFollowUpButton');
@@ -32,13 +31,12 @@ const normalToolbar        = document.getElementById('normalToolbar');
 const followUpToolbar      = document.getElementById('followUpToolbar');
 const followUpMessageBox   = document.getElementById('followUpMessageBox');
     
-// Daftar Semua Event Listener  
-document.getElementById('filterButton').addEventListener('click', loadTableData);
-document.getElementById('saveChangesButton').addEventListener('click', saveChanges);
-document.getElementById('exportButton').addEventListener('click', exportToExcel);
-      
-// Inisialisasi Dashboard dan Panggil data 
-loadTableData(); 
+const filterButtonEl = document.getElementById('filterButton');
+if (filterButtonEl) filterButtonEl.addEventListener('click', loadTableData);
+const saveChangesButtonEl = document.getElementById('saveChangesButton');
+if (saveChangesButtonEl) saveChangesButtonEl.addEventListener('click', saveChanges);
+const exportButtonEl = document.getElementById('exportButton');
+if (exportButtonEl) exportButtonEl.addEventListener('click', exportToExcel);
 
 // **************************************
 // Aktif dan Non Aktifkan Event Listener 
@@ -88,7 +86,9 @@ document.getElementById('checkAll').addEventListener('change', function() {
 // Tampilkan spinner
 // ********************
 function showLoading(show) {
-    loadingOverlay.style.display = show ? 'flex' : 'none';
+    const overlay = document.getElementById('loadingOverlay');
+    if (!overlay) return;
+    overlay.style.display = show ? 'flex' : 'none';
 }
 
 // ************************
