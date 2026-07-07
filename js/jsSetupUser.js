@@ -668,8 +668,11 @@ async function deleteLogNotif(forceStatus) {
 // Pesan Notifikasi untuk di Form Tabel User
 // *****************************************
 function showPesan(type, message, duration = 3000) {
+  const visiblePage = Array.from(document.querySelectorAll('.page-content'))
+    .find((page) => page && page.style && page.style.display !== 'none');
+  const scopedBox = visiblePage ? visiblePage.querySelector('#pesanNotification') : null;
   const boxes = document.querySelectorAll('#pesanNotification');
-  const box = Array.from(boxes).find((el) => el && el.offsetParent !== null) || boxes[0];
+  const box = scopedBox || boxes[0];
   if (!box) return;
 
   const icon = box.querySelector('[id="pesanNotifIcon"]') || document.getElementById('pesanNotifIcon');
