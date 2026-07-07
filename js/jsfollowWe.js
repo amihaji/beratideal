@@ -3,7 +3,6 @@
 APLIKASI BERATIDEAL
 Database :  dbWETools (SurveyData dan DataWE)
 FOLLOWUP WE :
-- Menghasilkan file pdf
 - File pdf dapat dikirim ke email dan wa
 - Penambahan Inputan untuk Data Sponsor/Pengundang
 - Hasil Survey TIDAK ditampilkan ke layar
