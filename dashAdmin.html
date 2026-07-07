@@ -310,6 +310,122 @@ Dashboard untuk :
             </div>
         </div>
 
+        <!-- Reseller Page -->
+        <!-- DISINI DISIP HTML UNTUK PAGE RESELLER --> 
+       
+        <!-- FollowUpWE Page -->
+        <!-- DISINI DISIP HTML UNTUK PAGE FOLLOW UP WE --> 
+
+        <!-- FollowUpCRM Page -->
+        <!-- DISINI DISIP HTML UNTUK PAGE FOLLOW UP CRM --> 
+        <div id="setupuser-page" class="page-content" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="h2 mb-1">Follow Up WE</h1>
+                    <p class="text-muted">Untuk memfollowup prospek hasil WE</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Daftar User Prospek</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="container mt-2"> 
+                                <!-- Kotak Pesan Follow Up (Awalnya Tersembunyi) -->
+                                <div class="card mb-3" id="followUpMessageBox" style="display: none;">
+                                    <div class="card-body">
+                                        <label for="waMessage" class="form-label">
+                                            <strong>Tulis Pesan Follow Up Anda:</strong>
+                                        </label>
+                                    
+                                        <!-- Untuk menginput pesan dan emoticon di textarea -->       
+                                        <div class="input-group">
+                                            <textarea class="form-control" id="waMessage" rows="4" placeholder="Contoh: Halo {nama}, ini pesan dari {sponsor}..."></textarea>
+                                            <button class="btn btn-outline-secondary" type="button" id="emojiPickerButton">😊</button>
+                                            <emoji-picker id="emojiPicker" style="position: absolute; display: none; z-index: 999;"></emoji-picker>
+                                        </div>
+
+                                        <!-- Keterangan untuk inputan di textarea -->
+                                        <div class="form-text">
+                                            Gunakan <code>{nama}</code> untuk nama customer, dan <code>{sponsor}</code> untuk nama sponsor.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Toolbar Filter, FollowUp, Export, Close, Batal dan Kirim WA -->
+                                <div class="button-box d-grid d-md-flex gap-3">
+                                    <!-- Tombol Filter -->
+                                    <div class="col-lg-4">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="filterSponsor" placeholder="Filter berdasarkan Nama Sponsor...">
+                                            <button class="btn btn-outline-primary btn-sm" id="filterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
+                                        </div>
+                                    </div> 
+                            
+                                    <!-- Tombol Followup, Export, Close, Batal dan Kirim WA -->
+                                    <div class="col-lg-8">  
+                                        <!-- Grup Tombol Normal (Awalnya Terlihat) -->
+                                        <div id="normalToolbar" class="d-grid d-md-flex gap-2 float-md-end pe-md-3">
+                                            <button class="btn btn-primary btn-sm" id="startFollowUpButton"><i class="fab fa-whatsapp"></i> Follow Up</button>
+                                            <button class="btn btn-primary btn-sm" id="exportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
+                                            <a href="https://amihaji.github.io/kitworks/index.html" class="btn btn-secondary btn-sm"><i class="fas fa-sign-out-alt"></i> Kembali</a>
+                                        </div>
+                                            
+                                        <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
+                                        <div id="followUpToolbar" class="d-grid d-md-flex gap-2 sembunyikan float-md-end pe-md-3">
+                                            <button class="btn btn-success btn-sm" id="sendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
+                                            <button class="btn btn-secondary btn-sm" id="cancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pesan notifikasi -->
+                                <div id="pesanNotification" class="notification-message">
+                                    <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+                                </div>
+
+                                <!-- Progress Kirim WA Massal (awalnya tersembunyi) -->
+                                <div class="progress mt-2 bg-light" id="waProgressContainer" style="height:30px; width:100%; display:none;">
+                                    <div id="waProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:100%;">0%</div>
+                                </div>
+                            
+                                <!-- Tabel Data -->
+                                <div class="table-box">
+                                    <h6 class="mb-2">Daftar Prospect</h6>  
+                                    <div class="table-wrapper">
+                                    <table class="table table-hover table-striped table-bordered align-middle text-center">
+                                            <thead class="table-dark-custom">          
+                                                <tr>
+                                                    <th><input type="checkbox" id="checkAll"></th>
+                                                    <th>Tanggal</th>
+                                                    <th>Nama</th>
+                                                    <th>Nomor HP</th>
+                                                    <th>Email</th>
+                                                    <th>Sponsor</th>
+                                                    <th>HP Sponsor</th>
+                                                    <th class="actions-col">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dataTableBody" style="font-size: small;"><tr><td colspan="6" style="align-items: center;">Memuat data...</td></tr> 
+                                            <!-- Data akan diisi oleh JavaScript di sini -->  
+                                            </tbody>
+                                            <!-- Loading Overlay -->
+                                            <div id="loadingOverlay" class="loading-overlay">
+                                                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                                            </div>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>        
+                </div>  
+            </div>
+        </div>
+
         <!-- Setup User Page -->
         <div id="setupuser-page" class="page-content" style="display: none;">
             <div class="row mb-4">
@@ -449,7 +565,7 @@ Dashboard untuk :
             </div>
     </div>   
 
-    <!-- Modal untuk Add/Edit user -->
+    <!-- Modal untuk Add/Edit user untuk setup User  -->
     <div class="modal fade" id="modalUser" tabindex="-1" data-mode="add">
         <div class="modal-dialog">
         <form id="userForm" class="modal-content">
@@ -594,6 +710,52 @@ Dashboard untuk :
         </div>
     </div>
     
+    <!-- Modal Edit untuk Follow UP WE -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#003366; color:white;">
+                <!-- <div class="modal-header"> -->
+                    <h5 class="modal-title">Edit Data</h5>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editRowIndex">
+                        <div class="mb-3"><label for="editNama" class="form-label">Nama</label><input type="text" class="form-control" id="editNama" required></div>
+                        <div class="mb-3"><label for="editNomorHp" class="form-label">Nomor HP</label><input type="tel" class="form-control" id="editNomorHp" required></div>
+                        <div class="mb-3"><label for="editEmail" class="form-label">Email</label><input type="email" class="form-control" id="editEmail"></div>
+                        <div class="mb-3"><label for="editSponsor" class="form-label">Sponsor</label><input type="text" class="form-control" id="editSponsor" required></div>
+                        <div class="mb-3"><label for="editHpSponsor" class="form-label">HP Sponsor</label><input type="tel" class="form-control" id="editHpSponsor" required></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-sm" id="saveChangesButton"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times"></i> Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal View Untuk Follow Up WE -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- <div class="modal-header"> -->
+                <div class="modal-header" style="background-color:#003366; color:white;">    
+                    <h5 class="modal-title" id="viewModalLabel">Detail Hasil Analisa</h5>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="viewModalBody">
+                    <!-- Konten detail akan dimuat di sini -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-sign-out-alt"></i> Kembali</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Konfirmasi Kustom -->
     <div class="modal fade" id="modalConfirm" tabindex="-1">
         <div class="modal-dialog modal-sm">
@@ -644,13 +806,19 @@ Dashboard untuk :
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js -->
+    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Emoji JS -->   
+    <script type="module" src="https://cdn.skypack.dev/emoji-picker-element"></script>
+
     <!-- Custom JS Untuk Dashboard -->
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsFitTracker.js"></script>
-    <!-- Custom JS Untuk Setup Userr -->
+    <!-- Custom JS Untuk Setup User -->
     <script src="js/jsSetupUser.js"></script>
+    <!-- Custom JS Untuk FollowUp WE -->
+    <script src="js/jsFollowWe.js"></script>
+    
     
 </body>
 </html>
