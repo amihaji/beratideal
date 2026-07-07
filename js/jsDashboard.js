@@ -91,7 +91,11 @@ function showPage(pageName) {
             loadLogNotifTable(); // Make sure this function exists in jsSetupUser.js
             break;        
         case 'followupwe':
-            if (typeof loadTableData === 'function') loadTableData();
+            if (typeof loadTableData === 'function') {
+                loadTableData();
+            } else if (typeof showPesan === 'function') {
+                showPesan('error', 'ERROR : File FollowUp WE (jsFollowWe.js) belum termuat. Cek GitHub Pages (404) / nama file (case-sensitive).', 6000);
+            }
             break;
     }
 }
