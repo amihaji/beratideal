@@ -347,7 +347,7 @@ function renderPrograms() {
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <h6>Program Stats</h6>
+                            <h6>Status Program</h6>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Tingkat Penyelesaian:</span>
                                 <strong>${program.completionRate}%</strong>
