@@ -93,10 +93,193 @@ function showPage(pageName) {
         case 'followupwe':
             if (typeof loadTableData === 'function') {
                 loadTableData();
-            } else if (typeof showPesan === 'function') {
-                showPesan('error', 'ERROR : File FollowUp WE (jsFollowWe.js) belum termuat. Cek GitHub Pages (404) / nama file (case-sensitive).', 6000);
+            } else {
+                ensureFollowUpWEFallback();
+                loadFollowUpWETableFallback();
             }
             break;
+    }
+}
+
+const URL_DB_WETOOLS_FALLBACK = 'https://script.google.com/macros/s/AKfycbx_c6LpqIcgCyr2NYbHdEAc3-kOc-EiQDH7pBUygFGFWR1aizQvunFbhox0QE0kpaF-/exec';
+let followUpWEFallbackBound = false;
+
+function ensureFollowUpWEFallback() {
+    if (followUpWEFallbackBound) return;
+
+    const filterButton = document.getElementById('filterButton');
+    const filterSponsor = document.getElementById('filterSponsor');
+    const startButton = document.getElementById('startFollowUpButton');
+    const cancelButton = document.getElementById('cancelFollowUpButton');
+    const checkAll = document.getElementById('checkAll');
+
+    if (filterButton) {
+        filterButton.addEventListener('click', loadFollowUpWETableFallback);
+    }
+
+    if (filterSponsor) {
+        filterSponsor.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loadFollowUpWETableFallback();
+            }
+        });
+    }
+
+    if (startButton) {
+        startButton.addEventListener('click', function() {
+            const normalToolbar = document.getElementById('normalToolbar');
+            const followUpToolbar = document.getElementById('followUpToolbar');
+            const followUpMessageBox = document.getElementById('followUpMessageBox');
+
+            if (filterSponsor) filterSponsor.disabled = true;
+            if (filterButton) filterButton.disabled = true;
+            if (normalToolbar) normalToolbar.classList.add('sembunyikan');
+            if (followUpToolbar) followUpToolbar.classList.remove('sembunyikan');
+            if (followUpMessageBox) followUpMessageBox.style.display = 'block';
+
+            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => cb.classList.remove('d-none'));
+            document.querySelectorAll('#dataTableBody .action-icon').forEach(icon => icon.classList.add('disabled-action'));
+        });
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            const normalToolbar = document.getElementById('normalToolbar');
+            const followUpToolbar = document.getElementById('followUpToolbar');
+            const followUpMessageBox = document.getElementById('followUpMessageBox');
+            const waMessage = document.getElementById('waMessage');
+
+            if (filterSponsor) filterSponsor.disabled = false;
+            if (filterButton) filterButton.disabled = false;
+            if (normalToolbar) normalToolbar.classList.remove('sembunyikan');
+            if (followUpToolbar) followUpToolbar.classList.add('sembunyikan');
+            if (followUpMessageBox) followUpMessageBox.style.display = 'none';
+            if (waMessage) waMessage.value = '';
+            if (checkAll) checkAll.checked = false;
+
+            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => {
+                cb.classList.add('d-none');
+                cb.checked = false;
+            });
+            document.querySelectorAll('#dataTableBody .action-icon').forEach(icon => icon.classList.remove('disabled-action'));
+        });
+    }
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function() {
+            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => cb.checked = this.checked);
+        });
+    }
+
+    window.loadTableData = loadFollowUpWETableFallback;
+    followUpWEFallbackBound = true;
+
+    if (typeof showPesan === 'function') {
+        showPesan('warning', 'PERHATIAN : FollowUp WE memakai fallback dari jsDashboard karena jsFollowWe.js belum termuat di hosting.', 5000);
+    }
+}
+
+function setFollowUpWELoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (!overlay) return;
+    overlay.style.display = show ? 'flex' : 'none';
+}
+
+function formatFollowUpWETanggal(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+
+function loadFollowUpWETableFallback() {
+    const tableBody = document.getElementById('dataTableBody');
+    const filterSponsor = document.getElementById('filterSponsor');
+
+    if (!tableBody) return;
+
+    setFollowUpWELoading(true);
+
+    const filterValue = filterSponsor ? filterSponsor.value.trim() : '';
+    const callbackName = 'we_cb_' + Date.now();
+    const script = document.createElement('script');
+    script.src = `${URL_DB_WETOOLS_FALLBACK}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
+
+    window[callbackName] = function(response) {
+        tableBody.innerHTML = '';
+
+        if (!response || response.status !== 'success' || !Array.isArray(response.data)) {
+            tableBody.innerHTML = '<tr><td colspan="8">Gagal memuat data prospek WE.</td></tr>';
+            if (typeof showPesan === 'function') {
+                showPesan('error', `ERROR : ${(response && response.message) ? response.message : 'Data tidak valid dari server.'}`, 5000);
+            }
+            cleanupFollowUpWEJsonp(script, callbackName);
+            setFollowUpWELoading(false);
+            return;
+        }
+
+        if (response.data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8">Tidak ada data prospek WE.</td></tr>';
+            cleanupFollowUpWEJsonp(script, callbackName);
+            setFollowUpWELoading(false);
+            return;
+        }
+
+        response.data.forEach(row => {
+            const tr = document.createElement('tr');
+            const rowIndex = row[0];
+            const tanggal = formatFollowUpWETanggal(row[1]);
+            const nama = row[2] || '';
+            const hp = row[3] || '';
+            const email = row[4] || '';
+            const sponsor = row[29] || '';
+            const hpSponsor = row[30] || '';
+            const actionsHtml = typeof viewRecord === 'function'
+                ? `
+                    <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" onclick="${userLevel !== 'User' ? `viewRecord(${rowIndex})` : 'return false;'}" title="Lihat"><i class="fas fa-eye"></i></a>
+                    <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" onclick="${userLevel !== 'User' ? `openEditModal(${rowIndex}, '${String(nama).replace(/'/g, "\\'")}', '${String(hp).replace(/'/g, "\\'")}', '${String(email).replace(/'/g, "\\'")}', '${String(sponsor).replace(/'/g, "\\'")}', '${String(hpSponsor).replace(/'/g, "\\'")}')` : 'return false;'}" title="Edit"><i class="fas fa-edit"></i></a>
+                    <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" onclick="${userLevel !== 'User' ? `deleteRow(${rowIndex})` : 'return false;'}" title="Hapus"><i class="fas fa-trash"></i></a>
+                `
+                : '<span class="text-muted small">Aksi belum aktif</span>';
+
+            tr.innerHTML = `
+                <td><input type="checkbox" class="rowCheckbox d-none"></td>
+                <td>${tanggal}</td>
+                <td>${nama}</td>
+                <td>${hp}</td>
+                <td>${email}</td>
+                <td>${sponsor}</td>
+                <td>${hpSponsor}</td>
+                <td class="actions-col">${actionsHtml}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        cleanupFollowUpWEJsonp(script, callbackName);
+        setFollowUpWELoading(false);
+    };
+
+    script.onerror = function() {
+        tableBody.innerHTML = '<tr><td colspan="8">Gagal menghubungi server data prospek WE.</td></tr>';
+        if (typeof showPesan === 'function') {
+            showPesan('error', 'ERROR : Tidak dapat mengambil data prospek WE.', 5000);
+        }
+        cleanupFollowUpWEJsonp(script, callbackName);
+        setFollowUpWELoading(false);
+    };
+
+    document.body.appendChild(script);
+}
+
+function cleanupFollowUpWEJsonp(script, callbackName) {
+    delete window[callbackName];
+    if (script && document.body.contains(script)) {
+        document.body.removeChild(script);
     }
 }
 
