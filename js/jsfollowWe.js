@@ -15,7 +15,7 @@ FOLLOWUP WE :
 
 // ********* Deklarasi  Public **********
 // url database :  dbWETools (SurveyData dan DataWE)
-const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbydMLnW54Aib-iUEmdd7pkhPyL0zNeY0oJt2ODOh9OamM2hoTa9ZdVEwl-eZvbffbhe/exec';
+const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbx_c6LpqIcgCyr2NYbHdEAc3-kOc-EiQDH7pBUygFGFWR1aizQvunFbhox0QE0kpaF-/exec';
 const userID     = localStorage.getItem('userID') || '';
 const userToken  = localStorage.getItem('userToken') || '';
 const userLevel  = localStorage.getItem('userLevel') || 'User';
