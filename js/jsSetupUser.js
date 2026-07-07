@@ -643,7 +643,7 @@ async function deleteLogNotif(forceStatus) {
     finished = true;
     clearTimeout(timeoutId);
     if (response && response.status === 'success') {
-      showPesan("success", response.message || "Log berhasil dihapus");
+      showPesan("success", "Data log berhasil terhapus");
       loadLogNotifTable();
     } else {
       showPesan("error", (response && response.message) ? response.message : "Gagal menghapus log");
