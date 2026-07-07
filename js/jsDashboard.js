@@ -341,7 +341,7 @@ function renderPrograms() {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <h6>Module Completion Rates</h6>
+                            <h6>Tingkat Penyelesaian Modul</h6>
                             <div id="modules-${program.id}" class="mb-3">
                                 <!-- Modules will be loaded here -->
                             </div>
@@ -349,15 +349,15 @@ function renderPrograms() {
                         <div class="col-md-4">
                             <h6>Program Stats</h6>
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Completion Rate:</span>
+                                <span>Tingkat Penyelesaian:</span>
                                 <strong>${program.completionRate}%</strong>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Avg Progress:</span>
+                                <span>Rata-rata Progres:</span>
                                 <strong>${program.avgProgress}%</strong>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Active Students:</span>
+                                <span>Peserta Aktif:</span>
                                 <strong>${program.activeStudents}</strong>
                             </div>
                         </div>
