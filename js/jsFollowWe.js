@@ -348,10 +348,12 @@ function saveChanges() {
        headers: {'Content-Type': 'text/plain'}, 
        body: JSON.stringify(payload)
     }).finally(() => {
-       editModal.hide();
-       setTimeout(loadTableData, 500); // Beri jeda agar server sempat update
+       setTimeout(() => {
+           editModal.hide();
+           setTimeout(loadTableData, 500);
+       }, 700);
     });
-    showPesan('success', " BERHASIL : menyimpan data");
+    showPesanEdit('success', " BERHASIL : menyimpan data");
 }
 
 // *****************************
@@ -592,6 +594,14 @@ function initFollowWeUI() {
         }
     });
 
+    const editModalEl = document.getElementById('editModal');
+    if (editModalEl) {
+        editModalEl.addEventListener('hidden.bs.modal', () => {
+            const box = document.getElementById('pesanNotifEditBox');
+            if (box) box.style.display = 'none';
+        });
+    }
+
     const picker   = document.getElementById('emojiPicker');
     const button   = document.getElementById('emojiPickerButton');
     const textarea = document.getElementById('waMessage');
@@ -663,4 +673,29 @@ function showPesan(type, message, duration = 3000) {
   text.textContent  = message;
   box.style.display = 'flex';
   setTimeout(() => {box.style.display = 'none';}, duration);
+}
+
+function showPesanEdit(type, message, duration = 2500) {
+  const box  = document.getElementById('pesanNotifEditBox');
+  const icon = document.getElementById('pesanNotifEditIcon');
+  const text = document.getElementById('pesanNotifEditText');
+  if (!box || !icon || !text) return;
+
+  box.className  = 'notification-message modal-user-message';
+  icon.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  text.textContent  = message;
+  box.style.display = 'flex';
+  setTimeout(() => { box.style.display = 'none'; }, duration);
 }
