@@ -356,8 +356,9 @@ function saveChanges() {
 // *****************************
 // Fungsi untuk menghapus data
 // *****************************
-function deleteRow(rowIndex) {
-    if (!confirm(`Anda yakin ingin menghapus data baris ke-${rowIndex}?`)) return;
+async function deleteRow(rowIndex) {
+    const confirmed = await showConfirm(`Anda yakin ingin menghapus data baris ke-${rowIndex}?`, "Konfirmasi Hapus");
+    if (!confirmed) return;
     showLoading(true);
     const payload = { 
         action: 'deleteData', 
@@ -401,7 +402,7 @@ function viewRecord(rowIndex) {
                     <td class="text-center">${item.hasil || "-"}</td>
                     <td class="text-center">${item.ideal || "-"}</td>
                     <td class="text-center">${item.satuan || "-"}</td>
-                    <td style="white-space:pre-line">${item.penjelasan || "-"}</td>
+                    <td class="followupwe-keterangan-col" style="white-space:pre-line">${item.penjelasan || "-"}</td>
                 </tr>`).join('');
 
             viewBody.innerHTML = `
@@ -434,18 +435,20 @@ function viewRecord(rowIndex) {
 
                 <!-- DATA EVALUASI -->
                 <h6 class="mt-4"><i class="fas fa-heartbeat me-2"></i>Evaluasi Parameter</h6>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="background-color:#4d94ff; width:25%;">Parameter</th>
-                            <th style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
-                            <th style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
-                            <th style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
-                            <th style="background-color:#4d94ff; width:50%;">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody>${evaluasiHTML}</tbody>
-                </table>
+                <div class="followupwe-evaluasi-wrap">
+                    <table class="table table-bordered followupwe-evaluasi-table">
+                        <thead>
+                            <tr>
+                                <th style="background-color:#4d94ff; width:25%;">Parameter</th>
+                                <th style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
+                                <th style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
+                                <th style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
+                                <th class="followupwe-keterangan-col" style="background-color:#4d94ff; width:50%;">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>${evaluasiHTML}</tbody>
+                    </table>
+                </div>
 
                 <!-- DATA KESIMPULAN DAN REKOMENDASI -->
                 <h6 class="mt-4">Kesimpulan & Rekomendasi</h6>
