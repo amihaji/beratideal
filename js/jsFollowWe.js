@@ -29,6 +29,12 @@ const sendWaButton         = document.getElementById('sendWaButton');
 const normalToolbar        = document.getElementById('normalToolbar');
 const followUpToolbar      = document.getElementById('followUpToolbar');
 const followUpMessageBox   = document.getElementById('followUpMessageBox');
+const filterSponsorInput   = document.getElementById('filterSponsor');
+const filterButton         = document.getElementById('filterButton');
+const checkAllCheckbox     = document.getElementById('checkAll');
+const waMessageInput       = document.getElementById('waMessage');
+const waProgressContainer  = document.getElementById('waProgressContainer');
+const waProgressBar        = document.getElementById('waProgressBar');
     
 const filterButtonEl = document.getElementById('filterButton');
 if (filterButtonEl) filterButtonEl.addEventListener('click', loadTableData);
@@ -46,49 +52,69 @@ if (saveChangesButtonEl) saveChangesButtonEl.addEventListener('click', saveChang
 const exportButtonEl = document.getElementById('exportButton');
 if (exportButtonEl) exportButtonEl.addEventListener('click', exportToExcel);
 
+function resetWaProgress() {
+    if (!waProgressContainer || !waProgressBar) return;
+    waProgressContainer.style.display = 'none';
+    waProgressBar.style.width = '0%';
+    waProgressBar.textContent = '0%';
+    waProgressBar.setAttribute('aria-valuenow', '0');
+}
+
+function setFollowUpMode(isActive, options = {}) {
+    const { clearMessage = false, clearSelection = false, keepProgress = false } = options;
+
+    if (filterSponsorInput) filterSponsorInput.disabled = isActive;
+    if (filterButton) filterButton.disabled = isActive;
+
+    if (normalToolbar) normalToolbar.classList.toggle('sembunyikan', isActive);
+    if (followUpToolbar) followUpToolbar.classList.toggle('sembunyikan', !isActive);
+    if (followUpMessageBox) followUpMessageBox.style.display = isActive ? 'block' : 'none';
+
+    document.querySelectorAll('.rowCheckbox').forEach((cb) => {
+        cb.classList.toggle('d-none', !isActive);
+        if (!isActive && clearSelection) cb.checked = false;
+    });
+
+    document.querySelectorAll('.action-icon').forEach((icon) => {
+        icon.classList.toggle('disabled-action', isActive);
+    });
+
+    if (!isActive) {
+        if (clearMessage && waMessageInput) waMessageInput.value = '';
+        if (clearSelection && checkAllCheckbox) checkAllCheckbox.checked = false;
+        const emojiPicker = document.getElementById('emojiPicker');
+        if (emojiPicker) emojiPicker.style.display = 'none';
+        if (!keepProgress) resetWaProgress();
+    }
+}
+
 // **************************************
 // Aktif dan Non Aktifkan Event Listener 
 // **************************************
-document.getElementById('startFollowUpButton').addEventListener('click', () => {
-    // Non Aktifkan Toolbar Filter dan Button Filter
-    document.getElementById('filterSponsor').disabled = true;
-    document.getElementById('filterButton').disabled = true;
-    // Menampilkan Toolbar Normal dan MessageBox
-    normalToolbar.classList.add('sembunyikan');
-    followUpMessageBox.style.display = 'block'; 
-    // Menyembunyikan Toolbar Followup dan checkbox
-    followUpToolbar.classList.remove('sembunyikan');
-    document.querySelectorAll('.rowCheckbox').forEach(cb => cb.classList.remove('d-none'));
-    // Non Aktifkan icon-icon View, Edit dan Hapus
-    document.querySelectorAll('.action-icon').forEach(icon => icon.classList.add('disabled-action'));
-});
+if (startFollowUpButton) {
+    startFollowUpButton.addEventListener('click', () => {
+        setFollowUpMode(true);
+    });
+}
 
 // *************************************
 // Aktif dan Non Aktifkan Event Listener
 // ************************************* 
-document.getElementById('cancelFollowUpButton').addEventListener('click', () => {
-    // Aktifkan Toolbar Filter dan Button Filter
-    document.getElementById('filterSponsor').disabled = false;
-    document.getElementById('filterButton').disabled = false;
-    // Menyembunyikan Toolbar Normal dan MessageBox
-    normalToolbar.classList.remove('sembunyikan');
-    followUpMessageBox.style.display = 'none';
-    // Menampilkan Toolbar Followup dan checkbox
-    followUpToolbar.classList.add('sembunyikan');
-    document.querySelectorAll('.rowCheckbox').forEach(cb => cb.classList.add('d-none'));
-    // Aktifkan kembali icon-icon View, Edit dan Hapus   
-    document.querySelectorAll('.action-icon').forEach(icon => icon.classList.remove('disabled-action'));
-    // Kosongkan inputan text area
-    document.getElementById('waMessage').value = '';
-});
+if (cancelFollowUpButton) {
+    cancelFollowUpButton.addEventListener('click', () => {
+        setFollowUpMode(false, { clearMessage: true, clearSelection: true });
+    });
+}
 
 // ****************
 // Check semuanya
 // ****************
-document.getElementById('checkAll').addEventListener('change', function() {
-    const isChecked = this.checked;
-    document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = isChecked);
-});
+if (checkAllCheckbox) {
+    checkAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = isChecked);
+    });
+}
 
 // ********************
 // Tampilkan spinner
@@ -214,105 +240,92 @@ function loadTableData() {
 // ************************************
 // Kirim WA hanya ke record tercentang
 // ************************************
-document.getElementById('sendWaButton').addEventListener('click', () => {
-    const messageTemplate = document.getElementById('waMessage').value.trim();
-    if (!messageTemplate) {
-        // alert('Silahkan isi pesan follow up.');
-        showPesan('warning', " PERHATIAN : Silahkan isi pesan FollowUp");
-        return;
-    }
-
-    const selectedRows = [];
-    document.querySelectorAll('.rowCheckbox').forEach((cb) => {
-        if (cb.checked) {
-            const tr = cb.closest('tr');
-            const nama = tr.children[2].textContent.trim();
-            const nomor = tr.children[3].textContent.trim();
-            const sponsor = tr.children[5].textContent.trim();
-            const hpSponsor = tr.children[6].textContent.trim();
-            selectedRows.push({ nama, nomor, sponsor, hpSponsor });
+if (sendWaButton) {
+    sendWaButton.addEventListener('click', () => {
+        const messageTemplate = waMessageInput ? waMessageInput.value.trim() : '';
+        if (!messageTemplate) {
+            showPesan('warning', " PERHATIAN : Silahkan isi pesan FollowUp");
+            return;
         }
+
+        const selectedRows = [];
+        document.querySelectorAll('.rowCheckbox').forEach((cb) => {
+            if (cb.checked) {
+                const tr = cb.closest('tr');
+                const nama = tr.children[2].textContent.trim();
+                const nomor = tr.children[3].textContent.trim();
+                const sponsor = tr.children[5].textContent.trim();
+                const hpSponsor = tr.children[6].textContent.trim();
+                selectedRows.push({ nama, nomor, sponsor, hpSponsor });
+            }
+        });
+
+        if (selectedRows.length === 0) {
+            showPesan('warning', " PERHATIAN : Pilih minimal satu record untuk mengirim pesan follow up");
+            return;
+        }
+
+        const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+        const url = "https://api.fonnte.com/send";
+
+        if (!waProgressContainer || !waProgressBar) return;
+        waProgressBar.style.width = '0%';
+        waProgressBar.textContent = `0 dari ${selectedRows.length}`;
+        waProgressBar.setAttribute('aria-valuenow', '0');
+        waProgressContainer.style.display = 'block';
+
+        if (filterSponsorInput) filterSponsorInput.disabled = true;
+        if (filterButton) filterButton.disabled = true;
+        sendWaButton.disabled = true;
+        if (cancelFollowUpButton) cancelFollowUpButton.disabled = true;
+
+        let completedCount = 0;
+
+        selectedRows.forEach((row, index) => {
+            setTimeout(() => {
+                const message = messageTemplate.replace('{nama}', row.nama).replace('{sponsor}', row.sponsor);
+                const noWaUser = "62" + row.nomor.replace(/^0+/, "");
+                const noWaSponsor = "62" + row.hpSponsor.replace(/^0+/, "");
+                const payloadUser = { target: noWaUser, message: message };
+                const payloadSponsor = { target: noWaSponsor, message: `*Notifikasi FollowUp*\n\n${message}` };
+
+                Promise.all([
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadUser)
+                    }).then(res => res.json()).catch(err => console.error(`Error kirim ke user ${row.nama}:`, err)),
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadSponsor)
+                    }).then(res => res.json()).catch(err => console.error(`Error kirim ke sponsor ${row.sponsor}:`, err))
+                ]).finally(() => {
+                    completedCount++;
+                    const progress = Math.round((completedCount / selectedRows.length) * 100);
+                    waProgressBar.style.width = progress + '%';
+                    waProgressBar.textContent = `${completedCount} dari ${selectedRows.length}`;
+                    waProgressBar.setAttribute('aria-valuenow', String(progress));
+
+                    if (completedCount === selectedRows.length) {
+                        waProgressBar.style.width = '100%';
+                        waProgressBar.textContent = '100%';
+                        waProgressBar.setAttribute('aria-valuenow', '100');
+                        setTimeout(() => {
+                            sendWaButton.disabled = false;
+                            if (cancelFollowUpButton) cancelFollowUpButton.disabled = false;
+
+                            showPesan('success', " BERHASIL : mengirim seluruh pesan");
+                            setFollowUpMode(false, { clearMessage: true, clearSelection: true });
+                            if (filterSponsorInput) filterSponsorInput.value = '';
+                        }, 3000);
+                    }
+                });
+            }, index * 5000);
+        });
     });
-
-    if (selectedRows.length === 0) {
-        // alert('Pilih minimal satu record untuk mengirim pesan follow up.');
-        showPesan('warning', " PERHATIAN : Pilih minimal satu record untuk mengirim pesan follow up");
-        return;
-    }
-    // Konfigurasi API FONNTE UNTUK NOMOR HP : 081149908600
-    const TokenFonnte = "9yeq3JusFP9YZobuYTai";       
-    const url         = "https://api.fonnte.com/send";
-
-    // Inisialisasi progressbar
-    const waProgressContainer = document.getElementById('waProgressContainer');
-    const waProgressBar       = document.getElementById('waProgressBar');
-    waProgressBar.style.width = '0%';
-    waProgressBar.textContent = `0 dari ${selectedRows.length}`;
-    waProgressContainer.style.display = 'block';
-
-    // Non Aktifkan tombol-tombol
-    document.getElementById('filterSponsor').disabled = true;
-    document.getElementById('filterButton').disabled  = true;
-    document.getElementById('sendWaButton').disabled  = true;
-    document.getElementById('cancelFollowUpButton').disabled  = true;
-    
-    let completedCount = 0;
-
-    selectedRows.forEach((row, index) => {
-        setTimeout(() => {
-            const message        = messageTemplate.replace('{nama}', row.nama).replace('{sponsor}', row.sponsor);
-            const noWaUser       = "62" + row.nomor.replace(/^0+/, "");
-            const noWaSponsor    = "62" + row.hpSponsor.replace(/^0+/, "");
-            const payloadUser    = { target: noWaUser, message: message };
-            const payloadSponsor = { target: noWaSponsor, message: `*Notifikasi FollowUp*\n\n${message}` };
-
-            // Kirim ke user dan sponsor, lalu update progress setelah keduanya selesai
-            Promise.all([
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payloadUser)
-                }).then(res => res.json()).catch(err => console.error(`Error kirim ke user ${row.nama}:`, err)),
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payloadSponsor)
-                }).then(res => res.json()).catch(err => console.error(`Error kirim ke sponsor ${row.sponsor}:`, err))
-            ])
-            .finally(() => {
-                completedCount++;
-                const progress = Math.round((completedCount / selectedRows.length) * 100);
-                waProgressBar.style.width = progress + '%';
-                waProgressBar.textContent = `${completedCount} dari ${selectedRows.length}`;
-
-                if (completedCount === selectedRows.length) {
-                    waProgressBar.style.width = '100%';
-                    waProgressBar.textContent = '100%';
-                    setTimeout(() => {
-                        // Aktifkan kembali tombol-tombol
-                        document.getElementById('filterSponsor').disabled = false;
-                        document.getElementById('filterButton').disabled  = false;
-                        document.getElementById('sendWaButton').disabled  = false;
-                        document.getElementById('cancelFollowUpButton').disabled  = false;
-
-                        //alert('Seluruh Pesan telah terkirim');
-                        showPesan('success', " BERHASIL : mengirim seluruh pesan");
-                        // Reset tampilan ke semula
-                        cancelFollowUpButton.click();
-                        waProgressContainer.style.display = 'none';
-                        waProgressBar.style.width = '0%';
-                        waProgressBar.textContent = '0%';
-                        document.getElementById('filterSponsor').value = '';
-                        document.getElementById('waMessage').value = '';
-                        document.getElementById('checkAll').checked = false;
-                        document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = false);
-                    }, 3000); // Delay agar progress 100% terlihat sebelum alert
-                }
-            });    
-        }, index * 5000); // jeda 5 detik setiap perdata yang dikirim
-    });
-});
+}
 
 // ***************************
 // Fungsi untuk mengedit data
@@ -607,36 +620,28 @@ function initFollowWeUI() {
     const textarea = document.getElementById('waMessage');
     if (!picker || !button || !textarea) return;
 
-    // Fungsi untuk menambahkan emoji ke textarea
-    button.addEventListener('click', () => {
-        const textareaRect = textarea.getBoundingClientRect();
-        const pickerWidth  = 300;   // atau 320 sesuai kenyamanan
-        const pickerHeight = 350;   // tinggi rata-rata picker
-
-        let left = window.innerWidth / 2 - pickerWidth / 2 + window.scrollX;
-        // let top  = textareaRect.bottom + window.scrollY + 2;    // 2px jarak bawah textarea
-        let top  = textareaRect.bottom + window.scrollY ;
-
-        picker.style.display  = picker.style.display === 'none' ? 'block' : 'none';
-        picker.style.position = 'absolute';
-        picker.style.width    = pickerWidth + 'px';
-        picker.style.left     = left + 'px';
-        picker.style.top      = top + 'px';
-        picker.style.zIndex   = 9999;
-    });
-
-    picker.addEventListener('emoji-click', (event) => {
-        const emoji = event.detail.unicode;
+    function insertEmojiAtCursor(emoji) {
         const start = textarea.selectionStart;
-        const end   = textarea.selectionEnd;
+        const end = textarea.selectionEnd;
         textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+    }
+
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        picker.style.display = picker.style.display === 'block' ? 'none' : 'grid';
     });
 
-    // Hide picker if clicking outside
+    picker.addEventListener('click', (event) => {
+        const emojiButton = event.target.closest('.emoji-item');
+        if (!emojiButton) return;
+        insertEmojiAtCursor(emojiButton.dataset.emoji || '');
+        picker.style.display = 'none';
+    });
+
     document.addEventListener('click', (e) => {
-        if (!picker.contains(e.target) && e.target !== button) {
+        if (!picker.contains(e.target) && !button.contains(e.target)) {
             picker.style.display = 'none';
         }
     });

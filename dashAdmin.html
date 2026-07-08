@@ -1,3 +1,4 @@
+
 <!---------------------------------------------------
 Dashboard untuk :
 - Memantau Fit Tracker aktifitas peserta programs 
@@ -324,35 +325,37 @@ Dashboard untuk :
                     <!-- Toolbar Filter, FollowUp, Export, Close, Batal dan Kirim WA -->
                     <div class="card lognotif-toolbar-card"> 
                         <div class="lognotif-toolbar">
-                            <div class="lognotif-toolbar-left">
-                                <!-- Tombol Filter -->
-                                <div class="followupwe-filter-group">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="filterSponsor" placeholder="Filter berdasarkan Nama...">
-                                        <button class="btn btn-outline-primary btn-sm" id="filterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
-                                    </div>
-                                </div> 
-                            
-                                <!-- Grup Tombol Normal (Awalnya Terlihat) -->
-                                <div id="normalToolbar" class="followupwe-actions d-grid d-md-flex gap-2">
-                                    <button class="btn btn-primary btn-sm" id="startFollowUpButton"><i class="fab fa-whatsapp"></i> Follow Up</button>
-                                    <button class="btn btn-primary btn-sm" id="exportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
-                                </div>
-                                            
-                                <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
-                                <div id="followUpToolbar" class="followupwe-actions d-grid d-md-flex gap-2 sembunyikan">
-                                    <button class="btn btn-success btn-sm" id="sendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
-                                    <button class="btn btn-secondary btn-sm" id="cancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
-                                </div>
+                            <div class="lognotif-toolbar-left followupwe-toolbar-left">
+                                <div class="followupwe-toolbar-main">
+                                    <!-- Tombol Filter -->
+                                    <div class="followupwe-filter-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="filterSponsor" placeholder="Filter berdasarkan Nama...">
+                                            <button class="btn btn-outline-primary btn-sm" id="filterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
+                                        </div>
+                                    </div> 
                                 
-                                <!-- Pesan notifikasi -->
-                                <div id="pesanNotification" class="notification-message">
-                                    <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+                                    <!-- Grup Tombol Normal (Awalnya Terlihat) -->
+                                    <div id="normalToolbar" class="followupwe-actions d-grid d-md-flex gap-2">
+                                        <button class="btn btn-primary btn-sm" id="startFollowUpButton"><i class="fab fa-whatsapp"></i> Follow Up</button>
+                                        <button class="btn btn-primary btn-sm" id="exportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
+                                    </div>
+                                                
+                                    <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
+                                    <div id="followUpToolbar" class="followupwe-actions d-grid d-md-flex gap-2 sembunyikan">
+                                        <button class="btn btn-success btn-sm" id="sendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
+                                        <button class="btn btn-secondary btn-sm" id="cancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
+                                    </div>
+                                    
+                                    <!-- Pesan notifikasi -->
+                                    <div id="pesanNotification" class="notification-message">
+                                        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+                                    </div>
                                 </div>
 
                                 <!-- Progress Kirim WA Massal (awalnya tersembunyi) -->
-                                <div class="progress mt-2 bg-light" id="waProgressContainer" style="height:30px; width:100%; display:none;">
-                                    <div id="waProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:100%;">0%</div>
+                                <div class="progress bg-light followupwe-toolbar-progress" id="waProgressContainer" style="height:30px; width:100%; display:none;">
+                                    <div id="waProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
                                 </div>
                             </div> 
                         </div>
@@ -376,10 +379,23 @@ Dashboard untuk :
                                         </label>
                                     
                                         <!-- Untuk menginput pesan dan emoticon di textarea -->       
-                                        <div class="input-group">
+                                        <div class="input-group followupwe-message-input">
                                             <textarea class="form-control" id="waMessage" rows="4" placeholder="Contoh: Halo {nama}, ini pesan dari {sponsor}..."></textarea>
                                             <button class="btn btn-outline-secondary" type="button" id="emojiPickerButton">😊</button>
-                                            <emoji-picker id="emojiPicker" style="position: absolute; display: none; z-index: 999;"></emoji-picker>
+                                            <div id="emojiPicker" class="followupwe-emoji-picker" style="display: none;">
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="😊">😊</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="😁">😁</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🙏">🙏</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="👍">👍</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="💪">💪</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🎉">🎉</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="✨">✨</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="❤️">❤️</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🔥">🔥</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🤝">🤝</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🥗">🥗</button>
+                                                <button type="button" class="btn btn-light btn-sm emoji-item" data-emoji="🏃">🏃</button>
+                                            </div>
                                         </div>
 
                                         <!-- Keterangan untuk inputan di textarea -->
@@ -863,9 +879,6 @@ Dashboard untuk :
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Emoji JS -->   
-    <script type="module" src="https://cdn.skypack.dev/emoji-picker-element"></script>
-
     <!-- Custom JS Untuk Dashboard -->
     <script src="js/jsDashboard.js"></script>
     <script src="js/jsFitTracker.js"></script>
