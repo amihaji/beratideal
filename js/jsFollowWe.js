@@ -452,16 +452,16 @@ function viewRecord(rowIndex) {
                 <!-- DATA KESIMPULAN DAN REKOMENDASI -->
                 <h6 class="mt-4">Kesimpulan & Rekomendasi</h6>
                               
-                <table class="table table-bordered">
+                <table class="table table-bordered followupwe-summary-table">
                     <tbody>
-                    <tr><th style="background-color:#4d94ff; width:15%;">Skor</th>
-                        <td style="width:85%;">Persentase kebugaran anda : <strong>${data.persen}</strong></td>
+                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Skor</th>
+                        <td class="followupwe-summary-content" style="width:85%;">Persentase kebugaran anda : <strong>${data.persen}</strong></td>
                     </tr>
-                    <tr><th style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
-                        <td style="width:85%;">${data.kesimpulan}</td>
+                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
+                        <td class="followupwe-summary-content" style="width:85%;">${data.kesimpulan}</td>
                     </tr>
-                    <tr><th style="background-color:#4d94ff; width:15%;">Rekomendasi</th>
-                        <td style="width:85%;">${data.rekomendasi}</td>
+                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Rekomendasi</th>
+                        <td class="followupwe-summary-content" style="width:85%;">${data.rekomendasi}</td>
                     </tr>
                     </tbody>
                 </table>
