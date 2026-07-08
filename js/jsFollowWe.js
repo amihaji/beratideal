@@ -398,14 +398,15 @@ function viewRecord(rowIndex) {
 
             const evaluasiHTML = (data.evaluasi || []).map(item => `
                 <tr>
-                    <td>${item.param || "-"}</td>
-                    <td class="text-center">${item.hasil || "-"}</td>
-                    <td class="text-center">${item.ideal || "-"}</td>
-                    <td class="text-center">${item.satuan || "-"}</td>
+                    <td class="followupwe-param-col">${item.param || "-"}</td>
+                    <td class="text-center followupwe-hasil-col">${item.hasil || "-"}</td>
+                    <td class="text-center followupwe-referensi-col">${item.ideal || "-"}</td>
+                    <td class="text-center followupwe-satuan-col">${item.satuan || "-"}</td>
                     <td class="followupwe-keterangan-col" style="white-space:pre-line">${item.penjelasan || "-"}</td>
                 </tr>`).join('');
 
             viewBody.innerHTML = `
+                <div class="followupwe-view-content">
                 <!-- DATA PROFILE -->
                 <h6 class="mt-4"><i class="fas fa-user me-2"></i>Data Profile</h6>
                 <table class="table table-bordered">
@@ -435,20 +436,18 @@ function viewRecord(rowIndex) {
 
                 <!-- DATA EVALUASI -->
                 <h6 class="mt-4"><i class="fas fa-heartbeat me-2"></i>Evaluasi Parameter</h6>
-                <div class="followupwe-evaluasi-wrap">
-                    <table class="table table-bordered followupwe-evaluasi-table">
-                        <thead>
-                            <tr>
-                                <th style="background-color:#4d94ff; width:25%;">Parameter</th>
-                                <th style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
-                                <th style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
-                                <th style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
-                                <th class="followupwe-keterangan-col" style="background-color:#4d94ff; width:50%;">Keterangan</th>
-                            </tr>
-                        </thead>
-                        <tbody>${evaluasiHTML}</tbody>
-                    </table>
-                </div>
+                <table class="table table-bordered followupwe-evaluasi-table">
+                    <thead>
+                        <tr>
+                            <th class="followupwe-param-col" style="background-color:#4d94ff; width:25%;">Parameter</th>
+                            <th class="followupwe-hasil-col" style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
+                            <th class="followupwe-referensi-col" style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
+                            <th class="followupwe-satuan-col" style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
+                            <th class="followupwe-keterangan-col" style="background-color:#4d94ff; width:50%;">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>${evaluasiHTML}</tbody>
+                </table>
 
                 <!-- DATA KESIMPULAN DAN REKOMENDASI -->
                 <h6 class="mt-4">Kesimpulan & Rekomendasi</h6>
@@ -465,7 +464,8 @@ function viewRecord(rowIndex) {
                         <td style="width:85%;">${data.rekomendasi}</td>
                     </tr>
                     </tbody>
-                </table>`;
+                </table>
+                </div>`;
  
                 viewModal.show();
         } else {
