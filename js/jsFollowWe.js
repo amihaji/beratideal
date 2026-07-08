@@ -13,7 +13,7 @@ FOLLOWUP WE :
 
 // ********* Deklarasi  Public **********
 // url database :  dbWETools (SurveyData dan DataWE)
-const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbzPR-TC31yMQPH2V7f9_KFI4NL-WwuhVo6pAzJS_DkTWgXG-OkQnaNYrseYGH2fmd6-/exec';
+const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbxhf-Co0aokH4LEhqpBF1zQQmu32yH__duXPjpBIhWLYocnmTtp6jpzwU_m1LdDzgpu/exec';
 const userID     = localStorage.getItem('userID') || '';
 const userToken  = localStorage.getItem('userToken') || '';
 const userLevel  = localStorage.getItem('userLevel') || 'User';
