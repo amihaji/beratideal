@@ -13,7 +13,7 @@ FOLLOWUP WE :
 
 // ********* Deklarasi  Public **********
 // url database :  dbWETools (SurveyData dan DataWE)
-const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbxvrW50CUF4fJxS8dya7o2rejSeWdcOD4zCpeWAJfpAJIZN9cvTZaXx3dXGaDI_WV4V/exec';
+const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbzPR-TC31yMQPH2V7f9_KFI4NL-WwuhVo6pAzJS_DkTWgXG-OkQnaNYrseYGH2fmd6-/exec';
 const userID     = localStorage.getItem('userID') || '';
 const userToken  = localStorage.getItem('userToken') || '';
 const userLevel  = localStorage.getItem('userLevel') || 'User';
@@ -199,6 +199,26 @@ function cleanupFollowUpWEJsonp(script, callbackName) {
     }
 }
 
+function sendFollowUpWARequest(target, message) {
+    return new Promise((resolve) => {
+        const callbackName = 'send_wa_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const script = document.createElement('script');
+
+        script.onerror = () => {
+            cleanupFollowUpWEJsonp(script, callbackName);
+            resolve({ status: 'error', message: 'Gagal menghubungi server FollowUp WA.' });
+        };
+
+        window[callbackName] = (response) => {
+            cleanupFollowUpWEJsonp(script, callbackName);
+            resolve(response || { status: 'error', message: 'Respons server FollowUp WA kosong.' });
+        };
+
+        script.src = `${URL_dbWETools}?action=sendFollowUpWA&target=${encodeURIComponent(target)}&message=${encodeURIComponent(message)}&callback=${callbackName}`;
+        document.body.appendChild(script);
+    });
+}
+
 // ************************
 // Tampilkan Tabel Data  
 // ************************
@@ -255,8 +275,7 @@ if (sendWaButton) {
                 const nama = tr.children[2].textContent.trim();
                 const nomor = tr.children[3].textContent.trim();
                 const sponsor = tr.children[5].textContent.trim();
-                const hpSponsor = tr.children[6].textContent.trim();
-                selectedRows.push({ nama, nomor, sponsor, hpSponsor });
+                selectedRows.push({ nama, nomor, sponsor });
             }
         });
 
@@ -264,9 +283,6 @@ if (sendWaButton) {
             showPesan('warning', " PERHATIAN : Pilih minimal satu record untuk mengirim pesan follow up");
             return;
         }
-
-        const TokenFonnte = "9yeq3JusFP9YZobuYTai";
-        const url = "https://api.fonnte.com/send";
 
         if (!waProgressContainer || !waProgressBar) return;
         waProgressBar.style.width = '0%';
@@ -280,28 +296,21 @@ if (sendWaButton) {
         if (cancelFollowUpButton) cancelFollowUpButton.disabled = true;
 
         let completedCount = 0;
+        let failedCount = 0;
+        const failedRecipients = [];
 
         selectedRows.forEach((row, index) => {
             setTimeout(() => {
                 const message = messageTemplate.replace('{nama}', row.nama).replace('{sponsor}', row.sponsor);
-                const noWaUser = "62" + row.nomor.replace(/^0+/, "");
-                const noWaSponsor = "62" + row.hpSponsor.replace(/^0+/, "");
-                const payloadUser = { target: noWaUser, message: message };
-                const payloadSponsor = { target: noWaSponsor, message: `*Notifikasi FollowUp*\n\n${message}` };
-
-                Promise.all([
-                    fetch(url, {
-                        method: 'POST',
-                        headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payloadUser)
-                    }).then(res => res.json()).catch(err => console.error(`Error kirim ke user ${row.nama}:`, err)),
-
-                    fetch(url, {
-                        method: 'POST',
-                        headers: { 'Authorization': TokenFonnte, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payloadSponsor)
-                    }).then(res => res.json()).catch(err => console.error(`Error kirim ke sponsor ${row.sponsor}:`, err))
-                ]).finally(() => {
+                sendFollowUpWARequest(row.nomor, message)
+                .then((response) => {
+                    if (!response || response.status !== 'success') {
+                        failedCount++;
+                        failedRecipients.push(`${row.nama} (${row.nomor})`);
+                        console.error('Gagal kirim FollowUp WA:', row, response);
+                    }
+                })
+                .finally(() => {
                     completedCount++;
                     const progress = Math.round((completedCount / selectedRows.length) * 100);
                     waProgressBar.style.width = progress + '%';
@@ -310,19 +319,26 @@ if (sendWaButton) {
 
                     if (completedCount === selectedRows.length) {
                         waProgressBar.style.width = '100%';
-                        waProgressBar.textContent = '100%';
+                        waProgressBar.textContent = failedCount === 0
+                            ? '100%'
+                            : `Sukses ${selectedRows.length - failedCount}, Gagal ${failedCount}`;
                         waProgressBar.setAttribute('aria-valuenow', '100');
                         setTimeout(() => {
                             sendWaButton.disabled = false;
                             if (cancelFollowUpButton) cancelFollowUpButton.disabled = false;
 
-                            showPesan('success', " BERHASIL : mengirim seluruh pesan");
-                            setFollowUpMode(false, { clearMessage: true, clearSelection: true });
-                            if (filterSponsorInput) filterSponsorInput.value = '';
+                            if (failedCount === 0) {
+                                showPesan('success', " BERHASIL : mengirim seluruh pesan WA");
+                                setFollowUpMode(false, { clearMessage: true, clearSelection: true });
+                                if (filterSponsorInput) filterSponsorInput.value = '';
+                            } else {
+                                showPesan('warning', ` PERHATIAN : ${failedCount} pesan WA gagal dikirim. Silahkan cek console browser.`, 5000);
+                                console.warn('Daftar FollowUp WA gagal:', failedRecipients);
+                            }
                         }, 3000);
                     }
                 });
-            }, index * 5000);
+            }, index * 2500);
         });
     });
 }
@@ -636,7 +652,14 @@ function initFollowWeUI() {
     picker.addEventListener('click', (event) => {
         const emojiButton = event.target.closest('.emoji-item');
         if (!emojiButton) return;
-        insertEmojiAtCursor(emojiButton.dataset.emoji || '');
+        const emojiCode = emojiButton.dataset.emojiCode || '';
+        const emoji = emojiCode
+            .split('-')
+            .filter(Boolean)
+            .map((code) => String.fromCodePoint(parseInt(code, 16)))
+            .join('');
+        if (!emoji) return;
+        insertEmojiAtCursor(emoji);
         picker.style.display = 'none';
     });
 

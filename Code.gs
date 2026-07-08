@@ -47,6 +47,7 @@ function doGet(e) {
   // Routing untuk GET requests
   if (action === 'getDataWE')       return handleGetDataWE(e);
   if (action === 'getSingleRecord') return handleGetSingleRecord(e);
+  if (action === 'sendFollowUpWA')  return handleSendFollowUpWA(e);
   // Fallback ke proses survey
   return handleSurvey(e);
 }
@@ -176,6 +177,30 @@ function handleGetSingleRecord(e) {
     return jsonpResponse(e.parameter.callback, { status: 'success', data: responseData });
 }
 
+function handleSendFollowUpWA(e) {
+    const target = e.parameter.target || '';
+    const message = e.parameter.message || '';
+
+    if (!message.trim()) {
+        return jsonpResponse(e.parameter.callback, { status: 'error', message: 'Pesan follow up kosong.' });
+    }
+
+    const result = sendWhatsAppFonnte(target, message);
+    if (result.success) {
+        return jsonpResponse(e.parameter.callback, {
+            status: 'success',
+            message: 'Pesan WA berhasil dikirim.',
+            data: result
+        });
+    }
+
+    return jsonpResponse(e.parameter.callback, {
+        status: 'error',
+        message: result.message || 'Pesan WA gagal dikirim.',
+        data: result
+    });
+}
+
 function handleEditData(data) {
     //if (!isUserAdmin(data.token)) return jsonResponse({ status: 'error', message: 'Akses ditolak' });
 
@@ -254,6 +279,68 @@ function jsonResponse(obj) {
 
 function jsonpResponse(callback, obj) {
     return ContentService.createTextOutput(`${callback}(${JSON.stringify(obj)})`).setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+function normalizeWhatsAppNumber(rawNumber) {
+  const digits = String(rawNumber || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('62')) return digits;
+  if (digits.startsWith('0')) return '62' + digits.replace(/^0+/, '');
+  if (digits.startsWith('8')) return '62' + digits;
+  return digits;
+}
+
+function sendWhatsAppFonnte(target, message) {
+  const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+  const url = "https://api.fonnte.com/send";
+  const normalizedTarget = normalizeWhatsAppNumber(target);
+
+  if (!normalizedTarget || normalizedTarget.length < 10) {
+    return {
+      success: false,
+      target: normalizedTarget || String(target || ''),
+      message: 'Nomor WhatsApp tidak valid.'
+    };
+  }
+
+  try {
+    const response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      headers: { Authorization: TokenFonnte },
+      payload: {
+        target: normalizedTarget,
+        message: message
+      },
+      muteHttpExceptions: true
+    });
+
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText() || '';
+    let parsed = null;
+
+    try {
+      parsed = responseText ? JSON.parse(responseText) : null;
+    } catch (parseError) {
+      parsed = null;
+    }
+
+    const apiStatus = parsed && typeof parsed.status !== 'undefined' ? Boolean(parsed.status) : responseCode >= 200 && responseCode < 300;
+    const apiMessage = parsed && (parsed.reason || parsed.message) ? (parsed.reason || parsed.message) : responseText;
+
+    return {
+      success: apiStatus,
+      target: normalizedTarget,
+      code: responseCode,
+      message: apiStatus ? 'Pesan WA berhasil diproses.' : (apiMessage || 'Respons Fonnte tidak sukses.'),
+      response: parsed || responseText
+    };
+  } catch (error) {
+    return {
+      success: false,
+      target: normalizedTarget,
+      message: error.message || 'Terjadi kesalahan saat menghubungi Fonnte.'
+    };
+  }
 }
 
 /******************************************* 
