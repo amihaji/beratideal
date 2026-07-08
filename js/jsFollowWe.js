@@ -239,8 +239,8 @@ document.getElementById('sendWaButton').addEventListener('click', () => {
         showPesan('warning', " PERHATIAN : Pilih minimal satu record untuk mengirim pesan follow up");
         return;
     }
-    // Konfigurasi API FONNTE
-    const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";
+    // Konfigurasi API FONNTE UNTUK NOMOR HP : 081149908600
+    const TokenFonnte = "9yeq3JusFP9YZobuYTai";       
     const url         = "https://api.fonnte.com/send";
 
     // Inisialisasi progressbar
