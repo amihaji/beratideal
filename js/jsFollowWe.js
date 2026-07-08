@@ -31,6 +31,15 @@ const followUpMessageBox   = document.getElementById('followUpMessageBox');
     
 const filterButtonEl = document.getElementById('filterButton');
 if (filterButtonEl) filterButtonEl.addEventListener('click', loadTableData);
+const filterSponsorEl = document.getElementById('filterSponsor');
+if (filterSponsorEl) {
+    filterSponsorEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            loadTableData();
+        }
+    });
+}
 const saveChangesButtonEl = document.getElementById('saveChangesButton');
 if (saveChangesButtonEl) saveChangesButtonEl.addEventListener('click', saveChanges);
 const exportButtonEl = document.getElementById('exportButton');
@@ -89,67 +98,113 @@ function showLoading(show) {
     overlay.style.display = show ? 'flex' : 'none';
 }
 
+function normalizeFollowUpWEKeyword(value) {
+    return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function filterFollowUpWERecordsByName(rows, keyword) {
+    const normalizedKeyword = normalizeFollowUpWEKeyword(keyword);
+    if (!Array.isArray(rows)) return [];
+    if (!normalizedKeyword) return rows;
+
+    return rows.filter((row) => {
+        const nama = normalizeFollowUpWEKeyword(row[2]);
+        return nama.includes(normalizedKeyword);
+    });
+}
+
+function renderFollowUpWETableRows(rows, emptyMessage) {
+    const tableBody = document.getElementById('dataTableBody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+
+    if (!rows.length) {
+        tableBody.innerHTML = `<tr><td colspan="8">${emptyMessage}</td></tr>`;
+        return;
+    }
+
+    rows.forEach((row) => {
+        const tr        = document.createElement('tr');
+        const rowIndex  = row[0];
+        const tgl       = formatTanggal(row[1]);
+        const nama      = row[2] || '';
+        const hp        = row[3] || '';
+        const email     = row[4] || '';
+        const sponsor   = row[29] || '';
+        const hpSponsor = row[30] || '';
+        const safeNama      = String(nama).replace(/'/g, "\\'");
+        const safeHp        = String(hp).replace(/'/g, "\\'");
+        const safeEmail     = String(email).replace(/'/g, "\\'");
+        const safeSponsor   = String(sponsor).replace(/'/g, "\\'");
+        const safeHpSponsor = String(hpSponsor).replace(/'/g, "\\'");
+
+        tr.innerHTML = `
+            <td><input type="checkbox" class="rowCheckbox d-none"></td>
+            <td>${tgl}</td>
+            <td>${nama}</td>
+            <td>${hp}</td>
+            <td>${email}</td>
+            <td>${sponsor}</td>
+            <td>${hpSponsor}</td>
+            <td class="actions-col">
+                <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
+                    onclick="${userLevel !== 'User' ? `viewRecord(${rowIndex})` : 'return false;'}" 
+                    title="Lihat"><i class="fas fa-eye"></i></a>
+
+                <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
+                    onclick="${userLevel !== 'User' ? `openEditModal(${rowIndex}, '${safeNama}', '${safeHp}', '${safeEmail}', '${safeSponsor}', '${safeHpSponsor}')` : 'return false;'}" 
+                    title="Edit"><i class="fas fa-edit"></i></a>
+
+                <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
+                    onclick="${userLevel !== 'User' ? `deleteRow(${rowIndex})` : 'return false;'}" 
+                    title="Hapus"><i class="fas fa-trash"></i></a>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+function cleanupFollowUpWEJsonp(script, callbackName) {
+    delete window[callbackName];
+    if (script && document.body.contains(script)) {
+        document.body.removeChild(script);
+    }
+}
+
 // ************************
 // Tampilkan Tabel Data  
 // ************************
 function loadTableData() {
     showLoading(true);
-    const filterValue  = document.getElementById('filterSponsor').value;
+    const filterValue  = document.getElementById('filterSponsor').value.trim();
     const callbackName = 'data_cb_' + Date.now();
     const script       = document.createElement('script');
     script.src         = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
    
-    script.onerror = () => { alert('Gagal mengambil data.'); showLoading(false); };
+    script.onerror = () => {
+        cleanupFollowUpWEJsonp(script, callbackName);
+        showPesan('error', 'ERROR : Gagal mengambil data prospek WE.');
+        showLoading(false);
+    };
 
     window[callbackName] = (response) => {
-        const tableBody  = document.getElementById('dataTableBody');
-        tableBody.innerHTML = '';
         if (response.status === 'success') {
-            response.data.forEach(row => {
-                const tr        = document.createElement('tr');
-                const rowIndex  = row[0];
-                const tgl       = formatTanggal(row[1]); // Format tanggal Indonesia
-                const nama      = row[2] || '';
-                const hp        = row[3] || '';
-                const email     = row[4] || '';
-                const sponsor   = row[29] || '';
-                const hpSponsor = row[30] || '';
-                // Ubah data menjadi string sebelum menggunakan replace()
-                const safeNama      = String(nama).replace(/'/g, "\\'");
-                const safeHp        = String(hp).replace(/'/g, "\\'");
-                const safeEmail     = String(email).replace(/'/g, "\\'");
-                const safeSponsor   = String(sponsor).replace(/'/g, "\\'");
-                const safeHpSponsor = String(hpSponsor).replace(/'/g, "\\'");
+            const filteredRows = filterFollowUpWERecordsByName(response.data, filterValue);
 
-                tr.innerHTML = `
-                    <td><input type="checkbox" class="rowCheckbox d-none"></td>
-                    <td>${tgl}</td>
-                    <td>${nama}</td>
-                    <td>${hp}</td>
-                    <td>${email}</td>
-                    <td>${sponsor}</td>
-                    <td>${hpSponsor}</td>
-                    <td class="actions-col">
-                        <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
-                            onclick="${userLevel !== 'User' ? `viewRecord(${rowIndex})` : 'return false;'}" 
-                            title="Lihat"><i class="fas fa-eye"></i></a>
-
-                        <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
-                            onclick="${userLevel !== 'User' ? `openEditModal(${rowIndex}, '${safeNama}', '${safeHp}', '${safeEmail}', '${safeSponsor}', '${safeHpSponsor}')` : 'return false;'}" 
-                            title="Edit"><i class="fas fa-edit"></i></a>
-
-                        <a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
-                            onclick="${userLevel !== 'User' ? `deleteRow(${rowIndex})` : 'return false;'}" 
-                            title="Hapus"><i class="fas fa-trash"></i></a>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
+            if (response.data.length === 0) {
+                renderFollowUpWETableRows([], 'Tidak ada data prospek WE.');
+            } else if (filteredRows.length === 0) {
+                renderFollowUpWETableRows([], 'Data dengan nama tersebut tidak ditemukan.');
+                showPesan('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.');
+            } else {
+                renderFollowUpWETableRows(filteredRows, 'Tidak ada data prospek WE.');
+            }
         } else {
-            //alert(response.message);
             showPesan('warning', " ERROR : " + response.message);
-            if(response.message.includes('Sesi tidak valid')); 
+            if(response.message.includes('Sesi tidak valid'));
         }
+        cleanupFollowUpWEJsonp(script, callbackName);
         showLoading(false);
     };
     document.body.appendChild(script);

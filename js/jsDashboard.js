@@ -197,6 +197,21 @@ function formatFollowUpWETanggal(value) {
     });
 }
 
+function normalizeFollowUpWEKeyword(value) {
+    return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function filterFollowUpWERecordsByName(rows, keyword) {
+    const normalizedKeyword = normalizeFollowUpWEKeyword(keyword);
+    if (!Array.isArray(rows)) return [];
+    if (!normalizedKeyword) return rows;
+
+    return rows.filter((row) => {
+        const nama = normalizeFollowUpWEKeyword(row[2]);
+        return nama.includes(normalizedKeyword);
+    });
+}
+
 function loadFollowUpWETableFallback() {
     const tableBody = document.getElementById('dataTableBody');
     const filterSponsor = document.getElementById('filterSponsor');
@@ -223,6 +238,8 @@ function loadFollowUpWETableFallback() {
             return;
         }
 
+        const filteredRows = filterFollowUpWERecordsByName(response.data, filterValue);
+
         if (response.data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="8">Tidak ada data prospek WE.</td></tr>';
             cleanupFollowUpWEJsonp(script, callbackName);
@@ -230,7 +247,17 @@ function loadFollowUpWETableFallback() {
             return;
         }
 
-        response.data.forEach(row => {
+        if (filteredRows.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8">Data dengan nama tersebut tidak ditemukan.</td></tr>';
+            if (typeof showPesan === 'function') {
+                showPesan('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.', 4000);
+            }
+            cleanupFollowUpWEJsonp(script, callbackName);
+            setFollowUpWELoading(false);
+            return;
+        }
+
+        filteredRows.forEach(row => {
             const tr = document.createElement('tr');
             const rowIndex = row[0];
             const tanggal = formatFollowUpWETanggal(row[1]);
