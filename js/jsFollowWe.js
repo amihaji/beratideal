@@ -569,9 +569,12 @@ function formatTanggal(tanggalISO) {
 }
 
 // ***************************
-// Inisialisasi Emoji Picker
+// Inisialisasi UI FollowUp WE
 // **************************
-document.addEventListener('DOMContentLoaded', () => {
+function initFollowWeUI() {
+    if (window.followWeUiInitialized) return;
+    window.followWeUiInitialized = true;
+
     const viewModalEl = document.getElementById('viewModal');
     if (viewModalEl) {
         viewModalEl.addEventListener('shown.bs.modal', () => {
@@ -592,6 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const picker   = document.getElementById('emojiPicker');
     const button   = document.getElementById('emojiPickerButton');
     const textarea = document.getElementById('waMessage');
+    if (!picker || !button || !textarea) return;
 
     // Fungsi untuk menambahkan emoji ke textarea
     button.addEventListener('click', () => {
@@ -626,7 +630,13 @@ document.addEventListener('DOMContentLoaded', () => {
             picker.style.display = 'none';
         }
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
+} else {
+    initFollowWeUI();
+}
 
 // *****************************************
 // Pesan Notifikasi untuk di Form Tabel User
