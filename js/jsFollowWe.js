@@ -4,11 +4,11 @@ APLIKASI BERATIDEAL
 Database :  dbWETools (SurveyData dan DataWE)
 FOLLOWUP WE :
 - File pdf dapat dikirim ke email dan wa
-- Penambahan Inputan untuk Data Sponsor/Pengundang
+- Inputan untuk Data Sponsor/Pengundang
 - Hasil Survey TIDAK ditampilkan ke layar
 - Form Dashboard WE : Lihat, Edit dan Hapus
-- Tambah Fiture Kirim WA Follow UP : Isi Pesan, Pilih Record untuk kirim WA
-- Tambah Fiture Emoticon untuk kirim pesan
+- Fiture Kirim WA Follow UP : Isi Pesan, Pilih Record untuk kirim WA
+- Fiture Emoticon untuk kirim pesan
 *******************************************/
 
 // ********* Deklarasi  Public **********
