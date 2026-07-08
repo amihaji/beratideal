@@ -22,6 +22,7 @@ const userLevel  = localStorage.getItem('userLevel') || 'User';
 // Defenisikan semua constanta 
 const editModal            = new bootstrap.Modal(document.getElementById('editModal'));
 const viewModal            = new bootstrap.Modal(document.getElementById('viewModal'));
+let viewModalScrollSyncing = false;
 const startFollowUpButton  = document.getElementById('startFollowUpButton');
 const cancelFollowUpButton = document.getElementById('cancelFollowUpButton');
 const sendWaButton         = document.getElementById('sendWaButton');
@@ -379,6 +380,48 @@ async function deleteRow(rowIndex) {
 // ************************************************
 // Fungsi untuk melihat data hasil evaluasi wetools
 // ************************************************
+function setupViewModalHorizontalScrollHelper() {
+    const content = document.querySelector('#viewModal .followupwe-view-content');
+    const helper = document.getElementById('viewModalScrollHelper');
+    const bottomScroll = document.getElementById('viewModalBottomScroll');
+    const bottomScrollInner = document.getElementById('viewModalBottomScrollInner');
+
+    if (!helper || !bottomScroll || !bottomScrollInner) return;
+    if (!content) {
+        helper.style.display = 'none';
+        return;
+    }
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const hasHorizontalOverflow = content.scrollWidth > content.clientWidth + 1;
+
+    bottomScrollInner.style.width = `${content.scrollWidth}px`;
+    helper.style.display = isMobile && hasHorizontalOverflow ? 'block' : 'none';
+
+    if (!content.dataset.scrollSyncBound) {
+        content.addEventListener('scroll', () => {
+            if (viewModalScrollSyncing) return;
+            viewModalScrollSyncing = true;
+            bottomScroll.scrollLeft = content.scrollLeft;
+            requestAnimationFrame(() => { viewModalScrollSyncing = false; });
+        });
+        content.dataset.scrollSyncBound = 'true';
+    }
+
+    if (!bottomScroll.dataset.scrollSyncBound) {
+        bottomScroll.addEventListener('scroll', () => {
+            const activeContent = document.querySelector('#viewModal .followupwe-view-content');
+            if (!activeContent || viewModalScrollSyncing) return;
+            viewModalScrollSyncing = true;
+            activeContent.scrollLeft = bottomScroll.scrollLeft;
+            requestAnimationFrame(() => { viewModalScrollSyncing = false; });
+        });
+        bottomScroll.dataset.scrollSyncBound = 'true';
+    }
+
+    bottomScroll.scrollLeft = content.scrollLeft;
+}
+
 function viewRecord(rowIndex) {
     showLoading(true);
     const callbackName = 'view_cb_' + Date.now();
@@ -468,6 +511,7 @@ function viewRecord(rowIndex) {
                 </div>`;
  
                 viewModal.show();
+                setTimeout(setupViewModalHorizontalScrollHelper, 120);
         } else {
            //alert(response.message);
            showPesan('warning', " PERHATIAN : " + response.message);
@@ -528,6 +572,23 @@ function formatTanggal(tanggalISO) {
 // Inisialisasi Emoji Picker
 // **************************
 document.addEventListener('DOMContentLoaded', () => {
+    const viewModalEl = document.getElementById('viewModal');
+    if (viewModalEl) {
+        viewModalEl.addEventListener('shown.bs.modal', () => {
+            setTimeout(setupViewModalHorizontalScrollHelper, 80);
+        });
+        viewModalEl.addEventListener('hidden.bs.modal', () => {
+            const helper = document.getElementById('viewModalScrollHelper');
+            if (helper) helper.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        if (document.getElementById('viewModal')?.classList.contains('show')) {
+            setupViewModalHorizontalScrollHelper();
+        }
+    });
+
     const picker   = document.getElementById('emojiPicker');
     const button   = document.getElementById('emojiPickerButton');
     const textarea = document.getElementById('waMessage');
