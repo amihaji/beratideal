@@ -13,7 +13,7 @@ FOLLOWUP WE :
 
 // ********* Deklarasi  Public **********
 // url database :  dbWETools (SurveyData dan DataWE)
-const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbxhf-Co0aokH4LEhqpBF1zQQmu32yH__duXPjpBIhWLYocnmTtp6jpzwU_m1LdDzgpu/exec';
+const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 const userID     = localStorage.getItem('userID') || '';
 const userToken  = localStorage.getItem('userToken') || '';
 const userLevel  = localStorage.getItem('userLevel') || 'User';
@@ -636,6 +636,11 @@ function initFollowWeUI() {
     const textarea = document.getElementById('waMessage');
     if (!picker || !button || !textarea) return;
 
+    if (!picker.dataset.portalReady) {
+        document.body.appendChild(picker);
+        picker.dataset.portalReady = 'true';
+    }
+
     function insertEmojiAtCursor(emoji) {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
@@ -644,9 +649,36 @@ function initFollowWeUI() {
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
     }
 
+    function positionEmojiPicker() {
+        const buttonRect = button.getBoundingClientRect();
+        const pickerWidth = Math.min(320, window.innerWidth - 24);
+        const spacing = 8;
+
+        let left = buttonRect.right - pickerWidth;
+        if (left < 12) left = 12;
+        if (left + pickerWidth > window.innerWidth - 12) {
+            left = window.innerWidth - pickerWidth - 12;
+        }
+
+        let top = buttonRect.bottom + spacing;
+        const estimatedHeight = 220;
+        if (top + estimatedHeight > window.innerHeight - 12) {
+            top = Math.max(12, buttonRect.top - estimatedHeight - spacing);
+        }
+
+        picker.style.width = `${pickerWidth}px`;
+        picker.style.left = `${left}px`;
+        picker.style.top = `${top}px`;
+    }
+
     button.addEventListener('click', (event) => {
         event.preventDefault();
-        picker.style.display = picker.style.display === 'block' ? 'none' : 'grid';
+        if (picker.style.display === 'grid') {
+            picker.style.display = 'none';
+            return;
+        }
+        positionEmojiPicker();
+        picker.style.display = 'grid';
     });
 
     picker.addEventListener('click', (event) => {
@@ -666,6 +698,12 @@ function initFollowWeUI() {
     document.addEventListener('click', (e) => {
         if (!picker.contains(e.target) && !button.contains(e.target)) {
             picker.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (picker.style.display === 'grid') {
+            positionEmojiPicker();
         }
     });
 }

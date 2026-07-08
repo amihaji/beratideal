@@ -32,6 +32,8 @@ const DB_WETOOLS         = '1Oto0_yxgJID5GD08EwE4509_A5MSN7vXp3havvUoAco';   // 
 const SH_SURVEY          = "SurveyData";                                     // Nama Sheet  
 const SH_WELLNESS        = "DataWE";                                         // Nama Sheet  
 const FOLDER_HASILSURVEY = "11Pf4TNesubzJvQ3kL4PJx8SE44SeZM9E";
+const FONNTE_URL         = "https://api.fonnte.com/send";
+const FONNTE_TOKEN       = PropertiesService.getScriptProperties().getProperty('FONNTE_TOKEN') || "9yeq3JusFP9YZobuYTai";
 
 const ss = SpreadsheetApp.openById(DB_WETOOLS);
 const surveySheet = ss.getSheetByName(SH_SURVEY);
@@ -291,9 +293,15 @@ function normalizeWhatsAppNumber(rawNumber) {
 }
 
 function sendWhatsAppFonnte(target, message) {
-  const TokenFonnte = "9yeq3JusFP9YZobuYTai";
-  const url = "https://api.fonnte.com/send";
   const normalizedTarget = normalizeWhatsAppNumber(target);
+
+  if (!FONNTE_TOKEN) {
+    return {
+      success: false,
+      target: normalizedTarget || String(target || ''),
+      message: 'Token Fonnte belum diatur di Apps Script.'
+    };
+  }
 
   if (!normalizedTarget || normalizedTarget.length < 10) {
     return {
@@ -304,9 +312,9 @@ function sendWhatsAppFonnte(target, message) {
   }
 
   try {
-    const response = UrlFetchApp.fetch(url, {
+    const response = UrlFetchApp.fetch(FONNTE_URL, {
       method: 'post',
-      headers: { Authorization: TokenFonnte },
+      headers: { Authorization: FONNTE_TOKEN },
       payload: {
         target: normalizedTarget,
         message: message
@@ -326,12 +334,15 @@ function sendWhatsAppFonnte(target, message) {
 
     const apiStatus = parsed && typeof parsed.status !== 'undefined' ? Boolean(parsed.status) : responseCode >= 200 && responseCode < 300;
     const apiMessage = parsed && (parsed.reason || parsed.message) ? (parsed.reason || parsed.message) : responseText;
+    const friendlyMessage = /unknown token/i.test(String(apiMessage || ''))
+      ? 'Token Fonnte tidak valid atau sudah expired.'
+      : (apiMessage || 'Respons Fonnte tidak sukses.');
 
     return {
       success: apiStatus,
       target: normalizedTarget,
       code: responseCode,
-      message: apiStatus ? 'Pesan WA berhasil diproses.' : (apiMessage || 'Respons Fonnte tidak sukses.'),
+      message: apiStatus ? 'Pesan WA berhasil diproses.' : friendlyMessage,
       response: parsed || responseText
     };
   } catch (error) {
@@ -990,9 +1001,6 @@ function kirimEmail(email, nama, fileUrl, mSponsor, mHpSponsor) {
 
 // Fungsi untuk mengrim WA
 function kirimWA(nomorHP, nama, fileUrl, mSponsor, mHpSponsor) {
-  //const TokenFonnte = "Ekjb4bsxt4W6BcXHr4vE";     // HP Lama 
-  const TokenFonnte = "9yeq3JusFP9YZobuYTai";     // No HP : 081149908600
-  const url         = "https://api.fonnte.com/send";
   const tanggal     = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd MMMM yyyy");
   const noWaUser    = "62" + String(nomorHP).replace(/^0+/, "");
   const noWaSponsor = "62" + String(mHpSponsor).replace(/^0+/, "");
@@ -1017,21 +1025,21 @@ function kirimWA(nomorHP, nama, fileUrl, mSponsor, mHpSponsor) {
 
   const options_konsumen = { 
     method: "post", 
-    headers: { "Authorization": TokenFonnte }, 
+    headers: { "Authorization": FONNTE_TOKEN }, 
     payload: { target: noWaUser, message: fPesanWA } };
   
   const options_member = { 
     method: "post", 
-    headers: { "Authorization": TokenFonnte }, 
+    headers: { "Authorization": FONNTE_TOKEN }, 
     payload: { target: noWaSponsor, message: "*Notifikasi List Baru*\n" + fPesanWA } };
 
   try {
-    UrlFetchApp.fetch(url, options_konsumen);
+    UrlFetchApp.fetch(FONNTE_URL, options_konsumen);
     console.log("Pesan WA terkirim ke konsumen:", noWaUser);
   } catch(e) { console.error("Gagal kirim WA ke konsumen:", e); }
 
   try {
-    UrlFetchApp.fetch(url, options_member);
+    UrlFetchApp.fetch(FONNTE_URL, options_member);
     console.log("Pesan WA terkirim ke sponsor:", noWaSponsor);
   } catch(e) { console.error("Gagal kirim WA ke sponsor:", e); }
 }

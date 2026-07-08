@@ -225,9 +225,9 @@ tr:hover .action-icon {
     position: relative;
 }
 .followupwe-emoji-picker {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: min(320px, 100%);
     max-height: 220px;
     overflow-y: auto;
@@ -239,7 +239,7 @@ tr:hover .action-icon {
     border-radius: 0.75rem;
     background-color: #fff;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    z-index: 1045;
+    z-index: 200000;
 }
 .followupwe-emoji-picker .emoji-item {
     min-width: 0;
@@ -627,8 +627,6 @@ tr:hover .action-icon {
         margin-bottom: 0;
     }
     .followupwe-emoji-picker {
-        right: auto;
-        left: 0;
         width: 100%;
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
