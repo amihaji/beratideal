@@ -5,6 +5,8 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 ***************************************************************/
 
 // ********* Deklarasi Variabel Public **********
+const URL_DB_WETOOLS_FALLBACK = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
+let followUpWEFallbackBound = false;
 let currentPage = 'dashboard';
 let studentsData = [];
 let programsData = [];
@@ -101,8 +103,8 @@ function showPage(pageName) {
     }
 }
 
-const URL_DB_WETOOLS_FALLBACK = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
-let followUpWEFallbackBound = false;
+// const URL_DB_WETOOLS_FALLBACK = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
+// let followUpWEFallbackBound = false;
 
 function ensureFollowUpWEFallback() {
     if (followUpWEFallbackBound) return;
