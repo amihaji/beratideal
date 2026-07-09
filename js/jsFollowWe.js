@@ -659,12 +659,7 @@ function initFollowWeUI() {
     picker.addEventListener('click', (event) => {
         const emojiButton = event.target.closest('.emoji-item');
         if (!emojiButton) return;
-        const emojiCode = emojiButton.dataset.emojiCode || '';
-        const emoji = emojiCode
-            .split('-')
-            .filter(Boolean)
-            .map((code) => String.fromCodePoint(parseInt(code, 16)))
-            .join('');
+        const emoji = (emojiButton.textContent || '').trim();
         if (!emoji) return;
         insertEmojiAtCursor(emoji);
         picker.style.display = 'none';
