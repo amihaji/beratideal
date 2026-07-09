@@ -112,7 +112,7 @@ dengan hak aksesnya
   // url user dbUser
   // Samakan deployment login dengan Setup User agar logika lock user
   // dan notifikasi WA otomatis berjalan dari backend yang sama.
-  const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwZR6DnXUYb4aSlbsAR-KG8qmYO64lOV9ask1gS1EH9Wuic06qoTvK9wqqgj_6t1WTzNg/exec';  
+  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwZR6DnXUYb4aSlbsAR-KG8qmYO64lOV9ask1gS1EH9Wuic06qoTvK9wqqgj_6t1WTzNg/exec';  
   
   document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('btnLoginSubmit').addEventListener('click', function () {
@@ -134,7 +134,7 @@ dengan hak aksesnya
 
       const callbackName = 'cb_' + Date.now();
       const script = document.createElement('script');
-      script.src = `${URL_APPS_SCRIPT}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
+      script.src = `${URL_dbUSER}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
 
       window[callbackName] = function (response) {
         // 🔍 DEBUG LOGIN RESPONSE
@@ -155,9 +155,9 @@ dengan hak aksesnya
           var level = (response.level || '').toLowerCase();
           
           if (level === 'admin') {
-            redirectPage = 'dashAdmin.html';
+            redirectPage = 'formDashboard.html';
           } else if (level === 'member') {
-            redirectPage = 'dashMember.html';
+            redirectPage = 'formDashboard.html';
           } else {
             // Peserta atau level lain
             redirectPage = 'prog10hari.html';
@@ -170,7 +170,7 @@ dengan hak aksesnya
             const progressCallback = 'cb_progress_' + Date.now();
             const progressScript = document.createElement('script');
             
-            progressScript.src = `${URL_APPS_SCRIPT}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
+            progressScript.src = `${URL_dbUSER}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
             
             window[progressCallback] = function(progressData) {
               console.log('📥 Progress dari server:', progressData);
