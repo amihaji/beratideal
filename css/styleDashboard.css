@@ -224,38 +224,55 @@ tr:hover .action-icon {
 .followupwe-message-input {
     position: relative;
 }
+.followupwe-message-footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.followupwe-message-footer .form-text {
+    margin-top: 0;
+}
+.followupwe-emoji-button {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
 .followupwe-emoji-picker {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: min(320px, 100%);
+    position: static;
+    width: 100%;
     max-height: 220px;
     overflow-y: auto;
+    margin-top: 0.5rem;
     padding: 0.75rem;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     gap: 0.5rem;
     border: 1px solid #dee2e6;
     border-radius: 0.75rem;
     background-color: #fff;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    z-index: 200000;
+    z-index: auto;
 }
 .followupwe-emoji-picker .emoji-item {
     min-width: 0;
-    padding: 0.45rem 0.25rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1.15rem;
     line-height: 1;
+    background-color: transparent;
+    border-color: transparent;
+    justify-self: center;
 }
-@media (max-width: 768px) {
-    .followupwe-emoji-picker {
-        position: static;
-        width: 100%;
-        max-height: 180px;
-        margin-top: 0.5rem;
-        z-index: auto;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
-    }
+.followupwe-emoji-picker .emoji-item:hover,
+.followupwe-emoji-picker .emoji-item:focus {
+    background-color: rgba(13, 110, 253, 0.12);
+    border-color: rgba(13, 110, 253, 0.25);
 }
 .lognotif-toolbar .dropdown-menu {
     z-index: 1040;

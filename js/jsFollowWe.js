@@ -637,26 +637,7 @@ function initFollowWeUI() {
     if (!picker || !button || !textarea) return;
 
     const pickerHost = document.querySelector('.followupwe-message-input');
-
-    function ensureEmojiPickerPlacement() {
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-        if (isMobile) {
-            if (pickerHost && picker.parentElement !== pickerHost) {
-                pickerHost.appendChild(picker);
-            }
-            picker.style.width = '100%';
-            picker.style.left = '';
-            picker.style.right = '';
-            picker.style.top = '';
-            picker.style.bottom = '';
-            return;
-        }
-
-        if (picker.parentElement !== document.body) {
-            document.body.appendChild(picker);
-        }
-    }
+    if (pickerHost && picker.parentElement !== pickerHost) pickerHost.appendChild(picker);
 
     function insertEmojiAtCursor(emoji) {
         const start = textarea.selectionStart;
@@ -666,43 +647,12 @@ function initFollowWeUI() {
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
     }
 
-    function positionEmojiPicker() {
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        if (isMobile) return;
-
-        const buttonRect = button.getBoundingClientRect();
-        const pickerWidth = Math.min(320, window.innerWidth - 24);
-        const spacing = 8;
-
-        picker.style.right = `auto`;
-        picker.style.bottom = `auto`;
-        picker.style.maxHeight = `220px`;
-
-        let left = buttonRect.right - pickerWidth;
-        if (left < 12) left = 12;
-        if (left + pickerWidth > window.innerWidth - 12) {
-            left = window.innerWidth - pickerWidth - 12;
-        }
-
-        let top = buttonRect.bottom + spacing;
-        const estimatedHeight = 220;
-        if (top + estimatedHeight > window.innerHeight - 12) {
-            top = Math.max(12, buttonRect.top - estimatedHeight - spacing);
-        }
-
-        picker.style.width = `${pickerWidth}px`;
-        picker.style.left = `${left}px`;
-        picker.style.top = `${top}px`;
-    }
-
     button.addEventListener('click', (event) => {
         event.preventDefault();
-        ensureEmojiPickerPlacement();
         if (picker.style.display === 'grid') {
             picker.style.display = 'none';
             return;
         }
-        positionEmojiPicker();
         picker.style.display = 'grid';
     });
 
@@ -721,22 +671,9 @@ function initFollowWeUI() {
     });
 
     document.addEventListener('click', (e) => {
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        if (isMobile) {
-            if (pickerHost && !pickerHost.contains(e.target)) picker.style.display = 'none';
-            return;
-        }
-        if (!picker.contains(e.target) && !button.contains(e.target) && !textarea.contains(e.target)) picker.style.display = 'none';
+        if (picker.style.display !== 'grid') return;
+        if (pickerHost && !pickerHost.contains(e.target)) picker.style.display = 'none';
     });
-
-    window.addEventListener('resize', () => {
-        ensureEmojiPickerPlacement();
-        if (picker.style.display === 'grid') {
-            positionEmojiPicker();
-        }
-    });
-
-    ensureEmojiPickerPlacement();
 }
 
 if (document.readyState === 'loading') {
