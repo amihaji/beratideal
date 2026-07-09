@@ -650,9 +650,25 @@ function initFollowWeUI() {
     }
 
     function positionEmojiPicker() {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
         const buttonRect = button.getBoundingClientRect();
-        const pickerWidth = Math.min(320, window.innerWidth - 24);
+        const pickerWidth = isMobile ? Math.max(0, window.innerWidth - 24) : Math.min(320, window.innerWidth - 24);
         const spacing = 8;
+
+        if (isMobile) {
+            const maxHeight = Math.min(260, Math.floor(window.innerHeight * 0.4));
+            picker.style.width = `${pickerWidth}px`;
+            picker.style.left = `12px`;
+            picker.style.right = `12px`;
+            picker.style.top = `auto`;
+            picker.style.bottom = `12px`;
+            picker.style.maxHeight = `${maxHeight}px`;
+            return;
+        }
+
+        picker.style.right = `auto`;
+        picker.style.bottom = `auto`;
+        picker.style.maxHeight = `220px`;
 
         let left = buttonRect.right - pickerWidth;
         if (left < 12) left = 12;
@@ -676,6 +692,9 @@ function initFollowWeUI() {
         if (picker.style.display === 'grid') {
             picker.style.display = 'none';
             return;
+        }
+        if (window.matchMedia('(max-width: 768px)').matches) {
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         positionEmojiPicker();
         picker.style.display = 'grid';
