@@ -266,13 +266,14 @@ tr:hover .action-icon {
 }
 .followupwe-emoji-grid {
     display: grid;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(2.2rem, 1fr));
     gap: 0.5rem;
 }
 .followupwe-emoji-picker .emoji-item {
     min-width: 0;
-    width: 2.1rem;
-    height: 2.1rem;
+    width: 100%;
+    max-width: 2.2rem;
+    aspect-ratio: 1 / 1;
     padding: 0;
     border-radius: 999px;
     display: inline-flex;
@@ -668,9 +669,9 @@ tr:hover .action-icon {
         width: 100%;
         margin-bottom: 0;
     }
-    .followupwe-emoji-picker {
-        width: 100%;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+    .followupwe-emoji-grid {
+        grid-template-columns: repeat(auto-fit, minmax(2rem, 1fr));
+        gap: 0.4rem;
     }
     #viewModal .followupwe-view-content {
         overflow-x: auto;
