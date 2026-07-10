@@ -199,7 +199,7 @@ function applySetupUserFilter() {
 
   if (!filtered.length) {
     renderUserTableRows([]);
-    showPesan('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.');
+    showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.');
     return;
   }
 
@@ -224,7 +224,7 @@ function loadUserTable() {
     };
 
     script.onerror = function() {
-        showPesan('error',' ERROR : Gagal mengambil data user!');
+        showPesanSetupUser('error',' ERROR : Gagal mengambil data user!');
         showLoading(false,'user');
         delete window[callbackName];
     };
@@ -280,7 +280,7 @@ function loadLogNotifTable() {
   };
 
   script.onerror = function() {
-    showPesan('error', ' ERROR : Gagal mengambil data log notifikasi!');
+    showPesanSetupUser('error', ' ERROR : Gagal mengambil data log notifikasi!');
     showLoading(true, 'log');
     delete window[callbackName];
     document.body.removeChild(script);
@@ -486,7 +486,7 @@ async function deleteUser(userId) {
   const callback = 'cb_' + Date.now();
   window[callback] = function(response) {
     if (response.status === 'success') {
-       showPesan('success', " SUKSES : " + response.message);
+       showPesanSetupUser('success', " SUKSES : " + response.message);
        loadUserTable(); // Refresh tabel
     }
     delete window[callback];
@@ -506,7 +506,7 @@ async function unlockUser(userId) {
   const callbackName = 'cbUnlock_' + Date.now();
   window[callbackName] = (res) => {
     if (res.status === 'success') {
-      showPesan('success', 'Berhasil unlock user');
+      showPesanSetupUser('success', 'Berhasil unlock user');
       localStorage.setItem('notifReady_' + userId, 'true');
       const row = document.getElementById(`row_${userId}`);
       if (row) {
@@ -518,7 +518,7 @@ async function unlockUser(userId) {
         row.querySelector('.fa-unlock')?.classList.add('disabled');
         row.querySelector('.fa-paper-plane')?.classList.remove('disabled');
       }
-    } else showPesan('error', " ERROR : Reset Login gagal " + res.message);
+    } else showPesanSetupUser('error', " ERROR : Reset Login gagal " + res.message);
       delete window[callbackName];
   };
   const script = document.createElement('script');
@@ -544,7 +544,7 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
     console.log("Mengirim notifikasi ke:", userId, userName, userEmail, waNumber, userPass);
 
     if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
-        showPesan('error', " ERROR : Nomor WhatsApp user tidak valid.");
+        showPesanSetupUser('error', " ERROR : Nomor WhatsApp user tidak valid.");   
         return;
     }
 
@@ -561,13 +561,13 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
     window[callback] = function (response) {
         console.log("Respon kirim:", response);
         if (response.status === 'success') {
-            showPesan('success', 'Berhasil terkirim notif reset user');
+            showPesanSetupUser('success', 'Berhasil terkirim notif reset user');
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
         } else if (response.status === 'partial') {
-            showPesan('warning', " WARNING : " + response.message, 5000);
+            showPesanSetupUser('warning', " WARNING : " + response.message, 5000);  
         } else {
-            showPesan('error', " ERROR : " + response.message);
+            showPesanSetupUser('error', " ERROR : " + response.message);
         }
 
         delete window[callback];
@@ -575,7 +575,7 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
     };
 
     script.onerror = () => {
-        showPesan('error', " ERROR : Gagal terhubung ke server");
+        showPesanSetupUser('error', " ERROR : Gagal terhubung ke server");
         delete window[callback];
         document.body.removeChild(script);
     };
@@ -591,7 +591,7 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
     console.log("Mengirim notifikasi ke:", userId, userName, userEmail, waNumber, userPass);
 
     if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
-        showPesan('error', " ERROR : Nomor WhatsApp user tidak valid.");
+        showPesanSetupUser('error', " ERROR : Nomor WhatsApp user tidak valid.");   
         return;
     }
 
@@ -608,13 +608,13 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
     window[callback] = function (response) {
         console.log("Respon kirim:", response);
         if (response.status === 'success') {
-            showPesan('success', 'Berhasil terkirim aktifasi user');
+            showPesanSetupUser('success', 'Berhasil terkirim aktifasi user');
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
         } else if (response.status === 'partial') {
-            showPesan('warning', " WARNING : " + response.message, 5000);
+            showPesanSetupUser('warning', " WARNING : " + response.message, 5000);  
         } else {
-            showPesan('error', " ERROR : " + response.message);
+            showPesanSetupUser('error', " ERROR : " + response.message);
         }
 
         delete window[callback];
@@ -622,7 +622,7 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
     };
 
     script.onerror = () => {
-        showPesan('error', " ERROR : Gagal terhubung ke server");
+        showPesanSetupUser('error', " ERROR : Gagal terhubung ke server");
         delete window[callback];
         document.body.removeChild(script);
     };
@@ -678,9 +678,9 @@ async function deleteLogNotif(forceStatus) {
     if (finished) return;
     finished = true;
     if (status === 'SEMUA') {
-      showPesan("error", "ERROR : Tidak ada respon dari server");
+      showPesanSetupUser("error", "ERROR : Tidak ada respon dari server");
     } else {
-      showPesan("error", `ERROR : Hapus log status "${status}" belum didukung server (action deleteLogNotifByStatus)`);
+      showPesanSetupUser("error", `ERROR : Hapus log status "${status}" belum didukung server (action deleteLogNotifByStatus)`);
     }
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
@@ -691,10 +691,10 @@ async function deleteLogNotif(forceStatus) {
     finished = true;
     clearTimeout(timeoutId);
     if (response && response.status === 'success') {
-      showPesan("success", "Data log berhasil terhapus");
+      showPesanSetupUser("success", "Data log berhasil terhapus");
       loadLogNotifTable();
     } else {
-      showPesan("error", (response && response.message) ? response.message : "Gagal menghapus log");
+      showPesanSetupUser("error", (response && response.message) ? response.message : "Gagal menghapus log");
     }
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
@@ -704,7 +704,7 @@ async function deleteLogNotif(forceStatus) {
     if (finished) return;
     finished = true;
     clearTimeout(timeoutId);
-    showPesan("error", "Tidak dapat terhubung ke server");
+    showPesanSetupUser("error", "Tidak dapat terhubung ke server");
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
   };
@@ -715,7 +715,7 @@ async function deleteLogNotif(forceStatus) {
 // *****************************************
 // Pesan Notifikasi untuk di Form Tabel User
 // *****************************************
-function showPesan(type, message, duration = 3000) {
+function showPesanSetupUser(type, message, duration = 3000) {
   const visiblePage = Array.from(document.querySelectorAll('.page-content'))
     .find((page) => page && page.style && page.style.display !== 'none');
   const scopedBox = visiblePage ? (visiblePage.querySelector('#setupPesanNotification') || visiblePage.querySelector('#pesanNotification')) : null;
@@ -745,6 +745,8 @@ function showPesan(type, message, duration = 3000) {
   box.style.display = 'flex';
   setTimeout(() => {box.style.display = 'none';}, duration);
 }
+
+window.showPesanSetupUser = showPesanSetupUser;
 
 // **************************************************
 // Pesan Notifikasi untuk di Form Modal Add dan Edit
