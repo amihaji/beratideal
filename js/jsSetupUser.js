@@ -108,7 +108,8 @@ function renderUserTableRows(rows) {
 
   rows.forEach(row => {
     const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-      login, setting, fc, adm, mem, we, crm, coach] = row;
+      login, fitchallange, fittracker, analisa, datapeserta, followwe, followcrm,
+      referall, setup, lognotif, coach] = row;
 
     let editState     = '';
     let aktifasiState = '';
@@ -145,12 +146,15 @@ function renderUserTableRows(rows) {
       <td>${levelUser}</td>
       <td>${salah}</td>
       <td>${login}</td>
-      <td>${setting}</td>
-      <td>${fc}</td>
-      <td>${adm}</td>
-      <td>${mem}</td>
-      <td>${we}</td>
-      <td>${crm}</td>
+      <td>${fitchallange}</td>
+      <td>${fittracker}</td>
+      <td>${analisa}</td>
+      <td>${datapeserta}</td>
+      <td>${followwe}</td>
+      <td>${followcrm}</td>
+      <td>${referall}</td>
+      <td>${setup}</td>
+      <td>${lognotif}</td>
       <td>${coach}</td>
       <td class="actions-col">
         <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
@@ -161,13 +165,16 @@ function renderUserTableRows(rows) {
           userPass: '${passUser}',
           userLevel: '${levelUser}',
           aksesLogin: '${login}',
-          aksesSetting: '${setting}',
-          aksesFC: '${fc}',
-          aksesDashAdmin: '${adm}',
-          aksesDashMember: '${mem}',
-          aksesDashWE: '${we}',
-          aksesDashCRM: '${crm}',
-          aksesCoach: '${coach}'
+          aksesFitChallange: '${fitchallange}',
+          aksesFitTracker: '${fittracker}',
+          aksesAnalisa: '${analisa}',
+          aksesDataPeserta: '${datapeserta}',
+          aksesFollowWe: '${followwe}',
+          aksesFollowCrm: '${followcrm}',
+          aksesReferall: '${referall}',
+          aksesSetup: '${setup}',
+          aksesLogNotif: '${lognotif}',
+          aksesCoach: '${coach}',
         })"></i>
         <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
         <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
@@ -313,14 +320,17 @@ function addUser() {
     const userPass   = document.getElementById('userPass').value.trim();
     const userLevel  = document.getElementById('userLevel').value;
 
-    const aksesLogin      = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
-    const aksesSetting    = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFC         = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
-    const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
-    const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
-    const aksesDashWE     = document.querySelector('input[name="aksesDashWE"]:checked')?.value || 'N';
-    const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
-    const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
+    const aksesLogin        = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
+    const aksesFitChallange = document.querySelector('input[name="aksesFitChallange"]:checked')?.value || 'N';
+    const aksesFitTracker   = document.querySelector('input[name="aksesFitTracker"]:checked')?.value || 'N';
+    const aksesAnalisa      = document.querySelector('input[name="aksesAnalisa"]:checked')?.value || 'N';
+    const aksesDataPeserta  = document.querySelector('input[name="aksesDataPeserta"]:checked')?.value || 'N';
+    const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
+    const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
+    const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
+    const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
+    const aksesCoach        = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
     // Validasi
     if (!validateUserForm()) {
@@ -364,7 +374,8 @@ function addUser() {
     const params = new URLSearchParams({
         action: 'addUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin ,aksesDashMember, aksesDashWE , aksesDashCRM, aksesCoach,
+        aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
+        aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
@@ -390,19 +401,22 @@ function editUser() {
     const userPass   = document.getElementById('userPass').value.trim();
     const userLevel  = document.getElementById('userLevel').value;
 
-    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
-    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFC      = document.querySelector('input[name="aksesFC"]:checked')?.value || 'N';
-    const aksesDashAdmin  = document.querySelector('input[name="aksesDashAdmin"]:checked')?.value || 'N';
-    const aksesDashMember = document.querySelector('input[name="aksesDashMember"]:checked')?.value || 'N';
-    const aksesDashWE     = document.querySelector('input[name="aksesDashWE"]:checked')?.value || 'N';
-    const aksesDashCRM    = document.querySelector('input[name="aksesDashCRM"]:checked')?.value || 'N';
-    const aksesCoach      = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
+    const aksesLogin        = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
+    const aksesFitChallange = document.querySelector('input[name="aksesFitChallange"]:checked')?.value || 'N';
+    const aksesFitTracker   = document.querySelector('input[name="aksesFitTracker"]:checked')?.value || 'N';
+    const aksesAnalisa      = document.querySelector('input[name="aksesAnalisa"]:checked')?.value || 'N';
+    const aksesDataPeserta  = document.querySelector('input[name="aksesDataPeserta"]:checked')?.value || 'N';
+    const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
+    const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
+    const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
+    const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
+    const aksesCoach        = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
 
     console.log('Data yang akan dikirim edit:');
     console.log({userId, userName, userEmail, userHP, userPass, userLevel, 
-      aksesLogin, aksesSetting, aksesFC, aksesDashAdmin, aksesDashMember, 
-      aksesDashWE, aksesDashCRM, aksesCoach});
+      aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
+      aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,});
 
     // Validasi
     if (!validateUserForm()) {
@@ -439,7 +453,8 @@ function editUser() {
     const params = new URLSearchParams({
         action: 'editUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFC, aksesDashAdmin, aksesDashMember, aksesDashWE, aksesDashCRM, aksesCoach,
+        aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
+        aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
