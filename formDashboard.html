@@ -455,7 +455,7 @@ Dashboard untuk :
                                     </div>
                                 </div>
                                 
-                                <!-- Tabel Data -->
+                                <!-- Tabel Data WE -->
                                 <div class="table-box">
                                     <div class="table-wrapper">
                                         <table class="table table-hover table-striped table-bordered align-middle text-center">
@@ -499,7 +499,7 @@ Dashboard untuk :
            
             <div class="row">
                 <div class="col-lg-12 mb-4">
-                    <!-- Toolbar Filter, FollowUp, Export, Close, Batal dan Kirim WA -->
+                    <!-- Toolbar Filter, FollowUp CRM, Export, Close, Batal dan Kirim WA -->
                     <div class="card lognotif-toolbar-card"> 
                         <div class="lognotif-toolbar">
                             <div class="lognotif-toolbar-left followucrm-toolbar-left">
@@ -548,7 +548,91 @@ Dashboard untuk :
                         </div>
                         <div class="card-body">
                             <div class="container mt-2"> 
-                                <!-- Tabel Data -->
+                                <!-- Kotak Pesan Follow Up (Awalnya Tersembunyi) -->
+                                <div class="card mb-3" id="followUpMessageBox" style="display: none;">
+                                    <div class="card-body">
+                                        <label for="waMessage" class="form-label">
+                                            <strong>Tulis Pesan Follow Up Anda:</strong>
+                                        </label>
+                                    
+                                        <!-- Untuk menginput pesan dan emoticon di textarea -->
+                                        <div class="followupwe-message-input">
+                                            <textarea class="form-control" id="waMessage" rows="4" placeholder="Contoh: Halo {nama}, ini pesan dari {sponsor}..."></textarea>
+
+                                            <div class="followupwe-message-footer mt-2">
+                                                <button class="btn btn-outline-primary btn-sm followupwe-emoji-button" type="button" id="emojiPickerButton">
+                                                    😊 <span class="ms-2">Insert Emoji</span>
+                                                </button>
+                                                <div class="form-text mb-0">
+                                                    Gunakan <code>{nama}</code> untuk nama customer, dan <code>{sponsor}</code> untuk nama sponsor.
+                                                </div>
+                                            </div>
+
+                                            <div id="emojiPicker" class="followupwe-emoji-picker" style="display: none;">
+                                                <div class="followupwe-emoji-group">
+                                                    <div class="followupwe-emoji-group-title">Ekspresi</div>
+                                                    <div class="followupwe-emoji-grid">
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">😊</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">😁</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">😂</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🤣</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🙂</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">😉</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">😇</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🤗</button>
+                                                    </div>
+                                                </div>
+                                                <div class="followupwe-emoji-group">
+                                                    <div class="followupwe-emoji-group-title">Dukungan</div>
+                                                    <div class="followupwe-emoji-grid">
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🙏</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">👏</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">👍</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">👌</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🤝</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🙌</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">💪</button>
+                                                    </div>
+                                                </div>
+                                                <div class="followupwe-emoji-group">
+                                                    <div class="followupwe-emoji-group-title">Apresiasi</div>
+                                                    <div class="followupwe-emoji-grid">
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🎉</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">✨</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🔥</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🌟</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">⭐</button>
+                                                    </div>
+                                                </div>
+                                                <div class="followupwe-emoji-group">
+                                                    <div class="followupwe-emoji-group-title">Hati</div>
+                                                    <div class="followupwe-emoji-grid">
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">❤️</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🧡</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">💚</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">💙</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">💜</button>
+                                                    </div>
+                                                </div>
+                                                <div class="followupwe-emoji-group">
+                                                    <div class="followupwe-emoji-group-title">Aktivitas</div>
+                                                    <div class="followupwe-emoji-grid">
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🥗</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🍎</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🥤</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">💧</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🏃</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🚴</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">🧘</button>
+                                                        <button type="button" class="btn btn-light btn-sm emoji-item">📲</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tabel Data Konsumen -->
                                 <div class="table-box">
                                     <div class="table-wrapper">
                                         <table class="table table-hover table-striped table-bordered align-middle text-center">
