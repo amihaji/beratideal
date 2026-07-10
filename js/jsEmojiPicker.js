@@ -7,16 +7,24 @@
         { title: 'Aktivitas', items: ['🥗', '🍎', '🥤', '💧', '🏃', '🚴', '🧘', '📲'] }
     ];
 
-    const modalElement = document.getElementById('emojiPickerModal');
-    const modalTitle = document.getElementById('emojiPickerModalLabel');
-    const modalBody = document.getElementById('sharedEmojiPickerBody');
+    const pickerTemplate = document.getElementById('sharedEmojiPickerTemplate');
+    const pickerElement = pickerTemplate?.content?.firstElementChild?.cloneNode(true) || document.createElement('div');
 
-    if (!modalElement || !modalBody || !modalTitle || typeof bootstrap === 'undefined') {
+    if (!pickerTemplate) {
         return;
     }
 
-    const emojiModal = new bootstrap.Modal(modalElement);
+    if (!pickerElement.id) {
+        pickerElement.id = 'sharedEmojiPickerBody';
+        pickerElement.className = 'followupwe-emoji-picker';
+        pickerElement.style.display = 'none';
+    }
+
+    document.body.appendChild(pickerElement);
+
     let activeTextarea = null;
+    let activeHost = null;
+    let activeTrigger = null;
 
     function escapeHtml(value) {
         return String(value || '')
@@ -28,7 +36,7 @@
     }
 
     function renderEmojiGroups() {
-        modalBody.innerHTML = EMOJI_GROUPS.map((group) => `
+        pickerElement.innerHTML = EMOJI_GROUPS.map((group) => `
             <div class="followupwe-emoji-group">
                 <div class="followupwe-emoji-group-title">${escapeHtml(group.title)}</div>
                 <div class="followupwe-emoji-grid">
@@ -48,11 +56,33 @@
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
     }
 
-    function openEmojiPickerForTextarea(textarea, title) {
-        if (!textarea) return;
+    function closeEmojiPicker() {
+        pickerElement.style.display = 'none';
+        if (activeHost && pickerElement.parentElement === activeHost) {
+            activeHost.removeChild(pickerElement);
+        }
+        activeHost = null;
+        activeTrigger = null;
+    }
+
+    function openEmojiPickerForTextarea(textarea, trigger) {
+        if (!textarea || !trigger) return;
+
+        const host = trigger.closest('.followupwe-message-input');
+        if (!host) return;
+
+        const isSameOpen = activeTextarea === textarea && activeHost === host && pickerElement.style.display === 'block';
+        if (isSameOpen) {
+            closeEmojiPicker();
+            return;
+        }
+
         activeTextarea = textarea;
-        modalTitle.textContent = title || 'Pilih Emoji';
-        emojiModal.show();
+        activeHost = host;
+        activeTrigger = trigger;
+
+        host.appendChild(pickerElement);
+        pickerElement.style.display = 'block';
     }
 
     function handleTriggerClick(event) {
@@ -62,15 +92,14 @@
         event.preventDefault();
         const targetId = trigger.getAttribute('data-emoji-target');
         const textarea = targetId ? document.getElementById(targetId) : null;
-        const title = trigger.getAttribute('data-emoji-title') || 'Pilih Emoji';
-        openEmojiPickerForTextarea(textarea, title);
+        openEmojiPickerForTextarea(textarea, trigger);
     }
 
     renderEmojiGroups();
 
     document.addEventListener('click', handleTriggerClick);
 
-    modalBody.addEventListener('click', (event) => {
+    pickerElement.addEventListener('click', (event) => {
         const emojiButton = event.target.closest('.emoji-item');
         if (!emojiButton || !activeTextarea) return;
 
@@ -78,14 +107,26 @@
         if (!emoji) return;
 
         insertEmojiAtCursor(activeTextarea, emoji);
-        emojiModal.hide();
+        closeEmojiPicker();
     });
 
-    modalElement.addEventListener('hidden.bs.modal', () => {
-        if (activeTextarea) {
-            activeTextarea.focus();
+    document.addEventListener('click', (event) => {
+        if (pickerElement.style.display !== 'block') return;
+
+        const clickedTrigger = event.target.closest('[data-emoji-target]');
+        if (clickedTrigger && activeTrigger === clickedTrigger) {
+            return;
         }
+
+        if (activeHost && activeHost.contains(event.target)) {
+            return;
+        }
+
+        closeEmojiPicker();
     });
 
-    window.openEmojiPickerForTextarea = openEmojiPickerForTextarea;
+    window.openEmojiPickerForTextarea = function(textarea, title, trigger) {
+        void title;
+        openEmojiPickerForTextarea(textarea, trigger);
+    };
 })();

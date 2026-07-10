@@ -500,7 +500,7 @@ Dashboard untuk :
 
                                             <div class="followupwe-message-footer mt-2">
                                                 <button class="btn btn-outline-primary btn-sm followupwe-emoji-button" type="button" id="crmEmojiPickerButton" data-emoji-target="crmWaMessage" data-emoji-title="Pilih Emoji Follow Up CRM">
-                                                    � <span class="ms-2">Insert Emoji</span>
+                                                    😊 <span class="ms-2">Insert Emoji</span>
                                                 </button>
                                                 <div class="form-text mb-0">
                                                     Gunakan <code>{nama}</code> untuk nama customer, dan <code>{sponsor}</code> untuk nama sponsor.
@@ -1126,22 +1126,9 @@ Dashboard untuk :
     </div>
 
     <!-- Modal Konfirmasi Kustom -->
-    <div class="modal fade emoji-picker-modal" id="emojiPickerModal" tabindex="-1" aria-labelledby="emojiPickerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="emojiPickerModalLabel">Pilih Emoji</h5>
-                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="sharedEmojiPickerBody" class="followupwe-emoji-picker"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times"></i> Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <template id="sharedEmojiPickerTemplate">
+        <div id="sharedEmojiPickerBody" class="followupwe-emoji-picker" style="display: none;"></div>
+    </template>
 
     <!-- Modal Konfirmasi Kustom -->
     <div class="modal fade" id="modalConfirm" tabindex="-1">
