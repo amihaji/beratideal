@@ -100,6 +100,11 @@ function showPage(pageName) {
                 loadFollowUpWETableFallback();
             }
             break;
+        case 'followupcrm':
+            if (typeof loadCrmTableData === 'function') {
+                loadCrmTableData();
+            }
+            break;
     }
 }
 

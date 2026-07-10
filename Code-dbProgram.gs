@@ -116,6 +116,19 @@ function doGet(e) {
     return kirimWaCoach(e.parameter); 
   } 
 
+  // FOLLOW UP CRM
+  if (action === 'getDataKonsumen') {
+    return getDataKonsumen(e.parameter);
+  }
+
+  if (action === 'getSingleDataKonsumen') {
+    return getSingleDataKonsumen(e.parameter);
+  }
+
+  if (action === 'sendFollowUpWACRM') {
+    return sendFollowUpWACRM(e.parameter);
+  }
+
   // TANYA COACH SELESAI 
   if (action === 'completeTanyaCoach') { 
     return completeTanyaCoach(e.parameter); 
@@ -136,8 +149,28 @@ function doGet(e) {
 /* Fungsi untuk simpan data baru di sheet dan update *
 /*****************************************************/
 function doPost(e) { 
-  // Teruskan permintaan POST ke doGet() agar dapat bekerja dengan JSONP
-  return doGet(e); 
+  try {
+    const payload = parsePostPayload_(e);
+
+    if (payload && payload.action) {
+      if (payload.action === 'editDataKonsumen') {
+        return editDataKonsumen(payload);
+      }
+
+      if (payload.action === 'deleteDataKonsumen') {
+        return deleteDataKonsumen(payload);
+      }
+
+      return doGet({ parameter: payload });
+    }
+
+    return doGet(e);
+  } catch (error) {
+    return responseJSON({
+      status: 'error',
+      message: error.toString()
+    });
+  }
 } 
 
 /**********************************
@@ -1756,6 +1789,231 @@ function responseError(message) {
  * *******************/
 function capitalizeFirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/*********************************
+ * Helper parsing body POST JSON *
+ *********************************/
+function parsePostPayload_(e) {
+  const raw = e && e.postData && e.postData.contents ? e.postData.contents : '';
+  if (!raw) {
+    return (e && e.parameter) ? e.parameter : {};
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return (e && e.parameter) ? e.parameter : {};
+  }
+}
+
+/*********************************
+ * Helper data untuk FollowUp CRM
+ *********************************/
+function getDataKonsumenFieldNames_() {
+  return [
+    'tanggal',
+    'noPesanan',
+    'program',
+    'harga',
+    'nama',
+    'alamat',
+    'telp',
+    'email',
+    'kelurahan',
+    'kecamatan',
+    'kota',
+    'propensi',
+    'userId',
+    'jenisKelamin',
+    'tglLahir',
+    'testimoni',
+    'feedback',
+    'downloadSertifikat',
+    'produk',
+    'namaSponsor',
+    'hpSponsor',
+    'levelSponsor',
+    'emailSponsor',
+    'namaCoach',
+    'waCoach'
+  ];
+}
+
+function normalizeDataKonsumenKeyword_(value) {
+  return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function normalizeWhatsAppNumber_(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.indexOf('62') === 0) return digits;
+  return '62' + digits.replace(/^0+/, '');
+}
+
+function formatDataKonsumenValue_(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss');
+  }
+  return value == null ? '' : String(value);
+}
+
+function buildDataKonsumenRecord_(rowIndex, row) {
+  const fields = getDataKonsumenFieldNames_();
+  const record = { rowIndex: rowIndex };
+
+  for (let i = 0; i < fields.length; i++) {
+    record[fields[i]] = formatDataKonsumenValue_(row[i]);
+  }
+
+  return record;
+}
+
+/******************************
+ * Ambil daftar data konsumen *
+ ******************************/
+function getDataKonsumen(param) {
+  const callback = param.callback;
+
+  try {
+    const filter = normalizeDataKonsumenKeyword_(param.filter);
+    const values = shDataKonsumen.getDataRange().getValues();
+    const result = [];
+
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+      const nama = normalizeDataKonsumenKeyword_(row[4]);
+
+      if (filter && !nama.includes(filter)) {
+        continue;
+      }
+
+      result.push(buildDataKonsumenRecord_(i + 1, row));
+    }
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      data: result
+    });
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/********************************
+ * Ambil satu data konsumen CRM *
+ ********************************/
+function getSingleDataKonsumen(param) {
+  const callback = param.callback;
+
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDataKonsumen.getLastRow()) {
+      throw new Error('Baris data konsumen tidak valid.');
+    }
+
+    const row = shDataKonsumen.getRange(rowIndex, 1, 1, 25).getValues()[0];
+    return createJSONPResponse(callback, {
+      status: 'success',
+      data: buildDataKonsumenRecord_(rowIndex, row)
+    });
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/*************************
+ * Edit data konsumen CRM
+ *************************/
+function editDataKonsumen(param) {
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDataKonsumen.getLastRow()) {
+      throw new Error('Baris data konsumen tidak valid.');
+    }
+
+    const fields = getDataKonsumenFieldNames_();
+    const rowData = fields.map((field) => formatDataKonsumenValue_(param[field]));
+    shDataKonsumen.getRange(rowIndex, 1, 1, fields.length).setValues([rowData]);
+
+    return responseJSON({
+      status: 'success',
+      message: 'Data konsumen berhasil disimpan.'
+    });
+  } catch (error) {
+    return responseJSON({
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/**************************
+ * Hapus data konsumen CRM
+ **************************/
+function deleteDataKonsumen(param) {
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDataKonsumen.getLastRow()) {
+      throw new Error('Baris data konsumen tidak valid.');
+    }
+
+    shDataKonsumen.deleteRow(rowIndex);
+    return responseJSON({
+      status: 'success',
+      message: 'Data konsumen berhasil dihapus.'
+    });
+  } catch (error) {
+    return responseJSON({
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/*****************************
+ * Kirim Follow Up WA untuk CRM
+ *****************************/
+function sendFollowUpWACRM(param) {
+  const callback = param.callback;
+  const tokenFonnte = "NPUQeEn4zATP628wK7au";
+  const url = "https://api.fonnte.com/send";
+  const target = normalizeWhatsAppNumber_(param.target);
+  const message = String(param.message || '').trim();
+
+  if (!target || target === '62' || !message) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: 'Target WA atau pesan tidak valid.'
+    });
+  }
+
+  try {
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      headers: { "Authorization": tokenFonnte },
+      payload: {
+        target: target,
+        message: message
+      }
+    });
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      message: 'Pesan WA berhasil dikirim.'
+    });
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
 }
 
 /*************************
