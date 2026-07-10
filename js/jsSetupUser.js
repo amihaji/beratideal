@@ -17,6 +17,7 @@ let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
 let currentLogNotifFilter = 'SEMUA';
+let setupUserRowsCache = [];
 // **************************************
 
 // ********* Modal Konfirmasi Kustom **********
@@ -79,6 +80,132 @@ document.addEventListener('DOMContentLoaded', loadUserTable);
   new bootstrap.Modal(modalUser).show();
 });
 
+const setupFilterButtonEl = document.getElementById('setupFilterButton');
+if (setupFilterButtonEl) setupFilterButtonEl.addEventListener('click', applySetupUserFilter);
+const setupFilterNamaEl = document.getElementById('setupFilterNama');
+if (setupFilterNamaEl) {
+  setupFilterNamaEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      applySetupUserFilter();
+    }
+  });
+}
+
+function normalizeSetupUserKeyword(value) {
+  return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function renderUserTableRows(rows) {
+  const tbody = document.getElementById('userTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="16">Tidak ada data user.</td></tr>';
+    return;
+  }
+
+  rows.forEach(row => {
+    const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
+      login, setting, fc, adm, mem, we, crm, coach] = row;
+
+    let editState     = '';
+    let aktifasiState = '';
+    let deleteState   = '';
+    let unlockState   = 'disabled';
+    let kirimState    = 'disabled';
+
+    const salahCount = parseInt(salah) || 0;
+    const unlockFlag = localStorage.getItem('notifReady_' + userId);
+
+    if (salahCount >= 3) {
+      editState     = 'disabled';
+      aktifasiState = 'disabled';
+      deleteState   = 'disabled';
+      unlockState   = '';
+      kirimState    = 'disabled';
+    } else if (unlockFlag === 'true') {
+      editState     = 'disabled';
+      aktifasiState = 'disabled';
+      deleteState   = 'disabled';
+      unlockState   = 'disabled';
+      kirimState    = '';
+    }
+
+    const tr = document.createElement('tr');
+    tr.id = `row_${userId}`;
+
+    tr.innerHTML = `
+      <td>${userId}</td>
+      <td>${namaUser}</td>
+      <td>${emailUser}</td>
+      <td>${hpUser}</td>
+      <td>${passUser}</td>
+      <td>${levelUser}</td>
+      <td>${salah}</td>
+      <td>${login}</td>
+      <td>${setting}</td>
+      <td>${fc}</td>
+      <td>${adm}</td>
+      <td>${mem}</td>
+      <td>${we}</td>
+      <td>${crm}</td>
+      <td>${coach}</td>
+      <td class="actions-col">
+        <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
+          userId: '${userId}',
+          userName: '${namaUser}',
+          userEmail: '${emailUser}',
+          userHP: '${hpUser}',
+          userPass: '${passUser}',
+          userLevel: '${levelUser}',
+          aksesLogin: '${login}',
+          aksesSetting: '${setting}',
+          aksesFC: '${fc}',
+          aksesDashAdmin: '${adm}',
+          aksesDashMember: '${mem}',
+          aksesDashWE: '${we}',
+          aksesDashCRM: '${crm}',
+          aksesCoach: '${coach}'
+        })"></i>
+        <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
+        <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
+        <i class="fas fa-unlock action-icon ${unlockState}" title="Aktifkan User" onclick="unlockUser('${userId}')"></i>
+        <i class="fas fa-paper-plane action-icon ${kirimState}" title="Kirim Notif Reset User" onclick="sendNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+function applySetupUserFilter() {
+  const keyword = normalizeSetupUserKeyword(document.getElementById('setupFilterNama')?.value);
+  if (!setupUserRowsCache || setupUserRowsCache.length === 0) {
+    loadUserTable();
+    return;
+  }
+
+  if (!keyword) {
+    renderUserTableRows(setupUserRowsCache);
+    return;
+  }
+
+  const filtered = setupUserRowsCache.filter((row) => {
+    const nama = normalizeSetupUserKeyword(row[1]);
+    return nama.includes(keyword);
+  });
+
+  if (!filtered.length) {
+    renderUserTableRows([]);
+    showPesan('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.');
+    return;
+  }
+
+  renderUserTableRows(filtered);
+}
+
 // *************************************
 // Fungsi untuk memanggil Tabel User Id
 // *************************************
@@ -89,87 +216,8 @@ function loadUserTable() {
     script.src = `${URL_APPS_SCRIPT}?action=getTabelUser&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
-        const tbody = document.getElementById('userTableBody');
-        tbody.innerHTML = '';
-
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="16">Tidak ada data user.</td></tr>';
-            showLoading(false,'user');
-            return;
-        }
-
-        data.forEach(row => {
-            const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-                login, setting, fc, adm, mem, we, crm, coach] = row;
-
-            let editState     = '';
-            let aktifasiState = '';
-            let deleteState   = '';
-            let unlockState   = 'disabled';
-            let kirimState    = 'disabled';
-
-            const salahCount = parseInt(salah) || 0;
-            const unlockFlag = localStorage.getItem('notifReady_' + userId);
-
-            if (salahCount >= 3) {
-                editState     = 'disabled';
-                aktifasiState = 'disabled';
-                deleteState   = 'disabled';
-                unlockState   = '';
-                kirimState    = 'disabled';
-            } else if (unlockFlag === 'true') {
-                editState     = 'disabled';
-                aktifasiState = 'disabled';
-                deleteState   = 'disabled';
-                unlockState   = 'disabled';
-                kirimState    = '';
-            }
-
-            const tr = document.createElement('tr');
-            tr.id = `row_${userId}`; // Untuk mengupdate baris record di tabel 
-
-            tr.innerHTML = `
-                <td>${userId}</td>
-                <td>${namaUser}</td>
-                <td>${emailUser}</td>
-                <td>${hpUser}</td>
-                <td>${passUser}</td>
-                <td>${levelUser}</td>
-                <td>${salah}</td>
-                <td>${login}</td>
-                <td>${setting}</td>
-                <td>${fc}</td>
-                <td>${adm}</td>
-                <td>${mem}</td>
-                <td>${we}</td>
-                <td>${crm}</td>
-                <td>${coach}</td>
-                <td class="actions-col">
-                    <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
-                        userId: '${userId}', 
-                        userName: '${namaUser}', 
-                        userEmail: '${emailUser}', 
-                        userHP: '${hpUser}',
-                        userPass: '${passUser}',
-                        userLevel: '${levelUser}',
-                        aksesLogin: '${login}', 
-                        aksesSetting: '${setting}', 
-                        aksesFC: '${fc}', 
-                        aksesDashAdmin: '${adm}', 
-                        aksesDashMember: '${mem}', 
-                        aksesDashWE: '${we}', 
-                        aksesDashCRM: '${crm}', 
-                        aksesCoach: '${coach}'
-                    })"></i>
-                    <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
-                    <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
-                    <i class="fas fa-unlock action-icon ${unlockState}" title="Aktifkan User" onclick="unlockUser('${userId}')"></i>
-                    <i class="fas fa-paper-plane action-icon ${kirimState}" title="Kirim Notif Reset User" onclick="sendNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
-        });
+        setupUserRowsCache = Array.isArray(data) ? data : [];
+        applySetupUserFilter();
         showLoading(false,'user');
         delete window[callbackName];
         document.body.removeChild(script);
@@ -670,13 +718,13 @@ async function deleteLogNotif(forceStatus) {
 function showPesan(type, message, duration = 3000) {
   const visiblePage = Array.from(document.querySelectorAll('.page-content'))
     .find((page) => page && page.style && page.style.display !== 'none');
-  const scopedBox = visiblePage ? visiblePage.querySelector('#pesanNotification') : null;
-  const boxes = document.querySelectorAll('#pesanNotification');
+  const scopedBox = visiblePage ? (visiblePage.querySelector('#setupPesanNotification') || visiblePage.querySelector('#pesanNotification')) : null;
+  const boxes = document.querySelectorAll('#setupPesanNotification, #pesanNotification');
   const box = scopedBox || boxes[0];
   if (!box) return;
 
-  const icon = box.querySelector('[id="pesanNotifIcon"]') || document.getElementById('pesanNotifIcon');
-  const text = box.querySelector('[id="pesanNotifText"]') || document.getElementById('pesanNotifText');
+  const icon = box.querySelector('#setupPesanNotifIcon') || box.querySelector('[id="pesanNotifIcon"]') || document.getElementById('setupPesanNotifIcon') || document.getElementById('pesanNotifIcon');
+  const text = box.querySelector('#setupPesanNotifText') || box.querySelector('[id="pesanNotifText"]') || document.getElementById('setupPesanNotifText') || document.getElementById('pesanNotifText');
   if (!icon || !text) return;
 
   box.classList.remove('notification-error', 'notification-success', 'notification-warning');
