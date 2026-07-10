@@ -12,7 +12,7 @@ LOGNOTIF:
 
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyMPnLWyJLAdruQSrVk7QkSlwcBiwHfZlSuRe8982OhNFoCUZ0viv3abOQr1DNqgiLNPw/exec';
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbxoyINOkP1RKAMS_HzgQzgUULvGJ6ParVwGhdfYqLLezoAeOOKFigGDkYSsUb-lmOcz6Q/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
@@ -213,7 +213,7 @@ function loadUserTable() {
     showLoading(true,'user');
     const callbackName = 'cb_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=getTabelUser&callback=${callbackName}`;
+    script.src = `${URL_dbUSER}?action=getTabelUser&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
         setupUserRowsCache = Array.isArray(data) ? data : [];
@@ -247,7 +247,7 @@ function loadLogNotifTable() {
   showLoading(true, 'log');
   const callbackName = 'cb_' + Date.now();
   const script       = document.createElement('script');
-  script.src         = `${URL_APPS_SCRIPT}?action=getLogNotif&callback=${callbackName}`;
+  script.src         = `${URL_dbUSER}?action=getLogNotif&callback=${callbackName}`;
 
   window[callbackName] = function(data) {
     const tbody = document.getElementById('logNotifTableBody');
@@ -368,7 +368,7 @@ function addUser() {
         callback: callbackName
     });
 
-    const fullUrl = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    const fullUrl = `${URL_dbUSER}?${params.toString()}`;
     console.log('URL addUser:', fullUrl);
     script.src = fullUrl;
     document.body.appendChild(script);
@@ -443,7 +443,7 @@ function editUser() {
         callback: callbackName
     });
 
-    const fullUrl = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    const fullUrl = `${URL_dbUSER}?${params.toString()}`;
     console.log('URL editUser:', fullUrl);
     script.src = fullUrl;
     document.body.appendChild(script);
@@ -493,7 +493,7 @@ async function deleteUser(userId) {
   };
 
   const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=deleteUser&userId=${encodeURIComponent(userId)}&callback=${callback}`;
+  script.src = `${URL_dbUSER}?action=deleteUser&userId=${encodeURIComponent(userId)}&callback=${callback}`;
   document.body.appendChild(script);
 }
 
@@ -522,7 +522,7 @@ async function unlockUser(userId) {
       delete window[callbackName];
   };
   const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=unlockUser&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+  script.src = `${URL_dbUSER}?action=unlockUser&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
   document.body.appendChild(script);
 }
 
@@ -550,7 +550,7 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
 
     const callback = 'cb_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=sendNotifUser` +
+    script.src = `${URL_dbUSER}?action=sendNotifUser` +
         `&userId=${encodeURIComponent(userId)}` +
         `&userName=${encodeURIComponent(userName)}` +
         `&userEmail=${encodeURIComponent(userEmail)}` +
@@ -597,7 +597,7 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
 
     const callback = 'cb_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=aktifasiUser` +
+    script.src = `${URL_dbUSER}?action=aktifasiUser` +
         `&userId=${encodeURIComponent(userId)}` +
         `&userName=${encodeURIComponent(userName)}` +
         `&userEmail=${encodeURIComponent(userEmail)}` +
@@ -672,7 +672,7 @@ async function deleteLogNotif(forceStatus) {
 
   const action = status === 'SEMUA' ? 'deleteAllLogNotif' : 'deleteLogNotifByStatus';
   const statusParam = status === 'SEMUA' ? '' : `&status=${encodeURIComponent(status)}`;
-  script.src = `${URL_APPS_SCRIPT}?action=${action}${statusParam}&callback=${callback}`;
+  script.src = `${URL_dbUSER}?action=${action}${statusParam}&callback=${callback}`;
 
   const timeoutId = setTimeout(() => {
     if (finished) return;
