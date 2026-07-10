@@ -82,8 +82,6 @@ function setFollowUpMode(isActive, options = {}) {
     if (!isActive) {
         if (clearMessage && waMessageInput) waMessageInput.value = '';
         if (clearSelection && checkAllCheckbox) checkAllCheckbox.checked = false;
-        const emojiPicker = document.getElementById('emojiPicker');
-        if (emojiPicker) emojiPicker.style.display = 'none';
         if (!keepProgress) resetWaProgress();
     }
 }
@@ -631,44 +629,6 @@ function initFollowWeUI() {
         });
     }
 
-    const picker   = document.getElementById('emojiPicker');
-    const button   = document.getElementById('emojiPickerButton');
-    const textarea = document.getElementById('waMessage');
-    if (!picker || !button || !textarea) return;
-
-    const pickerHost = document.querySelector('.followupwe-message-input');
-    if (pickerHost && picker.parentElement !== pickerHost) pickerHost.appendChild(picker);
-
-    function insertEmojiAtCursor(emoji) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
-        textarea.focus();
-        textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
-    }
-
-    button.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (picker.style.display === 'grid') {
-            picker.style.display = 'none';
-            return;
-        }
-        picker.style.display = 'grid';
-    });
-
-    picker.addEventListener('click', (event) => {
-        const emojiButton = event.target.closest('.emoji-item');
-        if (!emojiButton) return;
-        const emoji = (emojiButton.textContent || '').trim();
-        if (!emoji) return;
-        insertEmojiAtCursor(emoji);
-        picker.style.display = 'none';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (picker.style.display !== 'grid') return;
-        if (pickerHost && !pickerHost.contains(e.target)) picker.style.display = 'none';
-    });
 }
 
 if (document.readyState === 'loading') {

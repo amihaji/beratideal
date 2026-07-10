@@ -51,7 +51,6 @@
         pesanBox: document.getElementById('crmPesanNotification'),
         pesanIcon: document.getElementById('crmPesanNotifIcon'),
         pesanText: document.getElementById('crmPesanNotifText'),
-        emojiPicker: document.getElementById('crmEmojiPicker'),
         emojiButton: document.getElementById('crmEmojiPickerButton'),
         editModalEl: document.getElementById('crmEditModal'),
         viewModalEl: document.getElementById('crmViewModal'),
@@ -212,7 +211,6 @@
         if (!isActive) {
             if (clearMessage && elements.waMessage) elements.waMessage.value = '';
             if (clearSelection && elements.checkAll) elements.checkAll.checked = false;
-            if (elements.emojiPicker) elements.emojiPicker.style.display = 'none';
             if (!keepProgress) resetWaProgress();
         }
     }
@@ -584,46 +582,6 @@
         }
     }
 
-    function initEmojiPicker() {
-        if (!elements.emojiPicker || !elements.emojiButton || !elements.waMessage) return;
-
-        const pickerHost = elements.emojiButton.closest('.followupwe-message-input');
-        if (pickerHost && elements.emojiPicker.parentElement !== pickerHost) {
-            pickerHost.appendChild(elements.emojiPicker);
-        }
-
-        function insertEmojiAtCursor(emoji) {
-            const start = elements.waMessage.selectionStart;
-            const end = elements.waMessage.selectionEnd;
-            elements.waMessage.value = elements.waMessage.value.substring(0, start) + emoji + elements.waMessage.value.substring(end);
-            elements.waMessage.focus();
-            elements.waMessage.selectionStart = elements.waMessage.selectionEnd = start + emoji.length;
-        }
-
-        elements.emojiButton.addEventListener('click', (event) => {
-            event.preventDefault();
-            elements.emojiPicker.style.display = elements.emojiPicker.style.display === 'grid' ? 'none' : 'grid';
-        });
-
-        elements.emojiPicker.addEventListener('click', (event) => {
-            const emojiButton = event.target.closest('.emoji-item');
-            if (!emojiButton) return;
-
-            const emoji = (emojiButton.textContent || '').trim();
-            if (!emoji) return;
-
-            insertEmojiAtCursor(emoji);
-            elements.emojiPicker.style.display = 'none';
-        });
-
-        document.addEventListener('click', (event) => {
-            if (elements.emojiPicker.style.display !== 'grid') return;
-            if (pickerHost && !pickerHost.contains(event.target)) {
-                elements.emojiPicker.style.display = 'none';
-            }
-        });
-    }
-
     function initFollowCrmUI() {
         if (crmUiInitialized) return;
         crmUiInitialized = true;
@@ -679,7 +637,6 @@
             });
         }
 
-        initEmojiPicker();
     }
 
     window.loadCrmTableData = loadCrmTableData;
