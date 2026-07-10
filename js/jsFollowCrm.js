@@ -344,7 +344,6 @@
                         ${buildViewTableRow('Program', escapeHtml(data.program))}
                         ${buildViewTableRow('Harga', escapeHtml(data.harga))}
                         ${buildViewTableRow('Produk', escapeHtml(data.produk))}
-                        ${buildViewTableRow('Download Sertifikat', renderLinkIfUrl(data.downloadSertifikat))}
                     </tbody>
                 </table>
 
@@ -364,6 +363,7 @@
                         ${buildViewTableRow('Tgl Lahir', escapeHtml(data.tglLahir))}
                         ${buildViewTableRow('Testimoni', escapeHtml(data.testimoni))}
                         ${buildViewTableRow('Feedback', escapeHtml(data.feedback))}
+                        ${buildViewTableRow('Download Sertifikat', renderLinkIfUrl(data.downloadSertifikat))}
                     </tbody>
                 </table>
 
