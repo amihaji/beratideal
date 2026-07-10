@@ -29,7 +29,7 @@ const sendWaButton         = document.getElementById('sendWaButton');
 const normalToolbar        = document.getElementById('normalToolbar');
 const followUpToolbar      = document.getElementById('followUpToolbar');
 const followUpMessageBox   = document.getElementById('followUpMessageBox');
-const filterSponsorInput   = document.getElementById('filterSponsor');
+const filterNamaInput   = document.getElementById('filterNama');
 const filterButton         = document.getElementById('filterButton');
 const checkAllCheckbox     = document.getElementById('checkAll');
 const waMessageInput       = document.getElementById('waMessage');
@@ -38,9 +38,9 @@ const waProgressBar        = document.getElementById('waProgressBar');
     
 const filterButtonEl = document.getElementById('filterButton');
 if (filterButtonEl) filterButtonEl.addEventListener('click', loadTableData);
-const filterSponsorEl = document.getElementById('filterSponsor');
-if (filterSponsorEl) {
-    filterSponsorEl.addEventListener('keydown', (event) => {
+const filterNamaEl = document.getElementById('filterNama');
+if (filterNamaEl) {
+    filterNamaEl.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             loadTableData();
@@ -63,7 +63,7 @@ function resetWaProgress() {
 function setFollowUpMode(isActive, options = {}) {
     const { clearMessage = false, clearSelection = false, keepProgress = false } = options;
 
-    if (filterSponsorInput) filterSponsorInput.disabled = isActive;
+    if (filterNamaInput) filterNamaInput.disabled = isActive;
     if (filterButton) filterButton.disabled = isActive;
 
     if (normalToolbar) normalToolbar.classList.toggle('sembunyikan', isActive);
@@ -224,7 +224,7 @@ function sendFollowUpWARequest(target, message) {
 // ************************
 function loadTableData() {
     showLoading(true);
-    const filterValue  = document.getElementById('filterSponsor').value.trim();
+    const filterValue  = document.getElementById('filterNama').value.trim();
     const callbackName = 'data_cb_' + Date.now();
     const script       = document.createElement('script');
     script.src         = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
@@ -290,7 +290,7 @@ if (sendWaButton) {
         waProgressBar.setAttribute('aria-valuenow', '0');
         waProgressContainer.style.display = 'block';
 
-        if (filterSponsorInput) filterSponsorInput.disabled = true;
+        if (filterNamaInput) filterNamaInput.disabled = true;
         if (filterButton) filterButton.disabled = true;
         sendWaButton.disabled = true;
         if (cancelFollowUpButton) cancelFollowUpButton.disabled = true;
@@ -330,7 +330,7 @@ if (sendWaButton) {
                             if (failedCount === 0) {
                                 showPesan('success', " BERHASIL : mengirim seluruh pesan WA");
                                 setFollowUpMode(false, { clearMessage: true, clearSelection: true });
-                                if (filterSponsorInput) filterSponsorInput.value = '';
+                                if (filterNamaInput) filterNamaInput.value = '';
                             } else {
                                 showPesan('warning', ` PERHATIAN : ${failedCount} pesan WA gagal dikirim. Silahkan cek console browser.`, 5000);
                                 console.warn('Daftar FollowUp WA gagal:', failedRecipients);
