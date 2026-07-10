@@ -506,7 +506,7 @@ async function unlockUser(userId) {
   const callbackName = 'cbUnlock_' + Date.now();
   window[callbackName] = (res) => {
     if (res.status === 'success') {
-      showPesan('success', " SUKSES : " + res.message);
+      showPesan('success', 'Berhasil unlock user');
       localStorage.setItem('notifReady_' + userId, 'true');
       const row = document.getElementById(`row_${userId}`);
       if (row) {
@@ -561,7 +561,7 @@ function sendNotif(userId, userName, userEmail, userHP, userPass) {
     window[callback] = function (response) {
         console.log("Respon kirim:", response);
         if (response.status === 'success') {
-            showPesan('success', " SUKSES : " + response.message);
+            showPesan('success', 'Berhasil terkirim notif reset user');
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
         } else if (response.status === 'partial') {
@@ -608,7 +608,7 @@ function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
     window[callback] = function (response) {
         console.log("Respon kirim:", response);
         if (response.status === 'success') {
-            showPesan('success', " SUKSES : " + response.message);
+            showPesan('success', 'Berhasil terkirim aktifasi user');
             localStorage.removeItem('notifReady_' + userId);
             loadUserTable(); // reload tampilan icon
         } else if (response.status === 'partial') {
