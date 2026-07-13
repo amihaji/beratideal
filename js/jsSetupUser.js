@@ -12,7 +12,7 @@ LOGNOTIF:
 
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
-const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbziqU5Clt7C7HOOEEbZHn-JjmkBrv4zgV7xaR7aS44ESpYtcX7dOw3oW_3urkxm1rS16Q/exec';
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbzJfubmu1l6lab-buHp5zwfhTrQeik5HaFsyHBjavVOqSjfFaIBrb8T1Vg9Oixy_OlPKQ/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
@@ -831,7 +831,19 @@ function showEditModal(userData) {
   document.getElementById("userLevel").value = userData.userLevel;
 
   // Set radio akses
-  const aksesList = ['Login', 'Setting', 'FC', 'DashAdmin', 'DashMember', 'DashWE', 'DashCRM', 'Coach'];
+  const aksesList = [
+    'Login',
+    'FitChallange',
+    'FitTracker',
+    'Analisa',
+    'DataPeserta',
+    'FollowWe',
+    'FollowCrm',
+    'Referall',
+    'Setup',
+    'LogNotif',
+    'Coach'
+  ];
   aksesList.forEach(aksesName => {
     const val = userData['akses' + aksesName] || 'N';
     const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
