@@ -1064,6 +1064,16 @@ function showToast(message, type = 'info') {
     bsToast.show();
 }
 
+function logoutUser() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userHP');
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userLevel');
+    localStorage.removeItem('progressData');
+    window.location.href = 'loginBeratideal.html';
+}
+
 async function syncData() {
     const startedAt = Date.now();
     const syncBtn = document.getElementById('syncButton') || document.querySelector('button[onclick="syncData()"]');
