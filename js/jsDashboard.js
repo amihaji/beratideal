@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    updateActiveUserLabel();
+
     // Load initial data
     loadAllData();
     
@@ -30,6 +32,14 @@ function initializeApp() {
     
     // Show default page
     showPage('dashboard');
+}
+
+function updateActiveUserLabel() {
+    const el = document.getElementById('activeUserId');
+    if (!el) return;
+
+    const userId = localStorage.getItem('userId');
+    el.textContent = userId ? userId : '-';
 }
 
 function setupEventListeners() {
