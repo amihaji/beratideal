@@ -118,9 +118,6 @@ function showPage(pageName) {
     }
 }
 
-// const URL_DB_WETOOLS_FALLBACK = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
-// let followUpWEFallbackBound = false;
-
 function ensureFollowUpWEFallback() {
     if (followUpWEFallbackBound) return;
 
@@ -1068,12 +1065,8 @@ function showToast(message, type = 'info') {
 }
 
 async function syncData() {
-    const syncBtn = document.getElementById('syncButton') || document.querySelector('button[onclick="syncData()"]');
-    const syncBtnText = document.getElementById('syncButtonText');
-    const syncBtnSpinner = document.getElementById('syncButtonSpinner');
+    const syncBtn = document.querySelector('button[onclick="syncData()"]');
     if (syncBtn) syncBtn.disabled = true;
-    if (syncBtnText) syncBtnText.classList.add('d-none');
-    if (syncBtnSpinner) syncBtnSpinner.classList.remove('d-none');
 
     try {
         showToast('Sinkronisasi data...', 'info');
@@ -1099,8 +1092,6 @@ async function syncData() {
         showToast('Gagal sinkronisasi: ' + (error?.message || error), 'error');
     } finally {
         if (syncBtn) syncBtn.disabled = false;
-        if (syncBtnText) syncBtnText.classList.remove('d-none');
-        if (syncBtnSpinner) syncBtnSpinner.classList.add('d-none');
     }
 }
 

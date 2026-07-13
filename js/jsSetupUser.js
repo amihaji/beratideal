@@ -12,7 +12,7 @@ LOGNOTIF:
 
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
-const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbzJfubmu1l6lab-buHp5zwfhTrQeik5HaFsyHBjavVOqSjfFaIBrb8T1Vg9Oixy_OlPKQ/exec';
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbzA3KKcA_BBvZqtgfFkd02jP8Hhd01ievuCYoFGo22u7STJSCnJF5T-XBTuJIjDdYbz2A/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
@@ -223,7 +223,9 @@ function loadUserTable() {
     script.src = `${URL_dbUSER}?action=getTabelUser&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
-        setupUserRowsCache = Array.isArray(data) ? data : [];
+        setupUserRowsCache = Array.isArray(data)
+          ? data.filter((row) => row && String(row[0] || '').trim() !== '')
+          : [];
         applySetupUserFilter();
         showLoading(false,'user');
         delete window[callbackName];

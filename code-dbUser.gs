@@ -255,7 +255,8 @@ function handleLogoutUser(data) {
  *            HANDLE GET TABEL USER UNTUK SETUP
  *******************************************************/
 function handleGetTabelUser(e) {
-  const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, userSheet.getLastColumn()).getValues();
+  const raw = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, userSheet.getLastColumn()).getValues();
+  const data = raw.filter(row => row && String(row[0] || '').trim() !== '');
   const callback = e.parameter.callback || 'callback';
   return ContentService.createTextOutput(callback + '(' + JSON.stringify(data) + ')')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
