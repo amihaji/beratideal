@@ -1067,9 +1067,41 @@ function showToast(message, type = 'info') {
     bsToast.show();
 }
 
-function syncData() {
-    loadAllData();
-    showToast('Data berhasil disinkronisasi!', 'success');
+async function syncData() {
+    const syncBtn = document.getElementById('syncButton') || document.querySelector('button[onclick="syncData()"]');
+    const syncBtnText = document.getElementById('syncButtonText');
+    const syncBtnSpinner = document.getElementById('syncButtonSpinner');
+    if (syncBtn) syncBtn.disabled = true;
+    if (syncBtnText) syncBtnText.classList.add('d-none');
+    if (syncBtnSpinner) syncBtnSpinner.classList.remove('d-none');
+
+    try {
+        showToast('Sinkronisasi data...', 'info');
+
+        await loadAllData();
+
+        if (typeof loadUserTable === 'function') loadUserTable();
+        if (typeof loadLogNotifTable === 'function') loadLogNotifTable();
+
+        if (typeof loadTableData === 'function') {
+            const result = loadTableData();
+            if (result && typeof result.then === 'function') await result;
+        }
+
+        if (typeof loadCrmTableData === 'function') {
+            const result = loadCrmTableData();
+            if (result && typeof result.then === 'function') await result;
+        }
+
+        showToast('Data berhasil disinkronisasi!', 'success');
+    } catch (error) {
+        console.error('Error syncData:', error);
+        showToast('Gagal sinkronisasi: ' + (error?.message || error), 'error');
+    } finally {
+        if (syncBtn) syncBtn.disabled = false;
+        if (syncBtnText) syncBtnText.classList.remove('d-none');
+        if (syncBtnSpinner) syncBtnSpinner.classList.add('d-none');
+    }
 }
 
 // Mock Data Functions
