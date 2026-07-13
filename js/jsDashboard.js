@@ -1065,8 +1065,22 @@ function showToast(message, type = 'info') {
 }
 
 async function syncData() {
-    const syncBtn = document.querySelector('button[onclick="syncData()"]');
+    const startedAt = Date.now();
+    const syncBtn = document.getElementById('syncButton') || document.querySelector('button[onclick="syncData()"]');
+    const syncBtnText = document.getElementById('syncButtonText');
+    const syncBtnSpinner = document.getElementById('syncButtonSpinner');
+
     if (syncBtn) syncBtn.disabled = true;
+    if (syncBtnText) syncBtnText.classList.add('d-none');
+    if (syncBtnSpinner) syncBtnSpinner.classList.remove('d-none');
+
+    await new Promise((resolve) => {
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(() => resolve());
+        } else {
+            setTimeout(resolve, 0);
+        }
+    });
 
     try {
         showToast('Sinkronisasi data...', 'info');
@@ -1091,7 +1105,13 @@ async function syncData() {
         console.error('Error syncData:', error);
         showToast('Gagal sinkronisasi: ' + (error?.message || error), 'error');
     } finally {
+        const elapsed = Date.now() - startedAt;
+        if (elapsed < 400) {
+            await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
+        }
         if (syncBtn) syncBtn.disabled = false;
+        if (syncBtnText) syncBtnText.classList.remove('d-none');
+        if (syncBtnSpinner) syncBtnSpinner.classList.add('d-none');
     }
 }
 
