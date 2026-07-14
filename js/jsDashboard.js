@@ -7,7 +7,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 // ********* Deklarasi Variabel Public **********
 const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
-let currentPage = 'dashboard';
+let currentPage = 'fittracker';
 let studentsData = [];
 let programsData = [];
 let analytics = {};
@@ -89,7 +89,7 @@ function getStoredAccess() {
         Object.prototype.hasOwnProperty.call(parsedAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
-
+    /**
     storedAccess.aksesLogin = hasExplicitLoginFlag
         ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || rawAccess.akseslogindash || localStorage.getItem('aksesLogin'))
         : 'Y';
@@ -104,6 +104,23 @@ function getStoredAccess() {
     storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || rawAccess.aksesSetting || rawAccess.aksessetup || rawAccess.aksessetting || localStorage.getItem('aksesSetup'));
     storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || rawAccess.akseslognotif || localStorage.getItem('aksesLogNotif'));
     storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || rawAccess.aksesCOACH || rawAccess.aksescoach || localStorage.getItem('aksesCoach'));
+    **/
+
+
+    storedAccess.aksesLogin = hasExplicitLoginFlag
+        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || localStorage.getItem('aksesLogin'))
+        : 'Y';
+    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || localStorage.getItem('aksesFitChallange'));
+    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || localStorage.getItem('aksesFitTracker'));
+    storedAccess.aksesProgram = normalizeAccessValue(parsedAccess.aksesProgram || rawAccess.aksesProgram || localStorage.getItem('aksesProgram') || storedAccess.aksesFitTracker);
+    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || localStorage.getItem('aksesAnalisa'));
+    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || localStorage.getItem('aksesDataPeserta'));
+    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || localStorage.getItem('aksesFollowWe'));
+    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || localStorage.getItem('aksesFollowCrm'));
+    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || localStorage.getItem('aksesReferall'));
+    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || localStorage.getItem('aksesSetup'));
+    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || localStorage.getItem('aksesLogNotif'));
+    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || localStorage.getItem('aksesCoach'));
 
     return storedAccess;
 }
@@ -124,7 +141,7 @@ function hasPageAccess(pageName) {
 
 function getDefaultAccessiblePage() {
     const firstAccessibleMenu = MENU_ACCESS_MAP.find((item) => hasPageAccess(item.page));
-    return firstAccessibleMenu ? firstAccessibleMenu.page : 'dashboard';
+    return firstAccessibleMenu ? firstAccessibleMenu.page : 'fittracker';
 }
 
 function applyMenuAccessControl() {
@@ -226,7 +243,7 @@ function showPage(pageName) {
     // Load page-specific data
     switch(pageName) {
         case 'fittracker':
-            renderDashboard();
+            renderFittracker();
             break;
         case 'peserta':
             renderPeserta();
@@ -500,8 +517,8 @@ async function loadAllData() {
 
 function renderCurrentPage() {
     switch(currentPage) {
-        case 'dashboard':
-            renderDashboard();
+        case 'fittracker':
+            renderFittracker();
             break;
         case 'peserta':
             renderStudents();
