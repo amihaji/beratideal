@@ -5,7 +5,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 ***************************************************************/
 
 // ********* Deklarasi Variabel Public **********
-const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
+const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
 let currentPage = 'dashboard';
 let studentsData = [];
@@ -380,7 +380,7 @@ function loadFollowUpWETableFallback() {
     const filterValue = filterInput ? filterInput.value.trim() : '';
     const callbackName = 'we_cb_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
+    script.src = `${URL_dbWETools_Fallback}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
 
     window[callbackName] = function(response) {
         tableBody.innerHTML = '';
