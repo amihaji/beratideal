@@ -12,7 +12,7 @@ LOGNOTIF:
 
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
-const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbx5nxdJB23p2yq2KNBpYd0daFO5SOTWjss2Gv8rEfsG0G9fPHB3GEgty6TINMelEQgrvA/exec';
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';
 let confirmCallback = null;
 let confirmModal = null;
 let pesanModalTimer = null;
@@ -108,7 +108,7 @@ function renderUserTableRows(rows) {
 
   rows.forEach(row => {
     const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-      login, fitchallange, fittracker, analisa, datapeserta, followwe, followcrm,
+      login, fitchallange, fittracker, program, analisa, datapeserta, followwe, followcrm,
       referall, setup, lognotif, coach] = row;
 
     let editState     = '';
@@ -167,6 +167,7 @@ function renderUserTableRows(rows) {
           aksesLogin: '${login}',
           aksesFitChallange: '${fitchallange}',
           aksesFitTracker: '${fittracker}',
+          aksesProgram: '${program}',
           aksesAnalisa: '${analisa}',
           aksesDataPeserta: '${datapeserta}',
           aksesFollowWe: '${followwe}',

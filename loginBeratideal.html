@@ -111,7 +111,7 @@ dengan hak aksesnya
   // url user dbUser
   // Samakan deployment login dengan Setup User agar logika lock user
   // dan notifikasi WA otomatis berjalan dari backend yang sama.
-  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbx5nxdJB23p2yq2KNBpYd0daFO5SOTWjss2Gv8rEfsG0G9fPHB3GEgty6TINMelEQgrvA/exec';  
+  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';  
 
   function normalizeAccessValue(value) {
     return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
@@ -153,6 +153,7 @@ dengan hak aksesnya
     const hasExplicitLoginFlag =
       Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
       Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
+
     const fitChallengeValue = rawAccess.aksesFitChallange;
     const fitTrackerValue = rawAccess.aksesFitTracker;
     // Program masih mengikuti flag FitTracker agar konsisten dengan dashboard.
@@ -200,8 +201,7 @@ dengan hak aksesnya
       access.aksesFollowCrm,
       access.aksesReferall,
       access.aksesSetup,
-      access.aksesLogNotif,
-      access.aksesCoach
+      access.aksesLogNotif
     ].some((value) => value === 'Y');
   }
   

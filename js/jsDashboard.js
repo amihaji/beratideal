@@ -5,7 +5,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 ***************************************************************/
 
 // ********* Deklarasi Variabel Public **********
-//const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbx5nxdJB23p2yq2KNBpYd0daFO5SOTWjss2Gv8rEfsG0G9fPHB3GEgty6TINMelEQgrvA/exec';
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';
 const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
 let currentPage = 'fittracker';
@@ -186,7 +186,24 @@ function getStoredAccess() {
         Object.prototype.hasOwnProperty.call(parsedAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
- 
+    /**
+    storedAccess.aksesLogin = hasExplicitLoginFlag
+        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || rawAccess.akseslogindash || localStorage.getItem('aksesLogin'))
+        : 'Y';
+    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || rawAccess.aksesFC || rawAccess.aksesfitchallange || rawAccess.aksesfc || localStorage.getItem('aksesFitChallange'));
+    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || rawAccess.aksesDashAdmin || rawAccess.aksesDashMember || rawAccess.aksesfittracker || rawAccess.aksesdashadmin || rawAccess.aksesdashmember || localStorage.getItem('aksesFitTracker'));
+    storedAccess.aksesProgram = normalizeAccessValue(parsedAccess.aksesProgram || rawAccess.aksesProgram || rawAccess.aksesprogram || localStorage.getItem('aksesProgram') || storedAccess.aksesFitTracker);
+    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || rawAccess.aksesanalisa || localStorage.getItem('aksesAnalisa'));
+    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || rawAccess.aksesdatapeserta || localStorage.getItem('aksesDataPeserta'));
+    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || rawAccess.aksesDashWE || rawAccess.aksesfollowwe || rawAccess.aksesdashwe || localStorage.getItem('aksesFollowWe'));
+    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || rawAccess.aksesCRM || rawAccess.aksesfollowcrm || rawAccess.aksescrm || localStorage.getItem('aksesFollowCrm'));
+    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || rawAccess.aksesreferall || localStorage.getItem('aksesReferall'));
+    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || rawAccess.aksesSetting || rawAccess.aksessetup || rawAccess.aksessetting || localStorage.getItem('aksesSetup'));
+    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || rawAccess.akseslognotif || localStorage.getItem('aksesLogNotif'));
+    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || rawAccess.aksesCOACH || rawAccess.aksescoach || localStorage.getItem('aksesCoach'));
+    **/
+
+
     if (!hasExplicitLoginFlag) {
         return storedAccess;
     }
