@@ -141,7 +141,7 @@ dengan hak aksesnya
     const hasExplicitLoginFlag =
       Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
       Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
-
+    /*
     const fitChallengeValue = rawAccess.aksesFitChallange ?? rawAccess.aksesFC ?? rawAccess.aksesfitchallange ?? rawAccess.aksesfc;
     const fitTrackerValue = rawAccess.aksesFitTracker ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember ?? rawAccess.aksesfittracker ?? rawAccess.aksesdashadmin ?? rawAccess.aksesdashmember;
     const programValue = rawAccess.aksesProgram ?? rawAccess.aksesprogram ?? fitTrackerValue;
@@ -153,15 +153,28 @@ dengan hak aksesnya
     const setupValue = rawAccess.aksesSetup ?? rawAccess.aksesSetting ?? rawAccess.aksessetup ?? rawAccess.aksessetting;
     const logNotifValue = rawAccess.aksesLogNotif ?? rawAccess.akseslognotif;
     const coachValue = rawAccess.aksesCoach ?? rawAccess.aksesCOACH ?? rawAccess.aksescoach;
+    */
+
+    const fitChallengeValue = rawAccess.aksesFitChallange;
+    const fitTrackerValue = rawAccess.aksesFitTracker;
+    const programValue = rawAccess.aksesProgram;
+    const analyticsValue = rawAccess.aksesAnalisa ;
+    const pesertaValue = rawAccess.aksesDataPeserta;
+    const followWeValue = rawAccess.aksesFollowWe
+    const followCrmValue = rawAccess.aksesFollowCrm
+    const referallValue = rawAccess.aksesReferall ?? rawAccess.aksesreferall;
+    const setupValue = rawAccess.aksesSetup;
+    const logNotifValue = rawAccess.aksesLogNotif;
+    const coachValue = rawAccess.aksesCoach;
 
     const normalizedAccess = {
       // Jika backend lama tidak mengirim flag login, anggap login aktif karena backend sudah meloloskan autentikasi.
-      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin ?? rawAccess.akseslogindash) : 'Y',
+      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin) : 'Y',
       aksesFitChallange: normalizeAccessValue(fitChallengeValue),
       aksesFitTracker: normalizeAccessValue(fitTrackerValue),
       aksesProgram: normalizeAccessValue(programValue),
       aksesAnalisa: normalizeAccessValue(analyticsValue),
-      aksesDataPeserta: normalizeAccessValue(studentsValue),
+      aksesDataPeserta: normalizeAccessValue(pesertaValue),
       aksesFollowWe: normalizeAccessValue(followWeValue),
       aksesFollowCrm: normalizeAccessValue(followCrmValue),
       aksesReferall: normalizeAccessValue(referallValue),

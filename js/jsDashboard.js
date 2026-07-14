@@ -27,10 +27,10 @@ const DEFAULT_USER_ACCESS = {
     aksesCoach: 'N'
 };
 const MENU_ACCESS_MAP = [
-    { page: 'dashboard', navId: 'nav-dashboard', accessKey: 'aksesFitTracker' },
+    { page: 'fittracker', navId: 'nav-fittracker', accessKey: 'aksesFitTracker' },
     { page: 'programs', navId: 'nav-programs', accessKey: 'aksesProgram' },
     { page: 'analytics', navId: 'nav-analytics', accessKey: 'aksesAnalisa' },
-    { page: 'students', navId: 'nav-students', accessKey: 'aksesDataPeserta' },
+    { page: 'peserta', navId: 'nav-peserta', accessKey: 'aksesDataPeserta' },
     { page: 'followupwe', navId: 'nav-followupwe', accessKey: 'aksesFollowWe' },
     { page: 'followupcrm', navId: 'nav-followupcrm', accessKey: 'aksesFollowCrm' },
     { page: 'referall', navId: 'nav-referall', accessKey: 'aksesReferall' },
@@ -225,11 +225,11 @@ function showPage(pageName) {
     
     // Load page-specific data
     switch(pageName) {
-        case 'dashboard':
+        case 'fittracker':
             renderDashboard();
             break;
-        case 'students':
-            renderStudents();
+        case 'peserta':
+            renderPeserta();
             break;
         case 'programs':
             renderPrograms();
@@ -237,14 +237,6 @@ function showPage(pageName) {
         case 'analytics':
             renderAnalytics();
             break;
-        case 'setupuser':
-            // Setup user page will load user table automatically
-            loadUserTable(); // Make sure this function exists in jsSetupUser.js
-            break;
-        case 'lognotif':
-            // Log notif page will load log table automatically
-            loadLogNotifTable(); // Make sure this function exists in jsSetupUser.js
-            break;        
         case 'followupwe':
             if (typeof loadTableData === 'function') {
                 loadTableData();
@@ -257,7 +249,16 @@ function showPage(pageName) {
             if (typeof loadCrmTableData === 'function') {
                 loadCrmTableData();
             }
+            break;     
+        case 'setupuser':
+            // Setup user page will load user table automatically
+            loadUserTable(); // Make sure this function exists in jsSetupUser.js
             break;
+        case 'lognotif':
+            // Log notif page will load log table automatically
+            loadLogNotifTable(); // Make sure this function exists in jsSetupUser.js
+            break;        
+      
     }
 }
 
@@ -472,7 +473,7 @@ async function loadAllData() {
     showLoading(true);
     try {
         // Load from Google Sheets
-        studentsData = await loadStudentsFromSheets();
+        studentsData = await loadpesertaFromSheets();
         programsData = await loadProgramsFromSheets();
         analytics = await loadAnalyticsFromSheets();
         
@@ -502,7 +503,7 @@ function renderCurrentPage() {
         case 'dashboard':
             renderDashboard();
             break;
-        case 'students':
+        case 'peserta':
             renderStudents();
             break;
         case 'programs':
@@ -522,8 +523,8 @@ function renderDashboard() {
     const avgProgress = Math.round(studentsData.reduce((sum, s) => sum + s.progress, 0) / totalStudents) || 0;
     const completedPrograms = studentsData.filter(s => s.progress >= 100).length;
     
-    document.getElementById('total-students').textContent = totalStudents;
-    document.getElementById('active-students').textContent = activeStudents;
+    document.getElementById('total-peserta').textContent = totalStudents;
+    document.getElementById('active-peserta').textContent = activeStudents;
     document.getElementById('active-percentage').textContent = `${Math.round((activeStudents/totalStudents)*100)}% dari total`;
     document.getElementById('avg-progress').textContent = avgProgress + '%';
     document.getElementById('completed-programs').textContent = completedPrograms;
@@ -582,7 +583,7 @@ function renderProgramsOverview() {
     });
 }
 
-// Students Rendering
+// Peserta Rendering
 function renderStudents() {
     filterStudents();
 }
@@ -601,10 +602,10 @@ function filterStudents() {
     renderStudentCards(filtered);
 }
 
-function renderStudentCards(students) {
-    const container = document.getElementById('students-container');
+function renderStudentCards(peserta) {
+    const container = document.getElementById('peserta-container');
     
-    if (students.length === 0) {
+    if (peserta.length === 0) {
         container.innerHTML = `
             <div class="col-12">
                 <div class="card">
@@ -621,7 +622,7 @@ function renderStudentCards(students) {
     
     container.innerHTML = '';
     
-    students.forEach(student => {
+    peserta.forEach(student => {
         const programClass = getProgramClass(student.program);
         const avatarBg = getAvatarColor(student.name);
         
@@ -846,7 +847,7 @@ function initializeCharts() {
 function updateCharts() {
     // Update weekly chart with real data
     if (charts.weekly) {
-        // Calculate weekly activity from students data
+        // Calculate weekly activity from peserta data
         const weeklyData = calculateWeeklyActivity();
         charts.weekly.data.datasets[0].data = weeklyData;
         charts.weekly.update();

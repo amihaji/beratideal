@@ -18,7 +18,7 @@ TABELWETOOLS :
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx8-dB1zfM2Wh1v-iX4G0y21F6-JMG40ntUkZhNE3HfJPXlw0yrMjsU0pA/exec';
 
 /*****************************************
- * Load students data from Google Sheets
+ * Load peserta data from Google Sheets
  *****************************************/
 async function loadStudentsFromSheets() {
     try {
@@ -31,12 +31,12 @@ async function loadStudentsFromSheets() {
         const data = await response.json();
         
         if (data.success) {
-            return data.students || [];
+            return data.peserta || [];
         } else {
-            throw new Error(data.error || 'Failed to load students data');
+            throw new Error(data.error || 'Failed to load peserta data');
         }
     } catch (error) {
-        console.error('Error loading students from Google Sheets:', error);
+        console.error('Error loading peserta from Google Sheets:', error);
         // Return empty array to fallback to mock data
         return [];
     }
@@ -249,7 +249,7 @@ async function deleteStudentFromSheets(studentId) {
 }
 
 /**
- * Batch update multiple students
+ * Batch update multiple peserta
  */
 async function batchUpdateStudents(updates) {
     try {
@@ -271,12 +271,12 @@ async function batchUpdateStudents(updates) {
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Failed to batch update students');
+            throw new Error(data.error || 'Failed to batch update peserta');
         }
         
         return data;
     } catch (error) {
-        console.error('Error batch updating students in Google Sheets:', error);
+        console.error('Error batch updating peserta in Google Sheets:', error);
         throw error;
     }
 }
