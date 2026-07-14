@@ -5,6 +5,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 ***************************************************************/
 
 // ********* Deklarasi Variabel Public **********
+const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbx5nxdJB23p2yq2KNBpYd0daFO5SOTWjss2Gv8rEfsG0G9fPHB3GEgty6TINMelEQgrvA/exec';
 const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
 let currentPage = 'fittracker';
@@ -39,11 +40,16 @@ const MENU_ACCESS_MAP = [
 ];
 
 // Initialize Application
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializeApp();
 });
 
-function initializeApp() {
+async function initializeApp() {
+    const accessSynced = await syncUserAccessFromServer();
+    if (!accessSynced) {
+        return;
+    }
+
     if (!enforceDashboardAccess()) {
         return;
     }
@@ -66,6 +72,97 @@ function initializeApp() {
 
 function normalizeAccessValue(value) {
     return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
+}
+
+function buildNormalizedAccess(source = {}) {
+    const fitTrackerValue = source.aksesFitTracker ?? source.aksesfittracker;
+
+    return {
+        aksesLogin: normalizeAccessValue(source.aksesLogin ?? source.akseslogin ?? source.login),
+        aksesFitChallange: normalizeAccessValue(source.aksesFitChallange ?? source.aksesfitchallange ?? source.fitchallange),
+        aksesFitTracker: normalizeAccessValue(fitTrackerValue),
+        aksesProgram: normalizeAccessValue(source.aksesProgram ?? source.aksesprogram ?? fitTrackerValue),
+        aksesAnalisa: normalizeAccessValue(source.aksesAnalisa ?? source.aksesanalisa ?? source.analisa),
+        aksesDataPeserta: normalizeAccessValue(source.aksesDataPeserta ?? source.aksesdatapeserta ?? source.datapeserta),
+        aksesFollowWe: normalizeAccessValue(source.aksesFollowWe ?? source.aksesfollowwe ?? source.followwe),
+        aksesFollowCrm: normalizeAccessValue(source.aksesFollowCrm ?? source.aksesfollowcrm ?? source.followcrm),
+        aksesReferall: normalizeAccessValue(source.aksesReferall ?? source.aksesreferall ?? source.referall),
+        aksesSetup: normalizeAccessValue(source.aksesSetup ?? source.aksessetup ?? source.setup),
+        aksesLogNotif: normalizeAccessValue(source.aksesLogNotif ?? source.akseslognotif ?? source.lognotif),
+        aksesCoach: normalizeAccessValue(source.aksesCoach ?? source.aksescoach ?? source.coach)
+    };
+}
+
+function persistUserAccess(access) {
+    const normalizedAccess = buildNormalizedAccess(access);
+    localStorage.setItem('rawUserAccess', JSON.stringify(access || {}));
+    localStorage.setItem('userAccess', JSON.stringify(normalizedAccess));
+
+    Object.entries(normalizedAccess).forEach(([key, value]) => {
+        localStorage.setItem(key, value);
+    });
+
+    return normalizedAccess;
+}
+
+function clearUserSession() {
+    clearStoredUserAccess();
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userHP');
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userLevel');
+    localStorage.removeItem('progressData');
+}
+
+function syncUserAccessFromServer() {
+    const userId = String(localStorage.getItem('userId') || '').trim();
+    const token = String(localStorage.getItem('userToken') || '').trim();
+
+    if (!userId || !token) {
+        clearUserSession();
+        window.location.href = 'loginBeratideal.html';
+        return Promise.resolve(false);
+    }
+
+    return new Promise((resolve) => {
+        const callbackName = 'cb_access_' + Date.now();
+        const script = document.createElement('script');
+        let finished = false;
+
+        const cleanup = () => {
+            if (finished) return;
+            finished = true;
+            delete window[callbackName];
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+
+        window[callbackName] = function(response) {
+            if (!response || response.status !== 'success' || !response.access) {
+                cleanup();
+                clearUserSession();
+                window.location.href = 'loginBeratideal.html';
+                resolve(false);
+                return;
+            }
+
+            persistUserAccess(response.access);
+            cleanup();
+            resolve(true);
+        };
+
+        script.onerror = function() {
+            cleanup();
+            clearUserSession();
+            window.location.href = 'loginBeratideal.html';
+            resolve(false);
+        };
+
+        script.src = `${URL_dbUSER}?action=getUserAccess&userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}&callback=${callbackName}`;
+        document.body.appendChild(script);
+    });
 }
 
 function getStoredAccess() {
@@ -107,22 +204,26 @@ function getStoredAccess() {
     **/
 
 
-    storedAccess.aksesLogin = hasExplicitLoginFlag
-        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || localStorage.getItem('aksesLogin'))
-        : 'Y';
-    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || localStorage.getItem('aksesFitChallange'));
-    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || localStorage.getItem('aksesFitTracker'));
-    storedAccess.aksesProgram = normalizeAccessValue(parsedAccess.aksesProgram || rawAccess.aksesProgram || localStorage.getItem('aksesProgram') || storedAccess.aksesFitTracker);
-    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || localStorage.getItem('aksesAnalisa'));
-    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || localStorage.getItem('aksesDataPeserta'));
-    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || localStorage.getItem('aksesFollowWe'));
-    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || localStorage.getItem('aksesFollowCrm'));
-    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || localStorage.getItem('aksesReferall'));
-    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || localStorage.getItem('aksesSetup'));
-    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || localStorage.getItem('aksesLogNotif'));
-    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || localStorage.getItem('aksesCoach'));
+    if (!hasExplicitLoginFlag) {
+        return storedAccess;
+    }
 
-    return storedAccess;
+    return buildNormalizedAccess({
+        ...rawAccess,
+        ...parsedAccess,
+        aksesLogin: parsedAccess.aksesLogin || rawAccess.aksesLogin || localStorage.getItem('aksesLogin'),
+        aksesFitChallange: parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || localStorage.getItem('aksesFitChallange'),
+        aksesFitTracker: parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || localStorage.getItem('aksesFitTracker'),
+        aksesProgram: parsedAccess.aksesProgram || rawAccess.aksesProgram || localStorage.getItem('aksesProgram'),
+        aksesAnalisa: parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || localStorage.getItem('aksesAnalisa'),
+        aksesDataPeserta: parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || localStorage.getItem('aksesDataPeserta'),
+        aksesFollowWe: parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || localStorage.getItem('aksesFollowWe'),
+        aksesFollowCrm: parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || localStorage.getItem('aksesFollowCrm'),
+        aksesReferall: parsedAccess.aksesReferall || rawAccess.aksesReferall || localStorage.getItem('aksesReferall'),
+        aksesSetup: parsedAccess.aksesSetup || rawAccess.aksesSetup || localStorage.getItem('aksesSetup'),
+        aksesLogNotif: parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || localStorage.getItem('aksesLogNotif'),
+        aksesCoach: parsedAccess.aksesCoach || rawAccess.aksesCoach || localStorage.getItem('aksesCoach')
+    });
 }
 
 function clearStoredUserAccess() {
@@ -173,13 +274,7 @@ function enforceDashboardAccess() {
         return false;
     }
 
-    clearStoredUserAccess();
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userHP');
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userLevel');
-    localStorage.removeItem('progressData');
+    clearUserSession();
     window.location.href = 'loginBeratideal.html';
     return false;
 }

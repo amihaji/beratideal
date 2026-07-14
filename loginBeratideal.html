@@ -111,7 +111,7 @@ dengan hak aksesnya
   // url user dbUser
   // Samakan deployment login dengan Setup User agar logika lock user
   // dan notifikasi WA otomatis berjalan dari backend yang sama.
-  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycby493cpS8rgl97jI8tInbSVSu3QaWYJyG0BGxJGydz2EtaAxdA4zX1yhVBC0K4-0uCQoA/exec';  
+  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbx5nxdJB23p2yq2KNBpYd0daFO5SOTWjss2Gv8rEfsG0G9fPHB3GEgty6TINMelEQgrvA/exec';  
 
   function normalizeAccessValue(value) {
     return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
@@ -136,28 +136,27 @@ dengan hak aksesnya
     ].forEach((key) => localStorage.removeItem(key));
   }
 
+  function clearUserSession() {
+    clearStoredUserAccess();
+    [
+      'userId',
+      'userName',
+      'userHP',
+      'userToken',
+      'userLevel',
+      'progressData'
+    ].forEach((key) => localStorage.removeItem(key));
+  }
+
   function saveUserAccess(access) {
     const rawAccess = access || {};
     const hasExplicitLoginFlag =
       Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
       Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
-    /*
-    const fitChallengeValue = rawAccess.aksesFitChallange ?? rawAccess.aksesFC ?? rawAccess.aksesfitchallange ?? rawAccess.aksesfc;
-    const fitTrackerValue = rawAccess.aksesFitTracker ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember ?? rawAccess.aksesfittracker ?? rawAccess.aksesdashadmin ?? rawAccess.aksesdashmember;
-    const programValue = rawAccess.aksesProgram ?? rawAccess.aksesprogram ?? fitTrackerValue;
-    const analyticsValue = rawAccess.aksesAnalisa ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesanalisa ?? rawAccess.aksesdashadmin;
-    const studentsValue = rawAccess.aksesDataPeserta ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember ?? rawAccess.aksesdatapeserta ?? rawAccess.aksesdashadmin ?? rawAccess.aksesdashmember;
-    const followWeValue = rawAccess.aksesFollowWe ?? rawAccess.aksesDashWE ?? rawAccess.aksesfollowwe ?? rawAccess.aksesdashwe;
-    const followCrmValue = rawAccess.aksesFollowCrm ?? rawAccess.aksesCRM ?? rawAccess.aksesfollowcrm ?? rawAccess.aksescrm;
-    const referallValue = rawAccess.aksesReferall ?? rawAccess.aksesreferall;
-    const setupValue = rawAccess.aksesSetup ?? rawAccess.aksesSetting ?? rawAccess.aksessetup ?? rawAccess.aksessetting;
-    const logNotifValue = rawAccess.aksesLogNotif ?? rawAccess.akseslognotif;
-    const coachValue = rawAccess.aksesCoach ?? rawAccess.aksesCOACH ?? rawAccess.aksescoach;
-    */
-
     const fitChallengeValue = rawAccess.aksesFitChallange;
     const fitTrackerValue = rawAccess.aksesFitTracker;
-    const programValue = rawAccess.aksesProgram;
+    // Program masih mengikuti flag FitTracker agar konsisten dengan dashboard.
+    const programValue = rawAccess.aksesProgram ?? fitTrackerValue;
     const analyticsValue = rawAccess.aksesAnalisa ;
     const pesertaValue = rawAccess.aksesDataPeserta;
     const followWeValue = rawAccess.aksesFollowWe
@@ -168,8 +167,7 @@ dengan hak aksesnya
     const coachValue = rawAccess.aksesCoach;
 
     const normalizedAccess = {
-      // Jika backend lama tidak mengirim flag login, anggap login aktif karena backend sudah meloloskan autentikasi.
-      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin) : 'Y',
+      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin) : 'N',
       aksesFitChallange: normalizeAccessValue(fitChallengeValue),
       aksesFitTracker: normalizeAccessValue(fitTrackerValue),
       aksesProgram: normalizeAccessValue(programValue),
@@ -243,12 +241,7 @@ dengan hak aksesnya
 
           const access = saveUserAccess(response.access || {});
           if (access.aksesLogin !== 'Y') {
-            clearStoredUserAccess();
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userHP');
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userLevel');
+            clearUserSession();
             showNotification('error', 'ERROR : Hak akses login Anda tidak aktif.');
             btnText.classList.remove('d-none');
             btnSpinner.classList.add('d-none');
@@ -274,12 +267,7 @@ dengan hak aksesnya
           } else if (hasDashboardAccess) {
             redirectPage = 'formDashboard.html';
           } else {
-            clearStoredUserAccess();
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userHP');
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userLevel');
+            clearUserSession();
             showNotification('error', 'ERROR : Tidak ada menu yang bisa diakses untuk akun ini.');
             btnText.classList.remove('d-none');
             btnSpinner.classList.add('d-none');
@@ -289,10 +277,6 @@ dengan hak aksesnya
             return;
           }
 
-          if (!redirectPage) {
-            redirectPage = 'prog10hari.html';
-          }
-          
           console.log('🔄 Redirect ke:', redirectPage);
           
           // AMBIL PROGRESS DARI SERVER jika diarahkan ke program Fit Challenge
