@@ -1,5 +1,4 @@
 /*******************************************
-APLIKASI BERATIDEAL
 SETUP USER 
 - DATABASE : dbUser (TabelUser dan LogNotif)
 TABELUSER
