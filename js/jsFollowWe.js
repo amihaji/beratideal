@@ -139,7 +139,7 @@ function filterFollowUpWERecordsByName(rows, keyword) {
 }
 
 function renderFollowUpWETableRows(rows, emptyMessage) {
-    const tableBody = document.getElementById('dataTableBody');
+    const tableBody = document.getElementById('weTableBody') || document.getElementById('dataTableBody');
     if (!tableBody) return;
 
     tableBody.innerHTML = '';

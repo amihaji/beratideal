@@ -122,7 +122,7 @@ function ensureFollowUpWEFallback() {
     if (followUpWEFallbackBound) return;
 
     const filterButton = document.getElementById('filterButton');
-    const filterSponsor = document.getElementById('filterSponsor');
+    const filterInput = document.getElementById('filterNama') || document.getElementById('filterSponsor');
     const startButton = document.getElementById('startFollowUpButton');
     const cancelButton = document.getElementById('cancelFollowUpButton');
     const checkAll = document.getElementById('checkAll');
@@ -131,8 +131,8 @@ function ensureFollowUpWEFallback() {
         filterButton.addEventListener('click', loadFollowUpWETableFallback);
     }
 
-    if (filterSponsor) {
-        filterSponsor.addEventListener('keydown', function(event) {
+    if (filterInput) {
+        filterInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 loadFollowUpWETableFallback();
@@ -146,14 +146,14 @@ function ensureFollowUpWEFallback() {
             const followUpToolbar = document.getElementById('followUpToolbar');
             const followUpMessageBox = document.getElementById('followUpMessageBox');
 
-            if (filterSponsor) filterSponsor.disabled = true;
+            if (filterInput) filterInput.disabled = true;
             if (filterButton) filterButton.disabled = true;
             if (normalToolbar) normalToolbar.classList.add('sembunyikan');
             if (followUpToolbar) followUpToolbar.classList.remove('sembunyikan');
             if (followUpMessageBox) followUpMessageBox.style.display = 'block';
 
-            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => cb.classList.remove('d-none'));
-            document.querySelectorAll('#dataTableBody .action-icon').forEach(icon => icon.classList.add('disabled-action'));
+            document.querySelectorAll('#weTableBody .rowCheckbox, #dataTableBody .rowCheckbox').forEach(cb => cb.classList.remove('d-none'));
+            document.querySelectorAll('#weTableBody .action-icon, #dataTableBody .action-icon').forEach(icon => icon.classList.add('disabled-action'));
         });
     }
 
@@ -164,7 +164,7 @@ function ensureFollowUpWEFallback() {
             const followUpMessageBox = document.getElementById('followUpMessageBox');
             const waMessage = document.getElementById('waMessage');
 
-            if (filterSponsor) filterSponsor.disabled = false;
+            if (filterInput) filterInput.disabled = false;
             if (filterButton) filterButton.disabled = false;
             if (normalToolbar) normalToolbar.classList.remove('sembunyikan');
             if (followUpToolbar) followUpToolbar.classList.add('sembunyikan');
@@ -172,17 +172,17 @@ function ensureFollowUpWEFallback() {
             if (waMessage) waMessage.value = '';
             if (checkAll) checkAll.checked = false;
 
-            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => {
+            document.querySelectorAll('#weTableBody .rowCheckbox, #dataTableBody .rowCheckbox').forEach(cb => {
                 cb.classList.add('d-none');
                 cb.checked = false;
             });
-            document.querySelectorAll('#dataTableBody .action-icon').forEach(icon => icon.classList.remove('disabled-action'));
+            document.querySelectorAll('#weTableBody .action-icon, #dataTableBody .action-icon').forEach(icon => icon.classList.remove('disabled-action'));
         });
     }
 
     if (checkAll) {
         checkAll.addEventListener('change', function() {
-            document.querySelectorAll('#dataTableBody .rowCheckbox').forEach(cb => cb.checked = this.checked);
+            document.querySelectorAll('#weTableBody .rowCheckbox, #dataTableBody .rowCheckbox').forEach(cb => cb.checked = this.checked);
         });
     }
 
@@ -227,14 +227,14 @@ function filterFollowUpWERecordsByName(rows, keyword) {
 }
 
 function loadFollowUpWETableFallback() {
-    const tableBody = document.getElementById('dataTableBody');
-    const filterSponsor = document.getElementById('filterSponsor');
+    const tableBody = document.getElementById('weTableBody') || document.getElementById('dataTableBody');
+    const filterInput = document.getElementById('filterNama') || document.getElementById('filterSponsor');
 
     if (!tableBody) return;
 
     setFollowUpWELoading(true);
 
-    const filterValue = filterSponsor ? filterSponsor.value.trim() : '';
+    const filterValue = filterInput ? filterInput.value.trim() : '';
     const callbackName = 'we_cb_' + Date.now();
     const script = document.createElement('script');
     script.src = `${URL_DB_WETOOLS_FALLBACK}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;

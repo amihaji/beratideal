@@ -46,7 +46,7 @@
         progressBar: document.getElementById('crmWaProgressBar'),
         checkAll: document.getElementById('crmCheckAll'),
         table: document.getElementById('crmTable'),
-        tableBody: document.getElementById('crmDataTableBody'),
+        tableBody: document.getElementById('crmTableBody') || document.getElementById('crmDataTableBody'),
         loadingOverlay: document.getElementById('crmLoadingOverlay'),
         pesanBox: document.getElementById('crmPesanNotification'),
         pesanIcon: document.getElementById('crmPesanNotifIcon'),

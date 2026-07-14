@@ -259,7 +259,13 @@ function loadLogNotifTable() {
   script.src         = `${URL_dbUSER}?action=getLogNotif&callback=${callbackName}`;
 
   window[callbackName] = function(data) {
-    const tbody = document.getElementById('logNotifTableBody');
+    const tbody = document.getElementById('lognotifTableBody') || document.getElementById('logNotifTableBody');
+    if (!tbody) {
+      showLoading(false, 'log');
+      delete window[callbackName];
+      document.body.removeChild(script);
+      return;
+    }
     tbody.innerHTML = '';
 
     if (!data || data.length === 0) {
@@ -290,7 +296,7 @@ function loadLogNotifTable() {
 
   script.onerror = function() {
     showPesanSetupUser('error', ' ERROR : Gagal mengambil data log notifikasi!');
-    showLoading(true, 'log');
+    showLoading(false, 'log');
     delete window[callbackName];
     document.body.removeChild(script);
   };
