@@ -124,6 +124,7 @@ dengan hak aksesnya
       'aksesLogin',
       'aksesFitChallange',
       'aksesFitTracker',
+      'aksesProgram',
       'aksesAnalisa',
       'aksesDataPeserta',
       'aksesFollowWe',
@@ -144,21 +145,36 @@ dengan hak aksesnya
 
   function saveUserAccess(access) {
     const rawAccess = access || {};
-    const hasExplicitLoginFlag = Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin');
+    const hasExplicitLoginFlag =
+      Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
+      Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
+
+    const fitChallengeValue = rawAccess.aksesFitChallange ?? rawAccess.aksesFC ?? rawAccess.aksesfitchallange ?? rawAccess.aksesfc;
+    const fitTrackerValue = rawAccess.aksesFitTracker ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember ?? rawAccess.aksesfittracker ?? rawAccess.aksesdashadmin ?? rawAccess.aksesdashmember;
+    const programValue = rawAccess.aksesProgram ?? rawAccess.aksesprogram ?? fitTrackerValue;
+    const analyticsValue = rawAccess.aksesAnalisa ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesanalisa ?? rawAccess.aksesdashadmin;
+    const studentsValue = rawAccess.aksesDataPeserta ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember ?? rawAccess.aksesdatapeserta ?? rawAccess.aksesdashadmin ?? rawAccess.aksesdashmember;
+    const followWeValue = rawAccess.aksesFollowWe ?? rawAccess.aksesDashWE ?? rawAccess.aksesfollowwe ?? rawAccess.aksesdashwe;
+    const followCrmValue = rawAccess.aksesFollowCrm ?? rawAccess.aksesCRM ?? rawAccess.aksesfollowcrm ?? rawAccess.aksescrm;
+    const referallValue = rawAccess.aksesReferall ?? rawAccess.aksesreferall;
+    const setupValue = rawAccess.aksesSetup ?? rawAccess.aksesSetting ?? rawAccess.aksessetup ?? rawAccess.aksessetting;
+    const logNotifValue = rawAccess.aksesLogNotif ?? rawAccess.akseslognotif;
+    const coachValue = rawAccess.aksesCoach ?? rawAccess.aksesCOACH ?? rawAccess.aksescoach;
 
     const normalizedAccess = {
       // Jika backend lama tidak mengirim flag login, anggap login aktif karena backend sudah meloloskan autentikasi.
-      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin) : 'Y',
-      aksesFitChallange: normalizeAccessValue(rawAccess.aksesFitChallange ?? rawAccess.aksesFC),
-      aksesFitTracker: normalizeAccessValue(rawAccess.aksesFitTracker ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember),
-      aksesAnalisa: normalizeAccessValue(rawAccess.aksesAnalisa ?? rawAccess.aksesDashAdmin),
-      aksesDataPeserta: normalizeAccessValue(rawAccess.aksesDataPeserta ?? rawAccess.aksesDashAdmin ?? rawAccess.aksesDashMember),
-      aksesFollowWe: normalizeAccessValue(rawAccess.aksesFollowWe ?? rawAccess.aksesDashWE),
-      aksesFollowCrm: normalizeAccessValue(rawAccess.aksesFollowCrm ?? rawAccess.aksesCRM),
-      aksesReferall: normalizeAccessValue(rawAccess.aksesReferall ?? rawAccess.aksesDashAdmin),
-      aksesSetup: normalizeAccessValue(rawAccess.aksesSetup ?? rawAccess.aksesSetting),
-      aksesLogNotif: normalizeAccessValue(rawAccess.aksesLogNotif ?? rawAccess.aksesSetting ?? rawAccess.aksesDashAdmin),
-      aksesCoach: normalizeAccessValue(rawAccess.aksesCoach ?? rawAccess.aksesCOACH)
+      aksesLogin: hasExplicitLoginFlag ? normalizeAccessValue(rawAccess.aksesLogin ?? rawAccess.akseslogindash) : 'Y',
+      aksesFitChallange: normalizeAccessValue(fitChallengeValue),
+      aksesFitTracker: normalizeAccessValue(fitTrackerValue),
+      aksesProgram: normalizeAccessValue(programValue),
+      aksesAnalisa: normalizeAccessValue(analyticsValue),
+      aksesDataPeserta: normalizeAccessValue(studentsValue),
+      aksesFollowWe: normalizeAccessValue(followWeValue),
+      aksesFollowCrm: normalizeAccessValue(followCrmValue),
+      aksesReferall: normalizeAccessValue(referallValue),
+      aksesSetup: normalizeAccessValue(setupValue),
+      aksesLogNotif: normalizeAccessValue(logNotifValue),
+      aksesCoach: normalizeAccessValue(coachValue)
     };
 
     localStorage.setItem('rawUserAccess', JSON.stringify(rawAccess));
@@ -173,6 +189,7 @@ dengan hak aksesnya
   function hasAnyDashboardAccess(access) {
     return [
       access.aksesFitTracker,
+      access.aksesProgram,
       access.aksesAnalisa,
       access.aksesDataPeserta,
       access.aksesFollowWe,
