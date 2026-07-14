@@ -186,24 +186,7 @@ function getStoredAccess() {
         Object.prototype.hasOwnProperty.call(parsedAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
-    /**
-    storedAccess.aksesLogin = hasExplicitLoginFlag
-        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || rawAccess.akseslogindash || localStorage.getItem('aksesLogin'))
-        : 'Y';
-    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || rawAccess.aksesFC || rawAccess.aksesfitchallange || rawAccess.aksesfc || localStorage.getItem('aksesFitChallange'));
-    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || rawAccess.aksesDashAdmin || rawAccess.aksesDashMember || rawAccess.aksesfittracker || rawAccess.aksesdashadmin || rawAccess.aksesdashmember || localStorage.getItem('aksesFitTracker'));
-    storedAccess.aksesProgram = normalizeAccessValue(parsedAccess.aksesProgram || rawAccess.aksesProgram || rawAccess.aksesprogram || localStorage.getItem('aksesProgram') || storedAccess.aksesFitTracker);
-    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || rawAccess.aksesanalisa || localStorage.getItem('aksesAnalisa'));
-    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || rawAccess.aksesdatapeserta || localStorage.getItem('aksesDataPeserta'));
-    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || rawAccess.aksesDashWE || rawAccess.aksesfollowwe || rawAccess.aksesdashwe || localStorage.getItem('aksesFollowWe'));
-    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || rawAccess.aksesCRM || rawAccess.aksesfollowcrm || rawAccess.aksescrm || localStorage.getItem('aksesFollowCrm'));
-    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || rawAccess.aksesreferall || localStorage.getItem('aksesReferall'));
-    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || rawAccess.aksesSetting || rawAccess.aksessetup || rawAccess.aksessetting || localStorage.getItem('aksesSetup'));
-    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || rawAccess.akseslognotif || localStorage.getItem('aksesLogNotif'));
-    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || rawAccess.aksesCOACH || rawAccess.aksescoach || localStorage.getItem('aksesCoach'));
-    **/
-
-
+ 
     if (!hasExplicitLoginFlag) {
         return storedAccess;
     }
