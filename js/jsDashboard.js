@@ -69,17 +69,38 @@ function normalizeAccessValue(value) {
 
 function getStoredAccess() {
     const storedAccess = { ...DEFAULT_USER_ACCESS };
+    let parsedAccess = {};
+    let rawAccess = {};
 
     try {
-        const parsedAccess = JSON.parse(localStorage.getItem('userAccess') || '{}');
-        Object.keys(storedAccess).forEach((key) => {
-            storedAccess[key] = normalizeAccessValue(parsedAccess[key] || localStorage.getItem(key));
-        });
+        parsedAccess = JSON.parse(localStorage.getItem('userAccess') || '{}');
     } catch (error) {
-        Object.keys(storedAccess).forEach((key) => {
-            storedAccess[key] = normalizeAccessValue(localStorage.getItem(key));
-        });
+        parsedAccess = {};
     }
+
+    try {
+        rawAccess = JSON.parse(localStorage.getItem('rawUserAccess') || '{}');
+    } catch (error) {
+        rawAccess = {};
+    }
+
+    const hasExplicitLoginFlag =
+        Object.prototype.hasOwnProperty.call(parsedAccess, 'aksesLogin') ||
+        Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin');
+
+    storedAccess.aksesLogin = hasExplicitLoginFlag
+        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || localStorage.getItem('aksesLogin'))
+        : 'Y';
+    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || rawAccess.aksesFC || localStorage.getItem('aksesFitChallange'));
+    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || rawAccess.aksesDashAdmin || rawAccess.aksesDashMember || localStorage.getItem('aksesFitTracker'));
+    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || rawAccess.aksesDashAdmin || localStorage.getItem('aksesAnalisa'));
+    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || rawAccess.aksesDashAdmin || rawAccess.aksesDashMember || localStorage.getItem('aksesDataPeserta'));
+    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || rawAccess.aksesDashWE || localStorage.getItem('aksesFollowWe'));
+    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || rawAccess.aksesCRM || localStorage.getItem('aksesFollowCrm'));
+    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || rawAccess.aksesDashAdmin || localStorage.getItem('aksesReferall'));
+    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || rawAccess.aksesSetting || localStorage.getItem('aksesSetup'));
+    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || rawAccess.aksesSetting || rawAccess.aksesDashAdmin || localStorage.getItem('aksesLogNotif'));
+    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || rawAccess.aksesCOACH || localStorage.getItem('aksesCoach'));
 
     return storedAccess;
 }
@@ -87,6 +108,7 @@ function getStoredAccess() {
 function clearStoredUserAccess() {
     Object.keys(DEFAULT_USER_ACCESS).forEach((key) => localStorage.removeItem(key));
     localStorage.removeItem('userAccess');
+    localStorage.removeItem('rawUserAccess');
 }
 
 function hasPageAccess(pageName) {
