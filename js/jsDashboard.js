@@ -12,6 +12,30 @@ let studentsData = [];
 let programsData = [];
 let analytics = {};
 let charts = {};
+const DEFAULT_USER_ACCESS = {
+    aksesLogin: 'N',
+    aksesFitChallange: 'N',
+    aksesFitTracker: 'N',
+    aksesAnalisa: 'N',
+    aksesDataPeserta: 'N',
+    aksesFollowWe: 'N',
+    aksesFollowCrm: 'N',
+    aksesReferall: 'N',
+    aksesSetup: 'N',
+    aksesLogNotif: 'N',
+    aksesCoach: 'N'
+};
+const MENU_ACCESS_MAP = [
+    { page: 'dashboard', navId: 'nav-dashboard', accessKey: 'aksesFitTracker' },
+    { page: 'programs', navId: 'nav-programs', accessKey: 'aksesFitTracker' },
+    { page: 'analytics', navId: 'nav-analytics', accessKey: 'aksesAnalisa' },
+    { page: 'students', navId: 'nav-students', accessKey: 'aksesDataPeserta' },
+    { page: 'followupwe', navId: 'nav-followupwe', accessKey: 'aksesFollowWe' },
+    { page: 'followupcrm', navId: 'nav-followupcrm', accessKey: 'aksesFollowCrm' },
+    { page: 'referall', navId: 'nav-referall', accessKey: 'aksesReferall' },
+    { page: 'setupuser', navId: 'nav-setupuser', accessKey: 'aksesSetup' },
+    { page: 'lognotif', navId: 'nav-lognotif', accessKey: 'aksesLogNotif' }
+];
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,7 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    if (!enforceDashboardAccess()) {
+        return;
+    }
+
     updateActiveUserLabel();
+    applyMenuAccessControl();
 
     // Load initial data
     loadAllData();
@@ -31,7 +60,86 @@ function initializeApp() {
     initializeCharts();
     
     // Show default page
-    showPage('dashboard');
+    showPage(getDefaultAccessiblePage());
+}
+
+function normalizeAccessValue(value) {
+    return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
+}
+
+function getStoredAccess() {
+    const storedAccess = { ...DEFAULT_USER_ACCESS };
+
+    try {
+        const parsedAccess = JSON.parse(localStorage.getItem('userAccess') || '{}');
+        Object.keys(storedAccess).forEach((key) => {
+            storedAccess[key] = normalizeAccessValue(parsedAccess[key] || localStorage.getItem(key));
+        });
+    } catch (error) {
+        Object.keys(storedAccess).forEach((key) => {
+            storedAccess[key] = normalizeAccessValue(localStorage.getItem(key));
+        });
+    }
+
+    return storedAccess;
+}
+
+function clearStoredUserAccess() {
+    Object.keys(DEFAULT_USER_ACCESS).forEach((key) => localStorage.removeItem(key));
+    localStorage.removeItem('userAccess');
+}
+
+function hasPageAccess(pageName) {
+    const menu = MENU_ACCESS_MAP.find((item) => item.page === pageName);
+    if (!menu) return false;
+
+    const access = getStoredAccess();
+    return access[menu.accessKey] === 'Y';
+}
+
+function getDefaultAccessiblePage() {
+    const firstAccessibleMenu = MENU_ACCESS_MAP.find((item) => hasPageAccess(item.page));
+    return firstAccessibleMenu ? firstAccessibleMenu.page : 'dashboard';
+}
+
+function applyMenuAccessControl() {
+    MENU_ACCESS_MAP.forEach(({ navId, page, accessKey }) => {
+        const navLink = document.getElementById(navId);
+        const pageElement = document.getElementById(page + '-page');
+        const isAllowed = getStoredAccess()[accessKey] === 'Y';
+
+        if (navLink && navLink.parentElement) {
+            navLink.parentElement.style.display = isAllowed ? '' : 'none';
+        }
+
+        if (!isAllowed && pageElement) {
+            pageElement.style.display = 'none';
+        }
+    });
+}
+
+function enforceDashboardAccess() {
+    const access = getStoredAccess();
+    const hasDashboardAccess = MENU_ACCESS_MAP.some(({ accessKey }) => access[accessKey] === 'Y');
+
+    if (hasDashboardAccess) {
+        return true;
+    }
+
+    if (access.aksesFitChallange === 'Y') {
+        window.location.href = 'prog10hari.html';
+        return false;
+    }
+
+    clearStoredUserAccess();
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userHP');
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userLevel');
+    localStorage.removeItem('progressData');
+    window.location.href = 'loginBeratideal.html';
+    return false;
 }
 
 function updateActiveUserLabel() {
@@ -64,6 +172,16 @@ function setupEventListeners() {
 
 // Page Navigation
 function showPage(pageName) {
+    if (!hasPageAccess(pageName)) {
+        showToast('Anda tidak memiliki hak akses ke menu ini.', 'warning');
+        const fallbackPage = getDefaultAccessiblePage();
+        if (fallbackPage !== pageName) {
+            pageName = fallbackPage;
+        } else {
+            return;
+        }
+    }
+
     // Hide all pages
     document.querySelectorAll('.page-content').forEach(page => {
         page.style.display = 'none';
@@ -1071,6 +1189,7 @@ function logoutUser() {
     localStorage.removeItem('userToken');
     localStorage.removeItem('userLevel');
     localStorage.removeItem('progressData');
+    clearStoredUserAccess();
     window.location.href = 'loginBeratideal.html';
 }
 
