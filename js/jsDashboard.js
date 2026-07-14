@@ -532,8 +532,8 @@ function renderCurrentPage() {
     }
 }
 
-// Dashboard Rendering
-function renderDashboard() {
+// Fittracker Rendering
+function renderFittracker() {
     // Update stats
     const totalPeserta = pesertaData.length;
     const activePeserta = pesertaData.filter(s => isActive(s)).length;
