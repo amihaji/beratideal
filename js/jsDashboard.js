@@ -8,7 +8,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
 let currentPage = 'fittracker';
-let studentsData = [];
+let pesertasData = [];
 let programsData = [];
 let analytics = {};
 let charts = {};
@@ -194,14 +194,14 @@ function updateActiveUserLabel() {
 
 function setupEventListeners() {
     // Search functionality
-    const searchStudent = document.getElementById('searchStudent');
+    const searchPeserta = document.getElementById('searchPeserta');
     const filterProgram = document.getElementById('filterProgram');
-    if (searchStudent) searchStudent.addEventListener('input', filterStudents);
-    if (filterProgram) filterProgram.addEventListener('change', filterStudents);
+    if (searchPeserta) searchPeserta.addEventListener('input', filterPeserta);
+    if (filterProgram) filterProgram.addEventListener('change', filterPeserta);
     
-    // Add student form (only if exists)
-    const addStudentForm = document.getElementById('addStudentForm');
-    if (addStudentForm) addStudentForm.addEventListener('submit', handleAddStudent);
+    // Add peserta form (only if exists)
+    const addPesertaForm = document.getElementById('addPesertaForm');
+    if (addPesertaForm) addPesertaForm.addEventListener('submit', handleAddPeserta);
     
     // Navigation active state
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -490,13 +490,13 @@ async function loadAllData() {
     showLoading(true);
     try {
         // Load from Google Sheets
-        studentsData = await loadpesertaFromSheets();
+        pesertaData = await loadpesertaFromSheets();
         programsData = await loadProgramsFromSheets();
         analytics = await loadAnalyticsFromSheets();
         
         // If no data from sheets, use mock data
-        if (studentsData.length === 0) {
-            studentsData = getMockStudentsData();
+        if (pesertaData.length === 0) {
+            pesertaData = getMockPesertaData();
         }
         if (programsData.length === 0) {
             programsData = getMockProgramsData();
@@ -507,7 +507,7 @@ async function loadAllData() {
         console.error('Error loading data:', error);
         showToast('Error loading data: ' + error.message, 'error');
         // Fallback to mock data
-        studentsData = getMockStudentsData();
+        pesertaData = getMockPesertaData();
         programsData = getMockProgramsData();
         renderCurrentPage();
     } finally {
@@ -521,7 +521,7 @@ function renderCurrentPage() {
             renderFittracker();
             break;
         case 'peserta':
-            renderStudents();
+            renderPeserta();
             break;
         case 'programs':
             renderPrograms();
@@ -535,14 +535,14 @@ function renderCurrentPage() {
 // Dashboard Rendering
 function renderDashboard() {
     // Update stats
-    const totalStudents = studentsData.length;
-    const activeStudents = studentsData.filter(s => isActive(s)).length;
-    const avgProgress = Math.round(studentsData.reduce((sum, s) => sum + s.progress, 0) / totalStudents) || 0;
-    const completedPrograms = studentsData.filter(s => s.progress >= 100).length;
+    const totalPeserta = pesertaData.length;
+    const activePeserta = pesertaData.filter(s => isActive(s)).length;
+    const avgProgress = Math.round(pesertaData.reduce((sum, s) => sum + s.progress, 0) / totalPeserta) || 0;
+    const completedPrograms = pesertaData.filter(s => s.progress >= 100).length;
     
-    document.getElementById('total-peserta').textContent = totalStudents;
-    document.getElementById('active-peserta').textContent = activeStudents;
-    document.getElementById('active-percentage').textContent = `${Math.round((activeStudents/totalStudents)*100)}% dari total`;
+    document.getElementById('total-peserta').textContent = totalPeserta;
+    document.getElementById('active-peserta').textContent = activePeserta;
+    document.getElementById('active-percentage').textContent = `${Math.round((activePeserta/totalPeserta)*100)}% dari total`;
     document.getElementById('avg-progress').textContent = avgProgress + '%';
     document.getElementById('completed-programs').textContent = completedPrograms;
     
@@ -601,25 +601,25 @@ function renderProgramsOverview() {
 }
 
 // Peserta Rendering
-function renderStudents() {
-    filterStudents();
+function renderPeserta() {
+    filterPeserta();
 }
 
-function filterStudents() {
-    const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+function filterPeserta() {
+    const searchTerm = document.getElementById('searchPeserta').value.toLowerCase();
     const programFilter = document.getElementById('filterProgram').value;
     
-    let filtered = studentsData.filter(student => {
-        const matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
-                             student.email.toLowerCase().includes(searchTerm);
-        const matchesProgram = !programFilter || student.program === programFilter;
+    let filtered = pesertaData.filter(peserta => {
+        const matchesSearch = peserta.name.toLowerCase().includes(searchTerm) || 
+                             peserta.email.toLowerCase().includes(searchTerm);
+        const matchesProgram = !programFilter || peserta.program === programFilter;
         return matchesSearch && matchesProgram;
     });
     
-    renderStudentCards(filtered);
+    renderPesertaCards(filtered);
 }
 
-function renderStudentCards(peserta) {
+function renderPesertaCards(peserta) {
     const container = document.getElementById('peserta-container');
     
     if (peserta.length === 0) {
@@ -639,67 +639,67 @@ function renderStudentCards(peserta) {
     
     container.innerHTML = '';
     
-    peserta.forEach(student => {
-        const programClass = getProgramClass(student.program);
-        const avatarBg = getAvatarColor(student.name);
+    peserta.forEach(peserta => {
+        const programClass = getProgramClass(peserta.program);
+        const avatarBg = getAvatarColor(peserta.name);
         
-        const studentHtml = `
+        const pesertaHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card student-card h-100" onclick="showStudentDetail(${student.id})">
+                <div class="card peserta-card h-100" onclick="showPesertaDetail(${peserta.id})">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
-                            <div class="student-avatar me-3" style="background-color: ${avatarBg}">
-                                ${student.name.charAt(0).toUpperCase()}
+                            <div class="peserta-avatar me-3" style="background-color: ${avatarBg}">
+                                ${peserta.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="card-title mb-1">${student.name}</h6>
-                                <small class="text-muted">${student.email}</small>
+                                <h6 class="card-title mb-1">${peserta.name}</h6>
+                                <small class="text-muted">${peserta.email}</small>
                             </div>
                             <span class="program-badge ${programClass}">
-                                ${getProgramIcon(student.program)}
+                                ${getProgramIcon(peserta.program)}
                             </span>
                         </div>
                         
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <small class="text-muted">Progress</small>
-                                <small class="fw-bold">${student.progress}%</small>
+                                <small class="fw-bold">${peserta.progress}%</small>
                             </div>
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-primary" role="progressbar" 
-                                     style="width: ${student.progress}%"></div>
+                                     style="width: ${peserta.progress}%"></div>
                             </div>
                         </div>
                         
                         <div class="row text-center small">
                             <div class="col-4">
                                 <div class="text-muted">Awal</div>
-                                <div class="fw-bold">${student.initialWeight}kg</div>
+                                <div class="fw-bold">${peserta.initialWeight}kg</div>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">Saat Ini</div>
-                                <div class="fw-bold">${student.currentWeight}kg</div>
+                                <div class="fw-bold">${peserta.currentWeight}kg</div>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">Target</div>
-                                <div class="fw-bold">${student.targetWeight}kg</div>
+                                <div class="fw-bold">${peserta.targetWeight}kg</div>
                             </div>
                         </div>
                         
                         <hr>
                         
                         <div class="d-flex justify-content-between align-items-center small text-muted">
-                            <span>Bergabung: ${formatDate(student.joinDate)}</span>
-                            <span class="${isActive(student) ? 'text-success' : 'text-warning'}">
+                            <span>Bergabung: ${formatDate(peserta.joinDate)}</span>
+                            <span class="${isActive(peserta) ? 'text-success' : 'text-warning'}">
                                 <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-                                ${isActive(student) ? 'Aktif' : 'Tidak Aktif'}
+                                ${isActive(peserta) ? 'Aktif' : 'Tidak Aktif'}
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        container.innerHTML += studentHtml;
+        container.innerHTML += pesertaHtml;
     });
 }
 
@@ -750,7 +750,7 @@ function renderPrograms() {
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Peserta Aktif:</span>
-                                <strong>${program.activeStudents}</strong>
+                                <strong>${program.activePeserta}</strong>
                             </div>
                         </div>
                     </div>
@@ -764,14 +764,14 @@ function renderPrograms() {
 // Analytics Rendering
 function renderAnalytics() {
     // Render top performers
-    const topPerformers = studentsData
+    const topPerformers = pesertaData
         .sort((a, b) => b.progress - a.progress)
         .slice(0, 5);
     
     const topPerformersContainer = document.getElementById('top-performers');
     topPerformersContainer.innerHTML = '';
     
-    topPerformers.forEach((student, index) => {
+    topPerformers.forEach((peserta, index) => {
         const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
         const performerHtml = `
             <div class="d-flex align-items-center mb-3">
@@ -779,11 +779,11 @@ function renderAnalytics() {
                     <span class="fs-5">${medal}</span>
                 </div>
                 <div class="flex-grow-1">
-                    <h6 class="mb-1">${student.name}</h6>
-                    <small class="text-muted">${student.program}</small>
+                    <h6 class="mb-1">${peserta.name}</h6>
+                    <small class="text-muted">${peserta.program}</small>
                 </div>
                 <div class="text-end">
-                    <strong>${student.progress}%</strong>
+                    <strong>${peserta.progress}%</strong>
                 </div>
             </div>
         `;
@@ -918,13 +918,13 @@ function updateMonthlyTrendChart() {
 }
 
 // Form Handlers
-async function handleAddStudent(event) {
+async function handleAddPeserta(event) {
     event.preventDefault();
     
     const formData = {
-        name: document.getElementById('studentName').value,
-        email: document.getElementById('studentEmail').value,
-        program: document.getElementById('studentProgram').value,
+        name: document.getElementById('pesertaName').value,
+        email: document.getElementById('pesertaEmail').value,
+        program: document.getElementById('pesertaProgram').value,
         initialWeight: parseFloat(document.getElementById('initialWeight').value),
         targetWeight: parseFloat(document.getElementById('targetWeight').value),
         currentWeight: parseFloat(document.getElementById('initialWeight').value),
@@ -935,36 +935,36 @@ async function handleAddStudent(event) {
     
     try {
         // Add to Google Sheets
-        await addStudentToSheets(formData);
+        await addPesertaToSheets(formData);
         
         // Add to local data
         formData.id = Date.now();
-        studentsData.push(formData);
+        pesertaData.push(formData);
         
         // Close modal and refresh
-        const modal = bootstrap.Modal.getInstance(document.getElementById('addStudentModal'));
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addPesertaModal'));
         modal.hide();
         
         // Reset form
-        document.getElementById('addStudentForm').reset();
+        document.getElementById('addPesertaForm').reset();
         
         // Refresh current page
         renderCurrentPage();
         
         showToast('Peserta berhasil ditambahkan!', 'success');
     } catch (error) {
-        console.error('Error adding student:', error);
+        console.error('Error adding peserta:', error);
         showToast('Error menambahkan peserta: ' + error.message, 'error');
     }
 }
 
-// Student Detail Modal
-function showStudentDetail(studentId) {
-    const student = studentsData.find(s => s.id == studentId);
-    if (!student) return;
+// Peserta Detail Modal
+function showPesertaDetail(pesertaId) {
+    const peserta = pesertaData.find(s => s.id == pesertaId);
+    if (!peserta) return;
     
-    const modal = new bootstrap.Modal(document.getElementById('studentDetailModal'));
-    document.getElementById('studentDetailTitle').textContent = student.name;
+    const modal = new bootstrap.Modal(document.getElementById('pesertaDetailModal'));
+    document.getElementById('pesertaDetailTitle').textContent = peserta.name;
     
     const detailHtml = `
         <div class="row">
@@ -973,15 +973,15 @@ function showStudentDetail(studentId) {
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Progress Keseluruhan</span>
-                        <strong>${student.progress}%</strong>
+                        <strong>${peserta.progress}%</strong>
                     </div>
                     <div class="progress mb-3" style="height: 10px;">
-                        <div class="progress-bar" style="width: ${student.progress}%"></div>
+                        <div class="progress-bar" style="width: ${peserta.progress}%"></div>
                     </div>
                 </div>
                 
                 <h6>Weight Progress</h6>
-                <canvas id="studentWeightChart" height="200"></canvas>
+                <canvas id="pesertaWeightChart" height="200"></canvas>
             </div>
             
             <div class="col-md-4">
@@ -989,31 +989,31 @@ function showStudentDetail(studentId) {
                 <table class="table table-sm">
                     <tr>
                         <td>Email:</td>
-                        <td>${student.email}</td>
+                        <td>${peserta.email}</td>
                     </tr>
                     <tr>
                         <td>Program:</td>
-                        <td><span class="program-badge ${getProgramClass(student.program)}">${student.program}</span></td>
+                        <td><span class="program-badge ${getProgramClass(peserta.program)}">${peserta.program}</span></td>
                     </tr>
                     <tr>
                         <td>Berat Awal:</td>
-                        <td>${student.initialWeight} kg</td>
+                        <td>${peserta.initialWeight} kg</td>
                     </tr>
                     <tr>
                         <td>Berat Saat Ini:</td>
-                        <td>${student.currentWeight} kg</td>
+                        <td>${peserta.currentWeight} kg</td>
                     </tr>
                     <tr>
                         <td>Target Berat:</td>
-                        <td>${student.targetWeight} kg</td>
+                        <td>${peserta.targetWeight} kg</td>
                     </tr>
                     <tr>
                         <td>Bergabung:</td>
-                        <td>${formatDate(student.joinDate)}</td>
+                        <td>${formatDate(peserta.joinDate)}</td>
                     </tr>
                     <tr>
                         <td>Aktivitas Terakhir:</td>
-                        <td>${formatDate(student.lastActivity)}</td>
+                        <td>${formatDate(peserta.lastActivity)}</td>
                     </tr>
                 </table>
                 
@@ -1029,21 +1029,21 @@ function showStudentDetail(studentId) {
         </div>
     `;
     
-    document.getElementById('studentDetailBody').innerHTML = detailHtml;
+    document.getElementById('pesertaDetailBody').innerHTML = detailHtml;
     modal.show();
     
     // Create weight progress chart after modal is shown
     setTimeout(() => {
-        createStudentWeightChart(student);
+        createPesertaWeightChart(peserta);
     }, 300);
 }
 
-function createStudentWeightChart(student) {
-    const ctx = document.getElementById('studentWeightChart');
+function createPesertaWeightChart(peserta) {
+    const ctx = document.getElementById('pesertaWeightChart');
     if (!ctx) return;
     
     // Generate mock weekly progress data
-    const weeklyProgress = generateWeeklyProgress(student);
+    const weeklyProgress = generateWeeklyProgress(peserta);
     
     new Chart(ctx.getContext('2d'), {
         type: 'line',
@@ -1080,20 +1080,20 @@ function getProgramStats() {
     const programs = ['Turun Berat Badan', 'Naik Berat Badan', 'Jaga Stamina'];
     
     return programs.map((programName, index) => {
-        const programStudents = studentsData.filter(s => s.program === programName);
-        const completionRate = programStudents.length > 0 
-            ? Math.round(programStudents.reduce((sum, s) => sum + s.progress, 0) / programStudents.length)
+        const programPeserta = pesertasData.filter(s => s.program === programName);
+        const completionRate = programPeserta.length > 0 
+            ? Math.round(programPeserta.reduce((sum, s) => sum + s.progress, 0) / programPeserta.length)
             : 0;
-        const activeStudents = programStudents.filter(s => isActive(s)).length;
+        const activePeserta = programPeserta.filter(s => isActive(s)).length;
         
         return {
             id: index + 1,
             name: programName,
             description: getProgramDescription(programName),
-            participants: programStudents.length,
+            participants: programPeserta.length,
             completionRate,
             avgProgress: completionRate,
-            activeStudents,
+            activePeserta,
             class: getProgramClass(programName),
             badgeClass: getProgramBadgeClass(programName),
             icon: getProgramIconClass(programName)
@@ -1158,8 +1158,8 @@ function getAvatarColor(name) {
     return colors[Math.abs(hash) % colors.length];
 }
 
-function isActive(student) {
-    const lastActivity = new Date(student.lastActivity);
+function isActive(peserta) {
+    const lastActivity = new Date(peserta.lastActivity);
     const now = new Date();
     const diffDays = Math.ceil((now - lastActivity) / (1000 * 60 * 60 * 24));
     return diffDays <= 7;
@@ -1175,11 +1175,11 @@ function calculateWeeklyActivity() {
     return [85, 92, 78, 88, 95, 72, 68];
 }
 
-function generateWeeklyProgress(student) {
+function generateWeeklyProgress(peserta) {
     const labels = [];
     const data = [];
-    const startWeight = student.initialWeight;
-    const currentWeight = student.currentWeight;
+    const startWeight = peserta.initialWeight;
+    const currentWeight = peserta.currentWeight;
     const weeks = 8;
     
     for (let i = 0; i < weeks; i++) {
@@ -1288,7 +1288,7 @@ async function syncData() {
 }
 
 // Mock Data Functions
-function getMockStudentsData() {
+function getMockPesertaData() {
     return [
         {
             id: 1,

@@ -20,9 +20,9 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx
 /*****************************************
  * Load peserta data from Google Sheets
  *****************************************/
-async function loadStudentsFromSheets() {
+async function loadPesertaFromSheets() {
     try {
-        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getStudents`);
+        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getPeserta`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -91,9 +91,9 @@ async function loadAnalyticsFromSheets() {
 }
 
 /**
- * Add new student to Google Sheets
+ * Add new peserta to Google Sheets
  */
-async function addStudentToSheets(studentData) {
+async function addPesertaToSheets(pesertaData) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -101,8 +101,8 @@ async function addStudentToSheets(studentData) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                action: 'addStudent',
-                student: studentData
+                action: 'addPeserta',
+                peserta: pesertaData
             })
         });
         
@@ -113,20 +113,20 @@ async function addStudentToSheets(studentData) {
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Failed to add student');
+            throw new Error(data.error || 'Failed to add peserta');
         }
         
         return data;
     } catch (error) {
-        console.error('Error adding student to Google Sheets:', error);
+        console.error('Error adding peserta to Google Sheets:', error);
         throw error;
     }
 }
 
 /**
- * Update student data in Google Sheets
+ * Update peserta data in Google Sheets
  */
-async function updateStudentInSheets(studentId, updateData) {
+async function updatePesertaInSheets(pesertaId, updateData) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -134,8 +134,8 @@ async function updateStudentInSheets(studentId, updateData) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                action: 'updateStudent',
-                studentId: studentId,
+                action: 'updatePeserta',
+                pesertaId: pesertaId,
                 updates: updateData
             })
         });
@@ -147,20 +147,20 @@ async function updateStudentInSheets(studentId, updateData) {
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Failed to update student');
+            throw new Error(data.error || 'Failed to update peserta');
         }
         
         return data;
     } catch (error) {
-        console.error('Error updating student in Google Sheets:', error);
+        console.error('Error updating peserta in Google Sheets:', error);
         throw error;
     }
 }
 
 /**
- * Add progress entry for a student
+ * Add progress entry for a peserta
  */
-async function addProgressEntry(studentId, progressData) {
+async function addProgressEntry(pesertaId, progressData) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -169,7 +169,7 @@ async function addProgressEntry(studentId, progressData) {
             },
             body: JSON.stringify({
                 action: 'addProgress',
-                studentId: studentId,
+                pesertaId: pesertaId,
                 progress: progressData
             })
         });
@@ -192,11 +192,11 @@ async function addProgressEntry(studentId, progressData) {
 }
 
 /**
- * Get student progress history from Google Sheets
+ * Get peserta progress history from Google Sheets
  */
-async function getStudentProgress(studentId) {
+async function getPesertaProgress(pesertaId) {
     try {
-        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getStudentProgress&studentId=${studentId}`);
+        const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getPesertaProgress&pesertaId=${pesertaId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -207,18 +207,18 @@ async function getStudentProgress(studentId) {
         if (data.success) {
             return data.progress || [];
         } else {
-            throw new Error(data.error || 'Failed to load student progress');
+            throw new Error(data.error || 'Failed to load peserta progress');
         }
     } catch (error) {
-        console.error('Error loading student progress from Google Sheets:', error);
+        console.error('Error loading peserta progress from Google Sheets:', error);
         return [];
     }
 }
 
 /**
- * Delete student from Google Sheets
+ * Delete peserta from Google Sheets
  */
-async function deleteStudentFromSheets(studentId) {
+async function deletePesertaFromSheets(pesertaId) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -226,8 +226,8 @@ async function deleteStudentFromSheets(studentId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                action: 'deleteStudent',
-                studentId: studentId
+                action: 'deletePeserta',
+                pesertaId: pesertaId
             })
         });
         
@@ -238,12 +238,12 @@ async function deleteStudentFromSheets(studentId) {
         const data = await response.json();
         
         if (!data.success) {
-            throw new Error(data.error || 'Failed to delete student');
+            throw new Error(data.error || 'Failed to delete peserta');
         }
         
         return data;
     } catch (error) {
-        console.error('Error deleting student from Google Sheets:', error);
+        console.error('Error deleting peserta from Google Sheets:', error);
         throw error;
     }
 }
@@ -251,7 +251,7 @@ async function deleteStudentFromSheets(studentId) {
 /**
  * Batch update multiple peserta
  */
-async function batchUpdateStudents(updates) {
+async function batchUpdatePeserta(updates) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -259,7 +259,7 @@ async function batchUpdateStudents(updates) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                action: 'batchUpdateStudents',
+                action: 'batchUpdatePeserta',
                 updates: updates
             })
         });
