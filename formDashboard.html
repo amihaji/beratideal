@@ -71,7 +71,7 @@ Dashboard untuk :
                     </li>
                     <!-- Menu Referall -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showPage('Referall')" id="nav-Referall">
+                        <a class="nav-link" href="#" onclick="showPage('referall')" id="nav-referall">
                             <i class="fas fa-address-card me-1"></i>Referall
                         </a>
                     </li>
@@ -105,7 +105,7 @@ Dashboard untuk :
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- KONTEN UTAMA HALAMAN DASHBOARD -->
     <div class="container-fluid py-4">
         <!-- Loading Indicator -->
         <div id="loading" class="text-center py-5" style="display: none;">
@@ -115,7 +115,7 @@ Dashboard untuk :
             <p class="mt-2">Memuat data...</p>
         </div>
 
-        <!-- Dashboard Page -->
+        <!-- DASHBOARD HALAMAN : FITTRACKER -->
         <div id="dashboard-page" class="page-content">
             <div class="row mb-4">
                 <div class="col-12">
@@ -223,7 +223,56 @@ Dashboard untuk :
             </div>
         </div>
 
-        <!-- Students Page -->
+        <!-- DASHBOARD HALAMAN : PROGRAM -->
+        <div id="programs-page" class="page-content" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="h2 mb-1">Program</h1>
+                    <p class="text-muted">Detail program BERATideal yang tersedia</p>
+                </div>
+            </div>
+            <div id="program-details-container">
+                <!-- Program details will be loaded here -->
+            </div>
+        </div>
+
+        <!-- DASHBOARD HALAMAN : ANALAISA -->
+        <div id="analytics-page" class="page-content" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="h2 mb-1">Analytics</h1>
+                    <p class="text-muted">Analisis mendalam progress seluruh peserta</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Trend Progress Bulanan</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="monthlyTrendChart" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Top Performers</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="top-performers">
+                                <!-- Top performers will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD HALAMAN : DATA PESERTA -->
         <div id="students-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -265,57 +314,8 @@ Dashboard untuk :
                 <!-- Students will be loaded here -->
             </div>
         </div>
-
-        <!-- Programs Page -->
-        <div id="programs-page" class="page-content" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h1 class="h2 mb-1">Program</h1>
-                    <p class="text-muted">Detail program BERATideal yang tersedia</p>
-                </div>
-            </div>
-            <div id="program-details-container">
-                <!-- Program details will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Analytics Page -->
-        <div id="analytics-page" class="page-content" style="display: none;">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h1 class="h2 mb-1">Analytics</h1>
-                    <p class="text-muted">Analisis mendalam progress seluruh peserta</p>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-lg-8 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Trend Progress Bulanan</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="monthlyTrendChart" height="400"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Top Performers</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="top-performers">
-                                <!-- Top performers will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         
-        <!-- FOLLOW UP WE PAGE -->
+        <!-- DASHBOARD HALAMAN : FOLLOWUP WE -->
         <div id="followupwe-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -429,9 +429,8 @@ Dashboard untuk :
                 </div>  
             </div>
         </div>
-        <!-- Akhir FOLLOW UP WE PAGE -->
-
-        <!-- FOLLOW UP CRM PAGE -->
+        
+        <!-- DASHBOARD HALAMAN : FOLLOWUP CRM -->
         <div id="followupcrm-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -564,9 +563,9 @@ Dashboard untuk :
                 </div>  
             </div>
         </div>
-        <!-- Akhir FOLLOW UP CRM PAGE -->
+        
 
-        <!-- REFERAL PAGE -->
+        <!-- DASHBOARD HALAMAN : REFERAL -->
         <div id="referall-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -624,9 +623,8 @@ Dashboard untuk :
                 </div>  
             </div>
         </div>
-        <!-- Akhir REFERALL PAGE -->
-
-        <!-- SETUP USER PAGE -->
+      
+        <!-- DASHBOARD HALAMAN : SETUP USER -->
         <div id="setupuser-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -714,7 +712,7 @@ Dashboard untuk :
             </div>
         </div>
     
-        <!-- Form Log Notifikasi -->
+        <!-- DASHBOARD HALAMAN : LOGNOTIF -->
         <div id="lognotif-page" class="page-content" style="display: none;">
             <div class="row mb-4">
                 <div class="col-12">
@@ -787,8 +785,7 @@ Dashboard untuk :
                 </div>
             </div>
     </div>   
-    <!-- AKHIRI SETUP USER PAGE -->
-
+    
     <!-- Modal untuk Add/Edit user untuk setup User  -->
     <div class="modal fade" id="modalUser" tabindex="-1" data-mode="add">
         <div class="modal-dialog">
