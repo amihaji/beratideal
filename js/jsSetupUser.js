@@ -9,6 +9,7 @@ LOGNOTIF:
 - Log User
 *******************************************/
 
+
 // ********* Deklarasi  Public **********
 // url database :  dbUser (TabelUser dan LogNotif)
 const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';
