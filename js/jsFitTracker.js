@@ -1,6 +1,6 @@
 /****************************************************************************
 APLIKASI BERATIDEAL
-- DATABASE : dbProgram (program, datakonsumen dan tabelwetools)
+- DATABASE : dbProgram (program, datakonsumen)
 DASHBOARD UNTUK :
 PROGRAM 
 - Mendata seluruh aktifitas peserta program mulai dari modul1 hingga modul10
@@ -9,8 +9,6 @@ PROGRAM
 DATAKONSUMEN : 
 - Mendata tgl daftar peserta program
 - mendata data pribadi peserta program
-TABELWETOOLS : 
-- Mendata hasil dari WETOOLS
 *****************************************************************************/
 
 // ********* Deklarasi Variabel Public **********
