@@ -1,5 +1,5 @@
 (function() {
-    const URL_dbProgram = 'https://script.google.com/macros/s/AKfycby_MUSEc0sc8JEdgHigGYxBnoPrcKek8xkSDlTs6_XKZM1NXUeaqQrBUATYthgWouG_4g/exec';
+    // const URL_dbProgram = 'https://script.google.com/macros/s/AKfycby_MUSEc0sc8JEdgHigGYxBnoPrcKek8xkSDlTs6_XKZM1NXUeaqQrBUATYthgWouG_4g/exec';
     const userLevel = localStorage.getItem('userLevel') || 'User';
 
     const fieldMap = [

@@ -15,14 +15,14 @@ TABELWETOOLS :
 
 // ********* Deklarasi Variabel Public **********
 // url dbProgram untuk aplikasi : prog10hari
-const URL_dbPROGRAM = 'https://script.google.com/macros/s/AKfycby4Q7O3S_UETsBMGlmxuqJ0cQ2F_v6T9RPw-fiohbOtTyqiyP7dVZml9r8FkNUIGAW2Jg/exec';
+// const URL_dbProgram = 'https://script.google.com/macros/s/AKfycby4Q7O3S_UETsBMGlmxuqJ0cQ2F_v6T9RPw-fiohbOtTyqiyP7dVZml9r8FkNUIGAW2Jg/exec';
 
 /*****************************************
  * Load peserta data from Google Sheets
  *****************************************/
 async function loadPesertaFromSheets() {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=getPeserta`);
+        const response = await fetch(`${URL_dbProgram}?action=getPeserta`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,7 +47,7 @@ async function loadPesertaFromSheets() {
  */
 async function loadProgramsFromSheets() {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=getPrograms`);
+        const response = await fetch(`${URL_dbProgram}?action=getPrograms`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -71,7 +71,7 @@ async function loadProgramsFromSheets() {
  */
 async function loadAnalyticsFromSheets() {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=getAnalytics`);
+        const response = await fetch(`${URL_dbProgram}?action=getAnalytics`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -95,7 +95,7 @@ async function loadAnalyticsFromSheets() {
  */
 async function addPesertaToSheets(pesertaData) {
     try {
-        const response = await fetch(URL_dbPROGRAM, {
+        const response = await fetch(URL_dbProgram, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ async function addPesertaToSheets(pesertaData) {
  */
 async function updatePesertaInSheets(pesertaId, updateData) {
     try {
-        const response = await fetch(URL_dbPROGRAM, {
+        const response = await fetch(URL_dbProgram, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ async function updatePesertaInSheets(pesertaId, updateData) {
  */
 async function addProgressEntry(pesertaId, progressData) {
     try {
-        const response = await fetch(URL_dbPROGRAM, {
+        const response = await fetch(URL_dbProgram, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ async function addProgressEntry(pesertaId, progressData) {
  */
 async function getPesertaProgress(pesertaId) {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=getPesertaProgress&pesertaId=${pesertaId}`);
+        const response = await fetch(`${URL_dbProgram}?action=getPesertaProgress&pesertaId=${pesertaId}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -220,7 +220,7 @@ async function getPesertaProgress(pesertaId) {
  */
 async function deletePesertaFromSheets(pesertaId) {
     try {
-        const response = await fetch(URL_dbPROGRAM, {
+        const response = await fetch(URL_dbProgram, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ async function deletePesertaFromSheets(pesertaId) {
  */
 async function batchUpdatePeserta(updates) {
     try {
-        const response = await fetch(URL_dbPROGRAM, {
+        const response = await fetch(URL_dbProgram, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -286,7 +286,7 @@ async function batchUpdatePeserta(updates) {
  */
 async function exportDataFromSheets(dataType = 'all') {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=exportData&type=${dataType}`);
+        const response = await fetch(`${URL_dbProgram}?action=exportData&type=${dataType}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -310,7 +310,7 @@ async function exportDataFromSheets(dataType = 'all') {
  */
 async function testGoogleSheetsConnection() {
     try {
-        const response = await fetch(`${URL_dbPROGRAM}?action=test`);
+        const response = await fetch(`${URL_dbProgram}?action=test`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -352,7 +352,7 @@ function validateGoogleSheetsUrl(url) {
 
 // Initialize Google Sheets connection on page load
 document.addEventListener('DOMContentLoaded', function() {
-    if (!validateGoogleSheetsUrl(URL_dbPROGRAM)) {
+    if (!validateGoogleSheetsUrl(URL_dbProgram)) {
         console.info('Google Sheets integration not configured. Application will use mock data.');
         showToast('Menggunakan data mock. Konfigurasikan Google Sheets untuk data real-time.', 'info');
     } else {

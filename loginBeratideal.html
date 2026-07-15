@@ -104,6 +104,9 @@ dengan hak aksesnya
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS Untuk Load URL public  -->
+  <script src="js/jsLoadUrlPublic.js"></script>
+  
   <script>
   /*******************
   * Deklarasi Global *
@@ -111,7 +114,7 @@ dengan hak aksesnya
   // url user dbUser
   // Samakan deployment login dengan Setup User agar logika lock user
   // dan notifikasi WA otomatis berjalan dari backend yang sama.
-  const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';  
+  // const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';  
 
   function normalizeAccessValue(value) {
     return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
@@ -225,7 +228,7 @@ dengan hak aksesnya
 
       const callbackName = 'cb_' + Date.now();
       const script = document.createElement('script');
-      script.src = `${URL_dbUSER}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
+      script.src = `${URL_dbUser}?action=checkLogin&userId=${encodeURIComponent(userId)}&userPass=${encodeURIComponent(userPass)}&callback=${callbackName}`;
 
       window[callbackName] = function (response) {
         // 🔍 DEBUG LOGIN RESPONSE
@@ -284,7 +287,7 @@ dengan hak aksesnya
             const progressCallback = 'cb_progress_' + Date.now();
             const progressScript = document.createElement('script');
             
-            progressScript.src = `${URL_dbUSER}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
+            progressScript.src = `${URL_dbUser}?action=getLastProgress&userId=${encodeURIComponent(response.userId)}&callback=${progressCallback}`;
             
             window[progressCallback] = function(progressData) {
               console.log('📥 Progress dari server:', progressData);
