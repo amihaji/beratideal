@@ -37,7 +37,7 @@ async function loadPesertaFromSheets() {
         }
     } catch (error) {
         console.error('Error loading peserta from Google Sheets:', error);
-        // Return empty array to fallback to mock data
+        // Return empty array when the endpoint is unavailable
         return [];
     }
 }
@@ -336,7 +336,7 @@ async function testGoogleSheetsConnection() {
 // Helper function to validate Google Sheets URL
 function validateGoogleSheetsUrl(url) {
     if (!url || url === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-        console.warn('Google Sheets URL not configured. Using mock data.');
+        console.warn('Google Sheets URL belum dikonfigurasi.');
         return false;
     }
     
@@ -353,8 +353,8 @@ function validateGoogleSheetsUrl(url) {
 // Initialize Google Sheets connection on page load
 document.addEventListener('DOMContentLoaded', function() {
     if (!validateGoogleSheetsUrl(URL_dbProgram)) {
-        console.info('Google Sheets integration not configured. Application will use mock data.');
-        showToast('Menggunakan data mock. Konfigurasikan Google Sheets untuk data real-time.', 'info');
+        console.info('Google Sheets integration belum dikonfigurasi.');
+        showToast('Koneksi dbProgram belum dikonfigurasi.', 'info');
     } else {
         console.info('Google Sheets integration configured. Testing connection...');
         testGoogleSheetsConnection().then(result => {
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Koneksi Google Sheets berhasil!', 'success');
             } else {
                 console.error('Google Sheets connection failed:', result.message);
-                showToast('Koneksi Google Sheets gagal. Menggunakan data mock.', 'warning');
+                showToast('Koneksi Google Sheets gagal.', 'warning');
             }
         });
     }

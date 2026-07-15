@@ -13,6 +13,7 @@ let pesertasData = [];
 let programsData = [];
 let analytics = {};
 let charts = {};
+let dashboardAdminPayload = null;
 const DEFAULT_USER_ACCESS = {
     aksesLogin: 'N',
     aksesFitChallange: 'N',
@@ -56,9 +57,6 @@ async function initializeApp() {
 
     updateActiveUserLabel();
     applyMenuAccessControl();
-
-    // Load initial data
-    loadAllData();
     
     // Set up event listeners
     setupEventListeners();
@@ -68,6 +66,9 @@ async function initializeApp() {
     
     // Show default page
     showPage(getDefaultAccessiblePage());
+
+    // Load initial data after UI is ready
+    await loadAllData();
 }
 
 function normalizeAccessValue(value) {
@@ -585,30 +586,44 @@ function cleanupFollowUpWEJsonp(script, callbackName) {
 async function loadAllData() {
     showLoading(true);
     try {
-        // Load from Google Sheets
-        pesertaData = await loadpesertaFromSheets();
-        programsData = await loadProgramsFromSheets();
-        analytics = await loadAnalyticsFromSheets();
-        
-        // If no data from sheets, use mock data
-        if (pesertaData.length === 0) {
-            pesertaData = getMockPesertaData();
-        }
-        if (programsData.length === 0) {
-            programsData = getMockProgramsData();
-        }
+        dashboardAdminPayload = await fetchAdminDashboardData();
+        pesertaData = Array.isArray(dashboardAdminPayload.participants) ? dashboardAdminPayload.participants : [];
+        pesertasData = pesertaData;
+        programsData = Array.isArray(dashboardAdminPayload.programs) ? dashboardAdminPayload.programs : [];
+        analytics = dashboardAdminPayload.analytics || getEmptyAnalyticsData();
+
+        populateProgramFilterOptions();
         
         renderCurrentPage();
     } catch (error) {
         console.error('Error loading data:', error);
-        showToast('Error loading data: ' + error.message, 'error');
-        // Fallback to mock data
-        pesertaData = getMockPesertaData();
-        programsData = getMockProgramsData();
+        showToast('Gagal memuat data dashboard dari dbProgram: ' + error.message, 'error');
+        dashboardAdminPayload = null;
+        pesertaData = [];
+        pesertasData = pesertaData;
+        programsData = [];
+        analytics = getEmptyAnalyticsData();
+        populateProgramFilterOptions();
         renderCurrentPage();
     } finally {
         showLoading(false);
     }
+}
+
+async function fetchAdminDashboardData() {
+    const response = await fetch(`${URL_dbProgram}?action=getAdminDashboardData`);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success && data.status !== 'success') {
+        throw new Error(data.message || 'Respons dashboard admin tidak valid.');
+    }
+
+    return data;
 }
 
 function renderCurrentPage() {
@@ -638,7 +653,9 @@ function renderFittracker() {
     
     document.getElementById('total-peserta').textContent = totalPeserta;
     document.getElementById('active-peserta').textContent = activePeserta;
-    document.getElementById('active-percentage').textContent = `${Math.round((activePeserta/totalPeserta)*100)}% dari total`;
+    document.getElementById('active-percentage').textContent = totalPeserta
+        ? `${Math.round((activePeserta / totalPeserta) * 100)}% dari total`
+        : '0% dari total';
     document.getElementById('avg-progress').textContent = avgProgress + '%';
     document.getElementById('completed-programs').textContent = completedPrograms;
     
@@ -698,16 +715,20 @@ function renderProgramsOverview() {
 
 // Peserta Rendering
 function renderPeserta() {
+    renderPesertaTopPerformers();
     filterPeserta();
 }
 
 function filterPeserta() {
-    const searchTerm = document.getElementById('searchPeserta').value.toLowerCase();
-    const programFilter = document.getElementById('filterProgram').value;
+    const searchElement = document.getElementById('searchPeserta');
+    const filterElement = document.getElementById('filterProgram');
+    const searchTerm = String(searchElement ? searchElement.value : '').toLowerCase();
+    const programFilter = filterElement ? filterElement.value : '';
     
     let filtered = pesertaData.filter(peserta => {
-        const matchesSearch = peserta.name.toLowerCase().includes(searchTerm) || 
-                             peserta.email.toLowerCase().includes(searchTerm);
+        const matchesSearch = String(peserta.name || '').toLowerCase().includes(searchTerm) || 
+                             String(peserta.email || '').toLowerCase().includes(searchTerm) ||
+                             String(peserta.userId || '').toLowerCase().includes(searchTerm);
         const matchesProgram = !programFilter || peserta.program === programFilter;
         return matchesSearch && matchesProgram;
     });
@@ -738,10 +759,11 @@ function renderPesertaCards(peserta) {
     peserta.forEach(peserta => {
         const programClass = getProgramClass(peserta.program);
         const avatarBg = getAvatarColor(peserta.name);
+        const pesertaId = String(peserta.id || '').replace(/'/g, "\\'");
         
         const pesertaHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card peserta-card h-100" onclick="showPesertaDetail(${peserta.id})">
+                <div class="card peserta-card h-100" onclick="showPesertaDetail('${pesertaId}')">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="peserta-avatar me-3" style="background-color: ${avatarBg}">
@@ -770,15 +792,15 @@ function renderPesertaCards(peserta) {
                         <div class="row text-center small">
                             <div class="col-4">
                                 <div class="text-muted">Awal</div>
-                                <div class="fw-bold">${peserta.initialWeight}kg</div>
+                                <div class="fw-bold">${peserta.initialWeight ?? '-'}kg</div>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">Saat Ini</div>
-                                <div class="fw-bold">${peserta.currentWeight}kg</div>
+                                <div class="fw-bold">${peserta.currentWeight ?? '-'}kg</div>
                             </div>
                             <div class="col-4">
                                 <div class="text-muted">Target</div>
-                                <div class="fw-bold">${peserta.targetWeight}kg</div>
+                                <div class="fw-bold">${peserta.targetWeight ?? '-'}kg</div>
                             </div>
                         </div>
                         
@@ -855,31 +877,43 @@ function renderPrograms() {
         `;
         container.innerHTML += programHtml;
     });
+
+    programStats.forEach(program => {
+        renderProgramModules(program);
+    });
 }
 
 // Analytics Rendering
 function renderAnalytics() {
-    // Render top performers
-    const topPerformers = pesertaData
-        .sort((a, b) => b.progress - a.progress)
-        .slice(0, 5);
+    renderAnalyticsSummaryCards();
+    renderAnalyticsInsights();
+    renderModuleSpotlight();
+    const topPerformers = getTopPerformersData();
     
     const topPerformersContainer = document.getElementById('top-performers');
     topPerformersContainer.innerHTML = '';
+
+    if (topPerformers.length === 0) {
+        topPerformersContainer.innerHTML = '<p class="text-muted mb-0">Belum ada data peserta.</p>';
+        updateMonthlyTrendChart();
+        updateCompletionFunnelChart();
+        updateActivityStatusChart();
+        return;
+    }
     
     topPerformers.forEach((peserta, index) => {
-        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+        const medalClass = index === 0 ? 'bg-warning text-dark' : index === 1 ? 'bg-secondary' : index === 2 ? 'bg-danger' : 'bg-primary';
         const performerHtml = `
             <div class="d-flex align-items-center mb-3">
                 <div class="me-3">
-                    <span class="fs-5">${medal}</span>
+                    <span class="badge ${medalClass}">#${index + 1}</span>
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="mb-1">${peserta.name}</h6>
-                    <small class="text-muted">${peserta.program}</small>
+                    <small class="text-muted">${peserta.program} | ${buildTopPerformerMetricText(peserta)}</small>
                 </div>
                 <div class="text-end">
-                    <strong>${peserta.progress}%</strong>
+                    <strong>${peserta.performanceScore ?? peserta.progress}%</strong>
                 </div>
             </div>
         `;
@@ -888,6 +922,8 @@ function renderAnalytics() {
     
     // Update monthly trend chart
     updateMonthlyTrendChart();
+    updateCompletionFunnelChart();
+    updateActivityStatusChart();
 }
 
 // Chart Functions
@@ -897,10 +933,10 @@ function initializeCharts() {
     charts.weekly = new Chart(weeklyCtx, {
         type: 'bar',
         data: {
-            labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+            labels: Array.from({ length: 10 }, (_, index) => `Modul ${index + 1}`),
             datasets: [{
-                label: 'Peserta Aktif',
-                data: [85, 92, 78, 88, 95, 72, 68],
+                label: 'Peserta Menyelesaikan Modul',
+                data: Array(10).fill(0),
                 backgroundColor: 'rgba(13, 110, 253, 0.8)',
                 borderColor: 'rgba(13, 110, 253, 1)',
                 borderWidth: 1,
@@ -917,8 +953,7 @@ function initializeCharts() {
             },
             scales: {
                 y: {
-                    beginAtZero: true,
-                    max: 100
+                    beginAtZero: true
                 }
             }
         }
@@ -929,18 +964,20 @@ function initializeCharts() {
     charts.program = new Chart(programCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Turun BB', 'Naik BB', 'Jaga Stamina'],
+            labels: ['Belum ada data'],
             datasets: [{
-                data: [45, 32, 58],
+                data: [1],
                 backgroundColor: [
                     'rgba(220, 53, 69, 0.8)',
                     'rgba(25, 135, 84, 0.8)',
-                    'rgba(13, 110, 253, 0.8)'
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(255, 193, 7, 0.8)'
                 ],
                 borderColor: [
                     'rgba(220, 53, 69, 1)',
                     'rgba(25, 135, 84, 1)',
-                    'rgba(13, 110, 253, 1)'
+                    'rgba(13, 110, 253, 1)',
+                    'rgba(255, 193, 7, 1)'
                 ],
                 borderWidth: 2
             }]
@@ -955,21 +992,94 @@ function initializeCharts() {
             }
         }
     });
+
+    const completionFunnelCtx = document.getElementById('completionFunnelChart');
+    if (completionFunnelCtx) {
+        charts.completionFunnel = new Chart(completionFunnelCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Mulai Modul 1', 'Capai Modul 5', 'Selesai Modul 10'],
+                datasets: [{
+                    label: 'Jumlah Peserta',
+                    data: [0, 0, 0],
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.85)',
+                        'rgba(25, 135, 84, 0.85)',
+                        'rgba(255, 193, 7, 0.85)'
+                    ],
+                    borderRadius: 10,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    const activityStatusCtx = document.getElementById('activityStatusChart');
+    if (activityStatusCtx) {
+        charts.activityStatus = new Chart(activityStatusCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Aktif 7 Hari', 'Perlu Follow Up'],
+                datasets: [{
+                    data: [0, 0],
+                    backgroundColor: [
+                        'rgba(25, 135, 84, 0.85)',
+                        'rgba(220, 53, 69, 0.85)'
+                    ],
+                    borderColor: [
+                        'rgba(25, 135, 84, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
 }
 
 function updateCharts() {
     // Update weekly chart with real data
     if (charts.weekly) {
-        // Calculate weekly activity from peserta data
-        const weeklyData = calculateWeeklyActivity();
-        charts.weekly.data.datasets[0].data = weeklyData;
+        const moduleStats = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
+        charts.weekly.data.labels = moduleStats.length
+            ? moduleStats.map(item => item.label)
+            : Array.from({ length: 10 }, (_, index) => `Modul ${index + 1}`);
+        charts.weekly.data.datasets[0].data = calculateWeeklyActivity();
         charts.weekly.update();
     }
     
     // Update program chart with real data
     if (charts.program) {
         const programStats = getProgramStats();
-        charts.program.data.datasets[0].data = programStats.map(p => p.participants);
+        charts.program.data.labels = programStats.length
+            ? programStats.map(p => p.name)
+            : ['Belum ada data'];
+        charts.program.data.datasets[0].data = programStats.length
+            ? programStats.map(p => p.participants)
+            : [1];
         charts.program.update();
     }
 }
@@ -985,10 +1095,10 @@ function updateMonthlyTrendChart() {
     charts.monthly = new Chart(monthlyCtx.getContext('2d'), {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul'],
+            labels: (analytics.monthlyTrend || []).map(item => item.label),
             datasets: [{
                 label: 'Rata-rata Progress',
-                data: [65, 68, 70, 72, 74, 75, 76],
+                data: (analytics.monthlyTrend || []).map(item => item.avgProgress),
                 borderColor: 'rgba(13, 110, 253, 1)',
                 backgroundColor: 'rgba(13, 110, 253, 0.1)',
                 fill: true,
@@ -1011,6 +1121,28 @@ function updateMonthlyTrendChart() {
             }
         }
     });
+}
+
+function updateCompletionFunnelChart() {
+    if (!charts.completionFunnel) return;
+
+    const overview = analytics.completionOverview || {};
+    charts.completionFunnel.data.datasets[0].data = [
+        overview.started || 0,
+        overview.reachedHalfway || 0,
+        overview.finished || 0
+    ];
+    charts.completionFunnel.update();
+}
+
+function updateActivityStatusChart() {
+    if (!charts.activityStatus) return;
+
+    const activeCount = pesertaData.filter(item => item.isActive).length;
+    const inactiveCount = Math.max(pesertaData.length - activeCount, 0);
+
+    charts.activityStatus.data.datasets[0].data = [activeCount, inactiveCount];
+    charts.activityStatus.update();
 }
 
 // Form Handlers
@@ -1093,15 +1225,15 @@ function showPesertaDetail(pesertaId) {
                     </tr>
                     <tr>
                         <td>Berat Awal:</td>
-                        <td>${peserta.initialWeight} kg</td>
+                        <td>${peserta.initialWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
                         <td>Berat Saat Ini:</td>
-                        <td>${peserta.currentWeight} kg</td>
+                        <td>${peserta.currentWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
                         <td>Target Berat:</td>
-                        <td>${peserta.targetWeight} kg</td>
+                        <td>${peserta.targetWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
                         <td>Bergabung:</td>
@@ -1110,6 +1242,10 @@ function showPesertaDetail(pesertaId) {
                     <tr>
                         <td>Aktivitas Terakhir:</td>
                         <td>${formatDate(peserta.lastActivity)}</td>
+                    </tr>
+                    <tr>
+                        <td>Skor Performa:</td>
+                        <td>${peserta.performanceScore ?? '-'} / 100</td>
                     </tr>
                 </table>
                 
@@ -1138,7 +1274,7 @@ function createPesertaWeightChart(peserta) {
     const ctx = document.getElementById('pesertaWeightChart');
     if (!ctx) return;
     
-    // Generate mock weekly progress data
+    // Build grafik progres berat dari histori peserta yang tersedia
     const weeklyProgress = generateWeeklyProgress(peserta);
     
     new Chart(ctx.getContext('2d'), {
@@ -1173,11 +1309,26 @@ function createPesertaWeightChart(peserta) {
 
 // Utility Functions
 function getProgramStats() {
-    const programs = ['Turun Berat Badan', 'Naik Berat Badan', 'Jaga Stamina'];
+    if (Array.isArray(programsData) && programsData.length > 0) {
+        return programsData.map((program, index) => ({
+            ...program,
+            id: program.id || index + 1,
+            description: program.description || getProgramDescription(program.name),
+            class: getProgramClass(program.name),
+            badgeClass: getProgramBadgeClass(program.name),
+            icon: getProgramIconClass(program.name)
+        }));
+    }
+
+    const programs = [...new Set(
+        pesertaData
+            .map((peserta) => String(peserta.program || '').trim())
+            .filter(Boolean)
+    )];
     
     return programs.map((programName, index) => {
-        const programPeserta = pesertasData.filter(s => s.program === programName);
-        const completionRate = programPeserta.length > 0 
+        const programPeserta = pesertaData.filter(s => s.program === programName);
+        const avgProgress = programPeserta.length > 0 
             ? Math.round(programPeserta.reduce((sum, s) => sum + s.progress, 0) / programPeserta.length)
             : 0;
         const activePeserta = programPeserta.filter(s => isActive(s)).length;
@@ -1187,12 +1338,18 @@ function getProgramStats() {
             name: programName,
             description: getProgramDescription(programName),
             participants: programPeserta.length,
-            completionRate,
-            avgProgress: completionRate,
+            completionRate: avgProgress,
+            avgProgress: avgProgress,
             activePeserta,
             class: getProgramClass(programName),
             badgeClass: getProgramBadgeClass(programName),
-            icon: getProgramIconClass(programName)
+            icon: getProgramIconClass(programName),
+            modules: Array.from({ length: 10 }, (_, moduleIndex) => ({
+                module: moduleIndex + 1,
+                label: `Modul ${moduleIndex + 1}`,
+                completedCount: 0,
+                completionRate: 0
+            }))
         };
     });
 }
@@ -1256,6 +1413,9 @@ function getAvatarColor(name) {
 
 function isActive(peserta) {
     const lastActivity = new Date(peserta.lastActivity);
+    if (Number.isNaN(lastActivity.getTime())) {
+        return false;
+    }
     const now = new Date();
     const diffDays = Math.ceil((now - lastActivity) / (1000 * 60 * 60 * 24));
     return diffDays <= 7;
@@ -1263,15 +1423,28 @@ function isActive(peserta) {
 
 function formatDate(dateString) {
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+        return '-';
+    }
     return date.toLocaleDateString('id-ID');
 }
 
 function calculateWeeklyActivity() {
-    // Mock calculation for weekly activity
-    return [85, 92, 78, 88, 95, 72, 68];
+    if (!Array.isArray(analytics.moduleCompletions) || analytics.moduleCompletions.length === 0) {
+        return Array(10).fill(0);
+    }
+
+    return analytics.moduleCompletions.map(item => item.completedCount || 0);
 }
 
 function generateWeeklyProgress(peserta) {
+    if (Array.isArray(peserta.weightHistory) && peserta.weightHistory.length > 0) {
+        return {
+            labels: peserta.weightHistory.map(item => item.label),
+            data: peserta.weightHistory.map(item => item.weight)
+        };
+    }
+
     const labels = [];
     const data = [];
     const startWeight = peserta.initialWeight;
@@ -1286,6 +1459,250 @@ function generateWeeklyProgress(peserta) {
     }
     
     return { labels, data };
+}
+
+function renderProgramModules(program) {
+    const container = document.getElementById(`modules-${program.id}`);
+    if (!container) return;
+
+    const modules = Array.isArray(program.modules) ? program.modules : [];
+    if (modules.length === 0) {
+        container.innerHTML = '<p class="text-muted mb-0">Belum ada data penyelesaian modul.</p>';
+        return;
+    }
+
+    container.innerHTML = modules.map(module => `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-muted">${module.label}</small>
+                <small class="fw-bold">${module.completedCount} peserta (${module.completionRate}%)</small>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: ${module.completionRate}%"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getTopPerformersData() {
+    if (Array.isArray(analytics.topPerformers) && analytics.topPerformers.length > 0) {
+        return analytics.topPerformers;
+    }
+
+    return [...pesertaData]
+        .sort((a, b) => (b.performanceScore || b.progress || 0) - (a.performanceScore || a.progress || 0))
+        .slice(0, 5);
+}
+
+function renderPesertaTopPerformers() {
+    const container = document.getElementById('peserta-top-performers');
+    if (!container) return;
+
+    const topPerformers = getTopPerformersData();
+
+    if (topPerformers.length === 0) {
+        container.innerHTML = '<div class="col-12"><p class="text-muted mb-0">Belum ada data peserta untuk dinilai.</p></div>';
+        return;
+    }
+
+    container.innerHTML = topPerformers.map((peserta, index) => `
+        <div class="col-lg-4 col-md-6">
+            <div class="border rounded p-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-1">${peserta.name}</h6>
+                        <small class="text-muted">${peserta.program}</small>
+                    </div>
+                    <span class="badge ${getPerformanceBadgeClass(index)}">#${index + 1}</span>
+                </div>
+                <div class="mb-2">
+                    <div class="small text-muted">Skor Top Performer</div>
+                    <div class="fw-bold">${peserta.performanceScore ?? peserta.progress} / 100</div>
+                </div>
+                <div class="small text-muted">${buildTopPerformerMetricText(peserta)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAnalyticsSummaryCards() {
+    const container = document.getElementById('analytics-summary-cards');
+    if (!container) return;
+
+    const overview = analytics.completionOverview || {};
+    const cards = [
+        { title: 'Mulai Modul', value: overview.started || 0, subtitle: 'Peserta yang sudah menyelesaikan minimal Modul 1', color: 'primary' },
+        { title: 'Tembus Modul 5', value: overview.reachedHalfway || 0, subtitle: 'Peserta yang sudah melewati fase tengah challenge', color: 'success' },
+        { title: 'Lulus Modul 10', value: overview.finished || 0, subtitle: 'Peserta yang sudah menyelesaikan seluruh eCourse', color: 'warning' },
+        { title: 'Rata-rata Poin', value: analytics.avgPoints || 0, subtitle: 'Rata-rata akumulasi poin peserta selama challenge', color: 'info' }
+    ];
+
+    container.innerHTML = cards.map(card => `
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-${card.color} h-100">
+                <div class="card-body">
+                    <div class="small text-muted mb-1">${card.title}</div>
+                    <h3 class="mb-2">${card.value}</h3>
+                    <small class="text-muted">${card.subtitle}</small>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAnalyticsInsights() {
+    const container = document.getElementById('analytics-insights');
+    if (!container) return;
+
+    const insights = buildAnalyticsInsights();
+
+    if (insights.length === 0) {
+        container.innerHTML = '<div class="col-12"><p class="text-muted mb-0">Belum ada insight karena data peserta masih kosong.</p></div>';
+        return;
+    }
+
+    container.innerHTML = insights.map(insight => `
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <div class="small text-muted mb-1">${insight.label}</div>
+                <div class="fw-bold mb-2">${insight.value}</div>
+                <div class="small text-muted">${insight.description}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderModuleSpotlight() {
+    const container = document.getElementById('analytics-module-spotlight');
+    if (!container) return;
+
+    const moduleStats = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
+    if (moduleStats.length === 0) {
+        container.innerHTML = '<p class="text-muted mb-0">Belum ada data modul untuk dianalisis.</p>';
+        return;
+    }
+
+    const totalParticipants = Math.max(pesertaData.length, 1);
+    const richestModule = [...moduleStats].sort((a, b) => (b.completedCount || 0) - (a.completedCount || 0))[0];
+    const hardestModule = [...moduleStats].sort((a, b) => (a.completedCount || 0) - (b.completedCount || 0))[0];
+    const cards = [
+        {
+            title: 'Modul Paling Banyak Diselesaikan',
+            label: richestModule.label,
+            description: `${richestModule.completedCount} peserta atau ${Math.round((richestModule.completedCount / totalParticipants) * 100)}% dari total peserta.`
+        },
+        {
+            title: 'Modul Paling Berat',
+            label: hardestModule.label,
+            description: `${hardestModule.completedCount} peserta yang sudah sampai modul ini. Modul ini layak dipantau untuk follow up tambahan.`
+        }
+    ];
+
+    container.innerHTML = cards.map(card => `
+        <div class="border rounded p-3 mb-3">
+            <div class="small text-muted mb-1">${card.title}</div>
+            <div class="fw-bold mb-2">${card.label}</div>
+            <div class="small text-muted">${card.description}</div>
+        </div>
+    `).join('');
+}
+
+function buildAnalyticsInsights() {
+    if (!pesertaData.length) {
+        return [];
+    }
+
+    const overview = analytics.completionOverview || {};
+    const activeCount = overview.active || pesertaData.filter(item => item.isActive).length;
+    const inactiveCount = Math.max(pesertaData.length - activeCount, 0);
+    const bestProgram = getBestPerformingProgram();
+    const moduleStats = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
+    const weakestModule = moduleStats.length
+        ? [...moduleStats].sort((a, b) => (a.completedCount || 0) - (b.completedCount || 0))[0]
+        : null;
+
+    return [
+        {
+            label: 'Retensi Tengah Program',
+            value: `${overview.reachedHalfway || 0} peserta`,
+            description: 'Peserta yang sudah menembus Modul 5. Ini penting untuk melihat apakah challenge tetap menarik setelah fase awal.'
+        },
+        {
+            label: 'Peserta Perlu Follow Up',
+            value: `${inactiveCount} peserta`,
+            description: 'Peserta yang belum aktif dalam 7 hari terakhir. Daftar ini paling cocok jadi prioritas follow up WA atau CRM.'
+        },
+        {
+            label: 'Program Dengan Performa Terbaik',
+            value: bestProgram ? bestProgram.name : '-',
+            description: bestProgram
+                ? `Rata-rata progres ${bestProgram.avgProgress}% dengan ${bestProgram.activePeserta} peserta aktif.`
+                : 'Belum ada program yang bisa dibandingkan.'
+        },
+        {
+            label: 'Titik Drop-Off Terbesar',
+            value: weakestModule ? weakestModule.label : '-',
+            description: weakestModule
+                ? `Baru ${weakestModule.completedCount} peserta yang menyelesaikannya, jadi bagian ini layak ditinjau dari sisi materi, reminder, atau coaching.`
+                : 'Belum ada cukup data modul.'
+        }
+    ];
+}
+
+function getBestPerformingProgram() {
+    const programStats = getProgramStats().filter(program => program.participants > 0);
+    if (!programStats.length) {
+        return null;
+    }
+
+    return [...programStats].sort((a, b) => {
+        const scoreA = (a.avgProgress || 0) + ((a.activePeserta || 0) * 2);
+        const scoreB = (b.avgProgress || 0) + ((b.activePeserta || 0) * 2);
+        return scoreB - scoreA;
+    })[0];
+}
+
+function getPerformanceBadgeClass(index) {
+    if (index === 0) return 'bg-warning text-dark';
+    if (index === 1) return 'bg-secondary';
+    if (index === 2) return 'bg-danger';
+    return 'bg-primary';
+}
+
+function buildTopPerformerMetricText(peserta) {
+    const modules = `${peserta.completedModules || 0}/10 modul`;
+    const points = `${peserta.pointsTotal || 0} poin`;
+    const activity = peserta.isActive ? 'aktivitas terbaru aktif' : 'perlu follow up aktivitas';
+    return `${modules} | ${points} | ${activity}`;
+}
+
+function populateProgramFilterOptions() {
+    const filterProgram = document.getElementById('filterProgram');
+    if (!filterProgram) return;
+
+    const selectedValue = filterProgram.value;
+    const programNames = getProgramStats().map(program => program.name);
+    const uniqueProgramNames = [...new Set(programNames)].filter(Boolean);
+
+    filterProgram.innerHTML = '<option value="">Semua Program</option>' +
+        uniqueProgramNames.map(programName => `<option value="${programName}">${programName}</option>`).join('');
+
+    filterProgram.value = uniqueProgramNames.includes(selectedValue) ? selectedValue : '';
+}
+
+function getEmptyAnalyticsData() {
+    return {
+        moduleCompletions: [],
+        monthlyTrend: [],
+        completionOverview: {
+            started: 0,
+            reachedHalfway: 0,
+            finished: 0,
+            active: 0
+        },
+        avgPoints: 0,
+        topPerformers: []
+    };
 }
 
 function showProgramDetail(programName) {
@@ -1383,88 +1800,3 @@ async function syncData() {
     }
 }
 
-// Mock Data Functions
-function getMockPesertaData() {
-    return [
-        {
-            id: 1,
-            name: "Andi Pratama",
-            email: "andi@email.com",
-            program: "Turun Berat Badan",
-            progress: 85,
-            joinDate: "2024-01-15",
-            currentWeight: 72,
-            targetWeight: 65,
-            initialWeight: 85,
-            lastActivity: "2024-07-20"
-        },
-        {
-            id: 2,
-            name: "Sari Wulandari",
-            email: "sari@email.com",
-            program: "Naik Berat Badan",
-            progress: 60,
-            joinDate: "2024-02-10",
-            currentWeight: 52,
-            targetWeight: 60,
-            initialWeight: 48,
-            lastActivity: "2024-07-19"
-        },
-        {
-            id: 3,
-            name: "Budi Santoso",
-            email: "budi@email.com",
-            program: "Jaga Stamina",
-            progress: 92,
-            joinDate: "2024-01-20",
-            currentWeight: 70,
-            targetWeight: 70,
-            initialWeight: 68,
-            lastActivity: "2024-07-21"
-        },
-        {
-            id: 4,
-            name: "Maya Lestari",
-            email: "maya@email.com",
-            program: "Turun Berat Badan",
-            progress: 45,
-            joinDate: "2024-03-05",
-            currentWeight: 78,
-            targetWeight: 65,
-            initialWeight: 88,
-            lastActivity: "2024-07-18"
-        },
-        {
-            id: 5,
-            name: "Deni Kurniawan",
-            email: "deni@email.com",
-            program: "Naik Berat Badan",
-            progress: 75,
-            joinDate: "2024-02-20",
-            currentWeight: 58,
-            targetWeight: 65,
-            initialWeight: 52,
-            lastActivity: "2024-07-21"
-        }
-    ];
-}
-
-function getMockProgramsData() {
-    return [
-        {
-            id: 1,
-            name: "Turun Berat Badan",
-            description: "Program penurunan berat badan yang sehat dan berkelanjutan"
-        },
-        {
-            id: 2,
-            name: "Naik Berat Badan", 
-            description: "Program peningkatan massa tubuh yang sehat"
-        },
-        {
-            id: 3,
-            name: "Jaga Stamina",
-            description: "Program peningkatan dan pemeliharaan stamina tubuh"
-        }
-    ];
-}

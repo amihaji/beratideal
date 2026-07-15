@@ -46,6 +46,10 @@ function doGet(e) {
     return getDashboardData(e.parameter); 
   } 
 
+  if (action === "getAdminDashboardData") {
+    return getAdminDashboardData(e.parameter);
+  }
+
   // PERKENALAN 
   if (action === 'updatePerkenalan') { 
     return updatePerkenalan(e.parameter); 
@@ -1975,6 +1979,507 @@ function deleteDataKonsumen(param) {
       message: error.toString()
     });
   }
+}
+
+/*********************************************
+ * Agregasi data dashboard admin dari dbProgram
+ *********************************************/
+function getAdminDashboardData(param) {
+  const callback = param.callback;
+
+  try {
+    const programValues = shProgram.getDataRange().getValues();
+    const konsumenValues = shDataKonsumen.getDataRange().getValues();
+    const participantsMap = {};
+    const now = new Date();
+
+    for (let i = 1; i < konsumenValues.length; i++) {
+      const row = konsumenValues[i];
+      const userId = normalizeAdminUserId_(row[12]);
+
+      if (!userId) {
+        continue;
+      }
+
+      participantsMap[userId] = createAdminParticipantFromKonsumen_(row, userId);
+    }
+
+    for (let i = 1; i < programValues.length; i++) {
+      const row = programValues[i];
+      const userId = normalizeAdminUserId_(row[1]);
+      const hariKe = parseInt(row[2], 10);
+
+      if (!userId) {
+        continue;
+      }
+
+      if (!participantsMap[userId]) {
+        participantsMap[userId] = createAdminParticipantFromProgram_(row, userId);
+      }
+
+      const participant = participantsMap[userId];
+      const activityDate = parseAdminDateValue_(row[0]);
+      const programName = getAdminStringValue_(row[3]);
+      const displayName = getAdminStringValue_(row[4]);
+      const weightValue = parseAdminNumberValue_(row[34]);
+      const targetWeight = parseAdminNumberValue_(row[37]);
+      const pointValue = parseAdminNumberValue_(row[51]);
+
+      if (programName) {
+        participant.program = programName;
+      }
+
+      if (displayName) {
+        participant.name = displayName;
+      }
+
+      if (activityDate) {
+        if (!participant.firstActivityDate || activityDate < participant.firstActivityDate) {
+          participant.firstActivityDate = activityDate;
+        }
+
+        if (!participant.lastActivityDate || activityDate > participant.lastActivityDate) {
+          participant.lastActivityDate = activityDate;
+        }
+      }
+
+      if (hariKe >= 1 && hariKe <= 10) {
+        if (weightValue !== null) {
+          participant.weightHistory.push({
+            module: hariKe,
+            label: 'Modul ' + hariKe,
+            weight: weightValue
+          });
+
+          if (participant.initialWeight === null || hariKe < participant.initialWeightModule) {
+            participant.initialWeight = weightValue;
+            participant.initialWeightModule = hariKe;
+          }
+
+          if (!participant.latestWeightModule || hariKe >= participant.latestWeightModule) {
+            participant.currentWeight = weightValue;
+            participant.latestWeightModule = hariKe;
+          }
+        }
+
+        if (targetWeight !== null && participant.targetWeight === null) {
+          participant.targetWeight = targetWeight;
+        }
+
+        if (String(row[50] || '').toUpperCase() === 'OK') {
+          participant.moduleMap[hariKe] = true;
+        }
+
+        if (pointValue !== null) {
+          participant.pointsTotal += pointValue;
+        }
+      }
+    }
+
+    const participants = [];
+    const moduleCompletions = [];
+    const programGroups = {};
+    const recentMonths = buildRecentMonthBuckets_(6);
+    const monthLookup = {};
+
+    for (let i = 0; i < recentMonths.length; i++) {
+      monthLookup[recentMonths[i].key] = recentMonths[i];
+    }
+
+    for (let moduleIndex = 1; moduleIndex <= 10; moduleIndex++) {
+      moduleCompletions.push({
+        label: 'Modul ' + moduleIndex,
+        module: moduleIndex,
+        completedCount: 0
+      });
+    }
+
+    for (const userId in participantsMap) {
+      if (!Object.prototype.hasOwnProperty.call(participantsMap, userId)) {
+        continue;
+      }
+
+      const participant = participantsMap[userId];
+      const completedModules = getCompletedModulesCount_(participant.moduleMap);
+      const lastCompletedModule = getLastCompletedModule_(participant.moduleMap);
+      const lastActivityDate = participant.lastActivityDate || participant.firstActivityDate || null;
+      const joinDate = participant.joinDate || formatAdminDateValue_(participant.firstActivityDate);
+      const lastActivity = formatAdminDateValue_(lastActivityDate);
+      const isActive = isAdminParticipantActive_(lastActivityDate, now);
+
+      participant.weightHistory.sort(function(a, b) {
+        return a.module - b.module;
+      });
+
+      participant.completedModules = completedModules;
+      participant.lastCompletedModule = lastCompletedModule;
+      participant.progress = Math.round((completedModules / 10) * 100);
+      participant.joinDate = joinDate;
+      participant.lastActivity = lastActivity;
+      participant.isActive = isActive;
+      participant.performanceScore = calculateAdminPerformanceScore_(participant, now);
+      participant.performanceSummary =
+        completedModules + '/10 modul | ' +
+        participant.pointsTotal + ' poin | ' +
+        (isActive ? 'aktif' : 'perlu follow up');
+
+      if (participant.initialWeight === null && participant.currentWeight !== null) {
+        participant.initialWeight = participant.currentWeight;
+      }
+
+      if (participant.targetWeight === null && participant.currentWeight !== null) {
+        participant.targetWeight = participant.currentWeight;
+      }
+
+      for (let moduleNumber = 1; moduleNumber <= 10; moduleNumber++) {
+        if (participant.moduleMap[moduleNumber]) {
+          moduleCompletions[moduleNumber - 1].completedCount++;
+        }
+      }
+
+      const programName = participant.program || 'Belum Ditentukan';
+      if (!programGroups[programName]) {
+        programGroups[programName] = {
+          id: Object.keys(programGroups).length + 1,
+          name: programName,
+          description: getAdminProgramDescription_(programName),
+          participants: 0,
+          activePeserta: 0,
+          avgProgressTotal: 0,
+          completedPrograms: 0,
+          moduleCounts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        };
+      }
+
+      const group = programGroups[programName];
+      group.participants++;
+      group.avgProgressTotal += participant.progress;
+      if (isActive) {
+        group.activePeserta++;
+      }
+      if (completedModules >= 10) {
+        group.completedPrograms++;
+      }
+      for (let moduleNumber = 1; moduleNumber <= 10; moduleNumber++) {
+        if (participant.moduleMap[moduleNumber]) {
+          group.moduleCounts[moduleNumber - 1]++;
+        }
+      }
+
+      const trendDate = lastActivityDate || parseAdminDateValue_(joinDate);
+      const monthKey = getAdminMonthKey_(trendDate);
+      if (monthKey && monthLookup[monthKey]) {
+        monthLookup[monthKey].participantCount++;
+        monthLookup[monthKey].progressTotal += participant.progress;
+      }
+
+      delete participant.initialWeightModule;
+      delete participant.latestWeightModule;
+      delete participant.moduleMap;
+      delete participant.firstActivityDate;
+      delete participant.lastActivityDate;
+
+      participants.push(participant);
+    }
+
+    participants.sort(function(a, b) {
+      return (b.performanceScore || 0) - (a.performanceScore || 0);
+    });
+
+    const programs = [];
+    for (const programName in programGroups) {
+      if (!Object.prototype.hasOwnProperty.call(programGroups, programName)) {
+        continue;
+      }
+
+      const group = programGroups[programName];
+      const programParticipants = group.participants || 1;
+
+      programs.push({
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        participants: group.participants,
+        activePeserta: group.activePeserta,
+        avgProgress: Math.round(group.avgProgressTotal / programParticipants),
+        completionRate: Math.round((group.completedPrograms / programParticipants) * 100),
+        modules: group.moduleCounts.map(function(count, index) {
+          return {
+            module: index + 1,
+            label: 'Modul ' + (index + 1),
+            completedCount: count,
+            completionRate: Math.round((count / programParticipants) * 100)
+          };
+        })
+      });
+    }
+
+    programs.sort(function(a, b) {
+      return b.participants - a.participants;
+    });
+
+    const analytics = {
+      moduleCompletions: moduleCompletions,
+      monthlyTrend: recentMonths.map(function(item) {
+        return {
+          key: item.key,
+          label: item.label,
+          participantCount: item.participantCount,
+          avgProgress: item.participantCount
+            ? Math.round(item.progressTotal / item.participantCount)
+            : 0
+        };
+      }),
+      completionOverview: {
+        started: participants.filter(function(item) { return item.completedModules >= 1; }).length,
+        reachedHalfway: participants.filter(function(item) { return item.completedModules >= 5; }).length,
+        finished: participants.filter(function(item) { return item.completedModules >= 10; }).length,
+        active: participants.filter(function(item) { return item.isActive; }).length
+      },
+      avgPoints: participants.length
+        ? Math.round(
+            participants.reduce(function(total, item) {
+              return total + (item.pointsTotal || 0);
+            }, 0) / participants.length
+          )
+        : 0,
+      topPerformers: participants.slice(0, 5),
+      programDistribution: programs.map(function(program) {
+        return {
+          name: program.name,
+          participants: program.participants
+        };
+      })
+    };
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      success: true,
+      participants: participants,
+      programs: programs,
+      analytics: analytics
+    });
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      success: false,
+      message: error.toString()
+    });
+  }
+}
+
+function createAdminParticipantFromKonsumen_(row, userId) {
+  return {
+    id: userId,
+    userId: userId,
+    name: getAdminStringValue_(row[4]) || userId,
+    email: getAdminStringValue_(row[7]),
+    phone: getAdminStringValue_(row[6]),
+    program: getAdminStringValue_(row[2]) || 'Belum Ditentukan',
+    joinDate: formatAdminDateValue_(parseAdminDateValue_(row[0])),
+    lastActivity: '',
+    initialWeight: null,
+    currentWeight: null,
+    targetWeight: null,
+    completedModules: 0,
+    lastCompletedModule: 0,
+    progress: 0,
+    pointsTotal: 0,
+    isActive: false,
+    performanceScore: 0,
+    performanceSummary: '',
+    sponsorName: getAdminStringValue_(row[19]),
+    coachName: getAdminStringValue_(row[23]),
+    city: getAdminStringValue_(row[10]),
+    gender: getAdminStringValue_(row[13]),
+    moduleMap: {},
+    weightHistory: [],
+    firstActivityDate: null,
+    lastActivityDate: null,
+    initialWeightModule: 999,
+    latestWeightModule: 0
+  };
+}
+
+function createAdminParticipantFromProgram_(row, userId) {
+  return {
+    id: userId,
+    userId: userId,
+    name: getAdminStringValue_(row[4]) || userId,
+    email: '',
+    phone: '',
+    program: getAdminStringValue_(row[3]) || 'Belum Ditentukan',
+    joinDate: '',
+    lastActivity: '',
+    initialWeight: null,
+    currentWeight: null,
+    targetWeight: null,
+    completedModules: 0,
+    lastCompletedModule: 0,
+    progress: 0,
+    pointsTotal: 0,
+    isActive: false,
+    performanceScore: 0,
+    performanceSummary: '',
+    sponsorName: '',
+    coachName: '',
+    city: '',
+    gender: getAdminStringValue_(row[31]),
+    moduleMap: {},
+    weightHistory: [],
+    firstActivityDate: null,
+    lastActivityDate: null,
+    initialWeightModule: 999,
+    latestWeightModule: 0
+  };
+}
+
+function normalizeAdminUserId_(value) {
+  return String(value || '').toLowerCase().trim();
+}
+
+function getAdminStringValue_(value) {
+  return String(value || '').trim();
+}
+
+function parseAdminNumberValue_(value) {
+  if (value === '' || value === null || typeof value === 'undefined') {
+    return null;
+  }
+
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  const normalized = String(value).replace(',', '.').replace(/[^0-9.-]/g, '');
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = parseFloat(normalized);
+  return isNaN(parsed) ? null : parsed;
+}
+
+function parseAdminDateValue_(value) {
+  if (!value) {
+    return null;
+  }
+
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatAdminDateValue_(value) {
+  const date = parseAdminDateValue_(value);
+  if (!date) {
+    return '';
+  }
+
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ss");
+}
+
+function isAdminParticipantActive_(lastActivityDate, now) {
+  if (!lastActivityDate) {
+    return false;
+  }
+
+  const diffMs = now.getTime() - lastActivityDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays <= 7;
+}
+
+function getCompletedModulesCount_(moduleMap) {
+  let total = 0;
+  for (let i = 1; i <= 10; i++) {
+    if (moduleMap[i]) {
+      total++;
+    }
+  }
+  return total;
+}
+
+function getLastCompletedModule_(moduleMap) {
+  let lastModule = 0;
+  for (let i = 1; i <= 10; i++) {
+    if (moduleMap[i]) {
+      lastModule = i;
+    }
+  }
+  return lastModule;
+}
+
+function calculateAdminPerformanceScore_(participant, now) {
+  const moduleScore = (participant.completedModules / 10) * 60;
+  const pointScore = Math.min((participant.pointsTotal || 0) / 500, 1) * 25;
+  let activityScore = 0;
+
+  const lastActivityDate = participant.lastActivity
+    ? parseAdminDateValue_(participant.lastActivity)
+    : participant.lastActivityDate;
+
+  if (lastActivityDate) {
+    const diffMs = now.getTime() - lastActivityDate.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 3) {
+      activityScore = 15;
+    } else if (diffDays <= 7) {
+      activityScore = 10;
+    } else if (diffDays <= 14) {
+      activityScore = 5;
+    }
+  }
+
+  return Math.round((moduleScore + pointScore + activityScore) * 10) / 10;
+}
+
+function getAdminProgramDescription_(programName) {
+  if (programName === 'Turun Berat Badan') {
+    return 'Program penurunan berat badan yang sehat dan terukur.';
+  }
+
+  if (programName === 'Naik Berat Badan') {
+    return 'Program peningkatan massa tubuh dengan pola makan dan aktivitas terarah.';
+  }
+
+  if (programName === 'Jaga Stamina') {
+    return 'Program menjaga konsistensi kebugaran dan energi harian.';
+  }
+
+  return 'Program eCourse aktivitas Fit Challenge 10 hari.';
+}
+
+function buildRecentMonthBuckets_(totalMonths) {
+  const buckets = [];
+  const now = new Date();
+
+  for (let offset = totalMonths - 1; offset >= 0; offset--) {
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const key = Utilities.formatDate(monthDate, Session.getScriptTimeZone(), 'yyyy-MM');
+    const label = Utilities.formatDate(monthDate, Session.getScriptTimeZone(), 'MMM yyyy');
+
+    buckets.push({
+      key: key,
+      label: label,
+      participantCount: 0,
+      progressTotal: 0
+    });
+  }
+
+  return buckets;
+}
+
+function getAdminMonthKey_(value) {
+  const date = parseAdminDateValue_(value);
+  if (!date) {
+    return '';
+  }
+
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'yyyy-MM');
 }
 
 /*****************************
