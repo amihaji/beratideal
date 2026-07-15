@@ -9,5 +9,5 @@ const URL_dbWETools   = 'https://script.google.com/macros/s/AKfycbyhFOm3xckRf66I
 // url dbProgram (PROGRAM , DATAKONSUMEN) pada aplikasi : jsFitTracker.js, jsFollowCrm.js untuk formDashboard.html
 const URL_dbProgram   = 'https://script.google.com/macros/s/AKfycbyfLjoBZRqgIvuptoZmirYwWp2DD4Lkq1aQYUbu0b1fpx445TDyjzddHgtjudD26nU2KA/exec';
 // url dbProgram (PROGRAM , DATAKONSUMEN) untuk prog10hari.html
-const URL_PROGRAM_APP = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx8-dB1zfM2Wh1v-iX4G0y21F6-JMG40ntUkZhNE3HfJPXlw0yrMjsU0pA/exec';
+const URL_PROGRAM_APP = 'https://script.google.com/macros/s/AKfycbyfLjoBZRqgIvuptoZmirYwWp2DD4Lkq1aQYUbu0b1fpx445TDyjzddHgtjudD26nU2KA/exec';
    
