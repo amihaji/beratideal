@@ -7823,7 +7823,7 @@ function tampilkanDashboardSederhana(data) {
                             <tr>
                                 <th style="width:35%;">Parameter</th>
                                 <th style="width:25%; text-align:center;">Hasil</th>
-                                <th style="width:40%; text-align:center;">Referensi (Ideal)</th>
+                                <th style="width:40%; text-align:center;">Referensi</th>
                             </tr>
                         </thead>
                         <tbody>
