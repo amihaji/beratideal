@@ -11,16 +11,6 @@ Terdiri atas beberapa file :
 - loginBeratideal.html (program untuk login) ditempatkan di GitHUB
 - formUser.html ditempatkan di GitHUB
 - code.gs (program server side)
-
-Fitur Aplikasi untuk hak akses :
-- Login	: untuk mengakses aplikasi
-- Setting	: Konfigurasi User
-- FC	: aplikasi Fat Challenge
-- dashAdmin	: aplikasi Dashboard Admin
-- dasMember	: aplikasi Dashboard Member
-- dashWE : Untuk Followup peserta dari aplikasi WE
-- CRM	: Aplikasi untuk menegement peserta
-- COACH : yang berhak untuk melakukan edukasi
 **********************************************************************************************/
 
 /*******************************************************
@@ -103,15 +93,15 @@ function doPost(e) {
      7 H: Login
      8 I: Fit Challange
      9 J Fit Tracker
-     10 K: Analisa
-     11 L: Data Peserta
-     12 M: Follow We
-     13 N: Follow Crm
-     14 O: Referall
-     15 P: Setup
-     16 Q: Log Notif
-     17 R: Coach
-     18 S: Aksi
+     10 K: Program
+     11 L: Analisa
+     12 M: Data Peserta
+     13 N: Follow We
+     14 O: Follow Crm
+     15 P: Referall
+     16 Q: Setup
+     17 R: Log Notif
+     18 S: Coach
 /*******************************/
 
 /**********************************
@@ -178,8 +168,20 @@ function handleCheckLogin(e) {
 
     // 🔑 Cek password
     if (userPassInput === userPass) {
-      // Reset counter salah
+      // Password benar, jadi counter salah login harus direset.
       userSheet.getRange(sheetRow, 7).setValue(0); // Kolom G: Salah
+
+      // Bangun akses dari satu sumber agar login dan dashboard konsisten.
+      const aksesList = buildUserAccess(row);
+
+      // Hak login harus aktif, jika tidak maka user tidak boleh masuk aplikasi.
+      if (aksesList.aksesLogin !== 'Y') {
+        return jsonpResponse(callback, {
+          status: 'error',
+          loggedIn: false,
+          message: 'Hak akses login Anda tidak aktif.'
+        });
+      }
 
       // Buat token
       const token = Utilities.getUuid();
@@ -187,21 +189,6 @@ function handleCheckLogin(e) {
       // Simpan ke cache
       const user = { userId: userId, level: userLevel };
       CACHE.put(token, JSON.stringify(user), 1800);
-
-      // Ambil hak akses dari kolom H-R (index 7-18)
-      aksesList = {
-        aksesLogin:        String(row[7] || 'N').trim().toUpperCase() || "N",   // Kolom H: Login
-        aksesFitChallange: String(row[8] || 'N').trim().toUpperCase() || "N",   // Kolom I: Fit Challange
-        aksesFitTracker:   String(row[9] || 'N').trim().toUpperCase() || "N",   // Kolom J: Fit Tracker
-        aksesAnalisa:      String(row[10] || 'N').trim().toUpperCase() || "N",  // Kolom K: Analisa
-        aksesDataPeserta:  String(row[11] || 'N').trim().toUpperCase() || "N",  // Kolom L: Data Peserta
-        aksesFollowWe:     String(row[12] || 'N').trim().toUpperCase() || "N",  // Kolom M: Follow We
-        aksesFollowCrm:    String(row[13] || 'N').trim().toUpperCase() || "N",  // Kolom N: Follow Crm
-        aksesReferall:     String(row[14] || 'N').trim().toUpperCase() || "N",  // Kolom O: Referall
-        aksesSetup:        String(row[15] || 'N').trim().toUpperCase() || "N",  // Kolom P: Setup
-        aksesLogNotif:     String(row[16] || 'N').trim().toUpperCase() || "N",  // Kolom Q: Log Notif
-        aksesCoach:        String(row[17] || 'N').trim().toUpperCase() || "N",  // Kolom R: Coach
-      };
 
       // 🔥 LOG UNTUK DEBUG
       console.log('✅ Login berhasil:', { userId, userName, userLevel, userHP });
@@ -275,6 +262,9 @@ function handleAddUser(e) {
   const aksesLogin        = params.aksesLogin || 'N';
   const aksesFitChallange = params.aksesFitChallange || 'N';
   const aksesFitTracker   = params.aksesFitTracker || 'N';
+  // Form saat ini belum punya field Program terpisah.
+  // Untuk menjaga struktur sheet tetap benar, Program mengikuti FitTracker.
+  const aksesProgram      = params.aksesProgram || aksesFitTracker || 'N';
   const aksesAnalisa      = params.aksesAnalisa || 'N';
   const aksesDataPeserta  = params.aksesDataPeserta || 'N';
   const aksesFollowWe     = params.aksesFollowWe || 'N';
@@ -286,8 +276,8 @@ function handleAddUser(e) {
 
   userSheet.appendRow([
     userId, userName, userEmail, userHP, userPass, userLevel, userSalah,
-    aksesLogin,aksesFitChallange, aksesFitTracker,aksesAnalisa, aksesDataPeserta,aksesFollowWe, 
-    aksesFollowCrm, aksesReferall, aksesSetup, aksesLogNotif, aksesCoach
+    aksesLogin, aksesFitChallange, aksesFitTracker, aksesProgram, aksesAnalisa, aksesDataPeserta,
+    aksesFollowWe, aksesFollowCrm, aksesReferall, aksesSetup, aksesLogNotif, aksesCoach
   ]);
 
   // Ubah ini agar support JSONP
@@ -312,6 +302,8 @@ function handleEditUser(e) {
     const aksesLogin        = String((e.parameter && e.parameter.aksesLogin) || 'N').trim().toUpperCase() || 'N';
     const aksesFitChallange = String((e.parameter && e.parameter.aksesFitChallange) || 'N').trim().toUpperCase() || 'N';
     const aksesFitTracker   = String((e.parameter && e.parameter.aksesFitTracker) || 'N').trim().toUpperCase() || 'N';
+    // Sementara Program mengikuti nilai FitTracker agar tidak menggeser kolom sheet.
+    const aksesProgram      = String((e.parameter && e.parameter.aksesProgram) || aksesFitTracker).trim().toUpperCase() || 'N';
     const aksesAnalisa      = String((e.parameter && e.parameter.aksesAnalisa) || 'N').trim().toUpperCase() || 'N';
     const aksesDataPeserta  = String((e.parameter && e.parameter.aksesDataPeserta) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowWe     = String((e.parameter && e.parameter.aksesFollowWe) || 'N').trim().toUpperCase() || 'N';
@@ -324,7 +316,7 @@ function handleEditUser(e) {
     const data = userSheet.getDataRange().getValues();
     for (let i = 1; i < data.length; i++) {
       if (String(data[i][0]).trim().toLowerCase() === userId) {
-        userSheet.getRange(i + 1, 2, 1, 17).setValues([[
+        userSheet.getRange(i + 1, 2, 1, 18).setValues([[
           userName,
           userEmail,
           userHP,
@@ -334,6 +326,7 @@ function handleEditUser(e) {
           aksesLogin,
           aksesFitChallange,
           aksesFitTracker,
+          aksesProgram,
           aksesAnalisa,
           aksesDataPeserta,
           aksesFollowWe,
@@ -403,8 +396,12 @@ function handleGetUserAccess(e) {
         return jsonpResponse(callback, { status: 'error', message: 'Session expired.' });
     }
 
+    const sessionUser = JSON.parse(cached);
+    if (String(sessionUser.userId || '').trim().toLowerCase() !== String(userId || '').trim().toLowerCase()) {
+        return jsonpResponse(callback, { status: 'error', message: 'Session tidak valid untuk user ini.' });
+    }
+
     const users   = userSheet.getRange(1, 1, userSheet.getLastRow(), userSheet.getLastColumn()).getValues();
-    const headers = users[0];
     const rows    = users.slice(1);
     const userRow = rows.find(row => row[0] === userId);
 
@@ -412,13 +409,29 @@ function handleGetUserAccess(e) {
         return jsonpResponse(callback, { status: 'error', message: 'User tidak ditemukan.' });
     }
 
-    const access = {};
-    for (let i = 7; i < headers.length; i++) {
-        const appKey = headers[i].trim().toLowerCase().replace(/\s+/g, '');
-        access[appKey] = (userRow[i] || 'N').toUpperCase();
-    }
+    const access = buildUserAccess(userRow);
 
     return jsonpResponse(callback, { status: 'success', access });
+}
+
+function buildUserAccess(row) {
+  const aksesFitTracker = String(row[9] || 'N').trim().toUpperCase() || 'N';
+  const aksesProgram = String(row[10] || aksesFitTracker || 'N').trim().toUpperCase() || 'N';
+
+  return {
+    aksesLogin:        String(row[7] || 'N').trim().toUpperCase() || 'N',   // Kolom H: Login
+    aksesFitChallange: String(row[8] || 'N').trim().toUpperCase() || 'N',   // Kolom I: Fit Challange
+    aksesFitTracker:   aksesFitTracker,                                      // Kolom J: Fit Tracker
+    aksesProgram:      aksesProgram,                                         // Kolom K: Program
+    aksesAnalisa:      String(row[11] || 'N').trim().toUpperCase() || 'N',  // Kolom L: Analisa
+    aksesDataPeserta:  String(row[12] || 'N').trim().toUpperCase() || 'N',  // Kolom M: Data Peserta
+    aksesFollowWe:     String(row[13] || 'N').trim().toUpperCase() || 'N',  // Kolom N: Follow We
+    aksesFollowCrm:    String(row[14] || 'N').trim().toUpperCase() || 'N',  // Kolom O: Follow Crm
+    aksesReferall:     String(row[15] || 'N').trim().toUpperCase() || 'N',  // Kolom P: Referall
+    aksesSetup:        String(row[16] || 'N').trim().toUpperCase() || 'N',  // Kolom Q: Setup
+    aksesLogNotif:     String(row[17] || 'N').trim().toUpperCase() || 'N',  // Kolom R: Log Notif
+    aksesCoach:        String(row[18] || 'N').trim().toUpperCase() || 'N'   // Kolom S: Coach
+  };
 }
 
 /*****************************
