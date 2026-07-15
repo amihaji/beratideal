@@ -9,7 +9,7 @@ FitTracker, Data Peserta, Program, Analytics, Setup ,Log Notif
 //const URL_dbWETools_Fallback = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 let followUpWEFallbackBound = false;
 let currentPage = 'fittracker';
-let pesertasData = [];
+let pesertaData = [];
 let programsData = [];
 let analytics = {};
 let charts = {};
@@ -588,7 +588,6 @@ async function loadAllData() {
     try {
         dashboardAdminPayload = await fetchAdminDashboardData();
         pesertaData = Array.isArray(dashboardAdminPayload.participants) ? dashboardAdminPayload.participants : [];
-        pesertasData = pesertaData;
         programsData = Array.isArray(dashboardAdminPayload.programs) ? dashboardAdminPayload.programs : [];
         analytics = dashboardAdminPayload.analytics || getEmptyAnalyticsData();
 
@@ -600,7 +599,6 @@ async function loadAllData() {
         showToast('Gagal memuat data dashboard dari dbProgram: ' + error.message, 'error');
         dashboardAdminPayload = null;
         pesertaData = [];
-        pesertasData = pesertaData;
         programsData = [];
         analytics = getEmptyAnalyticsData();
         populateProgramFilterOptions();

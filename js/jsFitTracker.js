@@ -317,7 +317,7 @@ async function testGoogleSheetsConnection() {
         const data = await response.json();
         
         return {
-            success: data.success || false,
+            success: data.success === true || data.status === 'success',
             message: data.message || 'Connection test completed',
             timestamp: data.timestamp || new Date().toISOString()
         };
