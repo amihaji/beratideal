@@ -85,11 +85,13 @@
     </div>
   </div>
 
+<!-- Custom JS Untuk Load URL public  -->
+<script src="js/jsLoadUrlPublic.js"></script>  
 <script>
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyMosw9uO0AfhkPSdsCv-p_gW7NaV5QlNmnzyAZZqSHoKdDMJsFwEtAH96O-xM_63T4/exec';
+// const URL_dbDaftarBeratideal = 'https://script.google.com/macros/s/AKfycbyMosw9uO0AfhkPSdsCv-p_gW7NaV5QlNmnzyAZZqSHoKdDMJsFwEtAH96O-xM_63T4/exec';
 
 // ******************************************** 
 // Memanggail data inputan ke dalam form bayar
@@ -107,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 1. Ambil data dari Apps Script via noPesanan
-    fetch(URL_APPS_SCRIPT + "?noPesanan=" + noPesanan)
+    fetch(URL_dbDaftarBeratideal + "?noPesanan=" + noPesanan)
     .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -196,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
         konfirmasiBtn.disabled  = true;
         konfirmasiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-        fetch(URL_APPS_SCRIPT, {
+        fetch(URL_dbDaftarBeratideal, {
           method: "POST",
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
