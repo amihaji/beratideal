@@ -10,4 +10,5 @@ const URL_dbWETools   = 'https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs
 const URL_dbProgram   = 'https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroycyx3Nadwu6SR-Fn9MEJLZaV8AONHVO8YW9AhevaQ7p_Bwm_b1DQ/exec';
 // url dbProgram (PROGRAM , DATAKONSUMEN) untuk prog10hari.html
 const URL_PROGRAM_APP = 'https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroycyx3Nadwu6SR-Fn9MEJLZaV8AONHVO8YW9AhevaQ7p_Bwm_b1DQ/exec';
-    
+// url dbDaftarBeratideal (DAFTAR) untuk formDaftar2.html
+const URL_dbDaftarBeratideal='https://script.google.com/macros/s/AKfycbxk_Oc48yV4u1pAWIzXinQgj4K30r-je-Y_J63KhMLPCrmDiaRu4n7eGM3nbYR8V28C/exec'

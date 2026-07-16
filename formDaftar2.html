@@ -146,11 +146,13 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS Untuk Load URL public  -->
+<script src="js/jsLoadUrlPublic.js"></script>
 <script>
 /****************************  
 * Deklarasi variabel global *
 *****************************/ 
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwOEuMnos-nrGkiSSIkyc775gwpey2ir2t0Wil3CAZMBSfGb8iKarlOeOusckfnZRhw/exec';
+// const URL_dbDaftarBeratideal = 'https://script.google.com/macros/s/AKfycbwOEuMnos-nrGkiSSIkyc775gwpey2ir2t0Wil3CAZMBSfGb8iKarlOeOusckfnZRhw/exec';
 
 let currentStep = 1;
 
@@ -443,7 +445,7 @@ async function submitForm() {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
    
-    const response = await fetch(URL_APPS_SCRIPT, {
+    const response = await fetch(URL_dbDaftarBeratideal, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
