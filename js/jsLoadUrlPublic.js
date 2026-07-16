@@ -6,7 +6,7 @@
 const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V6_6MwkbpdiLcmraIAIgdP_oNbALIROB4l4NAeO_QT7aTymfvX/exec';
 
 // url dbDaftarBeratideal (DAFTAR) untuk formDaftar2.html
-const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbzX3AcaeiXbknbkhjE_KHuF3G0aSAV21fruDQ2Q8LEJSThyPCVoa17IYKmICXx1bDsp/exec'
+const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycby9wSmVaSb0KdSuTKu_a9zuEt8Ygoczi4VnXd57kRgYMJTei03YW3JTWZAdx9RitpBS/exec'
 
 // URl dbUSER (TabelUser, LogNotif) pada aplikasi : jsDashboard.js, jsSetupUser.js untuk loginBeratideal.html, formDashboard.html
 const URL_dbUser ='https://script.google.com/macros/s/AKfycbySEM1PMsIFOm-ovW0_Alte_zX7bCDYNhmZ5ySePR26P5DFnVkM0LCXUGnAAqH9k_FlqA/exec';
