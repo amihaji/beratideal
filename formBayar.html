@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tampilPesan('error', '❌ Data tidak ditemukan. Silahkan daftar ulang');
       return;
     }
-
+  
     // 1. Ambil data dari Apps Script via noPesanan
     fetch(URL_dbDaftarBeratideal + "?noPesanan=" + noPesanan)
     .then(res => res.json())
@@ -208,12 +208,14 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(res => {
           if (res.success) {
+
             // Tombol konfirmasi menampilkan pesan
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
             tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
       
             // Setelah Konfirmasi Pembayaran kembali ke home
             setTimeout(function() {
+              // kembali ke landingpage
               window.location.href = 'index.html';
             }, 3000); // delay 3 detik (3000 milidetik)
 

@@ -459,7 +459,12 @@ async function submitForm() {
     setTimeout(() => {
       document.getElementById('formDaftar').reset();
       document.getElementById('nomorPesanan').value = generateNoPesanan();
-      window.location.href = 'index.html';
+      
+      // ke formBayar.html
+      window.location.href = 'formBayar.html';
+
+      // TIDAK AKTIF kembali ke landingpage 
+      // window.location.href = 'index.html';
     }, 3000);
 
   } catch (error) {
@@ -469,7 +474,7 @@ async function submitForm() {
     submitBtn.disabled  = false;
   }
  
-  // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar2.html
+  // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
  localStorage.setItem('noPesanan', data.noPesanan);
  //return false;
 }
