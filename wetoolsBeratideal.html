@@ -735,10 +735,10 @@ function submitForm() {
                         document.getElementById("tampilCTA").style.display = "block";
                         window.dataTerakhir = response.data;
                     } else {
-                        showPesan('error', ` ERROR : dari server ${error.message || 'Format respons tidak dikenal'}`);
+                        showPesan('error', ` ERROR : dari server ${response?.message || 'Format respons tidak dikenal'}`);
                     }
                 } catch (e) {
-                    showPesan('error', ` ERROR : Terjadi saat menampilkan hasil: ${error.message}`);
+                    showPesan('error', ` ERROR : Terjadi saat menampilkan hasil: ${e.message}`);
                 } finally {
                     if (script.parentNode) script.parentNode.removeChild(script);
                     delete window[callbackName];
@@ -861,31 +861,35 @@ function handleKirimSurvey() {
     body: payload
   })
   .then(() => {
+    btnKirim.innerHTML = '<i class="fas fa-paper-plane me-2"></i>PERMINTAAN DIKIRIM';
+    btnKirim.disabled = true;
     setTimeout(() => {
-    // Data berhasil terkirim
-    showPesan('success', " SUKSES : Hasil survey telah terkirim! Silahkan periksa WA/Email Anda dalam beberapa saat");
+    // Pada mode no-cors browser tidak bisa membaca respons detail dari server,
+    // jadi status yang ditampilkan di sini adalah status permintaan browser.
+    showPesan('warning', " INFO : Permintaan kirim sudah dikirim. Silahkan cek WA/Email Anda dalam beberapa saat");
     resetForm();
     
-    // Setelah cek kebugaran, tampilkan Form Daftar
-    window.location.href = 'formDaftar.html';
-    // --------------------------------------------
+    // Setelah cek kebugaran, tampilkan Form Daftar tidak ada pilihan program
+    // window.location.href = 'formDaftar.html'; 
+  
+    // Setelah cek kebugaran, tampilkan Form Daftar2 ADA PILIHAN TARGET PROGRAM
+    window.location.href = 'formDaftar2.html'; 
 
     }, 3000);
   })
   .catch(error => {
     //console.error("Error:", error);
-    showPesan('error', " ERROR : Gagal mengirim permintaan" + error.message);
+    btnKirim.innerHTML = '<i class="fas fa-share-square me-2"></i>KIRIM HASIL SURVEY';
+    btnKirim.disabled = false;
+    showPesan('error', " ERROR : Gagal mengirim permintaan " + error.message);
   })
-  .finally(() => {
-    btnKirim.innerHTML = '<i class="fas fa-share-square me-2"></i>TERKIRIM';
-    btnKirim.disabled = true;
-  });
 }
 
 // ********************
 // Untuk mereset form  
 // ********************
 function resetForm() {
+    const btnKirim = document.getElementById("btnKirim");
     document.getElementById("fitnessForm").reset();
     navigate(null, 1);
     document.getElementById("loadingSpinner").style.display = "none";
