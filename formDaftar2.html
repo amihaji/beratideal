@@ -453,13 +453,13 @@ async function submitForm() {
 
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
-    
+
+    // formKonfirmasiBayar membaca noPesanan dari query string.
+    localStorage.setItem('noPesanan', formData.noPesanan);
+
     setTimeout(() => {
-      document.getElementById('formDaftar').reset();
-      document.getElementById('nomorPesanan').value = generateNoPesanan();
-      // TIDAK AKTIF kembali ke landingpage 
-      // window.location.href = 'index.html';
-    }, 3000);
+      window.location.href = `formKonfirmasiBayar.html?noPesanan=${encodeURIComponent(formData.noPesanan)}`;
+    }, 800);
 
   } catch (error) {
     console.error('Error:', error);
@@ -468,11 +468,6 @@ async function submitForm() {
     submitBtn.disabled  = false;
   }
  
-  // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
- localStorage.setItem('noPesanan', data.noPesanan);
- // ke formBayar.html
- window.location.href = 'formKonfirmasiBayar.html';
- //return false;
 }
 
 /**********************************

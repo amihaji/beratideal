@@ -301,11 +301,11 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
+    localStorage.setItem('noPesanan', formData.noPesanan);
+
     setTimeout(() => {
-      document.getElementById('formDaftar').reset();
-      document.getElementById('nomorPesanan').value = generateNoPesanan();
-      window.location.href = 'index.html';
-    }, 3000);
+      window.location.href = `formKonfirmasiBayar.html?noPesanan=${encodeURIComponent(formData.noPesanan)}`;
+    }, 800);
 
   } catch (error) {
     console.error('Error:', error);
@@ -313,11 +313,6 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     submitBtn.disabled  = false;
   }
- 
-  // Simpan noPesanan ke localStorage agar bisa dipanggil di formBayar.html
- localStorage.setItem('noPesanan', data.noPesanan);
- //return false;
- 
 }
 
 /**********************************
