@@ -113,10 +113,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(res => {
           if (res.success) {
+            const tambahanLink = res.tandaTerimaLink
+              ? `<br><small>Link tanda terima: <a href="${res.tandaTerimaLink}" target="_blank" rel="noopener noreferrer">formTandaTerima.html</a></small>`
+              : '';
 
             // Tombol konfirmasi menampilkan pesan
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-            tampilPesan('success', '✅ Pembayaran berhasil dikonfirmasi. Admin segera menghubungi');
+            tampilPesan('success', `✅ ${res.message || 'Pembayaran berhasil dikonfirmasi. Admin segera menghubungi.'}${tambahanLink}`);
       
             // Setelah Konfirmasi Pembayaran kembali ke home
             setTimeout(function() {
