@@ -1,6 +1,6 @@
-/*******************
-* Variabel Global
-*******************/
+/****************************  
+* Deklarasi variabel global *
+*****************************/ 
 let currentStep = 1;
 
 /************************
@@ -229,7 +229,7 @@ function downloadQRIS(e) {
     document.body.removeChild(link);
     
     // Beri feedback visual
-    const btn     = document.getElementById('btnDownloadQR');
+    const btn                 = document.getElementById('btnDownloadQR');
     btn.innerHTML             = '<i class="fas fa-check"></i> Terdownload';
     btn.style.backgroundColor = '#28a745';   // Tombol berubah Warna hijau
     btn.style.color           = '#fff';      // Warna teks putih
@@ -251,14 +251,14 @@ function downloadQRIS(e) {
 ************************************/
 function getHargaProgram(program) {
   const prices = {
-    '10 Hari': 700000,
-    '21 Hari': 2100000
-    /* '3 Bulan': 7000000 */
+    'Turun Berat Badan': 600001,
+    'Naik Berat Badan': 600002,
+    'Jaga Stamina': 600003 
   };
   return prices[program] || 0;
 }
-
-/************************************************
+ 
+/***********************************************
 * Fungsi Untuk mengsubmit data dari form inputan
 ************************************************/
 async function submitForm() {
@@ -283,14 +283,16 @@ async function submitForm() {
     pembayaran:   document.getElementById('pembayaran').value,
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima:   document.getElementById('acPenerima').value,
-    nominal:      document.getElementById('nominal').value.replace(/\D/g,'')
+    nominal:      document.getElementById('nominal').value.replace(/\D/g,''),
+    mSponsor:     document.getElementById("mSponsor").value || "HESTY HUSAIN", 
+    mHpSponsor:   document.getElementById("mHpSponsor").value || "81241318600"
   };
 
   try {
     submitBtn.disabled  = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
-
-    const response = await fetch('https://script.google.com/macros/s/AKfycbw0LtmDx4JtDRSnAoQhwPUsODLYh-EG2H2izIRtKV9yMzFeLGxMvOqocDZTvkkXUuW0/exec', {
+   
+    const response = await fetch(URL_dbDaftarBeratideal, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(formData)
@@ -301,11 +303,20 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
     msgBox3.innerHTML   = '<div class="msg-success">Data berhasil dikirim!</div>';
 
+    // formKonfirmasiBayar membaca noPesanan dari query string.
     localStorage.setItem('noPesanan', formData.noPesanan);
 
+    /****** COBA NON AKTIFKAN SAJA INI AGAR TIDAK DUA KALI KONFIRMASI, CUKUP LINK DARI WA SAJA
+     JADI FORM KONFIRMASI HANYA TAMPIL DISAAT DIKLIK DI WA  
     setTimeout(() => {
       window.location.href = `formKonfirmasiBayar.html?noPesanan=${encodeURIComponent(formData.noPesanan)}`;
     }, 800);
+    *******/
+
+    setTimeout(function() {
+      // kembali ke landingpage
+      window.location.href = 'index.html';
+    }, 3000); // delay 3 detik (3000 milidetik)
 
   } catch (error) {
     console.error('Error:', error);
@@ -313,6 +324,7 @@ async function submitForm() {
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     submitBtn.disabled  = false;
   }
+ 
 }
 
 /**********************************
@@ -326,4 +338,3 @@ function generateNoPesanan() {
   const random = Math.floor(Math.random() * 900) + 100;
   return `PS${dd}${mm}${yy}-${random}`;
 }
-
