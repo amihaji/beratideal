@@ -106,7 +106,7 @@ function renderUserTableRows(rows) {
   rows.forEach(row => {
     const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
       login, fitchallange, fittracker, program, analisa, datapeserta, followwe, followcrm,
-      referall, setup, lognotif, coach] = row;
+      referall, pendaftaran, setup, lognotif, coach] = row;
 
     let editState     = '';
     let aktifasiState = '';
@@ -150,6 +150,7 @@ function renderUserTableRows(rows) {
       <td>${followwe}</td>
       <td>${followcrm}</td>
       <td>${referall}</td>
+      <td>${pendaftaran}</td>
       <td>${setup}</td>
       <td>${lognotif}</td>
       <td>${coach}</td>
@@ -170,6 +171,7 @@ function renderUserTableRows(rows) {
           aksesFollowWe: '${followwe}',
           aksesFollowCrm: '${followcrm}',
           aksesReferall: '${referall}',
+          aksesReferall: '${pendaftaran}',
           aksesSetup: '${setup}',
           aksesLogNotif: '${lognotif}',
           aksesCoach: '${coach}',
@@ -334,6 +336,7 @@ function addUser() {
     const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
     const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
     const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesPendaftaran  = document.querySelector('input[name="aksesPendaftaran"]:checked')?.value || 'N';
     const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
     const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
     const aksesCoach        = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
@@ -381,7 +384,7 @@ function addUser() {
         action: 'addUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
         aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-        aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,
+        aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
@@ -415,6 +418,7 @@ function editUser() {
     const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
     const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
     const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesPendaftaran  = document.querySelector('input[name="aksesPendaftaran"]:checked')?.value || 'N';
     const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
     const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
     const aksesCoach        = document.querySelector('input[name="aksesCoach"]:checked')?.value || 'N';
@@ -422,7 +426,7 @@ function editUser() {
     console.log('Data yang akan dikirim edit:');
     console.log({userId, userName, userEmail, userHP, userPass, userLevel, 
       aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-      aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,});
+      aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,});
 
     // Validasi
     if (!validateUserForm()) {
@@ -460,7 +464,7 @@ function editUser() {
         action: 'editUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
         aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-        aksesReferall, aksesSetup, aksesLogNotif, aksesCoach,
+        aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
@@ -846,6 +850,7 @@ function showEditModal(userData) {
     'FollowWe',
     'FollowCrm',
     'Referall',
+    'Pendaftaran',
     'Setup',
     'LogNotif',
     'Coach'

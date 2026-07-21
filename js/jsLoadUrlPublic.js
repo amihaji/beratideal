@@ -16,7 +16,7 @@ const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbwbU7_F39
 // jsDashboard.js, jsSetupUser.js untuk :
 // - loginBeratideal.html
 // - formDashboard.html
-const URL_dbUser ='https://script.google.com/macros/s/AKfycbwIEv4p43INUHmlsTqYpVY4RoniL5HnFrVl9fcUhdIh2Ic-ok1AGShjqOZcsGSR5_30Eg/exec';
+const URL_dbUser ='https://script.google.com/macros/s/AKfycbybWXC27ONXRsl_5B_cL7LKlE_dfZiE7bXvP930NaruD_TBTug8AzeUmOkVioTmdmiMgQ/exec';
 
 // url dbProgram (PROGRAM , DATAKONSUMEN): 
 // jsFitTracker.js, jsFollowCrm.js, jsProg10hari untuk :
