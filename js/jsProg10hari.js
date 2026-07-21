@@ -1,8 +1,6 @@
 /*******************
 * Deklarasi Global *
 ********************/
-// url database dbProgram
-// const URL_PROGRAM_APP   = 'https://script.google.com/macros/s/AKfycbzZORzfs6Egbx8-dB1zfM2Wh1v-iX4G0y21F6-JMG40ntUkZhNE3HfJPXlw0yrMjsU0pA/exec';
 // Daftar Video Resep Makanan & Minuman
 const PLAYLIST_JSON_URL = './data/playlist.json';   
 // Variabel global untuk Chart.js
@@ -1130,7 +1128,7 @@ async function loadCompleteProgressFromServer(userId, hariKe = 1) {
     const callbackName = 'cb_complete_progress_' + Date.now();
     const script = document.createElement('script');
     script.src =
-      `${URL_PROGRAM_APP}?action=getUserCompleteProgress` +
+      `${URL_dbProgram}?action=getUserCompleteProgress` +
       `&userId=${encodeURIComponent(userId)}` +
       `&hariKe=${hariKe}` +
       `&callback=${callbackName}`;
@@ -1709,7 +1707,7 @@ function fetchProgressFromServer(userId) {
     const callbackName = 'cb_fetch_progress_' + Date.now();
     const script = document.createElement('script');
    
-    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    script.src = `${URL_dbProgram}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
     window[callbackName] = function(response) {
         console.log('📡 Progress dari server untuk user', userId, ':', response);
         if (response.success) {
@@ -3684,7 +3682,7 @@ function fetchUserProgressFromServer(userId) {
         const callbackName = 'cb_user_progress_' + Date.now();
         const script = document.createElement('script');
         
-        script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+        script.src = `${URL_dbProgram}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
         
         window[callbackName] = function(response) {
             console.log('📡 Server progress response:', response);
@@ -3985,7 +3983,7 @@ function uploadToServer(hariKe, mealType, fileData, fileName) {
     window.__lastMealUpload = { hariKe, mealType, fileName };
 
     try {
-      const response = await fetch(URL_PROGRAM_APP, {
+      const response = await fetch(URL_dbProgram, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -4512,7 +4510,7 @@ function simpanWorkoutData(hariKe) {
   console.log('📤 Payload workout FINAL:', workoutData);
 
   // GUNAKAN POST REQUEST SEPERTI UPLOAD MEAL PLAN
-  fetch(URL_PROGRAM_APP, {
+  fetch(URL_dbProgram, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -7069,7 +7067,7 @@ function kirimKeServer(data, callback = null) {
     .join('&');
 
   const script = document.createElement('script');
-  script.src = `${URL_PROGRAM_APP }?${params}`;
+  script.src = `${URL_dbProgram }?${params}`;
   console.log('🚀 Mengirim request ke server:', script.src);
   // JSONP callback
   window[callbackName] = function (response) {
@@ -7337,7 +7335,7 @@ function fetchDashboardDataFromServer(userId) {
     const callbackName = 'cb_dashboard_' + Date.now();
     const script = document.createElement('script');
     
-    script.src = `${URL_PROGRAM_APP}?action=getDashboardData&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    script.src = `${URL_dbProgram}?action=getDashboardData&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
     
     window[callbackName] = function(response) {
         console.log('📊 Dashboard response dari server:', response);
@@ -8643,7 +8641,7 @@ function autoRefreshProgressFromServer() {
     const callbackName = 'cb_auto_refresh_' + Date.now();
     const script = document.createElement('script');
     
-    script.src = `${URL_PROGRAM_APP}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
+    script.src = `${URL_dbProgram}?action=getLastProgress&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
     
     window[callbackName] = function(response) {
         console.log('📡 Auto refresh response:', response);

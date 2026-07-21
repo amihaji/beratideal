@@ -1,3 +1,6 @@
+// *************************************************** 
+// Memanggail data inputan ke dalam form tanda terima
+// ***************************************************
 document.addEventListener('DOMContentLoaded', function () {
     // Ambil noPesanan dari query string
     const params        = new URLSearchParams(window.location.search);

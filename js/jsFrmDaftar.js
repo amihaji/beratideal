@@ -3,9 +3,9 @@
 *****************************/ 
 let currentStep = 1;
 
-/************************
-* Inisialisasi data form
-*************************/
+// *********************************************
+// Memanggail data inputan ke dalam form daftar
+// *********************************************
 document.addEventListener('DOMContentLoaded', function() {
   // Set tanggal dan nomor pesanan
   document.getElementById('tanggal').value      = new Date().toLocaleDateString('id-ID');
