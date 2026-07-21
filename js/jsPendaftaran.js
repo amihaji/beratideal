@@ -240,20 +240,19 @@
         Object.entries(editFieldTooltips).forEach(([inputId, tooltipText]) => {
             const input = document.getElementById(inputId);
             if (!input) return;
-
             const inputGroup = input.closest('.input-group');
             const prefix = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
 
             if (inputGroup) {
-                inputGroup.setAttribute('title', tooltipText);
-                inputGroup.setAttribute('data-bs-toggle', 'tooltip');
-                inputGroup.setAttribute('data-bs-placement', 'top');
+                inputGroup.removeAttribute('title');
+                inputGroup.removeAttribute('data-bs-toggle');
+                inputGroup.removeAttribute('data-bs-placement');
             }
 
             if (prefix) {
-                prefix.setAttribute('title', tooltipText);
-                prefix.setAttribute('data-bs-toggle', 'tooltip');
-                prefix.setAttribute('data-bs-placement', 'top');
+                prefix.removeAttribute('title');
+                prefix.removeAttribute('data-bs-toggle');
+                prefix.removeAttribute('data-bs-placement');
             }
 
             if (!input.disabled) {
