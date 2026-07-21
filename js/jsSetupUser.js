@@ -171,7 +171,7 @@ function renderUserTableRows(rows) {
           aksesFollowWe: '${followwe}',
           aksesFollowCrm: '${followcrm}',
           aksesReferall: '${referall}',
-          aksesReferall: '${pendaftaran}',
+          aksesPendaftaran: '${pendaftaran}',
           aksesSetup: '${setup}',
           aksesLogNotif: '${lognotif}',
           aksesCoach: '${coach}',

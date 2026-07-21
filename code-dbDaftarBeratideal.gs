@@ -18,6 +18,19 @@ const folderTANDATERIMA = DriveApp.getFolderById("1B2HIfleUBug0utiyE04LwW5MeWw0a
 /****************************************/
 function doGet(e) {
   const sheet = shDaftar;
+  const action = (e && e.parameter && e.parameter.action) || '';
+
+  if (action === 'getDataPendaftaran') {
+    return getDataPendaftaran(e.parameter);
+  }
+
+  if (action === 'getSingleDataPendaftaran') {
+    return getSingleDataPendaftaran(e.parameter);
+  }
+
+  if (action === 'sendFollowUpWAPendaftaran') {
+    return sendFollowUpWAPendaftaran(e.parameter);
+  }
  
   // Jika ada parameter noPesanan → ambil data pendaftar
   if (e && e.parameter && e.parameter.noPesanan) {
@@ -60,6 +73,16 @@ function doGet(e) {
 /* Fungsi untuk simpan data baru di sheet dan update *
 /*****************************************************/
 function doPost(e) {
+  const payload = parsePostPayload_(e);
+
+  if (payload && payload.action === 'editDataPendaftaran') {
+    return editDataPendaftaran(payload);
+  }
+
+  if (payload && payload.action === 'deleteDataPendaftaran') {
+    return deleteDataPendaftaran(payload);
+  }
+
   const sheet = shDaftar;
   
   // ****************************************************
@@ -616,5 +639,247 @@ function kirimLinkTandaTerimaKePeserta(noPesanan) {
     phone: normalizedPhone,
     link: linkTandaTerima
   };
+}
+
+/*********************************
+ * Helper data FollowUp Pendaftaran
+ *********************************/
+function getDataPendaftaranFieldNames_() {
+  return [
+    'tanggal',
+    'noPesanan',
+    'program',
+    'harga',
+    'nama',
+    'alamat',
+    'telp',
+    'email',
+    'kelurahan',
+    'kecamatan',
+    'kota',
+    'propinsi',
+    'pembayaran',
+    'namaPenerima',
+    'acPenerima',
+    'nominal',
+    'statusWa',
+    'statusEmail',
+    'tglBayar',
+    'linkBuktiTransfer',
+    'statusBayar',
+    'tglTerima',
+    'linkBuktiProduk',
+    'statusTerima',
+    'namaSponsor',
+    'hpSponsor'
+  ];
+}
+
+function normalizeDataPendaftaranKeyword_(value) {
+  return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function formatDataPendaftaranValue_(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss');
+  }
+  return value == null ? '' : String(value);
+}
+
+function buildDataPendaftaranRecord_(rowIndex, row) {
+  const fields = getDataPendaftaranFieldNames_();
+  const record = { rowIndex: rowIndex };
+
+  for (let i = 0; i < fields.length; i++) {
+    record[fields[i]] = formatDataPendaftaranValue_(row[i]);
+  }
+
+  return record;
+}
+
+/*******************************
+ * Ambil daftar data pendaftaran
+ *******************************/
+function getDataPendaftaran(param) {
+  const callback = param.callback;
+
+  try {
+    const filter = normalizeDataPendaftaranKeyword_(param.filter);
+    const values = shDaftar.getDataRange().getValues();
+    const result = [];
+
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+      const nama = normalizeDataPendaftaranKeyword_(row[4]);
+
+      if (filter && !nama.includes(filter)) {
+        continue;
+      }
+
+      result.push(buildDataPendaftaranRecord_(i + 1, row));
+    }
+
+    return createJSONPResponse_(callback, {
+      status: 'success',
+      data: result
+    });
+  } catch (error) {
+    return createJSONPResponse_(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/*********************************
+ * Ambil satu data pendaftaran
+ *********************************/
+function getSingleDataPendaftaran(param) {
+  const callback = param.callback;
+
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDaftar.getLastRow()) {
+      throw new Error('Baris data pendaftaran tidak valid.');
+    }
+
+    const row = shDaftar.getRange(rowIndex, 1, 1, 26).getValues()[0];
+    return createJSONPResponse_(callback, {
+      status: 'success',
+      data: buildDataPendaftaranRecord_(rowIndex, row)
+    });
+  } catch (error) {
+    return createJSONPResponse_(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/*******************************
+ * Edit data pendaftaran
+ *******************************/
+function editDataPendaftaran(param) {
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDaftar.getLastRow()) {
+      throw new Error('Baris data pendaftaran tidak valid.');
+    }
+
+    const fields = getDataPendaftaranFieldNames_();
+    const rowData = fields.map((field) => formatDataPendaftaranValue_(param[field]));
+    shDaftar.getRange(rowIndex, 1, 1, fields.length).setValues([rowData]);
+
+    return responseJSON_({
+      status: 'success',
+      message: 'Data pendaftaran berhasil disimpan.'
+    });
+  } catch (error) {
+    return responseJSON_({
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/*******************************
+ * Hapus data pendaftaran
+ *******************************/
+function deleteDataPendaftaran(param) {
+  try {
+    const rowIndex = parseInt(param.rowIndex, 10);
+    if (!rowIndex || rowIndex < 2 || rowIndex > shDaftar.getLastRow()) {
+      throw new Error('Baris data pendaftaran tidak valid.');
+    }
+
+    shDaftar.deleteRow(rowIndex);
+    return responseJSON_({
+      status: 'success',
+      message: 'Data pendaftaran berhasil dihapus.'
+    });
+  } catch (error) {
+    return responseJSON_({
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/********************************
+ * Kirim WA follow up pendaftaran
+ ********************************/
+function sendFollowUpWAPendaftaran(param) {
+  const callback = param.callback;
+  const tokenFonnte = 'NPUQeEn4zATP628wK7au';
+  const url = 'https://api.fonnte.com/send';
+  const target = normalizeWhatsAppNumber(param.target);
+  const message = String(param.message || '').trim();
+
+  if (!target || target === '62' || !message) {
+    return createJSONPResponse_(callback, {
+      status: 'error',
+      message: 'Target WA atau pesan tidak valid.'
+    });
+  }
+
+  try {
+    UrlFetchApp.fetch(url, {
+      method: 'post',
+      headers: { Authorization: tokenFonnte },
+      payload: {
+        target: target,
+        message: message
+      }
+    });
+
+    return createJSONPResponse_(callback, {
+      status: 'success',
+      message: 'Pesan WA berhasil dikirim.'
+    });
+  } catch (error) {
+    return createJSONPResponse_(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/************************
+ * Helper parsing POST
+ ************************/
+function parsePostPayload_(e) {
+  try {
+    if (e && e.postData && e.postData.contents) {
+      return JSON.parse(e.postData.contents);
+    }
+  } catch (error) {
+    Logger.log('Gagal parse payload JSON: ' + error);
+  }
+
+  return (e && e.parameter) ? e.parameter : {};
+}
+
+/*************************
+ * Response helper JSONP
+ *************************/
+function createJSONPResponse_(callback, data) {
+  if (callback && callback !== 'undefined') {
+    return ContentService
+      .createTextOutput(callback + '(' + JSON.stringify(data) + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**********************
+ * Response helper JSON
+ **********************/
+function responseJSON_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 

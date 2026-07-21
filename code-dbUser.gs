@@ -311,7 +311,7 @@ function handleEditUser(e) {
     const aksesFollowWe     = String((e.parameter && e.parameter.aksesFollowWe) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowCrm    = String((e.parameter && (e.parameter.aksesFollowCrm || e.parameter.aksesDashCrm)) || 'N').trim().toUpperCase() || 'N';
     const aksesReferall     = String((e.parameter && e.parameter.aksesReferall) || 'N').trim().toUpperCase() || 'N';
-    const aksesPendaftaran  = String((e.parameter && e.parameter.aksesPendaftran) || 'N').trim().toUpperCase() || 'N';
+    const aksesPendaftaran  = String((e.parameter && e.parameter.aksesPendaftaran) || 'N').trim().toUpperCase() || 'N';
     const aksesSetup        = String((e.parameter && e.parameter.aksesSetup) || 'N').trim().toUpperCase() || 'N';
     const aksesLogNotif     = String((e.parameter && e.parameter.aksesLogNotif) || 'N').trim().toUpperCase() || 'N';
     const aksesCoach        = String((e.parameter && e.parameter.aksesCoach) || 'N').trim().toUpperCase() || 'N';

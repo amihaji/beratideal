@@ -76,7 +76,7 @@ Dashboard untuk :
                     </li>
                     <!-- Menu Pendaftran -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="showPage('pendaftaran')" id="nav-followupcrm">
+                        <a class="nav-link" href="#" onclick="showPage('pendaftaran')" id="nav-pendaftaran">
                             <i class="fas fa-clipboard-list me-1"></i>Pendaftaran
                         </a>
                     </li>
@@ -821,7 +821,7 @@ Dashboard untuk :
                                                     <th class="actions-col">Aksi</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="pendaftaranTableBody" style="font-size: small;"><tr><td colspan="27" style="align-items: center;">Memuat data...</td></tr> 
+                                            <tbody id="pendaftaranTableBody" style="font-size: small;"><tr><td colspan="28" style="align-items: center;">Memuat data...</td></tr> 
                                             <!-- Data akan diisi oleh JavaScript di sini -->  
                                             </tbody>
                                         </table>
@@ -1439,6 +1439,208 @@ Dashboard untuk :
         </div>
     </div>
 
+    <!-- Modal Edit untuk Pendaftaran -->
+    <div class="modal fade" id="pendaftaranEditModal" tabindex="-1" aria-labelledby="pendaftaranEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="pendaftaranEditModalLabel">Edit Data Pendaftaran</h5>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pendaftaranEditForm">
+                        <input type="hidden" id="pendaftaranEditRowIndex">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="text" id="pendaftaranEditTanggal" class="form-control" placeholder="Tanggal Daftar">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-receipt"></i></span>
+                                    <input type="text" id="pendaftaranEditNoPesanan" class="form-control" placeholder="No Pesanan">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-dumbbell"></i></span>
+                                    <input type="text" id="pendaftaranEditProgram" class="form-control" placeholder="Program">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
+                                    <input type="text" id="pendaftaranEditHarga" class="form-control" placeholder="Harga">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                    <input type="text" id="pendaftaranEditNama" class="form-control" placeholder="Nama">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                    <input type="text" id="pendaftaranEditTelp" class="form-control" placeholder="Telp">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-envelope-open-text"></i></span>
+                                    <input type="email" id="pendaftaranEditEmail" class="form-control" placeholder="Email">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                    <input type="text" id="pendaftaranEditPembayaran" class="form-control" placeholder="Pembayaran">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input type="text" id="pendaftaranEditKelurahan" class="form-control" placeholder="Kelurahan">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-map-signs"></i></span>
+                                    <input type="text" id="pendaftaranEditKecamatan" class="form-control" placeholder="Kecamatan">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-city"></i></span>
+                                    <input type="text" id="pendaftaranEditKota" class="form-control" placeholder="Kota">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-map"></i></span>
+                                    <input type="text" id="pendaftaranEditPropinsi" class="form-control" placeholder="Propinsi">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                                    <input type="text" id="pendaftaranEditNamaSponsor" class="form-control" placeholder="Nama Sponsor">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-phone-volume"></i></span>
+                                    <input type="text" id="pendaftaranEditHpSponsor" class="form-control" placeholder="HP Sponsor">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-user-check"></i></span>
+                                    <input type="text" id="pendaftaranEditNamaPenerima" class="form-control" placeholder="Nama Penerima">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-university"></i></span>
+                                    <input type="text" id="pendaftaranEditAcPenerima" class="form-control" placeholder="AC Penerima">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-hand-holding-usd"></i></span>
+                                    <input type="text" id="pendaftaranEditNominal" class="form-control" placeholder="Nominal Transfer">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                                    <input type="text" id="pendaftaranEditStatusWa" class="form-control" placeholder="Status WA">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="text" id="pendaftaranEditStatusEmail" class="form-control" placeholder="Status Email">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+                                    <input type="text" id="pendaftaranEditStatusBayar" class="form-control" placeholder="Status Bayar">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
+                                    <input type="text" id="pendaftaranEditTglBayar" class="form-control" placeholder="Tanggal Bayar">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-calendar-day"></i></span>
+                                    <input type="text" id="pendaftaranEditTglTerima" class="form-control" placeholder="Tanggal Terima">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-box-open"></i></span>
+                                    <input type="text" id="pendaftaranEditStatusTerima" class="form-control" placeholder="Status Terima">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                    <textarea id="pendaftaranEditAlamat" class="form-control" rows="2" placeholder="Alamat"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <textarea id="pendaftaranEditLinkBuktiTransfer" class="form-control" rows="2" placeholder="Link Bukti Transfer"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group mt-2">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <textarea id="pendaftaranEditLinkBuktiProduk" class="form-control" rows="2" placeholder="Link Bukti Produk"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer modal-user-footer">
+                    <div class="modal-user-actions">
+                        <button type="button" class="btn btn-primary btn-sm" id="pendaftaranSaveChangesButton"><i class="fas fa-save"></i> Simpan</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times"></i> Batal</button>
+                    </div>
+                    <div id="pendaftaranPesanNotifEditBox" class="notification-message modal-user-message" style="display: none;">
+                        <i id="pendaftaranPesanNotifEditIcon" class="pesan-notif-icon me-2"></i><span id="pendaftaranPesanNotifEditText"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal View Untuk Pendaftaran -->
+    <div class="modal fade" id="pendaftaranViewModal" tabindex="-1" aria-labelledby="pendaftaranViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="pendaftaranViewModalLabel">Detail Data Pendaftaran</h5>
+                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pendaftaranViewModalBody">
+                    <!-- Konten detail pendaftaran akan dimuat di sini -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-sign-out-alt"></i> Kembali</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Emoji Template -->
     <template id="sharedEmojiPickerTemplate">
         <div id="sharedEmojiPickerBody" class="followupwe-emoji-picker" style="display: none;"></div>
@@ -1510,5 +1712,7 @@ Dashboard untuk :
     <script src="js/jsFollowWe.js"></script>
     <!-- Custom JS Untuk FollowUp CRM -->
     <script src="js/jsFollowCrm.js"></script>
+    <!-- Custom JS Untuk Pendaftaran -->
+    <script src="js/jsPendaftaran.js"></script>
  </body>
 </html>

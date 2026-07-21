@@ -24,6 +24,7 @@ const DEFAULT_USER_ACCESS = {
     aksesFollowWe: 'N',
     aksesFollowCrm: 'N',
     aksesReferall: 'N',
+    aksesPendaftaran: 'N',
     aksesSetup: 'N',
     aksesLogNotif: 'N',
     aksesCoach: 'N'
