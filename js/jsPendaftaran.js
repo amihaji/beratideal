@@ -220,7 +220,7 @@
         pendaftaranRecords = new Map();
 
         if (!rows.length) {
-            elements.tableBody.innerHTML = `<tr><td colspan="28">${escapeHtml(emptyMessage)}</td></tr>`;
+            elements.tableBody.innerHTML = `<tr><td colspan="26">${escapeHtml(emptyMessage)}</td></tr>`;
             return;
         }
 
@@ -258,10 +258,8 @@
                 <td>${escapeHtml(record.statusWa)}</td>
                 <td>${escapeHtml(record.statusEmail)}</td>
                 <td>${escapeHtml(record.tglBayar)}</td>
-                <td>${renderLinkIfUrl(record.linkBuktiTransfer)}</td>
                 <td>${escapeHtml(record.statusBayar)}</td>
                 <td>${escapeHtml(record.tglTerima)}</td>
-                <td>${renderLinkIfUrl(record.linkBuktiProduk)}</td>
                 <td>${escapeHtml(record.statusTerima)}</td>
                 <td>${escapeHtml(record.namaSponsor)}</td>
                 <td>${escapeHtml(record.hpSponsor)}</td>
@@ -320,6 +318,41 @@
         return safeValue;
     }
 
+    function normalizeImageUrl(value) {
+        const rawValue = String(value || '').trim();
+        if (!rawValue || rawValue === 'PENDING') return '';
+
+        const driveFileMatch = rawValue.match(/\/file\/d\/([^/]+)/i);
+        if (driveFileMatch && driveFileMatch[1]) {
+            return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
+        }
+
+        const driveIdMatch = rawValue.match(/[?&]id=([^&]+)/i);
+        if (driveIdMatch && driveIdMatch[1]) {
+            return `https://drive.google.com/uc?export=view&id=${driveIdMatch[1]}`;
+        }
+
+        return /^https?:\/\//i.test(rawValue) ? rawValue : '';
+    }
+
+    function renderImagePreview(value, label) {
+        const previewUrl = normalizeImageUrl(value);
+        if (!previewUrl) {
+            return escapeHtml(value || '-');
+        }
+
+        return `
+            <div class="pendaftaran-proof-preview">
+                <img
+                    src="${escapeAttr(previewUrl)}"
+                    alt="${escapeAttr(label)}"
+                    class="img-fluid rounded border"
+                    loading="lazy"
+                    onerror="this.closest('.pendaftaran-proof-preview').innerHTML='<span class=&quot;text-muted&quot;>Gambar tidak bisa ditampilkan</span>';">
+            </div>
+        `;
+    }
+
     async function openViewModal(rowIndex) {
         showLoading(true);
         const response = await fetchJsonp('getSingleDataPendaftaran', { rowIndex });
@@ -367,10 +400,10 @@
                         ${buildViewTableRow('Status WA', escapeHtml(data.statusWa))}
                         ${buildViewTableRow('Status Email', escapeHtml(data.statusEmail))}
                         ${buildViewTableRow('Tanggal Bayar', escapeHtml(data.tglBayar))}
-                        ${buildViewTableRow('Link Bukti Transfer', renderLinkIfUrl(data.linkBuktiTransfer))}
+                        ${buildViewTableRow('Bukti Transfer', renderImagePreview(data.linkBuktiTransfer, 'Bukti Transfer'))}
                         ${buildViewTableRow('Status Bayar', escapeHtml(data.statusBayar))}
                         ${buildViewTableRow('Tanggal Terima', escapeHtml(data.tglTerima))}
-                        ${buildViewTableRow('Link Bukti Produk', renderLinkIfUrl(data.linkBuktiProduk))}
+                        ${buildViewTableRow('Bukti Produk', renderImagePreview(data.linkBuktiProduk, 'Bukti Produk'))}
                         ${buildViewTableRow('Status Terima', escapeHtml(data.statusTerima))}
                         ${buildViewTableRow('Nama Penerima', escapeHtml(data.namaPenerima))}
                         ${buildViewTableRow('AC Penerima', escapeHtml(data.acPenerima))}
