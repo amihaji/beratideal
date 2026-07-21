@@ -243,10 +243,15 @@
             const inputGroup = input.closest('.input-group');
             const prefix = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
 
+            input.removeAttribute('title');
+            input.removeAttribute('data-bs-toggle');
+            input.removeAttribute('data-bs-placement');
+
             if (inputGroup) {
                 inputGroup.removeAttribute('title');
                 inputGroup.removeAttribute('data-bs-toggle');
                 inputGroup.removeAttribute('data-bs-placement');
+                inputGroup.removeAttribute('tabindex');
             }
 
             if (prefix) {
@@ -255,12 +260,17 @@
                 prefix.removeAttribute('data-bs-placement');
             }
 
-            if (!input.disabled) {
+            if (input.disabled) {
+                if (inputGroup) {
+                    inputGroup.setAttribute('title', tooltipText);
+                    inputGroup.setAttribute('data-bs-toggle', 'tooltip');
+                    inputGroup.setAttribute('data-bs-placement', 'top');
+                    inputGroup.setAttribute('tabindex', '0');
+                }
+            } else {
                 input.setAttribute('title', tooltipText);
                 input.setAttribute('data-bs-toggle', 'tooltip');
                 input.setAttribute('data-bs-placement', 'top');
-            } else {
-                input.removeAttribute('data-bs-toggle');
             }
         });
     }
