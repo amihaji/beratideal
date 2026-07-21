@@ -99,9 +99,10 @@ function doPost(e) {
      13 N: Follow We
      14 O: Follow Crm
      15 P: Referall
-     16 Q: Setup
-     17 R: Log Notif
-     18 S: Coach
+     16 P: Pendaftaran
+     17 Q: Setup
+     18 R: Log Notif
+     19 S: Coach
 /*******************************/
 
 /**********************************
@@ -270,6 +271,7 @@ function handleAddUser(e) {
   const aksesFollowWe     = params.aksesFollowWe || 'N';
   const aksesFollowCrm    = params.aksesFollowCrm || 'N';
   const aksesReferall     = params.aksesReferall || 'N';
+  const aksesPendaftaran  = params.aksesPendaftaran || 'N';
   const aksesSetup        = params.aksesSetup || 'N';
   const aksesLogNotif     = params.aksesLogNotif || 'N';
   const aksesCoach        = params.aksesCoach || 'N'; 
@@ -277,7 +279,7 @@ function handleAddUser(e) {
   userSheet.appendRow([
     userId, userName, userEmail, userHP, userPass, userLevel, userSalah,
     aksesLogin, aksesFitChallange, aksesFitTracker, aksesProgram, aksesAnalisa, aksesDataPeserta,
-    aksesFollowWe, aksesFollowCrm, aksesReferall, aksesSetup, aksesLogNotif, aksesCoach
+    aksesFollowWe, aksesFollowCrm, aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach
   ]);
 
   // Ubah ini agar support JSONP
@@ -309,6 +311,7 @@ function handleEditUser(e) {
     const aksesFollowWe     = String((e.parameter && e.parameter.aksesFollowWe) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowCrm    = String((e.parameter && (e.parameter.aksesFollowCrm || e.parameter.aksesDashCrm)) || 'N').trim().toUpperCase() || 'N';
     const aksesReferall     = String((e.parameter && e.parameter.aksesReferall) || 'N').trim().toUpperCase() || 'N';
+    const aksesPendaftaran  = String((e.parameter && e.parameter.aksesPendaftran) || 'N').trim().toUpperCase() || 'N';
     const aksesSetup        = String((e.parameter && e.parameter.aksesSetup) || 'N').trim().toUpperCase() || 'N';
     const aksesLogNotif     = String((e.parameter && e.parameter.aksesLogNotif) || 'N').trim().toUpperCase() || 'N';
     const aksesCoach        = String((e.parameter && e.parameter.aksesCoach) || 'N').trim().toUpperCase() || 'N';
@@ -316,7 +319,7 @@ function handleEditUser(e) {
     const data = userSheet.getDataRange().getValues();
     for (let i = 1; i < data.length; i++) {
       if (String(data[i][0]).trim().toLowerCase() === userId) {
-        userSheet.getRange(i + 1, 2, 1, 18).setValues([[
+        userSheet.getRange(i + 1, 2, 1, 19).setValues([[
           userName,
           userEmail,
           userHP,
@@ -332,6 +335,7 @@ function handleEditUser(e) {
           aksesFollowWe,
           aksesFollowCrm,
           aksesReferall,
+          aksesPendaftaran,
           aksesSetup,
           aksesLogNotif,
           aksesCoach
@@ -428,10 +432,11 @@ function buildUserAccess(row) {
     aksesFollowWe:     String(row[13] || 'N').trim().toUpperCase() || 'N',  // Kolom N: Follow We
     aksesFollowCrm:    String(row[14] || 'N').trim().toUpperCase() || 'N',  // Kolom O: Follow Crm
     aksesReferall:     String(row[15] || 'N').trim().toUpperCase() || 'N',  // Kolom P: Referall
-    aksesSetup:        String(row[16] || 'N').trim().toUpperCase() || 'N',  // Kolom Q: Setup
-    aksesLogNotif:     String(row[17] || 'N').trim().toUpperCase() || 'N',  // Kolom R: Log Notif
-    aksesCoach:        String(row[18] || 'N').trim().toUpperCase() || 'N'   // Kolom S: Coach
-  };
+    aksesPendaftaran:  String(row[16] || 'N').trim().toUpperCase() || 'N',  // Kolom Q: Pendaftaran
+    aksesSetup:        String(row[17] || 'N').trim().toUpperCase() || 'N',  // Kolom R: Setup
+    aksesLogNotif:     String(row[18] || 'N').trim().toUpperCase() || 'N',  // Kolom S: Log Notif
+    aksesCoach:        String(row[19] || 'N').trim().toUpperCase() || 'N'   // Kolom T: Coach
+  }
 }
 
 /*****************************
