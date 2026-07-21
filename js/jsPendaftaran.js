@@ -30,6 +30,35 @@
         ['hpSponsor', 'pendaftaranEditHpSponsor']
     ];
 
+    const editFieldTooltips = {
+        pendaftaranEditTanggal: 'Isi atau ubah tanggal saat pendaftaran dibuat.',
+        pendaftaranEditNoPesanan: 'Isi nomor pesanan unik milik pendaftar.',
+        pendaftaranEditProgram: 'Isi nama program yang dipilih pendaftar.',
+        pendaftaranEditHarga: 'Isi harga program atau total biaya pendaftaran.',
+        pendaftaranEditNama: 'Isi nama lengkap pendaftar.',
+        pendaftaranEditAlamat: 'Isi alamat lengkap pendaftar untuk pengiriman atau verifikasi.',
+        pendaftaranEditTelp: 'Isi nomor telepon atau WhatsApp pendaftar yang aktif.',
+        pendaftaranEditEmail: 'Isi alamat email aktif milik pendaftar.',
+        pendaftaranEditKelurahan: 'Isi nama kelurahan sesuai alamat pendaftar.',
+        pendaftaranEditKecamatan: 'Isi nama kecamatan sesuai alamat pendaftar.',
+        pendaftaranEditKota: 'Isi nama kota atau kabupaten pendaftar.',
+        pendaftaranEditPropinsi: 'Isi nama propinsi sesuai alamat pendaftar.',
+        pendaftaranEditPembayaran: 'Isi metode pembayaran yang digunakan pendaftar.',
+        pendaftaranEditNamaPenerima: 'Isi nama pemilik rekening atau penerima pembayaran.',
+        pendaftaranEditAcPenerima: 'Isi nomor rekening penerima pembayaran.',
+        pendaftaranEditNominal: 'Isi jumlah nominal transfer yang dibayarkan.',
+        pendaftaranEditStatusWa: 'Isi status pengiriman WhatsApp, misalnya OK, PENDING, atau NOT.',
+        pendaftaranEditStatusEmail: 'Isi status pengiriman email, misalnya OK, PENDING, atau NOT.',
+        pendaftaranEditTglBayar: 'Isi tanggal saat pembayaran diterima atau dikonfirmasi.',
+        pendaftaranEditLinkBuktiTransfer: 'Isi link gambar atau file bukti transfer dari pendaftar.',
+        pendaftaranEditStatusBayar: 'Isi status pembayaran, misalnya OK, PENDING, atau BELUM.',
+        pendaftaranEditTglTerima: 'Isi tanggal saat produk diterima oleh pendaftar.',
+        pendaftaranEditLinkBuktiProduk: 'Isi link gambar atau file bukti produk yang diterima.',
+        pendaftaranEditStatusTerima: 'Isi status penerimaan produk, misalnya OK atau PENDING.',
+        pendaftaranEditNamaSponsor: 'Isi nama sponsor atau pendamping pendaftar.',
+        pendaftaranEditHpSponsor: 'Isi nomor HP atau WhatsApp sponsor yang aktif.'
+    };
+
     const elements = {
         page: document.getElementById('pendaftaran-page'),
         filterNama: document.getElementById('pendaftaranFilterNama'),
@@ -73,6 +102,7 @@
 
     let pendaftaranUiInitialized = false;
     let pendaftaranRecords = new Map();
+    let editModalTooltipInstances = [];
 
     function normalizeKeyword(value) {
         return String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
@@ -189,6 +219,44 @@
         elements.progressBar.style.width = '0%';
         elements.progressBar.textContent = '0%';
         elements.progressBar.setAttribute('aria-valuenow', '0');
+    }
+
+    function disposeEditTooltips() {
+        editModalTooltipInstances.forEach((tooltip) => tooltip.dispose());
+        editModalTooltipInstances = [];
+    }
+
+    function applyEditFieldTooltips() {
+        Object.entries(editFieldTooltips).forEach(([inputId, tooltipText]) => {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            input.setAttribute('title', tooltipText);
+            input.setAttribute('data-bs-toggle', 'tooltip');
+            input.setAttribute('data-bs-placement', 'top');
+
+            const inputGroup = input.closest('.input-group');
+            const prefix = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
+            if (prefix) {
+                prefix.setAttribute('title', tooltipText);
+                prefix.setAttribute('data-bs-toggle', 'tooltip');
+                prefix.setAttribute('data-bs-placement', 'top');
+            }
+        });
+    }
+
+    function initEditTooltips() {
+        if (!elements.editModalEl || typeof bootstrap?.Tooltip !== 'function') return;
+
+        disposeEditTooltips();
+        applyEditFieldTooltips();
+
+        elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((node) => {
+            editModalTooltipInstances.push(new bootstrap.Tooltip(node, {
+                trigger: 'hover focus',
+                container: 'body'
+            }));
+        });
     }
 
     function setFollowUpMode(isActive, options = {}) {
@@ -759,8 +827,12 @@
         }
 
         if (elements.editModalEl) {
+            elements.editModalEl.addEventListener('shown.bs.modal', () => {
+                initEditTooltips();
+            });
             elements.editModalEl.addEventListener('hidden.bs.modal', () => {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
+                disposeEditTooltips();
             });
         }
     }
