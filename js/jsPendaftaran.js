@@ -309,6 +309,15 @@
         return `<tr><th>${escapeHtml(label)}</th><td>${value || '-'}</td></tr>`;
     }
 
+    function buildViewDetailItem(label, value) {
+        return `
+            <div class="pendaftaran-view-item">
+                <div class="pendaftaran-view-label">${escapeHtml(label)}</div>
+                <div class="pendaftaran-view-value">${value || '-'}</div>
+            </div>
+        `;
+    }
+
     function renderLinkIfUrl(value) {
         const safeValue = escapeHtml(value);
         if (!value || String(value).trim() === 'PENDING') return escapeHtml(value || '-');
@@ -338,17 +347,22 @@
     function renderImagePreview(value, label) {
         const previewUrl = normalizeImageUrl(value);
         if (!previewUrl) {
-            return escapeHtml(value || '-');
+            return `
+                <div class="pendaftaran-proof-preview is-empty">
+                    <div class="pendaftaran-proof-empty">${escapeHtml(value || 'Belum ada gambar')}</div>
+                </div>
+            `;
         }
 
         return `
             <div class="pendaftaran-proof-preview">
+                <div class="pendaftaran-proof-header">${escapeHtml(label)}</div>
                 <img
                     src="${escapeAttr(previewUrl)}"
                     alt="${escapeAttr(label)}"
                     class="img-fluid rounded border"
                     loading="lazy"
-                    onerror="this.closest('.pendaftaran-proof-preview').innerHTML='<span class=&quot;text-muted&quot;>Gambar tidak bisa ditampilkan</span>';">
+                    onerror="this.closest('.pendaftaran-proof-preview').innerHTML='<div class=&quot;pendaftaran-proof-empty&quot;>Gambar tidak bisa ditampilkan</div>';">
             </div>
         `;
     }
@@ -366,49 +380,57 @@
         const data = response.data;
         if (elements.viewModalBody) {
             elements.viewModalBody.innerHTML = `
-                <h6 class="mt-1"><i class="fas fa-receipt me-2"></i>Data Pesanan</h6>
-                <table class="table table-bordered">
-                    <tbody>
-                        ${buildViewTableRow('Tanggal Daftar', escapeHtml(formatTanggal(data.tanggal)))}
-                        ${buildViewTableRow('No Pesanan', escapeHtml(data.noPesanan))}
-                        ${buildViewTableRow('Program', escapeHtml(data.program))}
-                        ${buildViewTableRow('Harga', escapeHtml(data.harga))}
-                        ${buildViewTableRow('Pembayaran', escapeHtml(data.pembayaran))}
-                        ${buildViewTableRow('Nominal Transfer', escapeHtml(data.nominal))}
-                    </tbody>
-                </table>
+                <div class="pendaftaran-view-layout">
+                    <section class="pendaftaran-view-section">
+                        <h6 class="pendaftaran-view-title"><i class="fas fa-receipt me-2"></i>Data Pesanan</h6>
+                        <div class="pendaftaran-view-grid">
+                            ${buildViewDetailItem('Tanggal Daftar', escapeHtml(formatTanggal(data.tanggal)))}
+                            ${buildViewDetailItem('No Pesanan', escapeHtml(data.noPesanan))}
+                            ${buildViewDetailItem('Program', escapeHtml(data.program))}
+                            ${buildViewDetailItem('Harga', escapeHtml(data.harga))}
+                            ${buildViewDetailItem('Pembayaran', escapeHtml(data.pembayaran))}
+                            ${buildViewDetailItem('Nominal Transfer', escapeHtml(data.nominal))}
+                        </div>
+                    </section>
 
-                <h6 class="mt-4"><i class="fas fa-user me-2"></i>Data Pendaftar</h6>
-                <table class="table table-bordered">
-                    <tbody>
-                        ${buildViewTableRow('Nama', escapeHtml(data.nama))}
-                        ${buildViewTableRow('Telp', escapeHtml(data.telp))}
-                        ${buildViewTableRow('Email', escapeHtml(data.email))}
-                        ${buildViewTableRow('Alamat', escapeHtml(data.alamat))}
-                        ${buildViewTableRow('Kelurahan', escapeHtml(data.kelurahan))}
-                        ${buildViewTableRow('Kecamatan', escapeHtml(data.kecamatan))}
-                        ${buildViewTableRow('Kota', escapeHtml(data.kota))}
-                        ${buildViewTableRow('Propinsi', escapeHtml(data.propinsi))}
-                        ${buildViewTableRow('Nama Sponsor', escapeHtml(data.namaSponsor))}
-                        ${buildViewTableRow('HP Sponsor', escapeHtml(data.hpSponsor))}
-                    </tbody>
-                </table>
+                    <section class="pendaftaran-view-section">
+                        <h6 class="pendaftaran-view-title"><i class="fas fa-user me-2"></i>Data Pendaftar</h6>
+                        <div class="pendaftaran-view-grid">
+                            ${buildViewDetailItem('Nama', escapeHtml(data.nama))}
+                            ${buildViewDetailItem('Telp', escapeHtml(data.telp))}
+                            ${buildViewDetailItem('Email', escapeHtml(data.email))}
+                            ${buildViewDetailItem('Alamat', escapeHtml(data.alamat))}
+                            ${buildViewDetailItem('Kelurahan', escapeHtml(data.kelurahan))}
+                            ${buildViewDetailItem('Kecamatan', escapeHtml(data.kecamatan))}
+                            ${buildViewDetailItem('Kota', escapeHtml(data.kota))}
+                            ${buildViewDetailItem('Propinsi', escapeHtml(data.propinsi))}
+                            ${buildViewDetailItem('Nama Sponsor', escapeHtml(data.namaSponsor))}
+                            ${buildViewDetailItem('HP Sponsor', escapeHtml(data.hpSponsor))}
+                        </div>
+                    </section>
 
-                <h6 class="mt-4"><i class="fas fa-info-circle me-2"></i>Status Proses</h6>
-                <table class="table table-bordered">
-                    <tbody>
-                        ${buildViewTableRow('Status WA', escapeHtml(data.statusWa))}
-                        ${buildViewTableRow('Status Email', escapeHtml(data.statusEmail))}
-                        ${buildViewTableRow('Tanggal Bayar', escapeHtml(data.tglBayar))}
-                        ${buildViewTableRow('Bukti Transfer', renderImagePreview(data.linkBuktiTransfer, 'Bukti Transfer'))}
-                        ${buildViewTableRow('Status Bayar', escapeHtml(data.statusBayar))}
-                        ${buildViewTableRow('Tanggal Terima', escapeHtml(data.tglTerima))}
-                        ${buildViewTableRow('Bukti Produk', renderImagePreview(data.linkBuktiProduk, 'Bukti Produk'))}
-                        ${buildViewTableRow('Status Terima', escapeHtml(data.statusTerima))}
-                        ${buildViewTableRow('Nama Penerima', escapeHtml(data.namaPenerima))}
-                        ${buildViewTableRow('AC Penerima', escapeHtml(data.acPenerima))}
-                    </tbody>
-                </table>
+                    <section class="pendaftaran-view-section">
+                        <h6 class="pendaftaran-view-title"><i class="fas fa-info-circle me-2"></i>Status Proses</h6>
+                        <div class="pendaftaran-view-grid">
+                            ${buildViewDetailItem('Status WA', escapeHtml(data.statusWa))}
+                            ${buildViewDetailItem('Status Email', escapeHtml(data.statusEmail))}
+                            ${buildViewDetailItem('Tanggal Bayar', escapeHtml(data.tglBayar))}
+                            ${buildViewDetailItem('Status Bayar', escapeHtml(data.statusBayar))}
+                            ${buildViewDetailItem('Tanggal Terima', escapeHtml(data.tglTerima))}
+                            ${buildViewDetailItem('Status Terima', escapeHtml(data.statusTerima))}
+                            ${buildViewDetailItem('Nama Penerima', escapeHtml(data.namaPenerima))}
+                            ${buildViewDetailItem('AC Penerima', escapeHtml(data.acPenerima))}
+                        </div>
+                    </section>
+
+                    <section class="pendaftaran-view-section">
+                        <h6 class="pendaftaran-view-title"><i class="fas fa-images me-2"></i>Galeri Bukti</h6>
+                        <div class="pendaftaran-proof-gallery">
+                            ${renderImagePreview(data.linkBuktiTransfer, 'Bukti Transfer')}
+                            ${renderImagePreview(data.linkBuktiProduk, 'Bukti Produk')}
+                        </div>
+                    </section>
+                </div>
             `;
         }
 

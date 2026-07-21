@@ -188,16 +188,118 @@ tr:hover .action-icon {
 }
 
 .pendaftaran-proof-preview {
-    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 100%;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.75rem;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.pendaftaran-proof-preview.is-empty {
+    justify-content: center;
 }
 
 .pendaftaran-proof-preview img {
     display: block;
     width: 100%;
-    max-width: 420px;
+    max-width: 100%;
+    min-height: 320px;
+    max-height: 520px;
     height: auto;
     object-fit: contain;
     background-color: #fff;
+}
+
+.pendaftaran-proof-header {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.pendaftaran-proof-empty {
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    color: #6c757d;
+    background: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 0.75rem;
+}
+
+#pendaftaranViewModal .modal-dialog {
+    max-width: 1180px;
+}
+
+#pendaftaranViewModal .modal-body {
+    padding: 1.25rem;
+}
+
+.pendaftaran-view-layout {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.pendaftaran-view-section {
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    background: #fff;
+    padding: 1rem 1.1rem;
+}
+
+.pendaftaran-view-title {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.pendaftaran-view-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.pendaftaran-view-item {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: stretch;
+    border: 1px solid #eef2f7;
+    border-radius: 0.65rem;
+    overflow: hidden;
+}
+
+.pendaftaran-view-label {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0.85rem 1rem;
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    border-right: 1px solid #e2e8f0;
+}
+
+.pendaftaran-view-value {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0.85rem 1rem;
+    background: #fff;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+.pendaftaran-proof-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
 }
 .title-box { 
     background-color: #0059df ;          /* #003366; */
@@ -751,6 +853,30 @@ tr:hover .action-icon {
     .btn-group-vertical-responsive a {
        width: 100% !important;
        text-align: center;
+    }
+
+    #pendaftaranViewModal .modal-dialog {
+        max-width: 96vw;
+    }
+
+    .pendaftaran-view-item {
+        grid-template-columns: 1fr;
+    }
+
+    .pendaftaran-view-label {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .pendaftaran-proof-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .pendaftaran-proof-preview img,
+    .pendaftaran-proof-empty {
+        min-height: 220px;
+        max-height: 380px;
     }
     
     /* Tombol dan pesan Setup menjadi vertikal di mobile */
