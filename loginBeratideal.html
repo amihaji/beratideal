@@ -111,11 +111,7 @@ dengan hak aksesnya
   /*******************
   * Deklarasi Global *
   ********************/ 
-  // url user dbUser
-  // Samakan deployment login dengan Setup User agar logika lock user
-  // dan notifikasi WA otomatis berjalan dari backend yang sama.
-  // const URL_dbUSER = 'https://script.google.com/macros/s/AKfycbwYPMhKcrzjdFoBS8Qme47CmxOim_Lzo-dgJGFooqgfnHyWvP2-2ea1dqO9yapWoVyAWw/exec';  
-
+  
   function normalizeAccessValue(value) {
     return String(value || 'N').trim().toUpperCase() === 'Y' ? 'Y' : 'N';
   }
@@ -133,6 +129,7 @@ dengan hak aksesnya
       'aksesFollowWe',
       'aksesFollowCrm',
       'aksesReferall',
+      'aksesPendaftaran',
       'aksesSetup',
       'aksesLogNotif',
       'aksesCoach'
@@ -166,6 +163,7 @@ dengan hak aksesnya
     const followWeValue = rawAccess.aksesFollowWe
     const followCrmValue = rawAccess.aksesFollowCrm
     const referallValue = rawAccess.aksesReferall ?? rawAccess.aksesreferall;
+    const pendaftaranValue = rawAccess.aksesPendaftaran;
     const setupValue = rawAccess.aksesSetup;
     const logNotifValue = rawAccess.aksesLogNotif;
     const coachValue = rawAccess.aksesCoach;
@@ -180,6 +178,7 @@ dengan hak aksesnya
       aksesFollowWe: normalizeAccessValue(followWeValue),
       aksesFollowCrm: normalizeAccessValue(followCrmValue),
       aksesReferall: normalizeAccessValue(referallValue),
+      aksesPendaftaran: normalizeAccessValue(pendaftaranValue),
       aksesSetup: normalizeAccessValue(setupValue),
       aksesLogNotif: normalizeAccessValue(logNotifValue),
       aksesCoach: normalizeAccessValue(coachValue)
@@ -203,6 +202,7 @@ dengan hak aksesnya
       access.aksesFollowWe,
       access.aksesFollowCrm,
       access.aksesReferall,
+      access.aksesPendaftaran,
       access.aksesSetup,
       access.aksesLogNotif
     ].some((value) => value === 'Y');
