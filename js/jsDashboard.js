@@ -36,6 +36,7 @@ const MENU_ACCESS_MAP = [
     { page: 'followupwe', navId: 'nav-followupwe', accessKey: 'aksesFollowWe' },
     { page: 'followupcrm', navId: 'nav-followupcrm', accessKey: 'aksesFollowCrm' },
     { page: 'referall', navId: 'nav-referall', accessKey: 'aksesReferall' },
+    { page: 'pendaftaran', navId: 'nav-pendaftaran', accessKey: 'aksesPendaftaran' },
     { page: 'setupuser', navId: 'nav-setupuser', accessKey: 'aksesSetup' },
     { page: 'lognotif', navId: 'nav-lognotif', accessKey: 'aksesLogNotif' }
 ];
@@ -88,6 +89,7 @@ function buildNormalizedAccess(source = {}) {
         aksesFollowWe: normalizeAccessValue(source.aksesFollowWe ?? source.aksesfollowwe ?? source.followwe),
         aksesFollowCrm: normalizeAccessValue(source.aksesFollowCrm ?? source.aksesfollowcrm ?? source.followcrm),
         aksesReferall: normalizeAccessValue(source.aksesReferall ?? source.aksesreferall ?? source.referall),
+        aksesPendaftaran: normalizeAccessValue(source.aksesPendaftaran ?? source.aksespendaftaran ?? source.pendaftaran),
         aksesSetup: normalizeAccessValue(source.aksesSetup ?? source.aksessetup ?? source.setup),
         aksesLogNotif: normalizeAccessValue(source.aksesLogNotif ?? source.akseslognotif ?? source.lognotif),
         aksesCoach: normalizeAccessValue(source.aksesCoach ?? source.aksescoach ?? source.coach)
@@ -187,23 +189,6 @@ function getStoredAccess() {
         Object.prototype.hasOwnProperty.call(parsedAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'aksesLogin') ||
         Object.prototype.hasOwnProperty.call(rawAccess, 'akseslogindash');
-    /**
-    storedAccess.aksesLogin = hasExplicitLoginFlag
-        ? normalizeAccessValue(parsedAccess.aksesLogin || rawAccess.aksesLogin || rawAccess.akseslogindash || localStorage.getItem('aksesLogin'))
-        : 'Y';
-    storedAccess.aksesFitChallange = normalizeAccessValue(parsedAccess.aksesFitChallange || rawAccess.aksesFitChallange || rawAccess.aksesFC || rawAccess.aksesfitchallange || rawAccess.aksesfc || localStorage.getItem('aksesFitChallange'));
-    storedAccess.aksesFitTracker = normalizeAccessValue(parsedAccess.aksesFitTracker || rawAccess.aksesFitTracker || rawAccess.aksesDashAdmin || rawAccess.aksesDashMember || rawAccess.aksesfittracker || rawAccess.aksesdashadmin || rawAccess.aksesdashmember || localStorage.getItem('aksesFitTracker'));
-    storedAccess.aksesProgram = normalizeAccessValue(parsedAccess.aksesProgram || rawAccess.aksesProgram || rawAccess.aksesprogram || localStorage.getItem('aksesProgram') || storedAccess.aksesFitTracker);
-    storedAccess.aksesAnalisa = normalizeAccessValue(parsedAccess.aksesAnalisa || rawAccess.aksesAnalisa || rawAccess.aksesanalisa || localStorage.getItem('aksesAnalisa'));
-    storedAccess.aksesDataPeserta = normalizeAccessValue(parsedAccess.aksesDataPeserta || rawAccess.aksesDataPeserta || rawAccess.aksesdatapeserta || localStorage.getItem('aksesDataPeserta'));
-    storedAccess.aksesFollowWe = normalizeAccessValue(parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || rawAccess.aksesDashWE || rawAccess.aksesfollowwe || rawAccess.aksesdashwe || localStorage.getItem('aksesFollowWe'));
-    storedAccess.aksesFollowCrm = normalizeAccessValue(parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || rawAccess.aksesCRM || rawAccess.aksesfollowcrm || rawAccess.aksescrm || localStorage.getItem('aksesFollowCrm'));
-    storedAccess.aksesReferall = normalizeAccessValue(parsedAccess.aksesReferall || rawAccess.aksesReferall || rawAccess.aksesreferall || localStorage.getItem('aksesReferall'));
-    storedAccess.aksesSetup = normalizeAccessValue(parsedAccess.aksesSetup || rawAccess.aksesSetup || rawAccess.aksesSetting || rawAccess.aksessetup || rawAccess.aksessetting || localStorage.getItem('aksesSetup'));
-    storedAccess.aksesLogNotif = normalizeAccessValue(parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || rawAccess.akseslognotif || localStorage.getItem('aksesLogNotif'));
-    storedAccess.aksesCoach = normalizeAccessValue(parsedAccess.aksesCoach || rawAccess.aksesCoach || rawAccess.aksesCOACH || rawAccess.aksescoach || localStorage.getItem('aksesCoach'));
-    **/
-
 
     if (!hasExplicitLoginFlag) {
         return storedAccess;
@@ -221,6 +206,7 @@ function getStoredAccess() {
         aksesFollowWe: parsedAccess.aksesFollowWe || rawAccess.aksesFollowWe || localStorage.getItem('aksesFollowWe'),
         aksesFollowCrm: parsedAccess.aksesFollowCrm || rawAccess.aksesFollowCrm || localStorage.getItem('aksesFollowCrm'),
         aksesReferall: parsedAccess.aksesReferall || rawAccess.aksesReferall || localStorage.getItem('aksesReferall'),
+        aksesPendaftaran: parsedAccess.aksesPendaftaran || rawAccess.aksesPendaftaran || localStorage.getItem('aksesPendaftaran'),
         aksesSetup: parsedAccess.aksesSetup || rawAccess.aksesSetup || localStorage.getItem('aksesSetup'),
         aksesLogNotif: parsedAccess.aksesLogNotif || rawAccess.aksesLogNotif || localStorage.getItem('aksesLogNotif'),
         aksesCoach: parsedAccess.aksesCoach || rawAccess.aksesCoach || localStorage.getItem('aksesCoach')
@@ -362,7 +348,10 @@ function showPage(pageName) {
             if (typeof loadCrmTableData === 'function') {
                 loadCrmTableData();
             }
-            break;     
+            break;
+        case 'pendaftaran':
+            loadPendaftaranTableData(); 
+            break;         
         case 'setupuser':
             // Setup user page will load user table automatically
             loadUserTable(); // Make sure this function exists in jsSetupUser.js
@@ -1770,8 +1759,15 @@ async function syncData() {
 
         await loadAllData();
 
+
         if (typeof loadUserTable === 'function') loadUserTable();
         if (typeof loadLogNotifTable === 'function') loadLogNotifTable();
+
+        if (typeof loadPendaftaranTableData === 'function') {
+            const result = loadPendaftaranTableData();
+            if (result && typeof result.then === 'function') await result;
+        }
+
 
         if (typeof loadTableData === 'function') {
             const result = loadTableData();
