@@ -54,6 +54,9 @@
         editModalEl: document.getElementById('pendaftaranEditModal'),
         viewModalEl: document.getElementById('pendaftaranViewModal'),
         viewModalBody: document.getElementById('pendaftaranViewModalBody'),
+        imageZoomModalEl: document.getElementById('pendaftaranImageZoomModal'),
+        imageZoomTitle: document.getElementById('pendaftaranImageZoomModalLabel'),
+        imageZoomTarget: document.getElementById('pendaftaranImageZoomTarget'),
         saveButton: document.getElementById('pendaftaranSaveChangesButton'),
         editNotifBox: document.getElementById('pendaftaranPesanNotifEditBox'),
         editNotifIcon: document.getElementById('pendaftaranPesanNotifEditIcon'),
@@ -66,6 +69,7 @@
 
     const pendaftaranEditModal = elements.editModalEl ? new bootstrap.Modal(elements.editModalEl) : null;
     const pendaftaranViewModal = elements.viewModalEl ? new bootstrap.Modal(elements.viewModalEl) : null;
+    const pendaftaranImageZoomModal = elements.imageZoomModalEl ? new bootstrap.Modal(elements.imageZoomModalEl) : null;
 
     let pendaftaranUiInitialized = false;
     let pendaftaranRecords = new Map();
@@ -333,22 +337,85 @@
 
         const driveFileMatch = rawValue.match(/\/file\/d\/([^/]+)/i);
         if (driveFileMatch && driveFileMatch[1]) {
-            return `https://drive.google.com/uc?export=view&id=${driveFileMatch[1]}`;
+            return driveFileMatch[1];
         }
 
         const driveIdMatch = rawValue.match(/[?&]id=([^&]+)/i);
         if (driveIdMatch && driveIdMatch[1]) {
-            return `https://drive.google.com/uc?export=view&id=${driveIdMatch[1]}`;
+            return driveIdMatch[1];
         }
 
-        return /^https?:\/\//i.test(rawValue) ? rawValue : '';
+        return /^https?:\/\//i.test(rawValue) ? rawValue : rawValue;
+    }
+
+    function getImagePreviewSources(value) {
+        const normalizedValue = normalizeImageUrl(value);
+        if (!normalizedValue) return [];
+
+        if (/^https?:\/\//i.test(normalizedValue)) {
+            return [normalizedValue];
+        }
+
+        return [
+            `https://drive.google.com/thumbnail?id=${normalizedValue}&sz=w1600`,
+            `https://drive.google.com/uc?export=view&id=${normalizedValue}`,
+            `https://lh3.googleusercontent.com/d/${normalizedValue}=w1600`
+        ];
+    }
+
+    function openImageZoomModal(src, title) {
+        if (!elements.imageZoomTarget || !pendaftaranImageZoomModal) return;
+        elements.imageZoomTarget.src = src || '';
+        elements.imageZoomTarget.alt = title || 'Preview Bukti';
+        if (elements.imageZoomTitle && title) {
+            elements.imageZoomTitle.textContent = title;
+        }
+        pendaftaranImageZoomModal.show();
+    }
+
+    function bindProofPreviewInteractions() {
+        elements.viewModalBody?.querySelectorAll('.pendaftaran-proof-image').forEach((img) => {
+            img.addEventListener('error', function handleImageError() {
+                const sources = String(this.dataset.fallbackSources || '')
+                    .split('||')
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+                const nextIndex = Number(this.dataset.fallbackIndex || '0') + 1;
+
+                if (nextIndex < sources.length) {
+                    this.dataset.fallbackIndex = String(nextIndex);
+                    this.src = sources[nextIndex];
+                    return;
+                }
+
+                const wrapper = this.closest('.pendaftaran-proof-preview');
+                if (wrapper) {
+                    wrapper.innerHTML = `
+                        <div class="pendaftaran-proof-header">${escapeHtml(this.dataset.previewTitle || 'Preview Bukti')}</div>
+                        <div class="pendaftaran-proof-empty">Gambar tidak bisa ditampilkan</div>
+                    `;
+                }
+            });
+        });
+
+        elements.viewModalBody?.querySelectorAll('[data-preview-src]').forEach((trigger) => {
+            trigger.addEventListener('click', () => {
+                const previewSrc = trigger.getAttribute('data-preview-src') || '';
+                const previewTitle = trigger.getAttribute('data-preview-title') || 'Preview Gambar';
+                if (previewSrc) {
+                    openImageZoomModal(previewSrc, previewTitle);
+                }
+            });
+        });
     }
 
     function renderImagePreview(value, label) {
-        const previewUrl = normalizeImageUrl(value);
+        const previewSources = getImagePreviewSources(value);
+        const previewUrl = previewSources[0] || '';
         if (!previewUrl) {
             return `
                 <div class="pendaftaran-proof-preview is-empty">
+                    <div class="pendaftaran-proof-header">${escapeHtml(label)}</div>
                     <div class="pendaftaran-proof-empty">${escapeHtml(value || 'Belum ada gambar')}</div>
                 </div>
             `;
@@ -357,12 +424,16 @@
         return `
             <div class="pendaftaran-proof-preview">
                 <div class="pendaftaran-proof-header">${escapeHtml(label)}</div>
-                <img
-                    src="${escapeAttr(previewUrl)}"
-                    alt="${escapeAttr(label)}"
-                    class="img-fluid rounded border"
-                    loading="lazy"
-                    onerror="this.closest('.pendaftaran-proof-preview').innerHTML='<div class=&quot;pendaftaran-proof-empty&quot;>Gambar tidak bisa ditampilkan</div>';">
+                <button type="button" class="pendaftaran-proof-button" data-preview-src="${escapeAttr(previewUrl)}" data-preview-title="${escapeAttr(label)}">
+                    <img
+                        src="${escapeAttr(previewUrl)}"
+                        alt="${escapeAttr(label)}"
+                        class="pendaftaran-proof-image img-fluid rounded border"
+                        data-preview-title="${escapeAttr(label)}"
+                        data-fallback-index="0"
+                        data-fallback-sources="${escapeAttr(previewSources.join('||'))}">
+                    <span class="pendaftaran-proof-zoom-badge"><i class="fas fa-search-plus me-1"></i>Zoom</span>
+                </button>
             </div>
         `;
     }
@@ -432,6 +503,7 @@
                     </section>
                 </div>
             `;
+            bindProofPreviewInteractions();
         }
 
         pendaftaranViewModal?.show();
