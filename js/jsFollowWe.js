@@ -37,13 +37,13 @@ const waProgressContainer  = document.getElementById('waProgressContainer');
 const waProgressBar        = document.getElementById('waProgressBar');
     
 const filterButtonEl = document.getElementById('filterButton');
-if (filterButtonEl) filterButtonEl.addEventListener('click', loadTableData);
+if (filterButtonEl) filterButtonEl.addEventListener('click', loadWeTableData);
 const filterNamaEl = document.getElementById('filterNama');
 if (filterNamaEl) {
     filterNamaEl.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            loadTableData();
+            loadWeTableData();
         }
     });
 }
@@ -220,7 +220,7 @@ function sendFollowUpWARequest(target, message) {
 // ************************
 // Tampilkan Tabel Data  
 // ************************
-function loadTableData() {
+function loadWeTableData() {
     showLoading(true);
     const filterValue  = document.getElementById('filterNama').value.trim();
     const callbackName = 'data_cb_' + Date.now();
@@ -377,7 +377,7 @@ function saveChanges() {
     }).finally(() => {
        setTimeout(() => {
            editModal.hide();
-           setTimeout(loadTableData, 500);
+           setTimeout(loadWeTableData, 500);
        }, 700);
     });
     showPesanEdit('success', " BERHASIL : menyimpan data");
@@ -401,7 +401,7 @@ async function deleteRow(rowIndex) {
         headers: {'Content-Type': 'text/plain'}, 
         body: JSON.stringify(payload)
     }).finally(() => {
-       setTimeout(loadTableData, 500);
+       setTimeout(loadWeTableData, 500);
     });
     showPesan('warning', " PERHATIAN : data berhasil dihapus");
 }

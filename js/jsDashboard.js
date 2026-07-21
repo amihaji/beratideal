@@ -338,17 +338,23 @@ function showPage(pageName) {
             renderAnalytics();
             break;
         case 'followupwe':
+            /*
             if (typeof loadTableData === 'function') {
                 loadTableData();
             } else {
                 ensureFollowUpWEFallback();
                 loadFollowUpWETableFallback();
             }
+            */
+            loadWeTableData();
             break;
         case 'followupcrm':
+            /*
             if (typeof loadCrmTableData === 'function') {
                 loadCrmTableData();
             }
+            */
+            loadCrmTableData();
             break;
         case 'pendaftaran':
             loadPendaftaranTableData(); 
