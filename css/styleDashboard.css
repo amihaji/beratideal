@@ -162,31 +162,38 @@ tr:hover .action-icon {
     color: white;
 }
 
+/******************************************
+   Area tabel halaman Pendaftaran
+   - Mengatur scroll horizontal
+   - Menjaga lebar kolom mengikuti isi
+   - Membuat kolom alamat lebih fleksibel
+*******************************************/
 #pendaftaran-page .table-wrapper {
     overflow-x: auto;
 }
-
 #pendaftaran-page #pendaftaranTable {
     width: max-content;
     min-width: 100%;
 }
-
 #pendaftaran-page #pendaftaranTable th,
 #pendaftaran-page #pendaftaranTable td {
     width: auto;
     white-space: nowrap;
 }
-
 #pendaftaran-page #pendaftaranTable td:nth-child(7) {
     white-space: normal;
     min-width: 260px;
 }
-
 #pendaftaran-page #pendaftaranTable .actions-col {
     width: auto;
     min-width: 120px;
 }
 
+/*******************************************************
+Preview gambar kecil di modal View Data
+   - Dipakai untuk kartu bukti transfer/produk
+   - Ukuran dibuat sedang, detail dilihat lewat zoom
+*******************************************************/
 .pendaftaran-proof-preview {
     display: flex;
     flex-direction: column;
@@ -199,11 +206,9 @@ tr:hover .action-icon {
     background: #fff;
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
-
 .pendaftaran-proof-preview.is-empty {
     justify-content: center;
 }
-
 .pendaftaran-proof-preview img {
     display: block;
     width: 100%;
@@ -214,13 +219,11 @@ tr:hover .action-icon {
     object-fit: contain;
     background-color: #fff;
 }
-
 .pendaftaran-proof-header {
     font-size: 0.875rem;
     font-weight: 600;
     color: #0d6efd;
 }
-
 .pendaftaran-proof-empty {
     min-height: 160px;
     display: flex;
@@ -233,7 +236,6 @@ tr:hover .action-icon {
     border: 1px dashed #ced4da;
     border-radius: 0.75rem;
 }
-
 .pendaftaran-proof-button {
     position: relative;
     display: block;
@@ -243,7 +245,6 @@ tr:hover .action-icon {
     background: transparent;
     cursor: zoom-in;
 }
-
 .pendaftaran-proof-zoom-badge {
     position: absolute;
     right: 0.75rem;
@@ -256,38 +257,38 @@ tr:hover .action-icon {
     line-height: 1;
 }
 
+/***************************************************
+Modal View Data Pendaftaran
+   - Mengatur lebar modal utama
+   - Menata section detail agar rapi
+   - Label kiri dan value kanan dibuat konsisten
+***************************************************/
 #pendaftaranViewModal .modal-dialog {
-    max-width: 1180px;
+    max-width: 980px;
 }
-
 #pendaftaranViewModal .modal-body {
     padding: 1.25rem;
 }
-
 .pendaftaran-view-layout {
     display: grid;
     gap: 1.25rem;
 }
-
 .pendaftaran-view-section {
     border: 1px solid #e9ecef;
     border-radius: 0.75rem;
     background: #fff;
     padding: 0.85rem 1rem;
 }
-
 .pendaftaran-view-title {
     margin-bottom: 0.75rem;
     font-size: 0.95rem;
     font-weight: 600;
     color: #0f172a;
 }
-
 .pendaftaran-view-grid {
     display: grid;
     gap: 0.5rem;
 }
-
 .pendaftaran-view-item {
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
@@ -296,7 +297,6 @@ tr:hover .action-icon {
     border-radius: 0.65rem;
     overflow: hidden;
 }
-
 .pendaftaran-view-label {
     display: flex;
     align-items: center;
@@ -307,7 +307,6 @@ tr:hover .action-icon {
     color: #334155;
     border-right: 1px solid #e2e8f0;
 }
-
 .pendaftaran-view-value {
     display: flex;
     align-items: center;
@@ -317,22 +316,24 @@ tr:hover .action-icon {
     color: #0f172a;
     word-break: break-word;
 }
-
 .pendaftaran-proof-gallery {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
 }
 
+/**********************************************
+Modal khusus zoom gambar bukti
+   - Lebar lebih besar dari modal data
+   - Fokus untuk melihat gambar versi besar
+***********************************************/
 #pendaftaranImageZoomModal .modal-dialog {
     max-width: 1100px;
 }
-
 #pendaftaranImageZoomModal .modal-body {
     padding: 1rem;
     background: #f8fafc;
 }
-
 #pendaftaranImageZoomTarget {
     width: 100%;
     max-height: 78vh;
