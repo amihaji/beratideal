@@ -369,10 +369,10 @@ function ensureFollowUpWEFallback() {
     if (followUpWEFallbackBound) return;
 
     const filterButton = document.getElementById('filterButton');
-    const filterInput = document.getElementById('filterNama') || document.getElementById('filterSponsor');
-    const startButton = document.getElementById('startFollowUpButton');
+    const filterInput  = document.getElementById('filterNama') || document.getElementById('filterSponsor');
+    const startButton  = document.getElementById('startFollowUpButton');
     const cancelButton = document.getElementById('cancelFollowUpButton');
-    const checkAll = document.getElementById('checkAll');
+    const checkAll     = document.getElementById('checkAll');
 
     if (filterButton) {
         filterButton.addEventListener('click', loadFollowUpWETableFallback);
