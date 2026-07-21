@@ -10,9 +10,12 @@ const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V
 // url dbDaftarBeratideal (DAFTAR) :
 // jsFrmDaftar.js, jsFrmBayar.js, jsFrmTandaTerima.js
 // untuk formDaftar.html
-const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxypERu-mFC0WoHO3xZVelj2l61Srn57a5tzO819MJvpWSTUUK3YAg4tDItJRYCSA/exec'
+const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbwbU7_F39dhBmCoQkCApDqkxPrNVGEZ5b7J-88ctIFcj1A-ne7i40fSyehJVTFmbvyW/exec'
 
-// URl dbUSER (TabelUser, LogNotif) pada aplikasi : jsDashboard.js, jsSetupUser.js untuk loginBeratideal.html, formDashboard.html
+// URl dbUSER (TabelUser, LogNotif) :
+// jsDashboard.js, jsSetupUser.js untuk :
+// - loginBeratideal.html
+// - formDashboard.html
 const URL_dbUser ='https://script.google.com/macros/s/AKfycbySEM1PMsIFOm-ovW0_Alte_zX7bCDYNhmZ5ySePR26P5DFnVkM0LCXUGnAAqH9k_FlqA/exec';
 
 // url dbProgram (PROGRAM , DATAKONSUMEN): 
