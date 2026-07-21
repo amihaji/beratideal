@@ -59,6 +59,16 @@
         pendaftaranEditHpSponsor: 'Isi nomor HP atau WhatsApp sponsor yang aktif.'
     };
 
+    const lockedEditFieldIds = [
+        'pendaftaranEditTanggal',
+        'pendaftaranEditNoPesanan',
+        'pendaftaranEditProgram',
+        'pendaftaranEditHarga',
+        'pendaftaranEditNamaPenerima',
+        'pendaftaranEditAcPenerima',
+        'pendaftaranEditNominal'
+    ];
+
     const elements = {
         page: document.getElementById('pendaftaran-page'),
         filterNama: document.getElementById('pendaftaranFilterNama'),
@@ -231,16 +241,41 @@
             const input = document.getElementById(inputId);
             if (!input) return;
 
-            input.setAttribute('title', tooltipText);
-            input.setAttribute('data-bs-toggle', 'tooltip');
-            input.setAttribute('data-bs-placement', 'top');
-
             const inputGroup = input.closest('.input-group');
             const prefix = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
+
+            if (inputGroup) {
+                inputGroup.setAttribute('title', tooltipText);
+                inputGroup.setAttribute('data-bs-toggle', 'tooltip');
+                inputGroup.setAttribute('data-bs-placement', 'top');
+            }
+
             if (prefix) {
                 prefix.setAttribute('title', tooltipText);
                 prefix.setAttribute('data-bs-toggle', 'tooltip');
                 prefix.setAttribute('data-bs-placement', 'top');
+            }
+
+            if (!input.disabled) {
+                input.setAttribute('title', tooltipText);
+                input.setAttribute('data-bs-toggle', 'tooltip');
+                input.setAttribute('data-bs-placement', 'top');
+            } else {
+                input.removeAttribute('data-bs-toggle');
+            }
+        });
+    }
+
+    function applyLockedEditFields() {
+        fieldMap.forEach(([, inputId]) => {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const isLocked = lockedEditFieldIds.includes(inputId);
+            const inputGroup = input.closest('.input-group');
+            input.disabled = isLocked;
+            if (inputGroup) {
+                inputGroup.classList.toggle('is-locked-group', isLocked);
             }
         });
     }
@@ -593,6 +628,7 @@
             if (input) input.value = record[field] || '';
         });
 
+        applyLockedEditFields();
         pendaftaranEditModal?.show();
     }
 
