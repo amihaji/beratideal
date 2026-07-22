@@ -221,7 +221,7 @@ function sendFollowUpWARequest(target, message) {
 // ************************
 function loadWeTableData() {
     showLoading(true);
-    const filterValue  = document.getElementById('filterNama').value.trim();
+    const filterValue  = document.getElementById('weFilterNama').value.trim();
     const callbackName = 'data_cb_' + Date.now();
     const script       = document.createElement('script');
     script.src         = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
@@ -600,11 +600,8 @@ function formatTanggal(tanggalISO) {
 // Inisialisasi UI FollowUp WE
 // **************************
 function initFollowWeUI() {
-    // if (window.followWeUiInitialized) return;
-    // window.followWeUiInitialized = true;
-
-    if (weUiInitialized) return;
-        weUiInitialized = true;
+    if (window.followWeUiInitialized) return;
+       window.followWeUiInitialized = true;
 
     const viewModalEl = document.getElementById('viewModal');
     if (viewModalEl) {
