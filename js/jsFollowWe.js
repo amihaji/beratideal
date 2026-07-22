@@ -138,9 +138,8 @@ function filterFollowUpWERecordsByName(rows, keyword) {
 }
 
 function renderFollowUpWETableRows(rows, emptyMessage) {
-    // const tableBody = document.getElementById('weTableBody') || document.getElementById('dataTableBody');
-    const tableBody = document.getElementById('loadWeTableData') ;
-    if (!tableBody) return;
+    const tableBody = document.getElementById('weTableBody') || document.getElementById('weDataTableBody');
+     if (!tableBody) return;
 
     tableBody.innerHTML = '';
 
@@ -601,8 +600,11 @@ function formatTanggal(tanggalISO) {
 // Inisialisasi UI FollowUp WE
 // **************************
 function initFollowWeUI() {
-    if (window.followWeUiInitialized) return;
-    window.followWeUiInitialized = true;
+    // if (window.followWeUiInitialized) return;
+    // window.followWeUiInitialized = true;
+
+    if (weUiInitialized) return;
+        weUiInitialized = true;
 
     const viewModalEl = document.getElementById('viewModal');
     if (viewModalEl) {
@@ -630,6 +632,8 @@ function initFollowWeUI() {
     }
 
 }
+
+window.loadWeTableData = loadWeTableData;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });

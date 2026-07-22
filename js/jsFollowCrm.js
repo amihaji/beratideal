@@ -584,7 +584,7 @@
 
     function initFollowCrmUI() {
         if (crmUiInitialized) return;
-        crmUiInitialized = true;
+            crmUiInitialized = true;
 
         if (elements.filterButton) {
             elements.filterButton.addEventListener('click', loadCrmTableData);
