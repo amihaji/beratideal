@@ -12,8 +12,6 @@ FOLLOWUP WE :
 *******************************************/
 
 // ********* Deklarasi  Public **********
-// url database :  dbWETools (SurveyData dan DataWE)
-// const URL_dbWETools = 'https://script.google.com/macros/s/AKfycbzF6Tcp32ER0GANh0igUw-iJbTM-OHUNCabkFTqgsZ1x48sWQra-x56hlWqojHpGQ6h/exec';
 const userID     = localStorage.getItem('userID') || '';
 const userToken  = localStorage.getItem('userToken') || '';
 const userLevel  = localStorage.getItem('userLevel') || 'User';
@@ -35,10 +33,11 @@ const checkAllCheckbox     = document.getElementById('weCheckAll');
 const waMessageInput       = document.getElementById('weWaMessage');
 const waProgressContainer  = document.getElementById('weWaProgressContainer');
 const waProgressBar        = document.getElementById('weWaProgressBar');
-    
-const filterButtonEl = document.getElementById('filterButton');
+
+const filterButtonEl       = document.getElementById('weFilterButton');
 if (filterButtonEl) filterButtonEl.addEventListener('click', loadWeTableData);
-const filterNamaEl = document.getElementById('filterNama');
+
+const filterNamaEl = document.getElementById('weFilterNama');
 if (filterNamaEl) {
     filterNamaEl.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
@@ -139,7 +138,8 @@ function filterFollowUpWERecordsByName(rows, keyword) {
 }
 
 function renderFollowUpWETableRows(rows, emptyMessage) {
-    const tableBody = document.getElementById('weTableBody') || document.getElementById('dataTableBody');
+    // const tableBody = document.getElementById('weTableBody') || document.getElementById('dataTableBody');
+    const tableBody = document.getElementById('loadWeTableData') ;
     if (!tableBody) return;
 
     tableBody.innerHTML = '';
