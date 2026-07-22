@@ -117,7 +117,7 @@ if (checkAllCheckbox) {
 // Tampilkan spinner
 // ********************
 function showLoading(show) {
-    const overlay = document.getElementById('loadingOverlay');
+    const overlay = document.getElementById('weLoadingOverlay');
     if (!overlay) return;
     overlay.style.display = show ? 'flex' : 'none';
 }
