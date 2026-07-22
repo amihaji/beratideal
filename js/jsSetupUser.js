@@ -99,7 +99,7 @@ function renderUserTableRows(rows) {
   tbody.innerHTML = '';
 
   if (!rows || rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="16">Tidak ada data user.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="19">Tidak ada data user.</td></tr>';
     return;
   }
 
