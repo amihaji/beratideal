@@ -630,7 +630,7 @@ function initFollowWeUI() {
 
 }
 
-window.loadWeTableData = loadWeTableData;
+// window.loadWeTableData = loadWeTableData;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
