@@ -211,18 +211,21 @@ function renderUserTableRows(rows) {
 }
 
 function applySetupUserFilter() {
-  const filterInput = document.getElementById('setupFilterNama');
+  console.log('=== applySetupUserFilter() dipanggil ===');
+  
+  // PERBAIKAN: Gunakan ID yang benar dari HTML
+  const filterInput = document.getElementById('setupuserFilterNama');
   if (!filterInput) {
-    console.warn('Filter input tidak ditemukan');
+    console.warn('Filter input (setupuserFilterNama) tidak ditemukan');
     return;
   }
   
   const keyword = normalizeSetupUserKeyword(filterInput.value);
-  console.log('Filter keyword:', keyword);
+  console.log('Keyword filter:', keyword);
+  console.log('Jumlah data di cache:', setupUserRowsCache ? setupUserRowsCache.length : 0);
   
   if (!setupUserRowsCache || setupUserRowsCache.length === 0) {
-    // Jika cache kosong, reload data dari server
-    console.log('Cache kosong, reload data');
+    console.log('Cache kosong, reload data dari server');
     loadUserTable();
     return;
   }
@@ -231,6 +234,7 @@ function applySetupUserFilter() {
     // Jika keyword kosong, tampilkan semua data
     console.log('Keyword kosong, tampilkan semua data');
     renderUserTableRows(setupUserRowsCache);
+    showPesanSetupUser('success', 'Menampilkan semua data user', 1500);
     return;
   }
 
@@ -240,19 +244,21 @@ function applySetupUserFilter() {
     return nama.includes(keyword);
   });
 
-  console.log('Hasil filter:', filtered.length, 'rows');
+  console.log('Hasil filter:', filtered.length, 'data ditemukan');
 
   if (!filtered.length) {
     renderUserTableRows([]);
-    showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.', 3000);
+    showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama "' + keyword + '" tidak ditemukan.', 3000);
     return;
   }
 
   renderUserTableRows(filtered);
+  showPesanSetupUser('success', 'Menampilkan ' + filtered.length + ' data dengan nama "' + keyword + '"', 2000);
 }
 
 // ===== PASTIKAN EVENT LISTENER FILTER TERPASANG =====
 // Hapus event listener lama dengan clone + replace
+/***
 const setupFilterButton = document.getElementById('setupFilterButton');
 if (setupFilterButton) {
     // Clone and replace untuk menghapus event listener lama
@@ -276,49 +282,52 @@ if (setupFilterNama) {
         }
     });
 }
+***/
+
+
 
 // *************************************
 // Fungsi untuk memanggil Tabel User Id
 // *************************************
 function loadUserTable() {
+    console.log('=== loadUserTable() dipanggil ===');
     showLoading(true,'user');
     const callbackName = 'cb_' + Date.now();
     const script = document.createElement('script');
     script.src = `${URL_dbUser}?action=getTabelUser&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
-        console.log('Data dari server:', data); // Debug: lihat struktur data
+        console.log('Data dari server (loadUserTable):', data);
         
-        // Pastikan data adalah array
         if (!Array.isArray(data)) {
             console.warn('Data bukan array:', data);
             renderUserTableRows([]);
             showLoading(false,'user');
             delete window[callbackName];
-            document.body.removeChild(script);
+            if (document.body.contains(script)) document.body.removeChild(script);
             return;
         }
         
-        // Filter data yang valid (userId tidak kosong)
+        // Filter data yang valid
         setupUserRowsCache = data.filter((row) => {
             return row && Array.isArray(row) && row.length > 0 && String(row[0] || '').trim() !== '';
         });
         
         console.log('Data setelah difilter:', setupUserRowsCache.length, 'rows');
         
-        // Tampilkan data
         renderUserTableRows(setupUserRowsCache);
         showLoading(false,'user');
         delete window[callbackName];
-        document.body.removeChild(script);
+        if (document.body.contains(script)) document.body.removeChild(script);
     };
 
     script.onerror = function() {
+        console.error('ERROR: Gagal mengambil data user');
         showPesanSetupUser('error',' ERROR : Gagal mengambil data user!');
         renderUserTableRows([]);
         showLoading(false,'user');
         delete window[callbackName];
-        document.body.removeChild(script);
+        if (document.body.contains(script)) document.body.removeChild(script);
     };
     document.body.appendChild(script);
 }
@@ -1012,40 +1021,65 @@ function filterLogNotif(status) {
     });
 }
 
-// ===== PASTIKAN EVENT LISTENER FILTER TERPASANG =====
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Setup User - Inisialisasi filter...');
-    
-    // Tombol Filter
-    const filterButton = document.getElementById('setupFilterButton');
-    if (filterButton) {
-        // Hapus event listener lama dengan clone
-        const newButton = filterButton.cloneNode(true);
-        filterButton.parentNode.replaceChild(newButton, filterButton);
+// ============================================================
+// INISIALISASI FILTER SETUP USER - VERSI FINAL
+// ============================================================
+(function initSetupUserFilter() {
+    const initFilter = function() {
+        console.log('Setup User - Inisialisasi filter...');
         
-        // Pasang event listener baru
-        newButton.addEventListener('click', function(e) {
+        // PERBAIKAN: Gunakan ID yang benar dari HTML
+        const filterButton = document.getElementById('setupuserFilterButton');
+        const filterInput = document.getElementById('setupuserFilterNama');
+        
+        if (!filterButton) {
+            console.warn('Tombol filter (setupuserFilterButton) tidak ditemukan');
+            return;
+        }
+        
+        if (!filterInput) {
+            console.warn('Input filter (setupuserFilterNama) tidak ditemukan');
+            return;
+        }
+        
+        console.log('Filter Button ditemukan:', filterButton.id);
+        console.log('Filter Input ditemukan:', filterInput.id);
+        
+        // === PERBAIKAN: Hapus semua event listener dengan clone ===
+        const newFilterButton = filterButton.cloneNode(true);
+        filterButton.parentNode.replaceChild(newFilterButton, filterButton);
+        
+        const newFilterInput = filterInput.cloneNode(true);
+        filterInput.parentNode.replaceChild(newFilterInput, filterInput);
+        
+        // === PASANG EVENT LISTENER BARU ===
+        // 1. Event klik pada tombol Filter
+        newFilterButton.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Tombol Filter diklik');
+            e.stopPropagation();
+            console.log('Tombol Filter diklik - menjalankan applySetupUserFilter()');
             applySetupUserFilter();
         });
-        console.log('Setup Filter button initialized');
-    } else {
-        console.warn('Tombol filter tidak ditemukan');
-    }
-    
-    // Input Filter - Enter key
-    const filterInput = document.getElementById('setupFilterNama');
-    if (filterInput) {
-        filterInput.addEventListener('keydown', function(event) {
+        
+        // 2. Event keydown pada input (Enter)
+        newFilterInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                console.log('Enter key pressed di filter');
+                event.stopPropagation();
+                console.log('Enter key pressed di filter - menjalankan applySetupUserFilter()');
                 applySetupUserFilter();
             }
         });
-        console.log('Setup Filter input initialized');
+        
+        console.log('Setup Filter berhasil diinisialisasi dengan ID:');
+        console.log('  - Button ID:', newFilterButton.id);
+        console.log('  - Input ID:', newFilterInput.id);
+    };
+    
+    // Jalankan inisialisasi
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFilter, { once: true });
     } else {
-        console.warn('Input filter tidak ditemukan');
+        initFilter();
     }
-});
+})();

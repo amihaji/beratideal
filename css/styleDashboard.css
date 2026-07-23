@@ -416,24 +416,26 @@ Modal khusus zoom gambar bukti
     gap: 0.5rem;
     flex-shrink: 0;
 }
+
+/* Filter input - lebar menyesuaikan */
 .followupwe-filter-group,
 .followupcrm-filter-group,
 .pendaftaran-filter-group,
 .setupuser-filter-group,
 .lognotif-filter-group {
     flex: 1 1 0;
-    min-width: 0;
-    max-width: none;
+    min-width: 200px;
+    max-width: 400px;
 }
 
-.followupwe-filter-group,
-.followupcrm-filter-group,
-.pendaftaran-filter-group,
-.setupuser-filter-group,
-.lognotif-filter-group,
-.input-group {
-    width: 50%;  /* Untuk mengatur lebar inputan filter */
+.followupwe-filter-group .input-group,
+.followupcrm-filter-group .input-group,
+.pendaftaran-filter-group .input-group,
+.setupuser-filter-group .input-group,
+.lognotif-filter-group .input-group {
+    width: 100%;
 }
+
 #followupwe-page  .followupwe-toolbar-left,
 #followupcrm-page .followupcrm-toolbar-left,
 #pendaftaran-page .pendaftaran-toolbar-left,
@@ -467,7 +469,8 @@ Modal khusus zoom gambar bukti
     flex-wrap: nowrap;
 }
 
-.followupwe-toolbar .followupcrm-toolbar .pendaftaran-toolbar .setupuser-toolbar .lognotif-toolbar, #setupPesanNotification {
+/* Notifikasi di Setup User */
+#setupPesanNotification {
     width: auto;
     flex: 0 1 auto;
     min-width: 0;
@@ -476,6 +479,7 @@ Modal khusus zoom gambar bukti
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .followupwe-actions {
     flex: 0 0 auto;
     margin-left: auto;
@@ -507,9 +511,6 @@ Modal khusus zoom gambar bukti
 /********************************
  Style Emoji Picker - VERSI FINAL
 ********************************/
-/**********************
- Style Emoji Picker - Mengikuti Pola Follow WE
-***********************/
 .followupwe-emoji-button,
 .followupcrm-emoji-button,
 .pendaftaran-emoji-button {
@@ -816,7 +817,6 @@ Modal khusus zoom gambar bukti
     color: #6c757d;
     border-color: #ced4da;
 }
-/***** BATAS AKHIR SETUP USER ******
 
 /***** UI DASHBOARD *****
 /* Cards */
@@ -922,6 +922,39 @@ Modal khusus zoom gambar bukti
     height: 300px;
 }
 
+/***** SETUP USER TOOLBAR - KHUSUS *****/
+.setupuser-toolbar-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.setupuser-right-group {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+}
+.setupuser-actions {
+    flex: 0 0 auto;
+}
+.setupuser-actions .btn {
+    white-space: nowrap;
+}
+
+/* Notification di Setup User */
+#setupuserPesanNotification {
+    width: auto;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 380px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /*********************/
 /* Mobile Responsive */
 /*********************/
@@ -953,12 +986,6 @@ Modal khusus zoom gambar bukti
         font-size: 1.5rem;
     }
     
-    /*
-    .student-card .card-body {
-        padding: 0.75rem;
-    }
-    */
-
     /**** Setup User dan Follow Up WE ****/
     .sticky-header th tr { 
        font-size:15px;
@@ -1094,6 +1121,8 @@ Modal khusus zoom gambar bukti
     #setupuser-page   .setupuser-filter-group   .input-group > .btn {
         border-radius: 0.5rem !important;
     }
+
+    /* Actions di semua toolbar menjadi full width di mobile */
     #followupwe-page  .followupwe-actions,
     #followupcrm-page .followupcrm-actions, 
     #pendaftaran-page .pendaftaran-actions, 
@@ -1101,7 +1130,9 @@ Modal khusus zoom gambar bukti
         width: 100%;
         margin-left: 0;
         gap: 0.75rem;
+        flex-direction: column;
     }
+
     #followupwe-page  .followupwe-actions .btn,
     #followupcrm-page .followupcrm-actions .btn,
     #pendaftaran-page .pendaftaran-actions .btn, 
@@ -1109,6 +1140,15 @@ Modal khusus zoom gambar bukti
         width: 100%;
         margin-bottom: 0;
     }
+
+    /* Setup User right group di mobile */
+    #setupuser-page .setupuser-right-group {
+        width: 100%;
+        margin-left: 0;
+        flex-direction: column;
+        align-items: stretch;
+    }
+  
     .followupwe-emoji-grid, 
     .followupcrm-emoji-grid, 
     .pendaftaran-emoji-grid {
