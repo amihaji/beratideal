@@ -944,23 +944,25 @@ Dashboard untuk :
                                         <i class="fas fa-filter"></i> Filter Log Status User ID
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="filterLogNotif('AKTIFASI')">Aktifasi</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERESET')">Tereset</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERKUNCI')">Terkunci</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="filterLogNotif('SEMUA')">Semua</a></li>
+                                        <li><a class="dropdown-item" href="#" data-filter="AKTIFASI">Aktifasi</a></li>
+                                        <li><a class="dropdown-item" href="#" data-filter="TERESET">Tereset</a></li>
+                                        <li><a class="dropdown-item" href="#" data-filter="TERKUNCI">Terkunci</a></li>
+                                        <li><a class="dropdown-item" href="#" data-filter="SEMUA">Semua</a></li>
                                     </ul>
                                 </div>
-                                <button class="btn btn-danger btn-sm" onclick="deleteLogNotif()">
+                                <button class="btn btn-danger btn-sm" id="deleteLogNotifBtn">
                                     <i class="fas fa-trash"></i> Hapus
                                 </button>
                             </div>
-                            <div id="pesanNotification" class="notification-message">
-                                <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+                            <!-- PERBAIKAN: Gunakan ID unik untuk notifikasi Log Notif -->
+                            <div id="lognotifPesanNotification" class="notification-message">
+                                <i id="lognotifPesanNotifIcon" class="pesan-notif-icon"></i>
+                                <span id="lognotifPesanNotifText"></span>
                             </div>
                         </div>
                     </div>
                 </div>    
-            </div>         
+            </div> 
             
             <div class="row">
                 <div class="col-lg-12 mb-4">

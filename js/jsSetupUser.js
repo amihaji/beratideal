@@ -256,36 +256,6 @@ function applySetupUserFilter() {
   showPesanSetupUser('success', 'Menampilkan ' + filtered.length + ' data dengan nama "' + keyword + '"', 2000);
 }
 
-// ===== PASTIKAN EVENT LISTENER FILTER TERPASANG =====
-// Hapus event listener lama dengan clone + replace
-/***
-const setupFilterButton = document.getElementById('setupFilterButton');
-if (setupFilterButton) {
-    // Clone and replace untuk menghapus event listener lama
-    const newButton = setupFilterButton.cloneNode(true);
-    setupFilterButton.parentNode.replaceChild(newButton, setupFilterButton);
-    
-    // Pasang event listener baru
-    newButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        applySetupUserFilter();
-    });
-    console.log('Setup Filter button initialized');
-}
-
-const setupFilterNama = document.getElementById('setupFilterNama');
-if (setupFilterNama) {
-    setupFilterNama.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            applySetupUserFilter();
-        }
-    });
-}
-***/
-
-
-
 // *************************************
 // Fungsi untuk memanggil Tabel User Id
 // *************************************
@@ -794,11 +764,7 @@ async function deleteLogNotif(forceStatus) {
   const timeoutId = setTimeout(() => {
     if (finished) return;
     finished = true;
-    if (status === 'SEMUA') {
-      showPesanSetupUser("error", "ERROR : Tidak ada respon dari server");
-    } else {
-      showPesanSetupUser("error", `ERROR : Hapus log status "${status}" belum didukung server (action deleteLogNotifByStatus)`);
-    }
+    showLogNotifPesan("error", "ERROR : Tidak ada respon dari server", 5000);
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
   }, timeoutMs);
@@ -808,10 +774,10 @@ async function deleteLogNotif(forceStatus) {
     finished = true;
     clearTimeout(timeoutId);
     if (response && response.status === 'success') {
-      showPesanSetupUser("success", "Data log berhasil terhapus");
+      showLogNotifPesan("success", "Data log berhasil terhapus", 3000);
       loadLogNotifTable();
     } else {
-      showPesanSetupUser("error", (response && response.message) ? response.message : "Gagal menghapus log");
+      showLogNotifPesan("error", (response && response.message) ? response.message : "Gagal menghapus log", 5000);
     }
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
@@ -821,7 +787,7 @@ async function deleteLogNotif(forceStatus) {
     if (finished) return;
     finished = true;
     clearTimeout(timeoutId);
-    showPesanSetupUser("error", "Tidak dapat terhubung ke server");
+    showLogNotifPesan("error", "Tidak dapat terhubung ke server", 5000);
     delete window[callback];
     if (document.body.contains(script)) document.body.removeChild(script);
   };
@@ -863,7 +829,43 @@ function showPesanSetupUser(type, message, duration = 3000) {
   setTimeout(() => {box.style.display = 'none';}, duration);
 }
 
-window.showPesanSetupUser = showPesanSetupUser;
+// window.showPesanSetupUser = showPesanSetupUser;
+
+// *****************************************
+// Pesan Notifikasi Khusus untuk Log Notif
+// *****************************************
+function showLogNotifPesan(type, message, duration = 3000) {
+  const box = document.getElementById('lognotifPesanNotification');
+  const icon = document.getElementById('lognotifPesanNotifIcon');
+  const text = document.getElementById('lognotifPesanNotifText');
+  
+  if (!box || !icon || !text) {
+    console.warn('Elemen notifikasi Log Notif tidak ditemukan');
+    return;
+  }
+
+  // Reset class
+  box.className = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  
+  text.textContent = message;
+  box.style.display = 'flex';
+  
+  setTimeout(() => {
+    box.style.display = 'none';
+  }, duration);
+}
 
 // **************************************************
 // Pesan Notifikasi untuk di Form Modal Add dan Edit
@@ -1009,16 +1011,44 @@ function validateUserForm() {
 // Filter Log Notifikasi
 // *****************************   
 function filterLogNotif(status) {
+    console.log('=== filterLogNotif() dipanggil ===');
+    console.log('Status filter:', status);
     currentLogNotifFilter = String(status || 'SEMUA').trim().toUpperCase();
-    const rows = document.querySelectorAll('#logNotifTableBody tr');
+    
+    // Gunakan ID yang benar - perhatikan kapitalisasi
+    const tbody = document.getElementById('lognotifTableBody');
+    if (!tbody) {
+        console.warn('Table body lognotifTableBody tidak ditemukan');
+        return;
+    }
+    
+    const rows = tbody.querySelectorAll('tr');
+    console.log('Jumlah baris:', rows.length);
+    let visibleCount = 0;
     rows.forEach(row => {
-        const statusText = row.cells[6]?.textContent?.trim().toUpperCase();
+        // Lewati baris pesan "Tidak ada log notifikasi"
+        if (row.cells.length < 7) {
+            row.style.display = '';
+            return;
+        }
+        const statusText = row.cells[6]?.textContent?.trim().toUpperCase() || '';
+        
         if (currentLogNotifFilter === 'SEMUA' || statusText === currentLogNotifFilter) {
             row.style.display = '';
+            visibleCount++;
         } else {
             row.style.display = 'none';
         }
     });
+    
+    console.log('Baris yang terlihat:', visibleCount);
+    // Tampilkan pesan notifikasi
+    if (currentLogNotifFilter === 'SEMUA') {
+        showLogNotifPesan('success', 'Menampilkan semua log notifikasi', 1500);
+    } else {
+        const label = currentLogNotifFilter.charAt(0) + currentLogNotifFilter.slice(1).toLowerCase();
+        showLogNotifPesan('success', 'Menampilkan log dengan status "' + label + '" (' + visibleCount + ' data)', 2000);
+    }
 }
 
 // *********************************************
@@ -1074,6 +1104,72 @@ function filterLogNotif(status) {
         console.log('Setup Filter berhasil diinisialisasi dengan ID:');
         console.log('  - Button ID:', newFilterButton.id);
         console.log('  - Input ID:', newFilterInput.id);
+    };
+    
+    // Jalankan inisialisasi
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFilter, { once: true });
+    } else {
+        initFilter();
+    }
+})();
+
+// ============================================================
+// INISIALISASI FILTER LOG NOTIF - VERSI FINAL
+// ============================================================
+(function initLogNotifFilter() {
+    const initFilter = function() {
+        console.log('Log Notif - Inisialisasi filter dropdown...');
+        
+        // Ambil semua item dropdown
+        const filterItems = document.querySelectorAll('#lognotif-page .dropdown-item[data-filter]');
+        const deleteBtn = document.getElementById('deleteLogNotifBtn');
+        
+        if (!filterItems.length) {
+            console.warn('Filter items tidak ditemukan');
+            return;
+        }
+        
+        console.log('Ditemukan', filterItems.length, 'item filter');
+        
+        // === PASANG EVENT LISTENER UNTUK SETIAP ITEM DROPDOWN ===
+        filterItems.forEach(function(item) {
+            // Hapus event listener lama dengan clone
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            
+            // Pasang event listener baru
+            newItem.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const filterValue = this.getAttribute('data-filter');
+                console.log('Filter Log Notif dipilih:', filterValue);
+                
+                // Panggil fungsi filter
+                filterLogNotif(filterValue);
+                
+                // Update teks tombol dropdown (opsional)
+                const dropdownToggle = document.querySelector('#lognotif-page .dropdown-toggle');
+                if (dropdownToggle) {
+                    const filterLabel = this.textContent.trim();
+                    dropdownToggle.innerHTML = '<i class="fas fa-filter"></i> ' + filterLabel;
+                }
+            });
+        });
+        
+        // === PASANG EVENT LISTENER UNTUK TOMBOL HAPUS ===
+        if (deleteBtn) {
+            const newDeleteBtn = deleteBtn.cloneNode(true);
+            deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+            
+            newDeleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Tombol Hapus Log diklik');
+                deleteLogNotif();
+            });
+        }
+        
+        console.log('Log Notif filter berhasil diinisialisasi');
     };
     
     // Jalankan inisialisasi
