@@ -19,18 +19,6 @@
         pickerElement.className = 'followupwe-emoji-picker';
         pickerElement.style.display = 'none';
     }
-    // Tambahan
-    if (!pickerElement.id) {
-        pickerElement.id = 'sharedEmojiPickerBody';
-        pickerElement.className = 'followupcrm-emoji-picker';
-        pickerElement.style.display = 'none';
-    }
-    // Tambahan
-    if (!pickerElement.id) {
-        pickerElement.id = 'sharedEmojiPickerBody';
-        pickerElement.className = 'pendaftaran-emoji-picker';
-        pickerElement.style.display = 'none';
-    }
 
     document.body.appendChild(pickerElement);
 
@@ -82,15 +70,7 @@
 
         const hostWe = trigger.closest('.followupwe-message-input');
         if (!hostWe) return;
-        
-        // Tambahan 
-        const hostCrm = trigger.closest('.followupcrm-message-input');
-        if (!hostCrm) return;
-        
-        // Tambahan 
-        const hostPendaftaran = trigger.closest('.pendaftaran-message-input');
-        if (!hostPendaftaran) return;
-
+       
         const isSameOpen = activeTextarea === textarea && activeHost === host && pickerElement.style.display === 'block';
         if (isSameOpen) {
             closeEmojiPicker();
