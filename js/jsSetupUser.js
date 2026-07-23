@@ -99,11 +99,17 @@ function renderUserTableRows(rows) {
   tbody.innerHTML = '';
 
   if (!rows || rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="19">Tidak ada data user.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="20">Tidak ada data user.</td></tr>';
     return;
   }
 
   rows.forEach(row => {
+    // Pastikan row memiliki 20 kolom (19 data + 1 aksi)
+    // Jika data dari server kurang dari 19, isi dengan '-'
+    while (row.length < 19) {
+      row.push('-');
+    }
+
     const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
       login, fitchallange, fittracker, program, analisa, datapeserta, followwe, followcrm,
       referall, pendaftaran, setup, lognotif, coach] = row;
@@ -150,10 +156,10 @@ function renderUserTableRows(rows) {
       <td>${followwe}</td>
       <td>${followcrm}</td>
       <td>${referall}</td>
-      <td>${pendaftaran}</td>
+      <td>${pendaftaran || '-'}</td>
       <td>${setup}</td>
       <td>${lognotif}</td>
-      <td>${coach}</td>
+      <td>${coach || '-'}</td>
       <td class="actions-col">
         <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
           userId: '${userId}',
@@ -171,10 +177,10 @@ function renderUserTableRows(rows) {
           aksesFollowWe: '${followwe}',
           aksesFollowCrm: '${followcrm}',
           aksesReferall: '${referall}',
-          aksesPendaftaran: '${pendaftaran}',
+          aksesPendaftaran: '${pendaftaran || 'N'}',
           aksesSetup: '${setup}',
           aksesLogNotif: '${lognotif}',
-          aksesCoach: '${coach}',
+          aksesCoach: '${coach || 'N'}',
         })"></i>
         <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
         <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
@@ -188,29 +194,63 @@ function renderUserTableRows(rows) {
 }
 
 function applySetupUserFilter() {
-  const keyword = normalizeSetupUserKeyword(document.getElementById('setupFilterNama')?.value);
+  const filterInput = document.getElementById('setupFilterNama');
+  if (!filterInput) {
+    console.warn('Filter input tidak ditemukan');
+    return;
+  }
+  
+  const keyword = normalizeSetupUserKeyword(filterInput.value);
   if (!setupUserRowsCache || setupUserRowsCache.length === 0) {
+    // Jika cache kosong, reload data dari server
     loadUserTable();
     return;
   }
 
   if (!keyword) {
+    // Jika keyword kosong, tampilkan semua data
     renderUserTableRows(setupUserRowsCache);
     return;
   }
 
+  // Filter berdasarkan nama (kolom index 1)
   const filtered = setupUserRowsCache.filter((row) => {
-    const nama = normalizeSetupUserKeyword(row[1]);
+    const nama = normalizeSetupUserKeyword(row[1] || '');
     return nama.includes(keyword);
   });
 
   if (!filtered.length) {
     renderUserTableRows([]);
-    showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.');
+    showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.', 3000);
     return;
   }
-
   renderUserTableRows(filtered);
+}
+
+// ===== PASTIKAN EVENT LISTENER FILTER TERPASANG =====
+// Hapus event listener lama dengan clone + replace
+const setupFilterButton = document.getElementById('setupFilterButton');
+if (setupFilterButton) {
+    // Clone and replace untuk menghapus event listener lama
+    const newButton = setupFilterButton.cloneNode(true);
+    setupFilterButton.parentNode.replaceChild(newButton, setupFilterButton);
+    
+    // Pasang event listener baru
+    newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        applySetupUserFilter();
+    });
+    console.log('Setup Filter button initialized');
+}
+
+const setupFilterNama = document.getElementById('setupFilterNama');
+if (setupFilterNama) {
+    setupFilterNama.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            applySetupUserFilter();
+        }
+    });
 }
 
 // *************************************
