@@ -504,62 +504,41 @@ Modal khusus zoom gambar bukti
     margin-top: 0;
 }
 
-/*********************************************
- Style Emoji Picker 
- Gabungan untuk Follow WE, CRM, & Pendaftaran
-**********************************************/
-/* Pastikan container message-input memiliki position relative */
+/********************************
+ Style Emoji Picker - VERSI FINAL
+********************************/
+.followupwe-emoji-button,
+.followupcrm-emoji-button,
+.pendaftaran-emoji-button {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Container message input - biarkan overflow visible */
 .followupwe-message-input,
 .followupcrm-message-input,
 .pendaftaran-message-input {
-    position: relative !important;
+    position: relative;
     overflow: visible !important;
-    z-index: 100 !important;
 }
 
-/* Style emoji picker - SAMA seperti di Follow WE */
+/* Emoji Picker - menggunakan position fixed agar tidak terpengaruh overflow tabel */
 #sharedEmojiPickerBody,
 .followupwe-emoji-picker {
-    position: absolute !important;
-    z-index: 9999 !important;
-    background: white !important;
+    display: none;
+    position: fixed !important;
+    z-index: 999999 !important;
+    background: #ffffff !important;
     border: 1px solid #ddd !important;
     border-radius: 8px !important;
     padding: 10px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
     max-width: 300px !important;
     max-height: 300px !important;
     overflow-y: auto !important;
     min-width: 220px !important;
-    top: 100% !important;
-    left: 0 !important;
-    margin-top: 5px !important;
-}
-
-#sharedEmojiPickerBody .emoji-item,
-.followupwe-emoji-picker .emoji-item {
-    font-size: 20px !important;
-    padding: 4px 8px !important;
-    border-radius: 4px !important;
-    border: 1px solid #eee !important;
-    background: #f8f9fa !important;
-    cursor: pointer !important;
-    transition: all 0.15s !important;
-    min-width: 36px !important;
-    text-align: center !important;
-}
-
-#sharedEmojiPickerBody .emoji-item:hover,
-.followupwe-emoji-picker .emoji-item:hover {
-    background: #e9ecef !important;
-    transform: scale(1.05) !important;
-}
-
-#sharedEmojiPickerBody .followupwe-emoji-grid,
-.followupwe-emoji-picker .followupwe-emoji-grid {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 3px !important;
+    pointer-events: auto !important;
 }
 
 #sharedEmojiPickerBody .followupwe-emoji-group,
@@ -567,41 +546,53 @@ Modal khusus zoom gambar bukti
     margin-bottom: 6px !important;
 }
 
+#sharedEmojiPickerBody .followupwe-emoji-group:last-child,
+.followupwe-emoji-picker .followupwe-emoji-group:last-child {
+    margin-bottom: 0 !important;
+}
+
 #sharedEmojiPickerBody .followupwe-emoji-group-title,
 .followupwe-emoji-picker .followupwe-emoji-group-title {
     font-size: 10px !important;
+    font-weight: 600 !important;
     color: #999 !important;
     margin-bottom: 3px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.3px !important;
 }
 
-/* ===== PASTIKAN TABEL TIDAK MENUTUPI EMOJI ===== */
-.table-wrapper {
-    position: relative !important;
-    z-index: 1 !important;
+#sharedEmojiPickerBody .followupwe-emoji-grid,
+.followupwe-emoji-picker .followupwe-emoji-grid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
 }
 
-.table-box {
-    position: relative !important;
-    z-index: 1 !important;
+/* Tombol emoji individual */
+#sharedEmojiPickerBody .emoji-item,
+.followupwe-emoji-picker .emoji-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    border-radius: 50% !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    pointer-events: auto !important;
 }
 
-/* ===== PASTIKAN CARD TIDAK MENUTUPI EMOJI ===== */
-.card {
-    overflow: visible !important;
-}
-
-.card-body {
-    overflow: visible !important;
-}
-
-/* ===== TOMBOL INSERT EMOJI - PASTIKAN DI ATAS ===== */
-.followupwe-emoji-button,
-.followupcrm-emoji-button,
-.pendaftaran-emoji-button {
-    position: relative !important;
-    z-index: 100 !important;
+#sharedEmojiPickerBody .emoji-item:hover,
+.followupwe-emoji-picker .emoji-item:hover {
+    background: rgba(13, 110, 253, 0.12) !important;
+    border-color: rgba(13, 110, 253, 0.25) !important;
+    transform: scale(1.05) !important;
 }
 /***** Akhir Emoji Picker *****/
 

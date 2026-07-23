@@ -637,15 +637,17 @@
             });
         }
 
-        // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
-        // Cukup pastikan atribut data-emoji-target ada, sisanya pakai event delegation dari jsEmojiPicker.js
+        // Menggunakan event delegation dari jsEmojiPicker.js
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {
             // Pastikan atribut data-emoji-target ada
             if (!crmEmojiButton.hasAttribute('data-emoji-target')) {
                 crmEmojiButton.setAttribute('data-emoji-target', 'crmWaMessage');
             }
-            console.log('CRM Emoji button ready (menggunakan event delegation)');
+            // Hapus event listener bawaan yang mungkin mengganggu
+            const newButton = crmEmojiButton.cloneNode(true);
+            crmEmojiButton.parentNode.replaceChild(newButton, crmEmojiButton);
+            console.log('CRM Emoji button ready');
         }
     }
     window.loadCrmTableData = loadCrmTableData;

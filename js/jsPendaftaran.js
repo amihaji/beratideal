@@ -887,7 +887,9 @@
             if (!pendaftaranEmojiButton.hasAttribute('data-emoji-target')) {
                 pendaftaranEmojiButton.setAttribute('data-emoji-target', 'pendaftaranWaMessage');
             }
-            console.log('Pendaftaran Emoji button ready (menggunakan event delegation)');
+            const newButton = pendaftaranEmojiButton.cloneNode(true);
+            pendaftaranEmojiButton.parentNode.replaceChild(newButton, pendaftaranEmojiButton);
+            console.log('Pendaftaran Emoji button ready');
         }
     }
 
