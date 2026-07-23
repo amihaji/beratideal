@@ -68,8 +68,8 @@
     function openEmojiPickerForTextarea(textarea, trigger) {
         if (!textarea || !trigger) return;
 
-        const hostWe = trigger.closest('.followupwe-message-input');
-        if (!hostWe) return;
+        const host = trigger.closest('.followupwe-message-input');
+        if (!host) return;
        
         const isSameOpen = activeTextarea === textarea && activeHost === host && pickerElement.style.display === 'block';
         if (isSameOpen) {
