@@ -7,20 +7,20 @@
         { title: 'Aktivitas', items: ['🥗', '🍎', '🥤', '💧', '🏃', '🚴', '🧘', '📲'] }
     ];
 
-    const pickerTemplate = document.getElementById('sharedEmojiPickerTemplate');
-    const pickerElement = pickerTemplate?.content?.firstElementChild?.cloneNode(true) || document.createElement('div');
-
-    if (!pickerTemplate) {
-        return;
+    // Gunakan template yang sudah ada atau buat baru
+    let pickerElement = document.getElementById('sharedEmojiPickerBody');
+    if (!pickerElement) {
+        const template = document.getElementById('sharedEmojiPickerTemplate');
+        if (template && template.content) {
+            pickerElement = template.content.firstElementChild?.cloneNode(true);
+        }
+        if (!pickerElement) {
+            pickerElement = document.createElement('div');
+            pickerElement.id = 'sharedEmojiPickerBody';
+            pickerElement.className = 'followupwe-emoji-picker';
+        }
+        document.body.appendChild(pickerElement);
     }
-
-    if (!pickerElement.id) {
-        pickerElement.id = 'sharedEmojiPickerBody';
-        pickerElement.className = 'followupwe-emoji-picker';
-        pickerElement.style.display = 'none';
-    }
-
-    document.body.appendChild(pickerElement);
 
     let activeTextarea = null;
     let activeHost = null;
@@ -49,11 +49,14 @@
     }
 
     function insertEmojiAtCursor(textarea, emoji) {
+        if (!textarea) return;
         const start = textarea.selectionStart || 0;
         const end = textarea.selectionEnd || 0;
         textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
         textarea.focus();
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+        // Trigger input event untuk update state jika ada
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function closeEmojiPicker() {
@@ -63,14 +66,24 @@
         }
         activeHost = null;
         activeTrigger = null;
+        activeTextarea = null;
     }
 
     function openEmojiPickerForTextarea(textarea, trigger) {
         if (!textarea || !trigger) return;
 
-        const host = trigger.closest('.followupwe-message-input');
+        // Cari host terdekat dengan class .followupwe-message-input atau .followupcrm-message-input atau .pendaftaran-message-input
+        let host = trigger.closest('.followupwe-message-input');
+        if (!host) host = trigger.closest('.followupcrm-message-input');
+        if (!host) host = trigger.closest('.pendaftaran-message-input');
+        
+        if (!host) {
+            // Fallback: cari parent dengan class yang mengandung 'message-input'
+            host = trigger.closest('[class*="message-input"]');
+        }
+        
         if (!host) return;
-       
+
         const isSameOpen = activeTextarea === textarea && activeHost === host && pickerElement.style.display === 'block';
         if (isSameOpen) {
             closeEmojiPicker();
@@ -81,25 +94,44 @@
         activeHost = host;
         activeTrigger = trigger;
 
-        host.appendChild(pickerElement);
+        // Pastikan picker ada di dalam host
+        if (pickerElement.parentElement !== host) {
+            host.appendChild(pickerElement);
+        }
         pickerElement.style.display = 'block';
+        // Posisikan picker di bawah tombol
+        pickerElement.style.position = 'absolute';
+        pickerElement.style.zIndex = '1050';
+        pickerElement.style.top = '100%';
+        pickerElement.style.left = '0';
+        pickerElement.style.marginTop = '5px';
     }
 
-    function handleTriggerClick(event) {
+    // Event listener untuk tombol emoji menggunakan event delegation
+    function handleEmojiTriggerClick(event) {
         const trigger = event.target.closest('[data-emoji-target]');
         if (!trigger) return;
 
+        // Cek apakah tombol ini ada di dalam halaman yang aktif (tidak tersembunyi)
+        const page = trigger.closest('.page-content');
+        if (page && page.style.display === 'none') return;
+
         event.preventDefault();
+        event.stopPropagation();
+
         const targetId = trigger.getAttribute('data-emoji-target');
         const textarea = targetId ? document.getElementById(targetId) : null;
+        
+        if (!textarea) {
+            console.warn('Textarea tidak ditemukan untuk target:', targetId);
+            return;
+        }
+
         openEmojiPickerForTextarea(textarea, trigger);
     }
 
-    renderEmojiGroups();
-
-    document.addEventListener('click', handleTriggerClick);
-
-    pickerElement.addEventListener('click', (event) => {
+    // Handler untuk memilih emoji
+    function handleEmojiPick(event) {
         const emojiButton = event.target.closest('.emoji-item');
         if (!emojiButton || !activeTextarea) return;
 
@@ -108,25 +140,46 @@
 
         insertEmojiAtCursor(activeTextarea, emoji);
         closeEmojiPicker();
-    });
+    }
 
-    document.addEventListener('click', (event) => {
+    // Tutup picker jika klik di luar
+    function handleOutsideClick(event) {
         if (pickerElement.style.display !== 'block') return;
 
+        // Jika klik pada tombol trigger yang sama, biarkan openEmojiPickerForTextarea yang menangani
         const clickedTrigger = event.target.closest('[data-emoji-target]');
         if (clickedTrigger && activeTrigger === clickedTrigger) {
             return;
         }
 
+        // Jika klik di dalam host (termasuk picker itu sendiri), biarkan
         if (activeHost && activeHost.contains(event.target)) {
             return;
         }
 
         closeEmojiPicker();
-    });
+    }
 
+    // Inisialisasi
+    renderEmojiGroups();
+
+    // Gunakan event delegation pada document untuk menangkap klik tombol emoji
+    // Ini akan menangani elemen yang dimuat secara dinamis
+    document.addEventListener('click', handleEmojiTriggerClick);
+
+    // Event untuk memilih emoji
+    pickerElement.addEventListener('click', handleEmojiPick);
+
+    // Event untuk menutup picker saat klik di luar
+    document.addEventListener('click', handleOutsideClick);
+
+    // Fungsi global untuk membuka picker (untuk kompatibilitas)
     window.openEmojiPickerForTextarea = function(textarea, title, trigger) {
-        void title;
         openEmojiPickerForTextarea(textarea, trigger);
     };
+
+    // Fungsi untuk menutup picker secara global
+    window.closeEmojiPicker = closeEmojiPicker;
+
+    console.log('jsEmojiPicker.js initialized dengan event delegation');
 })();

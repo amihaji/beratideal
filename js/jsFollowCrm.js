@@ -584,7 +584,7 @@
 
     function initFollowCrmUI() {
         if (crmUiInitialized) return;
-            crmUiInitialized = true;
+        crmUiInitialized = true;
 
         if (elements.filterButton) {
             elements.filterButton.addEventListener('click', loadCrmTableData);
@@ -637,6 +637,28 @@
             });
         }
 
+        // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
+        const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
+        if (crmEmojiButton) {
+            const newEmojiButton = crmEmojiButton.cloneNode(true);
+            crmEmojiButton.parentNode.replaceChild(newEmojiButton, crmEmojiButton);
+            
+            newEmojiButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-emoji-target');
+                const textarea = targetId ? document.getElementById(targetId) : null;
+                if (textarea) {
+                    if (typeof window.openEmojiPickerForTextarea === 'function') {
+                        window.openEmojiPickerForTextarea(textarea, 'Pilih Emoji', this);
+                    } else {
+                        this.dispatchEvent(new Event('click', { bubbles: true }));
+                    }
+                }
+            });
+            
+            console.log('CRM Emoji button initialized');
+        }
     }
 
     window.loadCrmTableData = loadCrmTableData;

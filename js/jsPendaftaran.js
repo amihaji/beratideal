@@ -822,7 +822,7 @@
         }
     }
 
-    function initPendaftaranUI() {
+   function initPendaftaranUI() {
         if (pendaftaranUiInitialized) return;
         pendaftaranUiInitialized = true;
 
@@ -879,6 +879,29 @@
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
                 disposeEditTooltips();
             });
+        }
+
+        // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk Pendaftaran =====
+        const pendaftaranEmojiButton = document.getElementById('pendaftaranEmojiPickerButton');
+        if (pendaftaranEmojiButton) {
+            const newEmojiButton = pendaftaranEmojiButton.cloneNode(true);
+            pendaftaranEmojiButton.parentNode.replaceChild(newEmojiButton, pendaftaranEmojiButton);
+            
+            newEmojiButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-emoji-target');
+                const textarea = targetId ? document.getElementById(targetId) : null;
+                if (textarea) {
+                    if (typeof window.openEmojiPickerForTextarea === 'function') {
+                        window.openEmojiPickerForTextarea(textarea, 'Pilih Emoji', this);
+                    } else {
+                        this.dispatchEvent(new Event('click', { bubbles: true }));
+                    }
+                }
+            });
+            
+            console.log('Pendaftaran Emoji button initialized');
         }
     }
 
