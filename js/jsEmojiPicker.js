@@ -22,23 +22,20 @@
         document.body.appendChild(pickerElement);
     }
 
-    // Style dasar - KEMBALI KE POSITION ABSOLUTE seperti di Follow WE
+    // Style SAMA PERSIS seperti yang berhasil di Follow WE
     pickerElement.style.cssText = `
         display: none;
         position: absolute;
-        z-index: 1060;
+        z-index: 9999;
         background: white;
         border: 1px solid #ddd;
         border-radius: 8px;
         padding: 10px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         max-width: 300px;
-        max-height: 320px;
+        max-height: 300px;
         overflow-y: auto;
         min-width: 220px;
-        top: 100%;
-        left: 0;
-        margin-top: 5px;
     `;
 
     let activeTextarea = null;
@@ -90,11 +87,22 @@
     function openEmojiPickerForTextarea(textarea, trigger) {
         if (!textarea || !trigger) return;
 
-        // Cari host terdekat (sama seperti di Follow WE)
+        // Cari host - SAMA seperti di Follow WE
         let host = trigger.closest('.followupwe-message-input');
         if (!host) host = trigger.closest('.followupcrm-message-input');
         if (!host) host = trigger.closest('.pendaftaran-message-input');
-        if (!host) host = trigger.closest('[class*="message-input"]');
+        
+        // Fallback: cari parent dengan class yang mengandung 'message-input'
+        if (!host) {
+            let parent = trigger.parentElement;
+            while (parent) {
+                if (parent.className && parent.className.includes('message-input')) {
+                    host = parent;
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+        }
         
         if (!host) return;
 
@@ -108,27 +116,41 @@
         activeHost = host;
         activeTrigger = trigger;
 
-        // Pastikan picker ada di dalam host (seperti Follow WE)
+        // Pastikan host punya position relative
+        if (getComputedStyle(host).position === 'static') {
+            host.style.position = 'relative';
+        }
+
+        // Pindahkan picker ke dalam host
         if (pickerElement.parentElement !== host) {
-            // Hapus dari parent lama jika ada
             if (pickerElement.parentElement) {
                 pickerElement.remove();
             }
             host.appendChild(pickerElement);
         }
-        
-        // Pastikan posisi relative pada host
-        if (getComputedStyle(host).position === 'static') {
-            host.style.position = 'relative';
-        }
-        
+
+        // Tampilkan picker di bawah tombol
         pickerElement.style.display = 'block';
         pickerElement.style.top = '100%';
         pickerElement.style.left = '0';
         pickerElement.style.marginTop = '5px';
+        pickerElement.style.zIndex = '9999';
+        
+        // Pastikan picker tidak keluar dari viewport
+        const rect = pickerElement.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            pickerElement.style.left = 'auto';
+            pickerElement.style.right = '0';
+        }
+        if (rect.bottom > window.innerHeight) {
+            pickerElement.style.top = 'auto';
+            pickerElement.style.bottom = '100%';
+            pickerElement.style.marginTop = '0';
+            pickerElement.style.marginBottom = '5px';
+        }
     }
 
-    // Event listener untuk tombol emoji menggunakan event delegation
+    // Event listener untuk tombol emoji - SAMA seperti di Follow WE
     function handleEmojiTriggerClick(event) {
         const trigger = event.target.closest('[data-emoji-target]');
         if (!trigger) return;
@@ -143,7 +165,10 @@
         const targetId = trigger.getAttribute('data-emoji-target');
         const textarea = targetId ? document.getElementById(targetId) : null;
         
-        if (!textarea) return;
+        if (!textarea) {
+            console.warn('Textarea tidak ditemukan untuk target:', targetId);
+            return;
+        }
 
         openEmojiPickerForTextarea(textarea, trigger);
     }
@@ -164,11 +189,13 @@
     function handleOutsideClick(event) {
         if (pickerElement.style.display !== 'block') return;
 
+        // Jika klik pada tombol trigger yang sama, biarkan openEmojiPickerForTextarea yang menangani
         const clickedTrigger = event.target.closest('[data-emoji-target]');
         if (clickedTrigger && activeTrigger === clickedTrigger) {
             return;
         }
 
+        // Jika klik di dalam host atau picker, biarkan
         if (activeHost && activeHost.contains(event.target)) {
             return;
         }
@@ -179,15 +206,13 @@
     // Inisialisasi
     renderEmojiGroups();
 
-    // Event delegation untuk tombol emoji
+    // Gunakan event delegation (SAMA seperti di Follow WE)
     document.removeEventListener('click', handleEmojiTriggerClick);
     document.addEventListener('click', handleEmojiTriggerClick);
 
-    // Event untuk memilih emoji
     pickerElement.removeEventListener('click', handleEmojiPick);
     pickerElement.addEventListener('click', handleEmojiPick);
 
-    // Event untuk menutup picker
     document.removeEventListener('click', handleOutsideClick);
     document.addEventListener('click', handleOutsideClick);
 
@@ -198,5 +223,5 @@
 
     window.closeEmojiPicker = closeEmojiPicker;
 
-    console.log('jsEmojiPicker.js initialized (fixed)');
+    console.log('jsEmojiPicker.js initialized (SAMA PERSIS dengan logika Follow WE)');
 })();

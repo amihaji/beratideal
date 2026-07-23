@@ -638,15 +638,14 @@
         }
 
         // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
-        // Tidak perlu clone, cukup gunakan event delegation dari jsEmojiPicker.js
-        // Tapi pastikan atribut data-emoji-target sudah benar
+        // Cukup pastikan atribut data-emoji-target ada, sisanya pakai event delegation dari jsEmojiPicker.js
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {
             // Pastikan atribut data-emoji-target ada
             if (!crmEmojiButton.hasAttribute('data-emoji-target')) {
                 crmEmojiButton.setAttribute('data-emoji-target', 'crmWaMessage');
             }
-            console.log('CRM Emoji button ready (using event delegation)');
+            console.log('CRM Emoji button ready (menggunakan event delegation)');
         }
     }
     window.loadCrmTableData = loadCrmTableData;
