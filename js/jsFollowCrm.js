@@ -638,8 +638,10 @@
         }
 
         // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
+        // Gunakan event listener langsung tanpa clone agar tidak merusak event delegation
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {
+            // Hapus semua event listener sebelumnya dengan clone
             const newEmojiButton = crmEmojiButton.cloneNode(true);
             crmEmojiButton.parentNode.replaceChild(newEmojiButton, crmEmojiButton);
             
@@ -651,8 +653,6 @@
                 if (textarea) {
                     if (typeof window.openEmojiPickerForTextarea === 'function') {
                         window.openEmojiPickerForTextarea(textarea, 'Pilih Emoji', this);
-                    } else {
-                        this.dispatchEvent(new Event('click', { bubbles: true }));
                     }
                 }
             });
@@ -662,7 +662,6 @@
     }
 
     window.loadCrmTableData = loadCrmTableData;
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initFollowCrmUI, { once: true });
     } else {

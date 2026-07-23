@@ -895,8 +895,6 @@
                 if (textarea) {
                     if (typeof window.openEmojiPickerForTextarea === 'function') {
                         window.openEmojiPickerForTextarea(textarea, 'Pilih Emoji', this);
-                    } else {
-                        this.dispatchEvent(new Event('click', { bubbles: true }));
                     }
                 }
             });
@@ -904,7 +902,6 @@
             console.log('Pendaftaran Emoji button initialized');
         }
     }
-
     window.loadPendaftaranTableData = loadPendaftaranTableData;
 
     if (document.readyState === 'loading') {
