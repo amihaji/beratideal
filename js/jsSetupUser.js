@@ -99,20 +99,37 @@ function renderUserTableRows(rows) {
   tbody.innerHTML = '';
 
   if (!rows || rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="20">Tidak ada data user.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="20" style="text-align:center;">Tidak ada data user.</td></tr>';
     return;
   }
 
   rows.forEach(row => {
-    // Pastikan row memiliki 20 kolom (19 data + 1 aksi)
-    // Jika data dari server kurang dari 19, isi dengan '-'
-    while (row.length < 19) {
-      row.push('-');
-    }
-
-    const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
-      login, fitchallange, fittracker, program, analisa, datapeserta, followwe, followcrm,
-      referall, pendaftaran, setup, lognotif, coach] = row;
+    // Pastikan row memiliki cukup data
+    // Format data dari server: [userId, nama, email, hp, pass, level, salah, 
+    //   login, fitchallange, fittracker, program, analisa, datapeserta, 
+    //   followwe, followcrm, referall, pendaftaran, setup, lognotif, coach]
+    // Total 20 kolom (19 data + 1 aksi)
+    
+    const userId = row[0] || '';
+    const namaUser = row[1] || '';
+    const emailUser = row[2] || '';
+    const hpUser = row[3] || '';
+    const passUser = row[4] || '';
+    const levelUser = row[5] || '';
+    const salah = row[6] || '0';
+    const login = row[7] || 'N';
+    const fitchallange = row[8] || 'N';
+    const fittracker = row[9] || 'N';
+    const program = row[10] || 'N';
+    const analisa = row[11] || 'N';
+    const datapeserta = row[12] || 'N';
+    const followwe = row[13] || 'N';
+    const followcrm = row[14] || 'N';
+    const referall = row[15] || 'N';
+    const pendaftaran = row[16] || 'N';
+    const setup = row[17] || 'N';
+    const lognotif = row[18] || 'N';
+    const coach = row[19] || 'N';
 
     let editState     = '';
     let aktifasiState = '';
@@ -156,10 +173,10 @@ function renderUserTableRows(rows) {
       <td>${followwe}</td>
       <td>${followcrm}</td>
       <td>${referall}</td>
-      <td>${pendaftaran || '-'}</td>
+      <td>${pendaftaran}</td>
       <td>${setup}</td>
       <td>${lognotif}</td>
-      <td>${coach || '-'}</td>
+      <td>${coach}</td>
       <td class="actions-col">
         <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
           userId: '${userId}',
@@ -177,10 +194,10 @@ function renderUserTableRows(rows) {
           aksesFollowWe: '${followwe}',
           aksesFollowCrm: '${followcrm}',
           aksesReferall: '${referall}',
-          aksesPendaftaran: '${pendaftaran || 'N'}',
+          aksesPendaftaran: '${pendaftaran}',
           aksesSetup: '${setup}',
           aksesLogNotif: '${lognotif}',
-          aksesCoach: '${coach || 'N'}',
+          aksesCoach: '${coach}'
         })"></i>
         <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
         <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
@@ -201,14 +218,18 @@ function applySetupUserFilter() {
   }
   
   const keyword = normalizeSetupUserKeyword(filterInput.value);
+  console.log('Filter keyword:', keyword);
+  
   if (!setupUserRowsCache || setupUserRowsCache.length === 0) {
     // Jika cache kosong, reload data dari server
+    console.log('Cache kosong, reload data');
     loadUserTable();
     return;
   }
 
   if (!keyword) {
     // Jika keyword kosong, tampilkan semua data
+    console.log('Keyword kosong, tampilkan semua data');
     renderUserTableRows(setupUserRowsCache);
     return;
   }
@@ -219,11 +240,14 @@ function applySetupUserFilter() {
     return nama.includes(keyword);
   });
 
+  console.log('Hasil filter:', filtered.length, 'rows');
+
   if (!filtered.length) {
     renderUserTableRows([]);
     showPesanSetupUser('warning', 'PERHATIAN : Data dengan nama tersebut tidak ditemukan.', 3000);
     return;
   }
+
   renderUserTableRows(filtered);
 }
 
@@ -263,10 +287,27 @@ function loadUserTable() {
     script.src = `${URL_dbUser}?action=getTabelUser&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
-        setupUserRowsCache = Array.isArray(data)
-          ? data.filter((row) => row && String(row[0] || '').trim() !== '')
-          : [];
-        applySetupUserFilter();
+        console.log('Data dari server:', data); // Debug: lihat struktur data
+        
+        // Pastikan data adalah array
+        if (!Array.isArray(data)) {
+            console.warn('Data bukan array:', data);
+            renderUserTableRows([]);
+            showLoading(false,'user');
+            delete window[callbackName];
+            document.body.removeChild(script);
+            return;
+        }
+        
+        // Filter data yang valid (userId tidak kosong)
+        setupUserRowsCache = data.filter((row) => {
+            return row && Array.isArray(row) && row.length > 0 && String(row[0] || '').trim() !== '';
+        });
+        
+        console.log('Data setelah difilter:', setupUserRowsCache.length, 'rows');
+        
+        // Tampilkan data
+        renderUserTableRows(setupUserRowsCache);
         showLoading(false,'user');
         delete window[callbackName];
         document.body.removeChild(script);
@@ -274,8 +315,10 @@ function loadUserTable() {
 
     script.onerror = function() {
         showPesanSetupUser('error',' ERROR : Gagal mengambil data user!');
+        renderUserTableRows([]);
         showLoading(false,'user');
         delete window[callbackName];
+        document.body.removeChild(script);
     };
     document.body.appendChild(script);
 }
@@ -968,3 +1011,41 @@ function filterLogNotif(status) {
         }
     });
 }
+
+// ===== PASTIKAN EVENT LISTENER FILTER TERPASANG =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Setup User - Inisialisasi filter...');
+    
+    // Tombol Filter
+    const filterButton = document.getElementById('setupFilterButton');
+    if (filterButton) {
+        // Hapus event listener lama dengan clone
+        const newButton = filterButton.cloneNode(true);
+        filterButton.parentNode.replaceChild(newButton, filterButton);
+        
+        // Pasang event listener baru
+        newButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Tombol Filter diklik');
+            applySetupUserFilter();
+        });
+        console.log('Setup Filter button initialized');
+    } else {
+        console.warn('Tombol filter tidak ditemukan');
+    }
+    
+    // Input Filter - Enter key
+    const filterInput = document.getElementById('setupFilterNama');
+    if (filterInput) {
+        filterInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                console.log('Enter key pressed di filter');
+                applySetupUserFilter();
+            }
+        });
+        console.log('Setup Filter input initialized');
+    } else {
+        console.warn('Input filter tidak ditemukan');
+    }
+});
