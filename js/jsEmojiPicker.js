@@ -63,16 +63,6 @@
         textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
     }
 
-    function closeEmojiPicker() {
-        pickerElement.style.display = 'none';
-        if (activeHost && pickerElement.parentElement === activeHost) {
-            activeHost.removeChild(pickerElement);
-        }
-        activeHost = null;
-        activeTrigger = null;
-        activeTextarea = null;
-    }
-
     function openEmojiPickerForTextarea(textarea, trigger) {
         if (!textarea || !trigger) return;
 
@@ -101,14 +91,22 @@
             host.appendChild(pickerElement);
         }
 
-        // Tampilkan picker - SAMA PERSIS dengan Follow WE
+        // Tampilkan picker dengan class active
+        pickerElement.classList.add('active');
         pickerElement.style.display = 'block';
-        pickerElement.style.position = 'static';
-        pickerElement.style.width = '100%';
-        pickerElement.style.marginTop = '0.5rem';
-        pickerElement.style.zIndex = 'auto';
     }
 
+    function closeEmojiPicker() {
+        pickerElement.classList.remove('active');
+        pickerElement.style.display = 'none';
+        if (activeHost && pickerElement.parentElement === activeHost) {
+            activeHost.removeChild(pickerElement);
+        }
+        activeHost = null;
+        activeTrigger = null;
+        activeTextarea = null;
+    }
+    
     function handleTriggerClick(event) {
         const trigger = event.target.closest('[data-emoji-target]');
         if (!trigger) return;

@@ -507,6 +507,9 @@ Modal khusus zoom gambar bukti
 /********************************
  Style Emoji Picker - VERSI FINAL
 ********************************/
+/**********************
+ Style Emoji Picker - Mengikuti Pola Follow WE
+***********************/
 .followupwe-emoji-button,
 .followupcrm-emoji-button,
 .pendaftaran-emoji-button {
@@ -532,12 +535,18 @@ Modal khusus zoom gambar bukti
     overflow-y: auto !important;
     margin-top: 0.5rem !important;
     padding: 0.75rem !important;
-    display: block !important;
+    display: none !important;  /* AWALNYA TERSEMBUNYI */
     border: 1px solid #dee2e6 !important;
     border-radius: 0.75rem !important;
     background-color: #fff !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
     z-index: auto !important;
+}
+
+/* Saat picker aktif (ditampilkan oleh JavaScript) */
+#sharedEmojiPickerBody.active,
+.followupwe-emoji-picker.active {
+    display: block !important;
 }
 
 #sharedEmojiPickerBody .followupwe-emoji-group,
