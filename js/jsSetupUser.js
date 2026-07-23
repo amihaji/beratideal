@@ -1021,9 +1021,9 @@ function filterLogNotif(status) {
     });
 }
 
-// ============================================================
+// *********************************************
 // INISIALISASI FILTER SETUP USER - VERSI FINAL
-// ============================================================
+// *********************************************
 (function initSetupUserFilter() {
     const initFilter = function() {
         console.log('Setup User - Inisialisasi filter...');
