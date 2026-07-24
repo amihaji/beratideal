@@ -1044,7 +1044,8 @@ function filterLogNotif(status) {
     console.log('Baris yang terlihat:', visibleCount);
     // Tampilkan pesan notifikasi
     if (currentLogNotifFilter === 'SEMUA') {
-        showLogNotifPesan('success', 'Menampilkan semua log notifikasi', 1500);
+        console.log('Menampilkan semua log notifikasi');
+        // showLogNotifPesan('success', 'Menampilkan semua log notifikasi', 1500);
     } else {
         const label = currentLogNotifFilter.charAt(0) + currentLogNotifFilter.slice(1).toLowerCase();
         showLogNotifPesan('success', 'Menampilkan log dengan status "' + label + '" (' + visibleCount + ' data)', 2000);
