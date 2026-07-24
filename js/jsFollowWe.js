@@ -34,7 +34,7 @@ const checkAllCheckbox     = document.getElementById('weCheckAll');
 const waMessageInput       = document.getElementById('weWaMessage');
 const waProgressContainer  = document.getElementById('waProgressContainer');
 const waProgressBar        = document.getElementById('waProgressBar');
-const exportButtonEl       = document.getElementById('weExportButton');
+// const exportButtonEl       = document.getElementById('weExportButton');
 
 // ============================================================
 // EVENT LISTENER FILTER - DIPERBAIKI
@@ -76,7 +76,7 @@ if (saveChangesButtonEl) {
     newSaveBtn.addEventListener('click', saveChanges);
 }
 
-const exportButtonEl = document.getElementById('weExportButton');
+const exportButtonEl = document.getElementById('weExportButton'); 
 if (exportButtonEl) {
     const newExportBtn = exportButtonEl.cloneNode(true);
     exportButtonEl.parentNode.replaceChild(newExportBtn, exportButtonEl);
