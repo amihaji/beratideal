@@ -408,38 +408,47 @@ Dashboard untuk :
                     <div class="card followupwe-toolbar-card"> 
                         <div class="followupwe-toolbar">
                             <div class="followupwe-toolbar-left">
-                                <div class="followupwe-toolbar-main">
-                                    <!-- Tombol Filter -->
-                                    <div class="followupwe-filter-group">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="weFilterNama" placeholder="Filter berdasarkan Nama...">
-                                            <button class="btn btn-outline-secondary btn-sm" id="weFilterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
-                                        </div>
-                                    </div> 
+                                <!-- Filter Group - di kiri -->
+                                <div class="followupwe-filter-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="filterNama" placeholder="Filter berdasarkan Nama...">
+                                        <button class="btn btn-outline-secondary btn-sm" id="filterButton" type="button">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                </div>
                                 
-                                    <!-- Grup Tombol Normal (Awalnya Terlihat) -->
-                                    <div id="weNormalToolbar"  class="followupwe-actions d-grid d-md-flex gap-2">
-                                        <button class="btn btn-primary btn-sm" id="weStartFollowUpButton"><i class="fab fa-whatsapp"></i> Follow We</button>
-                                        <button class="btn btn-primary btn-sm" id="weExportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
-                                    </div>
-                                                
-                                    <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
-                                    <div id="weFollowUpToolbar" class="followupwe-actions d-grid d-md-flex gap-2 sembunyikan">
-                                        <button class="btn btn-success btn-sm" id="weSendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
-                                        <button class="btn btn-secondary btn-sm" id="weCancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
-                                    </div>
-                                    
-                                    <!-- Pesan notifikasi -->
-                                    <div id="pesanNotification" class="notification-message">
-                                        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
-                                    </div>
+                                <!-- Action Buttons - di tengah (sebelah kanan filter) -->
+                                <div id="normalToolbar" class="followupwe-actions d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" id="startFollowUpButton">
+                                        <i class="fab fa-whatsapp"></i> Follow We
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" id="exportButton">
+                                        <i class="fas fa-file-excel"></i> Ekspor
+                                    </button>
                                 </div>
-
-                                <!-- Progress Kirim WA Massal (awalnya tersembunyi) -->
-                                <div class="progress bg-light followupwe-toolbar-progress" id="weWaProgressContainer" style="height:30px; width:100%; display:none;">
-                                    <div id="weWaProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                                
+                                <!-- Action Buttons Mode Follow-up (tersembunyi) -->
+                                <div id="followUpToolbar" class="followupwe-actions d-flex gap-2 sembunyikan">
+                                    <button class="btn btn-success btn-sm" id="sendWaButton">
+                                        <i class="fas fa-paper-plane"></i> Kirim WA
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="cancelFollowUpButton">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
                                 </div>
-                            </div> 
+                                
+                                <!-- Notification - di kanan -->
+                                <div id="pesanNotification" class="notification-message">
+                                    <i id="pesanNotifIcon" class="pesan-notif-icon"></i>
+                                    <span id="pesanNotifText"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Kirim WA Massal -->
+                            <div class="progress bg-light followupwe-toolbar-progress" id="waProgressContainer" style="height:30px; width:100%; display:none;">
+                                <div id="waProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                            </div>
                         </div>
                     </div>        
                 </div>
@@ -849,23 +858,29 @@ Dashboard untuk :
                     <div class="card setupuser-toolbar-card"> 
                         <div class="setupuser-toolbar">
                             <div class="setupuser-toolbar-left">
-                                <div class="setupuser-toolbar-main">
-                                    <!-- Tombol Filter -->
-                                    <div class="setupuser-filter-group">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="setupuserFilterNama" placeholder="Filter berdasarkan Nama...">
-                                            <button class="btn btn-outline-secondary btn-sm" id="setupuserFilterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
-                                        </div>
+                                <!-- Filter Group - di kiri -->
+                                <div class="setupuser-filter-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="setupuserFilterNama" placeholder="Filter berdasarkan Nama...">
+                                        <button class="btn btn-outline-secondary btn-sm" id="setupuserFilterButton" type="button">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
                                     </div>
-                                    <div class="setupuser-right-group">
-                                        <div id="setupuserNormalToolbar" class="setupuser-actions d-grid d-md-flex gap-2">
-                                            <button class="btn btn-primary btn-sm flex-shrink-0" id="addUserButton"><i class="fas fa-plus"></i> Tambah User</button>
-                                        </div>
-
-                                        <div class="notification-message" id="setupuserPesanNotification" style="display: none;">
-                                            <i id="setupuserPesanNotifIcon" class="pesan-notif-icon"></i><span id="setupuserPesanNotifText"></span>
-                                        </div>
-                                    </div>     
+                                </div>
+                                
+                                <!-- Action Buttons - di tengah (sebelah kanan filter) -->
+                                <div class="setupuser-right-group">
+                                    <div id="setupuserNormalToolbar" class="setupuser-actions d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm flex-shrink-0" id="addUserButton">
+                                            <i class="fas fa-plus"></i> Tambah User
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Notification - di kanan -->
+                                    <div id="setupuserPesanNotification" class="notification-message" style="display: none;">
+                                        <i id="setupuserPesanNotifIcon" class="pesan-notif-icon"></i>
+                                        <span id="setupuserPesanNotifText"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

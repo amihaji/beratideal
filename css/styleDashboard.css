@@ -383,6 +383,7 @@ Modal khusus zoom gambar bukti
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
+/*** NON AKTIF
 .followupwe-toolbar,
 .followupcrm-toolbar,
 .pendaftaran-toolbar,
@@ -418,6 +419,7 @@ Modal khusus zoom gambar bukti
 }
 
 /* Filter input - lebar menyesuaikan */
+/**
 .followupwe-filter-group,
 .followupcrm-filter-group,
 .pendaftaran-filter-group,
@@ -468,8 +470,116 @@ Modal khusus zoom gambar bukti
 #setupuser-page   .setupuser-toolbar {
     flex-wrap: nowrap;
 }
+***/
+
+/***** TOOLBAR - LAYOUT UMUM *****/
+.followupwe-toolbar,
+.followupcrm-toolbar,
+.pendaftaran-toolbar,
+.setupuser-toolbar,
+.lognotif-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    position: relative;
+    overflow: visible;
+    z-index: 10;
+}
+.followupwe-toolbar-card,
+.followupcrm-toolbar-card,
+.pendaftaran-toolbar-card,
+.setupuser-toolbar-card,
+.lognotif-toolbar-card {
+    position: relative;
+    overflow: visible;
+    z-index: 10;
+}
+
+/* === LAYOUT UTAMA TOOLBAR === */
+.followupwe-toolbar-left,
+.followupcrm-toolbar-left,
+.pendaftaran-toolbar-left,
+.setupuser-toolbar-left,
+.lognotif-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* === FILTER GROUP - Lebar menyesuaikan === */
+.followupwe-filter-group,
+.followupcrm-filter-group,
+.pendaftaran-filter-group,
+.setupuser-filter-group,
+.lognotif-filter-group {
+    flex: 0 1 auto;
+    min-width: 200px;
+    max-width: 350px;
+}
+
+.followupwe-filter-group .input-group,
+.followupcrm-filter-group .input-group,
+.pendaftaran-filter-group .input-group,
+.setupuser-filter-group .input-group,
+.lognotif-filter-group .input-group {
+    width: 100%;
+}
+
+/* === ACTION BUTTONS - Berada di sebelah filter === */
+.followupwe-actions,
+.followupcrm-actions,
+.pendaftaran-actions,
+.setupuser-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.followupwe-actions .btn,
+.followupcrm-actions .btn,
+.pendaftaran-actions .btn,
+.setupuser-actions .btn {
+    white-space: nowrap;
+}
+
+/* === NOTIFICATION - Di sisi kanan === */
+.followupwe-toolbar .notification-message,
+.followupcrm-toolbar .notification-message,
+.pendaftaran-toolbar .notification-message,
+.setupuser-toolbar .notification-message,
+.lognotif-toolbar .notification-message {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 400px;
+    margin-left: auto;
+}
+
+/* === KHUSUS SETUP USER - Right group === */
+.setupuser-right-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+}
+.setupuser-right-group .setupuser-actions {
+    flex: 0 0 auto;
+}
+.setupuser-right-group .notification-message {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 400px;
+    margin-left: auto;
+}
+
 
 /* Notifikasi di Setup User */
+/***
 #setupPesanNotification {
     width: auto;
     flex: 0 1 auto;
@@ -479,6 +589,8 @@ Modal khusus zoom gambar bukti
     overflow: hidden;
     text-overflow: ellipsis;
 }
+***/
+
 
 .followupwe-actions {
     flex: 0 0 auto;
