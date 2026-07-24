@@ -20,6 +20,8 @@ const userLevel  = localStorage.getItem('userLevel') || 'User';
 const editModal            = new bootstrap.Modal(document.getElementById('editModal'));
 const viewModal            = new bootstrap.Modal(document.getElementById('viewModal'));
 let viewModalScrollSyncing = false;
+
+// PERBAIKAN: Gunakan ID yang benar dari HTML
 const startFollowUpButton  = document.getElementById('weStartFollowUpButton');
 const cancelFollowUpButton = document.getElementById('weCancelFollowUpButton');
 const sendWaButton         = document.getElementById('weSendWaButton');
