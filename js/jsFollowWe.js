@@ -518,8 +518,8 @@ function viewRecord(rowIndex) {
                 <!-- DATA PROFILE -->
                 <h6 class="mt-4"><i class="fas fa-user me-2"></i>Data Profile</h6>
                 <table class="table table-bordered">
-                    <tr><th style="background-color:#4d94ff;">Tgl Survey</th>
-                        <td style="background-color:#4d94ff;"><b>${data.tanggal || "-"}</b></td>
+                    <tr><th style="background-color:#bfbfbf;">Tgl Survey</th>
+                        <td style="background-color:#bfbfbf;"><b>${data.tanggal || "-"}</b></td>
                     </tr>
                     <tr><td>Nama</td><td>${data.nama}</td></tr>
                     <tr><td>No. HP</td><td>${data.hp}</td></tr>
@@ -536,8 +536,8 @@ function viewRecord(rowIndex) {
                 <h6 class="mt-4"><i class="fas fa-list-check me-2"></i>Status Fungsional</h6>
                 <table class="table table-bordered">
                     <thead>
-                        <tr><th style="background-color:#4d94ff; width:85%;">Pertanyaan</th>
-                        <th style="background-color:#4d94ff; text-align:center; width:15%;">Jawaban</th></tr>
+                        <tr><th style="background-color:#bfbfbf; width:85%;">Pertanyaan</th>
+                        <th style="background-color:#bfbfbf; text-align:center; width:15%;">Jawaban</th></tr>
                     </thead>
                     <tbody>${fungsionalHTML}</tbody>
                 </table>
@@ -547,11 +547,11 @@ function viewRecord(rowIndex) {
                 <table class="table table-bordered followupwe-evaluasi-table">
                     <thead>
                         <tr>
-                            <th class="followupwe-param-col" style="background-color:#4d94ff; width:25%;">Parameter</th>
-                            <th class="followupwe-hasil-col" style="background-color:#4d94ff; width:5%; text-align:center;">Hasil</th>
-                            <th class="followupwe-referensi-col" style="background-color:#4d94ff; width:15%; text-align:center;">Referensi</th>
-                            <th class="followupwe-satuan-col" style="background-color:#4d94ff; width:5%; text-align:center;">Satuan</th>
-                            <th class="followupwe-keterangan-col" style="background-color:#4d94ff; width:50%;">Keterangan</th>
+                            <th class="followupwe-param-col" style="background-color:#bfbfbf; width:25%;">Parameter</th>
+                            <th class="followupwe-hasil-col" style="background-color:#bfbfbf; width:5%; text-align:center;">Hasil</th>
+                            <th class="followupwe-referensi-col" style="background-color:#bfbfbf; width:15%; text-align:center;">Referensi</th>
+                            <th class="followupwe-satuan-col" style="background-color:#bfbfbf; width:5%; text-align:center;">Satuan</th>
+                            <th class="followupwe-keterangan-col" style="background-color:#bfbfbf; width:50%;">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody>${evaluasiHTML}</tbody>
@@ -562,13 +562,13 @@ function viewRecord(rowIndex) {
                               
                 <table class="table table-bordered followupwe-summary-table">
                     <tbody>
-                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Skor</th>
+                    <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Skor</th>
                         <td class="followupwe-summary-content" style="width:85%;">Persentase kebugaran anda : <strong>${data.persen}</strong></td>
                     </tr>
-                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Kesimpulan </th>
+                    <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Kesimpulan </th>
                         <td class="followupwe-summary-content" style="width:85%;">${data.kesimpulan}</td>
                     </tr>
-                    <tr><th class="followupwe-summary-label" style="background-color:#4d94ff; width:15%;">Rekomendasi</th>
+                    <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Rekomendasi</th>
                         <td class="followupwe-summary-content" style="width:85%;">${data.rekomendasi}</td>
                     </tr>
                     </tbody>
