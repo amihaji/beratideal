@@ -638,20 +638,36 @@
         }
 
         // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
-        // Menggunakan event delegation dari jsEmojiPicker.js, tidak perlu clone
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {
-            // Pastikan atribut data-emoji-target ada
             if (!crmEmojiButton.hasAttribute('data-emoji-target')) {
                 crmEmojiButton.setAttribute('data-emoji-target', 'crmWaMessage');
             }
             console.log('CRM Emoji button ready (menggunakan event delegation)');
         }
-    }
-    window.loadCrmTableData = loadCrmTableData;
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initFollowCrmUI, { once: true });
-    } else {
-        initFollowCrmUI();
+
+        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
+        if (elements.editModalEl) {
+            elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                const tooltipTriggerList = this.querySelectorAll('[title]');
+                tooltipTriggerList.forEach(function(el) {
+                    const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                    if (oldTooltip) oldTooltip.dispose();
+                    new bootstrap.Tooltip(el, {
+                        trigger: 'hover focus',
+                        container: 'body',
+                        placement: 'top'
+                    });
+                });
+            });
+
+            elements.editModalEl.addEventListener('hidden.bs.modal', function() {
+                const tooltipTriggerList = this.querySelectorAll('[title]');
+                tooltipTriggerList.forEach(function(el) {
+                    const tooltip = bootstrap.Tooltip.getInstance(el);
+                    if (tooltip) tooltip.dispose();
+                });
+            });
+        }
     }
 })();

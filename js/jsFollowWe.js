@@ -635,7 +635,7 @@ function formatTanggal(tanggalISO) {
 // **************************
 function initFollowWeUI() {
     if (window.followWeUiInitialized) return;
-       window.followWeUiInitialized = true;
+    window.followWeUiInitialized = true;
 
     const viewModalEl = document.getElementById('viewModal');
     if (viewModalEl) {
@@ -654,7 +654,7 @@ function initFollowWeUI() {
         }
     });
 
-    const editModalEl = document.getElementById('editModal');
+    const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
         editModalEl.addEventListener('hidden.bs.modal', () => {
             const box = document.getElementById('pesanNotifEditBox');
@@ -662,17 +662,33 @@ function initFollowWeUI() {
         });
     }
 
-}
+    // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
+    // Aktifkan tooltip pada elemen yang memiliki atribut title di dalam modal edit
+    editModalEl?.addEventListener('shown.bs.modal', function() {
+        // Inisialisasi tooltip untuk semua elemen dengan atribut title di dalam modal
+        const tooltipTriggerList = this.querySelectorAll('[title]');
+        tooltipTriggerList.forEach(function(el) {
+            // Hapus tooltip lama jika ada
+            const oldTooltip = bootstrap.Tooltip.getInstance(el);
+            if (oldTooltip) oldTooltip.dispose();
+            // Buat tooltip baru dengan Bootstrap
+            new bootstrap.Tooltip(el, {
+                trigger: 'hover focus',
+                container: 'body',
+                placement: 'top'
+            });
+        });
+    });
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
-} else {
-    initFollowWeUI();
+    // Bersihkan tooltip saat modal ditutup
+    editModalEl?.addEventListener('hidden.bs.modal', function() {
+        const tooltipTriggerList = this.querySelectorAll('[title]');
+        tooltipTriggerList.forEach(function(el) {
+            const tooltip = bootstrap.Tooltip.getInstance(el);
+            if (tooltip) tooltip.dispose();
+        });
+    });
 }
-
-// *****************************************
-// Pesan Notifikasi untuk di Form Tabel User
-// *****************************************
 
 // *****************************************
 // Pesan Notifikasi untuk FollowUp WE
