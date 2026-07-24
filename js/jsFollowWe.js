@@ -17,8 +17,8 @@ const userLevel  = localStorage.getItem('userLevel') || 'User';
 // ******************************************************
 
 // Defenisikan semua constanta 
-const editModal            = new bootstrap.Modal(document.getElementById('editModal'));
-const viewModal            = new bootstrap.Modal(document.getElementById('viewModal'));
+const editModal            = new bootstrap.Modal(document.getElementById('weEditModal'));
+const viewModal            = new bootstrap.Modal(document.getElementById('weViewModal'));
 let viewModalScrollSyncing = false;
 
 // PERBAIKAN: Semua ID menggunakan prefix "we" sesuai HTML
@@ -70,7 +70,7 @@ if (filterNamaEl) {
     console.log('Filter input WE initialized');
 }
 
-// const saveChangesButtonEl = document.getElementById('weSaveChangesButton');
+//const saveChangesButtonEl = document.getElementById('weSaveChangesButton');
 if (saveChangesButtonEl) {
     const newSaveBtn = saveChangesButtonEl.cloneNode(true);
     saveChangesButtonEl.parentNode.replaceChild(newSaveBtn, saveChangesButtonEl);

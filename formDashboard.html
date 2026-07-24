@@ -1206,34 +1206,39 @@ Dashboard untuk :
     </div>
     
     <!-- Modal Edit untuk Follow UP WE -->
-    <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal fade" id="weEditModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Edit Data</h5>
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Data Prospek WE</h5>
                     <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="editForm">
                         <input type="hidden" id="editRowIndex">
+                        
                         <div class="input-group mt-2">
-                            <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                            <span class="input-group-text" title="Nama lengkap prospek (3-20 karakter, huruf kecil dan spasi)"><i class="fas fa-user-alt"></i></span>
                             <input type="text" id="editNama" class="form-control" placeholder="Input nama user 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama user 3-20 karakter, huruf kecil dan spasi saja." required>
                         </div>
+                        
                         <div class="input-group mt-2">
-                            <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                            <span class="input-group-text" title="Nomor WhatsApp aktif (10-14 digit angka)"><i class="fab fa-whatsapp"></i></span>
                             <input type="text" id="editNomorHp" class="form-control" placeholder="Input nomor HP user 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor hp user harus 10-14 digit" required>
                         </div>
+                        
                         <div class="input-group mt-2">
-                            <span class="input-group-text"><i class="fas fa-envelope-open-text"></i></span>
+                            <span class="input-group-text" title="Alamat email valid untuk pengiriman notifikasi"><i class="fas fa-envelope-open-text"></i></span>
                             <input type="email" id="editEmail" class="form-control" placeholder="Input alamat email user" oninput="this.value = this.value.toLowerCase()" title="Alamat email user" required>
                         </div>
+                        
                         <div class="input-group mt-2">
-                            <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                            <span class="input-group-text" title="Nama sponsor atau pengundang (3-20 karakter)"><i class="fas fa-user-friends"></i></span>
                             <input type="text" id="editSponsor" class="form-control" placeholder="Input nama sponsor 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama sponsor 3-20 karakter, huruf kecil dan spasi saja." required>
                         </div>
+                        
                         <div class="input-group mt-2">
-                            <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                            <span class="input-group-text" title="Nomor WhatsApp sponsor (10-14 digit angka)"><i class="fas fa-phone-alt"></i></span>
                             <input type="text" id="editHpSponsor" class="form-control" placeholder="Input nomor HP sponsor 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor hp sponsor 10-14 digit" required>
                         </div>
                     </form>
@@ -1244,7 +1249,8 @@ Dashboard untuk :
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times"></i> Batal</button>
                     </div>
                     <div id="pesanNotifEditBox" class="notification-message modal-user-message" style="display: none;">
-                        <i id="pesanNotifEditIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifEditText"></span>
+                        <i id="pesanNotifEditIcon" class="pesan-notif-icon me-2"></i>
+                        <span id="pesanNotifEditText"></span>
                     </div>
                 </div>
             </div>
@@ -1252,7 +1258,7 @@ Dashboard untuk :
     </div>
 
     <!-- Modal View Untuk Follow Up WE -->
-    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal fade" id="weViewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">    
@@ -1282,7 +1288,7 @@ Dashboard untuk :
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="crmEditModalLabel">Edit Data Konsumen</h5>
+                    <h5 class="modal-title" id="crmEditModalLabel"><i class="fas fa-edit me-2"></i>Edit Data Konsumen</h5>
                     <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1291,151 +1297,151 @@ Dashboard untuk :
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Tanggal Daftar"><i class="fas fa-calendar-alt"></i></span>
+                                    <span class="input-group-text" title="Tanggal pendaftaran konsumen"><i class="fas fa-calendar-alt"></i></span>
                                     <input type="text" id="crmEditTanggal" class="form-control" placeholder="Tanggal" aria-label="Tanggal" title="Input Tanggal Daftar">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input No Pesanan"><i class="fas fa-receipt"></i></span>
+                                    <span class="input-group-text" title="Nomor pesanan unik"><i class="fas fa-receipt"></i></span>
                                     <input type="text" id="crmEditNoPesanan" class="form-control" placeholder="No Pesanan" aria-label="No Pesanan" title="Input No Pesanan">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Program"><i class="fas fa-dumbbell"></i></span>
+                                    <span class="input-group-text" title="Nama program yang diikuti"><i class="fas fa-dumbbell"></i></span>
                                     <input type="text" id="crmEditProgram" class="form-control" placeholder="Program" aria-label="Program" title="Input Program">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Harga"><i class="fas fa-money-bill-wave"></i></span>
+                                    <span class="input-group-text" title="Harga program dalam Rupiah"><i class="fas fa-money-bill-wave"></i></span>
                                     <input type="text" id="crmEditHarga" class="form-control" placeholder="Harga" aria-label="Harga" title="Input Harga">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Nama Peserta"><i class="fas fa-user-alt"></i></span>
+                                    <span class="input-group-text" title="Nama lengkap konsumen"><i class="fas fa-user-alt"></i></span>
                                     <input type="text" id="crmEditNama" class="form-control" placeholder="Nama" aria-label="Nama" title="Input Nama Peserta">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Telp"><i class="fas fa-phone-alt"></i></span>
+                                    <span class="input-group-text" title="Nomor telepon konsumen"><i class="fas fa-phone-alt"></i></span>
                                     <input type="text" id="crmEditTelp" class="form-control" placeholder="Telp" aria-label="Telp" title="Input Telp">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input EmailPeserta"><i class="fas fa-envelope-open-text"></i></span>
+                                    <span class="input-group-text" title="Alamat email konsumen"><i class="fas fa-envelope-open-text"></i></span>
                                     <input type="email" id="crmEditEmail" class="form-control" placeholder="Email" aria-label="Email" title="Input Email Peserta">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input User ID"><i class="fas fa-id-badge"></i></span>
+                                    <span class="input-group-text" title="ID user untuk login"><i class="fas fa-id-badge"></i></span>
                                     <input type="text" id="crmEditUserId" class="form-control" placeholder="User ID" aria-label="User ID" title="Input User ID">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Jenis Kelamin"><i class="fas fa-venus-mars"></i></span>
+                                    <span class="input-group-text" title="Jenis kelamin konsumen"><i class="fas fa-venus-mars"></i></span>
                                     <input type="text" id="crmEditJenisKelamin" class="form-control" placeholder="Jenis Kelamin" aria-label="Jenis Kelamin" title="Input Jenis Kelamin">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Tanggal Lahir"><i class="fas fa-birthday-cake"></i></span>
+                                    <span class="input-group-text" title="Tanggal lahir konsumen"><i class="fas fa-birthday-cake"></i></span>
                                     <input type="text" id="crmEditTglLahir" class="form-control" placeholder="Tanggal Lahir" aria-label="Tanggal Lahir" title="Input Tanggal Lahir">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Kelurahan"><i class="fas fa-map-marker-alt"></i></span>
+                                    <span class="input-group-text" title="Kelurahan domisili"><i class="fas fa-map-marker-alt"></i></span>
                                     <input type="text" id="crmEditKelurahan" class="form-control" placeholder="Kelurahan" aria-label="Kelurahan" title="Input Kelurahan">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Kecamatan"><i class="fas fa-map-signs"></i></span>
+                                    <span class="input-group-text" title="Kecamatan domisili"><i class="fas fa-map-signs"></i></span>
                                     <input type="text" id="crmEditKecamatan" class="form-control" placeholder="Kecamatan" aria-label="Kecamatan" title="Input Kecamatan">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Kota"><i class="fas fa-city"></i></span>
+                                    <span class="input-group-text" title="Kota atau kabupaten domisili"><i class="fas fa-city"></i></span>
                                     <input type="text" id="crmEditKota" class="form-control" placeholder="Kota" aria-label="Kota" title="Input Kota">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Propensi"><i class="fas fa-map"></i></span>
+                                    <span class="input-group-text" title="Provinsi domisili"><i class="fas fa-map"></i></span>
                                     <input type="text" id="crmEditPropensi" class="form-control" placeholder="Propensi" aria-label="Propensi" title="Input Propensi">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Produk"><i class="fas fa-box-open"></i></span>
+                                    <span class="input-group-text" title="Nama produk yang dibeli"><i class="fas fa-box-open"></i></span>
                                     <input type="text" id="crmEditProduk" class="form-control" placeholder="Produk" aria-label="Produk" title="Input Produk">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Nama Sponsor"><i class="fas fa-user-friends"></i></span>
+                                    <span class="input-group-text" title="Nama sponsor atau pengundang"><i class="fas fa-user-friends"></i></span>
                                     <input type="text" id="crmEditNamaSponsor" class="form-control" placeholder="Nama Sponsor" aria-label="Nama Sponsor" title="Input Nama Sponsor">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input HP Sponsor"><i class="fas fa-phone-volume"></i></span>
+                                    <span class="input-group-text" title="Nomor WhatsApp sponsor"><i class="fas fa-phone-volume"></i></span>
                                     <input type="text" id="crmEditHpSponsor" class="form-control" placeholder="HP Sponsor" aria-label="HP Sponsor" title="Input HP Sponsor">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Level Sponsor"><i class="fas fa-layer-group"></i></span>
+                                    <span class="input-group-text" title="Level sponsor (misal: Bronze, Silver, Gold)"><i class="fas fa-layer-group"></i></span>
                                     <input type="text" id="crmEditLevelSponsor" class="form-control" placeholder="Level Sponsor" aria-label="Level Sponsor" title="Input Level Sponsor">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Email Sponsor"><i class="fas fa-envelope"></i></span>
+                                    <span class="input-group-text" title="Alamat email sponsor"><i class="fas fa-envelope"></i></span>
                                     <input type="email" id="crmEditEmailSponsor" class="form-control" placeholder="Email Sponsor" aria-label="Email Sponsor" title="Input Email Sponsor">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Nama Coach"><i class="fas fa-users "></i></span>
+                                    <span class="input-group-text" title="Nama coach atau mentor"><i class="fas fa-users"></i></span>
                                     <input type="text" id="crmEditNamaCoach" class="form-control" placeholder="Nama Coach" aria-label="Nama Coach" title="Input Nama Coach">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input WA Coach"><i class="fab fa-whatsapp"></i></span>
+                                    <span class="input-group-text" title="Nomor WhatsApp coach"><i class="fab fa-whatsapp"></i></span>
                                     <input type="text" id="crmEditWaCoach" class="form-control" placeholder="WA Coach" aria-label="WA Coach" title="Input WA Coach">
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Alamat"><i class="fas fa-home"></i></span>
+                                    <span class="input-group-text" title="Alamat lengkap konsumen"><i class="fas fa-home"></i></span>
                                     <textarea id="crmEditAlamat" class="form-control" rows="2" placeholder="Alamat" aria-label="Alamat" title="Input Alamat"></textarea>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Testimoni"><i class="fas fa-comment-dots"></i></span>
+                                    <span class="input-group-text" title="Testimoni atau pengalaman positif konsumen"><i class="fas fa-comment-dots"></i></span>
                                     <textarea id="crmEditTestimoni" class="form-control" rows="2" placeholder="Testimoni" aria-label="Testimoni" title="Input pengalaman positif dari peserta"></textarea>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Input Feedback"><i class="fas fa-comments"></i></span>
+                                    <span class="input-group-text" title="Saran atau masukan untuk perbaikan"><i class="fas fa-comments"></i></span>
                                     <textarea id="crmEditFeedback" class="form-control" rows="2" placeholder="Feedback" aria-label="Feedback" title="Hal yang perlu perbaikan di eCourse ini"></textarea>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text" title="Download Sertifikat"><i class="fas fa-certificate"></i></span>
+                                    <span class="input-group-text" title="Link download sertifikat"><i class="fas fa-certificate"></i></span>
                                     <textarea id="crmEditDownloadSertifikat" class="form-control" rows="2" placeholder="Download Sertifikat" aria-label="Download Sertifikat" title="Download Sertifikat"></textarea>
                                 </div>
                             </div>
@@ -1448,13 +1454,13 @@ Dashboard untuk :
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times"></i> Batal</button>
                     </div>
                     <div id="crmPesanNotifEditBox" class="notification-message modal-user-message" style="display: none;">
-                        <i id="crmPesanNotifEditIcon" class="pesan-notif-icon me-2"></i><span id="crmPesanNotifEditText"></span>
+                        <i id="crmPesanNotifEditIcon" class="pesan-notif-icon me-2"></i>
+                        <span id="crmPesanNotifEditText"></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Modal View Untuk Follow Up CRM -->
     <div class="modal fade" id="crmViewModal" tabindex="-1" aria-labelledby="crmViewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
