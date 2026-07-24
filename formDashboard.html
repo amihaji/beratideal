@@ -534,38 +534,47 @@ Dashboard untuk :
                     <div class="card followupcrm-toolbar-card"> 
                         <div class="followupcrm-toolbar">
                             <div class="followupcrm-toolbar-left">
-                                <div class="followupcrm-toolbar-main">
-                                    <!-- Tombol Filter -->
-                                    <div class="followupcrm-filter-group">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="crmFilterNama" placeholder="Filter berdasarkan Nama...">
-                                            <button class="btn btn-outline-secondary btn-sm" id="crmFilterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
-                                        </div>
-                                    </div> 
+                                <!-- Filter Group - di kiri -->
+                                <div class="followupcrm-filter-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="crmFilterNama" placeholder="Filter berdasarkan Nama...">
+                                        <button class="btn btn-outline-secondary btn-sm" id="crmFilterButton" type="button">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                </div>
                                 
-                                    <!-- Grup Tombol Normal (Awalnya Terlihat) -->
-                                    <div id="crmNormalToolbar" class="followupcrm-actions d-grid d-md-flex gap-2">
-                                        <button class="btn btn-primary btn-sm" id="crmStartFollowUpButton"><i class="fab fa-whatsapp"></i> Follow CRM</button>
-                                        <button class="btn btn-primary btn-sm" id="crmExportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
-                                    </div>
-                                                
-                                    <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
-                                    <div id="crmFollowUpToolbar" class="followupcrm-actions d-grid d-md-flex gap-2 sembunyikan">
-                                        <button class="btn btn-success btn-sm" id="crmSendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
-                                        <button class="btn btn-secondary btn-sm" id="crmCancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
-                                    </div>
-                                    
-                                    <!-- Pesan notifikasi -->
-                                    <div id="crmPesanNotification" class="notification-message">
-                                        <i id="crmPesanNotifIcon" class="pesan-notif-icon"></i><span id="crmPesanNotifText"></span>
-                                    </div>
+                                <!-- Action Buttons Normal - di tengah (sebelah kanan filter) -->
+                                <div id="crmNormalToolbar" class="followupcrm-actions d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" id="crmStartFollowUpButton">
+                                        <i class="fab fa-whatsapp"></i> Follow CRM
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" id="crmExportButton">
+                                        <i class="fas fa-file-excel"></i> Ekspor
+                                    </button>
                                 </div>
-
-                                <!-- Progress Kirim WA Massal (awalnya tersembunyi) -->
-                                <div class="progress bg-light followupcrm-toolbar-progress" id="crmWaProgressContainer" style="height:30px; width:100%; display:none;">
-                                    <div id="crmWaProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                                
+                                <!-- Action Buttons Mode Follow-up (tersembunyi) -->
+                                <div id="crmFollowUpToolbar" class="followupcrm-actions d-flex gap-2 sembunyikan">
+                                    <button class="btn btn-success btn-sm" id="crmSendWaButton">
+                                        <i class="fas fa-paper-plane"></i> Kirim WA
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="crmCancelFollowUpButton">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
                                 </div>
-                            </div> 
+                                
+                                <!-- Notification - di kanan -->
+                                <div id="crmPesanNotification" class="notification-message">
+                                    <i id="crmPesanNotifIcon" class="pesan-notif-icon"></i>
+                                    <span id="crmPesanNotifText"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Kirim WA Massal -->
+                            <div class="progress bg-light followupcrm-toolbar-progress" id="crmWaProgressContainer" style="height:30px; width:100%; display:none;">
+                                <div id="crmWaProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                            </div>
                         </div>
                     </div>        
                 </div>
@@ -725,41 +734,50 @@ Dashboard untuk :
             <div class="row">
                 <div class="col-lg-12 mb-4">
                     <!-- Toolbar Filter, pendaftaran -->
-                    <div class="card lognotif-toolbar-card"> 
-                        <div class="lognotif-toolbar">
-                            <div class="lognotif-toolbar-left pendaftaran-toolbar-left">
-                                <div class="pendaftaran-toolbar-main">
-                                    <!-- Tombol Filter -->
-                                    <div class="pendaftaran-filter-group">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="pendaftaranFilterNama" placeholder="Filter berdasarkan Nama...">
-                                            <button class="btn btn-outline-secondary btn-sm" id="pendaftaranFilterButton" type="button"><i class="fas fa-filter"></i> Filter</button>
-                                        </div>
-                                    </div> 
+                    <div class="card pendaftaran-toolbar-card"> 
+                        <div class="pendaftaran-toolbar">
+                            <div class="pendaftaran-toolbar-left">
+                                <!-- Filter Group - di kiri -->
+                                <div class="pendaftaran-filter-group">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="pendaftaranFilterNama" placeholder="Filter berdasarkan Nama...">
+                                        <button class="btn btn-outline-secondary btn-sm" id="pendaftaranFilterButton" type="button">
+                                            <i class="fas fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                </div>
                                 
-                                    <!-- Grup Tombol Normal (Awalnya Terlihat) -->
-                                    <div id="pendaftaranNormalToolbar" class="pendaftaran-actions d-grid d-md-flex gap-2">
-                                        <button class="btn btn-primary btn-sm" id="pendaftaranStartFollowUpButton"><i class="fab fa-whatsapp"></i> Follow Pendaftar</button>
-                                        <button class="btn btn-primary btn-sm" id="pendaftaranExportButton"><i class="fas fa-file-excel"></i> Ekspor</button>
-                                    </div>
-                                                
-                                    <!-- Grup Tombol Mode Follow-up (Awalnya tersembunyi) -->
-                                    <div id="pendaftaranFollowUpToolbar" class="pendaftaran-actions d-grid d-md-flex gap-2 sembunyikan">
-                                        <button class="btn btn-success btn-sm" id="pendaftaranSendWaButton"><i class="fas fa-paper-plane"></i> Kirim WA</button>
-                                        <button class="btn btn-secondary btn-sm" id="pendaftaranCancelFollowUpButton"><i class="fas fa-times"></i> Batal</button>
-                                    </div>
-                                    
-                                    <!-- Pesan notifikasi -->
-                                    <div id="pendaftaranPesanNotification" class="notification-message">
-                                        <i id="pendaftaranPesanNotifIcon" class="pesan-notif-icon"></i><span id="pendaftaranPesanNotifText"></span>
-                                    </div>
+                                <!-- Action Buttons Normal - di tengah (sebelah kanan filter) -->
+                                <div id="pendaftaranNormalToolbar" class="pendaftaran-actions d-flex gap-2">
+                                    <button class="btn btn-primary btn-sm" id="pendaftaranStartFollowUpButton">
+                                        <i class="fab fa-whatsapp"></i> Follow Pendaftar
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" id="pendaftaranExportButton">
+                                        <i class="fas fa-file-excel"></i> Ekspor
+                                    </button>
                                 </div>
-
-                                <!-- Progress Kirim WA Massal (awalnya tersembunyi) -->
-                                <div class="progress bg-light pendaftaran-toolbar-progress" id="pendaftaranWaProgressContainer" style="height:30px; width:100%; display:none;">
-                                    <div id="pendaftaranWaProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                                
+                                <!-- Action Buttons Mode Follow-up (tersembunyi) -->
+                                <div id="pendaftaranFollowUpToolbar" class="pendaftaran-actions d-flex gap-2 sembunyikan">
+                                    <button class="btn btn-success btn-sm" id="pendaftaranSendWaButton">
+                                        <i class="fas fa-paper-plane"></i> Kirim WA
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="pendaftaranCancelFollowUpButton">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
                                 </div>
-                            </div> 
+                                
+                                <!-- Notification - di kanan -->
+                                <div id="pendaftaranPesanNotification" class="notification-message">
+                                    <i id="pendaftaranPesanNotifIcon" class="pesan-notif-icon"></i>
+                                    <span id="pendaftaranPesanNotifText"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Kirim WA Massal -->
+                            <div class="progress bg-light pendaftaran-toolbar-progress" id="pendaftaranWaProgressContainer" style="height:30px; width:100%; display:none;">
+                                <div id="pendaftaranWaProgressBar" class="progress-bar" role="progressbar" style="height:30px; width:0%;">0%</div>
+                            </div>
                         </div>
                     </div>        
                 </div>
