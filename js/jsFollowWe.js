@@ -1,4 +1,3 @@
-
 /*******************************************
 APLIKASI BERATIDEAL
 Database :  dbWETools (SurveyData dan DataWE)
@@ -34,22 +33,52 @@ const waMessageInput       = document.getElementById('weWaMessage');
 const waProgressContainer  = document.getElementById('weWaProgressContainer');
 const waProgressBar        = document.getElementById('weWaProgressBar');
 
-const filterButtonEl       = document.getElementById('weFilterButton');
-if (filterButtonEl) filterButtonEl.addEventListener('click', loadWeTableData);
+// ============================================================
+// EVENT LISTENER FILTER - DIPERBAIKI
+// ============================================================
+const filterButtonEl = document.getElementById('weFilterButton');
+if (filterButtonEl) {
+    // Hapus event listener lama dengan clone
+    const newFilterButton = filterButtonEl.cloneNode(true);
+    filterButtonEl.parentNode.replaceChild(newFilterButton, filterButtonEl);
+    
+    // Pasang event listener baru
+    newFilterButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        loadWeTableData();
+    });
+    console.log('Filter button WE initialized');
+}
 
 const filterNamaEl = document.getElementById('weFilterNama');
 if (filterNamaEl) {
-    filterNamaEl.addEventListener('keydown', (event) => {
+    // Hapus event listener lama dengan clone
+    const newFilterInput = filterNamaEl.cloneNode(true);
+    filterNamaEl.parentNode.replaceChild(newFilterInput, filterNamaEl);
+    
+    // Pasang event listener baru
+    newFilterInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             loadWeTableData();
         }
     });
+    console.log('Filter input WE initialized');
 }
+
 const saveChangesButtonEl = document.getElementById('saveChangesButton');
-if (saveChangesButtonEl) saveChangesButtonEl.addEventListener('click', saveChanges);
+if (saveChangesButtonEl) {
+    const newSaveBtn = saveChangesButtonEl.cloneNode(true);
+    saveChangesButtonEl.parentNode.replaceChild(newSaveBtn, saveChangesButtonEl);
+    newSaveBtn.addEventListener('click', saveChanges);
+}
+
 const exportButtonEl = document.getElementById('exportButton');
-if (exportButtonEl) exportButtonEl.addEventListener('click', exportToExcel);
+if (exportButtonEl) {
+    const newExportBtn = exportButtonEl.cloneNode(true);
+    exportButtonEl.parentNode.replaceChild(newExportBtn, exportButtonEl);
+    newExportBtn.addEventListener('click', exportToExcel);
+}
 
 function resetWaProgress() {
     if (!waProgressContainer || !waProgressBar) return;
@@ -221,10 +250,14 @@ function sendFollowUpWARequest(target, message) {
 // ************************
 function loadWeTableData() {
     showLoading(true);
-    const filterValue  = document.getElementById('weFilterNama').value.trim();
+    // Gunakan ID yang benar dari HTML (weFilterNama)
+    const filterInput = document.getElementById('weFilterNama');
+    const filterValue = filterInput ? filterInput.value.trim() : '';
+    console.log('loadWeTableData - filterValue:', filterValue);
+    
     const callbackName = 'data_cb_' + Date.now();
-    const script       = document.createElement('script');
-    script.src         = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
+    const script = document.createElement('script');
+    script.src = `${URL_dbWETools}?action=getDataWE&filter=${encodeURIComponent(filterValue)}&callback=${callbackName}`;
    
     script.onerror = () => {
         cleanupFollowUpWEJsonp(script, callbackName);
@@ -233,6 +266,7 @@ function loadWeTableData() {
     };
 
     window[callbackName] = (response) => {
+        console.log('Response dari server:', response);
         if (response.status === 'success') {
             const filteredRows = filterFollowUpWERecordsByName(response.data, filterValue);
 
@@ -246,7 +280,6 @@ function loadWeTableData() {
             }
         } else {
             showPesan('warning', " ERROR : " + response.message);
-            if(response.message.includes('Sesi tidak valid'));
         }
         cleanupFollowUpWEJsonp(script, callbackName);
         showLoading(false);
@@ -541,7 +574,6 @@ function viewRecord(rowIndex) {
                 viewModal.show();
                 setTimeout(setupViewModalHorizontalScrollHelper, 120);
         } else {
-           //alert(response.message);
            showPesan('warning', " PERHATIAN : " + response.message);
         }
            showLoading(false);
@@ -581,17 +613,15 @@ function exportToExcel() {
 // Format penanggalan Indonesia
 // *****************************
 function formatTanggal(tanggalISO) {
-    if (!tanggalISO) return ''; // Kembalikan string kosong jika tanggal tidak ada
+    if (!tanggalISO) return '';
         
     try {
         const d = new Date(tanggalISO);
-        // getMonth() dimulai dari 0 (Januari=0), jadi kita tambah 1
         const hari = String(d.getDate()).padStart(2, '0');
         const bulan = String(d.getMonth() + 1).padStart(2, '0');
         const tahun = d.getFullYear();
         return `${hari}-${bulan}-${tahun}`;
     } catch (e) {
-        // Jika format tanggal tidak valid, kembalikan apa adanya
         return tanggalISO;
     }
 }
@@ -629,8 +659,6 @@ function initFollowWeUI() {
     }
 
 }
-
-// window.loadWeTableData = loadWeTableData;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
