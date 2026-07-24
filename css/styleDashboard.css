@@ -1,4 +1,4 @@
- /*******************************
+/*******************************
 Aplikasi Beratideal
 Style untuk formDashboard.html
 *******************************/
@@ -14,6 +14,7 @@ Style untuk formDashboard.html
     --light-color: #f8f9fa;
     --dark-color: #212529;
 }
+
 /* Modal Konfirmasi Border Radius Konsisten */
 #modalConfirm .modal-content {
     border-radius: 1rem;
@@ -26,6 +27,7 @@ Style untuk formDashboard.html
     border-bottom-left-radius: 1rem;
     border-bottom-right-radius: 1rem;
 }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--light-color);
@@ -52,18 +54,14 @@ body {
 .nav-link {
     border-radius: 0.375rem;
     margin: 0 0.25rem;
-    /* Transisi arna hover lebi halus */
     transition: color 0.25s ease;
 }
 .nav-link.active {
-    /* warna link aktif */
     color: #ffc107 !important; 
     background-color: transparent;
-    /* Huruf menjadi besar saat aktif */
     font-weight: 600;
 }
 .nav-link:hover {
-    /* warna hover menu */
     color: #ffc107 !important;
     background-color: transparent;
 }
@@ -154,7 +152,7 @@ tr:hover .action-icon {
 .sticky-header th { 
     position: sticky; 
     top: 0; 
-    background-color: #0059df ;           /* #003366; */
+    background-color: #0059df;
     color: white; 
     z-index: 2; 
     font-size:15px;
@@ -342,8 +340,9 @@ Modal khusus zoom gambar bukti
     object-fit: contain;
     background: #fff;
 }
+
 .title-box { 
-    background-color: #0059df ;          /* #003366; */
+    background-color: #0059df;
     color: white; 
     padding: 10px 15px; 
     border-radius: 5px; 
@@ -383,95 +382,6 @@ Modal khusus zoom gambar bukti
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
-/*** NON AKTIF
-.followupwe-toolbar,
-.followupcrm-toolbar,
-.pendaftaran-toolbar,
-.setupuser-toolbar,
-.lognotif-toolbar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    position: relative;
-    overflow: visible;
-    z-index: 10;
-}
-.followupwe-toolbar-card,
-.followupcrm-toolbar-card, 
-.pendaftaran-toolbar-card, 
-.setupuser-toolbar-card, 
-.lognotif-toolbar-card {
-    position: relative;
-    overflow: visible;
-    z-index: 10;
-}
-.followupwe-toolbar-left,
-.followupcrm-toolbar-left,
-.pendaftaran-toolbar-left,
-.setupuser-toolbar-left,
-.lognotif-toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-}
-
-/* Filter input - lebar menyesuaikan */
-/**
-.followupwe-filter-group,
-.followupcrm-filter-group,
-.pendaftaran-filter-group,
-.setupuser-filter-group,
-.lognotif-filter-group {
-    flex: 1 1 0;
-    min-width: 200px;
-    max-width: 400px;
-}
-
-.followupwe-filter-group .input-group,
-.followupcrm-filter-group .input-group,
-.pendaftaran-filter-group .input-group,
-.setupuser-filter-group .input-group,
-.lognotif-filter-group .input-group {
-    width: 100%;
-}
-
-#followupwe-page  .followupwe-toolbar-left,
-#followupcrm-page .followupcrm-toolbar-left,
-#pendaftaran-page .pendaftaran-toolbar-left,
-#setupuser-page   .setupuser-toolbar-left {
-    flex-direction: column;
-    align-items: stretch; 
-    gap: 0.75rem;
-    width: 100%;
-}
-#followupwe-page  .followupwe-toolbar-main,
-#followupcrm-page .followupcrm-toolbar-main,
-#pendaftaran-page .pendaftaran-toolbar-main,
-#setupuser-page   .setupuser-toolbar-main {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-}
-#followupwe-page  .followupwe-toolbar-left,
-#followupcrm-page .followupcrm-toolbar-left,
-#pendaftaran-page .pendaftaran-toolbar-left,
-#setupuser-page   .setupuser-toolbar-left {
-    flex-wrap: nowrap;
-    width: 100%;
-    flex-shrink: 1;
-}
-#followupwe-page  .followupwe-toolbar,
-#followupcrm-page .followupcrm-toolbar,
-#pendaftaran-page .pendaftaran-toolbar,
-#setupuser-page   .setupuser-toolbar {
-    flex-wrap: nowrap;
-}
-***/
-
 /***** TOOLBAR - LAYOUT UMUM *****/
 .followupwe-toolbar,
 .followupcrm-toolbar,
@@ -479,14 +389,15 @@ Modal khusus zoom gambar bukti
 .setupuser-toolbar,
 .lognotif-toolbar {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     position: relative;
     overflow: visible;
     z-index: 10;
 }
+
 .followupwe-toolbar-card,
 .followupcrm-toolbar-card,
 .pendaftaran-toolbar-card,
@@ -497,108 +408,167 @@ Modal khusus zoom gambar bukti
     z-index: 10;
 }
 
-/* === LAYOUT UTAMA TOOLBAR === */
-.followupwe-toolbar-left,
-.followupcrm-toolbar-left,
-.pendaftaran-toolbar-left,
-.setupuser-toolbar-left,
-.lognotif-toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    width: 100%;
+/* === LAYAR LEBAR (Desktop) === */
+@media (min-width: 769px) {
+    .followupwe-toolbar-left,
+    .followupcrm-toolbar-left,
+    .pendaftaran-toolbar-left,
+    .setupuser-toolbar-left,
+    .lognotif-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    /* Filter - Lebar tetap */
+    .followupwe-filter-group,
+    .followupcrm-filter-group,
+    .pendaftaran-filter-group,
+    .setupuser-filter-group,
+    .lognotif-filter-group {
+        flex: 0 1 auto;
+        min-width: 180px;
+        max-width: 320px;
+    }
+    .followupwe-filter-group .input-group,
+    .followupcrm-filter-group .input-group,
+    .pendaftaran-filter-group .input-group,
+    .setupuser-filter-group .input-group,
+    .lognotif-filter-group .input-group {
+        width: 100%;
+    }
+
+    /* Actions - Di tengah, tidak rata kanan */
+    .followupwe-actions,
+    .followupcrm-actions,
+    .pendaftaran-actions,
+    .setupuser-actions {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 0 !important;
+    }
+    .followupwe-actions .btn,
+    .followupcrm-actions .btn,
+    .pendaftaran-actions .btn,
+    .setupuser-actions .btn {
+        white-space: nowrap;
+    }
+
+    /* Notification - Di kanan */
+    .followupwe-toolbar .notification-message,
+    .followupcrm-toolbar .notification-message,
+    .pendaftaran-toolbar .notification-message,
+    .setupuser-toolbar .notification-message,
+    .lognotif-toolbar .notification-message {
+        flex: 1 1 auto;
+        min-width: 150px;
+        max-width: 380px;
+        margin-left: auto;
+    }
+
+    /* Setup User - Right group */
+    .setupuser-right-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+    }
+    .setupuser-right-group .setupuser-actions {
+        flex: 0 0 auto;
+    }
+    .setupuser-right-group .notification-message {
+        flex: 1 1 auto;
+        min-width: 150px;
+        max-width: 380px;
+        margin-left: auto;
+    }
 }
 
-/* === FILTER GROUP - Lebar menyesuaikan === */
-.followupwe-filter-group,
-.followupcrm-filter-group,
-.pendaftaran-filter-group,
-.setupuser-filter-group,
-.lognotif-filter-group {
-    flex: 0 1 auto;
-    min-width: 200px;
-    max-width: 350px;
+/* === LAYAR KECIL (Mobile) === */
+@media (max-width: 768px) {
+    .followupwe-toolbar-left,
+    .followupcrm-toolbar-left,
+    .pendaftaran-toolbar-left,
+    .setupuser-toolbar-left,
+    .lognotif-toolbar-left {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .followupwe-filter-group,
+    .followupcrm-filter-group,
+    .pendaftaran-filter-group,
+    .setupuser-filter-group,
+    .lognotif-filter-group {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+    }
+    .followupwe-filter-group .input-group,
+    .followupcrm-filter-group .input-group,
+    .pendaftaran-filter-group .input-group,
+    .setupuser-filter-group .input-group,
+    .lognotif-filter-group .input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .followupwe-filter-group .input-group > *,
+    .followupcrm-filter-group .input-group > *,
+    .pendaftaran-filter-group .input-group > *,
+    .setupuser-filter-group .input-group > *,
+    .lognotif-filter-group .input-group > * {
+        border-radius: 0.5rem !important;
+        width: 100%;
+    }
+
+    .followupwe-actions,
+    .followupcrm-actions,
+    .pendaftaran-actions,
+    .setupuser-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .followupwe-actions .btn,
+    .followupcrm-actions .btn,
+    .pendaftaran-actions .btn,
+    .setupuser-actions .btn {
+        width: 100%;
+    }
+
+    .followupwe-toolbar .notification-message,
+    .followupcrm-toolbar .notification-message,
+    .pendaftaran-toolbar .notification-message,
+    .setupuser-toolbar .notification-message,
+    .lognotif-toolbar .notification-message {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .setupuser-right-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .setupuser-right-group .setupuser-actions {
+        width: 100%;
+    }
+    .setupuser-right-group .notification-message {
+        width: 100%;
+        margin-left: 0;
+    }
 }
 
-.followupwe-filter-group .input-group,
-.followupcrm-filter-group .input-group,
-.pendaftaran-filter-group .input-group,
-.setupuser-filter-group .input-group,
-.lognotif-filter-group .input-group {
-    width: 100%;
-}
-
-/* === ACTION BUTTONS - Berada di sebelah filter === */
-.followupwe-actions,
-.followupcrm-actions,
-.pendaftaran-actions,
-.setupuser-actions {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.followupwe-actions .btn,
-.followupcrm-actions .btn,
-.pendaftaran-actions .btn,
-.setupuser-actions .btn {
-    white-space: nowrap;
-}
-
-/* === NOTIFICATION - Di sisi kanan === */
-.followupwe-toolbar .notification-message,
-.followupcrm-toolbar .notification-message,
-.pendaftaran-toolbar .notification-message,
-.setupuser-toolbar .notification-message,
-.lognotif-toolbar .notification-message {
-    flex: 1 1 auto;
-    min-width: 150px;
-    max-width: 400px;
-    margin-left: auto;
-}
-
-/* === KHUSUS SETUP USER - Right group === */
-.setupuser-right-group {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-}
-.setupuser-right-group .setupuser-actions {
-    flex: 0 0 auto;
-}
-.setupuser-right-group .notification-message {
-    flex: 1 1 auto;
-    min-width: 150px;
-    max-width: 400px;
-    margin-left: auto;
-}
-
-
-/* Notifikasi di Setup User */
-/***
-#setupPesanNotification {
-    width: auto;
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 380px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-***/
-
-
-.followupwe-actions {
-    flex: 0 0 auto;
-    margin-left: auto;
-}
-.followupwe-actions .btn {
-    white-space: nowrap;
-}
 .followupwe-toolbar-progress {
     width: 100%;
 }
@@ -607,6 +577,7 @@ Modal khusus zoom gambar bukti
 #crmTable td {
     white-space: nowrap;
 }
+
 .followupwe-message-input {
     position: relative;
 }
@@ -639,7 +610,7 @@ Modal khusus zoom gambar bukti
     overflow: visible !important;
 }
 
-/* Emoji Picker - SAMA PERSIS dengan Follow WE yang sudah berhasil */
+/* Emoji Picker */
 #sharedEmojiPickerBody,
 .followupwe-emoji-picker {
     position: static !important;
@@ -648,7 +619,7 @@ Modal khusus zoom gambar bukti
     overflow-y: auto !important;
     margin-top: 0.5rem !important;
     padding: 0.75rem !important;
-    display: none !important;  /* AWALNYA TERSEMBUNYI */
+    display: none !important;
     border: 1px solid #dee2e6 !important;
     border-radius: 0.75rem !important;
     background-color: #fff !important;
@@ -656,7 +627,7 @@ Modal khusus zoom gambar bukti
     z-index: auto !important;
 }
 
-/* Saat picker aktif (ditampilkan oleh JavaScript) */
+/* Saat picker aktif */
 #sharedEmojiPickerBody.active,
 .followupwe-emoji-picker.active {
     display: block !important;
@@ -666,12 +637,10 @@ Modal khusus zoom gambar bukti
 .followupwe-emoji-picker .followupwe-emoji-group {
     margin-bottom: 0.75rem !important;
 }
-
 #sharedEmojiPickerBody .followupwe-emoji-group:last-child,
 .followupwe-emoji-picker .followupwe-emoji-group:last-child {
     margin-bottom: 0 !important;
 }
-
 #sharedEmojiPickerBody .followupwe-emoji-group-title,
 .followupwe-emoji-picker .followupwe-emoji-group-title {
     font-size: 0.8rem !important;
@@ -679,7 +648,6 @@ Modal khusus zoom gambar bukti
     color: #6c757d !important;
     margin-bottom: 0.35rem !important;
 }
-
 #sharedEmojiPickerBody .followupwe-emoji-grid,
 .followupwe-emoji-picker .followupwe-emoji-grid {
     display: grid !important;
@@ -687,7 +655,6 @@ Modal khusus zoom gambar bukti
     justify-content: start !important;
     gap: 0.4rem !important;
 }
-
 #sharedEmojiPickerBody .emoji-item,
 .followupwe-emoji-picker .emoji-item {
     min-width: 0 !important;
@@ -703,7 +670,6 @@ Modal khusus zoom gambar bukti
     background-color: transparent !important;
     border-color: transparent !important;
 }
-
 #sharedEmojiPickerBody .emoji-item:hover,
 #sharedEmojiPickerBody .emoji-item:focus,
 .followupwe-emoji-picker .emoji-item:hover,
@@ -726,6 +692,7 @@ Modal khusus zoom gambar bukti
     flex: 1 1 auto;
     min-width: 0;
 }
+
 .followupwe-evaluasi-table {
     width: 100%;
 }
@@ -747,14 +714,14 @@ Modal khusus zoom gambar bukti
 
 /* Spinner Untuk tabel user */
 .loading-overlay {
-  position: absolute;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Hak Akses */
@@ -838,7 +805,7 @@ Modal khusus zoom gambar bukti
     margin-left: auto;
 }
 
-/* Modal Edit CRM mengikuti nuansa modal Edit WE */
+/* Modal Edit CRM */
 #crmEditModal .modal-content {
     border-radius: 1rem;
     overflow: hidden;
@@ -880,9 +847,6 @@ Modal khusus zoom gambar bukti
 
 /* ==========================================
    Modal Edit Data Pendaftaran
-   - Menata form menjadi lebih rapat dan rapi
-   - Menyamakan tinggi input dan textarea
-   - Memberi tampilan jelas untuk field disabled
 ========================================== */
 #pendaftaranEditModal .modal-dialog {
     max-width: 980px;
@@ -930,7 +894,7 @@ Modal khusus zoom gambar bukti
     border-color: #ced4da;
 }
 
-/***** UI DASHBOARD *****
+/***** UI DASHBOARD *****/
 /* Cards */
 .card {
     border: none;
@@ -943,8 +907,7 @@ Modal khusus zoom gambar bukti
     transform: translateY(-2px);
 }
 .card-header {
-    background-color: transparent; 
-    /* background-color: #000b3a; */
+    background-color: transparent;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     padding: 1.25rem;
 }
@@ -961,7 +924,6 @@ Modal khusus zoom gambar bukti
 /* Buttons */
 .btn {
     border-radius: 0.5rem;
-    /* font-weight: 500 */
     transition: all 0.3s ease;
 }
 .btn:hover {
@@ -1034,39 +996,6 @@ Modal khusus zoom gambar bukti
     height: 300px;
 }
 
-/***** SETUP USER TOOLBAR - KHUSUS *****/
-.setupuser-toolbar-main {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    flex-wrap: wrap;
-}
-.setupuser-right-group {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex: 0 0 auto;
-}
-.setupuser-actions {
-    flex: 0 0 auto;
-}
-.setupuser-actions .btn {
-    white-space: nowrap;
-}
-
-/* Notification di Setup User */
-#setupuserPesanNotification {
-    width: auto;
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 380px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 /*********************/
 /* Mobile Responsive */
 /*********************/
@@ -1097,57 +1026,49 @@ Modal khusus zoom gambar bukti
     .stats-card h3 {
         font-size: 1.5rem;
     }
-    
-    /**** Setup User dan Follow Up WE ****/
+
     .sticky-header th tr { 
-       font-size:15px;
-       white-space: nowrap !important;
+        font-size:15px;
+        white-space: nowrap !important;
     }
-    /* Membuat tabel bisa discroll horizontal di layar kecil */
     .table-wrapper {
-    max-width: 100%;
-    overflow-x: auto;
+        max-width: 100%;
+        overflow-x: auto;
     }
-    /* Menjaga sel tidak membungkus isi */
     .table th, .table td {
-    white-space: nowrap;
+        white-space: nowrap;
     }
     .btn-group-vertical-responsive {
-       flex-direction: column !important;
-       align-items: stretch !important;
-       gap: 6px; /* jarak antar tombol */
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 6px;
     }
     .btn-group-vertical-responsive button,
     .btn-group-vertical-responsive a {
-       width: 100% !important;
-       text-align: center;
+        width: 100% !important;
+        text-align: center;
     }
 
     #pendaftaranViewModal .modal-dialog {
         max-width: 96vw;
     }
-
     .pendaftaran-view-item {
         grid-template-columns: 1fr;
     }
-
     .pendaftaran-view-label {
         min-height: auto;
         border-right: none;
         border-bottom: 1px solid #e2e8f0;
     }
-
     .pendaftaran-proof-gallery {
         grid-template-columns: 1fr;
     }
-
     .pendaftaran-proof-preview img,
     .pendaftaran-proof-empty {
         min-height: 220px;
         max-height: 380px;
     }
-    
-    /* Tombol dan pesan Setup menjadi vertikal di mobile */
+
     .d-flex.align-items-center.gap-2 {
         flex-direction: column;
         align-items: stretch !important;
@@ -1199,68 +1120,7 @@ Modal khusus zoom gambar bukti
         align-items: stretch;
         gap: 0.5rem;
     }
- 
-    #followupwe-page  .followupwe-toolbar-main,
-    #followupcrm-page .followupcrm-toolbar-main,
-    #pendaftaran-page .pendaftaran-toolbar-main,
-    #setupuser-page   .setupuser-toolbar-main {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-    #followupwe-page  .followupwe-filter-group  .input-group,
-    #followupcrm-page .followupcrm-filter-group .input-group,
-    #pendaftaran-page .pendaftaran-filter-group .input-group,
-    #setupuser-page   .setupuser-filter-group   .input-group {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-    #followupwe-page  .followupwe-filter-group  .input-group > .form-control,
-    #followupcrm-page .followupcrm-filter-group .input-group > .form-control,
-    #pendaftaran-page .pendaftaran-filter-group .input-group > .form-control,
-    #setupuser-page   .setupuser-filter-group   .input-group > .form-control {
-        width: 100%;
-        flex: 1 1 auto;
-    }
-    #followupwe-page  .followupwe-filter-group  .input-group > .form-control,
-    #followupwe-page  .followupwe-filter-group  .input-group > .btn,
-    #followupcrm-page .followupcrm-filter-group .input-group > .form-control,
-    #followupcrm-page .followupcrm-filter-group .input-group > .btn, 
-    #pendaftaran-page .pendaftaran-filter-group .input-group > .form-control,
-    #pendaftaran-page .pendaftaran-filter-group .input-group > .btn, 
-    #setupuser-page   .setupuser-filter-group   .input-group > .form-control,
-    #setupuser-page   .setupuser-filter-group   .input-group > .btn {
-        border-radius: 0.5rem !important;
-    }
 
-    /* Actions di semua toolbar menjadi full width di mobile */
-    #followupwe-page  .followupwe-actions,
-    #followupcrm-page .followupcrm-actions, 
-    #pendaftaran-page .pendaftaran-actions, 
-    #setupuser-page   .setupuser-actions {
-        width: 100%;
-        margin-left: 0;
-        gap: 0.75rem;
-        flex-direction: column;
-    }
-
-    #followupwe-page  .followupwe-actions .btn,
-    #followupcrm-page .followupcrm-actions .btn,
-    #pendaftaran-page .pendaftaran-actions .btn, 
-    #setupuser-page   .setupuser-actions .btn {
-        width: 100%;
-        margin-bottom: 0;
-    }
-
-    /* Setup User right group di mobile */
-    #setupuser-page .setupuser-right-group {
-        width: 100%;
-        margin-left: 0;
-        flex-direction: column;
-        align-items: stretch;
-    }
-  
     .followupwe-emoji-grid, 
     .followupcrm-emoji-grid, 
     .pendaftaran-emoji-grid {
