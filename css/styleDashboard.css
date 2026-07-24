@@ -365,6 +365,7 @@ Modal khusus zoom gambar bukti
 }
 
 /* Notifikasi Message Box */
+/**
 .notification-message {
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
@@ -377,11 +378,60 @@ Modal khusus zoom gambar bukti
     min-height: calc(1.5em + 0.5rem + 2px);
     width: 100%;
 }
-.pesan-notif-icon {font-size: 18px;}
-.notification-error { background-color: #d9534f; color: white; }
-.notification-success { background-color: #0275d8; color: white; }
-.notification-warning { background-color: #f0ad4e; color: black; }
+**/
+/* Notifikasi Message Box - VERSI FINAL */
+.notification-message {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: calc(1.5em + 0.5rem + 2px);
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 100%;  /* max-width: 380px; */
+    margin-left: auto;
+}
+.pesan-notif-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.notification-error { 
+    background-color: #d9534f; 
+    color: white; 
+}
+.notification-success { 
+    background-color: #0275d8; 
+    color: white; 
+}
+.notification-warning { 
+    background-color: #f0ad4e; 
+    color: black; 
+}
 
+/* Notification di Setup User */
+#setupuserPesanNotification {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 100%; /* max-width: 380px; */
+    margin-left: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Notification di Log Notif */
+#lognotifPesanNotification {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 100%; /* max-width: 380px; */
+    margin-left: auto;
+}
+
+/***** TOOLBAR - LAYOUT UMUM *****/
 /***** TOOLBAR - LAYOUT UMUM *****/
 .followupwe-toolbar,
 .followupcrm-toolbar,
@@ -391,7 +441,7 @@ Modal khusus zoom gambar bukti
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem 0.75rem;
     padding: 0.75rem 1rem;
     position: relative;
     overflow: visible;
@@ -408,38 +458,85 @@ Modal khusus zoom gambar bukti
     z-index: 10;
 }
 
-/***** FOLLOWUP CRM - LAYOUT KHUSUS *****/
-.followupcrm-toolbar-left {
+.followupwe-toolbar-left,
+.followupcrm-toolbar-left,
+.pendaftaran-toolbar-left,
+.setupuser-toolbar-left,
+.lognotif-toolbar-left {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
     width: 100%;
 }
-.followupcrm-filter-group {
+
+/* Filter Group */
+.followupwe-filter-group,
+.followupcrm-filter-group,
+.pendaftaran-filter-group,
+.setupuser-filter-group,
+.lognotif-filter-group {
     flex: 0 1 auto;
     min-width: 180px;
     max-width: 320px;
 }
-.followupcrm-filter-group .input-group {
+.followupwe-filter-group .input-group,
+.followupcrm-filter-group .input-group,
+.pendaftaran-filter-group .input-group,
+.setupuser-filter-group .input-group,
+.lognotif-filter-group .input-group {
     width: 100%;
 }
-.followupcrm-actions {
+
+/* Actions */
+.followupwe-actions,
+.followupcrm-actions,
+.pendaftaran-actions,
+.setupuser-actions {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-.followupcrm-actions .btn {
+.followupwe-actions .btn,
+.followupcrm-actions .btn,
+.pendaftaran-actions .btn,
+.setupuser-actions .btn {
     white-space: nowrap;
 }
-.followupcrm-toolbar .notification-message {
+
+/* Notification - di kanan dengan margin-left auto */
+.followupwe-toolbar .notification-message,
+.followupcrm-toolbar .notification-message,
+.pendaftaran-toolbar .notification-message,
+.setupuser-toolbar .notification-message,
+.lognotif-toolbar .notification-message {
     flex: 1 1 auto;
     min-width: 150px;
     max-width: 380px;
     margin-left: auto;
 }
-.followupcrm-toolbar-progress {
+
+/* Setup User - Right group */
+.setupuser-right-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+}
+.setupuser-right-group .setupuser-actions {
+    flex: 0 0 auto;
+}
+.setupuser-right-group .notification-message {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 380px;
+    margin-left: auto;
+}
+.followupwe-toolbar-progress,
+.followupcrm-toolbar-progress,
+.pendaftaran-toolbar-progress {
     width: 100%;
 }
 
@@ -567,7 +664,6 @@ Modal khusus zoom gambar bukti
     .pendaftaran-toolbar-left,
     .setupuser-toolbar-left,
     .lognotif-toolbar-left {
-        display: flex;
         flex-direction: column;
         align-items: stretch;
         gap: 0.75rem;
@@ -622,6 +718,7 @@ Modal khusus zoom gambar bukti
     .lognotif-toolbar .notification-message {
         width: 100%;
         margin-left: 0;
+        max-width: unset;
     }
 
     .setupuser-right-group {
@@ -636,7 +733,9 @@ Modal khusus zoom gambar bukti
     .setupuser-right-group .notification-message {
         width: 100%;
         margin-left: 0;
+        max-width: unset;
     }
+
     /* FollowUP CRM - Mobile */
     .followupcrm-toolbar-left {
         flex-direction: column;
@@ -1210,10 +1309,13 @@ Modal khusus zoom gambar bukti
     .d-flex.align-items-center.gap-2 .btn {
         margin-bottom: 0;
     }
+    /*
     .notification-message {
         width: 100% !important;
         justify-content: center;
     }
+    */
+
     .akses-row {
         flex-direction: row;
         align-items: center;

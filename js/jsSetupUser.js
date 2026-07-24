@@ -801,13 +801,12 @@ async function deleteLogNotif(forceStatus) {
 function showPesanSetupUser(type, message, duration = 3000) {
   const visiblePage = Array.from(document.querySelectorAll('.page-content'))
     .find((page) => page && page.style && page.style.display !== 'none');
-  const scopedBox = visiblePage ? (visiblePage.querySelector('#setupPesanNotification') || visiblePage.querySelector('#pesanNotification')) : null;
-  const boxes = document.querySelectorAll('#setupPesanNotification, #pesanNotification');
-  const box = scopedBox || boxes[0];
+  const scopedBox = visiblePage ? visiblePage.querySelector('#setupuserPesanNotification') : null;
+  const box = scopedBox || document.getElementById('setupuserPesanNotification');
   if (!box) return;
 
-  const icon = box.querySelector('#setupPesanNotifIcon') || box.querySelector('[id="pesanNotifIcon"]') || document.getElementById('setupPesanNotifIcon') || document.getElementById('pesanNotifIcon');
-  const text = box.querySelector('#setupPesanNotifText') || box.querySelector('[id="pesanNotifText"]') || document.getElementById('setupPesanNotifText') || document.getElementById('pesanNotifText');
+  const icon = box.querySelector('#setupuserPesanNotifIcon') || document.getElementById('setupuserPesanNotifIcon');
+  const text = box.querySelector('#setupuserPesanNotifText') || document.getElementById('setupuserPesanNotifText');
   if (!icon || !text) return;
 
   box.classList.remove('notification-error', 'notification-success', 'notification-warning');
@@ -824,27 +823,28 @@ function showPesanSetupUser(type, message, duration = 3000) {
     box.classList.add('notification-warning');
     icon.classList.add('fas', 'fa-exclamation-circle');
   }
-  text.textContent  = message;
+  
+  text.textContent = message;
   box.style.display = 'flex';
-  setTimeout(() => {box.style.display = 'none';}, duration);
+  
+  if (box._timer) clearTimeout(box._timer);
+  box._timer = setTimeout(() => {
+    box.style.display = 'none';
+    box._timer = null;
+  }, duration);
 }
-
-// window.showPesanSetupUser = showPesanSetupUser;
 
 // *****************************************
 // Pesan Notifikasi Khusus untuk Log Notif
 // *****************************************
 function showLogNotifPesan(type, message, duration = 3000) {
   const box = document.getElementById('lognotifPesanNotification');
+  if (!box) return;
+  
   const icon = document.getElementById('lognotifPesanNotifIcon');
   const text = document.getElementById('lognotifPesanNotifText');
-  
-  if (!box || !icon || !text) {
-    console.warn('Elemen notifikasi Log Notif tidak ditemukan');
-    return;
-  }
+  if (!icon || !text) return;
 
-  // Reset class
   box.className = 'notification-message';
   icon.className = 'pesan-notif-icon';
 
@@ -862,8 +862,10 @@ function showLogNotifPesan(type, message, duration = 3000) {
   text.textContent = message;
   box.style.display = 'flex';
   
-  setTimeout(() => {
+  if (box._timer) clearTimeout(box._timer);
+  box._timer = setTimeout(() => {
     box.style.display = 'none';
+    box._timer = null;
   }, duration);
 }
 

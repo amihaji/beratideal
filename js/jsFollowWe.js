@@ -669,13 +669,20 @@ if (document.readyState === 'loading') {
 // *****************************************
 // Pesan Notifikasi untuk di Form Tabel User
 // *****************************************
+
+// *****************************************
+// Pesan Notifikasi untuk FollowUp WE
+// *****************************************
 function showPesan(type, message, duration = 3000) {
-  const box      = document.getElementById('pesanNotification');
-  const icon     = document.getElementById('pesanNotifIcon');
-  const text     = document.getElementById('pesanNotifText');
+  const box = document.getElementById('pesanNotification');
+  if (!box) return;
+  
+  const icon = document.getElementById('pesanNotifIcon');
+  const text = document.getElementById('pesanNotifText');
+  if (!icon || !text) return;
 
   // Reset class
-  box.className  = 'notification-message';
+  box.className = 'notification-message';
   icon.className = 'pesan-notif-icon';
 
   if (type === 'error') {
@@ -688,18 +695,27 @@ function showPesan(type, message, duration = 3000) {
     box.classList.add('notification-warning');
     icon.classList.add('fas', 'fa-exclamation-circle');
   }
-  text.textContent  = message;
+  
+  text.textContent = message;
   box.style.display = 'flex';
-  setTimeout(() => {box.style.display = 'none';}, duration);
+  
+  // Hapus timer sebelumnya jika ada
+  if (box._timer) clearTimeout(box._timer);
+  box._timer = setTimeout(() => {
+    box.style.display = 'none';
+    box._timer = null;
+  }, duration);
 }
 
 function showPesanEdit(type, message, duration = 2500) {
-  const box  = document.getElementById('pesanNotifEditBox');
+  const box = document.getElementById('pesanNotifEditBox');
+  if (!box) return;
+  
   const icon = document.getElementById('pesanNotifEditIcon');
   const text = document.getElementById('pesanNotifEditText');
-  if (!box || !icon || !text) return;
+  if (!icon || !text) return;
 
-  box.className  = 'notification-message modal-user-message';
+  box.className = 'notification-message modal-user-message';
   icon.className = 'pesan-notif-icon me-2';
 
   if (type === 'error') {
@@ -713,7 +729,12 @@ function showPesanEdit(type, message, duration = 2500) {
     icon.classList.add('fas', 'fa-exclamation-circle');
   }
 
-  text.textContent  = message;
+  text.textContent = message;
   box.style.display = 'flex';
-  setTimeout(() => { box.style.display = 'none'; }, duration);
+  
+  if (box._timer) clearTimeout(box._timer);
+  box._timer = setTimeout(() => {
+    box.style.display = 'none';
+    box._timer = null;
+  }, duration);
 }
