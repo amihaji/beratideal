@@ -21,7 +21,7 @@ const editModal            = new bootstrap.Modal(document.getElementById('editMo
 const viewModal            = new bootstrap.Modal(document.getElementById('viewModal'));
 let viewModalScrollSyncing = false;
 
-// PERBAIKAN: Gunakan ID yang benar dari HTML
+// PERBAIKAN: Semua ID menggunakan prefix "we" sesuai HTML
 const startFollowUpButton  = document.getElementById('weStartFollowUpButton');
 const cancelFollowUpButton = document.getElementById('weCancelFollowUpButton');
 const sendWaButton         = document.getElementById('weSendWaButton');
@@ -32,8 +32,9 @@ const filterNamaInput      = document.getElementById('weFilterNama');
 const filterButton         = document.getElementById('weFilterButton');
 const checkAllCheckbox     = document.getElementById('weCheckAll');
 const waMessageInput       = document.getElementById('weWaMessage');
-const waProgressContainer  = document.getElementById('weWaProgressContainer');
-const waProgressBar        = document.getElementById('weWaProgressBar');
+const waProgressContainer  = document.getElementById('waProgressContainer');
+const waProgressBar        = document.getElementById('waProgressBar');
+const exportButtonEl       = document.getElementById('weExportButton');
 
 // ============================================================
 // EVENT LISTENER FILTER - DIPERBAIKI
@@ -75,7 +76,7 @@ if (saveChangesButtonEl) {
     newSaveBtn.addEventListener('click', saveChanges);
 }
 
-const exportButtonEl = document.getElementById('exportButton');
+const exportButtonEl = document.getElementById('weExportButton');
 if (exportButtonEl) {
     const newExportBtn = exportButtonEl.cloneNode(true);
     exportButtonEl.parentNode.replaceChild(newExportBtn, exportButtonEl);
