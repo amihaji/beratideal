@@ -364,21 +364,6 @@ Modal khusus zoom gambar bukti
     gap: 10px; 
 }
 
-/* Notifikasi Message Box */
-/**
-.notification-message {
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.5rem;
-    margin-bottom: 0;
-    font-size: 0.875rem;
-    display: none;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
-    min-height: calc(1.5em + 0.5rem + 2px);
-    width: 100%;
-}
-**/
 /* Notifikasi Message Box - VERSI FINAL */
 .notification-message {
     padding: 0.25rem 0.75rem;
@@ -390,27 +375,15 @@ Modal khusus zoom gambar bukti
     justify-content: flex-start;
     gap: 10px;
     min-height: calc(1.5em + 0.5rem + 2px);
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 150px;
-    max-width: 100%;  /* max-width: 380px; */
-    margin-left: auto;
+    max-width: 100%; /* max-width: 380px; */
+   
 }
-.pesan-notif-icon {
-    font-size: 18px;
-    flex-shrink: 0;
-}
-.notification-error { 
-    background-color: #d9534f; 
-    color: white; 
-}
-.notification-success { 
-    background-color: #0275d8; 
-    color: white; 
-}
-.notification-warning { 
-    background-color: #f0ad4e; 
-    color: black; 
-}
+.pesan-notif-icon { font-size: 18px; flex-shrink: 0; }
+.notification-error   { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
 
 /* Notification di Setup User */
 #setupuserPesanNotification {
@@ -431,7 +404,6 @@ Modal khusus zoom gambar bukti
     margin-left: auto;
 }
 
-/***** TOOLBAR - LAYOUT UMUM *****/
 /***** TOOLBAR - LAYOUT UMUM *****/
 .followupwe-toolbar,
 .followupcrm-toolbar,
@@ -505,16 +477,16 @@ Modal khusus zoom gambar bukti
     white-space: nowrap;
 }
 
-/* Notification - di kanan dengan margin-left auto */
+/* Notification - di sebelah kanan tombol (rata kiri) */
 .followupwe-toolbar .notification-message,
 .followupcrm-toolbar .notification-message,
 .pendaftaran-toolbar .notification-message,
 .setupuser-toolbar .notification-message,
 .lognotif-toolbar .notification-message {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 150px;
-    max-width: 380px;
-    margin-left: auto;
+    max-width: 100%;    /* max-width: 380px; */
+    margin-left: 0;     /* HAPUS margin-left: auto; */
 }
 
 /* Setup User - Right group */
@@ -529,10 +501,10 @@ Modal khusus zoom gambar bukti
     flex: 0 0 auto;
 }
 .setupuser-right-group .notification-message {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 150px;
-    max-width: 380px;
-    margin-left: auto;
+    max-width:100%;  /* max-width: 380px; */
+    margin-left: 0;  /* HAPUS margin-left: auto; */
 }
 .followupwe-toolbar-progress,
 .followupcrm-toolbar-progress,
@@ -650,10 +622,10 @@ Modal khusus zoom gambar bukti
         flex: 0 0 auto;
     }
     .setupuser-right-group .notification-message {
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         min-width: 150px;
-        max-width: 380px;
-        margin-left: auto;
+        max-width: 100%;   /* max-width: 380px; */
+        margin-left: 0;    /* HAPUS margin-left: auto; */
     }
 }
 
@@ -731,9 +703,10 @@ Modal khusus zoom gambar bukti
         width: 100%;
     }
     .setupuser-right-group .notification-message {
-        width: 100%;
-        margin-left: 0;
-        max-width: unset;
+        flex: 0 1 auto;
+        min-width: 150px;
+        max-width:100%;   /* max-width: 380px; */
+        margin-left: 0;   /* HAPUS margin-left: auto; */
     }
 
     /* FollowUP CRM - Mobile */

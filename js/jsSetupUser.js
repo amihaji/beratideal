@@ -798,6 +798,9 @@ async function deleteLogNotif(forceStatus) {
 // *****************************************
 // Pesan Notifikasi untuk di Form Tabel User
 // *****************************************
+// *****************************************
+// Pesan Notifikasi untuk Setup User
+// *****************************************
 function showPesanSetupUser(type, message, duration = 3000) {
   const visiblePage = Array.from(document.querySelectorAll('.page-content'))
     .find((page) => page && page.style && page.style.display !== 'none');
