@@ -670,4 +670,14 @@
             });
         }
     }
+
+    // Export Global & Insialisasi
+    window.loadCrmTableData = loadCrmTableData;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFollowCrmUI, { once: true });
+    } else {
+        initFollowCrmUI();
+    }
+
 })();
