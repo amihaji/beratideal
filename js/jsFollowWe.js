@@ -636,6 +636,7 @@ function formatTanggal(tanggalISO) {
 function initFollowWeUI() {
     if (window.followWeUiInitialized) return;
     window.followWeUiInitialized = true;
+
     const viewModalEl = document.getElementById('weViewModal');
     if (viewModalEl) {
         viewModalEl.addEventListener('shown.bs.modal', () => {
@@ -646,21 +647,30 @@ function initFollowWeUI() {
             if (helper) helper.style.display = 'none';
         });
     }
+
     window.addEventListener('resize', () => {
         if (document.getElementById('weViewModal')?.classList.contains('show')) {
             setupViewModalHorizontalScrollHelper();
         }
     });
+
     const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
         editModalEl.addEventListener('hidden.bs.modal', () => {
             const box = document.getElementById('pesanNotifEditBox');
             if (box) box.style.display = 'none';
         });
+        
+        // ===== PERBAIKAN: Panggil initModalTooltips langsung saat modal terbuka =====
+        editModalEl.addEventListener('shown.bs.modal', function() {
+            console.log('WE Edit Modal shown - panggil initModalTooltips');
+            initModalTooltips(editModalEl);
+        });
     }
-    // Tooltip sudah diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
+
     console.log('FollowUp WE UI initialized');
 }
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
 } else {

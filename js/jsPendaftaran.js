@@ -870,7 +870,8 @@
         if (elements.tableBody) {
             elements.tableBody.addEventListener('click', handleTableAction);
         }
-
+       
+        /*****
         if (elements.editModalEl) {
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
                 initEditTooltips();
@@ -878,6 +879,22 @@
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
                 disposeEditTooltips();
+            });
+        }
+        *****/
+
+        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit Pendaftaran =====
+        if (elements.editModalEl) {
+            elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                console.log('Pendaftaran Modal shown - panggil initModalTooltips');
+                initEditTooltips();
+                initModalTooltips(elements.editModalEl);
+            });
+
+            elements.editModalEl.addEventListener('hidden.bs.modal', function() {
+                if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
+                disposeEditTooltips();
+                destroyModalTooltips(elements.editModalEl);
             });
         }
 

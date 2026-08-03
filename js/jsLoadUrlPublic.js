@@ -2,16 +2,6 @@
 // UNTUK APLIKASI BERATIDEAL DAN FILE-FILE PENDUKUNGNYA
 // **************************************************** 
 
-// URl dbWETools (SurveyData, DataWE) : 
-// jsDashboard.js, jsFollowWe.js 
-// untuk formDashboard.html
-const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V6_6MwkbpdiLcmraIAIgdP_oNbALIROB4l4NAeO_QT7aTymfvX/exec';
-
-// url dbDaftarBeratideal (DAFTAR) :
-// jsFrmDaftar.js, jsFrmBayar.js, jsFrmTandaTerima.js
-// untuk formDaftar.html
-const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxDBhOy78Z2GhPGc2BGyFrB81hnWvI4CwQCPokuGfyX37TfJpBReMG02-Omzni8T_rD/exec'
-
 // URl dbUSER (TabelUser, LogNotif) :
 // jsDashboard.js, jsSetupUser.js untuk :
 // - loginBeratideal.html
@@ -24,6 +14,16 @@ const URL_dbUser ='https://script.google.com/macros/s/AKfycbygI_rcLyGrGNTH_uOOrj
 // - prog10hari.html
 const URL_dbProgram ='https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroycyx3Nadwu6SR-Fn9MEJLZaV8AONHVO8YW9AhevaQ7p_Bwm_b1DQ/exec';
 
+// URl dbWETools (SurveyData, DataWE) : 
+// jsDashboard.js, jsFollowWe.js 
+// untuk formDashboard.html
+const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V6_6MwkbpdiLcmraIAIgdP_oNbALIROB4l4NAeO_QT7aTymfvX/exec';
+
+// url dbDaftarBeratideal (DAFTAR) :
+// jsFrmDaftar.js, jsFrmBayar.js, jsFrmTandaTerima.js
+// untuk formDaftar.html
+const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxDBhOy78Z2GhPGc2BGyFrB81hnWvI4CwQCPokuGfyX37TfJpBReMG02-Omzni8T_rD/exec'
+
 // ============================================================
 // FUNGSI GLOBAL UNTUK TOOLTIP - VERSI FINAL
 // ============================================================
@@ -31,19 +31,15 @@ function initModalTooltips(modalElement) {
     if (!modalElement) return;
     console.log('initModalTooltips dipanggil untuk:', modalElement.id || 'modal tanpa id');
     
-    // Tunggu hingga modal benar-benar tampil
     setTimeout(function() {
         const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
         console.log('Tooltip triggers ditemukan:', tooltipTriggers.length);
         
-        tooltipTriggers.forEach(function(el, index) {
-            console.log('Tooltip ke-' + index + ':', el);
-            // Hapus tooltip lama jika ada
+        tooltipTriggers.forEach(function(el) {
             const oldTooltip = bootstrap.Tooltip.getInstance(el);
             if (oldTooltip) {
                 oldTooltip.dispose();
             }
-            // Buat tooltip baru
             new bootstrap.Tooltip(el, {
                 trigger: 'hover focus',
                 container: 'body',
@@ -71,14 +67,12 @@ function destroyModalTooltips(modalElement) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded - Inisialisasi tooltip otomatis');
     
-    // Cari semua modal yang memiliki elemen dengan data-bs-toggle="tooltip"
     const allModals = document.querySelectorAll('.modal');
     allModals.forEach(function(modal) {
         const hasTooltip = modal.querySelector('[data-bs-toggle="tooltip"]');
         if (hasTooltip) {
             console.log('Modal dengan tooltip ditemukan:', modal.id);
             
-            // Pasang event listener untuk setiap modal
             modal.addEventListener('shown.bs.modal', function() {
                 console.log('Modal shown:', this.id);
                 initModalTooltips(this);

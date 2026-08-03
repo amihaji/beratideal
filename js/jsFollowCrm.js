@@ -631,9 +631,22 @@
             elements.tableBody.addEventListener('click', handleTableAction);
         }
 
+        /**** 
         if (elements.editModalEl) {
             elements.editModalEl.addEventListener('hidden.bs.modal', () => {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
+            });
+        }
+        ****/
+        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
+        if (elements.editModalEl) {
+            elements.editModalEl.addEventListener('hidden.bs.modal', () => {
+                if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
+            });
+            
+            elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                console.log('CRM Edit Modal shown - panggil initModalTooltips');
+                initModalTooltips(elements.editModalEl);
             });
         }
 
