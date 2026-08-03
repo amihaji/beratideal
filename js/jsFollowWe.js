@@ -660,34 +660,29 @@ function initFollowWeUI() {
             const box = document.getElementById('pesanNotifEditBox');
             if (box) box.style.display = 'none';
         });
-    }
 
-    // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
-    // Aktifkan tooltip pada elemen yang memiliki atribut title di dalam modal edit
-    editModalEl?.addEventListener('shown.bs.modal', function() {
-        // Inisialisasi tooltip untuk semua elemen dengan atribut title di dalam modal
-        const tooltipTriggerList = this.querySelectorAll('[title]');
-        tooltipTriggerList.forEach(function(el) {
-            // Hapus tooltip lama jika ada
-            const oldTooltip = bootstrap.Tooltip.getInstance(el);
-            if (oldTooltip) oldTooltip.dispose();
-            // Buat tooltip baru dengan Bootstrap
-            new bootstrap.Tooltip(el, {
-                trigger: 'hover focus',
-                container: 'body',
-                placement: 'top'
+        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
+        editModalEl.addEventListener('shown.bs.modal', function() {
+            const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(function(el) {
+                const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                if (oldTooltip) oldTooltip.dispose();
+                new bootstrap.Tooltip(el, {
+                    trigger: 'hover focus',
+                    container: 'body',
+                    placement: 'top'
+                });
             });
         });
-    });
 
-    // Bersihkan tooltip saat modal ditutup
-    editModalEl?.addEventListener('hidden.bs.modal', function() {
-        const tooltipTriggerList = this.querySelectorAll('[title]');
-        tooltipTriggerList.forEach(function(el) {
-            const tooltip = bootstrap.Tooltip.getInstance(el);
-            if (tooltip) tooltip.dispose();
+        editModalEl.addEventListener('hidden.bs.modal', function() {
+            const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(function(el) {
+                const tooltip = bootstrap.Tooltip.getInstance(el);
+                if (tooltip) tooltip.dispose();
+            });
         });
-    });
+    }
 }
 
 // *****************************************

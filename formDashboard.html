@@ -1059,45 +1059,45 @@ Dashboard untuk :
             </div>
             <div class="modal-body">
                 <input type="hidden" id="mode" value="add">
-                   
+                
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
-                  <input type="text" id="userId" class="form-control" placeholder="Input user ID 6-8 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 8)" minlength="6" maxlength="8" pattern="^[^\sA-Z]{6,8}$" title="User ID 6-8 karakter, tanpa spasi dan tanpa huruf besar." required>
+                    <span class="input-group-text" title="User ID 6-8 karakter, tanpa spasi dan huruf besar" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-user-circle"></i></span>
+                    <input type="text" id="userId" class="form-control" placeholder="Input user ID 6-8 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 8)" minlength="6" maxlength="8" pattern="^[^\sA-Z]{6,8}$" required>
                 </div>
 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
-                  <input type="text" id="userName" class="form-control" placeholder="Input nama user 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama user 3-20 karakter, huruf kecil dan spasi saja." required>
+                    <span class="input-group-text" title="Nama user 3-20 karakter, huruf kecil dan spasi saja" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-user-alt"></i></span>
+                    <input type="text" id="userName" class="form-control" placeholder="Input nama user 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
                 </div>
 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-envelope-open-text"></i></span>
-                  <input type="email" id="userEmail" class="form-control" placeholder="Input alamat email" oninput="this.value = this.value.toLowerCase()" required>
+                    <span class="input-group-text" title="Alamat email valid" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-envelope-open-text"></i></span>
+                    <input type="email" id="userEmail" class="form-control" placeholder="Input alamat email" oninput="this.value = this.value.toLowerCase()" required>
                 </div>
                 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
-                  <input type="text" id="userHP" class="form-control" placeholder="Input nomor handphone 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor handphone harus 10-14 digit angka." required>
+                    <span class="input-group-text" title="Nomor handphone 10-14 digit angka" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fab fa-whatsapp"></i></span>
+                    <input type="text" id="userHP" class="form-control" placeholder="Input nomor handphone 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" required>
                 </div>
 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-key"></i></span>
-                  <input type="text" id="userPass" class="form-control" placeholder="Input password 6-8 karakter" minlength="6" maxlength="8" pattern="^[^\s]{6,8}$" title="Password 6-8 karakter, tanpa spasi." required>
+                    <span class="input-group-text" title="Password 6-8 karakter, tanpa spasi" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-key"></i></span>
+                    <input type="text" id="userPass" class="form-control" placeholder="Input password 6-8 karakter" minlength="6" maxlength="8" pattern="^[^\s]{6,8}$" required>
                 </div>
 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="far fa-check-square"></i></span>
-                  <select id="userLevel" class="form-select" required>
-                    <option value="">Pilih level...</option>
-                    <option value="admin">admin</option>
-                    <option value="member">member</option>
-                    <option value="peserta">peserta</option>
-                  </select>
+                    <span class="input-group-text" title="Pilih level akses user" data-bs-toggle="tooltip" data-bs-placement="top"><i class="far fa-check-square"></i></span>
+                    <select id="userLevel" class="form-select" required>
+                        <option value="">Pilih level...</option>
+                        <option value="admin">admin</option>
+                        <option value="member">member</option>
+                        <option value="peserta">peserta</option>
+                    </select>
                 </div>
 
                 <div class="input-group mt-2">
-                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                  <input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required>
+                    <span class="input-group-text" title="Jumlah kesalahan login (0-3)" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-lock"></i></span>
+                    <input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required>
                 </div>
                             
                 <div class="akses-panel mt-3">
@@ -1220,7 +1220,7 @@ Dashboard untuk :
         </form>
         </div>
     </div>
-    
+
     <!-- Modal Edit untuk Follow UP WE -->
     <div class="modal fade" id="weEditModal" tabindex="-1">
         <div class="modal-dialog">
@@ -1234,28 +1234,28 @@ Dashboard untuk :
                         <input type="hidden" id="editRowIndex">
                         
                         <div class="input-group mt-2">
-                            <span class="input-group-text" title="Nama lengkap prospek (3-20 karakter, huruf kecil dan spasi)"><i class="fas fa-user-alt"></i></span>
-                            <input type="text" id="editNama" class="form-control" placeholder="Input nama user 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama user 3-20 karakter, huruf kecil dan spasi saja." required>
+                            <span class="input-group-text" title="Nama lengkap prospek (3-20 karakter, huruf kecil dan spasi)" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-user-alt"></i></span>
+                            <input type="text" id="editNama" class="form-control" placeholder="Input nama user 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
                         </div>
                         
                         <div class="input-group mt-2">
-                            <span class="input-group-text" title="Nomor WhatsApp aktif (10-14 digit angka)"><i class="fab fa-whatsapp"></i></span>
-                            <input type="text" id="editNomorHp" class="form-control" placeholder="Input nomor HP user 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor hp user harus 10-14 digit" required>
+                            <span class="input-group-text" title="Nomor WhatsApp aktif (10-14 digit angka)" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fab fa-whatsapp"></i></span>
+                            <input type="text" id="editNomorHp" class="form-control" placeholder="Input nomor HP user 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" required>
                         </div>
                         
                         <div class="input-group mt-2">
-                            <span class="input-group-text" title="Alamat email valid untuk pengiriman notifikasi"><i class="fas fa-envelope-open-text"></i></span>
-                            <input type="email" id="editEmail" class="form-control" placeholder="Input alamat email user" oninput="this.value = this.value.toLowerCase()" title="Alamat email user" required>
+                            <span class="input-group-text" title="Alamat email valid untuk pengiriman notifikasi" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-envelope-open-text"></i></span>
+                            <input type="email" id="editEmail" class="form-control" placeholder="Input alamat email user" oninput="this.value = this.value.toLowerCase()" required>
                         </div>
                         
                         <div class="input-group mt-2">
-                            <span class="input-group-text" title="Nama sponsor atau pengundang (3-20 karakter)"><i class="fas fa-user-friends"></i></span>
-                            <input type="text" id="editSponsor" class="form-control" placeholder="Input nama sponsor 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" title="Nama sponsor 3-20 karakter, huruf kecil dan spasi saja." required>
+                            <span class="input-group-text" title="Nama sponsor atau pengundang (3-20 karakter)" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-user-friends"></i></span>
+                            <input type="text" id="editSponsor" class="form-control" placeholder="Input nama sponsor 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
                         </div>
                         
                         <div class="input-group mt-2">
-                            <span class="input-group-text" title="Nomor WhatsApp sponsor (10-14 digit angka)"><i class="fas fa-phone-alt"></i></span>
-                            <input type="text" id="editHpSponsor" class="form-control" placeholder="Input nomor HP sponsor 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" title="Nomor hp sponsor 10-14 digit" required>
+                            <span class="input-group-text" title="Nomor WhatsApp sponsor (10-14 digit angka)" data-bs-toggle="tooltip" data-bs-placement="top"><i class="fas fa-phone-alt"></i></span>
+                            <input type="text" id="editHpSponsor" class="form-control" placeholder="Input nomor HP sponsor 10-14 digit" inputmode="numeric" minlength="10" maxlength="14" pattern="^[0-9]{10,14}$" required>
                         </div>
                     </form>
                 </div>
@@ -1272,6 +1272,7 @@ Dashboard untuk :
             </div>
         </div>
     </div>
+
     <!-- Modal View Untuk Follow Up WE -->
     <div class="modal fade" id="weViewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">

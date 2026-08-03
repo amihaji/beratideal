@@ -921,7 +921,6 @@ function handleUserModalSuccess(message) {
   }, 1200);
 }
 
-
 // **************************
 // Tampilkan Modal Edit User
 // ************************** 
@@ -966,7 +965,34 @@ function showEditModal(userData) {
   modalUser.setAttribute("data-mode", "edit");
   console.log('modalUser data-mode set to:', modalUser.getAttribute("data-mode"));
   
-  new bootstrap.Modal(modalUser).show();
+  const modal = new bootstrap.Modal(modalUser);
+  modal.show();
+  
+  // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
+  modalUser.addEventListener('shown.bs.modal', function onShown() {
+      const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(function(el) {
+          const oldTooltip = bootstrap.Tooltip.getInstance(el);
+          if (oldTooltip) oldTooltip.dispose();
+          new bootstrap.Tooltip(el, {
+              trigger: 'hover focus',
+              container: 'body',
+              placement: 'top'
+          });
+      });
+      // Hapus event listener setelah dipanggil agar tidak duplikat
+      this.removeEventListener('shown.bs.modal', onShown);
+  });
+
+  modalUser.addEventListener('hidden.bs.modal', function onHidden() {
+      const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(function(el) {
+          const tooltip = bootstrap.Tooltip.getInstance(el);
+          if (tooltip) tooltip.dispose();
+      });
+      this.removeEventListener('hidden.bs.modal', onHidden);
+  });
+  
   console.log('=== Modal Edit ditampilkan ===');
 }
 
