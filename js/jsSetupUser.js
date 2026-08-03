@@ -969,11 +969,8 @@ function showEditModal(userData) {
   modal.show();
 
   // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
-  // Hapus event listener lama
-  modalUser.removeEventListener('shown.bs.modal', function() {});
-  modalUser.removeEventListener('hidden.bs.modal', function() {});
-  
   modalUser.addEventListener('shown.bs.modal', function() {
+      console.log('Setup User Modal shown - inisialisasi tooltip');
       initModalTooltips(modalUser);
   });
 

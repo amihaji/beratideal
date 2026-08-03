@@ -648,11 +648,8 @@
 
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
         if (elements.editModalEl) {
-            // Hapus event listener lama
-            elements.editModalEl.removeEventListener('shown.bs.modal', function() {});
-            elements.editModalEl.removeEventListener('hidden.bs.modal', function() {});
-            
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                console.log('CRM Modal shown - inisialisasi tooltip');
                 initModalTooltips(elements.editModalEl);
             });
 
@@ -661,8 +658,8 @@
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
             });
         }
-    }
-
+    }    
+    
     // Export Global & Insialisasi
     window.loadCrmTableData = loadCrmTableData;
 

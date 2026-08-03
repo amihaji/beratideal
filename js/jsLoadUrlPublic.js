@@ -29,13 +29,13 @@ const URL_dbProgram ='https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroy
 // ============================================================
 function initModalTooltips(modalElement) {
     if (!modalElement) return;
-    
+    console.log('initModalTooltips dipanggil untuk:', modalElement.id);
     // Tunggu hingga modal benar-benar tampil
     setTimeout(function() {
         const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
         console.log('Tooltip triggers ditemukan:', tooltipTriggers.length);
-        
-        tooltipTriggers.forEach(function(el) {
+        tooltipTriggers.forEach(function(el, index) {
+            console.log('Tooltip ke-' + index + ':', el);
             // Hapus tooltip lama jika ada
             const oldTooltip = bootstrap.Tooltip.getInstance(el);
             if (oldTooltip) {
@@ -48,12 +48,11 @@ function initModalTooltips(modalElement) {
                 placement: 'top'
             });
         });
-    }, 150);
+    }, 300);
 }
 
 function destroyModalTooltips(modalElement) {
     if (!modalElement) return;
-    
     const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggers.forEach(function(el) {
         const tooltip = bootstrap.Tooltip.getInstance(el);

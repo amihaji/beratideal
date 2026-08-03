@@ -657,10 +657,8 @@ function initFollowWeUI() {
     // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
     const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
-        editModalEl.removeEventListener('shown.bs.modal', function() {});
-        editModalEl.removeEventListener('hidden.bs.modal', function() {});
-        
         editModalEl.addEventListener('shown.bs.modal', function() {
+            console.log('WE Modal shown - inisialisasi tooltip');
             initModalTooltips(editModalEl);
         });
 
