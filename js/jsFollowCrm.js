@@ -649,20 +649,23 @@
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
         if (elements.editModalEl) {
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
-                const tooltipTriggerList = this.querySelectorAll('[title]');
-                tooltipTriggerList.forEach(function(el) {
-                    const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                    if (oldTooltip) oldTooltip.dispose();
-                    new bootstrap.Tooltip(el, {
-                        trigger: 'hover focus',
-                        container: 'body',
-                        placement: 'top'
+                setTimeout(function() {
+                    const tooltipTriggerList = document.querySelectorAll('#crmEditModal [data-bs-toggle="tooltip"]');
+                    tooltipTriggerList.forEach(function(el) {
+                        const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                        if (oldTooltip) oldTooltip.dispose();
+                        new bootstrap.Tooltip(el, {
+                            trigger: 'hover focus',
+                            container: 'body',
+                            placement: 'top',
+                            delay: { show: 200, hide: 100 }
+                        });
                     });
-                });
+                }, 100);
             });
 
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
-                const tooltipTriggerList = this.querySelectorAll('[title]');
+                const tooltipTriggerList = document.querySelectorAll('#crmEditModal [data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(function(el) {
                     const tooltip = bootstrap.Tooltip.getInstance(el);
                     if (tooltip) tooltip.dispose();

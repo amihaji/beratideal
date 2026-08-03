@@ -637,7 +637,7 @@ function initFollowWeUI() {
     if (window.followWeUiInitialized) return;
     window.followWeUiInitialized = true;
 
-    const viewModalEl = document.getElementById('viewModal');
+    const viewModalEl = document.getElementById('weViewModal');
     if (viewModalEl) {
         viewModalEl.addEventListener('shown.bs.modal', () => {
             setTimeout(setupViewModalHorizontalScrollHelper, 80);
@@ -649,7 +649,7 @@ function initFollowWeUI() {
     }
 
     window.addEventListener('resize', () => {
-        if (document.getElementById('viewModal')?.classList.contains('show')) {
+        if (document.getElementById('weViewModal')?.classList.contains('show')) {
             setupViewModalHorizontalScrollHelper();
         }
     });
@@ -663,26 +663,55 @@ function initFollowWeUI() {
 
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
         editModalEl.addEventListener('shown.bs.modal', function() {
-            const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
-            tooltipTriggerList.forEach(function(el) {
-                const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                if (oldTooltip) oldTooltip.dispose();
-                new bootstrap.Tooltip(el, {
-                    trigger: 'hover focus',
-                    container: 'body',
-                    placement: 'top'
+            // Gunakan setTimeout agar tooltip terinisialisasi setelah modal benar-benar tampil
+            setTimeout(function() {
+                const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
+                tooltipTriggerList.forEach(function(el) {
+                    // Hapus tooltip lama jika ada
+                    const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                    if (oldTooltip) oldTooltip.dispose();
+                    // Buat tooltip baru
+                    new bootstrap.Tooltip(el, {
+                        trigger: 'hover focus',
+                        container: 'body',
+                        placement: 'top',
+                        delay: { show: 200, hide: 100 }
+                    });
                 });
-            });
+            }, 100);
         });
 
         editModalEl.addEventListener('hidden.bs.modal', function() {
-            const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
             tooltipTriggerList.forEach(function(el) {
                 const tooltip = bootstrap.Tooltip.getInstance(el);
                 if (tooltip) tooltip.dispose();
             });
         });
     }
+
+    // Inisialisasi tooltip untuk modal yang sudah terbuka
+    if (editModalEl && editModalEl.classList.contains('show')) {
+        setTimeout(function() {
+            const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(function(el) {
+                const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                if (oldTooltip) oldTooltip.dispose();
+                new bootstrap.Tooltip(el, {
+                    trigger: 'hover focus',
+                    container: 'body',
+                    placement: 'top',
+                    delay: { show: 200, hide: 100 }
+                });
+            });
+        }, 100);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
+} else {
+    initFollowWeUI();
 }
 
 // *****************************************

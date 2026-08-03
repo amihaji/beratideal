@@ -924,6 +924,9 @@ function handleUserModalSuccess(message) {
 // **************************
 // Tampilkan Modal Edit User
 // ************************** 
+// **************************
+// Tampilkan Modal Edit User
+// ************************** 
 function showEditModal(userData) {
   console.log('=== showEditModal dipanggil ===');
   console.log('userData:', userData);
@@ -969,29 +972,44 @@ function showEditModal(userData) {
   modal.show();
   
   // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
-  modalUser.addEventListener('shown.bs.modal', function onShown() {
-      const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
+  // Hapus event listener lama untuk menghindari duplikasi
+  modalUser.removeEventListener('shown.bs.modal', initSetupUserTooltips);
+  modalUser.removeEventListener('hidden.bs.modal', destroySetupUserTooltips);
+  
+  // Definisikan fungsi inisialisasi tooltip
+  function initSetupUserTooltips() {
+    setTimeout(function() {
+      const tooltipTriggerList = document.querySelectorAll('#modalUser [data-bs-toggle="tooltip"]');
+      console.log('Jumlah tooltip di modalUser:', tooltipTriggerList.length);
       tooltipTriggerList.forEach(function(el) {
-          const oldTooltip = bootstrap.Tooltip.getInstance(el);
-          if (oldTooltip) oldTooltip.dispose();
-          new bootstrap.Tooltip(el, {
-              trigger: 'hover focus',
-              container: 'body',
-              placement: 'top'
-          });
+        const oldTooltip = bootstrap.Tooltip.getInstance(el);
+        if (oldTooltip) oldTooltip.dispose();
+        new bootstrap.Tooltip(el, {
+          trigger: 'hover focus',
+          container: 'body',
+          placement: 'top',
+          delay: { show: 200, hide: 100 }
+        });
       });
-      // Hapus event listener setelah dipanggil agar tidak duplikat
-      this.removeEventListener('shown.bs.modal', onShown);
-  });
-
-  modalUser.addEventListener('hidden.bs.modal', function onHidden() {
-      const tooltipTriggerList = this.querySelectorAll('[data-bs-toggle="tooltip"]');
-      tooltipTriggerList.forEach(function(el) {
-          const tooltip = bootstrap.Tooltip.getInstance(el);
-          if (tooltip) tooltip.dispose();
-      });
-      this.removeEventListener('hidden.bs.modal', onHidden);
-  });
+    }, 150);
+  }
+  
+  function destroySetupUserTooltips() {
+    const tooltipTriggerList = document.querySelectorAll('#modalUser [data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(function(el) {
+      const tooltip = bootstrap.Tooltip.getInstance(el);
+      if (tooltip) tooltip.dispose();
+    });
+  }
+  
+  // Pasang event listener
+  modalUser.addEventListener('shown.bs.modal', initSetupUserTooltips);
+  modalUser.addEventListener('hidden.bs.modal', destroySetupUserTooltips);
+  
+  // Jika modal sudah terbuka (misal karena dipanggil ulang), inisialisasi langsung
+  if (modalUser.classList.contains('show')) {
+    initSetupUserTooltips();
+  }
   
   console.log('=== Modal Edit ditampilkan ===');
 }
