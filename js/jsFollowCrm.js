@@ -649,26 +649,33 @@
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
         if (elements.editModalEl) {
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                // Gunakan setTimeout agar DOM benar-benar siap
                 setTimeout(function() {
-                    const tooltipTriggerList = document.querySelectorAll('#crmEditModal [data-bs-toggle="tooltip"]');
+                    // Cari semua elemen dengan data-bs-toggle="tooltip" di dalam modal
+                    const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
                     tooltipTriggerList.forEach(function(el) {
+                        // Hapus tooltip lama jika ada
                         const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                        if (oldTooltip) oldTooltip.dispose();
+                        if (oldTooltip) {
+                            oldTooltip.dispose();
+                        }
+                        // Buat tooltip baru
                         new bootstrap.Tooltip(el, {
                             trigger: 'hover focus',
                             container: 'body',
-                            placement: 'top',
-                            delay: { show: 200, hide: 100 }
+                            placement: 'top'
                         });
                     });
-                }, 100);
+                }, 200);
             });
 
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
-                const tooltipTriggerList = document.querySelectorAll('#crmEditModal [data-bs-toggle="tooltip"]');
+                const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(function(el) {
                     const tooltip = bootstrap.Tooltip.getInstance(el);
-                    if (tooltip) tooltip.dispose();
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
                 });
             });
         }

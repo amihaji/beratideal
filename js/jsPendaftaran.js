@@ -871,13 +871,37 @@
             elements.tableBody.addEventListener('click', handleTableAction);
         }
 
+        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit Pendaftaran =====
         if (elements.editModalEl) {
-            elements.editModalEl.addEventListener('shown.bs.modal', () => {
+            elements.editModalEl.addEventListener('shown.bs.modal', function() {
+                // Inisialisasi tooltips dari pendaftaran
                 initEditTooltips();
+                
+                // Tooltip Bootstrap
+                setTimeout(function() {
+                    const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
+                    tooltipTriggerList.forEach(function(el) {
+                        const oldTooltip = bootstrap.Tooltip.getInstance(el);
+                        if (oldTooltip) oldTooltip.dispose();
+                        new bootstrap.Tooltip(el, {
+                            trigger: 'hover focus',
+                            container: 'body',
+                            placement: 'top'
+                        });
+                    });
+                }, 200);
             });
-            elements.editModalEl.addEventListener('hidden.bs.modal', () => {
+
+            elements.editModalEl.addEventListener('hidden.bs.modal', function() {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
                 disposeEditTooltips();
+                
+                // Bersihkan tooltip saat modal ditutup
+                const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipTriggerList.forEach(function(el) {
+                    const tooltip = bootstrap.Tooltip.getInstance(el);
+                    if (tooltip) tooltip.dispose();
+                });
             });
         }
 
@@ -890,13 +914,12 @@
             console.log('Pendaftaran Emoji button ready (menggunakan event delegation)');
         }
 
-    }
+        window.loadPendaftaranTableData = loadPendaftaranTableData;
 
-    window.loadPendaftaranTableData = loadPendaftaranTableData;
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPendaftaranUI, { once: true });
-    } else {
-        initPendaftaranUI();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPendaftaranUI, { once: true });
+        } else {
+            initPendaftaranUI();
+        }
     }
 })();

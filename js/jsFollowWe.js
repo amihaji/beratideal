@@ -654,42 +654,37 @@ function initFollowWeUI() {
         }
     });
 
+    // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
     const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
-        editModalEl.addEventListener('hidden.bs.modal', () => {
-            const box = document.getElementById('pesanNotifEditBox');
-            if (box) box.style.display = 'none';
-        });
-
-        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
         editModalEl.addEventListener('shown.bs.modal', function() {
-            // Gunakan setTimeout agar tooltip terinisialisasi setelah modal benar-benar tampil
             setTimeout(function() {
-                const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
+                const tooltipTriggerList = editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
                 tooltipTriggerList.forEach(function(el) {
-                    // Hapus tooltip lama jika ada
                     const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                    if (oldTooltip) oldTooltip.dispose();
-                    // Buat tooltip baru
+                    if (oldTooltip) {
+                        oldTooltip.dispose();
+                    }
                     new bootstrap.Tooltip(el, {
                         trigger: 'hover focus',
                         container: 'body',
-                        placement: 'top',
-                        delay: { show: 200, hide: 100 }
+                        placement: 'top'
                     });
                 });
-            }, 100);
+            }, 200);
         });
 
         editModalEl.addEventListener('hidden.bs.modal', function() {
-            const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
+            const tooltipTriggerList = editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
             tooltipTriggerList.forEach(function(el) {
                 const tooltip = bootstrap.Tooltip.getInstance(el);
-                if (tooltip) tooltip.dispose();
+                if (tooltip) {
+                    tooltip.dispose();
+                }
             });
         });
     }
-
+    
     // Inisialisasi tooltip untuk modal yang sudah terbuka
     if (editModalEl && editModalEl.classList.contains('show')) {
         setTimeout(function() {
