@@ -689,4 +689,15 @@
         // Tooltip diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
         console.log('FollowUp CRM UI initialized');
     }
+
+    window.loadCrmTableData = function() {
+        initFollowCrmUI();
+        return loadCrmTableData();
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFollowCrmUI, { once: true });
+    } else {
+        initFollowCrmUI();
+    }
 })();
