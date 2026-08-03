@@ -30,6 +30,34 @@
         ['waCoach', 'crmEditWaCoach']
     ];
 
+    const editFieldTooltips = {
+        crmEditTanggal: 'Tanggal daftar.',
+        crmEditNoPesanan: 'Nomor pesanan.',
+        crmEditProgram: 'Nama program.',
+        crmEditHarga: 'Harga program.',
+        crmEditNama: 'Nama konsumen.',
+        crmEditAlamat: 'Alamat konsumen.',
+        crmEditTelp: 'Nomor telepon konsumen.',
+        crmEditEmail: 'Email konsumen.',
+        crmEditKelurahan: 'Kelurahan.',
+        crmEditKecamatan: 'Kecamatan.',
+        crmEditKota: 'Kota atau kabupaten.',
+        crmEditPropensi: 'Propinsi.',
+        crmEditUserId: 'User ID.',
+        crmEditJenisKelamin: 'Jenis kelamin.',
+        crmEditTglLahir: 'Tanggal lahir.',
+        crmEditTestimoni: 'Testimoni konsumen.',
+        crmEditFeedback: 'Feedback konsumen.',
+        crmEditDownloadSertifikat: 'Link sertifikat.',
+        crmEditProduk: 'Nama produk.',
+        crmEditNamaSponsor: 'Nama sponsor.',
+        crmEditHpSponsor: 'HP sponsor.',
+        crmEditLevelSponsor: 'Level sponsor.',
+        crmEditEmailSponsor: 'Email sponsor.',
+        crmEditNamaCoach: 'Nama coach.',
+        crmEditWaCoach: 'WA coach.'
+    };
+
     const elements = {
         page: document.getElementById('followupcrm-page'),
         filterNama: document.getElementById('crmFilterNama'),
@@ -639,7 +667,9 @@
             
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
                 console.log('CRM Edit Modal shown - panggil initModalTooltips');
-                if (typeof initModalTooltips === 'function') {
+                if (typeof prepareManagedModalFieldTooltips === 'function') {
+                    prepareManagedModalFieldTooltips(elements.editModalEl, editFieldTooltips);
+                } else if (typeof initModalTooltips === 'function') {
                     initModalTooltips(elements.editModalEl);
                 } else {
                     console.error('initModalTooltips tidak ditemukan!');

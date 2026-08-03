@@ -53,6 +53,44 @@ function initModalTooltips(modalElement) {
     }, 500);
 }
 
+function applyManagedModalFieldTooltips(modalElement, fieldTooltips) {
+    if (!modalElement || !fieldTooltips) return;
+
+    Object.entries(fieldTooltips).forEach(function(entry) {
+        var inputId = entry[0];
+        var tooltipText = entry[1];
+        var input = modalElement.querySelector('#' + inputId);
+        if (!input) return;
+
+        var inputGroup = input.closest('.input-group');
+        var prefix = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
+
+        [input, inputGroup, prefix].forEach(function(node) {
+            if (!node) return;
+            node.removeAttribute('title');
+            node.removeAttribute('data-bs-toggle');
+            node.removeAttribute('data-bs-placement');
+            node.removeAttribute('tabindex');
+        });
+
+        if (input.disabled && inputGroup) {
+            inputGroup.setAttribute('title', tooltipText);
+            inputGroup.setAttribute('data-bs-toggle', 'tooltip');
+            inputGroup.setAttribute('data-bs-placement', 'top');
+            inputGroup.setAttribute('tabindex', '0');
+        } else {
+            input.setAttribute('title', tooltipText);
+            input.setAttribute('data-bs-toggle', 'tooltip');
+            input.setAttribute('data-bs-placement', 'top');
+        }
+    });
+}
+
+function prepareManagedModalFieldTooltips(modalElement, fieldTooltips) {
+    applyManagedModalFieldTooltips(modalElement, fieldTooltips);
+    initModalTooltips(modalElement);
+}
+
 function destroyModalTooltips(modalElement) {
     if (!modalElement) return;
     

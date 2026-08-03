@@ -36,6 +36,13 @@ const waProgressContainer  = document.getElementById('waProgressContainer');
 const waProgressBar        = document.getElementById('waProgressBar');
 const saveChangesButtonEl  = document.getElementById('weSaveChangesButton');
 const exportButtonEl       = document.getElementById('weExportButton');
+const weEditFieldTooltips  = {
+    editNama: 'Nama prospek.',
+    editNomorHp: 'Nomor WhatsApp prospek.',
+    editEmail: 'Email prospek.',
+    editSponsor: 'Nama sponsor.',
+    editHpSponsor: 'Nomor WhatsApp sponsor.'
+};
 
 // ============================================================
 // EVENT LISTENER FILTER - DIPERBAIKI
@@ -664,7 +671,9 @@ function initFollowWeUI() {
         // ===== PERBAIKAN: Inisialisasi Tooltip =====
         editModalEl.addEventListener('shown.bs.modal', function() {
             console.log('WE Edit Modal shown - panggil initModalTooltips');
-            if (typeof initModalTooltips === 'function') {
+            if (typeof prepareManagedModalFieldTooltips === 'function') {
+                prepareManagedModalFieldTooltips(editModalEl, weEditFieldTooltips);
+            } else if (typeof initModalTooltips === 'function') {
                 initModalTooltips(editModalEl);
             } else {
                 console.error('initModalTooltips tidak ditemukan!');

@@ -15,6 +15,15 @@ let confirmModal = null;
 let pesanModalTimer = null;
 let currentLogNotifFilter = 'SEMUA';
 let setupUserRowsCache = [];
+const setupUserFieldTooltips = {
+  userId: 'User ID.',
+  userName: 'Nama user.',
+  userEmail: 'Email user.',
+  userHP: 'Nomor handphone user.',
+  userPass: 'Password user.',
+  userLevel: 'Level akses user.',
+  userSalah: 'Jumlah salah login.'
+};
 // **************************************
 
 // ********* Modal Konfirmasi Kustom **********
@@ -75,6 +84,11 @@ document.addEventListener('DOMContentLoaded', loadUserTable);
   });
   
   new bootstrap.Modal(modalUser).show();
+  if (typeof prepareManagedModalFieldTooltips === 'function') {
+    setTimeout(function() {
+      prepareManagedModalFieldTooltips(modalUser, setupUserFieldTooltips);
+    }, 150);
+  }
 });
 
 const setupFilterButtonEl = document.getElementById('setupFilterButton');
@@ -967,22 +981,15 @@ function showEditModal(userData) {
   
   var modal = new bootstrap.Modal(modalUser);
   modal.show();
-
-  // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
-  modalUser.addEventListener('shown.bs.modal', function() {
-      console.log('Setup User Modal shown - panggil initModalTooltips');
-      if (typeof initModalTooltips === 'function') {
-          initModalTooltips(modalUser);
-      } else {
-          console.error('initModalTooltips tidak ditemukan!');
-      }
-  });
-
-  modalUser.addEventListener('hidden.bs.modal', function() {
-      if (typeof destroyModalTooltips === 'function') {
-          destroyModalTooltips(modalUser);
-      }
-  });
+  if (typeof prepareManagedModalFieldTooltips === 'function') {
+    setTimeout(function() {
+      prepareManagedModalFieldTooltips(modalUser, setupUserFieldTooltips);
+    }, 150);
+  } else if (typeof initModalTooltips === 'function') {
+    setTimeout(function() {
+      initModalTooltips(modalUser);
+    }, 150);
+  }
   
   console.log('=== Modal Edit ditampilkan ===');
 }
