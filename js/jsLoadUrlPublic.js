@@ -25,15 +25,17 @@ const URL_dbUser ='https://script.google.com/macros/s/AKfycbygI_rcLyGrGNTH_uOOrj
 const URL_dbProgram ='https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroycyx3Nadwu6SR-Fn9MEJLZaV8AONHVO8YW9AhevaQ7p_Bwm_b1DQ/exec';
 
 // ============================================================
-// FUNGSI GLOBAL UNTUK TOOLTIP - DIGUNAKAN DI SEMUA MODAL
+// FUNGSI GLOBAL UNTUK TOOLTIP - VERSI FINAL
 // ============================================================
 function initModalTooltips(modalElement) {
     if (!modalElement) return;
-    console.log('initModalTooltips dipanggil untuk:', modalElement.id);
+    console.log('initModalTooltips dipanggil untuk:', modalElement.id || 'modal tanpa id');
+    
     // Tunggu hingga modal benar-benar tampil
     setTimeout(function() {
         const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
         console.log('Tooltip triggers ditemukan:', tooltipTriggers.length);
+        
         tooltipTriggers.forEach(function(el, index) {
             console.log('Tooltip ke-' + index + ':', el);
             // Hapus tooltip lama jika ada
@@ -53,6 +55,7 @@ function initModalTooltips(modalElement) {
 
 function destroyModalTooltips(modalElement) {
     if (!modalElement) return;
+    
     const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggers.forEach(function(el) {
         const tooltip = bootstrap.Tooltip.getInstance(el);
@@ -61,3 +64,29 @@ function destroyModalTooltips(modalElement) {
         }
     });
 }
+
+// ============================================================
+// INISIALISASI OTOMATIS UNTUK SEMUA MODAL
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - Inisialisasi tooltip otomatis');
+    
+    // Cari semua modal yang memiliki elemen dengan data-bs-toggle="tooltip"
+    const allModals = document.querySelectorAll('.modal');
+    allModals.forEach(function(modal) {
+        const hasTooltip = modal.querySelector('[data-bs-toggle="tooltip"]');
+        if (hasTooltip) {
+            console.log('Modal dengan tooltip ditemukan:', modal.id);
+            
+            // Pasang event listener untuk setiap modal
+            modal.addEventListener('shown.bs.modal', function() {
+                console.log('Modal shown:', this.id);
+                initModalTooltips(this);
+            });
+            
+            modal.addEventListener('hidden.bs.modal', function() {
+                destroyModalTooltips(this);
+            });
+        }
+    });
+});

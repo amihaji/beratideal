@@ -871,24 +871,17 @@
             elements.tableBody.addEventListener('click', handleTableAction);
         }
 
-        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit Pendaftaran =====
         if (elements.editModalEl) {
-            elements.editModalEl.removeEventListener('shown.bs.modal', function() {});
-            elements.editModalEl.removeEventListener('hidden.bs.modal', function() {});
-            
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
                 initEditTooltips();
-                initModalTooltips(elements.editModalEl);
             });
-
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
                 disposeEditTooltips();
-                destroyModalTooltips(elements.editModalEl);
             });
         }
 
-        // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk Pendaftaran =====
+        // ===== Inisialisasi Emoji Picker untuk Pendaftaran =====
         const pendaftaranEmojiButton = document.getElementById('pendaftaranEmojiPickerButton');
         if (pendaftaranEmojiButton) {
             if (!pendaftaranEmojiButton.hasAttribute('data-emoji-target')) {
@@ -897,12 +890,16 @@
             console.log('Pendaftaran Emoji button ready (menggunakan event delegation)');
         }
 
-        window.loadPendaftaranTableData = loadPendaftaranTableData;
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initPendaftaranUI, { once: true });
-        } else {
-            initPendaftaranUI();
-        }
+        // Tooltip diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
+        console.log('Pendaftaran UI initialized');
     }
+
+    window.loadPendaftaranTableData = loadPendaftaranTableData;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPendaftaranUI, { once: true });
+    } else {
+        initPendaftaranUI();
+    }
+
 })();

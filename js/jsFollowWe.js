@@ -636,7 +636,6 @@ function formatTanggal(tanggalISO) {
 function initFollowWeUI() {
     if (window.followWeUiInitialized) return;
     window.followWeUiInitialized = true;
-
     const viewModalEl = document.getElementById('weViewModal');
     if (viewModalEl) {
         viewModalEl.addEventListener('shown.bs.modal', () => {
@@ -647,46 +646,21 @@ function initFollowWeUI() {
             if (helper) helper.style.display = 'none';
         });
     }
-
     window.addEventListener('resize', () => {
         if (document.getElementById('weViewModal')?.classList.contains('show')) {
             setupViewModalHorizontalScrollHelper();
         }
     });
-
-    // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
     const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
-        editModalEl.addEventListener('shown.bs.modal', function() {
-            console.log('WE Modal shown - inisialisasi tooltip');
-            initModalTooltips(editModalEl);
-        });
-
-        editModalEl.addEventListener('hidden.bs.modal', function() {
-            destroyModalTooltips(editModalEl);
+        editModalEl.addEventListener('hidden.bs.modal', () => {
             const box = document.getElementById('pesanNotifEditBox');
             if (box) box.style.display = 'none';
         });
     }
-    
-    // Inisialisasi tooltip untuk modal yang sudah terbuka
-    if (editModalEl && editModalEl.classList.contains('show')) {
-        setTimeout(function() {
-            const tooltipTriggerList = document.querySelectorAll('#weEditModal [data-bs-toggle="tooltip"]');
-            tooltipTriggerList.forEach(function(el) {
-                const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                if (oldTooltip) oldTooltip.dispose();
-                new bootstrap.Tooltip(el, {
-                    trigger: 'hover focus',
-                    container: 'body',
-                    placement: 'top',
-                    delay: { show: 200, hide: 100 }
-                });
-            });
-        }, 100);
-    }
+    // Tooltip sudah diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
+    console.log('FollowUp WE UI initialized');
 }
-
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFollowWeUI, { once: true });
 } else {

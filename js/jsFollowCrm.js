@@ -637,7 +637,7 @@
             });
         }
 
-        // ===== PERBAIKAN: Inisialisasi Emoji Picker untuk CRM =====
+        // ===== Inisialisasi Emoji Picker untuk CRM =====
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {
             if (!crmEmojiButton.hasAttribute('data-emoji-target')) {
@@ -646,27 +646,7 @@
             console.log('CRM Emoji button ready (menggunakan event delegation)');
         }
 
-        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
-        if (elements.editModalEl) {
-            elements.editModalEl.addEventListener('shown.bs.modal', function() {
-                console.log('CRM Modal shown - inisialisasi tooltip');
-                initModalTooltips(elements.editModalEl);
-            });
-
-            elements.editModalEl.addEventListener('hidden.bs.modal', function() {
-                destroyModalTooltips(elements.editModalEl);
-                if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
-            });
-        }
-    }    
-    
-    // Export Global & Insialisasi
-    window.loadCrmTableData = loadCrmTableData;
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initFollowCrmUI, { once: true });
-    } else {
-        initFollowCrmUI();
+        // Tooltip diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
+        console.log('FollowUp CRM UI initialized');
     }
-
 })();

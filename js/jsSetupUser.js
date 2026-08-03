@@ -967,17 +967,7 @@ function showEditModal(userData) {
   
   const modal = new bootstrap.Modal(modalUser);
   modal.show();
-
-  // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
-  modalUser.addEventListener('shown.bs.modal', function() {
-      console.log('Setup User Modal shown - inisialisasi tooltip');
-      initModalTooltips(modalUser);
-  });
-
-  modalUser.addEventListener('hidden.bs.modal', function() {
-      destroyModalTooltips(modalUser);
-  });
-  
+  // Tooltip akan diinisialisasi secara otomatis oleh jsLoadUrlPublic.js
   console.log('=== Modal Edit ditampilkan ===');
 }
 
