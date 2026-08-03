@@ -631,25 +631,22 @@
             elements.tableBody.addEventListener('click', handleTableAction);
         }
 
-        /**** 
+       // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
         if (elements.editModalEl) {
-            elements.editModalEl.addEventListener('hidden.bs.modal', () => {
-                if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
-            });
-        }
-        ****/
-        // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
-        if (elements.editModalEl) {
-            elements.editModalEl.addEventListener('hidden.bs.modal', () => {
+            elements.editModalEl.addEventListener('hidden.bs.modal', function() {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
             });
             
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
                 console.log('CRM Edit Modal shown - panggil initModalTooltips');
-                initModalTooltips(elements.editModalEl);
+                if (typeof initModalTooltips === 'function') {
+                    initModalTooltips(elements.editModalEl);
+                } else {
+                    console.error('initModalTooltips tidak ditemukan!');
+                }
             });
         }
-
+  
         // ===== Inisialisasi Emoji Picker untuk CRM =====
         const crmEmojiButton = document.getElementById('crmEmojiPickerButton');
         if (crmEmojiButton) {

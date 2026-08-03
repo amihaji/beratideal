@@ -25,36 +25,40 @@ const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V
 const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxDBhOy78Z2GhPGc2BGyFrB81hnWvI4CwQCPokuGfyX37TfJpBReMG02-Omzni8T_rD/exec'
 
 // ============================================================
-// FUNGSI GLOBAL UNTUK TOOLTIP - VERSI FINAL
+// FUNGSI GLOBAL UNTUK TOOLTIP - VERSI SEDERHANA
 // ============================================================
 function initModalTooltips(modalElement) {
     if (!modalElement) return;
-    console.log('initModalTooltips dipanggil untuk:', modalElement.id || 'modal tanpa id');
+    console.log('initModalTooltips dipanggil untuk:', modalElement.id || 'modal');
     
+    // Tunggu sebentar agar DOM siap
     setTimeout(function() {
-        const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
+        // Cari semua elemen dengan data-bs-toggle="tooltip" di dalam modal
+        var tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
         console.log('Tooltip triggers ditemukan:', tooltipTriggers.length);
         
         tooltipTriggers.forEach(function(el) {
-            const oldTooltip = bootstrap.Tooltip.getInstance(el);
+            // Hapus tooltip lama jika ada
+            var oldTooltip = bootstrap.Tooltip.getInstance(el);
             if (oldTooltip) {
                 oldTooltip.dispose();
             }
+            // Buat tooltip baru
             new bootstrap.Tooltip(el, {
                 trigger: 'hover focus',
                 container: 'body',
                 placement: 'top'
             });
         });
-    }, 300);
+    }, 500);
 }
 
 function destroyModalTooltips(modalElement) {
     if (!modalElement) return;
     
-    const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
+    var tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggers.forEach(function(el) {
-        const tooltip = bootstrap.Tooltip.getInstance(el);
+        var tooltip = bootstrap.Tooltip.getInstance(el);
         if (tooltip) {
             tooltip.dispose();
         }
@@ -67,11 +71,16 @@ function destroyModalTooltips(modalElement) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded - Inisialisasi tooltip otomatis');
     
-    const allModals = document.querySelectorAll('.modal');
+    // Cari semua modal yang memiliki elemen dengan data-bs-toggle="tooltip"
+    var allModals = document.querySelectorAll('.modal');
     allModals.forEach(function(modal) {
-        const hasTooltip = modal.querySelector('[data-bs-toggle="tooltip"]');
+        var hasTooltip = modal.querySelector('[data-bs-toggle="tooltip"]');
         if (hasTooltip) {
             console.log('Modal dengan tooltip ditemukan:', modal.id);
+            
+            // Hapus event listener lama untuk menghindari duplikasi
+            modal.removeEventListener('shown.bs.modal', function() {});
+            modal.removeEventListener('hidden.bs.modal', function() {});
             
             modal.addEventListener('shown.bs.modal', function() {
                 console.log('Modal shown:', this.id);

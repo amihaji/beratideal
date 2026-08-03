@@ -939,7 +939,7 @@ function showEditModal(userData) {
   document.getElementById("userLevel").value = userData.userLevel;
 
   // Set radio akses
-  const aksesList = [
+  var aksesList = [
     'Login',
     'FitChallange',
     'FitTracker',
@@ -953,29 +953,35 @@ function showEditModal(userData) {
     'LogNotif',
     'Coach'
   ];
-  aksesList.forEach(aksesName => {
-    const val = userData['akses' + aksesName] || 'N';
-    const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
-    console.log(`akses${aksesName}:`, val, radio);
+  aksesList.forEach(function(aksesName) {
+    var val = userData['akses' + aksesName] || 'N';
+    var radio = document.querySelector('input[name="akses' + aksesName + '"][value="' + val + '"]');
+    console.log('akses' + aksesName + ':', val, radio);
     if (radio) radio.checked = true;
   });
 
   // Tampilkan modal & ubah mode
-  const modalUser = document.getElementById("modalUser");
+  var modalUser = document.getElementById("modalUser");
   modalUser.setAttribute("data-mode", "edit");
   console.log('modalUser data-mode set to:', modalUser.getAttribute("data-mode"));
   
-  const modal = new bootstrap.Modal(modalUser);
+  var modal = new bootstrap.Modal(modalUser);
   modal.show();
 
   // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
   modalUser.addEventListener('shown.bs.modal', function() {
       console.log('Setup User Modal shown - panggil initModalTooltips');
-      initModalTooltips(modalUser);
+      if (typeof initModalTooltips === 'function') {
+          initModalTooltips(modalUser);
+      } else {
+          console.error('initModalTooltips tidak ditemukan!');
+      }
   });
 
   modalUser.addEventListener('hidden.bs.modal', function() {
-      destroyModalTooltips(modalUser);
+      if (typeof destroyModalTooltips === 'function') {
+          destroyModalTooltips(modalUser);
+      }
   });
   
   console.log('=== Modal Edit ditampilkan ===');

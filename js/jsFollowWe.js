@@ -637,34 +637,38 @@ function initFollowWeUI() {
     if (window.followWeUiInitialized) return;
     window.followWeUiInitialized = true;
 
-    const viewModalEl = document.getElementById('weViewModal');
+    var viewModalEl = document.getElementById('weViewModal');
     if (viewModalEl) {
-        viewModalEl.addEventListener('shown.bs.modal', () => {
+        viewModalEl.addEventListener('shown.bs.modal', function() {
             setTimeout(setupViewModalHorizontalScrollHelper, 80);
         });
-        viewModalEl.addEventListener('hidden.bs.modal', () => {
-            const helper = document.getElementById('viewModalScrollHelper');
+        viewModalEl.addEventListener('hidden.bs.modal', function() {
+            var helper = document.getElementById('viewModalScrollHelper');
             if (helper) helper.style.display = 'none';
         });
     }
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', function() {
         if (document.getElementById('weViewModal')?.classList.contains('show')) {
             setupViewModalHorizontalScrollHelper();
         }
     });
 
-    const editModalEl = document.getElementById('weEditModal');
+    var editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
-        editModalEl.addEventListener('hidden.bs.modal', () => {
-            const box = document.getElementById('pesanNotifEditBox');
+        editModalEl.addEventListener('hidden.bs.modal', function() {
+            var box = document.getElementById('pesanNotifEditBox');
             if (box) box.style.display = 'none';
         });
         
-        // ===== PERBAIKAN: Panggil initModalTooltips langsung saat modal terbuka =====
+        // ===== PERBAIKAN: Inisialisasi Tooltip =====
         editModalEl.addEventListener('shown.bs.modal', function() {
             console.log('WE Edit Modal shown - panggil initModalTooltips');
-            initModalTooltips(editModalEl);
+            if (typeof initModalTooltips === 'function') {
+                initModalTooltips(editModalEl);
+            } else {
+                console.error('initModalTooltips tidak ditemukan!');
+            }
         });
     }
 
