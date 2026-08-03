@@ -648,35 +648,17 @@
 
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit CRM =====
         if (elements.editModalEl) {
+            // Hapus event listener lama
+            elements.editModalEl.removeEventListener('shown.bs.modal', function() {});
+            elements.editModalEl.removeEventListener('hidden.bs.modal', function() {});
+            
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
-                // Gunakan setTimeout agar DOM benar-benar siap
-                setTimeout(function() {
-                    // Cari semua elemen dengan data-bs-toggle="tooltip" di dalam modal
-                    const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-                    tooltipTriggerList.forEach(function(el) {
-                        // Hapus tooltip lama jika ada
-                        const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                        if (oldTooltip) {
-                            oldTooltip.dispose();
-                        }
-                        // Buat tooltip baru
-                        new bootstrap.Tooltip(el, {
-                            trigger: 'hover focus',
-                            container: 'body',
-                            placement: 'top'
-                        });
-                    });
-                }, 200);
+                initModalTooltips(elements.editModalEl);
             });
 
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
-                const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltipTriggerList.forEach(function(el) {
-                    const tooltip = bootstrap.Tooltip.getInstance(el);
-                    if (tooltip) {
-                        tooltip.dispose();
-                    }
-                });
+                destroyModalTooltips(elements.editModalEl);
+                if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
             });
         }
     }

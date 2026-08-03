@@ -873,35 +873,18 @@
 
         // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit Pendaftaran =====
         if (elements.editModalEl) {
+            elements.editModalEl.removeEventListener('shown.bs.modal', function() {});
+            elements.editModalEl.removeEventListener('hidden.bs.modal', function() {});
+            
             elements.editModalEl.addEventListener('shown.bs.modal', function() {
-                // Inisialisasi tooltips dari pendaftaran
                 initEditTooltips();
-                
-                // Tooltip Bootstrap
-                setTimeout(function() {
-                    const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-                    tooltipTriggerList.forEach(function(el) {
-                        const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                        if (oldTooltip) oldTooltip.dispose();
-                        new bootstrap.Tooltip(el, {
-                            trigger: 'hover focus',
-                            container: 'body',
-                            placement: 'top'
-                        });
-                    });
-                }, 200);
+                initModalTooltips(elements.editModalEl);
             });
 
             elements.editModalEl.addEventListener('hidden.bs.modal', function() {
                 if (elements.editNotifBox) elements.editNotifBox.style.display = 'none';
                 disposeEditTooltips();
-                
-                // Bersihkan tooltip saat modal ditutup
-                const tooltipTriggerList = elements.editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltipTriggerList.forEach(function(el) {
-                    const tooltip = bootstrap.Tooltip.getInstance(el);
-                    if (tooltip) tooltip.dispose();
-                });
+                destroyModalTooltips(elements.editModalEl);
             });
         }
 

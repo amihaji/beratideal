@@ -657,31 +657,17 @@ function initFollowWeUI() {
     // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit WE =====
     const editModalEl = document.getElementById('weEditModal');
     if (editModalEl) {
+        editModalEl.removeEventListener('shown.bs.modal', function() {});
+        editModalEl.removeEventListener('hidden.bs.modal', function() {});
+        
         editModalEl.addEventListener('shown.bs.modal', function() {
-            setTimeout(function() {
-                const tooltipTriggerList = editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltipTriggerList.forEach(function(el) {
-                    const oldTooltip = bootstrap.Tooltip.getInstance(el);
-                    if (oldTooltip) {
-                        oldTooltip.dispose();
-                    }
-                    new bootstrap.Tooltip(el, {
-                        trigger: 'hover focus',
-                        container: 'body',
-                        placement: 'top'
-                    });
-                });
-            }, 200);
+            initModalTooltips(editModalEl);
         });
 
         editModalEl.addEventListener('hidden.bs.modal', function() {
-            const tooltipTriggerList = editModalEl.querySelectorAll('[data-bs-toggle="tooltip"]');
-            tooltipTriggerList.forEach(function(el) {
-                const tooltip = bootstrap.Tooltip.getInstance(el);
-                if (tooltip) {
-                    tooltip.dispose();
-                }
-            });
+            destroyModalTooltips(editModalEl);
+            const box = document.getElementById('pesanNotifEditBox');
+            if (box) box.style.display = 'none';
         });
     }
     

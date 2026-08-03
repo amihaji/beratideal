@@ -969,36 +969,17 @@ function showEditModal(userData) {
   modal.show();
 
   // ===== PERBAIKAN: Inisialisasi Tooltip untuk Modal Edit User =====
-  // Hapus event listener lama agar tidak duplikat
-  modalUser.removeEventListener('shown.bs.modal', initSetupUserTooltips);
-  modalUser.removeEventListener('hidden.bs.modal', destroySetupUserTooltips);
+  // Hapus event listener lama
+  modalUser.removeEventListener('shown.bs.modal', function() {});
+  modalUser.removeEventListener('hidden.bs.modal', function() {});
+  
+  modalUser.addEventListener('shown.bs.modal', function() {
+      initModalTooltips(modalUser);
+  });
 
-  function initSetupUserTooltips() {
-    setTimeout(function() {
-      const tooltipTriggerList = modalUser.querySelectorAll('[data-bs-toggle="tooltip"]');
-      console.log('Jumlah tooltip di modalUser:', tooltipTriggerList.length);
-      tooltipTriggerList.forEach(function(el) {
-        const oldTooltip = bootstrap.Tooltip.getInstance(el);
-        if (oldTooltip) oldTooltip.dispose();
-        new bootstrap.Tooltip(el, {
-          trigger: 'hover focus',
-          container: 'body',
-          placement: 'top'
-        });
-      });
-    }, 200);
-  }
-
-  function destroySetupUserTooltips() {
-    const tooltipTriggerList = modalUser.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltipTriggerList.forEach(function(el) {
-      const tooltip = bootstrap.Tooltip.getInstance(el);
-      if (tooltip) tooltip.dispose();
-    });
-  }
-
-  modalUser.addEventListener('shown.bs.modal', initSetupUserTooltips);
-  modalUser.addEventListener('hidden.bs.modal', destroySetupUserTooltips);
+  modalUser.addEventListener('hidden.bs.modal', function() {
+      destroyModalTooltips(modalUser);
+  });
   
   console.log('=== Modal Edit ditampilkan ===');
 }

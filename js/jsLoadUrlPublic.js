@@ -23,3 +23,42 @@ const URL_dbUser ='https://script.google.com/macros/s/AKfycbygI_rcLyGrGNTH_uOOrj
 // - formDashboard.html
 // - prog10hari.html
 const URL_dbProgram ='https://script.google.com/macros/s/AKfycbwV2mZySfzMevxDroycyx3Nadwu6SR-Fn9MEJLZaV8AONHVO8YW9AhevaQ7p_Bwm_b1DQ/exec';
+
+// ============================================================
+// FUNGSI GLOBAL UNTUK TOOLTIP - DIGUNAKAN DI SEMUA MODAL
+// ============================================================
+function initModalTooltips(modalElement) {
+    if (!modalElement) return;
+    
+    // Tunggu hingga modal benar-benar tampil
+    setTimeout(function() {
+        const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
+        console.log('Tooltip triggers ditemukan:', tooltipTriggers.length);
+        
+        tooltipTriggers.forEach(function(el) {
+            // Hapus tooltip lama jika ada
+            const oldTooltip = bootstrap.Tooltip.getInstance(el);
+            if (oldTooltip) {
+                oldTooltip.dispose();
+            }
+            // Buat tooltip baru
+            new bootstrap.Tooltip(el, {
+                trigger: 'hover focus',
+                container: 'body',
+                placement: 'top'
+            });
+        });
+    }, 150);
+}
+
+function destroyModalTooltips(modalElement) {
+    if (!modalElement) return;
+    
+    const tooltipTriggers = modalElement.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggers.forEach(function(el) {
+        const tooltip = bootstrap.Tooltip.getInstance(el);
+        if (tooltip) {
+            tooltip.dispose();
+        }
+    });
+}
