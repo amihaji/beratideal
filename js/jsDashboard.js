@@ -865,8 +865,8 @@ function buildPesertaFollowUpMessage(template, peserta) {
     }
 
     return `${mainMessage}
-    \n---------------------------------------------------------
-    \*NB: Balas pesan ini ke Coach ${sponsorName} di WA: ${sponsorPhone}*`;
+    \n---------------------------------------------------------\n
+    *NB: Balas pesan ke Coach ${sponsorName} di WA: ${sponsorPhone}*`;
 }
 
 function showPesertaFollowUpStatus(type, message, duration = 4000) {
