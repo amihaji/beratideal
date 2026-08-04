@@ -916,13 +916,13 @@ async function handlePesertaFollowUp(pesertaId) {
     const waNumber = normalizePesertaWhatsAppNumber(peserta.phone);
 
     if (!messageTemplate) {
-        showPesertaFollowUpStatus('warning', 'Silakan isi pesan follow up terlebih dahulu.');
+        showPesertaFollowUpStatus('warning', 'Silakan isi pesan terlebih dahulu.');
         waMessageInput?.focus();
         return;
     }
 
     if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
-        showPesertaFollowUpStatus('warning', 'Nomor WhatsApp peserta tidak tersedia atau tidak valid.');
+        showPesertaFollowUpStatus('warning', 'Nomor WhatsApp peserta tidak valid.');
         return;
     }
 
