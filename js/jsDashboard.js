@@ -808,6 +808,50 @@ function handlePesertaCardKeydown(event, pesertaId) {
     }
 }
 
+function normalizePesertaWhatsAppNumber(phoneNumber) {
+    const digitsOnly = String(phoneNumber || '').replace(/\D/g, '');
+
+    if (!digitsOnly) return '';
+    if (digitsOnly.startsWith('62')) return digitsOnly;
+    if (digitsOnly.startsWith('0')) return `62${digitsOnly.slice(1)}`;
+
+    return digitsOnly;
+}
+
+function buildPesertaFollowUpMessage(template, peserta) {
+    return String(template || '')
+        .replace(/\{nama\}/gi, peserta?.name || 'Peserta')
+        .replace(/\{program\}/gi, peserta?.program || '-')
+        .replace(/\{phone\}/gi, peserta?.phone || '-');
+}
+
+function handlePesertaFollowUp(pesertaId) {
+    const peserta = pesertaData.find((item) => item.id == pesertaId);
+    if (!peserta) {
+        showToast('Data peserta tidak ditemukan.', 'warning');
+        return;
+    }
+
+    const waMessageInput = document.getElementById('pesertaWaMessage');
+    const messageTemplate = waMessageInput ? waMessageInput.value.trim() : '';
+    const waNumber = normalizePesertaWhatsAppNumber(peserta.phone);
+
+    if (!messageTemplate) {
+        showToast('Silakan isi pesan follow up terlebih dahulu.', 'warning');
+        waMessageInput?.focus();
+        return;
+    }
+
+    if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
+        showToast('Nomor WhatsApp peserta tidak tersedia atau tidak valid.', 'warning');
+        return;
+    }
+
+    const finalMessage = buildPesertaFollowUpMessage(messageTemplate, peserta);
+    const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(finalMessage)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+}
+
 // Programs Rendering
 function renderPrograms() {
     const container = document.getElementById('program-details-container');
@@ -1243,13 +1287,34 @@ function showPesertaDetail(pesertaId) {
                     </table>
                 </div>
                 
-                <div class="d-grid gap-2 mt-3">
-                    <button class="btn btn-primary btn-sm">
-                        <i class="bi bi-envelope me-1"></i>Kirim Pesan
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-calendar me-1"></i>Jadwalkan Konsultasi
-                    </button>
+                <div class="mt-3">
+                    <label for="pesertaWaMessage" class="form-label mb-2">
+                        <strong>Pesan Follow Up WhatsApp</strong>
+                    </label>
+                    <div class="followupcrm-message-input">
+                        <textarea
+                            class="form-control"
+                            id="pesertaWaMessage"
+                            rows="4"
+                            placeholder="Contoh: Halo {nama}, bagaimana progres Anda di program {program} hari ini?"
+                        ></textarea>
+                        <div class="followupwe-message-footer mt-2">
+                            <button type="button" class="btn btn-success btn-sm" onclick="handlePesertaFollowUp('${peserta.id}')">
+                                <i class="fab fa-whatsapp me-1"></i>Follow Up
+                            </button>
+                            <button
+                                class="btn btn-outline-primary btn-sm followupcrm-emoji-button"
+                                type="button"
+                                data-emoji-target="pesertaWaMessage"
+                                data-emoji-title="Pilih Emoji Follow Up Peserta"
+                            >
+                                😊 <span class="ms-2">Insert Emoji</span>
+                            </button>
+                        </div>
+                        <div class="form-text mb-0">
+                            Gunakan <code>{nama}</code> untuk nama peserta dan <code>{program}</code> untuk nama program.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
