@@ -337,7 +337,7 @@
     }
 
     function buildViewTableRow(label, value) {
-        return `<tr><th>${escapeHtml(label)}</th><td>${value || '-'}</td></tr>`;
+        return `<tr><th style="width: 32%;">${escapeHtml(label)}</th><td>${value || '-'}</td></tr>`;
     }
 
     function renderLinkIfUrl(value) {
@@ -363,7 +363,7 @@
         if (elements.viewModalBody) {
             elements.viewModalBody.innerHTML = `
                 <h6 class="mt-1"><i class="fas fa-receipt me-2"></i>Data Pesanan</h6>
-                <table class="table table-bordered">
+                <table class="table table-bordered" style="table-layout: fixed; width: 100%;">
                     <tbody>
                         ${buildViewTableRow('Tanggal', escapeHtml(formatTanggal(data.tanggal)))}
                         ${buildViewTableRow('No Pesanan', escapeHtml(data.noPesanan))}
@@ -374,7 +374,7 @@
                 </table>
 
                 <h6 class="mt-4"><i class="fas fa-user me-2"></i>Data Konsumen</h6>
-                <table class="table table-bordered">
+                <table class="table table-bordered" style="table-layout: fixed; width: 100%;">
                     <tbody>
                         ${buildViewTableRow('Nama', escapeHtml(data.nama))}
                         ${buildViewTableRow('Telp', escapeHtml(data.telp))}
@@ -394,7 +394,7 @@
                 </table>
 
                 <h6 class="mt-4"><i class="fas fa-users me-2"></i>Data Pendamping</h6>
-                <table class="table table-bordered">
+                <table class="table table-bordered" style="table-layout: fixed; width: 100%;">
                     <tbody>
                         ${buildViewTableRow('Nama Sponsor', escapeHtml(data.namaSponsor))}
                         ${buildViewTableRow('HP Sponsor', escapeHtml(data.hpSponsor))}
