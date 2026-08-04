@@ -1198,7 +1198,9 @@ function showPesertaDetail(pesertaId) {
                 
                 <div class="peserta-detail-chart-wrap">
                     <h6 class="mb-3">Weight Progress</h6>
-                    <canvas id="pesertaWeightChart" height="200"></canvas>
+                    <div class="peserta-detail-chart-canvas">
+                        <canvas id="pesertaWeightChart"></canvas>
+                    </div>
                 </div>
             </div>
             
