@@ -306,13 +306,6 @@ async function submitForm() {
     // formKonfirmasiBayar membaca noPesanan dari query string.
     localStorage.setItem('noPesanan', formData.noPesanan);
 
-    /****** COBA NON AKTIFKAN SAJA INI AGAR TIDAK DUA KALI KONFIRMASI, CUKUP LINK DARI WA SAJA
-     JADI FORM KONFIRMASI HANYA TAMPIL DISAAT DIKLIK DI WA  
-    setTimeout(() => {
-      window.location.href = `formKonfirmasiBayar.html?noPesanan=${encodeURIComponent(formData.noPesanan)}`;
-    }, 800);
-    *******/
-
     setTimeout(function() {
       // kembali ke landingpage
       window.location.href = 'index.html';
