@@ -569,9 +569,11 @@ function viewRecord(rowIndex) {
                               
                 <table class="table table-bordered followupwe-summary-table">
                     <tbody>
-                    <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Skor</th>
-                        <td class="followupwe-summary-content" style="width:85%;">Persentase kebugaran anda : <strong>${data.persen}</strong></td>
-                    </tr>
+                    <!-- TIDAK DITAMPILKAN ---
+                        <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Skor</th>
+                            <td class="followupwe-summary-content" style="width:85%;">Persentase kebugaran anda : <strong>${data.persen}</strong></td>
+                        </tr>
+                    -------------------------->
                     <tr><th class="followupwe-summary-label" style="background-color:#bfbfbf; width:15%;">Kesimpulan </th>
                         <td class="followupwe-summary-content" style="width:85%;">${data.kesimpulan}</td>
                     </tr>
