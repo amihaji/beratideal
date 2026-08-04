@@ -808,6 +808,38 @@ function handlePesertaCardKeydown(event, pesertaId) {
     }
 }
 
+function fetchDashboardJsonp(action, params = {}) {
+    return new Promise((resolve) => {
+        const callbackName = `dashboard_cb_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+        const script = document.createElement('script');
+        const searchParams = new URLSearchParams({
+            action,
+            ...params,
+            callback: callbackName
+        });
+
+        const cleanup = () => {
+            delete window[callbackName];
+            if (script.parentNode) {
+                script.parentNode.removeChild(script);
+            }
+        };
+
+        window[callbackName] = function(response) {
+            cleanup();
+            resolve(response || { status: 'error', message: 'Respons server tidak valid.' });
+        };
+
+        script.onerror = function() {
+            cleanup();
+            resolve({ status: 'error', message: 'Gagal menghubungi server.' });
+        };
+
+        script.src = `${URL_dbProgram}?${searchParams.toString()}`;
+        document.body.appendChild(script);
+    });
+}
+
 function normalizePesertaWhatsAppNumber(phoneNumber) {
     const digitsOnly = String(phoneNumber || '').replace(/\D/g, '');
 
@@ -825,7 +857,7 @@ function buildPesertaFollowUpMessage(template, peserta) {
         .replace(/\{phone\}/gi, peserta?.phone || '-');
 }
 
-function handlePesertaFollowUp(pesertaId) {
+async function handlePesertaFollowUp(pesertaId) {
     const peserta = pesertaData.find((item) => item.id == pesertaId);
     if (!peserta) {
         showToast('Data peserta tidak ditemukan.', 'warning');
@@ -833,6 +865,7 @@ function handlePesertaFollowUp(pesertaId) {
     }
 
     const waMessageInput = document.getElementById('pesertaWaMessage');
+    const followUpButton = document.getElementById('pesertaFollowUpButton');
     const messageTemplate = waMessageInput ? waMessageInput.value.trim() : '';
     const waNumber = normalizePesertaWhatsAppNumber(peserta.phone);
 
@@ -848,8 +881,29 @@ function handlePesertaFollowUp(pesertaId) {
     }
 
     const finalMessage = buildPesertaFollowUpMessage(messageTemplate, peserta);
-    const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(finalMessage)}`;
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    if (followUpButton) {
+        followUpButton.disabled = true;
+        followUpButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Mengirim...';
+    }
+
+    try {
+        const response = await fetchDashboardJsonp('sendFollowUpWACRM', {
+            target: waNumber,
+            message: finalMessage
+        });
+
+        if (!response || response.status !== 'success') {
+            showToast((response && response.message) || 'Pesan gagal dikirim.', 'warning');
+            return;
+        }
+
+        showToast('Pesan sudah terkirim.', 'success');
+    } finally {
+        if (followUpButton) {
+            followUpButton.disabled = false;
+            followUpButton.innerHTML = '<i class="fab fa-whatsapp me-1"></i>Follow Up';
+        }
+    }
 }
 
 // Programs Rendering
@@ -1299,7 +1353,7 @@ function showPesertaDetail(pesertaId) {
                             placeholder="Contoh: Halo {nama}, bagaimana progres Anda di program {program} hari ini?"
                         ></textarea>
                         <div class="followupwe-message-footer mt-2">
-                            <button type="button" class="btn btn-success btn-sm" onclick="handlePesertaFollowUp('${peserta.id}')">
+                            <button type="button" class="btn btn-success btn-sm" id="pesertaFollowUpButton" onclick="handlePesertaFollowUp('${peserta.id}')">
                                 <i class="fab fa-whatsapp me-1"></i>Follow Up
                             </button>
                             <button
