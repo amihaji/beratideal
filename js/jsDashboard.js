@@ -851,10 +851,20 @@ function normalizePesertaWhatsAppNumber(phoneNumber) {
 }
 
 function buildPesertaFollowUpMessage(template, peserta) {
-    return String(template || '')
+    const mainMessage = String(template || '')
         .replace(/\{nama\}/gi, peserta?.name || 'Peserta')
         .replace(/\{program\}/gi, peserta?.program || '-')
         .replace(/\{phone\}/gi, peserta?.phone || '-');
+
+    const sponsorName = peserta?.sponsorName || 'sponsor';
+    const sponsorPhone = peserta?.sponsorPhone || '-';
+    const hasFooter = /balas pesan ini ke/i.test(mainMessage);
+
+    if (hasFooter || (!peserta?.sponsorName && !peserta?.sponsorPhone)) {
+        return mainMessage;
+    }
+
+    return `${mainMessage}\n\nNB : balas pesan ini ke ${sponsorName} di wa ${sponsorPhone}`;
 }
 
 function showPesertaFollowUpStatus(type, message, duration = 4000) {
@@ -1405,7 +1415,7 @@ function showPesertaDetail(pesertaId) {
                             </div>
                         </div>
                         <div class="form-text mb-0">
-                            Gunakan <code>{nama}</code> untuk nama peserta dan <code>{program}</code> untuk nama program.
+                            Gunakan <code>{nama}</code> untuk nama peserta dan <code>{program}</code> untuk nama program. Footer sponsor akan ditambahkan otomatis.
                         </div>
                     </div>
                 </div>
