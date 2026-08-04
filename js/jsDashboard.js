@@ -863,7 +863,7 @@ function buildPesertaFollowUpMessage(template, peserta) {
     if (hasFooter || (!peserta?.sponsorName && !peserta?.sponsorPhone)) {
         return mainMessage;
     }
-
+    // Untuk memberikan pesan catatan di bawah pesan utama
     return `${mainMessage}\n---------------------------------------------------------`+
     `\nNB: Balas pesan ke`+
     `\nCoach ${sponsorName} di *WA: ${sponsorPhone}*`;
