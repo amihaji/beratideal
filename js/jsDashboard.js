@@ -857,10 +857,43 @@ function buildPesertaFollowUpMessage(template, peserta) {
         .replace(/\{phone\}/gi, peserta?.phone || '-');
 }
 
+function showPesertaFollowUpStatus(type, message, duration = 4000) {
+    const box = document.getElementById('pesertaFollowUpStatusBox');
+    const icon = document.getElementById('pesertaFollowUpStatusIcon');
+    const text = document.getElementById('pesertaFollowUpStatusText');
+
+    if (!box || !icon || !text) return;
+
+    box.classList.remove('notification-success', 'notification-warning', 'notification-error');
+    icon.className = 'pesan-notif-icon me-2';
+
+    if (type === 'success') {
+        box.classList.add('notification-success');
+        icon.classList.add('fas', 'fa-check-circle');
+    } else if (type === 'error') {
+        box.classList.add('notification-error');
+        icon.classList.add('fas', 'fa-times-circle');
+    } else {
+        box.classList.add('notification-warning');
+        icon.classList.add('fas', 'fa-exclamation-triangle');
+    }
+
+    text.textContent = message;
+    box.style.display = 'inline-flex';
+
+    if (showPesertaFollowUpStatus.timeoutId) {
+        clearTimeout(showPesertaFollowUpStatus.timeoutId);
+    }
+
+    showPesertaFollowUpStatus.timeoutId = window.setTimeout(() => {
+        box.style.display = 'none';
+    }, duration);
+}
+
 async function handlePesertaFollowUp(pesertaId) {
     const peserta = pesertaData.find((item) => item.id == pesertaId);
     if (!peserta) {
-        showToast('Data peserta tidak ditemukan.', 'warning');
+        showPesertaFollowUpStatus('warning', 'Data peserta tidak ditemukan.');
         return;
     }
 
@@ -870,13 +903,13 @@ async function handlePesertaFollowUp(pesertaId) {
     const waNumber = normalizePesertaWhatsAppNumber(peserta.phone);
 
     if (!messageTemplate) {
-        showToast('Silakan isi pesan follow up terlebih dahulu.', 'warning');
+        showPesertaFollowUpStatus('warning', 'Silakan isi pesan follow up terlebih dahulu.');
         waMessageInput?.focus();
         return;
     }
 
     if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
-        showToast('Nomor WhatsApp peserta tidak tersedia atau tidak valid.', 'warning');
+        showPesertaFollowUpStatus('warning', 'Nomor WhatsApp peserta tidak tersedia atau tidak valid.');
         return;
     }
 
@@ -893,11 +926,11 @@ async function handlePesertaFollowUp(pesertaId) {
         });
 
         if (!response || response.status !== 'success') {
-            showToast((response && response.message) || 'Pesan gagal dikirim.', 'warning');
+            showPesertaFollowUpStatus('warning', (response && response.message) || 'Pesan gagal dikirim.');
             return;
         }
 
-        showToast('Pesan sudah terkirim.', 'success');
+        showPesertaFollowUpStatus('success', 'Pesan sudah terkirim.');
     } finally {
         if (followUpButton) {
             followUpButton.disabled = false;
@@ -1352,18 +1385,24 @@ function showPesertaDetail(pesertaId) {
                             rows="4"
                             placeholder="Contoh: Halo {nama}, bagaimana progres Anda di program {program} hari ini?"
                         ></textarea>
-                        <div class="followupwe-message-footer mt-2">
-                            <button type="button" class="btn btn-success btn-sm" id="pesertaFollowUpButton" onclick="handlePesertaFollowUp('${peserta.id}')">
-                                <i class="fab fa-whatsapp me-1"></i>Follow Up
-                            </button>
-                            <button
-                                class="btn btn-outline-primary btn-sm followupcrm-emoji-button"
-                                type="button"
-                                data-emoji-target="pesertaWaMessage"
-                                data-emoji-title="Pilih Emoji Follow Up Peserta"
-                            >
-                                😊 <span class="ms-2">Insert Emoji</span>
-                            </button>
+                        <div class="peserta-followup-actions mt-2">
+                            <div class="followupwe-message-footer peserta-followup-buttons">
+                                <button type="button" class="btn btn-success btn-sm" id="pesertaFollowUpButton" onclick="handlePesertaFollowUp('${peserta.id}')">
+                                    <i class="fab fa-whatsapp me-1"></i>Follow Up
+                                </button>
+                                <button
+                                    class="btn btn-outline-primary btn-sm followupcrm-emoji-button"
+                                    type="button"
+                                    data-emoji-target="pesertaWaMessage"
+                                    data-emoji-title="Pilih Emoji Follow Up Peserta"
+                                >
+                                    😊 <span class="ms-2">Insert Emoji</span>
+                                </button>
+                            </div>
+                            <div id="pesertaFollowUpStatusBox" class="notification-message peserta-followup-status">
+                                <i id="pesertaFollowUpStatusIcon" class="pesan-notif-icon me-2"></i>
+                                <span id="pesertaFollowUpStatusText"></span>
+                            </div>
                         </div>
                         <div class="form-text mb-0">
                             Gunakan <code>{nama}</code> untuk nama peserta dan <code>{program}</code> untuk nama program.
