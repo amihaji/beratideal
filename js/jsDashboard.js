@@ -743,7 +743,7 @@ function renderPesertaCards(peserta) {
         
         const pesertaHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card peserta-card h-100" onclick="showPesertaDetail('${pesertaId}')">
+                <div class="card peserta-card h-100" role="button" tabindex="0" onclick="showPesertaDetail('${pesertaId}')" onkeydown="handlePesertaCardKeydown(event, '${pesertaId}')">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="peserta-avatar me-3" style="background-color: ${avatarBg}">
@@ -799,6 +799,13 @@ function renderPesertaCards(peserta) {
         `;
         container.innerHTML += pesertaHtml;
     });
+}
+
+function handlePesertaCardKeydown(event, pesertaId) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showPesertaDetail(pesertaId);
+    }
 }
 
 // Programs Rendering
@@ -1171,16 +1178,17 @@ function showPesertaDetail(pesertaId) {
     const peserta = pesertaData.find(s => s.id == pesertaId);
     if (!peserta) return;
     
-    const modal = new bootstrap.Modal(document.getElementById('pesertaDetailModal'));
+    const modalElement = document.getElementById('pesertaDetailModal');
+    const modal = new bootstrap.Modal(modalElement);
     document.getElementById('pesertaDetailTitle').textContent = peserta.name;
     
     const detailHtml = `
-        <div class="row">
-            <div class="col-md-8">
-                <h6>Progress Overview</h6>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Progress Keseluruhan</span>
+        <div class="peserta-detail-layout">
+            <div class="peserta-detail-section">
+                <h6 class="mb-3">Progress Overview</h6>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Progress Keseluruhan</span>
                         <strong>${peserta.progress}%</strong>
                     </div>
                     <div class="progress mb-3" style="height: 10px;">
@@ -1188,46 +1196,50 @@ function showPesertaDetail(pesertaId) {
                     </div>
                 </div>
                 
-                <h6>Weight Progress</h6>
-                <canvas id="pesertaWeightChart" height="200"></canvas>
+                <div class="peserta-detail-chart-wrap">
+                    <h6 class="mb-3">Weight Progress</h6>
+                    <canvas id="pesertaWeightChart" height="200"></canvas>
+                </div>
             </div>
             
-            <div class="col-md-4">
-                <h6>Informasi Peserta</h6>
-                <table class="table table-sm">
+            <div class="peserta-detail-section">
+                <h6 class="mb-3">Informasi Peserta</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm peserta-detail-table align-middle mb-0">
                     <tr>
-                        <td>Email:</td>
+                        <td>Email</td>
                         <td>${peserta.email}</td>
                     </tr>
                     <tr>
-                        <td>Program:</td>
+                        <td>Program</td>
                         <td><span class="program-badge ${getProgramClass(peserta.program)}">${peserta.program}</span></td>
                     </tr>
                     <tr>
-                        <td>Berat Awal:</td>
+                        <td>Berat Awal</td>
                         <td>${peserta.initialWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
-                        <td>Berat Saat Ini:</td>
+                        <td>Berat Saat Ini</td>
                         <td>${peserta.currentWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
-                        <td>Target Berat:</td>
+                        <td>Target Berat</td>
                         <td>${peserta.targetWeight ?? '-'} kg</td>
                     </tr>
                     <tr>
-                        <td>Bergabung:</td>
+                        <td>Bergabung</td>
                         <td>${formatDate(peserta.joinDate)}</td>
                     </tr>
                     <tr>
-                        <td>Aktivitas Terakhir:</td>
+                        <td>Aktivitas Terakhir</td>
                         <td>${formatDate(peserta.lastActivity)}</td>
                     </tr>
                     <tr>
-                        <td>Skor Performa:</td>
+                        <td>Skor Performa</td>
                         <td>${peserta.performanceScore ?? '-'} / 100</td>
                     </tr>
-                </table>
+                    </table>
+                </div>
                 
                 <div class="d-grid gap-2 mt-3">
                     <button class="btn btn-primary btn-sm">
@@ -1242,22 +1254,30 @@ function showPesertaDetail(pesertaId) {
     `;
     
     document.getElementById('pesertaDetailBody').innerHTML = detailHtml;
-    modal.show();
-    
-    // Create weight progress chart after modal is shown
-    setTimeout(() => {
+    modalElement.addEventListener('shown.bs.modal', function handleShown() {
         createPesertaWeightChart(peserta);
-    }, 300);
+    }, { once: true });
+    modalElement.addEventListener('hidden.bs.modal', function handleHidden() {
+        if (charts.pesertaWeight) {
+            charts.pesertaWeight.destroy();
+            charts.pesertaWeight = null;
+        }
+    }, { once: true });
+    modal.show();
 }
 
 function createPesertaWeightChart(peserta) {
     const ctx = document.getElementById('pesertaWeightChart');
     if (!ctx) return;
+
+    if (charts.pesertaWeight) {
+        charts.pesertaWeight.destroy();
+    }
     
     // Build grafik progres berat dari histori peserta yang tersedia
     const weeklyProgress = generateWeeklyProgress(peserta);
     
-    new Chart(ctx.getContext('2d'), {
+    charts.pesertaWeight = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
             labels: weeklyProgress.labels,
@@ -1273,6 +1293,7 @@ function createPesertaWeightChart(peserta) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: false,
             plugins: {
                 legend: {
                     display: false

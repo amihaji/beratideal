@@ -1147,6 +1147,53 @@ Modal khusus zoom gambar bukti
     position: relative;
     overflow: hidden;
 }
+.peserta-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.peserta-card:hover,
+.peserta-card:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.12);
+}
+.peserta-card:focus-visible {
+    outline: 2px solid rgba(13, 110, 253, 0.35);
+    outline-offset: 2px;
+}
+.peserta-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.peserta-detail-layout {
+    display: grid;
+    gap: 1rem;
+}
+.peserta-detail-section {
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    background: #fff;
+    padding: 1rem;
+}
+.peserta-detail-chart-wrap {
+    min-height: 260px;
+}
+.peserta-detail-table td {
+    padding: 0.6rem 0.5rem;
+    border-color: #eef2f7;
+}
+.peserta-detail-table td:first-child {
+    width: 180px;
+    font-weight: 600;
+    color: #475569;
+}
 .program-card::before {
     content: '';
     position: absolute;
@@ -1237,6 +1284,9 @@ Modal khusus zoom gambar bukti
     }
     .stats-card h3 {
         font-size: 1.5rem;
+    }
+    .peserta-detail-table td:first-child {
+        width: 140px;
     }
 
     .sticky-header th tr { 
