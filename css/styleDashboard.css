@@ -162,6 +162,72 @@ tr:hover .action-icon {
     color: white;
 }
 
+/***********************************************
+   Area tabel dashboard utama
+   - Memakai lebar card secara penuh
+   - Menjaga bingkai tabel tetap rapi
+   - Scroll horizontal aktif saat kolom banyak
+***********************************************/
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page) .dashboard-table-card-body {
+    padding: 0.75rem;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page) .dashboard-table-layout,
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .card-body > .container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page) .dashboard-table-layout.mt-2 {
+    margin-top: 0.5rem !important;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box {
+    width: 100%;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    max-height: 460px;
+    overflow: auto;
+    scrollbar-gutter: stable;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table {
+    width: max-content;
+    min-width: 100%;
+    margin-bottom: 0;
+    table-layout: auto;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 0.8rem 0.9rem;
+    font-size: 0.875rem;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table tbody td {
+    padding: 0.72rem 0.9rem;
+    vertical-align: middle;
+    background-clip: padding-box;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table tbody tr {
+    transition: background-color 0.18s ease;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table tbody tr:last-child td {
+    border-bottom: 0;
+}
+:is(#followupwe-page, #followupcrm-page, #referall-page, #pendaftaran-page, #setupuser-page, #lognotif-page) .table-box .table .actions-col {
+    white-space: nowrap;
+}
+
 /******************************************
    Area tabel halaman Pendaftaran
    - Mengatur scroll horizontal
@@ -775,6 +841,18 @@ Modal khusus zoom gambar bukti
 #crmTable th,
 #crmTable td {
     white-space: nowrap;
+}
+#crmTable td:nth-child(7),
+#crmTable td:nth-child(17),
+#crmTable td:nth-child(18),
+#crmTable td:nth-child(19),
+#crmTable td:nth-child(20),
+#referall-page .table-box table td:nth-child(7),
+#referall-page .table-box table td:nth-child(18),
+#lognotif-page .table-box table td:nth-child(4) {
+    white-space: normal;
+    min-width: 220px;
+    word-break: break-word;
 }
 
 .followupwe-message-input {
