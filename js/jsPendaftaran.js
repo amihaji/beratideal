@@ -537,7 +537,7 @@
                     <img
                         src="${escapeAttr(previewUrl)}"
                         alt="${escapeAttr(label)}"
-                        class="pendaftaran-proof-image img-fluid rounded border"
+                        class="pendaftaran-proof-image img-fluid"
                         data-preview-title="${escapeAttr(label)}"
                         data-fallback-index="0"
                         data-fallback-sources="${escapeAttr(previewSources.join('||'))}">
