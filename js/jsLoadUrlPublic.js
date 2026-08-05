@@ -6,7 +6,7 @@
 // jsDashboard.js, jsSetupUser.js untuk :
 // - loginBeratideal.html
 // - formDashboard.html
-const URL_dbUser ='https://script.google.com/macros/s/AKfycbwO5yF5SQrYpk9v2-HiwHW9wfAs9whP9zoKbTm08tdyMdDDOVTVvuByDgzsVmy4wrFcWw/exec';
+const URL_dbUser ='https://script.google.com/macros/s/AKfycbxXxje8Jxg-ZmTFMt21UdKGheJ1TFRdHSQLpffP2aZ53B63SklPVEvuGYcdK1q81ufRdg/exec';
 
 // url dbProgram (PROGRAM , DATAKONSUMEN): 
 // jsFitTracker.js, jsFollowCrm.js, jsProg10hari untuk :

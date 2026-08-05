@@ -270,7 +270,7 @@ function handleAddUser(e) {
   const aksesDataPeserta  = params.aksesDataPeserta || 'N';
   const aksesFollowWe     = params.aksesFollowWe || 'N';
   const aksesFollowCrm    = params.aksesFollowCrm || 'N';
-  const aksesReferall     = params.aksesReferall || 'N';
+  const aksesReferall     = params.aksesReferral || params.aksesReferall || 'N';
   const aksesPendaftaran  = params.aksesPendaftaran || 'N';
   const aksesSetup        = params.aksesSetup || 'N';
   const aksesLogNotif     = params.aksesLogNotif || 'N';
@@ -310,7 +310,7 @@ function handleEditUser(e) {
     const aksesDataPeserta  = String((e.parameter && e.parameter.aksesDataPeserta) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowWe     = String((e.parameter && e.parameter.aksesFollowWe) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowCrm    = String((e.parameter && (e.parameter.aksesFollowCrm || e.parameter.aksesDashCrm)) || 'N').trim().toUpperCase() || 'N';
-    const aksesReferall     = String((e.parameter && e.parameter.aksesReferall) || 'N').trim().toUpperCase() || 'N';
+    const aksesReferall     = String((e.parameter && (e.parameter.aksesReferral || e.parameter.aksesReferall)) || 'N').trim().toUpperCase() || 'N';
     const aksesPendaftaran  = String((e.parameter && e.parameter.aksesPendaftaran) || 'N').trim().toUpperCase() || 'N';
     const aksesSetup        = String((e.parameter && e.parameter.aksesSetup) || 'N').trim().toUpperCase() || 'N';
     const aksesLogNotif     = String((e.parameter && e.parameter.aksesLogNotif) || 'N').trim().toUpperCase() || 'N';
@@ -431,7 +431,8 @@ function buildUserAccess(row) {
     aksesDataPeserta:  String(row[12] || 'N').trim().toUpperCase() || 'N',  // Kolom M: Data Peserta
     aksesFollowWe:     String(row[13] || 'N').trim().toUpperCase() || 'N',  // Kolom N: Follow We
     aksesFollowCrm:    String(row[14] || 'N').trim().toUpperCase() || 'N',  // Kolom O: Follow Crm
-    aksesReferall:     String(row[15] || 'N').trim().toUpperCase() || 'N',  // Kolom P: Referall
+    aksesReferral:     String(row[15] || 'N').trim().toUpperCase() || 'N',  // Kolom P: Referral
+    aksesReferall:     String(row[15] || 'N').trim().toUpperCase() || 'N',  // Alias kompatibilitas lama
     aksesPendaftaran:  String(row[16] || 'N').trim().toUpperCase() || 'N',  // Kolom Q: Pendaftaran
     aksesSetup:        String(row[17] || 'N').trim().toUpperCase() || 'N',  // Kolom R: Setup
     aksesLogNotif:     String(row[18] || 'N').trim().toUpperCase() || 'N',  // Kolom S: Log Notif
