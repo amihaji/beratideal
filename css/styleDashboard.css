@@ -191,23 +191,16 @@ tr:hover .action-icon {
 
 /*******************************************************
 Preview gambar kecil di modal View Data
-   - Dipakai untuk kartu bukti transfer/produk
+   - Dipakai untuk preview bukti transfer/produk
    - Ukuran dibuat sedang, detail dilihat lewat zoom
 *******************************************************/
 .pendaftaran-proof-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
     width: 100%;
-    min-height: 100%;
-    padding: 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.75rem;
-    background: #fff;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 .pendaftaran-proof-preview.is-empty {
-    justify-content: center;
+    display: flex;
+    min-height: 100%;
+    align-items: stretch;
 }
 .pendaftaran-proof-preview img {
     display: block;
@@ -218,11 +211,6 @@ Preview gambar kecil di modal View Data
     height: auto;
     object-fit: contain;
     background-color: #fff;
-}
-.pendaftaran-proof-header {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #0d6efd;
 }
 .pendaftaran-proof-empty {
     min-height: 160px;
@@ -242,6 +230,8 @@ Preview gambar kecil di modal View Data
     width: 100%;
     padding: 0;
     border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
     background: transparent;
     cursor: zoom-in;
 }

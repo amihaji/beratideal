@@ -503,8 +503,7 @@
                 const wrapper = this.closest('.pendaftaran-proof-preview');
                 if (wrapper) {
                     wrapper.innerHTML = `
-                        <div class="pendaftaran-proof-header">${escapeHtml(this.dataset.previewTitle || 'Preview Bukti')}</div>
-                        <div class="pendaftaran-proof-empty">Gambar tidak bisa ditampilkan</div>
+                        <div class="pendaftaran-proof-empty">${escapeHtml(this.dataset.previewTitle || 'Preview Bukti')} tidak bisa ditampilkan</div>
                     `;
                 }
             });
@@ -527,15 +526,13 @@
         if (!previewUrl) {
             return `
                 <div class="pendaftaran-proof-preview is-empty">
-                    <div class="pendaftaran-proof-header">${escapeHtml(label)}</div>
-                    <div class="pendaftaran-proof-empty">${escapeHtml(value || 'Belum ada gambar')}</div>
+                    <div class="pendaftaran-proof-empty">${escapeHtml(label)}: ${escapeHtml(value || 'Belum ada gambar')}</div>
                 </div>
             `;
         }
 
         return `
             <div class="pendaftaran-proof-preview">
-                <div class="pendaftaran-proof-header">${escapeHtml(label)}</div>
                 <button type="button" class="pendaftaran-proof-button" data-preview-src="${escapeAttr(previewUrl)}" data-preview-title="${escapeAttr(label)}">
                     <img
                         src="${escapeAttr(previewUrl)}"
