@@ -22,7 +22,12 @@ const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V
 // url dbDaftarBeratideal (DAFTAR) :
 // jsFrmDaftar.js, jsFrmBayar.js, jsFrmTandaTerima.js
 // untuk formDaftar.html
-const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxDBhOy78Z2GhPGc2BGyFrB81hnWvI4CwQCPokuGfyX37TfJpBReMG02-Omzni8T_rD/exec'
+const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycby3soomCa5lK79mEt468TlbqgA0dIghdl1O9wky9NeTM91TQPGcLPlpdV58adgo52J-/exec'
+
+// url dbReferral (REFERRAL) :
+// jsReferral.js untuk formDashboard.html
+// Isi URL deploy Apps Script dbReferral setelah file backend dipublikasikan
+const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbzGxgfzacEdz_GS00gSIP7OdQNG2kOZldkfB2ILtEXAwxGb4DvDK_IDzlRuuzHB96Gh6A/exec';
 
 // ============================================================
 // FUNGSI GLOBAL UNTUK TOOLTIP - VERSI SEDERHANA

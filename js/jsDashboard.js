@@ -343,6 +343,9 @@ function showPage(pageName) {
         case 'followupcrm':
             loadCrmTableData();
             break;
+        case 'referral':
+            window.ReferralModule?.loadPage();
+            break;
         case 'pendaftaran':
             loadPendaftaranTableData(); 
             break;         

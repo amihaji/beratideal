@@ -31,6 +31,10 @@ function doGet(e) {
   if (action === 'sendFollowUpWAPendaftaran') {
     return sendFollowUpWAPendaftaran(e.parameter);
   }
+
+  if (action === 'getReferralReadonlyProfile') {
+    return getReferralReadonlyProfile(e.parameter);
+  }
  
   // Jika ada parameter noPesanan → ambil data pendaftar
   if (e && e.parameter && e.parameter.noPesanan) {
@@ -67,6 +71,57 @@ function doGet(e) {
 
   // fallback jika tidak ada parameter noPesanan
   return ContentService.createTextOutput("OK");
+}
+
+function getReferralReadonlyProfile(params) {
+  const callback = (params && params.callback) || '';
+  const userId = String((params && params.userId) || '').trim();
+  const userName = String((params && params.userName) || '').trim();
+  const userHP = normalizeReferralPhone_(params && params.userHP);
+  const values = shDaftar.getDataRange().getValues();
+
+  let matchedRow = null;
+  let matchedRowNumber = 0;
+
+  for (let i = values.length - 1; i >= 1; i--) {
+    const row = values[i];
+    const rowNama = normalizeReferralText_(row[4]);
+    const rowHP = normalizeReferralPhone_(row[6]);
+
+    if (userHP && rowHP && rowHP === userHP) {
+      matchedRow = row;
+      matchedRowNumber = i + 1;
+      break;
+    }
+
+    if (!matchedRow && userName && rowNama && rowNama === normalizeReferralText_(userName)) {
+      matchedRow = row;
+      matchedRowNumber = i + 1;
+      break;
+    }
+  }
+
+  const data = {
+    userId: userId,
+    nama: matchedRow ? String(matchedRow[4] || '').trim() : userName,
+    jenkel: '',
+    tglLahir: '',
+    telp: matchedRow ? String(matchedRow[6] || '').trim() : String((params && params.userHP) || '').trim(),
+    email: matchedRow ? String(matchedRow[7] || '').trim() : '',
+    alamat: matchedRow ? String(matchedRow[5] || '').trim() : '',
+    kelurahan: matchedRow ? String(matchedRow[8] || '').trim() : '',
+    kecamatan: matchedRow ? String(matchedRow[9] || '').trim() : '',
+    kota: matchedRow ? String(matchedRow[10] || '').trim() : '',
+    propinsi: matchedRow ? String(matchedRow[11] || '').trim() : '',
+    sourceSheet: 'DAFTAR',
+    sourceRow: matchedRowNumber
+  };
+
+  return createJSONPResponse_(callback, {
+    status: 'success',
+    message: matchedRow ? 'Data profil Referral ditemukan.' : 'Data profil Referral tidak ditemukan di DAFTAR. Menggunakan data sesi yang tersedia.',
+    data: data
+  });
 }
 
 /*****************************************************
@@ -847,6 +902,14 @@ function sendFollowUpWAPendaftaran(param) {
 /************************
  * Helper parsing POST
  ************************/
+function normalizeReferralText_(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function normalizeReferralPhone_(value) {
+  return String(value || '').replace(/[^0-9]/g, '');
+}
+
 function parsePostPayload_(e) {
   try {
     if (e && e.postData && e.postData.contents) {

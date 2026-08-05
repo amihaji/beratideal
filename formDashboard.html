@@ -677,103 +677,202 @@ Dashboard untuk :
 
             <div class="row">
                 <div class="col-lg-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Setup Data Referral</h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="User ID 6-8 karakter, tanpa spasi dan huruf besar"><i class="fas fa-user-circle"></i></span>
-                                <input type="text" id="refId" class="form-control" readonly>
+                    <div class="card referral-card">
+                        <div class="card-header referral-card-header">
+                            <div>
+                                <h5 class="card-title mb-1">Setup Data Referral</h5>
+                                <p class="text-muted mb-0">Lengkapi data referral dan buat link referral untuk website beratidealku.com.</p>
                             </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama user 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
-                                <input type="text" id="refName" class="form-control" readonly>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Jenis kelamin, huruf kecil dan spasi saja"><i class="fas fa-venus-mars"></i></span>
-                                <input type="text" id="refJenkel" class="form-control" readonly>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Tgl Lahir, huruf kecil dan spasi saja"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" id="refTlahir" class="form-control" readonly>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nomor handphone 10-14 digit angka"><i class="fab fa-whatsapp"></i></span>
-                                <input type="text" id="refHP" class="form-control" readonly>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat email valid"><i class="fas fa-envelope-open-text"></i></span>
-                                <input type="email" id="refEmail" class="form-control" readonly>
-                            </div>
-                           
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat rumah, tanpa spasi"><i class="fas fa-home"></i></span>
-                                <input type="text" id="refAlamat" class="form-control" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kelurahan, tanpa spasi"><i class="fas fa-map-marker-alt"></i></span>
-                                <input type="text" id="refKelurahan" class="form-control" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kecamatan, tanpa spasi"><i class="fas fa-map-signs"></i></span>
-                                <input type="text" id="refKecamatan" class="form-control" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kota, tanpa spasi"><i class="fas fa-city"></i></span>
-                                <input type="text" id="refKota" class="form-control" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Propensi, tanpa spasi"><i class="fas fa-map"></i></span>
-                                <input type="text" id="refPropensi" class="form-control" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="AC atas Nama 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-address-card"></i></span>
-                                <input type="text" id="refACNama1" class="form-control" placeholder="Input ac atas nama 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fa fa-bank"></i></span>
-                                <input type="text" id="refNamabank1" class="form-control" placeholder="Input nama bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="No AC bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-wallet"></i></span>
-                                <input type="text" id="refACbank1" class="form-control" placeholder="Input No AC bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="AC atas Nama 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-address-card"></i></span>
-                                <input type="text" id="refACNama2" class="form-control" placeholder="Input ac atas nama 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fa fa-bank"></i></span>
-                                <input type="text" id="refNamabank2" class="form-control" placeholder="Input nama bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="No AC bank 3-20 karakter"><i class="fas fa-wallet"></i></span>
-                                <input type="text" id="refACbank2" class="form-control" placeholder="Input No AC bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
-                            </div>
-                            
-                            <div class="input-group mt-2">
-                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Link Referral"><i class="fas fa-address-card"></i></span>
-                                <input type="text" id="refLink" class="form-control" placeholder="Link Referral 3-10 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 10)" minlength="3" maxlength="10" pattern="^[a-z\s]{3,20}$" required>
+                            <div class="referral-action-bar">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="referralInputButton">
+                                    <i class="fas fa-plus me-1"></i>Input
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="referralEditButton">
+                                    <i class="fas fa-pen me-1"></i>Edit
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" id="referralCreateLinkButton">
+                                    <i class="fas fa-link me-1"></i>Create Link Referral
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" id="referralSaveButton">
+                                    <i class="fas fa-save me-1"></i>Simpan
+                                </button>
+                                <a class="btn btn-outline-dark btn-sm" id="referralGuideButton" href="pdf/Panduan_Penggunaan_Aplikasi.pdf" target="_blank" rel="noopener">
+                                    <i class="fas fa-file-pdf me-1"></i>Lihat Panduan
+                                </a>
                             </div>
                         </div>
-                    </div>        
-                </div>  
+                        <div class="card-body">
+                            <div id="referralStatusBox" class="notification-message referral-status-box">
+                                <i id="referralStatusIcon" class="pesan-notif-icon"></i>
+                                <span id="referralStatusText"></span>
+                            </div>
+
+                            <div class="referral-link-preview">
+                                <div class="referral-link-preview-label">Preview Link Referral</div>
+                                <div id="referralLinkPreview" class="referral-link-preview-value">Belum ada link referral.</div>
+                            </div>
+
+                            <form id="referralForm" novalidate>
+                                <input type="hidden" id="referralRecordId">
+                                <input type="hidden" id="referralMode" value="view">
+
+                                <div class="row g-3 referral-form-grid">
+                                    <div class="col-12">
+                                        <div class="referral-section-title">Data Profil</div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refId">User ID</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="User ID."><i class="fas fa-user-circle"></i></span>
+                                            <input type="text" id="refId" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refName">Nama</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama referral."><i class="fas fa-user-alt"></i></span>
+                                            <input type="text" id="refName" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refJenkel">Jenis Kelamin</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Jenis kelamin."><i class="fas fa-venus-mars"></i></span>
+                                            <input type="text" id="refJenkel" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refTlahir">Tanggal Lahir</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Tanggal lahir."><i class="fas fa-calendar-alt"></i></span>
+                                            <input type="date" id="refTlahir" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refHP">Nomor HP</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nomor HP."><i class="fab fa-whatsapp"></i></span>
+                                            <input type="text" id="refHP" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refEmail">Email</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Email."><i class="fas fa-envelope-open-text"></i></span>
+                                            <input type="email" id="refEmail" class="form-control" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="referral-section-title">Data Referral</div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refAlamat">Alamat</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat."><i class="fas fa-home"></i></span>
+                                            <input type="text" id="refAlamat" class="form-control" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refKelurahan">Kelurahan</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Kelurahan."><i class="fas fa-map-marker-alt"></i></span>
+                                            <input type="text" id="refKelurahan" class="form-control" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refKecamatan">Kecamatan</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Kecamatan."><i class="fas fa-map-signs"></i></span>
+                                            <input type="text" id="refKecamatan" class="form-control" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refKota">Kota</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Kota."><i class="fas fa-city"></i></span>
+                                            <input type="text" id="refKota" class="form-control" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refPropensi">Propinsi</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Propinsi."><i class="fas fa-map"></i></span>
+                                            <input type="text" id="refPropensi" class="form-control" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refLink">Slug Referral</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Slug link referral."><i class="fas fa-address-card"></i></span>
+                                            <input type="text" id="refLink" class="form-control" placeholder="contoh: amihaji" oninput="this.value = this.value.toLowerCase().substring(0, 24)" minlength="3" maxlength="24" pattern="^[a-z0-9-]{3,24}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refACNama1">Atas Nama 1</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Atas nama rekening 1."><i class="fas fa-address-card"></i></span>
+                                            <input type="text" id="refACNama1" class="form-control" placeholder="Input atas nama rekening 1" oninput="this.value = this.value.toLowerCase().substring(0, 40)" minlength="3" maxlength="40" pattern="^[a-z\s]{3,40}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refNamabank1">Nama Bank 1</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 1."><i class="fa fa-bank"></i></span>
+                                            <input type="text" id="refNamabank1" class="form-control" placeholder="Input nama bank 1" oninput="this.value = this.value.toLowerCase().substring(0, 30)" minlength="3" maxlength="30" pattern="^[a-z\s]{3,30}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refACbank1">Nomor Rekening 1</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nomor rekening 1."><i class="fas fa-wallet"></i></span>
+                                            <input type="text" id="refACbank1" class="form-control" placeholder="Input nomor rekening 1" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 20)" minlength="3" maxlength="20" pattern="^[0-9]{3,20}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refACNama2">Atas Nama 2</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Atas nama rekening 2."><i class="fas fa-address-card"></i></span>
+                                            <input type="text" id="refACNama2" class="form-control" placeholder="Input atas nama rekening 2" oninput="this.value = this.value.toLowerCase().substring(0, 40)" minlength="3" maxlength="40" pattern="^[a-z\s]{3,40}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refNamabank2">Nama Bank 2</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 2."><i class="fa fa-bank"></i></span>
+                                            <input type="text" id="refNamabank2" class="form-control" placeholder="Input nama bank 2" oninput="this.value = this.value.toLowerCase().substring(0, 30)" minlength="3" maxlength="30" pattern="^[a-z\s]{3,30}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-6">
+                                        <label class="form-label referral-form-label" for="refACbank2">Nomor Rekening 2</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nomor rekening 2."><i class="fas fa-wallet"></i></span>
+                                            <input type="text" id="refACbank2" class="form-control" placeholder="Input nomor rekening 2" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 20)" minlength="3" maxlength="20" pattern="^[0-9]{3,20}$" data-referral-editable="true" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1834,6 +1933,8 @@ Dashboard untuk :
     <script src="js/jsFollowCrm.js"></script>
     <!-- Custom JS Untuk Pendaftaran -->
     <script src="js/jsPendaftaran.js"></script>
+    <!-- Custom JS Untuk Referral -->
+    <script src="js/jsReferral.js"></script>
     <!-- Custom JS Untuk Dashboard - DILETAKKAN SETELAH SEMUA MODUL LAIN -->
     <script src="js/jsDashboard.js"></script>
     <!-- Custom JS Untuk Fit Tracker Peserta -->
