@@ -679,48 +679,97 @@ Dashboard untuk :
                 <div class="col-lg-12 mb-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Daftar Referall</h5>
+                            <h5 class="card-title mb-0">Setup Data Referall</h5>
                         </div>
-                        <div class="card-body dashboard-table-card-body">
-                            <div class="dashboard-table-layout mt-2">
-                                <!-- Tabel Data Referall -->
-                                <div class="table-box">
-                                    <div class="table-wrapper">
-                                        <table class="table table-hover table-striped table-bordered align-middle text-center">
-                                            <thead class="table-dark-custom">          
-                                                <tr>
-                                                    <th>Tgl Daftar</th>
-                                                    <th>Nama</th>
-                                                    <th>Jenis Kelamin</th>
-                                                    <th>Tgl Lahir</th>
-                                                    <th>Telp</th>
-                                                    <th>Email</th>
-                                                    <th>Alamat</th>
-                                                    <th>Kelurahan</th>
-                                                    <th>Kecamatan</th>
-                                                    <th>Kota</th>
-                                                    <th>Propensi</th>
-                                                    <th>Atas Nama1</th>
-                                                    <th>Nama Bank1</th>
-                                                    <th>No AC1</th>
-                                                    <th>Atas Nama2</th>
-                                                    <th>Nama Bank2</th>
-                                                    <th>No AC2</th>
-                                                    <th>Link Referall</th>
-                                                    <th class="actions-col">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="referallTableBody" style="font-size: small;"><tr><td colspan="26" style="align-items: center;">Memuat data...</td></tr> 
-                                            <!-- Data akan diisi oleh JavaScript di sini -->  
-                                            </tbody>
-                                        </table>
-                                        <!--
-                                        <div id="referalloadingOverlay" class="loading-overlay">
-                                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
-                                        </div>
-                                        -->
-                                    </div>
-                                </div>
+                        <div class="modal-body">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="User ID 6-8 karakter, tanpa spasi dan huruf besar"><i class="fas fa-user-circle"></i></span>
+                                <input type="text" id="refId" class="form-control" readonly>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama user 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refName" class="form-control" readonly>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Jenis kelamin, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refJenkel" class="form-control" readonly>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Tgl Lahir, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="date" id="refTlahir" class="form-control" readonly>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nomor handphone 10-14 digit angka"><i class="fab fa-whatsapp"></i></span>
+                                <input type="text" id="refHP" class="form-control" readonly>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat email valid"><i class="fas fa-envelope-open-text"></i></span>
+                                <input type="email" id="refEmail" class="form-control" readonly>
+                            </div>
+                           
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat rumah, tanpa spasi"><i class="fas fa-key"></i></span>
+                                <input type="text" id="refAlamat" class="form-control" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kelurahan, tanpa spasi"><i class="fas fa-key"></i></span>
+                                <input type="text" id="refKelurahan" class="form-control" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kecamatan, tanpa spasi"><i class="fas fa-key"></i></span>
+                                <input type="text" id="refKecamatan" class="form-control" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Kota, tanpa spasi"><i class="fas fa-key"></i></span>
+                                <input type="text" id="refKota" class="form-control" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama Propensi, tanpa spasi"><i class="fas fa-key"></i></span>
+                                <input type="text" id="refPropensi" class="form-control" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="AC atas Nama 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refACNama1" class="form-control" placeholder="Input ac atas nama 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refNamabank1" class="form-control" placeholder="Input nama bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="No AC bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refACbank1" class="form-control" placeholder="Input No AC bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="AC atas Nama 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refACNama2" class="form-control" placeholder="Input ac atas nama 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Nama bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refNamabank2" class="form-control" placeholder="Input nama bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="No AC bank 3-20 karakter, huruf kecil dan spasi saja"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refACbank2" class="form-control" placeholder="Input No AC bank 3-20 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 20)" minlength="3" maxlength="20" pattern="^[a-z\s]{3,20}$" required>
+                            </div>
+                            
+                            <div class="input-group mt-2">
+                                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Link Refferal"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" id="refLink" class="form-control" placeholder="Link Refferal 3-10 karakter" oninput="this.value = this.value.toLowerCase().substring(0, 10)" minlength="3" maxlength="10" pattern="^[a-z\s]{3,20}$" required>
                             </div>
                         </div>
                     </div>        
