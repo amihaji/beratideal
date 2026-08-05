@@ -120,10 +120,9 @@ function renderUserTableRows(rows) {
   rows.forEach(row => {
     // Pastikan row memiliki cukup data
     // Format data dari server: [userId, nama, email, hp, pass, level, salah, 
-    //   login, fitchallange, fittracker, program, analisa, datapeserta, 
-    //   followwe, followcrm, referral, pendaftaran, setup, lognotif, coach]
+    // login, fitchallange, fittracker, program, analisa, datapeserta, 
+    // followwe, followcrm, referral, pendaftaran, setup, lognotif, coach]
     // Total 20 kolom (19 data + 1 aksi)
-    
     const userId = row[0] || '';
     const namaUser = row[1] || '';
     const emailUser = row[2] || '';
