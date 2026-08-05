@@ -121,7 +121,7 @@ function renderUserTableRows(rows) {
     // Pastikan row memiliki cukup data
     // Format data dari server: [userId, nama, email, hp, pass, level, salah, 
     //   login, fitchallange, fittracker, program, analisa, datapeserta, 
-    //   followwe, followcrm, referall, pendaftaran, setup, lognotif, coach]
+    //   followwe, followcrm, referral, pendaftaran, setup, lognotif, coach]
     // Total 20 kolom (19 data + 1 aksi)
     
     const userId = row[0] || '';
@@ -139,7 +139,7 @@ function renderUserTableRows(rows) {
     const datapeserta = row[12] || 'N';
     const followwe = row[13] || 'N';
     const followcrm = row[14] || 'N';
-    const referall = row[15] || 'N';
+    const referral = row[15] || 'N';
     const pendaftaran = row[16] || 'N';
     const setup = row[17] || 'N';
     const lognotif = row[18] || 'N';
@@ -186,7 +186,7 @@ function renderUserTableRows(rows) {
       <td>${datapeserta}</td>
       <td>${followwe}</td>
       <td>${followcrm}</td>
-      <td>${referall}</td>
+      <td>${referral}</td>
       <td>${pendaftaran}</td>
       <td>${setup}</td>
       <td>${lognotif}</td>
@@ -207,7 +207,7 @@ function renderUserTableRows(rows) {
           aksesDataPeserta: '${datapeserta}',
           aksesFollowWe: '${followwe}',
           aksesFollowCrm: '${followcrm}',
-          aksesReferall: '${referall}',
+          aksesReferral: '${referral}',
           aksesPendaftaran: '${pendaftaran}',
           aksesSetup: '${setup}',
           aksesLogNotif: '${lognotif}',
@@ -411,7 +411,7 @@ function addUser() {
     const aksesDataPeserta  = document.querySelector('input[name="aksesDataPeserta"]:checked')?.value || 'N';
     const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
     const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
-    const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesReferral     = document.querySelector('input[name="aksesReferral"]:checked')?.value || 'N';
     const aksesPendaftaran  = document.querySelector('input[name="aksesPendaftaran"]:checked')?.value || 'N';
     const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
     const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
@@ -460,7 +460,7 @@ function addUser() {
         action: 'addUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
         aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-        aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
+        aksesReferral, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
@@ -493,7 +493,7 @@ function editUser() {
     const aksesDataPeserta  = document.querySelector('input[name="aksesDataPeserta"]:checked')?.value || 'N';
     const aksesFollowWe     = document.querySelector('input[name="aksesFollowWe"]:checked')?.value || 'N';
     const aksesFollowCrm    = document.querySelector('input[name="aksesFollowCrm"]:checked')?.value || 'N';
-    const aksesReferall     = document.querySelector('input[name="aksesReferall"]:checked')?.value || 'N';
+    const aksesReferral     = document.querySelector('input[name="aksesReferral"]:checked')?.value || 'N';
     const aksesPendaftaran  = document.querySelector('input[name="aksesPendaftaran"]:checked')?.value || 'N';
     const aksesSetup        = document.querySelector('input[name="aksesSetup"]:checked')?.value || 'N';
     const aksesLogNotif     = document.querySelector('input[name="aksesLogNotif"]:checked')?.value || 'N';
@@ -502,7 +502,7 @@ function editUser() {
     console.log('Data yang akan dikirim edit:');
     console.log({userId, userName, userEmail, userHP, userPass, userLevel, 
       aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-      aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,});
+      aksesReferral, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,});
 
     // Validasi
     if (!validateUserForm()) {
@@ -540,7 +540,7 @@ function editUser() {
         action: 'editUser',
         userId, userName, userEmail, userHP, userPass, userLevel,
         aksesLogin, aksesFitChallange, aksesFitTracker, aksesAnalisa, aksesDataPeserta, aksesFollowWe, aksesFollowCrm, 
-        aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
+        aksesReferral, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach,
         callback: callbackName
     });
 
@@ -961,7 +961,7 @@ function showEditModal(userData) {
     'DataPeserta',
     'FollowWe',
     'FollowCrm',
-    'Referall',
+    'Referral',
     'Pendaftaran',
     'Setup',
     'LogNotif',
