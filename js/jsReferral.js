@@ -322,6 +322,31 @@
         return response.data || null;
     }
 
+    function isSavedReferralMatch(savedData, payload) {
+        if (!savedData || !payload) return false;
+
+        const savedUserId = normalizeText(savedData.userId).toLowerCase();
+        const payloadUserId = normalizeText(payload.userId).toLowerCase();
+        const savedSlug = slugifyReferral(savedData.refLink);
+        const payloadSlug = slugifyReferral(payload.refLink);
+
+        return savedUserId === payloadUserId && savedSlug === payloadSlug;
+    }
+
+    async function verifySavedReferral(payload) {
+        const verifiedData = await loadSavedReferral(payload.userId);
+
+        if (!verifiedData) {
+            throw new Error('Server merespons sukses, tetapi data Referral belum terbaca ulang dari sheet REFERRAL.');
+        }
+
+        if (!isSavedReferralMatch(verifiedData, payload)) {
+            throw new Error('Server merespons sukses, tetapi hasil verifikasi data Referral tidak cocok dengan data yang dikirim.');
+        }
+
+        return verifiedData;
+    }
+
     async function loadPage(forceReload = false) {
         if (!elements.form) {
             cacheElements();
@@ -474,17 +499,18 @@
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
 
-            state.referralData = response.data || payload;
+            const verifiedData = await verifySavedReferral(payload);
+            state.referralData = verifiedData;
             if (elements.recordId) {
                 elements.recordId.value = normalizeText(state.referralData.recordId);
             }
 
             fillEditableFields(state.referralData);
             setMode('view');
-            setStatus('success', response.message || 'Data Referral berhasil disimpan.');
+            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.`);
 
             if (typeof showToast === 'function') {
-                showToast('Data Referral berhasil disimpan.', 'success');
+                showToast('Data Referral berhasil disimpan dan diverifikasi.', 'success');
             }
         } catch (error) {
             setStatus('error', error.message);

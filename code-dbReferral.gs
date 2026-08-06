@@ -3,9 +3,9 @@
  * Spreadsheet akan dibuat otomatis dengan nama dbReferral
  *******************************************************/
 const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
-const REFERRAL_SHEET_NAME = 'REFERRAL';
-const REFERRAL_BASE_URL = 'https://beratidealku.com/?ref=';
-const REFERRAL_DB_ID_KEY = 'DB_REFERRAL_ID';
+const REFERRAL_SHEET_NAME       = 'REFERRAL';
+const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
+const REFERRAL_DB_ID_KEY        = '1pRH1h9xsaMjtqU-wx5o1mNuMQP_rVfN8024eBNyo1Kw';
 
 function doGet(e) {
   const params = (e && e.parameter) ? e.parameter : {};
@@ -115,10 +115,14 @@ function saveReferralData_(payload) {
     targetRow = sheet.getLastRow();
   }
 
+  SpreadsheetApp.flush();
+  const persistedRow = sheet.getRange(targetRow, 1, 1, row.length).getValues()[0];
+
   return {
     status: 'success',
     message: isUpdate ? 'Data Referral berhasil diperbarui.' : 'Data Referral berhasil disimpan.',
-    data: mapReferralRow_(row, targetRow)
+    data: mapReferralRow_(persistedRow, targetRow),
+    meta: buildReferralSheetMeta_(sheet)
   };
 }
 
@@ -138,7 +142,8 @@ function getReferralData_(params) {
     if (normalizeText_(values[i][2]).toLowerCase() === userId) {
       return {
         status: 'success',
-        data: mapReferralRow_(values[i], i + 1)
+        data: mapReferralRow_(values[i], i + 1),
+        meta: buildReferralSheetMeta_(sheet)
       };
     }
   }
@@ -146,7 +151,8 @@ function getReferralData_(params) {
   return {
     status: 'success',
     data: null,
-    message: 'Data Referral belum tersedia.'
+    message: 'Data Referral belum tersedia.',
+    meta: buildReferralSheetMeta_(sheet)
   };
 }
 
@@ -177,6 +183,15 @@ function mapReferralRow_(row, rowNumber) {
     sourceSheet: normalizeText_(row[21]),
     mode: normalizeText_(row[22]),
     status: normalizeText_(row[23])
+  };
+}
+
+function buildReferralSheetMeta_(sheet) {
+  const spreadsheet = sheet.getParent();
+  return {
+    spreadsheetId: spreadsheet.getId(),
+    spreadsheetName: spreadsheet.getName(),
+    sheetName: sheet.getName()
   };
 }
 

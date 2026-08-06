@@ -98,7 +98,7 @@ function doPost(e) {
      12 M: Data Peserta
      13 N: Follow We
      14 O: Follow Crm
-     15 P: Referall
+     15 P: Referral
      16 P: Pendaftaran
      17 Q: Setup
      18 R: Log Notif
@@ -270,7 +270,7 @@ function handleAddUser(e) {
   const aksesDataPeserta  = params.aksesDataPeserta || 'N';
   const aksesFollowWe     = params.aksesFollowWe || 'N';
   const aksesFollowCrm    = params.aksesFollowCrm || 'N';
-  const aksesReferall     = params.aksesReferral || params.aksesReferall || 'N';
+  const aksesReferral     = params.aksesReferral || params.aksesReferall || 'N';
   const aksesPendaftaran  = params.aksesPendaftaran || 'N';
   const aksesSetup        = params.aksesSetup || 'N';
   const aksesLogNotif     = params.aksesLogNotif || 'N';
@@ -279,7 +279,7 @@ function handleAddUser(e) {
   userSheet.appendRow([
     userId, userName, userEmail, userHP, userPass, userLevel, userSalah,
     aksesLogin, aksesFitChallange, aksesFitTracker, aksesProgram, aksesAnalisa, aksesDataPeserta,
-    aksesFollowWe, aksesFollowCrm, aksesReferall, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach
+    aksesFollowWe, aksesFollowCrm, aksesReferral, aksesPendaftaran, aksesSetup, aksesLogNotif, aksesCoach
   ]);
 
   // Ubah ini agar support JSONP
@@ -310,7 +310,8 @@ function handleEditUser(e) {
     const aksesDataPeserta  = String((e.parameter && e.parameter.aksesDataPeserta) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowWe     = String((e.parameter && e.parameter.aksesFollowWe) || 'N').trim().toUpperCase() || 'N';
     const aksesFollowCrm    = String((e.parameter && (e.parameter.aksesFollowCrm || e.parameter.aksesDashCrm)) || 'N').trim().toUpperCase() || 'N';
-    const aksesReferall     = String((e.parameter && (e.parameter.aksesReferral || e.parameter.aksesReferall)) || 'N').trim().toUpperCase() || 'N';
+    const aksesReferral     = String((e.parameter && (e.parameter.aksesReferral || e.parameter.aksesReferall)) || 'N').trim().toUpperCase() || 'N';
+ 
     const aksesPendaftaran  = String((e.parameter && e.parameter.aksesPendaftaran) || 'N').trim().toUpperCase() || 'N';
     const aksesSetup        = String((e.parameter && e.parameter.aksesSetup) || 'N').trim().toUpperCase() || 'N';
     const aksesLogNotif     = String((e.parameter && e.parameter.aksesLogNotif) || 'N').trim().toUpperCase() || 'N';
@@ -334,7 +335,7 @@ function handleEditUser(e) {
           aksesDataPeserta,
           aksesFollowWe,
           aksesFollowCrm,
-          aksesReferall,
+          aksesReferral,
           aksesPendaftaran,
           aksesSetup,
           aksesLogNotif,

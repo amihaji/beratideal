@@ -2323,7 +2323,6 @@ function createAdminParticipantFromProgram_(row, userId) {
     performanceScore: 0,
     performanceSummary: '',
     sponsorName: '',
-    sponsorPhone: '',
     coachName: '',
     city: '',
     gender: getAdminStringValue_(row[31]),
