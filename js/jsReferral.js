@@ -222,6 +222,10 @@
         return slug;
     }
 
+    function isValidReferralSlug(value) {
+        return /^[a-z0-9-]{3,10}$/.test(String(value || '').trim());
+    }
+
     function buildReferralUrl(slug) {
         if (!slug) return '';
         return `${REFERRAL_BASE_URL}${encodeURIComponent(slug)}`;
@@ -574,6 +578,11 @@
 
         if (!payload.refLink) {
             setStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
+            return;
+        }
+
+        if (!isValidReferralSlug(payload.refLink)) {
+            setStatus('warning', 'Slug Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
             return;
         }
 
