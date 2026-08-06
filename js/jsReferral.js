@@ -1,3 +1,9 @@
+/**************************************************************
+APLIKASI BERATIDEAL
+TAMPILAN DASHBOARD UNTUK : Referral
+Database :  dbReferral
+***************************************************************/
+
 (function () {
     const REFERRAL_BASE_URL = 'https://beratidealku.com/?ref=';
 
