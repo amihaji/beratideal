@@ -196,6 +196,25 @@
         return `${year}-${month}-${day}`;
     }
 
+    function formatReferralDateTime(value) {
+        const rawValue = normalizeText(value);
+        if (!rawValue) return '';
+
+        const parsedDate = new Date(rawValue);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return rawValue;
+        }
+
+        return parsedDate.toLocaleString('id-ID', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
     function reportReferralDebug(hypothesisId, location, msg, data) {
         // #region debug-point A:referral-debug-report
         fetch('http://127.0.0.1:7777/event', {
@@ -683,10 +702,16 @@
             const targetSheetLabel = response.meta && response.meta.sheetName
                 ? ` Sheet tujuan: ${response.meta.spreadsheetName || 'dbReferral'} / ${response.meta.sheetName}.`
                 : '';
-            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.${targetSheetLabel}`);
+            const rowLabel = state.referralData && state.referralData.recordId
+                ? ` Baris: #${state.referralData.recordId}.`
+                : '';
+            const updatedAtLabel = state.referralData && state.referralData.updatedAt
+                ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
+                : '';
+            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.${targetSheetLabel}${rowLabel}${updatedAtLabel}`);
 
             if (typeof showToast === 'function') {
-                showToast('Data Referral berhasil disimpan dan diverifikasi.', 'success');
+                showToast(`Data Referral berhasil diperbarui${rowLabel ? ` (baris #${state.referralData.recordId})` : ''}.`, 'success');
             }
         } catch (error) {
             setStatus('error', error.message);
