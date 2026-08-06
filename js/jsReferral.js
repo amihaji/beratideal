@@ -6,7 +6,8 @@
         loading: false,
         mode: 'view',
         profileData: null,
-        referralData: null
+        referralData: null,
+        canManageReferral: false
     };
 
     const elements = {};
@@ -268,19 +269,54 @@
         });
     }
 
+    function resolveReferralOwnerId() {
+        const formUserId = normalizeText(elements.fields && elements.fields.refId ? elements.fields.refId.value : '');
+        if (formUserId) return formUserId.toLowerCase();
+
+        const profileUserId = normalizeText(state.profileData && state.profileData.userId);
+        if (profileUserId) return profileUserId.toLowerCase();
+
+        const savedUserId = normalizeText(state.referralData && state.referralData.userId);
+        return savedUserId ? savedUserId.toLowerCase() : '';
+    }
+
+    function evaluateReferralPermission() {
+        const context = getUserContext();
+        const activeUserId = normalizeText(context.userId).toLowerCase();
+        const ownerUserId = resolveReferralOwnerId();
+
+        state.canManageReferral = Boolean(activeUserId && ownerUserId && activeUserId === ownerUserId);
+        return state.canManageReferral;
+    }
+
+    function ensureReferralPermission() {
+        if (evaluateReferralPermission()) {
+            return true;
+        }
+
+        setMode('view');
+        setStatus('error', 'Aksi Referral hanya bisa dilakukan oleh user pemilik data yang sedang login.');
+        return false;
+    }
+
     function updateButtonState() {
         const hasSavedData = Boolean(state.referralData && state.referralData.userId);
         const isEditableMode = state.mode === 'input' || state.mode === 'edit';
         const hasReferralUrl = Boolean(URL_dbReferral);
+        const canManageReferral = evaluateReferralPermission();
+
+        if (elements.inputButton) {
+            elements.inputButton.disabled = !canManageReferral;
+        }
 
         if (elements.editButton) {
-            elements.editButton.disabled = !hasSavedData;
+            elements.editButton.disabled = !hasSavedData || !canManageReferral;
         }
         if (elements.saveButton) {
-            elements.saveButton.disabled = !isEditableMode || !hasReferralUrl;
+            elements.saveButton.disabled = !isEditableMode || !hasReferralUrl || !canManageReferral;
         }
         if (elements.createLinkButton) {
-            elements.createLinkButton.disabled = !isEditableMode;
+            elements.createLinkButton.disabled = !isEditableMode || !canManageReferral;
         }
     }
 
@@ -545,6 +581,7 @@
 
             fillProfileFields(profileData);
             fillEditableFields(referralData || buildEditableDefaults(profileData));
+            evaluateReferralPermission();
 
             if (elements.recordId) {
                 elements.recordId.value = referralData && referralData.recordId ? referralData.recordId : '';
@@ -573,12 +610,14 @@
     }
 
     function handleInputMode() {
+        if (!ensureReferralPermission()) return;
         fillEditableFields(state.referralData || buildEditableDefaults(state.profileData));
         setMode('input');
         setStatus('warning', 'Mode input aktif. Lengkapi data lalu klik Simpan.');
     }
 
     function handleEditMode() {
+        if (!ensureReferralPermission()) return;
         if (!state.referralData) {
             setStatus('warning', 'Data Referral belum ada. Gunakan tombol Input untuk membuat data baru.');
             return;
@@ -590,6 +629,7 @@
     }
 
     function handleCreateLink() {
+        if (!ensureReferralPermission()) return;
         const sourceValue =
             elements.fields.refLink.value ||
             elements.fields.refName.value ||
@@ -636,6 +676,7 @@
 
     async function handleSave() {
         if (!elements.form) return;
+        if (!ensureReferralPermission()) return;
 
         if (!URL_dbReferral) {
             setStatus('warning', 'URL dbReferral belum diatur di jsLoadUrlPublic.js.');
