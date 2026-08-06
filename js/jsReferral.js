@@ -135,15 +135,35 @@
             throw new Error('URL dbReferral belum diatur.');
         }
 
+        const formPayload = new URLSearchParams();
+        Object.entries(payload || {}).forEach(([key, value]) => {
+            formPayload.append(key, value == null ? '' : String(value));
+        });
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
             },
-            body: JSON.stringify(payload)
+            body: formPayload.toString()
         });
 
-        return response.json();
+        const responseText = await response.text();
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!response.ok) {
+            throw new Error(`Gagal menghubungi server Referral (HTTP ${response.status}).`);
+        }
+
+        try {
+            return JSON.parse(responseText);
+        } catch (error) {
+            const responsePreview = String(responseText || '').trim().substring(0, 180);
+            throw new Error(
+                `Respons server Referral bukan JSON valid. Content-Type: ${contentType || 'tidak diketahui'}. ` +
+                `Cuplikan respons: ${responsePreview || '(kosong)'}`
+            );
+        }
     }
 
     function normalizeText(value) {
