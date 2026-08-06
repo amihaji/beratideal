@@ -137,15 +137,6 @@
         }
         const response = await referralFetchJsonp(url, payload);
 
-        // #region debug-point C:post-response-raw
-        reportReferralDebug('C', 'jsReferral.js:referralSaveJsonp', 'Response JSONP save diterima', {
-            responseStatus: response && response.status,
-            responseMessage: response && response.message,
-            responseRecordId: response && response.data ? response.data.recordId : '',
-            responseUpdatedAt: response && response.data ? response.data.updatedAt : ''
-        });
-        // #endregion
-
         return response;
     }
 
@@ -191,26 +182,6 @@
         });
     }
 
-    function reportReferralDebug(hypothesisId, location, msg, data) {
-        // #region debug-point A:referral-debug-report
-        fetch('http://127.0.0.1:7777/event', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                sessionId: 'referral-save-false-success',
-                runId: 'pre-fix',
-                hypothesisId,
-                location,
-                msg: `[DEBUG] ${msg}`,
-                data: data || {},
-                ts: Date.now()
-            })
-        }).catch(() => {});
-        // #endregion
-    }
-
     function slugifyReferral(value) {
         const slug = String(value || '')
             .toLowerCase()
@@ -240,7 +211,17 @@
 
     function setEditableState(isEditable) {
         elements.editableFields.forEach((field) => {
+            const tagName = String(field.tagName || '').toUpperCase();
+
+            if (tagName === 'SELECT') {
+                field.disabled = !isEditable;
+                return;
+            }
+
             field.disabled = !isEditable;
+            if ('readOnly' in field) {
+                field.readOnly = !isEditable;
+            }
         });
     }
 
@@ -327,13 +308,16 @@
         }
     }
 
-    function fillProfileFields(profileData) {
+    function fillProfileFields(profileData, referralData) {
         const profile = profileData || {};
+        const referral = referralData || {};
+        const resolvedJenkel = normalizeText(referral.jenkel) || normalizeText(profile.jenkel);
+        const resolvedTglLahir = normalizeDateValue(referral.tglLahir || profile.tglLahir);
 
         elements.fields.refId.value = normalizeText(profile.userId);
         elements.fields.refName.value = normalizeText(profile.nama);
-        elements.fields.refJenkel.value = normalizeText(profile.jenkel);
-        elements.fields.refTlahir.value = normalizeText(profile.tglLahir);
+        elements.fields.refJenkel.value = resolvedJenkel;
+        elements.fields.refTlahir.value = resolvedTglLahir;
         elements.fields.refHP.value = normalizeText(profile.telp);
         elements.fields.refEmail.value = normalizeText(profile.email);
     }
@@ -411,16 +395,6 @@
             userId
         });
 
-        // #region debug-point B:load-saved-response
-        reportReferralDebug('B', 'jsReferral.js:loadSavedReferral', 'GET verifikasi referral selesai', {
-            requestedUserId: userId,
-            responseStatus: response && response.status,
-            recordId: response && response.data ? response.data.recordId : '',
-            updatedAt: response && response.data ? response.data.updatedAt : '',
-            refLink: response && response.data ? response.data.refLink : ''
-        });
-        // #endregion
-
         if (!response || response.status !== 'success') {
             return null;
         }
@@ -472,24 +446,8 @@
     }
 
     async function verifySavedReferral(payload, responseData) {
-        // #region debug-point B:verify-start
-        reportReferralDebug('B', 'jsReferral.js:verifySavedReferral', 'Mulai verifikasi hasil simpan', {
-            userId: payload && payload.userId,
-            responseRecordId: responseData && responseData.recordId,
-            responseUpdatedAt: responseData && responseData.updatedAt,
-            responseRefLink: responseData && responseData.refLink
-        });
-        // #endregion
-
         if (responseData && !isSavedReferralMatch(responseData, payload)) {
             const responseMismatchFields = getReferralMismatchFields(responseData, payload);
-            // #region debug-point B:verify-post-mismatch
-            reportReferralDebug('B', 'jsReferral.js:verifySavedReferral', 'Mismatch pada data balikan POST', {
-                mismatchFields: responseMismatchFields,
-                responseComparable: buildComparableReferralData(responseData),
-                payloadComparable: buildComparableReferralData(payload)
-            });
-            // #endregion
             throw new Error(`Server merespons sukses, tetapi data balikan POST tidak cocok pada field: ${responseMismatchFields.join(', ')}.`);
         }
 
@@ -501,25 +459,8 @@
 
         if (!isSavedReferralMatch(verifiedData, payload)) {
             const mismatchFields = getReferralMismatchFields(verifiedData, payload);
-            // #region debug-point B:verify-sheet-mismatch
-            reportReferralDebug('B', 'jsReferral.js:verifySavedReferral', 'Mismatch pada data hasil GET verifikasi', {
-                mismatchFields,
-                verifiedComparable: buildComparableReferralData(verifiedData),
-                payloadComparable: buildComparableReferralData(payload),
-                verifiedRecordId: verifiedData.recordId,
-                verifiedUpdatedAt: verifiedData.updatedAt
-            });
-            // #endregion
             throw new Error(`Server merespons sukses, tetapi hasil verifikasi sheet tidak cocok pada field: ${mismatchFields.join(', ')}.`);
         }
-
-        // #region debug-point B:verify-success
-        reportReferralDebug('B', 'jsReferral.js:verifySavedReferral', 'Verifikasi hasil simpan berhasil', {
-            verifiedRecordId: verifiedData.recordId,
-            verifiedUpdatedAt: verifiedData.updatedAt,
-            verifiedRefLink: verifiedData.refLink
-        });
-        // #endregion
 
         return verifiedData;
     }
@@ -554,7 +495,7 @@
             state.profileData = profileData;
             state.referralData = referralData;
 
-            fillProfileFields(profileData);
+            fillProfileFields(profileData, referralData);
             fillEditableFields(referralData || buildEditableDefaults(profileData));
             evaluateReferralPermission();
 
@@ -667,21 +608,6 @@
         payload.action = 'saveReferralData';
         payload.recordId = normalizeText(elements.recordId?.value);
 
-        // #region debug-point A:save-payload
-        reportReferralDebug('A', 'jsReferral.js:handleSave', 'Payload simpan akan dikirim', {
-            mode: payload.mode,
-            recordId: payload.recordId,
-            userId: payload.userId,
-            refLink: payload.refLink,
-            tglLahir: payload.tglLahir,
-            alamat: payload.alamat,
-            kelurahan: payload.kelurahan,
-            kecamatan: payload.kecamatan,
-            kota: payload.kota,
-            propinsi: payload.propinsi
-        });
-        // #endregion
-
         if (!payload.refLink) {
             setStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
             return;
@@ -695,17 +621,6 @@
             if (!response || response.status !== 'success') {
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
-
-            // #region debug-point C:save-success-response
-            reportReferralDebug('C', 'jsReferral.js:handleSave', 'POST saveReferralData sukses', {
-                message: response.message,
-                responseRecordId: response.data && response.data.recordId,
-                responseUpdatedAt: response.data && response.data.updatedAt,
-                responseUserId: response.data && response.data.userId,
-                responseRefLink: response.data && response.data.refLink,
-                sheetMeta: response.meta || {}
-            });
-            // #endregion
 
             const verifiedData = await verifySavedReferral(payload, response.data);
             state.referralData = verifiedData;

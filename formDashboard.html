@@ -741,7 +741,7 @@ Dashboard untuk :
                                         <label class="form-label referral-form-label" for="refJenkel">Jenis Kelamin</label>
                                         <div class="input-group">
                                             <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Jenis kelamin."><i class="fas fa-venus-mars"></i></span>
-                                            <select id="refJenkel" class="form-select" required>
+                                            <select id="refJenkel" class="form-select" data-referral-editable="true" disabled required>
                                                 <option value="Pria">Pria</option>
                                                 <option value="Wanita">Wanita</option>
                                             </select>
@@ -752,7 +752,7 @@ Dashboard untuk :
                                         <label class="form-label referral-form-label" for="refTlahir">Tanggal Lahir</label>
                                         <div class="input-group">
                                             <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Tanggal lahir."><i class="fas fa-calendar-alt"></i></span>
-                                            <input type="date" id="refTlahir" class="form-control" required>
+                                            <input type="date" id="refTlahir" class="form-control" data-referral-editable="true" readonly required>
                                         </div>
                                     </div>
 
@@ -872,7 +872,7 @@ Dashboard untuk :
                                         <label class="form-label referral-form-label" for="refLink">Slug Referral</label>
                                         <div class="input-group">
                                             <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top" title="Slug link referral."><i class="fas fa-address-card"></i></span>
-                                            <input type="text" id="refLink" class="form-control" placeholder="contoh: amihaji" oninput="this.value = this.value.toLowerCase().substring(0, 10)" minlength="3" maxlength="10" pattern="^[a-z0-9\\-]{3,10}$" data-referral-editable="true" required>
+                                            <input type="text" id="refLink" class="form-control" placeholder="contoh: amihaji" oninput="this.value = this.value.toLowerCase().substring(0, 10)" minlength="3" maxlength="10" pattern="[-a-z0-9]{3,10}" data-referral-editable="true" required>
                                         </div>
                                     </div>
 
