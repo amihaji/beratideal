@@ -322,18 +322,55 @@
         return response.data || null;
     }
 
+    function buildComparableReferralData(source) {
+        const data = source || {};
+        const refLink = slugifyReferral(data.refLink);
+
+        return {
+            userId: normalizeText(data.userId).toLowerCase(),
+            nama: normalizeText(data.nama),
+            jenkel: normalizeText(data.jenkel),
+            tglLahir: normalizeText(data.tglLahir),
+            telp: normalizeText(data.telp),
+            email: normalizeText(data.email),
+            alamat: normalizeText(data.alamat),
+            kelurahan: normalizeText(data.kelurahan),
+            kecamatan: normalizeText(data.kecamatan),
+            kota: normalizeText(data.kota),
+            propinsi: normalizeText(data.propinsi),
+            acNama1: normalizeText(data.acNama1),
+            namaBank1: normalizeText(data.namaBank1),
+            acBank1: normalizeText(data.acBank1),
+            acNama2: normalizeText(data.acNama2),
+            namaBank2: normalizeText(data.namaBank2),
+            acBank2: normalizeText(data.acBank2),
+            refLink,
+            referralUrl: buildReferralUrl(refLink)
+        };
+    }
+
     function isSavedReferralMatch(savedData, payload) {
         if (!savedData || !payload) return false;
 
-        const savedUserId = normalizeText(savedData.userId).toLowerCase();
-        const payloadUserId = normalizeText(payload.userId).toLowerCase();
-        const savedSlug = slugifyReferral(savedData.refLink);
-        const payloadSlug = slugifyReferral(payload.refLink);
+        const savedComparable = buildComparableReferralData(savedData);
+        const payloadComparable = buildComparableReferralData(payload);
 
-        return savedUserId === payloadUserId && savedSlug === payloadSlug;
+        return Object.keys(payloadComparable).every((key) => savedComparable[key] === payloadComparable[key]);
     }
 
-    async function verifySavedReferral(payload) {
+    function getReferralMismatchFields(savedData, payload) {
+        const savedComparable = buildComparableReferralData(savedData);
+        const payloadComparable = buildComparableReferralData(payload);
+
+        return Object.keys(payloadComparable).filter((key) => savedComparable[key] !== payloadComparable[key]);
+    }
+
+    async function verifySavedReferral(payload, responseData) {
+        if (responseData && !isSavedReferralMatch(responseData, payload)) {
+            const responseMismatchFields = getReferralMismatchFields(responseData, payload);
+            throw new Error(`Server merespons sukses, tetapi data balikan POST tidak cocok pada field: ${responseMismatchFields.join(', ')}.`);
+        }
+
         const verifiedData = await loadSavedReferral(payload.userId);
 
         if (!verifiedData) {
@@ -341,7 +378,8 @@
         }
 
         if (!isSavedReferralMatch(verifiedData, payload)) {
-            throw new Error('Server merespons sukses, tetapi hasil verifikasi data Referral tidak cocok dengan data yang dikirim.');
+            const mismatchFields = getReferralMismatchFields(verifiedData, payload);
+            throw new Error(`Server merespons sukses, tetapi hasil verifikasi sheet tidak cocok pada field: ${mismatchFields.join(', ')}.`);
         }
 
         return verifiedData;
@@ -499,7 +537,7 @@
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
 
-            const verifiedData = await verifySavedReferral(payload);
+            const verifiedData = await verifySavedReferral(payload, response.data);
             state.referralData = verifiedData;
             if (elements.recordId) {
                 elements.recordId.value = normalizeText(state.referralData.recordId);
@@ -507,7 +545,10 @@
 
             fillEditableFields(state.referralData);
             setMode('view');
-            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.`);
+            const targetSheetLabel = response.meta && response.meta.sheetName
+                ? ` Sheet tujuan: ${response.meta.spreadsheetName || 'dbReferral'} / ${response.meta.sheetName}.`
+                : '';
+            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.${targetSheetLabel}`);
 
             if (typeof showToast === 'function') {
                 showToast('Data Referral berhasil disimpan dan diverifikasi.', 'success');
