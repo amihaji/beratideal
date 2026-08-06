@@ -131,13 +131,40 @@
         });
     }
 
-    async function referralSaveJsonp(url, payload) {
-        if (!url) {
-            throw new Error('URL dbReferral belum diatur.');
-        }
-        const response = await referralFetchJsonp(url, payload);
+    function referralSaveJsonp(url, payload) {
+        return new Promise((resolve, reject) => {
+            if (!url) {
+                reject(new Error('URL dbReferral belum diatur.'));
+                return;
+            }
 
-        return response;
+            const callbackName = 'cb_' + Date.now();
+            const script = document.createElement('script');
+            const query = new URLSearchParams({ ...payload, callback: callbackName });
+            let finished = false;
+
+            const cleanup = () => {
+                if (finished) return;
+                finished = true;
+                delete window[callbackName];
+                if (document.body.contains(script)) {
+                    document.body.removeChild(script);
+                }
+            };
+
+            window[callbackName] = (response) => {
+                cleanup();
+                resolve(response || { status: 'error', message: 'Respons simpan Referral kosong.' });
+            };
+
+            script.onerror = () => {
+                cleanup();
+                reject(new Error('Gagal menghubungi server simpan Referral.'));
+            };
+
+            script.src = `${url}?${query.toString()}`;
+            document.body.appendChild(script);
+        });
     }
 
     function normalizeText(value) {
@@ -402,69 +429,6 @@
         return response.data || null;
     }
 
-    function buildComparableReferralData(source) {
-        const data = source || {};
-        const refLink = slugifyReferral(data.refLink);
-
-        return {
-            userId: normalizeText(data.userId).toLowerCase(),
-            nama: normalizeText(data.nama),
-            jenkel: normalizeText(data.jenkel),
-            tglLahir: normalizeDateValue(data.tglLahir),
-            telp: normalizeText(data.telp),
-            email: normalizeText(data.email),
-            alamat: normalizeText(data.alamat),
-            kelurahan: normalizeText(data.kelurahan),
-            kecamatan: normalizeText(data.kecamatan),
-            kota: normalizeText(data.kota),
-            propinsi: normalizeText(data.propinsi),
-            acNama1: normalizeText(data.acNama1),
-            namaBank1: normalizeText(data.namaBank1),
-            acBank1: normalizeText(data.acBank1),
-            acNama2: normalizeText(data.acNama2),
-            namaBank2: normalizeText(data.namaBank2),
-            acBank2: normalizeText(data.acBank2),
-            refLink,
-            referralUrl: buildReferralUrl(refLink)
-        };
-    }
-
-    function isSavedReferralMatch(savedData, payload) {
-        if (!savedData || !payload) return false;
-
-        const savedComparable = buildComparableReferralData(savedData);
-        const payloadComparable = buildComparableReferralData(payload);
-
-        return Object.keys(payloadComparable).every((key) => savedComparable[key] === payloadComparable[key]);
-    }
-
-    function getReferralMismatchFields(savedData, payload) {
-        const savedComparable = buildComparableReferralData(savedData);
-        const payloadComparable = buildComparableReferralData(payload);
-
-        return Object.keys(payloadComparable).filter((key) => savedComparable[key] !== payloadComparable[key]);
-    }
-
-    async function verifySavedReferral(payload, responseData) {
-        if (responseData && !isSavedReferralMatch(responseData, payload)) {
-            const responseMismatchFields = getReferralMismatchFields(responseData, payload);
-            throw new Error(`Server merespons sukses, tetapi data balikan POST tidak cocok pada field: ${responseMismatchFields.join(', ')}.`);
-        }
-
-        const verifiedData = await loadSavedReferral(payload.userId);
-
-        if (!verifiedData) {
-            throw new Error('Server merespons sukses, tetapi data Referral belum terbaca ulang dari sheet REFERRAL.');
-        }
-
-        if (!isSavedReferralMatch(verifiedData, payload)) {
-            const mismatchFields = getReferralMismatchFields(verifiedData, payload);
-            throw new Error(`Server merespons sukses, tetapi hasil verifikasi sheet tidak cocok pada field: ${mismatchFields.join(', ')}.`);
-        }
-
-        return verifiedData;
-    }
-
     async function loadPage(forceReload = false) {
         if (!elements.form) {
             cacheElements();
@@ -622,12 +586,13 @@
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
 
-            const verifiedData = await verifySavedReferral(payload, response.data);
-            state.referralData = verifiedData;
+            const refreshedData = await loadSavedReferral(payload.userId);
+            state.referralData = refreshedData || response.data || payload;
             if (elements.recordId) {
                 elements.recordId.value = normalizeText(state.referralData.recordId);
             }
 
+            fillProfileFields(state.profileData, state.referralData);
             fillEditableFields(state.referralData);
             setMode('view');
             const targetSheetLabel = response.meta && response.meta.sheetName
@@ -639,7 +604,7 @@
             const updatedAtLabel = state.referralData && state.referralData.updatedAt
                 ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
                 : '';
-            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'} Verifikasi baca ulang berhasil.${targetSheetLabel}${rowLabel}${updatedAtLabel}`);
+            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'}${targetSheetLabel}${rowLabel}${updatedAtLabel}`);
 
             if (typeof showToast === 'function') {
                 showToast(`Data Referral berhasil diperbarui${rowLabel ? ` (baris #${state.referralData.recordId})` : ''}.`, 'success');
