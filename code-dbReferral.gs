@@ -294,12 +294,22 @@ function normalizeText_(value) {
 }
 
 function parsePostPayload_(e) {
-  try {
-    if (e && e.postData && e.postData.contents) {
-      return JSON.parse(e.postData.contents);
+  if (e && e.postData && e.postData.contents) {
+    const rawBody = String(e.postData.contents || '').trim();
+
+    if (!rawBody) {
+      return (e && e.parameter) ? e.parameter : {};
     }
-  } catch (error) {
-    throw new Error('Payload JSON tidak valid.');
+
+    try {
+      return JSON.parse(rawBody);
+    } catch (error) {
+      if (e && e.parameter && Object.keys(e.parameter).length) {
+        return e.parameter;
+      }
+
+      throw new Error('Payload JSON tidak valid.');
+    }
   }
 
   return (e && e.parameter) ? e.parameter : {};
