@@ -131,47 +131,22 @@
         });
     }
 
-    async function referralPostJson(url, payload) {
+    async function referralSaveJsonp(url, payload) {
         if (!url) {
             throw new Error('URL dbReferral belum diatur.');
         }
-
-        const formPayload = new URLSearchParams();
-        Object.entries(payload || {}).forEach(([key, value]) => {
-            formPayload.append(key, value == null ? '' : String(value));
-        });
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-            },
-            body: formPayload.toString()
-        });
-
-        const responseText = await response.text();
-        const contentType = response.headers.get('content-type') || '';
-
-        if (!response.ok) {
-            throw new Error(`Gagal menghubungi server Referral (HTTP ${response.status}).`);
-        }
+        const response = await referralFetchJsonp(url, payload);
 
         // #region debug-point C:post-response-raw
-        reportReferralDebug('C', 'jsReferral.js:referralPostJson', 'POST response diterima', {
-            contentType,
-            responsePreview: String(responseText || '').trim().substring(0, 220)
+        reportReferralDebug('C', 'jsReferral.js:referralSaveJsonp', 'Response JSONP save diterima', {
+            responseStatus: response && response.status,
+            responseMessage: response && response.message,
+            responseRecordId: response && response.data ? response.data.recordId : '',
+            responseUpdatedAt: response && response.data ? response.data.updatedAt : ''
         });
         // #endregion
 
-        try {
-            return JSON.parse(responseText);
-        } catch (error) {
-            const responsePreview = String(responseText || '').trim().substring(0, 180);
-            throw new Error(
-                `Respons server Referral bukan JSON valid. Content-Type: ${contentType || 'tidak diketahui'}. ` +
-                `Cuplikan respons: ${responsePreview || '(kosong)'}`
-            );
-        }
+        return response;
     }
 
     function normalizeText(value) {
@@ -716,7 +691,7 @@
             elements.saveButton.disabled = true;
             setStatus('warning', 'Menyimpan data Referral...');
 
-            const response = await referralPostJson(URL_dbReferral, payload);
+            const response = await referralSaveJsonp(URL_dbReferral, payload);
             if (!response || response.status !== 'success') {
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }

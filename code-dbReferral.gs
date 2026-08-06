@@ -12,6 +12,10 @@ function doGet(e) {
   const action = String(params.action || '').trim();
   const callback = params.callback || '';
 
+  if (action === 'saveReferralData') {
+    return jsonpResponse_(callback, saveReferralData_(params));
+  }
+
   if (action === 'getReferralData') {
     return jsonpResponse_(callback, getReferralData_(params));
   }

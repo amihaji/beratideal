@@ -27,7 +27,7 @@ const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycby3soomCa
 // url dbReferral (REFERRAL) :
 // jsReferral.js untuk formDashboard.html
 // Isi URL deploy Apps Script dbReferral setelah file backend dipublikasikan
-const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbxTzxw4a1oJ5cGnI3tW9IvWsLf8W5wb_4cUhxT2-wcLVVL7xYSJPTCqJmk9VyTTgH7uhg/exec';
+const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbxldbv0LhmzjluUGF1ZNp83tb-ahy_mGuDYWRbMGXDr-6ppd1t8T4h6k0DDhp4hzunARA/exec';
 
 // ============================================================
 // FUNGSI GLOBAL UNTUK TOOLTIP - VERSI SEDERHANA
