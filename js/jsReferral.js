@@ -170,6 +170,25 @@
         return String(value || '').trim();
     }
 
+    function normalizeDateValue(value) {
+        const rawValue = normalizeText(value);
+        if (!rawValue) return '';
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+            return rawValue;
+        }
+
+        const parsedDate = new Date(rawValue);
+        if (Number.isNaN(parsedDate.getTime())) {
+            return rawValue;
+        }
+
+        const year = parsedDate.getFullYear();
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(parsedDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     function slugifyReferral(value) {
         const slug = String(value || '')
             .toLowerCase()
@@ -350,7 +369,7 @@
             userId: normalizeText(data.userId).toLowerCase(),
             nama: normalizeText(data.nama),
             jenkel: normalizeText(data.jenkel),
-            tglLahir: normalizeText(data.tglLahir),
+            tglLahir: normalizeDateValue(data.tglLahir),
             telp: normalizeText(data.telp),
             email: normalizeText(data.email),
             alamat: normalizeText(data.alamat),
