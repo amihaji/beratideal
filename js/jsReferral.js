@@ -503,7 +503,7 @@
     function handleEditMode() {
         if (!ensureReferralPermission()) return;
         if (!state.referralData) {
-            setStatus('warning', 'Data Referral belum ada. Gunakan tombol Input untuk membuat data baru.');
+            setStatus('warning', 'Data Referral belum ada. Input untuk membuat data baru.');
             return;
         }
 
@@ -613,7 +613,7 @@
             const updatedAtLabel = state.referralData && state.referralData.updatedAt
                 ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
                 : '';
-            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'}${targetSheetLabel}${rowLabel}${updatedAtLabel}`);
+            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'}`);
 
             if (typeof showToast === 'function') {
                 showToast(`Data Referral berhasil diperbarui${rowLabel ? ` (baris #${state.referralData.recordId})` : ''}.`, 'success');
