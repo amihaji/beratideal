@@ -144,14 +144,19 @@ Database :  dbReferral
                 return;
             }
 
-            const callbackName = 'cb_' + Date.now();
+            const callbackName = 'cb_referral_save_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             const script = document.createElement('script');
             const query = new URLSearchParams({ ...payload, callback: callbackName });
             let finished = false;
+            const timeoutId = window.setTimeout(() => {
+                cleanup();
+                reject(new Error('Timeout saat menyimpan data Referral. Silakan coba lagi.'));
+            }, 15000);
 
             const cleanup = () => {
                 if (finished) return;
                 finished = true;
+                window.clearTimeout(timeoutId);
                 delete window[callbackName];
                 if (document.body.contains(script)) {
                     document.body.removeChild(script);
@@ -543,7 +548,7 @@ Database :  dbReferral
             userId: normalizeText(elements.fields.refId.value),
             nama: normalizeText(elements.fields.refName.value),
             jenkel: normalizeText(elements.fields.refJenkel.value),
-            tglLahir: normalizeText(elements.fields.refTlahir.value),
+            tglLahir: normalizeDateValue(elements.fields.refTlahir.value),
             telp: normalizeText(elements.fields.refHP.value),
             email: normalizeText(elements.fields.refEmail.value),
             alamat: normalizeText(elements.fields.refAlamat.value),
@@ -564,6 +569,33 @@ Database :  dbReferral
         };
     }
 
+    async function verifySavedReferral(payload) {
+        const refreshedData = await loadSavedReferral(payload.userId);
+        if (!refreshedData) {
+            throw new Error('Server merespons sukses, tetapi data Referral belum ditemukan saat verifikasi baca ulang.');
+        }
+
+        const savedUserId = normalizeText(refreshedData.userId).toLowerCase();
+        const expectedUserId = normalizeText(payload.userId).toLowerCase();
+        if (!savedUserId || savedUserId !== expectedUserId) {
+            throw new Error('Verifikasi baca ulang gagal: User ID data Referral tidak cocok.');
+        }
+
+        const savedSlug = normalizeText(refreshedData.refLink);
+        const expectedSlug = normalizeText(payload.refLink);
+        if (!savedSlug || savedSlug !== expectedSlug) {
+            throw new Error('Verifikasi baca ulang gagal: slug Referral yang tersimpan tidak sesuai.');
+        }
+
+        const savedBirthDate = normalizeDateValue(refreshedData.tglLahir);
+        const expectedBirthDate = normalizeDateValue(payload.tglLahir);
+        if (expectedBirthDate && savedBirthDate !== expectedBirthDate) {
+            throw new Error('Verifikasi baca ulang gagal: tanggal lahir yang tersimpan tidak sesuai.');
+        }
+
+        return refreshedData;
+    }
+
     async function handleSave() {
         if (!elements.form) return;
         if (!ensureReferralPermission()) return;
@@ -581,6 +613,7 @@ Database :  dbReferral
         const payload = collectFormData();
         payload.action = 'saveReferralData';
         payload.recordId = normalizeText(elements.recordId?.value);
+        payload.requesterUserId = normalizeText(getUserContext().userId);
 
         if (!payload.refLink) {
             setStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
@@ -601,8 +634,7 @@ Database :  dbReferral
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
 
-            const refreshedData = await loadSavedReferral(payload.userId);
-            state.referralData = refreshedData || response.data || payload;
+            state.referralData = await verifySavedReferral(payload);
             if (elements.recordId) {
                 elements.recordId.value = normalizeText(state.referralData.recordId);
             }

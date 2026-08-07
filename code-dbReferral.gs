@@ -5,7 +5,7 @@
 const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
 const REFERRAL_SHEET_NAME       = 'REFERRAL';
 const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
-const REFERRAL_DB_ID_KEY        = '1pRH1h9xsaMjtqU-wx5o1mNuMQP_rVfN8024eBNyo1Kw';
+const REFERRAL_DB_ID_KEY        = '1QBXPEYLNDYuu_dsoyTE6cgshLLq_fpNA7QNEWXXUuJc';
 
 function doGet(e) {
   const params = (e && e.parameter) ? e.parameter : {};
@@ -61,11 +61,19 @@ function saveReferralData_(payload) {
   const sheet = getReferralSheet_();
   const values = sheet.getDataRange().getValues();
   const userId = normalizeText_(payload.userId).toLowerCase();
+  const requesterUserId = normalizeText_(payload.requesterUserId).toLowerCase();
 
   if (!userId) {
     return {
       status: 'error',
       message: 'User ID tidak boleh kosong.'
+    };
+  }
+
+  if (requesterUserId && requesterUserId !== userId) {
+    return {
+      status: 'error',
+      message: 'Aksi simpan Referral hanya boleh dilakukan oleh user pemilik data yang sedang login.'
     };
   }
 
@@ -91,7 +99,7 @@ function saveReferralData_(payload) {
     userId,
     normalizeText_(payload.nama),
     normalizeText_(payload.jenkel),
-    normalizeText_(payload.tglLahir),
+    normalizeDateText_(payload.tglLahir),
     normalizeText_(payload.telp),
     normalizeText_(payload.email),
     normalizeText_(payload.alamat),
@@ -295,6 +303,22 @@ function buildReferralUrl_(slug) {
 
 function normalizeText_(value) {
   return String(value || '').trim();
+}
+
+function normalizeDateText_(value) {
+  const rawValue = normalizeText_(value);
+  if (!rawValue) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    return rawValue;
+  }
+
+  const parsedDate = new Date(rawValue);
+  if (isNaN(parsedDate.getTime())) {
+    return rawValue;
+  }
+
+  return Utilities.formatDate(parsedDate, Session.getScriptTimeZone(), 'yyyy-MM-dd');
 }
 
 function parsePostPayload_(e) {
