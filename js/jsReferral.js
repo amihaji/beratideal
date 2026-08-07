@@ -540,7 +540,120 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         setStatus('warning', 'Mode edit aktif. Ubah data yang diperlukan lalu klik Simpan.');
     }
 
-    function handleCreateLink() {
+    function escapeHtmlForStatus(value) {
+        const s = String(value == null ? '' : value);
+        return s
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function buildSlugSuggestionMessage(message, suggestions, allowUseAction) {
+        const base = escapeHtmlForStatus(message || '');
+        const list = Array.isArray(suggestions) ? suggestions.filter(Boolean).slice(0, 8) : [];
+        if (!list.length) return base;
+        const header = '<br><strong>Saran alternatif nama link yang bisa dipakai:</strong>';
+        const items = list.map((s) => {
+            const safe = escapeHtmlForStatus(s);
+            if (allowUseAction) {
+                return `<li style="cursor:pointer;color:#0d6efd;text-decoration:underline;" data-referral-slug-action="apply" data-referral-slug-value="${safe}">${safe}</li>`;
+            }
+            return `<li>${safe}</li>`;
+        });
+        return `${base}${header}<ul style="margin-top:6px;margin-bottom:0;padding-left:20px;">${items.join('')}</ul>`;
+    }
+
+    function bindSlugSuggestionClickHandlers_() {
+        if (!elements || !elements.statusBox || !elements.fields || !elements.fields.refLink) return;
+        try {
+            const nodes = elements.statusBox.querySelectorAll('[data-referral-slug-action="apply"]');
+            nodes.forEach((node) => {
+                if (node.__referralBoundSlug) return;
+                node.__referralBoundSlug = true;
+                node.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const value = String(node.getAttribute('data-referral-slug-value') || '').trim();
+                    if (!value) return;
+                    elements.fields.refLink.value = value;
+                    updateLinkPreview(value);
+                    setStatus('success', `Nama link "${value}" siap dipakai. Silakan klik Simpan untuk menyimpan.`);
+                    if (window.scrollTo && typeof window.scrollTo === 'function') {
+                        try {
+                            elements.fields.refLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } catch (_err) { }
+                    }
+                });
+            });
+        } catch (_err) { }
+    }
+
+    async function checkReferralSlugAvailability(slug, opts) {
+        const safeSlug = slugifyReferral(slug);
+        if (!safeSlug) {
+            return {
+                ok: false,
+                available: false,
+                valid: false,
+                message: 'Nama link Referral belum bisa dibuat. Pastikan nama atau User ID tersedia.',
+                suggestions: []
+            };
+        }
+        if (!isValidReferralSlug(safeSlug)) {
+            return {
+                ok: false,
+                available: false,
+                valid: false,
+                message: 'Nama link Referral harus 3-10 karakter dan hanya boleh huruf kecil, angka, atau tanda minus (-).',
+                suggestions: []
+            };
+        }
+        if (!URL_dbReferral) {
+            return {
+                ok: false,
+                available: true,
+                valid: true,
+                message: 'Nama link "' + safeSlug + '" siap dipakai. (URL dbReferral belum diatur, jadi tidak bisa cek ke server.)',
+                suggestions: []
+            };
+        }
+        const context = getUserContext();
+        const params = {
+            action: 'checkReferralSlugAvailable',
+            slug: safeSlug,
+            userId: context.userId || ''
+        };
+        try {
+            const response = await referralFetchJsonp(URL_dbReferral, params);
+            const ok = !!(response && response.status === 'success');
+            const available = ok && response.available === true;
+            const suggestions = Array.isArray(response && response.suggestions)
+                ? response.suggestions.slice()
+                : [];
+            return {
+                ok: ok,
+                available: !!available,
+                valid: true,
+                slug: safeSlug,
+                message: (response && response.message) || (available ? 'Nama link tersedia.' : 'Nama link sudah dipakai.'),
+                suggestions: suggestions,
+                usedBy: (response && response.usedBy) || ''
+            };
+        } catch (err) {
+            return {
+                ok: false,
+                available: false,
+                valid: true,
+                slug: safeSlug,
+                message: 'Gagal memeriksa nama link ke server: ' + (err && err.message ? err.message : String(err)),
+                suggestions: []
+            };
+        }
+    }
+
+    async function handleCreateLink() {
         if (!ensureReferralPermission()) return;
         const sourceValue =
             elements.fields.refLink.value ||
@@ -553,9 +666,44 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             return;
         }
 
-        elements.fields.refLink.value = slug;
-        updateLinkPreview(slug);
-        setStatus('success', 'Link Referral berhasil dibuat. Silakan simpan untuk menyimpan ke database.');
+        if (!isValidReferralSlug(slug)) {
+            setStatus('warning', 'Nama link Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
+            return;
+        }
+
+        setStatus('warning', `Memeriksa ketersediaan nama link "${slug}"...`);
+        if (elements.createLinkButton) {
+            elements.createLinkButton.disabled = true;
+        }
+
+        try {
+            const check = await checkReferralSlugAvailability(slug, {});
+            if (check && check.ok && check.available === false) {
+                const userMsg = 'Nama link sudah ada, coba yang lain.';
+                const html = buildSlugSuggestionMessage(userMsg, check.suggestions || [], true);
+                setStatus('error', html, true);
+                bindSlugSuggestionClickHandlers_();
+                return;
+            }
+
+            elements.fields.refLink.value = slug;
+            updateLinkPreview(slug);
+            const baseMsg = 'Link Referral berhasil dibuat. Silakan simpan untuk menyimpan ke database.';
+            if (check && Array.isArray(check.suggestions) && check.suggestions.length) {
+                const html = buildSlugSuggestionMessage(baseMsg, check.suggestions, false);
+                setStatus('success', html, true);
+                bindSlugSuggestionClickHandlers_();
+            } else {
+                setStatus('success', baseMsg);
+            }
+        } catch (err) {
+            const failMsg = 'Gagal memeriksa ketersediaan nama link. ' + (err && err.message ? err.message : 'Silakan coba lagi.');
+            setStatus('error', failMsg);
+        } finally {
+            if (elements.createLinkButton) {
+                elements.createLinkButton.disabled = false;
+            }
+        }
     }
 
     function collectFormData() {
@@ -651,7 +799,15 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             const response = await referralSaveJsonp(URL_dbReferral, payload);
 
             if (!response || response.status !== 'success') {
-                throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
+                const rawMsg = (response && response.message) || 'Gagal menyimpan data Referral.';
+                const isDuplicateSlug = /sudah dipakai|nama link sudah|duplikat|tersedia.*sudah|referral.*sudah/i.test(rawMsg);
+                if (isDuplicateSlug && Array.isArray(response && response.suggestions) && response.suggestions.length) {
+                    const html = buildSlugSuggestionMessage(rawMsg, response.suggestions, true);
+                    setStatus('error', html, true);
+                    bindSlugSuggestionClickHandlers_();
+                    throw new Error('__duplicate_slug_handled__');
+                }
+                throw new Error(rawMsg);
             }
 
             state.referralData = await verifySavedReferral(payload);

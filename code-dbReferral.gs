@@ -9,8 +9,7 @@ const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
 const REFERRAL_SHEET_NAME       = 'REFERRAL';
 const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
 
-// ===== HARDCODE ID DI SINI (POLA STANDAR MODUL LAIN) =====
-// Contoh: const DB_REFERRAL = '1abcDEFghiJKLmnoPQRstuVWXyz1234567890abcd';
+
 const DB_REFERRAL = '1QBXPEYLNDYuu_dsoyTE6cgshLLq_fpNA7QNEWXXUuJc';
 
 // Script Properties key (opsional, jikalau ID tidak di-hardcode di atas)
@@ -32,6 +31,10 @@ function doGet(e) {
   if (action === 'getReferralSheetInfo') {
     const sheet = getReferralSheet_();
     return jsonpResponse_(callback, buildReferralSheetInfo_(sheet));
+  }
+
+  if (action === 'checkReferralSlugAvailable') {
+    return jsonpResponse_(callback, checkReferralSlugAvailable_(params));
   }
 
   if (action === 'setReferralSpreadsheetId') {
@@ -91,7 +94,27 @@ function saveReferralData_(payload) {
 
   const now = new Date();
   const slug = createReferralSlug_(payload.refLink || payload.referralSlug || userId);
+  if (!isValidReferralSlug_(slug)) {
+    return {
+      status: 'error',
+      message: 'Slug Referral tidak valid. Minimal 3 karakter, maksimal 10 karakter, hanya huruf kecil, angka, dan tanda hubung (-).'
+    };
+  }
   const referralUrl = buildReferralUrl_(slug);
+  const usedSet = collectReferralSlugs_(values);
+  const duplicateUserId = normalizeText_(payload.duplicateUserId || '').toLowerCase() || userId;
+  if (usedSet.hasOwnProperty(slug)) {
+    const owner = usedSet[slug];
+    if (String(owner || '').toLowerCase() !== duplicateUserId) {
+      const suggestions = generateReferralSlugSuggestions_(slug, usedSet, 5);
+      return {
+        status: 'error',
+        message: 'Nama link Referral sudah dipakai oleh user lain. Coba nama link yang lain.',
+        suggestions: suggestions,
+        usedBy: owner || ''
+      };
+    }
+  }
   let targetRow = 0;
   let createdAt = now;
   let isUpdate = false;
@@ -372,6 +395,116 @@ function createReferralSlug_(value) {
 
 function buildReferralUrl_(slug) {
   return REFERRAL_BASE_URL + encodeURIComponent(createReferralSlug_(slug));
+}
+
+function isValidReferralSlug_(value) {
+  return /^[a-z0-9-]{3,10}$/.test(String(value || '').trim());
+}
+
+function collectReferralSlugs_(values) {
+  const used = {};
+  if (!values || !values.length) return used;
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (!row || row.length === 0) continue;
+    const slug = normalizeText_(row[20]).toLowerCase();
+    const owner = normalizeText_(row[2] || '');
+    if (slug) used[slug] = owner;
+  }
+  return used;
+}
+
+function generateReferralSlugSuggestions_(baseSlug, usedSet, count) {
+  const n = Math.max(1, parseInt(count || '5', 10));
+  const base = String(baseSlug || '').toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  const cleanBase = base || 'referral';
+  const suggestions = [];
+  const seen = {};
+  const pushCandidate = function (cand) {
+    if (seen[cand]) return false;
+    if (usedSet && usedSet.hasOwnProperty && usedSet.hasOwnProperty(cand)) return false;
+    seen[cand] = true;
+    suggestions.push(cand);
+    return suggestions.length >= n;
+  };
+  const truncBase = cleanBase.substring(0, 8);
+  if (pushCandidate(truncBase + '1')) return suggestions.slice(0, n);
+  if (pushCandidate(truncBase + '2')) return suggestions.slice(0, n);
+  if (pushCandidate(truncBase + '3')) return suggestions.slice(0, n);
+  const tokens = [
+    'official', 'store', 'id', 'vip', 'pro', 'team', 'link', 'shop', 'go', 'now'
+  ];
+  for (let i = 0; i < tokens.length; i++) {
+    const candidate = (cleanBase + '-' + tokens[i]).substring(0, 10).replace(/-+$/, '');
+    if (candidate.length >= 3 && pushCandidate(candidate)) {
+      return suggestions.slice(0, n);
+    }
+  }
+  let counter = 10;
+  const safeSeed = Math.floor((new Date()).getTime() % 1000);
+  while (suggestions.length < n && counter < 1000) {
+    const suffix = String(counter + safeSeed % 97).slice(0, 4);
+    const candidate = (truncBase + suffix).substring(0, 10);
+    if (candidate.length >= 3) pushCandidate(candidate);
+    counter += 1;
+  }
+  return suggestions.slice(0, n);
+}
+
+function checkReferralSlugAvailable_(params) {
+  try {
+    const sheet = getReferralSheet_();
+    const values = sheet.getDataRange().getValues();
+    const userId = normalizeText_(params.userId || '').toLowerCase();
+    const slug = createReferralSlug_(params.slug || params.refLink || '');
+    if (!slug) {
+      return { status: 'error', message: 'Nama link Referral belum diisi.' };
+    }
+    if (!isValidReferralSlug_(slug)) {
+      return {
+        status: 'error',
+        message: 'Nama link Referral tidak valid. Minimal 3 karakter, maksimal 10 karakter, hanya huruf kecil, angka, dan tanda hubung (-).',
+        available: false,
+        suggestions: generateReferralSlugSuggestions_(slug, collectReferralSlugs_(values), 5)
+      };
+    }
+    const used = collectReferralSlugs_(values);
+    const isTaken = used.hasOwnProperty(slug);
+    const usedBy = isTaken ? (used[slug] || '') : '';
+    const belongsToCurrentUser = isTaken && userId && (String(usedBy || '').toLowerCase() === userId);
+    if (isTaken && !belongsToCurrentUser) {
+      return {
+        status: 'success',
+        message: 'Nama link "' + slug + '" sudah dipakai. Coba nama link yang lain.',
+        available: false,
+        slug: slug,
+        usedBy: usedBy,
+        suggestions: generateReferralSlugSuggestions_(slug, used, 5)
+      };
+    }
+    const baseUsed = collectReferralSlugs_(values);
+    return {
+      status: 'success',
+      message: belongsToCurrentUser
+        ? ('Nama link "' + slug + '" tersedia (saat ini dipakai oleh akun Anda sendiri).')
+        : ('Nama link "' + slug + '" tersedia.'),
+      available: true,
+      slug: slug,
+      usedBy: usedBy,
+      suggestions: generateReferralSlugSuggestions_(slug, baseUsed, 5)
+    };
+  } catch (error) {
+    return {
+      status: 'error',
+      message: 'Gagal memeriksa ketersediaan nama link Referral: ' + String(error && error.message || error),
+      available: false,
+      suggestions: []
+    };
+  }
 }
 
 function normalizeText_(value) {
