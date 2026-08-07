@@ -28,6 +28,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         elements.statusIcon = document.getElementById('referralStatusIcon');
         elements.statusText = document.getElementById('referralStatusText');
         elements.linkPreview = document.getElementById('referralLinkPreview');
+        elements.inlineSlugStatus = document.getElementById('refLinkInlineStatus');
 
         elements.inputButton = document.getElementById('referralInputButton');
         elements.editButton = document.getElementById('referralEditButton');
@@ -76,7 +77,81 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         elements.saveButton?.addEventListener('click', handleSave);
         elements.fields.refLink?.addEventListener('input', () => {
             updateLinkPreview(elements.fields.refLink.value);
+            if (!elements.inlineSlugStatus) return;
+            const raw = normalizeText(elements.fields.refLink.value);
+            if (!raw) {
+                clearInlineSlugStatus();
+            }
         });
+    }
+
+    function clearInlineSlugStatus() {
+        if (!elements.inlineSlugStatus) return;
+        elements.inlineSlugStatus.style.display = 'none';
+        elements.inlineSlugStatus.classList.remove('rss-success', 'rss-warning', 'rss-error');
+        elements.inlineSlugStatus.innerHTML = '';
+    }
+
+    function setInlineSlugStatus(type, message, suggestions, allowClick) {
+        if (!elements.inlineSlugStatus) return;
+        const t = type === 'success' || type === 'warning' || type === 'error' ? type : 'warning';
+        const safeMessage = escapeHtmlForStatus(message || '');
+        const box = elements.inlineSlugStatus;
+        box.classList.remove('rss-success', 'rss-warning', 'rss-error');
+        box.classList.add('rss-' + t);
+        const labelMap = {
+            success: 'Link Referral OK',
+            warning: 'Perhatian',
+            error: 'Gunakan nama link lain'
+        };
+        const icon = escapeHtmlForStatus(labelMap[t] || 'Informasi');
+        const list = Array.isArray(suggestions) ? suggestions.filter(Boolean).slice(0, 6) : [];
+        const labelHtml = `<div class="rss-label"><span class="rss-dot" aria-hidden="true"></span><span>${icon}</span></div>`;
+        const messageHtml = `<div class="rss-message">${safeMessage}</div>`;
+        let listHtml = '';
+        if (list.length) {
+            const items = list.map((s) => {
+                const safe = escapeHtmlForStatus(s);
+                const clickAttr = allowClick
+                    ? ` data-referral-slug-inline-action="apply" data-referral-slug-inline-value="${safe}" style="cursor:pointer;"`
+                    : '';
+                return `<li${clickAttr}>${safe}</li>`;
+            }).join('');
+            listHtml = `<div class="rss-message" style="margin-top:0.25rem;">Saran alternatif:</div><ul class="rss-suggestions">${items}</ul>`;
+        }
+        box.innerHTML = labelHtml + messageHtml + listHtml;
+        box.style.display = 'flex';
+        if (allowClick && list.length) {
+            bindInlineSlugSuggestionClicks_();
+        }
+    }
+
+    function bindInlineSlugSuggestionClicks_() {
+        if (!elements.inlineSlugStatus || !elements.fields || !elements.fields.refLink) return;
+        try {
+            const nodes = elements.inlineSlugStatus.querySelectorAll('[data-referral-slug-inline-action="apply"]');
+            nodes.forEach((node) => {
+                if (node.__referralBoundInlineSlug) return;
+                node.__referralBoundInlineSlug = true;
+                node.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const value = String(node.getAttribute('data-referral-slug-inline-value') || '').trim();
+                    if (!value) return;
+                    elements.fields.refLink.value = value;
+                    updateLinkPreview(value);
+                    setInlineSlugStatus(
+                        'success',
+                        `Nama link "${value}" siap dipakai. Silakan klik Simpan untuk menyimpan ke database.`,
+                        [],
+                        false
+                    );
+                    if (elements.fields.refLink && typeof elements.fields.refLink.scrollIntoView === 'function') {
+                        try { elements.fields.refLink.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_err) {}
+                    }
+                });
+            });
+        } catch (_err) { }
     }
 
     function initReferralTooltips() {
@@ -662,16 +737,21 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
         const slug = slugifyReferral(sourceValue);
         if (!slug) {
-            setStatus('warning', 'Slug Referral belum bisa dibuat. Pastikan nama atau User ID tersedia.');
+            setInlineSlugStatus('warning', 'Slug Referral belum bisa dibuat. Pastikan nama atau User ID tersedia.', [], false);
             return;
         }
 
         if (!isValidReferralSlug(slug)) {
-            setStatus('warning', 'Nama link Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
+            setInlineSlugStatus(
+                'warning',
+                'Nama link Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.',
+                [],
+                false
+            );
             return;
         }
 
-        setStatus('warning', `Memeriksa ketersediaan nama link "${slug}"...`);
+        setInlineSlugStatus('warning', `Memeriksa ketersediaan nama link "${slug}"...`, [], false);
         if (elements.createLinkButton) {
             elements.createLinkButton.disabled = true;
         }
@@ -680,9 +760,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             const check = await checkReferralSlugAvailability(slug, {});
             if (check && check.ok && check.available === false) {
                 const userMsg = 'Nama link sudah ada, coba yang lain.';
-                const html = buildSlugSuggestionMessage(userMsg, check.suggestions || [], true);
-                setStatus('error', html, true);
-                bindSlugSuggestionClickHandlers_();
+                setInlineSlugStatus('error', userMsg, check.suggestions || [], true);
                 return;
             }
 
@@ -690,15 +768,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             updateLinkPreview(slug);
             const baseMsg = 'Link Referral berhasil dibuat. Silakan simpan untuk menyimpan ke database.';
             if (check && Array.isArray(check.suggestions) && check.suggestions.length) {
-                const html = buildSlugSuggestionMessage(baseMsg, check.suggestions, false);
-                setStatus('success', html, true);
-                bindSlugSuggestionClickHandlers_();
+                setInlineSlugStatus('success', baseMsg, check.suggestions, false);
             } else {
-                setStatus('success', baseMsg);
+                setInlineSlugStatus('success', baseMsg, [], false);
             }
         } catch (err) {
             const failMsg = 'Gagal memeriksa ketersediaan nama link. ' + (err && err.message ? err.message : 'Silakan coba lagi.');
-            setStatus('error', failMsg);
+            setInlineSlugStatus('error', failMsg, [], false);
         } finally {
             if (elements.createLinkButton) {
                 elements.createLinkButton.disabled = false;
@@ -802,9 +878,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                 const rawMsg = (response && response.message) || 'Gagal menyimpan data Referral.';
                 const isDuplicateSlug = /sudah dipakai|nama link sudah|duplikat|tersedia.*sudah|referral.*sudah/i.test(rawMsg);
                 if (isDuplicateSlug && Array.isArray(response && response.suggestions) && response.suggestions.length) {
-                    const html = buildSlugSuggestionMessage(rawMsg, response.suggestions, true);
-                    setStatus('error', html, true);
-                    bindSlugSuggestionClickHandlers_();
+                    setInlineSlugStatus('error', rawMsg, response.suggestions, true);
                     throw new Error('__duplicate_slug_handled__');
                 }
                 throw new Error(rawMsg);

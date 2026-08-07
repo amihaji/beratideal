@@ -319,6 +319,84 @@ tr:hover .action-icon {
 #referral-page .form-control[readonly] {
     background-color: #f8fafc;
 }
+.referral-slug-inline-status {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    background: #f8fafc;
+    color: #334155;
+    border-color: #e2e8f0;
+    word-break: break-word;
+}
+.referral-slug-inline-status.rss-warning {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #7c2d12;
+}
+.referral-slug-inline-status.rss-success {
+    background: #ecfdf5;
+    border-color: #6ee7b7;
+    color: #064e3b;
+}
+.referral-slug-inline-status.rss-error {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #7f1d1d;
+}
+.referral-slug-inline-status .rss-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+}
+.referral-slug-inline-status .rss-label .rss-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    flex: 0 0 auto;
+    background: currentColor;
+    opacity: 0.85;
+}
+.referral-slug-inline-status .rss-message {
+    font-weight: 500;
+}
+.referral-slug-inline-status .rss-suggestions {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.referral-slug-inline-status .rss-suggestions > li {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px dashed currentColor;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.78rem;
+    opacity: 0.95;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.referral-slug-inline-status .rss-suggestions > li:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+@media (max-width: 991.98px) {
+    .referral-slug-inline-status {
+        min-height: unset;
+    }
+}
 
 /*******************************************************
 Preview gambar kecil di modal View Data
