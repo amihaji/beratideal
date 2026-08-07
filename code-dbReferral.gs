@@ -1,11 +1,27 @@
 /*******************************************************
  * DATABASE REFERRAL
- * Spreadsheet akan dibuat otomatis dengan nama dbReferral
+ * Pola SAMA PERSIS seperti Setup / Pendaftaran / FollowUp:
+ * - Spreadsheet dibuat SECARA MANUAL oleh user (ID HARUS di-set).
+ * - Tidak ada auto-create, tidak ada pencarian by-name via DriveApp
+ *   (tidak lambat, tidak bikin file liar di Root Drive).
+ *
+ * Cara set ID (pilih salah satu):
+ *   A) Isi const DB_REFERRAL di baris bawah ini (hardcode,
+ *      sama seperti DB_DAFTAR / DB_PROGRAM / DB_USER / DB_WETOOLS).
+ *   B) Atau set Script Properties key:
+ *        "dbReferral.spreadsheetId" = <ID spreadsheet dbReferral>
+ *      (berguna jika satu file Apps Script multi-deploy).
  *******************************************************/
 const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
 const REFERRAL_SHEET_NAME       = 'REFERRAL';
 const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
-const REFERRAL_DB_ID_KEY        = '1QBXPEYLNDYuu_dsoyTE6cgshLLq_fpNA7QNEWXXUuJc';
+
+// ===== HARDCODE ID DI SINI (POLA STANDAR MODUL LAIN) =====
+// Contoh: const DB_REFERRAL = '1abcDEFghiJKLmnoPQRstuVWXyz1234567890abcd';
+const DB_REFERRAL = '';
+
+// Script Properties key (opsional, jikalau ID tidak di-hardcode di atas)
+const REFERRAL_DB_ID_PROPERTY = 'dbReferral.spreadsheetId';
 
 function doGet(e) {
   const params = (e && e.parameter) ? e.parameter : {};
@@ -25,6 +41,10 @@ function doGet(e) {
     return jsonpResponse_(callback, buildReferralSheetInfo_(sheet));
   }
 
+  if (action === 'setReferralSpreadsheetId') {
+    return jsonpResponse_(callback, setReferralSpreadsheetId_(params));
+  }
+
   return jsonpResponse_(callback, {
     status: 'error',
     message: 'Action tidak valid.'
@@ -38,6 +58,10 @@ function doPost(e) {
 
     if (action === 'saveReferralData') {
       return jsonResponse_(saveReferralData_(payload));
+    }
+
+    if (action === 'setReferralSpreadsheetId') {
+      return jsonResponse_(setReferralSpreadsheetId_(payload));
     }
 
     return jsonResponse_({
@@ -269,7 +293,8 @@ function buildReferralSheetMeta_(sheet) {
   return {
     spreadsheetId: spreadsheet.getId(),
     spreadsheetName: spreadsheet.getName(),
-    sheetName: sheet.getName()
+    sheetName: sheet.getName(),
+    sheetId: sheet.getSheetId()
   };
 }
 
@@ -280,30 +305,76 @@ function buildReferralSheetInfo_(sheet) {
     spreadsheetId: meta.spreadsheetId,
     spreadsheetName: meta.spreadsheetName,
     sheetName: meta.sheetName,
-    spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${encodeURIComponent(meta.spreadsheetId)}/edit#gid=${encodeURIComponent(String(sheet.getSheetId()))}`,
+    spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(meta.spreadsheetId) + '/edit#gid=' + encodeURIComponent(String(sheet.getSheetId())),
     sheetId: sheet.getSheetId(),
     lastRow: sheet.getLastRow(),
     lastColumn: sheet.getLastColumn()
   };
 }
 
-function getReferralSheet_() {
+function setReferralSpreadsheetId_(payload) {
+  const p = payload || {};
   const properties = PropertiesService.getScriptProperties();
-  let spreadsheetId = properties.getProperty(REFERRAL_DB_ID_KEY);
-  let spreadsheet;
 
-  if (spreadsheetId) {
+  const id = normalizeText_(p.spreadsheetId);
+  if (!id) {
+    return {
+      status: 'error',
+      message: 'Parameter spreadsheetId wajib diisi.'
+    };
+  }
+
+  var spreadsheet = null;
+  try {
+    spreadsheet = SpreadsheetApp.openById(id);
+  } catch (err) {
+    return {
+      status: 'error',
+      message: 'Spreadsheet ID tidak bisa dibuka: ' + String(err && err.message || err)
+    };
+  }
+
+  var sheet = spreadsheet.getSheetByName(REFERRAL_SHEET_NAME);
+  if (!sheet) {
     try {
-      spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-    } catch (error) {
-      spreadsheet = null;
+      sheet = spreadsheet.insertSheet(REFERRAL_SHEET_NAME);
+    } catch (err2) {
+      return { status: 'error', message: 'Sheet "' + REFERRAL_SHEET_NAME + '" tidak ada di spreadsheet tersebut dan gagal dibuat otomatis: ' + String(err2 && err2.message || err2) };
     }
   }
+  ensureReferralSheetHeader_(sheet);
+  cleanupDefaultSheet_(spreadsheet);
 
-  if (!spreadsheet) {
-    spreadsheet = SpreadsheetApp.create(REFERRAL_SPREADSHEET_NAME);
-    properties.setProperty(REFERRAL_DB_ID_KEY, spreadsheet.getId());
+  try {
+    properties.setProperty(REFERRAL_DB_ID_PROPERTY, id);
+  } catch (err3) {
+    return { status: 'error', message: 'Gagal menyimpan ke Script Properties: ' + String(err3 && err3.message || err3) };
   }
+
+  return buildReferralSheetInfo_(sheet);
+}
+
+function openReferralSpreadsheet_() {
+  var id = normalizeText_(DB_REFERRAL);
+  if (!id) {
+    try {
+      id = normalizeText_(PropertiesService.getScriptProperties().getProperty(REFERRAL_DB_ID_PROPERTY));
+    } catch (err) {
+      id = '';
+    }
+  }
+  if (!id) {
+    throw new Error('ID dbReferral BELUM DISET. Isi const DB_REFERRAL di code-dbReferral.gs (pola sama seperti DB_DAFTAR / DB_PROGRAM / DB_USER / DB_WETOOLS), atau set Script Properties key "' + REFERRAL_DB_ID_PROPERTY + '" = <ID spreadsheet dbReferral>.');
+  }
+  try {
+    return SpreadsheetApp.openById(id);
+  } catch (err) {
+    throw new Error('Gagal buka spreadsheet Referral (id=' + id + '): ' + String(err && err.message || err) + '. Pastikan ID benar dan akun deploy punya akses edit.');
+  }
+}
+
+function getReferralSheet_() {
+  const spreadsheet = openReferralSpreadsheet_();
 
   let sheet = spreadsheet.getSheetByName(REFERRAL_SHEET_NAME);
   if (!sheet) {
