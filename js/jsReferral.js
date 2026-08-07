@@ -676,7 +676,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             const updatedAtLabel = state.referralData && state.referralData.updatedAt
                 ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
                 : '';
-            const finalMessage = `${response.message || 'Data Referral berhasil disimpan.'}${rowLabel}${targetSheetLabel}${updatedAtLabel}`;
+            const finalMessage = `${response.message || 'Data Referral berhasil disimpan.'}`;
             setStatus('success', finalMessage, true);
 
             if (typeof showToast === 'function') {
