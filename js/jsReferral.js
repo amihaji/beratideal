@@ -7,6 +7,33 @@ Database :  dbReferral
 (function () {
     const REFERRAL_BASE_URL = 'https://beratidealku.com/?ref=';
 
+    // #region debug-point referral-save-fake-success global
+    const DEBUG_SERVER_URL = 'http://127.0.0.1:7778/event';
+    const DEBUG_SESSION_ID = 'referral-save-fake-success';
+    const DEBUG_RUN_ID = 'pre-fix-1';
+    function debugLog_(hypothesisId, location, msg, data) {
+        try {
+            const payload = JSON.stringify({
+                sessionId: DEBUG_SESSION_ID,
+                runId: DEBUG_RUN_ID,
+                hypothesisId: hypothesisId || '',
+                location: location || '',
+                msg: msg || '',
+                data: data || null,
+                ts: Date.now()
+            });
+            if (typeof fetch === 'function') {
+                fetch(DEBUG_SERVER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors',
+                    body: payload
+                }).catch(function () {});
+            }
+        } catch (e) {}
+    }
+    // #endregion
+
     const state = {
         loaded: false,
         loading: false,
@@ -144,12 +171,27 @@ Database :  dbReferral
                 return;
             }
 
+            // #region debug-point referral-save-fake-success referralSaveJsonp start
+            debugLog_('E', 'jsReferral.js:referralSaveJsonp', 'jsonp_start', {
+                url: url,
+                action: payload && payload.action,
+                userId: payload && payload.userId,
+                requesterUserId: payload && payload.requesterUserId,
+                refLink: payload && payload.refLink
+            });
+            // #endregion
+
             const callbackName = 'cb_referral_save_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             const script = document.createElement('script');
             const query = new URLSearchParams({ ...payload, callback: callbackName });
             let finished = false;
             const timeoutId = window.setTimeout(() => {
                 cleanup();
+                // #region debug-point referral-save-fake-success referralSaveJsonp timeout
+                debugLog_('E', 'jsReferral.js:referralSaveJsonp', 'jsonp_timeout', {
+                    callbackName: callbackName
+                });
+                // #endregion
                 reject(new Error('Timeout saat menyimpan data Referral. Silakan coba lagi.'));
             }, 15000);
 
@@ -165,11 +207,27 @@ Database :  dbReferral
 
             window[callbackName] = (response) => {
                 cleanup();
+                // #region debug-point referral-save-fake-success referralSaveJsonp callback
+                debugLog_('A', 'jsReferral.js:referralSaveJsonp', 'jsonp_callback', {
+                    callbackName: callbackName,
+                    responseStatus: response && response.status,
+                    responseMessage: response && response.message,
+                    responseHasData: !!(response && response.data),
+                    responseHasMeta: !!(response && response.meta),
+                    backendDebug: (response && response._backendDebug) || null
+                });
+                // #endregion
                 resolve(response || { status: 'error', message: 'Respons simpan Referral kosong.' });
             };
 
             script.onerror = () => {
                 cleanup();
+                // #region debug-point referral-save-fake-success referralSaveJsonp onerror
+                debugLog_('E', 'jsReferral.js:referralSaveJsonp', 'jsonp_onerror', {
+                    callbackName: callbackName,
+                    src: script && script.src
+                });
+                // #endregion
                 reject(new Error('Gagal menghubungi server simpan Referral.'));
             };
 
@@ -544,7 +602,7 @@ Database :  dbReferral
     function collectFormData() {
         const cleanRefLink = slugifyReferral(elements.fields.refLink.value);
 
-        return {
+        const payload = {
             userId: normalizeText(elements.fields.refId.value),
             nama: normalizeText(elements.fields.refName.value),
             jenkel: normalizeText(elements.fields.refJenkel.value),
@@ -567,32 +625,86 @@ Database :  dbReferral
             mode: state.mode,
             sourceSheet: 'DAFTAR'
         };
+
+        // #region debug-point referral-save-fake-success collectFormData
+        debugLog_('C', 'jsReferral.js:collectFormData', 'collected payload', {
+            userId: payload.userId,
+            jenkel: payload.jenkel,
+            tglLahir: payload.tglLahir,
+            refLink: payload.refLink,
+            nama: payload.nama,
+            telp: payload.telp,
+            propinsi: payload.propinsi,
+            slugValid: isValidReferralSlug(payload.refLink)
+        });
+        // #endregion
+
+        return payload;
     }
 
     async function verifySavedReferral(payload) {
+        // #region debug-point referral-save-fake-success verifySavedReferral start
+        debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_start', {
+            expectedUserId: payload.userId,
+            expectedSlug: payload.refLink,
+            expectedTglLahir: payload.tglLahir
+        });
+        // #endregion
+
         const refreshedData = await loadSavedReferral(payload.userId);
         if (!refreshedData) {
+            // #region debug-point referral-save-fake-success verifySavedReferral null
+            debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_null', {
+                refreshedData: null
+            });
+            // #endregion
             throw new Error('Server merespons sukses, tetapi data Referral belum ditemukan saat verifikasi baca ulang.');
         }
 
         const savedUserId = normalizeText(refreshedData.userId).toLowerCase();
         const expectedUserId = normalizeText(payload.userId).toLowerCase();
+        // #region debug-point referral-save-fake-success verifySavedReferral userid
+        debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_check_userid', {
+            savedUserId: savedUserId,
+            expectedUserId: expectedUserId,
+            match: !!savedUserId && savedUserId === expectedUserId
+        });
+        // #endregion
         if (!savedUserId || savedUserId !== expectedUserId) {
             throw new Error('Verifikasi baca ulang gagal: User ID data Referral tidak cocok.');
         }
 
         const savedSlug = normalizeText(refreshedData.refLink);
         const expectedSlug = normalizeText(payload.refLink);
+        // #region debug-point referral-save-fake-success verifySavedReferral slug
+        debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_check_slug', {
+            savedSlug: savedSlug,
+            expectedSlug: expectedSlug,
+            match: !!savedSlug && savedSlug === expectedSlug
+        });
+        // #endregion
         if (!savedSlug || savedSlug !== expectedSlug) {
             throw new Error('Verifikasi baca ulang gagal: slug Referral yang tersimpan tidak sesuai.');
         }
 
         const savedBirthDate = normalizeDateValue(refreshedData.tglLahir);
         const expectedBirthDate = normalizeDateValue(payload.tglLahir);
+        // #region debug-point referral-save-fake-success verifySavedReferral tgllahir
+        debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_check_tgllahir', {
+            savedBirthDate: savedBirthDate,
+            expectedBirthDate: expectedBirthDate,
+            match: !expectedBirthDate || savedBirthDate === expectedBirthDate
+        });
+        // #endregion
         if (expectedBirthDate && savedBirthDate !== expectedBirthDate) {
             throw new Error('Verifikasi baca ulang gagal: tanggal lahir yang tersimpan tidak sesuai.');
         }
 
+        // #region debug-point referral-save-fake-success verifySavedReferral pass
+        debugLog_('A', 'jsReferral.js:verifySavedReferral', 'verify_pass', {
+            recordId: refreshedData.recordId
+        });
+        // #endregion
         return refreshedData;
     }
 
@@ -600,12 +712,22 @@ Database :  dbReferral
         if (!elements.form) return;
         if (!ensureReferralPermission()) return;
 
+        // #region debug-point referral-save-fake-success handleSave start
+        debugLog_('A', 'jsReferral.js:handleSave', 'save_start', {
+            mode: state.mode,
+            canManageReferral: state.canManageReferral
+        });
+        // #endregion
+
         if (!URL_dbReferral) {
             setStatus('warning', 'URL dbReferral belum diatur di jsLoadUrlPublic.js.');
             return;
         }
 
         if (!elements.form.reportValidity()) {
+            // #region debug-point referral-save-fake-success handleSave validity
+            debugLog_('C', 'jsReferral.js:handleSave', 'save_report_validity_fail', null);
+            // #endregion
             setStatus('warning', 'Mohon lengkapi semua field yang wajib diisi.');
             return;
         }
@@ -630,6 +752,15 @@ Database :  dbReferral
             setStatus('warning', 'Menyimpan data Referral...');
 
             const response = await referralSaveJsonp(URL_dbReferral, payload);
+            // #region debug-point referral-save-fake-success handleSave after response
+            debugLog_('A', 'jsReferral.js:handleSave', 'save_after_response', {
+                responseStatus: response && response.status,
+                responseMessage: response && response.message,
+                dataPresent: !!(response && response.data),
+                backendDebug: (response && response._backendDebug) || null
+            });
+            // #endregion
+
             if (!response || response.status !== 'success') {
                 throw new Error((response && response.message) || 'Gagal menyimpan data Referral.');
             }
@@ -653,10 +784,23 @@ Database :  dbReferral
                 : '';
             setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'}`);
 
+            // #region debug-point referral-save-fake-success handleSave result success
+            debugLog_('A', 'jsReferral.js:handleSave', 'save_result_success', {
+                recordId: state.referralData && state.referralData.recordId,
+                spreadsheetName: response.meta && response.meta.spreadsheetName,
+                sheetName: response.meta && response.meta.sheetName
+            });
+            // #endregion
+
             if (typeof showToast === 'function') {
                 showToast(`Data Referral berhasil diperbarui${rowLabel ? ` (baris #${state.referralData.recordId})` : ''}.`, 'success');
             }
         } catch (error) {
+            // #region debug-point referral-save-fake-success handleSave result fail
+            debugLog_('A', 'jsReferral.js:handleSave', 'save_result_fail', {
+                errorMessage: error && error.message
+            });
+            // #endregion
             setStatus('error', error.message);
         } finally {
             updateButtonState();
