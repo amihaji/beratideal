@@ -386,13 +386,17 @@ Database :  dbReferral
         updateButtonState();
     }
 
-    function setStatus(type, message) {
+    function setStatus(type, message, allowHtml) {
         if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
 
         elements.statusBox.style.display = message ? 'flex' : 'none';
         elements.statusBox.classList.remove('notification-success', 'notification-error', 'notification-warning');
         elements.statusIcon.className = 'pesan-notif-icon';
-        elements.statusText.textContent = message || '';
+        if (allowHtml) {
+            elements.statusText.innerHTML = message || '';
+        } else {
+            elements.statusText.textContent = message || '';
+        }
 
         if (!message) return;
 
@@ -487,6 +491,17 @@ Database :  dbReferral
         return response.data || {};
     }
 
+    function normalizeMetaSpreadsheetUrl_(meta) {
+        if (!meta) return meta;
+        if (meta.spreadsheetUrl) return meta;
+        const id = normalizeText(meta.spreadsheetId);
+        const gid = meta.sheetId != null ? String(meta.sheetId) : '0';
+        if (!id) return meta;
+        return Object.assign({}, meta, {
+            spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${encodeURIComponent(id)}/edit#gid=${encodeURIComponent(gid)}`
+        });
+    }
+
     async function loadSavedReferral(userId) {
         if (!URL_dbReferral || !userId) return null;
 
@@ -499,6 +514,7 @@ Database :  dbReferral
             return null;
         }
 
+        state.lastMeta = normalizeMetaSpreadsheetUrl_(response.meta || state.lastMeta || null);
         return response.data || null;
     }
 
@@ -773,8 +789,13 @@ Database :  dbReferral
             fillProfileFields(state.profileData, state.referralData);
             fillEditableFields(state.referralData);
             setMode('view');
-            const targetSheetLabel = response.meta && response.meta.sheetName
-                ? ` Sheet tujuan: ${response.meta.spreadsheetName || 'dbReferral'} / ${response.meta.sheetName}.`
+            const enrichedMeta = normalizeMetaSpreadsheetUrl_(response.meta || state.lastMeta || null);
+            state.lastMeta = enrichedMeta;
+            const spreadsheetLink = enrichedMeta && enrichedMeta.spreadsheetUrl
+                ? `<a href="${enrichedMeta.spreadsheetUrl}" target="_blank" rel="noopener noreferrer">Buka Sheet Referral →</a>`
+                : '';
+            const targetSheetLabel = enrichedMeta && enrichedMeta.sheetName
+                ? ` Sheet tujuan: ${enrichedMeta.spreadsheetName || 'dbReferral'} / ${enrichedMeta.sheetName}.${spreadsheetLink ? ` ${spreadsheetLink}` : ''}`
                 : '';
             const rowLabel = state.referralData && state.referralData.recordId
                 ? ` Baris: #${state.referralData.recordId}.`
@@ -782,7 +803,8 @@ Database :  dbReferral
             const updatedAtLabel = state.referralData && state.referralData.updatedAt
                 ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
                 : '';
-            setStatus('success', `${response.message || 'Data Referral berhasil disimpan.'}`);
+            const finalMessage = `${response.message || 'Data Referral berhasil disimpan.'}${rowLabel}${targetSheetLabel}${updatedAtLabel}`;
+            setStatus('success', finalMessage, true);
 
             // #region debug-point referral-save-fake-success handleSave result success
             debugLog_('A', 'jsReferral.js:handleSave', 'save_result_success', {

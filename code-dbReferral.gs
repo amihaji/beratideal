@@ -22,12 +22,7 @@ function doGet(e) {
 
   if (action === 'getReferralSheetInfo') {
     const sheet = getReferralSheet_();
-    return jsonpResponse_(callback, {
-      status: 'success',
-      spreadsheetId: sheet.getParent().getId(),
-      spreadsheetName: sheet.getParent().getName(),
-      sheetName: sheet.getName()
-    });
+    return jsonpResponse_(callback, buildReferralSheetInfo_(sheet));
   }
 
   return jsonpResponse_(callback, {
@@ -275,6 +270,20 @@ function buildReferralSheetMeta_(sheet) {
     spreadsheetId: spreadsheet.getId(),
     spreadsheetName: spreadsheet.getName(),
     sheetName: sheet.getName()
+  };
+}
+
+function buildReferralSheetInfo_(sheet) {
+  const meta = buildReferralSheetMeta_(sheet);
+  return {
+    status: 'success',
+    spreadsheetId: meta.spreadsheetId,
+    spreadsheetName: meta.spreadsheetName,
+    sheetName: meta.sheetName,
+    spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${encodeURIComponent(meta.spreadsheetId)}/edit#gid=${encodeURIComponent(String(sheet.getSheetId()))}`,
+    sheetId: sheet.getSheetId(),
+    lastRow: sheet.getLastRow(),
+    lastColumn: sheet.getLastColumn()
   };
 }
 
