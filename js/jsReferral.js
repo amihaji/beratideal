@@ -142,7 +142,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                     updateLinkPreview(value);
                     setInlineSlugStatus(
                         'success',
-                        `Nama link "${value}" siap dipakai. Silakan klik Simpan untuk menyimpan ke database.`,
+                        `Nama link "${value}" siap dipakai. Silakan klik Simpan`,
                         [],
                         false
                     );
@@ -606,13 +606,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
     function handleEditMode() {
         if (!ensureReferralPermission()) return;
         if (!state.referralData) {
-            setStatus('warning', 'Data Referral belum ada. Input untuk membuat data baru.');
+            setStatus('warning', 'Data Referral belum ada. Input data baru.');
             return;
         }
 
         fillEditableFields(state.referralData);
         setMode('edit');
-        setStatus('warning', 'Mode edit aktif. Ubah data yang diperlukan lalu klik Simpan.');
+        setStatus('warning', 'Mode edit aktif. Ubah data yang diperlukan lalu Simpan.');
     }
 
     function escapeHtmlForStatus(value) {
@@ -629,7 +629,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         const base = escapeHtmlForStatus(message || '');
         const list = Array.isArray(suggestions) ? suggestions.filter(Boolean).slice(0, 8) : [];
         if (!list.length) return base;
-        const header = '<br><strong>Saran alternatif nama link yang bisa dipakai:</strong>';
+        const header = '<br><strong>Saran nama link yang bisa dipakai:</strong>';
         const items = list.map((s) => {
             const safe = escapeHtmlForStatus(s);
             if (allowUseAction) {
@@ -766,7 +766,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
             elements.fields.refLink.value = slug;
             updateLinkPreview(slug);
-            const baseMsg = 'Link Referral berhasil dibuat. Silakan simpan untuk menyimpan ke database.';
+            const baseMsg = 'Link Referral berhasil dibuat. Silakan simpan';
             if (check && Array.isArray(check.suggestions) && check.suggestions.length) {
                 setInlineSlugStatus('success', baseMsg, check.suggestions, false);
             } else {
@@ -844,7 +844,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         if (!ensureReferralPermission()) return;
 
         if (!URL_dbReferral) {
-            setStatus('warning', 'URL dbReferral belum diatur di jsLoadUrlPublic.js.');
+            setStatus('warning', 'URL dbReferral belum diatur');
             return;
         }
 
