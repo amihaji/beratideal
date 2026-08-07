@@ -1,24 +1,17 @@
 /*******************************************************
- * DATABASE REFERRAL
- * Pola SAMA PERSIS seperti Setup / Pendaftaran / FollowUp:
- * - Spreadsheet dibuat SECARA MANUAL oleh user (ID HARUS di-set).
- * - Tidak ada auto-create, tidak ada pencarian by-name via DriveApp
- *   (tidak lambat, tidak bikin file liar di Root Drive).
- *
- * Cara set ID (pilih salah satu):
- *   A) Isi const DB_REFERRAL di baris bawah ini (hardcode,
- *      sama seperti DB_DAFTAR / DB_PROGRAM / DB_USER / DB_WETOOLS).
- *   B) Atau set Script Properties key:
- *        "dbReferral.spreadsheetId" = <ID spreadsheet dbReferral>
- *      (berguna jika satu file Apps Script multi-deploy).
- *******************************************************/
+APLIKASI BERATIDEAL
+TAMPILAN DASHBOARD UNTUK : Referral
+Database :  dbReferral sheet "REFERRAL"
+Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
+*******************************************************/
+
 const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
 const REFERRAL_SHEET_NAME       = 'REFERRAL';
 const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
 
 // ===== HARDCODE ID DI SINI (POLA STANDAR MODUL LAIN) =====
 // Contoh: const DB_REFERRAL = '1abcDEFghiJKLmnoPQRstuVWXyz1234567890abcd';
-const DB_REFERRAL = '';
+const DB_REFERRAL = '1QBXPEYLNDYuu_dsoyTE6cgshLLq_fpNA7QNEWXXUuJc';
 
 // Script Properties key (opsional, jikalau ID tidak di-hardcode di atas)
 const REFERRAL_DB_ID_PROPERTY = 'dbReferral.spreadsheetId';
@@ -81,57 +74,20 @@ function saveReferralData_(payload) {
   const values = sheet.getDataRange().getValues();
   const userId = normalizeText_(payload.userId).toLowerCase();
   const requesterUserId = normalizeText_(payload.requesterUserId).toLowerCase();
-  const headers = (values.length > 0) ? values[0] : [];
-
-  // #region debug-point referral-save-fake-success saveReferralData_ init
-  var backendDebug = {
-    payloadIn: {
-      userId: normalizeText_(payload.userId),
-      requesterUserId: normalizeText_(payload.requesterUserId),
-      nama: normalizeText_(payload.nama),
-      jenkel: normalizeText_(payload.jenkel),
-      tglLahir: normalizeText_(payload.tglLahir),
-      refLink: normalizeText_(payload.refLink),
-      propinsi: normalizeText_(payload.propinsi),
-      action: normalizeText_(payload.action),
-      sourceSheet: normalizeText_(payload.sourceSheet),
-      mode: normalizeText_(payload.mode)
-    },
-    sheetMeta: null,
-    valuesRows: values.length,
-    headersCount: headers.length,
-    headers: headers.slice(0, 32),
-    ownerCheck: null,
-    targetRow: null,
-    isUpdate: null,
-    rowLength: null,
-    writeMode: null,
-    beforeFlush: null,
-    afterFlushReadback: null
-  };
-  // #endregion
 
   if (!userId) {
     return {
       status: 'error',
-      message: 'User ID tidak boleh kosong.',
-      _backendDebug: backendDebug
+      message: 'User ID tidak boleh kosong.'
     };
   }
 
   if (requesterUserId && requesterUserId !== userId) {
-    // #region debug-point referral-save-fake-success saveReferralData_ owner fail
-    backendDebug.ownerCheck = { requesterUserId: requesterUserId, userId: userId, pass: false };
-    // #endregion
     return {
       status: 'error',
-      message: 'Aksi simpan Referral hanya boleh dilakukan oleh user pemilik data yang sedang login.',
-      _backendDebug: backendDebug
+      message: 'Aksi simpan Referral hanya boleh dilakukan oleh user pemilik data yang sedang login.'
     };
   }
-  // #region debug-point referral-save-fake-success saveReferralData_ owner pass
-  backendDebug.ownerCheck = { requesterUserId: requesterUserId, userId: userId, pass: true };
-  // #endregion
 
   const now = new Date();
   const slug = createReferralSlug_(payload.refLink || payload.referralSlug || userId);
@@ -176,55 +132,21 @@ function saveReferralData_(payload) {
     'AKTIF'
   ];
 
-  // #region debug-point referral-save-fake-success saveReferralData_ pre write
-  backendDebug.targetRow = targetRow;
-  backendDebug.isUpdate = isUpdate;
-  backendDebug.rowLength = row.length;
-  backendDebug.sheetMeta = buildReferralSheetMeta_(sheet);
-  // #endregion
-
   if (targetRow) {
     sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
-    // #region debug-point referral-save-fake-success saveReferralData_ write update
-    backendDebug.writeMode = 'update';
-    // #endregion
   } else {
     sheet.appendRow(row);
     targetRow = sheet.getLastRow();
-    // #region debug-point referral-save-fake-success saveReferralData_ write append
-    backendDebug.writeMode = 'append';
-    backendDebug.targetRowAfterAppend = targetRow;
-    // #endregion
   }
 
   SpreadsheetApp.flush();
   const persistedRow = sheet.getRange(targetRow, 1, 1, row.length).getValues()[0];
 
-  // #region debug-point referral-save-fake-success saveReferralData_ post flush
-  backendDebug.beforeFlush = {
-    userId: row[2],
-    nama: row[3],
-    jenkel: row[4],
-    tglLahir: row[5],
-    refLink: row[19]
-  };
-  backendDebug.afterFlushReadback = {
-    targetRow: targetRow,
-    userId: normalizeText_(persistedRow[2]),
-    nama: normalizeText_(persistedRow[3]),
-    jenkel: normalizeText_(persistedRow[4]),
-    tglLahir: normalizeText_(persistedRow[5]),
-    refLink: normalizeText_(persistedRow[19]),
-    rowLength: persistedRow.length
-  };
-  // #endregion
-
   return {
     status: 'success',
     message: isUpdate ? 'Data Referral berhasil diperbarui.' : 'Data Referral berhasil disimpan.',
     data: mapReferralRow_(persistedRow, targetRow),
-    meta: buildReferralSheetMeta_(sheet),
-    _backendDebug: backendDebug
+    meta: buildReferralSheetMeta_(sheet)
   };
 }
 
