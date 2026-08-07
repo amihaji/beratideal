@@ -77,27 +77,39 @@ function getReferralReadonlyProfile(params) {
   const callback = (params && params.callback) || '';
   const userId = String((params && params.userId) || '').trim();
   const userName = String((params && params.userName) || '').trim();
+  const userNameNorm = normalizeReferralText_(userName);
   const userHP = normalizeReferralPhone_(params && params.userHP);
   const values = shDaftar.getDataRange().getValues();
 
   let matchedRow = null;
   let matchedRowNumber = 0;
+  let matchReason = '';
 
-  for (let i = values.length - 1; i >= 1; i--) {
+  for (let i = 1; i < values.length; i++) {
     const row = values[i];
+    if (!row || row.length === 0) continue;
+
     const rowNama = normalizeReferralText_(row[4]);
     const rowHP = normalizeReferralPhone_(row[6]);
+    const namaOk = userNameNorm && rowNama && rowNama === userNameNorm;
+    const hpOk = userHP && rowHP && rowHP === userHP;
 
-    if (userHP && rowHP && rowHP === userHP) {
+    if (namaOk && hpOk) {
       matchedRow = row;
       matchedRowNumber = i + 1;
+      matchReason = 'nama+hp';
       break;
     }
 
-    if (!matchedRow && userName && rowNama && rowNama === normalizeReferralText_(userName)) {
+    if (!matchedRow && namaOk) {
       matchedRow = row;
       matchedRowNumber = i + 1;
-      break;
+      matchReason = 'nama';
+    }
+    if (!matchedRow && hpOk) {
+      matchedRow = row;
+      matchedRowNumber = i + 1;
+      matchReason = 'hp';
     }
   }
 
@@ -114,14 +126,43 @@ function getReferralReadonlyProfile(params) {
     kota: matchedRow ? String(matchedRow[10] || '').trim() : '',
     propinsi: matchedRow ? String(matchedRow[11] || '').trim() : '',
     sourceSheet: 'DAFTAR',
-    sourceRow: matchedRowNumber
+    sourceRow: matchedRowNumber,
+    matchReason: matchReason
   };
+
+  const message = matchedRow
+    ? ('Data profil Referral ditemukan di DAFTAR baris #' + matchedRowNumber + ' (kecocokan: ' + (matchReason || 'user') + ').')
+    : 'Data profil Referral tidak ditemukan di DAFTAR. Menggunakan data sesi login yang tersedia.';
 
   return createJSONPResponse_(callback, {
     status: 'success',
-    message: matchedRow ? 'Data profil Referral ditemukan.' : 'Data profil Referral tidak ditemukan di DAFTAR. Menggunakan data sesi yang tersedia.',
+    message: message,
     data: data
   });
+}
+
+function normalizeDateText_(value) {
+  if (!value) return '';
+  const t = String(value).trim().replace(/\//g, '-').replace(/\./g, '-').replace(/\s+/g, '');
+  const parts = t.split('-');
+  if (parts.length === 3) {
+    let d = parts[0];
+    let m = parts[1];
+    let y = parts[2];
+    if (y.length === 2) y = '20' + y;
+    if (d.length === 1) d = '0' + d;
+    if (m.length === 1) m = '0' + m;
+    if (y.length === 4 && /^\d+$/.test(d) && /^\d+$/.test(m)) {
+      const dn = parseInt(d, 10);
+      const mn = parseInt(m, 10);
+      if (dn >= 1 && dn <= 31 && mn >= 1 && mn <= 12) {
+        return y + '-' + m + '-' + d;
+      }
+    }
+  }
+  const isoMatch = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoMatch) return t;
+  return value;
 }
 
 /*****************************************************
