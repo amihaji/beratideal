@@ -1251,14 +1251,19 @@ Modal khusus zoom gambar bukti
 #referralPdfModal .modal-body {
     padding: 0.5rem;
     background: #f5f5f5;
+    overflow: hidden; /* Hindari scroll di modal-body */
 }
+
 #referralPdfModal .modal-dialog {
-    max-width: 820px; /* Lebar yang lebih pas untuk PDF */
+    max-width: 820px;
 }
+
 #referralPdfModal .modal-content {
     border-radius: 1rem;
     overflow: hidden;
+    max-height: 90vh; /* Batasi tinggi modal */
 }
+
 .pdf-controls-modal {
     display: flex;
     align-items: center;
@@ -1268,20 +1273,21 @@ Modal khusus zoom gambar bukti
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
     flex-wrap: nowrap;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    flex-shrink: 0; /* Jangan menyusut */
 }
+
 .pdf-controls-modal .btn {
     padding: 0.25rem 0.6rem;
     font-size: 0.85rem;
     border-radius: 0.5rem;
     min-width: 36px;
 }
+
 .pdf-controls-modal .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
+
 .pdf-controls-modal .page-info {
     font-size: 0.9rem;
     font-weight: 600;
@@ -1289,15 +1295,18 @@ Modal khusus zoom gambar bukti
     min-width: 100px;
     text-align: center;
 }
+
 #referralPdfContainer {
     width: 100%;
-    min-height: 500px;
-    max-height: 75vh;
-    overflow-y: auto;
+    height: 65vh; /* Gunakan height bukan min-height */
+    max-height: 70vh;
+    overflow-y: auto; /* Scroll hanya di container ini */
     background: #f5f5f5;
     padding: 0.5rem;
     text-align: center;
+    flex: 1 1 auto; /* Fleksibel */
 }
+
 #referralPdfContainer canvas {
     display: block;
     margin: 0.5rem auto;
@@ -1307,6 +1316,7 @@ Modal khusus zoom gambar bukti
     border-radius: 4px;
     background: white;
 }
+
 #referralPdfContainer .pdf-loading {
     display: flex;
     align-items: center;
@@ -1314,6 +1324,7 @@ Modal khusus zoom gambar bukti
     padding: 3rem;
     color: #6c757d;
 }
+
 #referralPdfContainer .pdf-error {
     display: flex;
     align-items: center;
@@ -1325,26 +1336,30 @@ Modal khusus zoom gambar bukti
     text-align: center;
     margin: 1rem;
 }
+
 #referralPdfContainer .pdf-error i {
     font-size: 1.5rem;
     margin-right: 0.75rem;
 }
+
 /* Scrollbar PDF Container */
 #referralPdfContainer::-webkit-scrollbar {
     width: 8px;
 }
+
 #referralPdfContainer::-webkit-scrollbar-track {
     background: #e9ecef;
     border-radius: 4px;
 }
+
 #referralPdfContainer::-webkit-scrollbar-thumb {
     background: #adb5bd;
     border-radius: 4px;
 }
+
 #referralPdfContainer::-webkit-scrollbar-thumb:hover {
     background: #8c959f;
 }
-
 
 /* Stats Cards Gradient */
 .stats-card-primary {
@@ -1560,6 +1575,10 @@ Modal khusus zoom gambar bukti
     /* PDF Modals */
     #referralPdfModal .modal-dialog {
         max-width: 820px;
+    }
+    #referralPdfContainer {
+        height: 65vh;
+        max-height: 70vh;
     }
 }
 
@@ -2015,9 +2034,13 @@ Modal khusus zoom gambar bukti
         max-width: 96vw;
         margin: 0.5rem;
     }
+    #referralPdfModal .modal-content {
+        max-height: 95vh;
+    }
     #referralPdfContainer {
-        min-height: 400px;
-        max-height: 65vh;
+        height: 55vh;
+        max-height: 60vh;
+        min-height: 300px;
     }
     .pdf-controls-modal {
         gap: 0.5rem;
@@ -2036,13 +2059,15 @@ Modal khusus zoom gambar bukti
         font-size: 0.7rem;
     }
 }
+
 /************************************
 * LAYAR SANGAT KECIL (Mobile Kecil) *
 *************************************/
 @media (max-width: 480px) {
-    #referralPdfContainer {
-        min-height: 300px;
-        max-height: 55vh;
+   #referralPdfContainer {
+        height: 45vh;
+        max-height: 50vh;
+        min-height: 250px;
     }
     .pdf-controls-modal {
         gap: 0.3rem;
