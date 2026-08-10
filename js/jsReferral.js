@@ -84,12 +84,12 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             }
         });
 
-        // Event listener untuk tombol Lihat Panduan
+        // Event listener untuk tombol Lihat Panduan - BUKA MODAL
         const guideButton = document.getElementById('referralGuideButton');
         if (guideButton) {
             guideButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                toggleReferralPdfViewer();
+                openReferralPdfModal();
             });
         }
     }
@@ -605,6 +605,223 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
     }
 
+// ==========================================
+    // PDF VIEWER MODAL - Untuk Referral
+    // ==========================================
+
+    // Variabel global untuk PDF
+    let referralPdfDoc = null;
+    let referralPdfCurrentPage = 1;
+    let referralPdfTotalPages = 0;
+    let referralPdfScale = 1.5;
+
+    /**
+     * Buka modal PDF viewer
+     */
+    function openReferralPdfModal() {
+        const modalElement = document.getElementById('referralPdfModal');
+        if (!modalElement) {
+            console.warn('Modal PDF tidak ditemukan');
+            return;
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+        
+        // Reset state
+        referralPdfCurrentPage = 1;
+        referralPdfScale = 1.5;
+        
+        // Load PDF
+        const container = document.getElementById('referralPdfContainer');
+        container.innerHTML = `
+            <div class="pdf-loading">
+                <div class="spinner-border text-primary me-3" role="status">
+                    <span class="visually-hidden">Memuat...</span>
+                </div>
+                <span>Memuat file panduan...</span>
+            </div>
+        `;
+        
+        // Update info
+        document.getElementById('referralPdfPageInfo').textContent = 'Memuat...';
+        document.getElementById('referralPdfTotalPages').textContent = '';
+        document.getElementById('referralPdfPrevBtn').disabled = true;
+        document.getElementById('referralPdfNextBtn').disabled = true;
+        
+        const pdfUrl = 'pdf/Panduan_Penggunaan_Aplikasi.pdf';
+        
+        // Gunakan pdf.js
+        if (typeof pdfjsLib === 'undefined') {
+            container.innerHTML = `
+                <div class="pdf-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Library PDF tidak tersedia. Silakan refresh halaman.</span>
+                </div>
+            `;
+            return;
+        }
+        
+        // Set worker
+        if (typeof pdfjsLib.GlobalWorkerOptions !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        }
+        
+        pdfjsLib.getDocument(pdfUrl).promise
+            .then(function(pdf) {
+                referralPdfDoc = pdf;
+                referralPdfTotalPages = pdf.numPages;
+                
+                document.getElementById('referralPdfTotalPages').textContent = `${referralPdfTotalPages} halaman`;
+                
+                // Render halaman pertama
+                referralPdfRenderPage(referralPdfCurrentPage);
+            })
+            .catch(function(error) {
+                console.error('Error loading PDF:', error);
+                container.innerHTML = `
+                    <div class="pdf-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Gagal memuat file PDF: ${error.message || 'File tidak ditemukan'}</span>
+                    </div>
+                `;
+                document.getElementById('referralPdfPageInfo').textContent = 'Error';
+            });
+    }
+
+    /**
+     * Render halaman PDF
+     */
+    function referralPdfRenderPage(pageNumber) {
+        const container = document.getElementById('referralPdfContainer');
+        
+        if (!referralPdfDoc) {
+            container.innerHTML = `
+                <div class="pdf-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>PDF belum dimuat. Silakan tutup dan buka kembali.</span>
+                </div>
+            `;
+            return;
+        }
+        
+        if (pageNumber < 1 || pageNumber > referralPdfTotalPages) return;
+        
+        referralPdfCurrentPage = pageNumber;
+        
+        // Update info
+        document.getElementById('referralPdfPageInfo').textContent = `Halaman ${pageNumber} dari ${referralPdfTotalPages}`;
+        document.getElementById('referralPdfPrevBtn').disabled = (pageNumber <= 1);
+        document.getElementById('referralPdfNextBtn').disabled = (pageNumber >= referralPdfTotalPages);
+        
+        // Tampilkan loading
+        container.innerHTML = `
+            <div class="pdf-loading">
+                <div class="spinner-border text-primary me-3" role="status">
+                    <span class="visually-hidden">Memuat halaman...</span>
+                </div>
+                <span>Memuat halaman ${pageNumber}...</span>
+            </div>
+        `;
+        
+        referralPdfDoc.getPage(pageNumber).then(function(page) {
+            const viewport = page.getViewport({ scale: referralPdfScale });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Sesuaikan lebar canvas dengan container
+            const containerWidth = container.clientWidth - 20;
+            let scale = referralPdfScale;
+            if (viewport.width > containerWidth) {
+                scale = scale * (containerWidth / viewport.width);
+            }
+            
+            const adjustedViewport = page.getViewport({ scale: scale });
+            canvas.width = adjustedViewport.width;
+            canvas.height = adjustedViewport.height;
+            canvas.style.maxWidth = '100%';
+            canvas.style.height = 'auto';
+            
+            container.innerHTML = '';
+            container.appendChild(canvas);
+            
+            const renderContext = {
+                canvasContext: context,
+                viewport: adjustedViewport
+            };
+            
+            page.render(renderContext).promise
+                .then(function() {
+                    // Selesai render
+                })
+                .catch(function(error) {
+                    console.error('Error rendering PDF page:', error);
+                    container.innerHTML = `
+                        <div class="pdf-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Gagal merender halaman ${pageNumber}</span>
+                        </div>
+                    `;
+                });
+        }).catch(function(error) {
+            console.error('Error getting PDF page:', error);
+            container.innerHTML = `
+                <div class="pdf-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Gagal memuat halaman ${pageNumber}</span>
+                </div>
+            `;
+        });
+    }
+
+    /**
+     * Pindah ke halaman sebelumnya
+     */
+    function referralPdfPrevPage() {
+        if (referralPdfCurrentPage > 1) {
+            referralPdfRenderPage(referralPdfCurrentPage - 1);
+        }
+    }
+
+    /**
+     * Pindah ke halaman berikutnya
+     */
+    function referralPdfNextPage() {
+        if (referralPdfCurrentPage < referralPdfTotalPages) {
+            referralPdfRenderPage(referralPdfCurrentPage + 1);
+        }
+    }
+
+    /**
+     * Reset zoom PDF
+     */
+    function referralPdfResetZoom() {
+        referralPdfScale = 1.5;
+        if (referralPdfDoc) {
+            referralPdfRenderPage(referralPdfCurrentPage);
+        }
+    }
+
+    /**
+     * Event listener untuk resize window - update PDF
+     */
+    let referralPdfResizeTimeout = null;
+    window.addEventListener('resize', function() {
+        const modalElement = document.getElementById('referralPdfModal');
+        if (referralPdfDoc && modalElement && modalElement.classList.contains('show')) {
+            clearTimeout(referralPdfResizeTimeout);
+            referralPdfResizeTimeout = setTimeout(function() {
+                referralPdfRenderPage(referralPdfCurrentPage);
+            }, 300);
+        }
+    });
+
+    // Ekspos fungsi ke global untuk tombol HTML
+    window.openReferralPdfModal = openReferralPdfModal;
+    window.referralPdfPrevPage = referralPdfPrevPage;
+    window.referralPdfNextPage = referralPdfNextPage;
+    window.referralPdfResetZoom = referralPdfResetZoom;
+
     function handleInputMode() {
         if (!ensureReferralPermission()) return;
         fillEditableFields(state.referralData || buildEditableDefaults(state.profileData));
@@ -791,6 +1008,8 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
     }
 
+    
+
     function collectFormData() {
         const cleanRefLink = slugifyReferral(elements.fields.refLink.value);
 
@@ -940,190 +1159,3 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 })();
 
 
-// ==========================================
-// PDF VIEWER FUNCTIONS - Untuk Referral
-// ==========================================
-
-/**
- * Memuat dan menampilkan PDF di viewer
- * @param {string} pdfUrl - URL file PDF
- * @param {string} containerId - ID container untuk PDF
- */
-function loadReferralPdf(pdfUrl, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.warn('Container PDF tidak ditemukan:', containerId);
-        return;
-    }
-
-    // Tampilkan loading
-    container.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Memuat PDF...</span>
-            </div>
-            <span>Memuat file panduan...</span>
-        </div>
-    `;
-
-    // Gunakan pdf.js untuk render
-    if (typeof pdfjsLib === 'undefined') {
-        container.innerHTML = `
-            <div class="pdf-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Library PDF tidak tersedia. Silakan refresh halaman.</span>
-            </div>
-        `;
-        return;
-    }
-
-    // Set worker
-    if (typeof pdfjsLib.GlobalWorkerOptions !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-    }
-
-    // Load PDF
-    pdfjsLib.getDocument(pdfUrl).promise
-        .then(function(pdf) {
-            renderReferralPdfPage(pdf, container, 1);
-        })
-        .catch(function(error) {
-            console.error('Error loading PDF:', error);
-            container.innerHTML = `
-                <div class="pdf-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>Gagal memuat file PDF: ${error.message || 'File tidak ditemukan'}</span>
-                </div>
-            `;
-        });
-}
-
-/**
- * Render halaman PDF
- */
-function renderReferralPdfPage(pdf, container, pageNumber) {
-    const totalPages = pdf.numPages;
-    
-    // Buat wrapper dengan kontrol
-    let controlsHtml = `
-        <div class="pdf-controls">
-            <button class="btn btn-outline-secondary btn-sm" onclick="changeReferralPdfPage(${pageNumber - 1}, '${container.id}')" ${pageNumber <= 1 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <span class="page-info">Halaman ${pageNumber} dari ${totalPages}</span>
-            <button class="btn btn-outline-secondary btn-sm" onclick="changeReferralPdfPage(${pageNumber + 1}, '${container.id}')" ${pageNumber >= totalPages ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right"></i>
-            </button>
-            <span class="ms-2 text-muted small">${totalPages} halaman</span>
-        </div>
-        <div id="pdfPageContainer_${container.id}" style="padding: 0.5rem; background: #f5f5f5;"></div>
-    `;
-    
-    container.innerHTML = controlsHtml;
-    
-    // Render halaman
-    const pageContainer = document.getElementById(`pdfPageContainer_${container.id}`);
-    if (!pageContainer) return;
-    
-    pageContainer.innerHTML = `
-        <div class="pdf-loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Memuat halaman...</span>
-            </div>
-            <span>Memuat halaman ${pageNumber}...</span>
-        </div>
-    `;
-    
-    pdf.getPage(pageNumber).then(function(page) {
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        canvas.style.maxWidth = '100%';
-        canvas.style.height = 'auto';
-        
-        pageContainer.innerHTML = '';
-        pageContainer.appendChild(canvas);
-        
-        const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-        };
-        
-        page.render(renderContext).promise
-            .then(function() {
-                // Selesai render
-            })
-            .catch(function(error) {
-                console.error('Error rendering PDF page:', error);
-                pageContainer.innerHTML = `
-                    <div class="pdf-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span>Gagal merender halaman PDF</span>
-                    </div>
-                `;
-            });
-    }).catch(function(error) {
-        console.error('Error getting PDF page:', error);
-        pageContainer.innerHTML = `
-            <div class="pdf-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Gagal memuat halaman ${pageNumber}</span>
-            </div>
-        `;
-    });
-    
-    // Simpan referensi PDF untuk navigasi
-    if (window._referralPdfCache) {
-        window._referralPdfCache[container.id] = pdf;
-    } else {
-        window._referralPdfCache = {};
-        window._referralPdfCache[container.id] = pdf;
-    }
-}
-
-/**
- * Pindah halaman PDF
- */
-function changeReferralPdfPage(newPage, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    const pdf = window._referralPdfCache ? window._referralPdfCache[containerId] : null;
-    if (!pdf) {
-        console.warn('PDF cache tidak ditemukan untuk container:', containerId);
-        return;
-    }
-    
-    if (newPage < 1 || newPage > pdf.numPages) return;
-    
-    renderReferralPdfPage(pdf, container, newPage);
-}
-
-/**
- * Toggle PDF Viewer untuk Referral
- */
-function toggleReferralPdfViewer() {
-    const viewer = document.getElementById('pdfViewerReferral');
-    const container = document.getElementById('pdfContainerReferral');
-    
-    if (!viewer || !container) return;
-    
-    if (viewer.style.display === 'none' || viewer.style.display === '') {
-        // Tampilkan PDF
-        viewer.style.display = 'block';
-        
-        // Muat PDF
-        const pdfUrl = 'pdf/Panduan_Referral.pdf'; // Sesuaikan path PDF Anda
-        loadReferralPdf(pdfUrl, 'pdfContainerReferral');
-        
-        // Scroll ke viewer
-        viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        // Sembunyikan PDF
-        viewer.style.display = 'none';
-        container.innerHTML = '';
-    }
-}
