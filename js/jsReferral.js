@@ -1116,7 +1116,7 @@ function toggleReferralPdfViewer() {
         viewer.style.display = 'block';
         
         // Muat PDF
-        const pdfUrl = 'pdf/Panduan_Penggunaan_Aplikasi.pdf'; // Sesuaikan path PDF Anda
+        const pdfUrl = 'pdf/Panduan_Referral.pdf'; // Sesuaikan path PDF Anda
         loadReferralPdf(pdfUrl, 'pdfContainerReferral');
         
         // Scroll ke viewer
