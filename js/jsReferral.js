@@ -722,7 +722,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         const prevBtn = document.getElementById('referralPdfPrevBtn');
         const nextBtn = document.getElementById('referralPdfNextBtn');
         
-        if (pageInfo) pageInfo.textContent = `Halaman ${pageNumber} dari ${referralPdfTotalPages}`;
+        if (pageInfo) pageInfo.textContent = `Hal: ${pageNumber} dari ${referralPdfTotalPages}`;
         if (prevBtn) prevBtn.disabled = (pageNumber <= 1);
         if (nextBtn) nextBtn.disabled = (pageNumber >= referralPdfTotalPages);
         
