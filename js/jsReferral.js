@@ -605,26 +605,25 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
     }
 
-// ==========================================
-    // PDF VIEWER MODAL - Untuk Referral
-    // ==========================================
-
+    /*************************************
+    * PDF VIEWER MODAL - Untuk Referral *
+    *************************************/
     // Variabel global untuk PDF
     let referralPdfDoc = null;
     let referralPdfCurrentPage = 1;
     let referralPdfTotalPages = 0;
     let referralPdfScale = 1.5;
 
-    /**
-     * Buka modal PDF viewer
-     */
+    /************************
+    * Buka modal PDF viewer * 
+    *************************/
     function openReferralPdfModal() {
         const modalElement = document.getElementById('referralPdfModal');
         if (!modalElement) {
-            console.warn('Modal PDF tidak ditemukan');
+            console.error('Modal PDF tidak ditemukan. Pastikan elemen dengan id "referralPdfModal" ada di HTML.');
+            setStatus('error', 'Modal PDF tidak ditemukan. Silakan refresh halaman.', false);
             return;
         }
-        
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
         
@@ -634,6 +633,10 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         
         // Load PDF
         const container = document.getElementById('referralPdfContainer');
+        if (!container) {
+            console.error('Container PDF tidak ditemukan');
+            return;
+        }
         container.innerHTML = `
             <div class="pdf-loading">
                 <div class="spinner-border text-primary me-3" role="status">
@@ -644,12 +647,17 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         `;
         
         // Update info
-        document.getElementById('referralPdfPageInfo').textContent = 'Memuat...';
-        document.getElementById('referralPdfTotalPages').textContent = '';
-        document.getElementById('referralPdfPrevBtn').disabled = true;
-        document.getElementById('referralPdfNextBtn').disabled = true;
+        const pageInfo = document.getElementById('referralPdfPageInfo');
+        const totalPages = document.getElementById('referralPdfTotalPages');
+        const prevBtn = document.getElementById('referralPdfPrevBtn');
+        const nextBtn = document.getElementById('referralPdfNextBtn');
         
-        const pdfUrl = 'pdf/Panduan_Penggunaan_Aplikasi.pdf';
+        if (pageInfo) pageInfo.textContent = 'Memuat...';
+        if (totalPages) totalPages.textContent = '';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        
+        const pdfUrl = 'pdf/Panduan_Referral.pdf';
         
         // Gunakan pdf.js
         if (typeof pdfjsLib === 'undefined') {
@@ -672,7 +680,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                 referralPdfDoc = pdf;
                 referralPdfTotalPages = pdf.numPages;
                 
-                document.getElementById('referralPdfTotalPages').textContent = `${referralPdfTotalPages} halaman`;
+                if (totalPages) totalPages.textContent = `${referralPdfTotalPages} halaman`;
                 
                 // Render halaman pertama
                 referralPdfRenderPage(referralPdfCurrentPage);
@@ -685,13 +693,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                         <span>Gagal memuat file PDF: ${error.message || 'File tidak ditemukan'}</span>
                     </div>
                 `;
-                document.getElementById('referralPdfPageInfo').textContent = 'Error';
+                if (pageInfo) pageInfo.textContent = 'Error';
             });
     }
-
-    /**
-     * Render halaman PDF
-     */
+    
+    /*********************
+    * Render halaman PDF *
+    **********************/
     function referralPdfRenderPage(pageNumber) {
         const container = document.getElementById('referralPdfContainer');
         
@@ -710,9 +718,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         referralPdfCurrentPage = pageNumber;
         
         // Update info
-        document.getElementById('referralPdfPageInfo').textContent = `Halaman ${pageNumber} dari ${referralPdfTotalPages}`;
-        document.getElementById('referralPdfPrevBtn').disabled = (pageNumber <= 1);
-        document.getElementById('referralPdfNextBtn').disabled = (pageNumber >= referralPdfTotalPages);
+        const pageInfo = document.getElementById('referralPdfPageInfo');
+        const prevBtn = document.getElementById('referralPdfPrevBtn');
+        const nextBtn = document.getElementById('referralPdfNextBtn');
+        
+        if (pageInfo) pageInfo.textContent = `Halaman ${pageNumber} dari ${referralPdfTotalPages}`;
+        if (prevBtn) prevBtn.disabled = (pageNumber <= 1);
+        if (nextBtn) nextBtn.disabled = (pageNumber >= referralPdfTotalPages);
         
         // Tampilkan loading
         container.innerHTML = `
@@ -774,37 +786,27 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         });
     }
 
-    /**
+    /*******************************
      * Pindah ke halaman sebelumnya
-     */
+     ******************************/
     function referralPdfPrevPage() {
         if (referralPdfCurrentPage > 1) {
             referralPdfRenderPage(referralPdfCurrentPage - 1);
         }
     }
 
-    /**
+    /*******************************
      * Pindah ke halaman berikutnya
-     */
+     *******************************/
     function referralPdfNextPage() {
         if (referralPdfCurrentPage < referralPdfTotalPages) {
             referralPdfRenderPage(referralPdfCurrentPage + 1);
         }
     }
 
-    /**
-     * Reset zoom PDF
-     */
-    function referralPdfResetZoom() {
-        referralPdfScale = 1.5;
-        if (referralPdfDoc) {
-            referralPdfRenderPage(referralPdfCurrentPage);
-        }
-    }
-
-    /**
+    /**************************************************
      * Event listener untuk resize window - update PDF
-     */
+     *************************************************/
     let referralPdfResizeTimeout = null;
     window.addEventListener('resize', function() {
         const modalElement = document.getElementById('referralPdfModal');
@@ -820,8 +822,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
     window.openReferralPdfModal = openReferralPdfModal;
     window.referralPdfPrevPage = referralPdfPrevPage;
     window.referralPdfNextPage = referralPdfNextPage;
-    window.referralPdfResetZoom = referralPdfResetZoom;
-
+    
     function handleInputMode() {
         if (!ensureReferralPermission()) return;
         fillEditableFields(state.referralData || buildEditableDefaults(state.profileData));
@@ -829,9 +830,12 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         setStatus('warning', 'Mode input aktif. Lengkapi data lalu klik Simpan.');
     }
 
+    /*****************
+    * Mode Edit Data *
+    ******************/
     function handleEditMode() {
         if (!ensureReferralPermission()) return;
-        if (!state.referralData) {
+       if (!state.referralData) {
             setStatus('warning', 'Data Referral belum ada. Input data baru.');
             return;
         }
@@ -841,6 +845,9 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         setStatus('warning', 'Mode edit aktif. Ubah data yang diperlukan lalu Simpan.');
     }
 
+    /*****************
+     * Escape status
+     *****************/
     function escapeHtmlForStatus(value) {
         const s = String(value == null ? '' : value);
         return s
@@ -851,6 +858,9 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             .replace(/'/g, '&#39;');
     }
 
+    /***************************
+     * Fungsi untuk pesan slug *
+     ***************************/
     function buildSlugSuggestionMessage(message, suggestions, allowUseAction) {
         const base = escapeHtmlForStatus(message || '');
         const list = Array.isArray(suggestions) ? suggestions.filter(Boolean).slice(0, 8) : [];
@@ -866,6 +876,9 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         return `${base}${header}<ul style="margin-top:6px;margin-bottom:0;padding-left:20px;">${items.join('')}</ul>`;
     }
 
+    /**************************
+     * Fungsi slug saat  klik *
+     **************************/
     function bindSlugSuggestionClickHandlers_() {
         if (!elements || !elements.statusBox || !elements.fields || !elements.fields.refLink) return;
         try {
@@ -891,6 +904,9 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         } catch (_err) { }
     }
 
+    /***********************
+    * Check slug referral
+    ************************/
     async function checkReferralSlugAvailability(slug, opts) {
         const safeSlug = slugifyReferral(slug);
         if (!safeSlug) {
@@ -954,6 +970,9 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
     }
 
+    /******************************
+     * Fungsi create link referral
+     ******************************/
     async function handleCreateLink() {
         if (!ensureReferralPermission()) return;
         const sourceValue =
@@ -1008,11 +1027,11 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
     }
 
-    
-
+    /*********************
+    * Fungsi kolek data  *
+    **********************/
     function collectFormData() {
         const cleanRefLink = slugifyReferral(elements.fields.refLink.value);
-
         const payload = {
             userId: normalizeText(elements.fields.refId.value),
             nama: normalizeText(elements.fields.refName.value),
@@ -1036,10 +1055,12 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             mode: state.mode,
             sourceSheet: 'DAFTAR'
         };
-
         return payload;
     }
 
+    /************************
+     * Verify Data Referral
+     ************************/
     async function verifySavedReferral(payload) {
         const refreshedData = await loadSavedReferral(payload.userId);
         if (!refreshedData) {
@@ -1067,15 +1088,16 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         return refreshedData;
     }
 
+    /******************************
+     * Fungsi Simpan Data Referral
+     ******************************/
     async function handleSave() {
         if (!elements.form) return;
         if (!ensureReferralPermission()) return;
-
         if (!URL_dbReferral) {
             setStatus('warning', 'URL dbReferral belum diatur');
             return;
         }
-
         if (!elements.form.reportValidity()) {
             setStatus('warning', 'Mohon lengkapi semua field yang wajib diisi.');
             return;
@@ -1085,17 +1107,14 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         payload.action = 'saveReferralData';
         payload.recordId = normalizeText(elements.recordId?.value);
         payload.requesterUserId = normalizeText(getUserContext().userId);
-
         if (!payload.refLink) {
             setStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
             return;
         }
-
         if (!isValidReferralSlug(payload.refLink)) {
             setStatus('warning', 'Slug Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
             return;
         }
-
         try {
             elements.saveButton.disabled = true;
             setStatus('warning', 'Menyimpan data Referral...');
