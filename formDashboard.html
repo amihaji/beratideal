@@ -1902,6 +1902,50 @@ Dashboard untuk :
         </div>
     </div>
 
+    <!-- MODAL PDF VIEWER UNTUK REFERRAL -->
+    <div class="modal fade" id="referralPdfModal" tabindex="-1" aria-labelledby="referralPdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="referralPdfModalLabel">
+                        <i class="fas fa-file-pdf me-2"></i>Panduan Penggunaan Referral
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 0.5rem; background: #f5f5f5;">
+                    <!-- Kontrol PDF -->
+                    <div class="pdf-controls-modal" id="referralPdfControls" style="display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 0.75rem; background: #f8f9fa; border-bottom: 1px solid #dee2e6; flex-wrap: wrap;">
+                        <button class="btn btn-outline-secondary btn-sm" id="referralPdfPrevBtn" onclick="referralPdfPrevPage()">
+                            <i class="fas fa-chevron-left"></i> Sebelumnya
+                        </button>
+                        <span class="page-info" id="referralPdfPageInfo">Halaman 1 dari 0</span>
+                        <button class="btn btn-outline-secondary btn-sm" id="referralPdfNextBtn" onclick="referralPdfNextPage()">
+                            Berikutnya <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="referralPdfResetBtn" onclick="referralPdfResetZoom()">
+                            <i class="fas fa-expand"></i> Reset
+                        </button>
+                        <span class="text-muted small ms-2" id="referralPdfTotalPages"></span>
+                    </div>
+                    <!-- Container PDF -->
+                    <div id="referralPdfContainer" style="width: 100%; min-height: 600px; max-height: 75vh; overflow-y: auto; background: #f5f5f5; padding: 0.5rem; text-align: center;">
+                        <div class="pdf-loading" style="display: flex; align-items: center; justify-content: center; padding: 3rem; color: #6c757d;">
+                            <div class="spinner-border text-primary me-3" role="status">
+                                <span class="visually-hidden">Memuat...</span>
+                            </div>
+                            <span>Memuat file panduan...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" class="toast" role="alert">
