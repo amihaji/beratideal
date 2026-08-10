@@ -694,12 +694,21 @@ Dashboard untuk :
                                 <button type="button" class="btn btn-primary btn-sm" id="referralSaveButton">
                                     <i class="fas fa-save me-1"></i>Simpan
                                 </button>
-                                <a class="btn btn-outline-dark btn-sm" id="referralGuideButton" href="pdf/Panduan_Penggunaan_Aplikasi.pdf" target="_blank" rel="noopener">
+                                <!-- TOMBOL LIHAT PANDUAN - DIUBAH MENJADI SEPERTI INI -->
+                                <button type="button" class="btn btn-outline-dark btn-sm" id="referralGuideButton">
                                     <i class="fas fa-file-pdf me-1"></i>Lihat Panduan
-                                </a>
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
+
+                            <!-- PDF Viewer untuk Panduan Referral -->
+                            <div class="pdf-viewer" id="pdfViewerReferral" style="display: none;">
+                                <div class="pdf-container" id="pdfContainerReferral">
+                                    <!-- PDF akan dimuat di sini -->
+                                </div>
+                            </div>
+
                             <div id="referralStatusBox" class="notification-message referral-status-box">
                                 <i id="referralStatusIcon" class="pesan-notif-icon"></i>
                                 <span id="referralStatusText"></span>
@@ -1937,6 +1946,7 @@ Dashboard untuk :
     <script src="js/jsDashboard.js"></script>
     <!-- Custom JS Untuk Fit Tracker Peserta -->
     <script src="js/jsFitTracker.js"></script>
-
- </body>
+    <!-- Load PDf Viewer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</body>
 </html>

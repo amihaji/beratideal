@@ -753,6 +753,109 @@ Modal khusus zoom gambar bukti
     width: 100%;
 }
 
+/* ==========================================
+   PDF VIEWER - Untuk Referral & Lainnya
+========================================== */
+.pdf-viewer {
+    position: relative;
+    width: 100%;
+    background: #f5f5f5;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.pdf-viewer .pdf-container {
+    width: 100%;
+    height: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #f5f5f5;
+    padding: 0.5rem;
+}
+
+.pdf-viewer .pdf-container canvas {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 4px;
+    background: white;
+}
+
+/* Scrollbar untuk PDF container */
+.pdf-viewer .pdf-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pdf-viewer .pdf-container::-webkit-scrollbar-track {
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+.pdf-viewer .pdf-container::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 4px;
+}
+
+.pdf-viewer .pdf-container::-webkit-scrollbar-thumb:hover {
+    background: #8c959f;
+}
+
+/* PDF Controls */
+.pdf-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    flex-wrap: wrap;
+}
+
+.pdf-controls .btn {
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.pdf-controls .page-info {
+    font-size: 0.85rem;
+    color: #495057;
+    min-width: 80px;
+    text-align: center;
+}
+
+.pdf-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.pdf-loading .spinner-border {
+    margin-right: 0.75rem;
+}
+
+.pdf-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #dc3545;
+    background: #f8d7da;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.pdf-error i {
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+}
+
+
 /* === LAYAR LEBAR (Desktop) === */
 @media (min-width: 769px) {
     .followupwe-toolbar-left,
@@ -830,6 +933,12 @@ Modal khusus zoom gambar bukti
         max-width: 100%; /* max-width: 380px; */
         margin-left: 0 !important;
     }
+
+    .pdf-viewer .pdf-container {
+        height: 400px;
+        max-height: 60vh;
+    }
+
 }
 
 /* === LAYAR KECIL (Mobile) === */
@@ -975,7 +1084,26 @@ Modal khusus zoom gambar bukti
         width: 100%;
         margin-left: 0 !important;
     }
+
+    /* Responsive PDF Viewer */
+    .pdf-viewer .pdf-container {
+        height: 500px;
+        max-height: 70vh;
+    }
+    .pdf-controls {
+        gap: 0.4rem;
+        padding: 0.4rem;
+    }
+    .pdf-controls .btn {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+    }
+    .pdf-controls .page-info {
+        font-size: 0.75rem;
+        min-width: 60px;
+    }
 }
+
 
 .followupwe-toolbar-progress {
     width: 100%;
