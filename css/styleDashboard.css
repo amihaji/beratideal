@@ -51,20 +51,67 @@ body {
 .navbar-brand {
     font-size: 1.5rem;      
 }
+
+/* MENU NAVBAR KEDUA - DI BAWAH NAVBAR UTAMA */
+.menu-navbar {
+    padding: 0.25rem 0;
+    background-color: #f1f1f1 !important;
+    border-bottom: 2px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.menu-navbar .navbar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.3rem;
+}
+
+.menu-navbar .nav-item {
+    margin: 0;
+}
+
+.menu-link {
+    color: #002770 !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.menu-link:hover {
+    color: #cc5500 !important;
+    background-color: rgba(204, 85, 0, 0.08);
+}
+
+.menu-link.active {
+    color: #cc5500 !important;
+    background-color: rgba(204, 85, 0, 0.12);
+    font-weight: 600;
+}
+
+.menu-link i {
+    font-size: 0.85rem;
+}
+
 .nav-link {
     border-radius: 0.375rem;
     margin: 0 0.25rem;
     transition: color 0.25s ease;
 }
+
 .nav-link.active {
     color: #ffc107 !important; 
     background-color: transparent;
     font-weight: 600;
 }
+
 .nav-link:hover {
     color: #ffc107 !important;
     background-color: transparent;
 }
+
 .mod-flex {
     display: flex;
     gap: 0.5rem;
@@ -109,8 +156,6 @@ body {
 
 /*********************************************************
    Pengaturan Icon-icon 
-   Default semua icon (enabled & disabled) tidak terlihat 
-   Ikon default (hidden) 
 ***********************************************************/
 .action-icon {
     display: inline-flex;
@@ -127,16 +172,13 @@ body {
     padding: 4px;
     font-size: 15px;
 }
-/* Saat hover ke baris, semua icon disabled akan muncul */
 tr:hover .action-icon {
     opacity: 1;
 }
-/* Hover efek untuk ikon aktif */
 .action-icon:hover {
     color: red;
     background-color: #e0e0e0;
 }
-/* Disabled icon – tidak bisa diklik dan tidak bereaksi saat hover */
 .action-icon.disabled {
     pointer-events: none;
     color: #bbb !important;
@@ -164,9 +206,6 @@ tr:hover .action-icon {
 
 /***********************************************
    Area tabel dashboard utama
-   - Memakai lebar card secara penuh
-   - Menjaga bingkai tabel tetap rapi
-   - Scroll horizontal aktif saat kolom banyak
 ***********************************************/
 :is(#followupwe-page, #followupcrm-page, #referral-page, #pendaftaran-page) .dashboard-table-card-body {
     padding: 0.75rem;
@@ -230,9 +269,6 @@ tr:hover .action-icon {
 
 /******************************************
    Area tabel halaman Pendaftaran
-   - Mengatur scroll horizontal
-   - Menjaga lebar kolom mengikuti isi
-   - Membuat kolom alamat lebih fleksibel
 *******************************************/
 #pendaftaran-page .table-wrapper {
     overflow-x: auto;
@@ -400,8 +436,6 @@ tr:hover .action-icon {
 
 /*******************************************************
 Preview gambar kecil di modal View Data
-   - Dipakai untuk preview bukti transfer/produk
-   - Ukuran dibuat sedang, detail dilihat lewat zoom
 *******************************************************/
 .pendaftaran-proof-preview {
     width: 100%;
@@ -459,9 +493,6 @@ Preview gambar kecil di modal View Data
 
 /***************************************************
 Modal View Data Pendaftaran
-   - Mengatur lebar modal utama
-   - Menata section detail agar rapi
-   - Label kiri dan value kanan dibuat konsisten
 ***************************************************/
 #pendaftaranViewModal .modal-dialog {
     max-width: 735px;
@@ -524,8 +555,6 @@ Modal View Data Pendaftaran
 
 /**********************************************
 Modal khusus zoom gambar bukti
-   - Lebar lebih besar dari modal data
-   - Fokus untuk melihat gambar versi besar
 ***********************************************/
 #pendaftaranImageZoomModal .modal-dialog {
     max-width: 735px;
@@ -578,9 +607,8 @@ Modal khusus zoom gambar bukti
     gap: 10px;
     min-height: calc(1.5em + 0.5rem + 2px);
     flex: 0 1 auto;
-    min-width: 50%;     /* min-width: 150px; */
-    max-width: 100%;    /* max-width: 380px; */
-    /* TIDAK ADA margin-left: auto; */
+    min-width: 50%;
+    max-width: 100%;
 }
 .pesan-notif-icon { 
     font-size: 18px; 
@@ -590,22 +618,19 @@ Modal khusus zoom gambar bukti
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
-/* Notification di Setup User */
 #setupuserPesanNotification {
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px;*/
-    max-width: 100%; /*max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* Notification di Log Notif */
 #lognotifPesanNotification {
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px; */
-    max-width: 100%;  /*max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 
@@ -624,7 +649,6 @@ Modal khusus zoom gambar bukti
     overflow: visible;
     z-index: 10;
 }
-
 .followupwe-toolbar-card,
 .followupcrm-toolbar-card,
 .pendaftaran-toolbar-card,
@@ -634,7 +658,6 @@ Modal khusus zoom gambar bukti
     overflow: visible;
     z-index: 10;
 }
-
 .followupwe-toolbar-left,
 .followupcrm-toolbar-left,
 .pendaftaran-toolbar-left,
@@ -647,7 +670,6 @@ Modal khusus zoom gambar bukti
     width: 100%;
 }
 
-/* Filter Group */
 .followupwe-filter-group,
 .followupcrm-filter-group,
 .pendaftaran-filter-group,
@@ -665,7 +687,6 @@ Modal khusus zoom gambar bukti
     width: 100%;
 }
 
-/* Actions */
 .followupwe-actions,
 .followupcrm-actions,
 .pendaftaran-actions,
@@ -682,19 +703,17 @@ Modal khusus zoom gambar bukti
     white-space: nowrap;
 }
 
-/* Notification - di sebelah kanan tombol (rata kiri) */
 .followupwe-toolbar .notification-message,
 .followupcrm-toolbar .notification-message,
 .pendaftaran-toolbar .notification-message,
 .setupuser-toolbar .notification-message,
 .lognotif-toolbar .notification-message {
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px; */
-    max-width: 100%; /*max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 
-/* Setup User - Right group */
 .setupuser-right-group {
     display: flex;
     align-items: center;
@@ -707,8 +726,8 @@ Modal khusus zoom gambar bukti
 }
 .setupuser-right-group .notification-message {
     flex: 0 1 auto;
-    min-width: 50%;   /* min-width: 150px; */
-    max-width: 100%;  /* max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 
@@ -745,14 +764,13 @@ Modal khusus zoom gambar bukti
 }
 .pendaftaran-toolbar .notification-message {
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px; */
-    max-width: 100%; /* max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 .pendaftaran-toolbar-progress {
     width: 100%;
 }
-
 .followupwe-toolbar-progress {
     width: 100%;
 }
@@ -797,8 +815,6 @@ Modal khusus zoom gambar bukti
     align-items: center;
     white-space: nowrap;
 }
-
-/* Container message input */
 .followupwe-message-input,
 .followupcrm-message-input,
 .pendaftaran-message-input {
@@ -806,7 +822,6 @@ Modal khusus zoom gambar bukti
     overflow: visible !important;
 }
 
-/* Emoji Picker */
 #sharedEmojiPickerBody,
 .followupwe-emoji-picker {
     position: static !important;
@@ -822,13 +837,10 @@ Modal khusus zoom gambar bukti
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
     z-index: auto !important;
 }
-
-/* Saat picker aktif */
 #sharedEmojiPickerBody.active,
 .followupwe-emoji-picker.active {
     display: block !important;
 }
-
 #sharedEmojiPickerBody .followupwe-emoji-group,
 .followupwe-emoji-picker .followupwe-emoji-group {
     margin-bottom: 0.75rem !important;
@@ -873,7 +885,6 @@ Modal khusus zoom gambar bukti
     background-color: rgba(13, 110, 253, 0.12) !important;
     border-color: rgba(13, 110, 253, 0.25) !important;
 }
-/***** Akhir Emoji Picker *****/
 
 .lognotif-toolbar .dropdown-menu {
     z-index: 1040;
@@ -881,15 +892,15 @@ Modal khusus zoom gambar bukti
 .lognotif-toolbar #pesanNotification {
     width: auto;
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px; */
-    max-width: 100%; /* max-width: 380px;*/
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 .lognotif-toolbar #crmPesanNotification {
     width: auto;
     flex: 0 1 auto;
-    min-width: 50%;  /* min-width: 150px; */
-    max-width: 100%; /* max-width: 380px; */
+    min-width: 50%;
+    max-width: 100%;
     margin-left: 0 !important;
 }
 
@@ -912,7 +923,6 @@ Modal khusus zoom gambar bukti
     display: none;
 }
 
-/* Spinner Untuk tabel user */
 .loading-overlay {
     position: absolute;
     top: 100px;
@@ -924,7 +934,7 @@ Modal khusus zoom gambar bukti
     justify-content: center;
 }
 
-/* Hak Akses */
+/***** HAK AKSES *****/
 .akses-panel {
     margin-top: 1rem;
     border: 1px solid #dee2e6;
@@ -982,7 +992,7 @@ Modal khusus zoom gambar bukti
     box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
 }
 
-/* Footer modal Add/Edit */
+/***** MODAL USER *****/
 .modal-user-footer {
     display: flex;
     align-items: center;
@@ -1005,7 +1015,7 @@ Modal khusus zoom gambar bukti
     margin-left: auto;
 }
 
-/* Modal Edit CRM */
+/***** MODAL EDIT CRM *****/
 #crmEditModal .modal-content {
     border-radius: 1rem;
     overflow: hidden;
@@ -1045,9 +1055,7 @@ Modal khusus zoom gambar bukti
     color: #6c757d;
 }
 
-/* ==========================================
-   Modal Edit Data Pendaftaran
-========================================== */
+/***** MODAL EDIT PENDAFTARAN *****/
 #pendaftaranEditModal .modal-dialog {
     max-width: 980px;
 }
@@ -1095,7 +1103,6 @@ Modal khusus zoom gambar bukti
 }
 
 /***** UI DASHBOARD *****/
-/* Cards */
 .card {
     border: none;
     border-radius: 1rem;
@@ -1112,7 +1119,6 @@ Modal khusus zoom gambar bukti
     padding: 1.25rem;
 }
 
-/* Progress Bars */
 .progress {
     height: 0.75rem;
     border-radius: 0.5rem;
@@ -1121,7 +1127,6 @@ Modal khusus zoom gambar bukti
     border-radius: 0.5rem;
 }
 
-/* Buttons */
 .btn {
     border-radius: 0.5rem;
     transition: all 0.3s ease;
@@ -1130,7 +1135,6 @@ Modal khusus zoom gambar bukti
     transform: translateY(-1px);
 }
 
-/* Program Cards */
 .program-card {
     position: relative;
     overflow: hidden;
@@ -1204,6 +1208,7 @@ Modal khusus zoom gambar bukti
 .peserta-followup-status {
     margin-left: 0 !important;
 }
+
 .program-card::before {
     content: '';
     position: absolute;
@@ -1223,7 +1228,6 @@ Modal khusus zoom gambar bukti
     background: linear-gradient(90deg, #0d6efd, #6f42c1);
 }
 
-/* Program Badges */
 .program-badge {
     font-size: 0.75rem;
     padding: 0.375rem 0.75rem;
@@ -1245,23 +1249,19 @@ Modal khusus zoom gambar bukti
     border: 1px solid rgba(13, 110, 253, 0.3);
 }
 
-/* ==========================================
-   PDF VIEWER MODAL - Untuk Referral
-========================================== */
+/***** PDF VIEWER MODAL *****/
 #referralPdfModal .modal-body {
     padding: 0.5rem;
     background: #f5f5f5;
-    overflow: hidden; /* Hindari scroll di modal-body */
+    overflow: hidden;
 }
-
 #referralPdfModal .modal-dialog {
     max-width: 820px;
 }
-
 #referralPdfModal .modal-content {
     border-radius: 1rem;
     overflow: hidden;
-    max-height: 90vh; /* Batasi tinggi modal */
+    max-height: 90vh;
 }
 
 .pdf-controls-modal {
@@ -1273,21 +1273,18 @@ Modal khusus zoom gambar bukti
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
     flex-wrap: nowrap;
-    flex-shrink: 0; /* Jangan menyusut */
+    flex-shrink: 0;
 }
-
 .pdf-controls-modal .btn {
     padding: 0.25rem 0.6rem;
     font-size: 0.85rem;
     border-radius: 0.5rem;
     min-width: 36px;
 }
-
 .pdf-controls-modal .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
-
 .pdf-controls-modal .page-info {
     font-size: 0.9rem;
     font-weight: 600;
@@ -1298,15 +1295,14 @@ Modal khusus zoom gambar bukti
 
 #referralPdfContainer {
     width: 100%;
-    height: 65vh; /* Gunakan height bukan min-height */
+    height: 65vh;
     max-height: 70vh;
-    overflow-y: auto; /* Scroll hanya di container ini */
+    overflow-y: auto;
     background: #f5f5f5;
     padding: 0.5rem;
     text-align: center;
-    flex: 1 1 auto; /* Fleksibel */
+    flex: 1 1 auto;
 }
-
 #referralPdfContainer canvas {
     display: block;
     margin: 0.5rem auto;
@@ -1316,7 +1312,6 @@ Modal khusus zoom gambar bukti
     border-radius: 4px;
     background: white;
 }
-
 #referralPdfContainer .pdf-loading {
     display: flex;
     align-items: center;
@@ -1324,7 +1319,6 @@ Modal khusus zoom gambar bukti
     padding: 3rem;
     color: #6c757d;
 }
-
 #referralPdfContainer .pdf-error {
     display: flex;
     align-items: center;
@@ -1336,32 +1330,26 @@ Modal khusus zoom gambar bukti
     text-align: center;
     margin: 1rem;
 }
-
 #referralPdfContainer .pdf-error i {
     font-size: 1.5rem;
     margin-right: 0.75rem;
 }
-
-/* Scrollbar PDF Container */
 #referralPdfContainer::-webkit-scrollbar {
     width: 8px;
 }
-
 #referralPdfContainer::-webkit-scrollbar-track {
     background: #e9ecef;
     border-radius: 4px;
 }
-
 #referralPdfContainer::-webkit-scrollbar-thumb {
     background: #adb5bd;
     border-radius: 4px;
 }
-
 #referralPdfContainer::-webkit-scrollbar-thumb:hover {
     background: #8c959f;
 }
 
-/* Stats Cards Gradient */
+/***** STATS CARDS *****/
 .stats-card-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -1375,33 +1363,23 @@ Modal khusus zoom gambar bukti
     background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
-/* Charts */
 .chart-container { 
     position: relative;
     height: 300px;
 }
 
-
-/*********************
-/  Loading Animation *
-**********************/
+/***** LOADING ANIMATION *****/
 .loading-shimmer {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
 }
 @keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
 }
 
-/*******************
-* Custom Scrollbar *
-********************/
+/***** CUSTOM SCROLLBAR *****/
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -1417,12 +1395,12 @@ Modal khusus zoom gambar bukti
     background: #a8a8a8;
 }
 
-/* Toast */
+/***** TOAST *****/
 .toast {
     min-width: 300px;
 }
 
-/* Modal */
+/***** MODAL *****/
 .modal-content {
     border-radius: 1rem;
     border: none;
@@ -1434,7 +1412,7 @@ Modal khusus zoom gambar bukti
     border-top: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-/* Form Controls */
+/***** FORM CONTROLS *****/
 .form-control,
 .form-select {
     border-radius: 0.5rem;
@@ -1447,7 +1425,7 @@ Modal khusus zoom gambar bukti
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-/* Utility Classes */
+/***** UTILITY *****/
 .text-truncate-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -1461,132 +1439,52 @@ Modal khusus zoom gambar bukti
     transition: all 0.3s ease;
 }
 
-/************************
-* LAYAR LEBAR (Desktop) *
-/************************/
-@media (min-width: 769px) {
-    /* NAVBAR */
-    .navbar .container-fluid {
-        gap: 0.5rem;
+
+/******************************************
+   RESPONSIVE - SATU MEDIA QUERY UNTUK SEMUA
+*******************************************/
+
+/* LAYAR LEBAR (Desktop) & LAYAR KECIL (Mobile) */
+@media (max-width: 991.98px) {
+    /* MENU NAVBAR KEDUA - Mobile */
+    .menu-navbar .navbar-nav {
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.5rem 0;
     }
-    .navbar-brand {
-        font-size: 1.3rem;
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-    }
-    #navbarNav {
-        flex-wrap: nowrap;
-    }
-    #navbarNav .navbar-nav {
-        flex-wrap: nowrap;
-    }
-    #navbarNav .nav-link {
+    .menu-link {
+        display: block;
+        padding: 0.4rem 0.75rem;
         font-size: 0.9rem;
-        padding: 0.35rem 0.35rem;
-        margin: 0 0.08rem;
-        white-space: nowrap;
-    }
-    #navbarNav .nav-link i {
-        margin-right: 0.2rem !important;
-    }
-    .navbar .mod-flex {
-        flex-shrink: 0;
-    }
-    .navbar .mod-flex .btn {
-        padding: 0.25rem 0.55rem;
-    }
-
-    /* TOOLBAR - FollowUp WE, CRM, Pendaftaran, Setup, LogNotif */
-    .followupwe-toolbar-left,
-    .followupcrm-toolbar-left,
-    .pendaftaran-toolbar-left,
-    .setupuser-toolbar-left,
-    .lognotif-toolbar-left {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex: 1 1 auto;
-        flex-wrap: wrap;
-        width: 100%;
-    }
-
-    .followupwe-filter-group,
-    .followupcrm-filter-group,
-    .pendaftaran-filter-group,
-    .setupuser-filter-group,
-    .lognotif-filter-group {
-        flex: 0 1 auto;
-        min-width: 180px;
-        max-width: 320px;
-    }
-    .followupwe-filter-group .input-group,
-    .followupcrm-filter-group .input-group,
-    .pendaftaran-filter-group .input-group,
-    .setupuser-filter-group .input-group,
-    .lognotif-filter-group .input-group {
-        width: 100%;
-    }
-
-    .followupwe-actions,
-    .followupcrm-actions,
-    .pendaftaran-actions,
-    .setupuser-actions {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-left: 0 !important;
-    }
-    .followupwe-actions .btn,
-    .followupcrm-actions .btn,
-    .pendaftaran-actions .btn,
-    .setupuser-actions .btn {
-        white-space: nowrap;
-    }
-
-    .followupwe-toolbar .notification-message,
-    .followupcrm-toolbar .notification-message,
-    .pendaftaran-toolbar .notification-message,
-    .setupuser-toolbar .notification-message,
-    .lognotif-toolbar .notification-message {
-        flex: 0 1 auto;
-        min-width: 50%;
-        max-width: 100%;
-        margin-left: 0 !important;
-    }
-
-    .setupuser-right-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex: 1 1 auto;
-        flex-wrap: wrap;
-    }
-    .setupuser-right-group .setupuser-actions {
-        flex: 0 0 auto;
-    }
-    .setupuser-right-group .notification-message {
-        flex: 0 1 auto;
-        min-width: 50%;
-        max-width: 100%;
-        margin-left: 0 !important;
-    }
-
-    /* PDF Modals */
-    #referralPdfModal .modal-dialog {
-        max-width: 820px;
-    }
-    #referralPdfContainer {
-        height: 65vh;
-        max-height: 70vh;
+        border-radius: 0.375rem;
     }
 }
 
-/*********************************
-* LAYAR KECIL (Mobile Responsive) 
-**********************************/
+@media (min-width: 992px) {
+    .menu-navbar .navbar-nav {
+        flex-wrap: wrap;
+        gap: 0.15rem 0.3rem;
+    }
+    .menu-link {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.6rem;
+    }
+    .menu-link i {
+        font-size: 0.8rem;
+        margin-right: 0.25rem !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .menu-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+    }
+}
+
+/* Mobile - 768px ke bawah */
 @media (max-width: 768px) {
-    /* NAVBAR */
+    /* NAVBAR UTAMA */
     .navbar .mod-flex {
         flex-direction: column;
         align-items: flex-start;
@@ -2071,12 +1969,9 @@ Modal khusus zoom gambar bukti
     .pdf-controls-modal #referralPdfTotalPages {
         display: none;
     }
-
 }
 
-/************************************
-* LAYAR SANGAT KECIL (Mobile Kecil) *
-*************************************/
+/* LAYAR SANGAT KECIL - 480px ke bawah */
 @media (max-width: 480px) {
     #referralPdfContainer {
         height: 45vh;
@@ -2103,4 +1998,3 @@ Modal khusus zoom gambar bukti
         max-width: 80px;
     }
 }
-
