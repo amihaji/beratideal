@@ -21,18 +21,19 @@ Dashboard untuk :
     <link rel="stylesheet" href="css/styleDashboard.css">
 </head>
 <body>
-    <!-- Navigation -->
+ 
+    <!-- Navigation - Navbar Utama -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002770;">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="#" onclick="showPage('fittracker')">
                 <i class="bi bi-speedometer2 me-2"></i>Dashboard
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <!-- TOMBOL HAMBURGER UNTUK MOBILE -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- HANYA USER ID, LOGOUT, SYNC DI SINI -->
                 <div class="mod-flex align-items-center ms-auto">
                     <span class="text-white me-3">
                         <i class="fas fa-user-circle me-1"></i><span id="activeUserId"></span>
@@ -52,7 +53,12 @@ Dashboard untuk :
     <!-- MENU NAVBAR KEDUA - BARIS KEDUA -->
     <div class="menu-navbar">
         <div class="container-fluid">
-            <div class="menu-navbar-wrapper">
+            <!-- TOMBOL HAMBURGER UNTUK MENU (MOBILE) -->
+            <button class="menu-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbarCollapse" aria-expanded="false" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i> Menu
+            </button>
+            
+            <div class="collapse" id="menuNavbarCollapse">
                 <ul class="menu-nav-list">
                     <!-- Menu FitTracker -->
                     <li class="menu-nav-item">
