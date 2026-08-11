@@ -22,19 +22,85 @@ Dashboard untuk :
 </head>
 <body>
  
-    <!-- Navigation - Navbar Utama -->
+    <!-- Navigation - NAVBAR UTAMA dengan semua menu -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002770;">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="#" onclick="showPage('fittracker')">
                 <i class="bi bi-speedometer2 me-2"></i>Dashboard
             </a>
-            <!-- TOMBOL HAMBURGER UNTUK MOBILE -->
+            
+            <!-- SATU TOMBOL HAMBURGER UNTUK SEMUA -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="mod-flex align-items-center ms-auto">
+                <!-- SEMUA MENU DI SINI -->
+                <ul class="navbar-nav me-auto">
+                    <!-- Menu FitTracker -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link active" href="#" onclick="showPage('fittracker')" id="nav-fittracker">
+                            <i class="fas fa-chart-bar me-1"></i>FitTracker
+                        </a>
+                    </li>
+                    <!-- Menu Program -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('programs')" id="nav-programs">
+                            <i class="fas fa-dumbbell me-1"></i>Program
+                        </a>
+                    </li>
+                    <!-- Menu Analitic -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('analytics')" id="nav-analytics">
+                            <i class="fas fa-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <!-- Menu Data Peserta -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('peserta')" id="nav-peserta">
+                            <i class="fas fa-user-friends me-1"></i>Data Peserta
+                        </a>
+                    </li>
+                    <!-- Menu FollowUp WE -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('followupwe')" id="nav-followupwe">
+                            <i class="fas fa-users me-1"></i>FollowUp WE
+                        </a>
+                    </li>
+                    <!-- Menu FollowUp CRM -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('followupcrm')" id="nav-followupcrm">
+                            <i class="fas fa-user-check me-1"></i>FollowUp CRM
+                        </a>
+                    </li>
+                    <!-- Menu Referral -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('referral')" id="nav-referral">
+                            <i class="fas fa-address-card me-1"></i>Referral
+                        </a>
+                    </li>
+                    <!-- Menu Pendaftran -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('pendaftaran')" id="nav-pendaftaran">
+                            <i class="fas fa-clipboard-list me-1"></i>Pendaftaran
+                        </a>
+                    </li>
+                    <!-- Menu Setup -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('setupuser')" id="nav-setupuser">
+                            <i class="fas fa-cog me-1"></i>Setup
+                        </a>
+                    </li>
+                    <!-- Menu Log Notif -->
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#" onclick="showPage('lognotif')" id="nav-lognotif">
+                            <i class="fas fa-list me-1"></i>Log Notif
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- USER ID, LOGOUT, SYNC -->
+                <div class="mod-flex align-items-center">
                     <span class="text-white me-3">
                         <i class="fas fa-user-circle me-1"></i><span id="activeUserId"></span>
                     </span>
@@ -49,81 +115,6 @@ Dashboard untuk :
             </div>
         </div>
     </nav>
-
-    <!-- MENU NAVBAR KEDUA - BARIS KEDUA -->
-    <div class="menu-navbar">
-        <div class="container-fluid">
-            <!-- TOMBOL HAMBURGER UNTUK MENU (MOBILE) -->
-            <button class="menu-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbarCollapse" aria-expanded="false" aria-label="Toggle menu">
-                <i class="fas fa-bars"></i> Menu
-            </button>
-            
-            <div class="collapse" id="menuNavbarCollapse">
-                <ul class="menu-nav-list">
-                    <!-- Menu FitTracker -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link active" href="#" onclick="showPage('fittracker')" id="nav-fittracker">
-                            <i class="fas fa-chart-bar me-1"></i>FitTracker
-                        </a>
-                    </li>
-                    <!-- Menu Program -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('programs')" id="nav-programs">
-                            <i class="fas fa-dumbbell me-1"></i>Program
-                        </a>
-                    </li>
-                    <!-- Menu Analitic -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('analytics')" id="nav-analytics">
-                            <i class="fas fa-chart-line me-1"></i>Analytics
-                        </a>
-                    </li>
-                    <!-- Menu Data Peserta -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('peserta')" id="nav-peserta">
-                            <i class="fas fa-user-friends me-1"></i>Data Peserta
-                        </a>
-                    </li>
-                    <!-- Menu FollowUp WE -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('followupwe')" id="nav-followupwe">
-                            <i class="fas fa-users me-1"></i>FollowUp WE
-                        </a>
-                    </li>
-                    <!-- Menu FollowUp CRM -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('followupcrm')" id="nav-followupcrm">
-                            <i class="fas fa-user-check me-1"></i>FollowUp CRM
-                        </a>
-                    </li>
-                    <!-- Menu Referral -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('referral')" id="nav-referral">
-                            <i class="fas fa-address-card me-1"></i>Referral
-                        </a>
-                    </li>
-                    <!-- Menu Pendaftran -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('pendaftaran')" id="nav-pendaftaran">
-                            <i class="fas fa-clipboard-list me-1"></i>Pendaftaran
-                        </a>
-                    </li>
-                    <!-- Menu Setup -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('setupuser')" id="nav-setupuser">
-                            <i class="fas fa-cog me-1"></i>Setup
-                        </a>
-                    </li>
-                    <!-- Menu Log Notif -->
-                    <li class="menu-nav-item">
-                        <a class="menu-link" href="#" onclick="showPage('lognotif')" id="nav-lognotif">
-                            <i class="fas fa-list me-1"></i>Log Notif
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
     <!-- KONTEN UTAMA HALAMAN DASHBOARD -->
     <div class="container-fluid py-4">
