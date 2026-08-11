@@ -311,16 +311,14 @@ function showPage(pageName) {
     document.querySelectorAll('.page-content').forEach(page => {
         page.style.display = 'none';
     });
-    
     // Show selected page
     document.getElementById(pageName + '-page').style.display = 'block';
     // Update navigation - HAPUS semua class active dari semua menu
-    document.querySelectorAll('.menu-link').forEach(link => {
+    document.querySelectorAll('.menu-link, .menu-link-mobile').forEach(link => {
         link.classList.remove('active');
     });
-    
-    // Tambahkan class active ke semua menu yang sesuai (mobile + desktop)
-    document.querySelectorAll('.menu-link[id*="' + pageName + '"]').forEach(link => {
+    // Tambahkan class active ke semua menu yang sesuai (desktop + mobile)
+    document.querySelectorAll('.menu-link[id*="' + pageName + '"], .menu-link-mobile[id*="' + pageName + '"]').forEach(link => {
         link.classList.add('active');
     });
     
