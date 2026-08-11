@@ -293,9 +293,77 @@ function setupEventListeners() {
         });
     });
 }
-
-// Page Navigation
+/*******************
+*  Page Navigation
+********************/
 function showPage(pageName) {
+    if (!hasPageAccess(pageName)) {
+        showToast('Anda tidak memiliki hak akses ke menu ini.', 'warning');
+        const fallbackPage = getDefaultAccessiblePage();
+        if (fallbackPage !== pageName) {
+            pageName = fallbackPage;
+        } else {
+            return;
+        }
+    }
+
+    // Hide all pages
+    document.querySelectorAll('.page-content').forEach(page => {
+        page.style.display = 'none';
+    });
+    
+    // Show selected page
+    document.getElementById(pageName + '-page').style.display = 'block';
+    
+    // Update navigation - HAPUS semua class active dari semua menu
+    document.querySelectorAll('.nav-link, .menu-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Tambahkan class active ke menu yang dipilih
+    const activeMenu = document.getElementById('nav-' + pageName);
+    if (activeMenu) {
+        activeMenu.classList.add('active');
+    }
+    
+    currentPage = pageName;
+    
+    // Load page-specific data
+    switch(pageName) {
+        case 'fittracker':
+            renderFittracker();
+            break;
+        case 'peserta':
+            renderPeserta();
+            break;
+        case 'programs':
+            renderPrograms();
+            break;
+        case 'analytics':
+            renderAnalytics();
+            break;
+        case 'followupwe':
+            loadWeTableData();
+            break;
+        case 'followupcrm':
+            loadCrmTableData();
+            break;
+        case 'referral':
+            window.ReferralModule?.loadPage();
+            break;
+        case 'pendaftaran':
+            loadPendaftaranTableData(); 
+            break;         
+        case 'setupuser':
+            loadUserTable();
+            break;
+        case 'lognotif':
+            loadLogNotifTable();
+            break;      
+    }
+}
+
+function BACKUP_showPage(pageName) {
     if (!hasPageAccess(pageName)) {
         showToast('Anda tidak memiliki hak akses ke menu ini.', 'warning');
         const fallbackPage = getDefaultAccessiblePage();
