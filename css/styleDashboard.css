@@ -74,7 +74,7 @@ body {
    MENU NAVBAR KEDUA - BARIS KEDUA
 ========================================== */
 .menu-navbar {
-    background-color: #f1f1f1 !important;
+    background-color: #f1f1f1 !important; /* Abu-abu muda */
     border-bottom: 2px solid #dee2e6;
     padding: 0.25rem 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -106,24 +106,25 @@ body {
 .menu-link {
     display: inline-flex;
     align-items: center;
-    color: #002770 !important;
+    color: #002770 !important; /* Biru tua */
     font-weight: 500;
     font-size: 0.85rem;
     padding: 0.4rem 0.7rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
+    border-radius: 0; /* Hilangkan border radius */
+    transition: color 0.2s ease; /* Hanya transisi warna */
     white-space: nowrap;
     text-decoration: none;
+    background-color: transparent !important; /* Background transparan */
 }
 
 .menu-link:hover {
-    color: #cc5500 !important;
-    background-color: rgba(204, 85, 0, 0.08);
+    color: #cc5500 !important; /* Orange tua saat hover */
+    background-color: transparent !important; /* Tidak ada background hover */
 }
 
 .menu-link.active {
-    color: #cc5500 !important;
-    background-color: rgba(204, 85, 0, 0.12);
+    color: #cc5500 !important; /* Orange tua untuk aktif */
+    background-color: transparent !important; /* Tidak ada background aktif */
     font-weight: 600;
 }
 
@@ -1482,8 +1483,16 @@ Modal khusus zoom gambar bukti
         display: flex;
         padding: 0.4rem 0.75rem;
         font-size: 0.9rem;
+        background-color: transparent !important;
+        border-radius: 0;
     }
-
+    .menu-link:hover {
+        background-color: transparent !important;
+    }
+    .menu-link.active {
+        background-color: transparent !important;
+    }
+    
     /* UTILITY */
     .container-fluid {
         padding-left: 1rem;
