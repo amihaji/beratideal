@@ -100,9 +100,28 @@ body {
     background-color: transparent;
 }
 
+/* NAVBAR - mod-flex */
 .mod-flex {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
+}
+
+/* Style menu di navbar utama - untuk mobile */
+.navbar .menu-link {
+    color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.navbar .menu-link:hover {
+    color: #ffc400 !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.navbar .menu-link.active {
+    color: #ffc400 !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    font-weight: 600;
 }
 
 /* ==========================================
@@ -162,28 +181,6 @@ body {
 .menu-link i {
     font-size: 0.85rem;
     margin-right: 0.25rem;
-}
-
-/* Style menu di navbar utama - untuk mobile */
-.navbar .menu-link {
-    color: #ffffff !important;
-    background-color: transparent !important;
-}
-
-.navbar .menu-link:hover {
-    color: #ffc400 !important;
-    background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-.navbar .menu-link.active {
-    color: #ffc400 !important;
-    background-color: rgba(255, 255, 255, 0.12) !important;
-    font-weight: 600;
-}
-
-.mod-flex {
-    display: flex;
-    gap: 0.5rem;
 }
 
 /* Style menu mobile - di navbar utama */
@@ -1539,6 +1536,9 @@ Modal khusus zoom gambar bukti
 * RESPONSIVE DESKTOP - 769px ke atas *
 **************************************/
 @media (min-width: 769px) {
+    .mod-flex {
+        margin-left: auto !important;
+    }
     /* Menu Baris Kedua - Desktop */
     .menu-nav-list {
         flex-wrap: wrap;
@@ -1569,6 +1569,23 @@ Modal khusus zoom gambar bukti
 * RSPONSIVE MOBILE - 768px ke bawah 
 ***********************************/
 @media (max-width: 768px) {
+    .mod-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-left: 0 !important;
+    }
+    .mod-flex .me-3 {
+        margin-right: 0 !important;
+    }
+    .mod-flex .btn {
+        width: 100%;
+    }
+
     /* NAVBAR - Menu menjadi vertikal saat toggle */
     .navbar .mod-flex {
         flex-direction: column;
