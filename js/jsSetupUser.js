@@ -450,7 +450,7 @@ function addUser() {
 
     script.onerror = function() {
         console.error('=== ERROR addUser: Gagal memuat script ===');
-        showPesanModal('error', ' ERROR : Gagal terhubung ke server (addUser)');
+        showPesanModal('error', ' ERROR : Gagal terhubung server');
         delete window[callbackName];
         if (document.body.contains(script)) document.body.removeChild(script);
     };
@@ -530,7 +530,7 @@ function editUser() {
 
     script.onerror = function() {
         console.error('=== ERROR editUser: Gagal memuat script ===');
-        showPesanModal('error', ' ERROR : Gagal terhubung ke server (editUser)');
+        showPesanModal('error', ' ERROR : Gagal terhubung ke server');
         delete window[callbackName];
         if (document.body.contains(script)) document.body.removeChild(script);
     };
