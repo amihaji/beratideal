@@ -157,7 +157,7 @@
 
             script.onerror = () => {
                 cleanupJsonp(script, callbackName);
-                resolve({ status: 'error', message: 'Gagal menghubungi server pendaftaran.' });
+                resolve({ status: 'error', message: 'Gagal menghubungi server' });
             };
 
             window[callbackName] = (response) => {
