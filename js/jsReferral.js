@@ -378,7 +378,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         }
 
         setMode('view');
-        setStatus('error', 'Aksi Referral hanya bisa dilakukan oleh user pemilik data yang sedang login.');
+        pesanStatus('error', 'Aksi Referral hanya bisa dilakukan oleh user pemilik');
         return false;
     }
 
@@ -413,12 +413,12 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         updateButtonState();
     }
 
-     /**********************************************
+     /************************************************
      * Untuk menmpilkan pesan status 
-     * Variabel untuk timeout pesan default = 3 dtk
-     ***********************************************/ 
+     * Variabel untuk timeout pesan default = 5 detik
+     *************************************************/ 
     let referralStatusTimeout = null;
-    function setStatus(type, message, allowHtml, duration = 3000) {
+    function pesanStatus(type, message, allowHtml, duration = 5000) {
         if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
 
         // Hapus timeout sebelumnya jika ada
@@ -457,30 +457,6 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                 elements.statusBox.style.display = 'none';
                 referralStatusTimeout = null;
             }, duration);
-        }
-    }
-
-    function BACKUP_setStatus(type, message, allowHtml) {
-        if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
-
-        elements.statusBox.style.display = message ? 'flex' : 'none';
-        elements.statusBox.classList.remove('notification-success', 'notification-error', 'notification-warning');
-        elements.statusIcon.className = 'pesan-notif-icon';
-        if (allowHtml) {
-            elements.statusText.innerHTML = message || '';
-        } else {
-            elements.statusText.textContent = message || '';
-        }
-        if (!message) return;
-        if (type === 'success') {
-            elements.statusBox.classList.add('notification-success');
-            elements.statusIcon.classList.add('fas', 'fa-check-circle');
-        } else if (type === 'error') {
-            elements.statusBox.classList.add('notification-error');
-            elements.statusIcon.classList.add('fas', 'fa-times-circle');
-        } else {
-            elements.statusBox.classList.add('notification-warning');
-            elements.statusIcon.classList.add('fas', 'fa-exclamation-triangle');
         }
     }
 
@@ -603,13 +579,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
         const context = getUserContext();
         if (!context.userId) {
-            setStatus('error', 'User ID tidak ditemukan. Silakan login ulang.');
+            pesanStatus('error', 'User ID tidak ditemukan. Silakan login ulang.');
             return;
         }
 
         state.loading = true;
         initReferralTooltips();
-        setStatus('warning', 'Memuat data Referral...');
+        pesanStatus('warning', 'Memuat data Referral...');
 
         try {
             const [profileData, referralData] = await Promise.all([
@@ -630,10 +606,10 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
             if (referralData) {
                 setMode('view');
-                setStatus('success', 'Data Referral berhasil dimuat.');
+                pesanStatus('success', 'Data Referral berhasil dimuat.');
             } else {
                 setMode('input');
-                setStatus(
+                pesanStatus(
                     URL_dbReferral ? 'warning' : 'warning',
                     URL_dbReferral
                         ? 'Data Referral belum ada. Silakan lengkapi form lalu simpan.'
@@ -644,7 +620,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             state.loaded = true;
         } catch (error) {
             setMode('input');
-            setStatus('error', `Gagal memuat data Referral: ${error.message}`);
+            pesanStatus('error', `Gagal memuat data Referral: ${error.message}`);
         } finally {
             state.loading = false;
         }
@@ -666,7 +642,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         const modalElement = document.getElementById('referralPdfModal');
         if (!modalElement) {
             console.error('Modal PDF tidak ditemukan. Pastikan elemen dengan id "referralPdfModal" ada di HTML.');
-            setStatus('error', 'Modal PDF tidak ditemukan. Silakan refresh halaman.', false);
+            pesanStatus('error', 'Modal PDF tidak ditemukan. Silakan refresh halaman.', false);
             return;
         }
         const modal = new bootstrap.Modal(modalElement);
@@ -872,7 +848,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         if (!ensureReferralPermission()) return;
         fillEditableFields(state.referralData || buildEditableDefaults(state.profileData));
         setMode('input');
-        setStatus('warning', 'Mode input aktif. Lengkapi data lalu Simpan.');
+        pesanStatus('warning', 'Mode input aktif. Lengkapi data lalu Simpan.');
     }
 
     /*****************
@@ -881,13 +857,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
     function handleEditMode() {
         if (!ensureReferralPermission()) return;
        if (!state.referralData) {
-            setStatus('warning', 'Data Referral belum ada. Input data baru.');
+            pesanStatus('warning', 'Data Referral belum ada. Input data baru.');
             return;
         }
 
         fillEditableFields(state.referralData);
         setMode('edit');
-        setStatus('warning', 'Mode edit aktif. Ubah data lalu Simpan.');
+        pesanStatus('warning', 'Mode edit aktif. Ubah data lalu Simpan.');
     }
 
     /*****************
@@ -938,7 +914,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                     if (!value) return;
                     elements.fields.refLink.value = value;
                     updateLinkPreview(value);
-                    setStatus('success', `Nama link "${value}" siap dipakai. Silakan klik Simpan untuk menyimpan.`);
+                    pesanStatus('success', `Nama link "${value}" siap dipakai. Silakan klik Simpan untuk menyimpan.`);
                     if (window.scrollTo && typeof window.scrollTo === 'function') {
                         try {
                             elements.fields.refLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1140,11 +1116,11 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         if (!elements.form) return;
         if (!ensureReferralPermission()) return;
         if (!URL_dbReferral) {
-            setStatus('warning', 'URL dbReferral belum diatur');
+            pesanStatus('warning', 'URL dbReferral belum diatur');
             return;
         }
         if (!elements.form.reportValidity()) {
-            setStatus('warning', 'Mohon lengkapi semua field yang wajib diisi.');
+            pesanStatus('warning', 'Mohon lengkapi semua field yang wajib diisi.');
             return;
         }
 
@@ -1153,16 +1129,16 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         payload.recordId = normalizeText(elements.recordId?.value);
         payload.requesterUserId = normalizeText(getUserContext().userId);
         if (!payload.refLink) {
-            setStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
+            pesanStatus('warning', 'Slug Referral wajib dibuat sebelum disimpan.');
             return;
         }
         if (!isValidReferralSlug(payload.refLink)) {
-            setStatus('warning', 'Slug Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
+            pesanStatus('warning', 'Slug Referral harus 3-10 karakter dan hanya boleh berisi huruf kecil, angka, atau tanda minus.');
             return;
         }
         try {
             elements.saveButton.disabled = true;
-            setStatus('warning', 'Menyimpan data Referral...');
+            pesanStatus('warning', 'Menyimpan data Referral...');
 
             const response = await referralSaveJsonp(URL_dbReferral, payload);
 
@@ -1199,13 +1175,13 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
                 ? ` Update terakhir: ${formatReferralDateTime(state.referralData.updatedAt)}.`
                 : '';
             const finalMessage = `${response.message || 'Data Referral berhasil disimpan.'}`;
-            setStatus('success', finalMessage, true);
+            pesanStatus('success', finalMessage, true);
 
             if (typeof showToast === 'function') {
                 showToast(`Data Referral berhasil diperbarui${rowLabel ? ` (baris #${state.referralData.recordId})` : ''}.`, 'success');
             }
         } catch (error) {
-            setStatus('error', error.message);
+            pesanStatus('error', error.message);
         } finally {
             updateButtonState();
         }
