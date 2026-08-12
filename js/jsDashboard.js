@@ -430,7 +430,7 @@ function ensureFollowUpWEFallback() {
     followUpWEFallbackBound = true;
 
     if (typeof showPesan === 'function') {
-        showPesan('warning', 'PERHATIAN : FollowUp WE memakai fallback dari jsDashboard karena jsFollowWe.js belum termuat di hosting.', 5000);
+        showPesan('warning', 'PERHATIAN : data belum termuat di hosting.', 5000);
     }
 }
 

@@ -585,15 +585,14 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
             if (referralData) {
                 setMode('view');
-                // setStatus('success', 'Data Referral berhasil dimuat.');
-                setTimeout(setStatus('success', 'Data Referral berhasil dimuat.'), 300);
+                setStatus('success', 'Data Referral berhasil dimuat.');
             } else {
                 setMode('input');
                 setStatus(
                     URL_dbReferral ? 'warning' : 'warning',
                     URL_dbReferral
                         ? 'Data Referral belum ada. Silakan lengkapi form lalu simpan.'
-                        : 'Profil berhasil dimuat. Isi URL dbReferral di jsLoadUrlPublic.js agar fitur simpan aktif.'
+                        : 'Profil berhasil dimuat. Lengkapi form lalu simpan.'
                 );
             }
 
