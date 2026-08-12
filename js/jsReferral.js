@@ -413,6 +413,53 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         updateButtonState();
     }
 
+     /**********************************************
+     * Untuk menmpilkan pesan status 
+     * Variabel untuk timeout pesan default = 3 dtk
+     ***********************************************/ 
+    let referralStatusTimeout = null;
+    function setStatus(type, message, allowHtml, duration = 3000) {
+        if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
+
+        // Hapus timeout sebelumnya jika ada
+        if (referralStatusTimeout) {
+            clearTimeout(referralStatusTimeout);
+            referralStatusTimeout = null;
+        }
+        // Reset tampilan
+        elements.statusBox.classList.remove('notification-success', 'notification-error', 'notification-warning');
+        elements.statusIcon.className = 'pesan-notif-icon';
+        // Tampilkan pesan
+        if (message) {
+            elements.statusBox.style.display = 'flex';
+            if (allowHtml) {
+                elements.statusText.innerHTML = message;
+            } else {
+                elements.statusText.textContent = message;
+            }
+            if (type === 'success') {
+                elements.statusBox.classList.add('notification-success');
+                elements.statusIcon.classList.add('fas', 'fa-check-circle');
+            } else if (type === 'error') {
+                elements.statusBox.classList.add('notification-error');
+                elements.statusIcon.classList.add('fas', 'fa-times-circle');
+            } else {
+                elements.statusBox.classList.add('notification-warning');
+                elements.statusIcon.classList.add('fas', 'fa-exclamation-triangle');
+            }
+        } else {
+            elements.statusBox.style.display = 'none';
+            return;
+        }
+        // Auto-hide setelah durasi tertentu (default 5 detik)
+        if (duration > 0) {
+            referralStatusTimeout = setTimeout(function() {
+                elements.statusBox.style.display = 'none';
+                referralStatusTimeout = null;
+            }, duration);
+        }
+    }
+
     function BACKUP_setStatus(type, message, allowHtml) {
         if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
 
@@ -424,9 +471,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         } else {
             elements.statusText.textContent = message || '';
         }
-
         if (!message) return;
-
         if (type === 'success') {
             elements.statusBox.classList.add('notification-success');
             elements.statusIcon.classList.add('fas', 'fa-check-circle');
