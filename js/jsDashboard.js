@@ -554,7 +554,6 @@ function loadFollowUpWETableFallback() {
         cleanupFollowUpWEJsonp(script, callbackName);
         setFollowUpWELoading(false);
     };
-
     document.body.appendChild(script);
 }
 
@@ -573,9 +572,7 @@ async function loadAllData() {
         pesertaData = Array.isArray(dashboardAdminPayload.participants) ? dashboardAdminPayload.participants : [];
         programsData = Array.isArray(dashboardAdminPayload.programs) ? dashboardAdminPayload.programs : [];
         analytics = dashboardAdminPayload.analytics || getEmptyAnalyticsData();
-
         populateProgramFilterOptions();
-        
         renderCurrentPage();
     } catch (error) {
         console.error('Error loading data:', error);
@@ -593,17 +590,13 @@ async function loadAllData() {
 
 async function fetchAdminDashboardData() {
     const response = await fetch(`${URL_dbProgram}?action=getAdminDashboardData`);
-
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     const data = await response.json();
-
     if (!data.success && data.status !== 'success') {
         throw new Error(data.message || 'Respons dashboard admin tidak valid.');
     }
-
     return data;
 }
 
@@ -627,11 +620,10 @@ function renderCurrentPage() {
 // Fittracker Rendering
 function renderFittracker() {
     // Update stats
-    const totalPeserta = pesertaData.length;
-    const activePeserta = pesertaData.filter(s => isActive(s)).length;
-    const avgProgress = Math.round(pesertaData.reduce((sum, s) => sum + s.progress, 0) / totalPeserta) || 0;
+    const totalPeserta      = pesertaData.length;
+    const activePeserta     = pesertaData.filter(s => isActive(s)).length;
+    const avgProgress       = Math.round(pesertaData.reduce((sum, s) => sum + s.progress, 0) / totalPeserta) || 0;
     const completedPrograms = pesertaData.filter(s => s.progress >= 100).length;
-    
     document.getElementById('total-peserta').textContent = totalPeserta;
     document.getElementById('active-peserta').textContent = activePeserta;
     document.getElementById('active-percentage').textContent = totalPeserta
@@ -639,10 +631,8 @@ function renderFittracker() {
         : '0% dari total';
     document.getElementById('avg-progress').textContent = avgProgress + '%';
     document.getElementById('completed-programs').textContent = completedPrograms;
-    
     // Render programs
     renderProgramsOverview();
-    
     // Update charts
     updateCharts();
 }
@@ -650,9 +640,7 @@ function renderFittracker() {
 function renderProgramsOverview() {
     const container = document.getElementById('programs-container');
     const programStats = getProgramStats();
-    
     container.innerHTML = '';
-    
     programStats.forEach(program => {
         const programHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
@@ -665,7 +653,6 @@ function renderProgramsOverview() {
                             </span>
                         </div>
                         <p class="card-text text-muted small">${program.description}</p>
-                        
                         <div class="row text-center mb-3">
                             <div class="col-6">
                                 <h6 class="mb-1">${program.participants}</h6>
@@ -676,12 +663,10 @@ function renderProgramsOverview() {
                                 <small class="text-muted">Completion</small>
                             </div>
                         </div>
-                        
                         <div class="progress mb-2" style="height: 8px;">
                             <div class="progress-bar" role="progressbar" 
                                  style="width: ${program.completionRate}%"></div>
                         </div>
-                        
                         <button class="btn btn-outline-primary btn-sm w-100" 
                                 onclick="showProgramDetail('${program.name}')">
                             <i class="bi bi-eye me-1"></i>Lihat Detail
@@ -705,7 +690,6 @@ function filterPeserta() {
     const filterElement = document.getElementById('filterProgram');
     const searchTerm = String(searchElement ? searchElement.value : '').toLowerCase();
     const programFilter = filterElement ? filterElement.value : '';
-    
     let filtered = pesertaData.filter(peserta => {
         const matchesSearch = String(peserta.name || '').toLowerCase().includes(searchTerm) || 
                              String(peserta.email || '').toLowerCase().includes(searchTerm) ||
@@ -713,13 +697,11 @@ function filterPeserta() {
         const matchesProgram = !programFilter || peserta.program === programFilter;
         return matchesSearch && matchesProgram;
     });
-    
     renderPesertaCards(filtered);
 }
 
 function renderPesertaCards(peserta) {
     const container = document.getElementById('peserta-container');
-    
     if (peserta.length === 0) {
         container.innerHTML = `
             <div class="col-12">
@@ -734,14 +716,11 @@ function renderPesertaCards(peserta) {
         `;
         return;
     }
-    
     container.innerHTML = '';
-    
     peserta.forEach(peserta => {
         const programClass = getProgramClass(peserta.program);
         const avatarBg = getAvatarColor(peserta.name);
         const pesertaId = String(peserta.id || '').replace(/'/g, "\\'");
-        
         const pesertaHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card peserta-card h-100" role="button" tabindex="0" onclick="showPesertaDetail('${pesertaId}')" onkeydown="handlePesertaCardKeydown(event, '${pesertaId}')">
@@ -758,7 +737,6 @@ function renderPesertaCards(peserta) {
                                 ${getProgramIcon(peserta.program)}
                             </span>
                         </div>
-                        
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <small class="text-muted">Progress</small>
@@ -769,7 +747,6 @@ function renderPesertaCards(peserta) {
                                      style="width: ${peserta.progress}%"></div>
                             </div>
                         </div>
-                        
                         <div class="row text-center small">
                             <div class="col-4">
                                 <div class="text-muted">Awal</div>
@@ -784,9 +761,7 @@ function renderPesertaCards(peserta) {
                                 <div class="fw-bold">${peserta.targetWeight ?? '-'}kg</div>
                             </div>
                         </div>
-                        
                         <hr>
-                        
                         <div class="d-flex justify-content-between align-items-center small text-muted">
                             <span>Bergabung: ${formatDate(peserta.joinDate)}</span>
                             <span class="${isActive(peserta) ? 'text-success' : 'text-warning'}">
@@ -818,24 +793,20 @@ function fetchDashboardJsonp(action, params = {}) {
             ...params,
             callback: callbackName
         });
-
         const cleanup = () => {
             delete window[callbackName];
             if (script.parentNode) {
                 script.parentNode.removeChild(script);
             }
         };
-
         window[callbackName] = function(response) {
             cleanup();
             resolve(response || { status: 'error', message: 'Respons server tidak valid.' });
         };
-
         script.onerror = function() {
             cleanup();
             resolve({ status: 'error', message: 'Gagal menghubungi server.' });
         };
-
         script.src = `${URL_dbProgram}?${searchParams.toString()}`;
         document.body.appendChild(script);
     });
@@ -875,12 +846,9 @@ function showPesertaFollowUpStatus(type, message, duration = 4000) {
     const box = document.getElementById('pesertaFollowUpStatusBox');
     const icon = document.getElementById('pesertaFollowUpStatusIcon');
     const text = document.getElementById('pesertaFollowUpStatusText');
-
     if (!box || !icon || !text) return;
-
     box.classList.remove('notification-success', 'notification-warning', 'notification-error');
     icon.className = 'pesan-notif-icon me-2';
-
     if (type === 'success') {
         box.classList.add('notification-success');
         icon.classList.add('fas', 'fa-check-circle');
@@ -891,14 +859,11 @@ function showPesertaFollowUpStatus(type, message, duration = 4000) {
         box.classList.add('notification-warning');
         icon.classList.add('fas', 'fa-exclamation-triangle');
     }
-
     text.textContent = message;
     box.style.display = 'inline-flex';
-
     if (showPesertaFollowUpStatus.timeoutId) {
         clearTimeout(showPesertaFollowUpStatus.timeoutId);
     }
-
     showPesertaFollowUpStatus.timeoutId = window.setTimeout(() => {
         box.style.display = 'none';
     }, duration);
@@ -910,40 +875,33 @@ async function handlePesertaFollowUp(pesertaId) {
         showPesertaFollowUpStatus('warning', 'Data peserta tidak ditemukan.');
         return;
     }
-
     const waMessageInput = document.getElementById('pesertaWaMessage');
     const followUpButton = document.getElementById('pesertaFollowUpButton');
     const messageTemplate = waMessageInput ? waMessageInput.value.trim() : '';
     const waNumber = normalizePesertaWhatsAppNumber(peserta.phone);
-
     if (!messageTemplate) {
         showPesertaFollowUpStatus('warning', 'Silakan isi pesan terlebih dahulu.');
         waMessageInput?.focus();
         return;
     }
-
     if (!waNumber || waNumber.length < 10 || waNumber.length > 15) {
         showPesertaFollowUpStatus('warning', 'Nomor WhatsApp peserta tidak valid.');
         return;
     }
-
     const finalMessage = buildPesertaFollowUpMessage(messageTemplate, peserta);
     if (followUpButton) {
         followUpButton.disabled = true;
         followUpButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Mengirim...';
     }
-
     try {
         const response = await fetchDashboardJsonp('sendFollowUpWACRM', {
             target: waNumber,
             message: finalMessage
         });
-
         if (!response || response.status !== 'success') {
             showPesertaFollowUpStatus('warning', (response && response.message) || 'Pesan gagal dikirim.');
             return;
         }
-
         showPesertaFollowUpStatus('success', 'Pesan sudah terkirim.');
     } finally {
         if (followUpButton) {
@@ -957,9 +915,7 @@ async function handlePesertaFollowUp(pesertaId) {
 function renderPrograms() {
     const container = document.getElementById('program-details-container');
     const programStats = getProgramStats();
-    
     container.innerHTML = '';
-    
     programStats.forEach(program => {
         const programHtml = `
             <div class="card mb-4">
@@ -1032,7 +988,6 @@ function renderAnalytics() {
         updateActivityStatusChart();
         return;
     }
-    
     topPerformers.forEach((peserta, index) => {
         const medalClass = index === 0 ? 'bg-warning text-dark' : index === 1 ? 'bg-secondary' : index === 2 ? 'bg-danger' : 'bg-primary';
         const performerHtml = `
@@ -1090,7 +1045,6 @@ function initializeCharts() {
             }
         }
     });
-    
     // Program Distribution Chart
     const programCtx = document.getElementById('programChart').getContext('2d');
     charts.program = new Chart(programCtx, {
@@ -1124,7 +1078,6 @@ function initializeCharts() {
             }
         }
     });
-
     const completionFunnelCtx = document.getElementById('completionFunnelChart');
     if (completionFunnelCtx) {
         charts.completionFunnel = new Chart(completionFunnelCtx.getContext('2d'), {
@@ -1159,7 +1112,6 @@ function initializeCharts() {
             }
         });
     }
-
     const activityStatusCtx = document.getElementById('activityStatusChart');
     if (activityStatusCtx) {
         charts.activityStatus = new Chart(activityStatusCtx.getContext('2d'), {
@@ -1202,7 +1154,6 @@ function updateCharts() {
         charts.weekly.data.datasets[0].data = calculateWeeklyActivity();
         charts.weekly.update();
     }
-    
     // Update program chart with real data
     if (charts.program) {
         const programStats = getProgramStats();
@@ -1219,11 +1170,9 @@ function updateCharts() {
 function updateMonthlyTrendChart() {
     const monthlyCtx = document.getElementById('monthlyTrendChart');
     if (!monthlyCtx) return;
-    
     if (charts.monthly) {
         charts.monthly.destroy();
     }
-    
     charts.monthly = new Chart(monthlyCtx.getContext('2d'), {
         type: 'line',
         data: {
@@ -1257,7 +1206,6 @@ function updateMonthlyTrendChart() {
 
 function updateCompletionFunnelChart() {
     if (!charts.completionFunnel) return;
-
     const overview = analytics.completionOverview || {};
     charts.completionFunnel.data.datasets[0].data = [
         overview.started || 0,
@@ -1269,10 +1217,8 @@ function updateCompletionFunnelChart() {
 
 function updateActivityStatusChart() {
     if (!charts.activityStatus) return;
-
     const activeCount = pesertaData.filter(item => item.isActive).length;
     const inactiveCount = Math.max(pesertaData.length - activeCount, 0);
-
     charts.activityStatus.data.datasets[0].data = [activeCount, inactiveCount];
     charts.activityStatus.update();
 }
@@ -1280,7 +1226,6 @@ function updateActivityStatusChart() {
 // Form Handlers
 async function handleAddPeserta(event) {
     event.preventDefault();
-    
     const formData = {
         name: document.getElementById('pesertaName').value,
         email: document.getElementById('pesertaEmail').value,
@@ -1292,25 +1237,19 @@ async function handleAddPeserta(event) {
         joinDate: new Date().toISOString().split('T')[0],
         lastActivity: new Date().toISOString().split('T')[0]
     };
-    
     try {
         // Add to Google Sheets
         await addPesertaToSheets(formData);
-        
         // Add to local data
         formData.id = Date.now();
         pesertaData.push(formData);
-        
         // Close modal and refresh
         const modal = bootstrap.Modal.getInstance(document.getElementById('addPesertaModal'));
         modal.hide();
-        
         // Reset form
         document.getElementById('addPesertaForm').reset();
-        
         // Refresh current page
         renderCurrentPage();
-        
         showToast('Peserta berhasil ditambahkan!', 'success');
     } catch (error) {
         console.error('Error adding peserta:', error);
@@ -1443,14 +1382,11 @@ function showPesertaDetail(pesertaId) {
 function createPesertaWeightChart(peserta) {
     const ctx = document.getElementById('pesertaWeightChart');
     if (!ctx) return;
-
     if (charts.pesertaWeight) {
         charts.pesertaWeight.destroy();
     }
-    
     // Build grafik progres berat dari histori peserta yang tersedia
     const weeklyProgress = generateWeeklyProgress(peserta);
-    
     charts.pesertaWeight = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
@@ -1507,7 +1443,6 @@ function getProgramStats() {
             ? Math.round(programPeserta.reduce((sum, s) => sum + s.progress, 0) / programPeserta.length)
             : 0;
         const activePeserta = programPeserta.filter(s => isActive(s)).length;
-        
         return {
             id: index + 1,
             name: programName,
@@ -1608,7 +1543,6 @@ function calculateWeeklyActivity() {
     if (!Array.isArray(analytics.moduleCompletions) || analytics.moduleCompletions.length === 0) {
         return Array(10).fill(0);
     }
-
     return analytics.moduleCompletions.map(item => item.completedCount || 0);
 }
 
@@ -1619,33 +1553,28 @@ function generateWeeklyProgress(peserta) {
             data: peserta.weightHistory.map(item => item.weight)
         };
     }
-
     const labels = [];
     const data = [];
     const startWeight = peserta.initialWeight;
     const currentWeight = peserta.currentWeight;
     const weeks = 8;
-    
     for (let i = 0; i < weeks; i++) {
         labels.push(`W${i + 1}`);
         const progress = i / (weeks - 1);
         const weight = startWeight + (currentWeight - startWeight) * progress;
         data.push(Math.round(weight * 10) / 10);
     }
-    
     return { labels, data };
 }
 
 function renderProgramModules(program) {
     const container = document.getElementById(`modules-${program.id}`);
     if (!container) return;
-
     const modules = Array.isArray(program.modules) ? program.modules : [];
     if (modules.length === 0) {
         container.innerHTML = '<p class="text-muted mb-0">Belum ada data penyelesaian modul.</p>';
         return;
     }
-
     container.innerHTML = modules.map(module => `
         <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -1663,7 +1592,6 @@ function getTopPerformersData() {
     if (Array.isArray(analytics.topPerformers) && analytics.topPerformers.length > 0) {
         return analytics.topPerformers;
     }
-
     return [...pesertaData]
         .sort((a, b) => (b.performanceScore || b.progress || 0) - (a.performanceScore || a.progress || 0))
         .slice(0, 5);
@@ -1672,14 +1600,11 @@ function getTopPerformersData() {
 function renderPesertaTopPerformers() {
     const container = document.getElementById('peserta-top-performers');
     if (!container) return;
-
     const topPerformers = getTopPerformersData();
-
     if (topPerformers.length === 0) {
         container.innerHTML = '<div class="col-12"><p class="text-muted mb-0">Belum ada data peserta untuk dinilai.</p></div>';
         return;
     }
-
     container.innerHTML = topPerformers.map((peserta, index) => `
         <div class="col-lg-4 col-md-6">
             <div class="border rounded p-3 h-100">
@@ -1703,7 +1628,6 @@ function renderPesertaTopPerformers() {
 function renderAnalyticsSummaryCards() {
     const container = document.getElementById('analytics-summary-cards');
     if (!container) return;
-
     const overview = analytics.completionOverview || {};
     const cards = [
         { title: 'Mulai Modul', value: overview.started || 0, subtitle: 'Peserta yang sudah menyelesaikan minimal Modul 1', color: 'primary' },
@@ -1711,7 +1635,6 @@ function renderAnalyticsSummaryCards() {
         { title: 'Lulus Modul 10', value: overview.finished || 0, subtitle: 'Peserta yang sudah menyelesaikan seluruh eCourse', color: 'warning' },
         { title: 'Rata-rata Poin', value: analytics.avgPoints || 0, subtitle: 'Rata-rata akumulasi poin peserta selama challenge', color: 'info' }
     ];
-
     container.innerHTML = cards.map(card => `
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="card border-${card.color} h-100">
@@ -1728,14 +1651,11 @@ function renderAnalyticsSummaryCards() {
 function renderAnalyticsInsights() {
     const container = document.getElementById('analytics-insights');
     if (!container) return;
-
     const insights = buildAnalyticsInsights();
-
     if (insights.length === 0) {
         container.innerHTML = '<div class="col-12"><p class="text-muted mb-0">Belum ada insight karena data peserta masih kosong.</p></div>';
         return;
     }
-
     container.innerHTML = insights.map(insight => `
         <div class="col-md-6">
             <div class="border rounded p-3 h-100">
@@ -1750,13 +1670,11 @@ function renderAnalyticsInsights() {
 function renderModuleSpotlight() {
     const container = document.getElementById('analytics-module-spotlight');
     if (!container) return;
-
     const moduleStats = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
     if (moduleStats.length === 0) {
         container.innerHTML = '<p class="text-muted mb-0">Belum ada data modul untuk dianalisis.</p>';
         return;
     }
-
     const totalParticipants = Math.max(pesertaData.length, 1);
     const richestModule = [...moduleStats].sort((a, b) => (b.completedCount || 0) - (a.completedCount || 0))[0];
     const hardestModule = [...moduleStats].sort((a, b) => (a.completedCount || 0) - (b.completedCount || 0))[0];
@@ -1786,12 +1704,11 @@ function buildAnalyticsInsights() {
     if (!pesertaData.length) {
         return [];
     }
-
-    const overview = analytics.completionOverview || {};
-    const activeCount = overview.active || pesertaData.filter(item => item.isActive).length;
+    const overview      = analytics.completionOverview || {};
+    const activeCount   = overview.active || pesertaData.filter(item => item.isActive).length;
     const inactiveCount = Math.max(pesertaData.length - activeCount, 0);
-    const bestProgram = getBestPerformingProgram();
-    const moduleStats = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
+    const bestProgram   = getBestPerformingProgram();
+    const moduleStats   = Array.isArray(analytics.moduleCompletions) ? analytics.moduleCompletions : [];
     const weakestModule = moduleStats.length
         ? [...moduleStats].sort((a, b) => (a.completedCount || 0) - (b.completedCount || 0))[0]
         : null;
@@ -1829,7 +1746,6 @@ function getBestPerformingProgram() {
     if (!programStats.length) {
         return null;
     }
-
     return [...programStats].sort((a, b) => {
         const scoreA = (a.avgProgress || 0) + ((a.activePeserta || 0) * 2);
         const scoreB = (b.avgProgress || 0) + ((b.activePeserta || 0) * 2);
@@ -1854,14 +1770,11 @@ function buildTopPerformerMetricText(peserta) {
 function populateProgramFilterOptions() {
     const filterProgram = document.getElementById('filterProgram');
     if (!filterProgram) return;
-
     const selectedValue = filterProgram.value;
     const programNames = getProgramStats().map(program => program.name);
     const uniqueProgramNames = [...new Set(programNames)].filter(Boolean);
-
     filterProgram.innerHTML = '<option value="">Semua Program</option>' +
         uniqueProgramNames.map(programName => `<option value="${programName}">${programName}</option>`).join('');
-
     filterProgram.value = uniqueProgramNames.includes(selectedValue) ? selectedValue : '';
 }
 
@@ -1896,9 +1809,7 @@ function showLoading(show) {
 function showToast(message, type = 'info') {
     const toast = document.getElementById('liveToast');
     const toastMessage = document.getElementById('toastMessage');
-    
     toastMessage.textContent = message;
-    
     // Change toast color based on type
     toast.className = 'toast';
     if (type === 'success') {
@@ -1908,7 +1819,6 @@ function showToast(message, type = 'info') {
     } else {
         toast.classList.add('text-bg-info');
     }
-    
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
 }
@@ -1944,24 +1854,17 @@ async function syncData() {
 
     try {
         showToast('Sinkronisasi data...', 'info');
-
         await loadAllData();
-
-
         if (typeof loadUserTable === 'function') loadUserTable();
         if (typeof loadLogNotifTable === 'function') loadLogNotifTable();
-
         if (typeof loadPendaftaranTableData === 'function') {
             const result = loadPendaftaranTableData();
             if (result && typeof result.then === 'function') await result;
         }
-
-
         if (typeof loadTableData === 'function') {
             const result = loadTableData();
             if (result && typeof result.then === 'function') await result;
         }
-
         if (typeof loadCrmTableData === 'function') {
             const result = loadCrmTableData();
             if (result && typeof result.then === 'function') await result;

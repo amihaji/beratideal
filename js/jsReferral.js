@@ -413,7 +413,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         updateButtonState();
     }
 
-    function setStatus(type, message, allowHtml) {
+    function BACKUP_setStatus(type, message, allowHtml) {
         if (!elements.statusBox || !elements.statusIcon || !elements.statusText) return;
 
         elements.statusBox.style.display = message ? 'flex' : 'none';
@@ -827,7 +827,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         if (!ensureReferralPermission()) return;
         fillEditableFields(state.referralData || buildEditableDefaults(state.profileData));
         setMode('input');
-        setStatus('warning', 'Mode input aktif. Lengkapi data lalu klik Simpan.');
+        setStatus('warning', 'Mode input aktif. Lengkapi data lalu Simpan.');
     }
 
     /*****************
@@ -842,7 +842,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
         fillEditableFields(state.referralData);
         setMode('edit');
-        setStatus('warning', 'Mode edit aktif. Ubah data yang diperlukan lalu Simpan.');
+        setStatus('warning', 'Mode edit aktif. Ubah data lalu Simpan.');
     }
 
     /*****************
