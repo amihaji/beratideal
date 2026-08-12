@@ -1805,7 +1805,7 @@ function buildAnalyticsInsights() {
         {
             label: 'Peserta Perlu Follow Up',
             value: `${inactiveCount} peserta`,
-            description: 'Peserta yang belum aktif dalam 7 hari terakhir. Daftar ini paling cocok jadi prioritas follow up WA atau CRM.'
+            description: 'Peserta yang belum aktif dalam 7 hari terakhir. Daftar ini paling cocok jadi prioritas follow up'
         },
         {
             label: 'Program Dengan Performa Terbaik',
