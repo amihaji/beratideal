@@ -585,7 +585,8 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
             if (referralData) {
                 setMode('view');
-                setStatus('success', 'Data Referral berhasil dimuat.');
+                // setStatus('success', 'Data Referral berhasil dimuat.');
+                setTimeout(setStatus('success', 'Data Referral berhasil dimuat.'), 300);
             } else {
                 setMode('input');
                 setStatus(
