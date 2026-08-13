@@ -46,28 +46,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     await initializeApp();
 });
 
+/********************************
+/* Urutan inisilalisasi aplikasi
+*********************************/
 async function initializeApp() {
     const accessSynced = await syncUserAccessFromServer();
     if (!accessSynced) {
         return;
     }
-
     if (!enforceDashboardAccess()) {
         return;
     }
-
     updateActiveUserLabel();
+    // Ini harus dipanggil setelah akses tersimpan
     applyMenuAccessControl();
-    
     // Set up event listeners
     setupEventListeners();
-    
     // Initialize charts
     initializeCharts();
-    
     // Show default page
     showPage(getDefaultAccessiblePage());
-
     // Load initial data after UI is ready
     await loadAllData();
 }
@@ -227,12 +225,49 @@ function hasPageAccess(pageName) {
     return access[menu.accessKey] === 'Y';
 }
 
+/*****************************************
+ * Fungsi default akses menu "fittracker"
+ *****************************************/
 function getDefaultAccessiblePage() {
     const firstAccessibleMenu = MENU_ACCESS_MAP.find((item) => hasPageAccess(item.page));
     return firstAccessibleMenu ? firstAccessibleMenu.page : 'fittracker';
 }
 
+/***************************************
+ * Fungsi untuk mengatur hak akses menu
+ ***************************************/
 function applyMenuAccessControl() {
+    // DEBUG: Log semua akses yang tersimpan
+    const access = getStoredAccess();
+    console.log('Apply Menu Access Control - Access:', access);
+    
+    MENU_ACCESS_MAP.forEach(({ navId, page, accessKey }) => {
+        const isAllowed = access[accessKey] === 'Y';
+        
+        // 1. Menu Desktop (tanpa akhiran)
+        const desktopLink = document.getElementById(navId);
+        if (desktopLink && desktopLink.parentElement) {
+            desktopLink.parentElement.style.display = isAllowed ? '' : 'none';
+            console.log(`Desktop ${navId}: ${isAllowed ? 'SHOW' : 'HIDE'}`);
+        }
+        
+        // 2. Menu Mobile (dengan akhiran -mobile)
+        const mobileLink = document.getElementById(navId + '-mobile');
+        if (mobileLink && mobileLink.parentElement) {
+            mobileLink.parentElement.style.display = isAllowed ? '' : 'none';
+            console.log(`Mobile ${navId}-mobile: ${isAllowed ? 'SHOW' : 'HIDE'}`);
+        }
+        
+        // 3. Sembunyikan halaman jika tidak punya akses
+        const pageElement = document.getElementById(page + '-page');
+        if (!isAllowed && pageElement) {
+            pageElement.style.display = 'none';
+        }
+    });
+}
+
+
+function BACKUP_applyMenuAccessControl() {
     MENU_ACCESS_MAP.forEach(({ navId, page, accessKey }) => {
         const navLink = document.getElementById(navId);
         const pageElement = document.getElementById(page + '-page');
