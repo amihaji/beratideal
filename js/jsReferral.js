@@ -214,7 +214,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
             script.onerror = () => {
                 cleanup();
-                reject(new Error('Gagal memuat data JSONP.'));
+                reject(new Error('Gagal memuat data'));
             };
 
             script.src = `${url}?${query.toString()}`;
@@ -620,7 +620,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             state.loaded = true;
         } catch (error) {
             setMode('input');
-            pesanStatus('error', `Gagal memuat data Referral: ${error.message}`);
+            pesanStatus('error', `Gagal memuat data: ${error.message}`);
         } finally {
             state.loading = false;
         }
@@ -642,7 +642,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
         const modalElement = document.getElementById('referralPdfModal');
         if (!modalElement) {
             console.error('Modal PDF tidak ditemukan. Pastikan elemen dengan id "referralPdfModal" ada di HTML.');
-            pesanStatus('error', 'Modal PDF tidak ditemukan. Silakan refresh halaman.', false);
+            pesanStatus('error', 'Modal PDF tidak ditemukan. Silakan refresh', false);
             return;
         }
         const modal = new bootstrap.Modal(modalElement);
