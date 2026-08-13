@@ -266,23 +266,6 @@ function applyMenuAccessControl() {
     });
 }
 
-
-function BACKUP_applyMenuAccessControl() {
-    MENU_ACCESS_MAP.forEach(({ navId, page, accessKey }) => {
-        const navLink = document.getElementById(navId);
-        const pageElement = document.getElementById(page + '-page');
-        const isAllowed = getStoredAccess()[accessKey] === 'Y';
-
-        if (navLink && navLink.parentElement) {
-            navLink.parentElement.style.display = isAllowed ? '' : 'none';
-        }
-
-        if (!isAllowed && pageElement) {
-            pageElement.style.display = 'none';
-        }
-    });
-}
-
 function enforceDashboardAccess() {
     const access = getStoredAccess();
     const hasDashboardAccess = MENU_ACCESS_MAP.some(({ accessKey }) => access[accessKey] === 'Y');
