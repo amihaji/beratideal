@@ -620,7 +620,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
             state.loaded = true;
         } catch (error) {
             setMode('input');
-            pesanStatus('error', `Gagal memuat data: ${error.message}`);
+            pesanStatus('error','Gagal memuat data');
         } finally {
             state.loading = false;
         }
