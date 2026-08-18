@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BERATidealku | Gaya Hidup Sehat & Aktif - FIT Challenge Programme</title>
+    <meta name="description" content="Bergabunglah dengan FIT Challenge Programme by BERATidealku, program transformasi kebugaran yang menyenangkan dengan bimbingan coach profesional.">
+    <meta name="keywords" content="gaya hidup sehat, kebugaran, weight loss challenge, fit challenge, hidup sehat, berat ideal">
+    <meta name="google-site-verification" content="Jyw_mpxcDPRJUOvqGGhxhqqFf_eoW4WnAQBodseJ7g8">
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #E8EEFD;
+            --primary-dark: #1D4ED8;
+            --primary-soft: #DBEAFE;
+            --secondary: #F59E0B;
+            --secondary-light: #FEF3C7;
+            --accent: #F97316;
+            --gray-soft: #F3F4F6;
+            --gray-light: #E5E7EB;
+            --gray-medium: #9CA3AF;
+            --text-dark: #1F2937;
+            --text-soft: #4B5563;
+            --text-light: #6B7280;
+            --white: #FFFFFF;
+            --shadow: 0 20px 60px rgba(37, 99, 235, 0.10);
+            --shadow-hover: 0 30px 80px rgba(37, 99, 235, 0.16);
+            --radius: 20px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+        #preloader .spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+        #preloader .loading-text {
+            font-weight: 500;
+            color: var(--text-soft);
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animasi Header */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fadeUp {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        .animate-slideLeft {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+        .animate-slideRight {
+            animation: slideInRight 0.8s ease forwards;
+        }
+        .animate-scale {
+            animation: scaleIn 0.8s ease forwards;
+        }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* Navbar */
+        .navbar {
+            padding: 16px 0;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 30px rgba(0, 0, 0, 0.04);
+            transition: var(--transition);
+        }
+        .navbar.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.06);
+        }
+        .navbar-brand img {
+            max-height: 42px;
+            transition: var(--transition);
+        }
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            padding: 8px 18px;
+            border-radius: 10px;
+            transition: var(--transition);
+            position: relative;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+            border-radius: 2px;
+        }
+        .navbar-nav .nav-link:hover::after {
+            width: 30px;
+        }
+        .navbar-toggler {
+            border: none;
+            padding: 8px;
+            border-radius: 12px;
+            background: var(--gray-soft);
+        }
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        .navbar-toggler-icon {
+            background-image: none;
+            position: relative;
+            width: 22px;
+            height: 22px;
+        }
+        .navbar-toggler-icon::before {
+            content: "\f0c9";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 8px;
+        }
+        .social-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gray-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        .social-icon:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #F0F4FF 0%, #E8EEFD 40%, #DBEAFE 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 120px 0 80px;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(ellipse, rgba(37, 99, 235, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 40%;
+            height: 80%;
+            background: radial-gradient(ellipse, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        .hero-title {
+            font-size: 3.8rem;
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+        .hero-title .highlight {
+            color: var(--primary);
+            position: relative;
+        }
+        .hero-title .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(37, 99, 235, 0.15);
+            border-radius: 4px;
+        }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-soft);
+            max-width: 500px;
+            margin-bottom: 32px;
+            line-height: 1.8;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 32px;
+        }
+        .hero-stats .stat {
+            text-align: left;
+        }
+        .hero-stats .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: block;
+        }
+        .hero-stats .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .hero-image-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-image-wrapper .hero-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+        .hero-image-wrapper .hero-img:hover {
+            transform: scale(1.01);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: var(--white);
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            transition: var(--transition);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.4);
+            color: var(--white);
+        }
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--text-dark);
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: 2px solid var(--gray-light);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-outline-custom:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+        }
+        .btn-secondary-custom {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            transition: var(--transition);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-secondary-custom:hover {
+            background: #D97706;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+            color: var(--white);
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .section-header .subtitle {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 6px 20px;
+            border-radius: 50px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .section-header h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+        .section-header h2 span {
+            color: var(--primary);
+        }
+        .section-header p {
+            color: var(--text-soft);
+            max-width: 540px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+        }
+
+        /* Services Section */
+        .services-section {
+            padding: 100px 0;
+            background: var(--white);
+        }
+        .service-card {
+            background: var(--white);
+            padding: 36px 28px;
+            border-radius: var(--radius);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: var(--transition);
+            transform-origin: left;
+        }
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: transparent;
+        }
+        .service-card .icon-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: var(--transition);
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        .service-card:hover .icon-wrapper {
+            background: var(--primary);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+        .service-card h5 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+        .service-card p {
+            font-size: 0.92rem;
+            color: var(--text-soft);
+            margin-bottom: 0;
+        }
+
+        /* Testimonial Section - Enhanced */
+        .testimonial-section {
+            padding: 100px 0;
+            background: var(--gray-soft);
+        }
+        .testimonial-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        .testimonial-content {
+            flex: 1;
+        }
+        .testimonial-image-container {
+            flex: 0 0 380px;
+            text-align: center;
+        }
+        .testimonial-img {
+            width: 100%;
+            max-width: 360px;
+            height: auto;
+            border-radius: var(--radius);
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            background: var(--white);
+            object-fit: cover;
+        }
+        .testimonial-img.active {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+        .testimonial-name {
+            margin-top: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        .testimonial-name small {
+            font-weight: 400;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .quotes-creative {
+            position: relative;
+            padding: 30px 32px;
+            background: var(--white);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            min-height: 140px;
+        }
+        .quotes-creative .quote-icon {
+            position: absolute;
+            color: var(--primary);
+            font-size: 2rem;
+            opacity: 0.15;
+        }
+        .quotes-creative .quote-icon.top-right {
+            top: 16px;
+            right: 20px;
+        }
+        .quotes-creative .quote-icon.bottom-left {
+            bottom: 16px;
+            left: 20px;
+        }
+        .quotes-creative p {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            line-height: 1.8;
+            margin-bottom: 0;
+            padding: 0 20px;
+        }
+        .creative-text {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        .creative-text small {
+            font-weight: 400;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Testimonial Navigation */
+        .testimonial-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .testimonial-nav-btn {
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--primary-light);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+        .testimonial-nav-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+        }
+        .testimonial-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .testimonial-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray-light);
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .testimonial-dots .dot.active {
+            background: var(--primary);
+            width: 28px;
+            border-radius: 5px;
+        }
+        .testimonial-dots .dot:hover {
+            background: var(--primary);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 60%;
+            height: 200%;
+            background: radial-gradient(ellipse, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .cta-section .big-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+        .cta-section .big-title .highlight {
+            color: var(--secondary);
+        }
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.1rem;
+            max-width: 500px;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+        .cta-section .btn-cta {
+            background: var(--white);
+            color: var(--primary);
+            padding: 16px 44px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        .cta-section .btn-cta:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+            color: var(--primary-dark);
+        }
+        .cta-section .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 32px;
+        }
+        .cta-section .feature-list li {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cta-section .feature-list li i {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 100px 0;
+            background: var(--white);
+        }
+        .about-section .about-img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .about-section .about-img:hover {
+            transform: scale(1.01);
+            box-shadow: var(--shadow-hover);
+        }
+        .about-section .handwritten-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .about-section .handwritten-title {
+            font-size: 1rem;
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+        .about-section .btn-about {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            transition: var(--transition);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .about-section .btn-about:hover {
+            background: #D97706;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
+            color: var(--white);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 60px 0 24px;
+        }
+        footer .brand {
+            margin-bottom: 16px;
+            display: block;
+        }
+        footer .brand img {
+            max-height: 40px;
+            filter: brightness(0) invert(1);
+        }
+        footer h6 {
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        footer ul li {
+            margin-bottom: 10px;
+        }
+        footer ul li a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        footer ul li a:hover {
+            color: var(--secondary);
+        }
+        footer .social-links {
+            display: flex;
+            gap: 12px;
+        }
+        footer .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+        footer .social-links a:hover {
+            background: var(--secondary);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+        footer .copyright {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 24px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+            transition: var(--transition);
+            z-index: 1000;
+            text-decoration: none;
+        }
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-4px);
+            color: var(--white);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+        }
+        .modal-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 32px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+        }
+        .modal-box .modal-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+        .modal-box .btn-group-modal {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .modal-box .btn-group-modal .btn {
+            padding: 10px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            transition: var(--transition);
+        }
+        .modal-box .btn-group-modal .btn-yes {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .modal-box .btn-group-modal .btn-yes:hover {
+            background: var(--primary-dark);
+        }
+        .modal-box .btn-group-modal .btn-no {
+            background: #EF4444;
+            color: var(--white);
+        }
+        .modal-box .btn-group-modal .btn-no:hover {
+            background: #DC2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            .hero-section {
+                padding: 100px 0 60px;
+                min-height: auto;
+            }
+            .hero-stats {
+                gap: 24px;
+            }
+            .section-header h2 {
+                font-size: 2.2rem;
+            }
+            .cta-section .big-title {
+                font-size: 2.5rem;
+            }
+            .navbar .social-icons {
+                display: none !important;
+            }
+            .navbar-nav .nav-link::after {
+                display: none;
+            }
+            .testimonial-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            .testimonial-image-container {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            .testimonial-content {
+                order: 1;
+            }
+            .testimonial-image-container {
+                order: 3;
+            }
+            .testimonial-navigation {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .hero-stats {
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+            .hero-stats .stat-number {
+                font-size: 1.5rem;
+            }
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            .cta-section .big-title {
+                font-size: 2rem;
+            }
+            .cta-section {
+                padding: 60px 0;
+            }
+            .services-section,
+            .testimonial-section,
+            .about-section {
+                padding: 60px 0;
+            }
+            .service-card {
+                padding: 28px 20px;
+            }
+            .quotes-creative {
+                padding: 24px 20px;
+            }
+            .quotes-creative p {
+                font-size: 0.95rem;
+                padding: 0 10px;
+            }
+            .about-section .about-img {
+                margin-bottom: 32px;
+            }
+            .btn-primary-custom,
+            .btn-outline-custom,
+            .btn-secondary-custom,
+            .cta-section .btn-cta,
+            .about-section .btn-about {
+                padding: 12px 28px;
+                font-size: 0.9rem;
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-section .btn-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+            footer {
+                padding: 40px 0 20px;
+            }
+            footer .col-sm-6 {
+                margin-bottom: 24px;
+            }
+            .testimonial-img {
+                max-width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+            .hero-section {
+                padding: 80px 0 40px;
+            }
+            .hero-badge {
+                font-size: 0.75rem;
+                padding: 6px 16px;
+            }
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+            .section-header .subtitle {
+                font-size: 0.75rem;
+                padding: 4px 16px;
+            }
+            .testimonial-img {
+                max-width: 220px;
+            }
+            .quotes-creative .quote-icon {
+                font-size: 1.5rem;
+            }
+            .quotes-creative .quote-icon.top-right {
+                top: 12px;
+                right: 14px;
+            }
+            .quotes-creative .quote-icon.bottom-left {
+                bottom: 12px;
+                left: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="spinner"></div>
+        <div class="loading-text">Menyiapkan pengalaman sehat...</div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top" id="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <img src="images/logo-beratidealku.png" alt="BERATidealku">
+            </a>
+
+            <div class="d-flex align-items-center gap-3 d-lg-none">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="#tentang">Tentang</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonial">Testimonial</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tantangan">FIT Challenge</a></li>
+                    <li class="nav-item"><a class="nav-link" href="https://amihaji.github.io/beratideal/loginBeratideal">Login</a></li>
+                </ul>
+
+                <div class="social-icons">
+                    <a href="https://facebook.com/beratidealku" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/hestyamin" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="hero-badge animate-fadeUp delay-1">
+                        <i class="fas fa-fire me-2"></i> FIT Challenge Programme
+                    </div>
+                    <h1 class="hero-title animate-fadeUp delay-2">
+                        Mulai Perjalanan<br>
+                        Menuju <span class="highlight">Berat Ideal</span>
+                    </h1>
+                    <p class="hero-subtitle animate-fadeUp delay-3">
+                        Ikuti tantangan kebugaran yang menyenangkan dengan bimbingan coach profesional, 
+                        dukungan komunitas, dan panduan nutrisi yang terstruktur.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 animate-fadeUp delay-4">
+                        <button class="btn-primary-custom" onclick="tampilkanKonfirmasi('/beratideal/wetoolsBeratideal.html')">
+                            <i class="fas fa-rocket"></i> Mulai Sekarang
+                        </button>
+                        <a href="#tentang" class="btn-outline-custom">
+                            <i class="fas fa-play-circle"></i> Pelajari
+                        </a>
+                    </div>
+                    <div class="hero-stats animate-fadeUp delay-4">
+                        <div class="stat">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label">Peserta Berhasil</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">10-30kg</span>
+                            <span class="stat-label">Rata-rata Penurunan</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">4.9⭐</span>
+                            <span class="stat-label">Rating Kepuasan</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-image-wrapper animate-scale delay-2">
+                        <img src="images/hero-healthy-life.webp" alt="Gaya Hidup Sehat dan Aktif" class="hero-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="layanan">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle"><i class="fas fa-heart me-2"></i> Layanan Unggulan</span>
+                <h2>Apa Yang Anda <span>Dapatkan</span></h2>
+                <p>Kami menyediakan layanan lengkap untuk mendukung perjalanan kebugaran Anda</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-utensils"></i></div>
+                        <h5>Meal Plan</h5>
+                        <p>Panduan menu harian sesuai kebutuhan dan target Anda</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-dumbbell"></i></div>
+                        <h5>Panduan Olahraga</h5>
+                        <p>Rekomendasi latihan sesuai kondisi tubuh Anda</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-gift"></i></div>
+                        <h5>Loyalty Program</h5>
+                        <p>Kumpulkan poin dan tukarkan dengan hadiah menarik</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-users"></i></div>
+                        <h5>Komunitas</h5>
+                        <p>Dukungan dari sesama pejuang hidup sehat</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-user-check"></i></div>
+                        <h5>Bimbingan Coach</h5>
+                        <p>Pendampingan personal agar diet lebih efektif</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-video"></i></div>
+                        <h5>Free Akses Zoom</h5>
+                        <p>Healthy Talk bersama Nutritionist & Dokter</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-cocktail"></i></div>
+                        <h5>Meal Replacement</h5>
+                        <p>Produk pengganti makanan bergizi & mengenyangkan</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="service-card">
+                        <div class="icon-wrapper"><i class="fas fa-clipboard-list"></i></div>
+                        <h5>Tips Sehat</h5>
+                        <p>Informasi kesehatan & kebugaran terstruktur</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section - Full Carousel -->
+    <section class="testimonial-section" id="testimonial">
+        <div class="container">
+            <div class="section-header">
+                <span class="subtitle"><i class="fas fa-star me-2"></i> Testimonial</span>
+                <h2>Apa Kata <span>Mereka</span></h2>
+                <p>Kisah nyata dari mereka yang telah berhasil mengubah hidup</p>
+            </div>
+
+            <div class="testimonial-container">
+                <div class="testimonial-content">
+                    <!-- Testimonial Carousel -->
+                    <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                        <div class="carousel-inner">
+                            <!-- Testimoni 1 - Hesty -->
+                            <div class="carousel-item active" data-img="images/Testimoni4-Hesty.webp" data-name="Hesty" data-loss="Turun 10kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Memberikan banyak manfaat serta meningkatkan stamina dan kebugaran, sehingga membantu dalam aktifitas seharian saya sebagai ibu rumah tangga.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Hesty <small>- Turun 10kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 2 - Mulvi -->
+                            <div class="carousel-item" data-img="images/Testimoni1-Appi.webp" data-name="Mulvi" data-loss="Turun 30kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Stamina bertambah dan tidak mudah mengantuk. Sangat membantu saya dalam beraktifitas sehari-hari.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Mulvi <small>- Turun 30kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 3 - Herna -->
+                            <div class="carousel-item" data-img="images/Testimoni2-Herna.webp" data-name="Herna" data-loss="Turun 15kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Saya mendapatkan bentuk tubuh yang ideal, tidak gampang lelah dan makin berstamina saat olahraga.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Herna <small>- Turun 15kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 4 - Atmal -->
+                            <div class="carousel-item" data-img="images/Testimoni3-Akmal.webp" data-name="Atmal" data-loss="Turun 10kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Saya merasakan kebugaran yang luar biasa dan memudahkan saya dalam beraktifitas dalam bekerja.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Atmal <small>- Turun 10kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 5 - dr. Indri -->
+                            <div class="carousel-item" data-img="images/Testimoni5-dr-Indri.webp" data-name="dr. Indri Apsa Musiana, Sp.S" data-loss="Turun 12kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Meningkatkan kebugaran dan stamina lebih enerjik dalam mendukung aktifitas saya sebagai seorang dokter spesialis.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">dr. Indri Apsa Musiana, Sp.S <small>- Turun 12kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 6 - dr. Muslim -->
+                            <div class="carousel-item" data-img="images/Testimoni6-dr-Muslim.webp" data-name="dr. Muslim, Sp.An" data-loss="Turun 10kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Saya merasakan kebugaran dan stamina yang luar biasa dan mendukung aktifitas keseharian saya sebagai seorang dokter spesialis.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">dr. Muslim, Sp.An <small>- Turun 10kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 7 - Khadijah -->
+                            <div class="carousel-item" data-img="images/Testimoni7-Kiki.webp" data-name="Khadijah" data-loss="Turun 12kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Mengikuti program pola makan, saya berhasil turun berat dengan cara tetap sehat dan bugar.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Khadijah <small>- Turun 12kg</small></div>
+                            </div>
+
+                            <!-- Testimoni 8 - Akhsan -->
+                            <div class="carousel-item" data-img="images/Testimoni8-Ken.webp" data-name="Akhsan" data-loss="Turun 15kg">
+                                <div class="quotes-creative">
+                                    <i class="fas fa-quote-right quote-icon top-right"></i>
+                                    <p>Saya merasakan kebugaran yang luar biasa dan memudahkan saya dalam beraktifitas dalam bekerja.</p>
+                                    <i class="fas fa-quote-left quote-icon bottom-left"></i>
+                                </div>
+                                <div class="creative-text">Akhsan <small>- Turun 15kg</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="testimonial-navigation">
+                        <button class="testimonial-nav-btn" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="testimonial-nav-btn" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dots Indicator -->
+                    <div class="testimonial-dots" id="testimonialDots">
+                        <button class="dot active" data-index="0"></button>
+                        <button class="dot" data-index="1"></button>
+                        <button class="dot" data-index="2"></button>
+                        <button class="dot" data-index="3"></button>
+                        <button class="dot" data-index="4"></button>
+                        <button class="dot" data-index="5"></button>
+                        <button class="dot" data-index="6"></button>
+                        <button class="dot" data-index="7"></button>
+                    </div>
+                </div>
+
+                <!-- Testimonial Image -->
+                <div class="testimonial-image-container">
+                    <img id="activeTestimonialImg" src="images/Testimoni4-Hesty.webp" alt="Hesty - Turun 10kg" class="testimonial-img">
+                    <div id="activeTestimonialName" class="testimonial-name">Hesty <small>- Turun 10kg</small></div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <small class="text-muted">* Hasil yang dicapai setiap orang berbeda dan bervariasi</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="tantangan">
+        <div class="container">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge bg-white text-primary mb-3 px-3 py-2" style="font-weight:600;">
+                        <i class="fas fa-trophy me-2"></i> FIT Challenge Programme
+                    </span>
+                    <h2 class="big-title">Waktunya untuk<br><span class="highlight">Berubah!</span></h2>
+                    <p>Rasakan perubahan kebugaran Anda dengan mengikuti tantangan yang menyenangkan, 
+                    didukung video tutorial lengkap dan terstruktur.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Panduan lengkap & terstruktur</li>
+                        <li><i class="fas fa-check-circle"></i> Dukungan komunitas aktif</li>
+                        <li><i class="fas fa-check-circle"></i> Bimbingan coach profesional</li>
+                    </ul>
+                    <button class="btn-cta" onclick="tampilkanKonfirmasi('/beratideal/wetoolsBeratideal.html')">
+                        <i class="fas fa-arrow-right"></i> Join With Us
+                    </button>
+                </div>
+                <div class="col-lg-4 text-center d-none d-lg-block">
+                    <div style="background: rgba(255,255,255,0.08); border-radius: 20px; padding: 40px 30px; backdrop-filter: blur(4px);">
+                        <i class="fas fa-medal" style="font-size: 4rem; color: var(--secondary);"></i>
+                        <h4 style="color: white; font-weight: 700; margin-top: 16px;">100+ Peserta</h4>
+                        <p style="color: rgba(255,255,255,0.7);">Telah berhasil mengubah hidup mereka</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="tentang">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <img src="images/about-coach.webp" alt="Hesty Husain - Personal Diet Partner" class="about-img">
+                </div>
+                <div class="col-lg-7">
+                    <span class="subtitle d-inline-block px-3 py-1 bg-primary-light text-primary rounded-pill mb-3" style="font-weight:600; font-size:0.8rem;">
+                        <i class="fas fa-user me-2"></i> Tentang Saya
+                    </span>
+                    <h2 style="font-size: 2.4rem; font-weight: 800; margin-bottom: 20px;">
+                        Halo, Saya <span style="color: var(--primary);">Hesty</span>
+                    </h2>
+                    <p>Saya seorang ibu rumah tangga dengan dua anak, berusia 46 tahun, dan berasal dari Makassar, Sulawesi Selatan.</p>
+                    <p>Perjalanan saya menurunkan berat badan dimulai ketika saya memutuskan untuk mengubah pola makan, rutin berolahraga, dan menjaga waktu istirahat. Alhamdulillah, berkat konsistensi, saya berhasil menurunkan berat badan hingga 13 kg. Sekarang, saya merasa jauh lebih bugar dan berenergi.</p>
+                    <p>Saya paham betul bahwa perubahan gaya hidup bukanlah sesuatu yang instan, melainkan proses yang membutuhkan waktu, bimbingan, dan dukungan. Karena itu, saya ingin berbagi pengalaman dan semangat kepada siapa pun yang ingin memulai hidup sehat dan aktif.</p>
+                    <div class="mt-4">
+                        <p class="handwritten-name">Hesty Husain</p>
+                        <p class="handwritten-title">Personal Diet Partner</p>
+                    </div>
+                    <a href="https://api.whatsapp.com/send?phone=6281241318600&text=Halo+kak%2C+saya+ingin+info+tentang+%3A%0A1.+Klub+Nutrisi%0A2.+FIT+challenge%0APilih+info+%3A+.+.+.+.+." target="_blank" class="btn-about">
+                        <i class="fab fa-whatsapp"></i> Tanya Coach
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <a href="#" class="brand">
+                        <img src="images/logo-beratidealku.png" alt="BERATidealku">
+                    </a>
+                    <ul>
+                        <li><i class="far fa-clock me-2"></i> Senin-Sabtu : 8am – 11am</li>
+                        <li><i class="fas fa-calendar-alt me-2"></i> Minggu : Libur</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Alamat</h6>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> KLUB Kita</li>
+                        <li>Jl. Dg Tata Kompleks Hartaco Indah Blok 5F/15</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Kontak</h6>
+                    <ul>
+                        <li><a href="https://wa.me/6281241318600"><i class="fab fa-whatsapp me-2"></i> 081241318600</a></li>
+                        <li><a href="mailto:beratidealku@gmail.com"><i class="fas fa-envelope me-2"></i> beratidealku@gmail.com</a></li>
+                    </ul>
+                    <div class="social-links mt-3">
+                        <a href="https://facebook.com/beratidealku" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/hestyamin" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2024 BERATidealku. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- Modal Konfirmasi -->
+    <div class="modal-overlay" id="modalKonfirmasi">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-question-circle"></i></div>
+            <div id="bagianPertanyaan">
+                <p><strong>Apakah Anda pernah<br>menjadi member Herbalife?</strong></p>
+                <div class="btn-group-modal">
+                    <button onclick="jawabanKonfirmasi(true)" class="btn-yes">Ya</button>
+                    <button onclick="jawabanKonfirmasi(false)" class="btn-no">Tidak</button>
+                </div>
+            </div>
+            <div id="pesanKonfirmasi" style="display:none; margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('preloader').style.display = 'none';
+            }, 800);
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Back to Top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        backToTop.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Testimonial Carousel - Update Image & Dots
+        const testimonialCarousel = document.getElementById('testimonialCarousel');
+        const activeTestimonialImg = document.getElementById('activeTestimonialImg');
+        const activeTestimonialName = document.getElementById('activeTestimonialName');
+        const dots = document.querySelectorAll('.dot');
+
+        testimonialCarousel.addEventListener('slid.bs.carousel', function(event) {
+            const activeItem = event.relatedTarget;
+            const imgSrc = activeItem.getAttribute('data-img');
+            const name = activeItem.getAttribute('data-name');
+            const loss = activeItem.getAttribute('data-loss');
+
+            activeTestimonialImg.src = imgSrc;
+            activeTestimonialName.innerHTML = `${name} <small>- ${loss}</small>`;
+
+            // Animation on image
+            activeTestimonialImg.classList.remove('active');
+            setTimeout(() => {
+                activeTestimonialImg.classList.add('active');
+            }, 50);
+
+            // Update dots
+            const index = Array.from(activeItem.parentElement.children).indexOf(activeItem);
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        });
+
+        // Dot click navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                const carousel = bootstrap.Carousel.getInstance(testimonialCarousel);
+                carousel.to(index);
+            });
+        });
+
+        // Modal Konfirmasi
+        let linkTujuan = "";
+        function tampilkanKonfirmasi(link) {
+            linkTujuan = link;
+            document.getElementById('modalKonfirmasi').style.display = 'block';
+            document.getElementById('bagianPertanyaan').style.display = 'block';
+            document.getElementById('pesanKonfirmasi').style.display = 'none';
+            document.getElementById('pesanKonfirmasi').innerHTML = '';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function jawabanKonfirmasi(isMember) {
+            document.getElementById('bagianPertanyaan').style.display = 'none';
+            const pesan = document.getElementById('pesanKonfirmasi');
+            pesan.style.display = 'block';
+            if (isMember) {
+                pesan.innerHTML = `
+                    <p><strong>Hubungi sponsor anda, <br>untuk info lebih lanjut!</strong></p>
+                    <button onclick="tutupModal()" class="btn btn-dark" style="padding: 10px 32px; border-radius: 50px; font-weight:600; border:none;">OK</button>
+                `;
+            } else {
+                pesan.innerHTML = `
+                    <p><strong>Sebelum Lanjut, <br>Kita Cek Kebugarannya Dulu Yah!</strong></p>
+                    <button onclick="tutupModal()" class="btn btn-dark" style="padding: 10px 32px; border-radius: 50px; font-weight:600; border:none;">OK</button>
+                `;
+                setTimeout(() => {
+                    window.location.href = linkTujuan;
+                }, 1500);
+            }
+        }
+
+        function tutupModal() {
+            document.getElementById('modalKonfirmasi').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('modalKonfirmasi').addEventListener('click', function(e) {
+            if (e.target === this) {
+                tutupModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
