@@ -1849,7 +1849,8 @@ function logoutUser() {
     localStorage.removeItem('userLevel');
     localStorage.removeItem('progressData');
     clearStoredUserAccess();
-    window.location.href = 'loginBeratideal.html';
+    // window.location.href = 'loginBeratideal.html';
+    window.location.href = 'index.html';
 }
 
 async function syncData() {
