@@ -103,8 +103,26 @@
             box-shadow: 0 2px 30px rgba(0, 0, 0, 0.03);
             transition: var(--transition);
         }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         .navbar-brand img {
             max-height: 48px;
+        }
+        .navbar-brand .brand-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            letter-spacing: 0.3px;
+            line-height: 1.3;
+        }
+        .navbar-brand .brand-text small {
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            display: block;
         }
         .navbar-toggler {
             border: none;
@@ -131,7 +149,7 @@
 
         /* Hero Section */
         .hero-section {
-            padding: 60px 0 80px;
+            padding: 80px 0 60px;
             background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 40%, var(--color-3) 80%, var(--color-4) 100%);
             position: relative;
             overflow: hidden;
@@ -152,72 +170,40 @@
             position: relative;
             z-index: 2;
         }
-        
-        /* Hero Header dengan Gambar & Teks */
-        .hero-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        .hero-header img {
-            max-height: 70px;
-            width: auto;
-        }
-        .hero-header .hero-brand-text {
-            font-weight: 700;
-            font-size: 1.4rem;
-            color: var(--white);
-            letter-spacing: 0.5px;
-            line-height: 1.3;
-        }
-        .hero-header .hero-brand-text small {
-            font-weight: 400;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-            display: block;
-        }
-
         .hero-badge {
             display: inline-block;
             background: rgba(255, 255, 255, 0.12);
             color: var(--color-6);
-            padding: 8px 24px;
+            padding: 10px 28px;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
             letter-spacing: 1.5px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             text-transform: uppercase;
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .hero-title {
-            font-size: 2.8rem;
+            font-size: 3.2rem;
             font-weight: 900;
             color: var(--white);
-            margin-bottom: 8px;
-            line-height: 1.2;
+            margin-bottom: 12px;
         }
         .hero-title .highlight {
             color: var(--orange);
         }
         .hero-subtitle {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.85);
             max-width: 720px;
-            margin: 0 auto 6px;
+            margin: 0 auto 10px;
         }
         .hero-desc {
             font-size: 1rem;
             color: rgba(255, 255, 255, 0.65);
             max-width: 640px;
-            margin: 0 auto;
-        }
-        .hero-desc-spacing {
-            margin-top: 4px;
+            margin: 0 auto 30px;
         }
 
         /* Product Section */
@@ -436,7 +422,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2rem;
+                font-size: 2.4rem;
             }
             .hero-subtitle {
                 font-size: 1rem;
@@ -451,38 +437,29 @@
                 padding: 10px 24px;
                 font-size: 0.8rem;
             }
-            .hero-header img {
-                max-height: 50px;
+            .navbar-brand .brand-text {
+                font-size: 0.8rem;
             }
-            .hero-header .hero-brand-text {
-                font-size: 1.1rem;
-            }
-            .hero-header .hero-brand-text small {
-                font-size: 0.75rem;
+            .navbar-brand img {
+                max-height: 40px;
             }
         }
         @media (max-width: 480px) {
             .hero-title {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
             }
             .hero-badge {
-                font-size: 0.6rem;
-                padding: 4px 14px;
+                font-size: 0.65rem;
+                padding: 6px 16px;
             }
             .product-card .product-img {
                 max-height: 150px;
             }
-            .hero-header img {
-                max-height: 40px;
+            .navbar-brand .brand-text {
+                font-size: 0.7rem;
             }
-            .hero-header .hero-brand-text {
-                font-size: 0.95rem;
-            }
-            .hero-header .hero-brand-text small {
-                font-size: 0.65rem;
-            }
-            .hero-header {
-                gap: 12px;
+            .navbar-brand img {
+                max-height: 34px;
             }
         }
     </style>
@@ -499,14 +476,18 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="images/Logo_Herbalife_Independent_Member.png" alt="Herbalife Independent Member">
+                <img src="images/Healthier-Home-Together.png" alt="Healthier Home Together">
+                <span class="brand-text">
+                    Memujudkan keluarga sehat<br>
+                    <small>secara bersama</small>
+                </span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <!-- Menu kosong -->
+                    <!-- Menu kosong, hanya untuk menjaga struktur -->
                 </ul>
             </div>
         </div>
@@ -516,36 +497,22 @@
     <section class="hero-section">
         <div class="container hero-content">
             <div class="row justify-content-center">
-                <div class="col-lg-9">
-
-                    <!-- Header: Gambar + Teks -->
-                    <div class="hero-header animate-fadeUp delay-1">
-                        <img src="images/Healthier_Home_Together.png" alt="Healthier Home Together">
-                        <span class="hero-brand-text">
-                            Memujudkan keluarga sehat<br>
-                            <small>secara bersama</small>
-                        </span>
-                    </div>
-
-                    <!-- Badge -->
-                    <span class="hero-badge animate-fadeUp delay-2">
+                <div class="col-lg-8">
+                    <span class="hero-badge animate-fadeUp delay-1">
                         <i class="fas fa-leaf me-2"></i> Gaya Hidup Sehat
                     </span>
-
-                    <!-- Headline & Sub Headline -->
                     <h1 class="hero-title animate-fadeUp delay-2">
-                        Kesehatan dan <span class="highlight">Kebugaran</span><br>
-                        <span style="font-size:0.7em; color:rgba(255,255,255,0.85);">Sesuai dengan kebutuhan usia</span>
+                        Kesehatan dan <br><span class="highlight">Kebugaran</span>
                     </h1>
-
-                    <p class="hero-subtitle animate-fadeUp delay-3">
+                    <h2 class="hero-subtitle animate-fadeUp delay-2" style="font-weight:600;">
+                        Sesuai dengan kebutuhan usia
+                    </h2>
+                    <p class="hero-desc animate-fadeUp delay-3">
                         Setiap orang memiliki prioritas berbeda, berdasarkan aktifitas harian dan targetnya.
                     </p>
-
-                    <p class="hero-desc hero-desc-spacing animate-fadeUp delay-3" style="max-width:600px;">
+                    <p class="hero-desc animate-fadeUp delay-3" style="font-size:0.95rem; max-width:560px;">
                         Temukan produk pendukung kebugaran yang tepat untuk Anda, dirancang khusus untuk setiap tahap usia.
                     </p>
-
                 </div>
             </div>
         </div>
@@ -564,8 +531,8 @@
                 <!-- Produk Lansia -->
                 <div class="col-md-6 col-lg-4">
                     <div class="product-card animate-fadeUp delay-1">
-                        <img src="image/Produk_Lansia.png" alt="Produk untuk Lansia" class="product-img">
-                        <h5>Untuk Lansia</h5>
+                        <img src="images/Produk_Lansia.png" alt="Produk untuk Lansia" class="product-img">
+                        <h5>Produk untuk lansia</h5>
                         <p>Penunjang kebugaran dan kesehatan untuk lansia</p>
                         <button class="btn-order" onclick="tampilkanKonfirmasi()">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
@@ -576,8 +543,8 @@
                 <!-- Produk Dewasa -->
                 <div class="col-md-6 col-lg-4">
                     <div class="product-card animate-fadeUp delay-2">
-                        <img src="image/Produk_Dewasa.png" alt="Produk untuk Dewasa" class="product-img">
-                        <h5>Untuk Dewasa</h5>
+                        <img src="images/Produk_Dewasa.png" alt="Produk untuk Dewasa" class="product-img">
+                        <h5>Produk untuk usia dewasa</h5>
                         <p>Penunjang kebugaran dan kesehatan untuk usia dewasa</p>
                         <button class="btn-order" onclick="tampilkanKonfirmasi()">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
@@ -588,8 +555,8 @@
                 <!-- Produk Remaja -->
                 <div class="col-md-6 col-lg-4">
                     <div class="product-card animate-fadeUp delay-3">
-                        <img src="image/Produk_Remaja.png" alt="Produk untuk Remaja" class="product-img">
-                        <h5>Untuk Remaja</h5>
+                        <img src="images/Produk_Remaja.png" alt="Produk untuk Remaja" class="product-img">
+                        <h5>Produk untuk usia remaja</h5>
                         <p>Penunjang kebugaran dan kesehatan untuk usia remaja</p>
                         <button class="btn-order" onclick="tampilkanKonfirmasi()">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
