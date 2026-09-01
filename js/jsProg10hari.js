@@ -7869,19 +7869,11 @@ function tampilkanDashboardSederhana(data) {
                         Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
                         ${tukarPointMessage}
                     </p>
-                   <!--- NON AKTIF
                     <button class="btn ${tukarPointButtonClass} btn-sm mt-1 mb-3" 
-                            onclick="tukarPoint(${totalPoint})" 
-                            ${tukarPointDisabledAttr}>
-                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
-                    </button>
-                    --->
-                    <button class="btn ${tukarPointButtonClass} btn-sm mt-1 mb-3"
-                        onclick="tukarPoint(${totalPoint},'/beratideal/formProduk.html')" 
+                        onclick="tukarPoint(${totalPoint})" 
                         ${tukarPointDisabledAttr}>
                         <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                     </button>
-
 
                 </div>
             </div>
@@ -7920,17 +7912,14 @@ function tukarPoint(totalPoint) {
         showMessage('warning', 'Maaf, Anda belum memiliki point untuk ditukarkan.', 3000);
         return;
     }
-    // Tampilkan konfirmasi
-    if (confirm(`Anda memiliki ${totalPoint} Point.\n\nApakah Anda yakin ingin menukarkan point Anda dengan voucher belanja produk Herbalife?`)) {
-        // Simpan request penukaran point
-        const userId = localStorage.getItem('userId');
-        const userName = localStorage.getItem('userName');
-        // Kirim notifikasi ke admin (opsional, bisa ditambahkan nanti)
-        //showMessage('success', `Terima kasih! Permintaan penukaran ${totalPoint} Point Anda telah kami terima. Voucher akan dikirim ke WhatsApp Anda.`, 5000);
-        
-        // Bisa tambahkan logika untuk menyimpan request penukaran ke server
-        console.log('Penukaran point:', { userId, userName, totalPoint, tanggal: new Date() });
-    }
+    // Simpan request penukaran point
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    console.log('Penukaran point:', { userId, userName, totalPoint, tanggal: new Date() });
+    redirectPage = 'formProduk.html';
+    setTimeout(() => {
+      window.location.href = redirectPage;
+      }, 500);
 }
 
 /**********************************************
