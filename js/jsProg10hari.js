@@ -7916,7 +7916,7 @@ function tukarPoint(totalPoint) {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     console.log('Penukaran point:', { userId, userName, totalPoint, tanggal: new Date() });
-    redirectPage = 'formProduk.html';
+    redirectPage = 'frmProduk.html';
     setTimeout(() => {
       window.location.href = redirectPage;
       }, 500);
