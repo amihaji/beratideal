@@ -8725,24 +8725,60 @@ function _quizIsJawabanBenar(userPilihan, jawabanBenar, daftarPilihan) {
 
     if (uNorm === bNorm) return true;
 
-    const huruf = bNorm.match(/^([a-d])[\.\)]/);
-    if (huruf && daftarPilihan && daftarPilihan.length) {
+    // Format 1: jawabanBenar HANYA huruf A/B/C/D (1 karakter) → map ke pilihan[index]
+    const hurufOnly = bNorm.match(/^([a-d])$/);
+    if (hurufOnly && daftarPilihan && daftarPilihan.length) {
         const mapHuruf = { a:0, b:1, c:2, d:3 };
-        const idx = mapHuruf[huruf[1]];
+        const idx = mapHuruf[hurufOnly[1]];
         if (idx !== undefined && daftarPilihan[idx] !== undefined) {
             if (_quizNormalize(daftarPilihan[idx]) === uNorm) return true;
         }
     }
+
+    // Format 2: jawabanBenar = "A. xxx" / "B) xxx" → ambil huruf lalu map ke pilihan[index]
+    const hurufPrefix = bNorm.match(/^([a-d])[\.\)]/);
+    if (hurufPrefix && daftarPilihan && daftarPilihan.length) {
+        const mapHuruf = { a:0, b:1, c:2, d:3 };
+        const idx = mapHuruf[hurufPrefix[1]];
+        if (idx !== undefined && daftarPilihan[idx] !== undefined) {
+            if (_quizNormalize(daftarPilihan[idx]) === uNorm) return true;
+        }
+    }
+
+    // Format 3: user memilih label "A. pilihan" → cocokkan hurufnya ke jawaban benar (huruf/teks)
     const hUser = uNorm.match(/^([a-d])[\.\)]\s*(.*)$/);
     if (hUser && daftarPilihan && daftarPilihan.length) {
         const mapHuruf = { a:0, b:1, c:2, d:3 };
         const idx = mapHuruf[hUser[1]];
         if (idx !== undefined && daftarPilihan[idx] !== undefined) {
-            if (_quizNormalize(daftarPilihan[idx]) === bNorm) return true;
+            const pilihanTeksNorm = _quizNormalize(daftarPilihan[idx]);
+            if (pilihanTeksNorm === bNorm) return true;
+            // jika jawabanBenar juga berformat huruf only / huruf prefix → bandingkan hurufnya
+            const hBenar = bNorm.match(/^([a-d])([\.\)]|$)/);
+            if (hBenar && hBenar[1] === hUser[1]) return true;
         }
     }
 
     return false;
+}
+
+/**
+ * Mendapatkan TEKS jawaban benar dari jawabanBenar (bisa A/B/C/D, A. xxx, atau teks langsung)
+ */
+function _quizGetTeksJawabanBenar(jawabanBenar, daftarPilihan) {
+    if (!jawabanBenar) return '';
+    const bNorm = _quizNormalize(jawabanBenar);
+    const mapHuruf = { a:0, b:1, c:2, d:3 };
+
+    const h = bNorm.match(/^([a-d])([\.\)]|$)/);
+    if (h && daftarPilihan && daftarPilihan.length) {
+        const idx = mapHuruf[h[1]];
+        if (idx !== undefined && daftarPilihan[idx] !== undefined) {
+            const label = h[1].toUpperCase();
+            return label + '. ' + String(daftarPilihan[idx]);
+        }
+    }
+    return String(jawabanBenar);
 }
 
 // ===== INISIALISASI MODAL & EVENT LISTENER =====
@@ -8980,6 +9016,7 @@ function _quizSubmitJawaban() {
     }
 
     let benar = 0;
+    const soalSalahList = [];
     const soalContainer = document.getElementById('quizSoalContainer');
     const cards = soalContainer ? soalContainer.querySelectorAll('.quiz-question-card') : [];
 
@@ -9008,6 +9045,17 @@ function _quizSubmitJawaban() {
         if (originalQ) {
             if (_quizIsJawabanBenar(userJawaban, originalQ.jawabanBenar, originalQ.pilihan)) {
                 benar += 1;
+            } else {
+                soalSalahList.push({
+                    noTampil: urutanIdx + 1,
+                    pertanyaan: originalQ.pertanyaan,
+                    jawabanUser: userJawaban,
+                    jawabanBenar: originalQ.jawabanBenar,
+                    jawabanBenarTeks: _quizGetTeksJawabanBenar(originalQ.jawabanBenar, originalQ.pilihan),
+                    jawabanPenjelasan: originalQ.jawabanPenjelasan || '',
+                    pembahasan: originalQ.pembahasan || '',
+                    pilihanAsli: originalQ.pilihan || []
+                });
             }
         } else {
             console.warn('Soal tidak ditemukan di daftar asli:', pertanyaanText.substring(0,50));
@@ -9017,14 +9065,15 @@ function _quizSubmitJawaban() {
     const nilai = Math.round(benar * _quizState.nilaiPerSoal * 100) / 100;
     _quizState.currentScore = nilai;
 
-    _quizTampilkanHasil(nilai, benar, totalSoal);
+    _quizTampilkanHasil(nilai, benar, totalSoal, soalSalahList);
 }
 
-function _quizTampilkanHasil(nilai, benar, total) {
+function _quizTampilkanHasil(nilai, benar, total, soalSalahList) {
     const box = document.getElementById('quizResultBox');
     if (!box) return;
 
     const passed = (nilai >= 100);
+    const punyaReview = (!passed && soalSalahList && soalSalahList.length > 0);
 
     let html = '';
     html += '<div class="quiz-result-box ' + (passed ? 'passed' : 'failed') + '">';
@@ -9037,10 +9086,46 @@ function _quizTampilkanHasil(nilai, benar, total) {
         html += '<div style="font-size:3rem; color:#721c24;"><i class="fas fa-times-circle"></i></div>';
         html += '<div class="quiz-score failed">'+nilai+' / 100</div>';
         html += '<div class="mt-2 fw-bold text-danger">Nilai belum mencapai 100.</div>';
-        html += '<div class="mt-1 small text-muted">Benar: '+benar+' dari '+total+' soal</div>';
-        html += '<div class="mt-2 small">Silakan <b>ULANGI QUIZ</b> dengan urutan soal yang berbeda (diacak) sampai nilai 100.</div>';
+        html += '<div class="mt-1 small text-muted">Benar: '+benar+' dari '+total+' soal &nbsp;·&nbsp; <span class="text-danger fw-bold">Salah: '+(total-benar)+' soal</span></div>';
+        html += '<div class="mt-2 small">Silakan pelajari <b>Review Soal Salah</b> di bawah ini, lalu klik tombol <b>Ulangi Quiz</b> (soal diacak lagi urutannya).</div>';
     }
     html += '</div>';
+
+    if (punyaReview) {
+        html += '<div class="mt-4">';
+        html +=   '<div class="quiz-review-title">';
+        html +=     '<i class="fas fa-exclamation-triangle me-2"></i>REVIEW SOAL YANG SALAH ('+soalSalahList.length+' soal) · Pelajari sebelum mengulangi quiz';
+        html +=   '</div>';
+
+        soalSalahList.forEach(function(item) {
+            html += '<div class="quiz-review-card">';
+            html +=   '<div class="quiz-review-q">';
+            html +=     '<span class="badge bg-danger me-2">No. '+item.noTampil+'</span>';
+            html +=     (item.pertanyaan || '');
+            html +=   '</div>';
+            html +=   '<div class="quiz-review-user">';
+            html +=     '<i class="fas fa-times-circle me-1"></i><b>Jawaban Anda:</b> '+(item.jawabanUser || '(tidak dijawab)');
+            html +=   '</div>';
+            html +=   '<div class="quiz-review-benar">';
+            html +=     '<i class="fas fa-check-circle me-1"></i><b>Jawaban Benar:</b> '+(item.jawabanBenarTeks || item.jawabanBenar || '-');
+            html +=   '</div>';
+            if (item.jawabanPenjelasan && item.jawabanPenjelasan.trim() !== '') {
+                html += '<div class="quiz-review-penjelasan mt-2">';
+                html +=   '<i class="fas fa-info-circle me-1 text-info"></i><b>JAWABAN (Penjelasan):</b><br>';
+                html +=   item.jawabanPenjelasan;
+                html += '</div>';
+            }
+            if (item.pembahasan && item.pembahasan.trim() !== '') {
+                html += '<div class="quiz-review-pembahasan mt-1">';
+                html +=   '<i class="fas fa-book me-1 text-purple"></i><b>PEMBAHASAN:</b><br>';
+                html +=   item.pembahasan;
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+
+        html += '</div>';
+    }
 
     box.innerHTML = html;
     _quizShowBox('quizResultBox');

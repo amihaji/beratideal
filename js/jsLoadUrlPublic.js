@@ -12,7 +12,7 @@ const URL_dbUser ='https://script.google.com/macros/s/AKfycbxXxje8Jxg-ZmTFMt21Ud
 // jsFitTracker.js, jsFollowCrm.js, jsProg10hari untuk :
 // - formDashboard.html
 // - prog10hari.html
-const URL_dbProgram ='https://script.google.com/macros/s/AKfycbx0UUTb2gEZDlpUP1JRdbKFXSRDJCl73HncYLjQUbodJ9VuG1aEdrVm7sMoKZiQeMSv2g/exec';
+const URL_dbProgram ='https://script.google.com/macros/s/AKfycbzB1lgu-93KaesBYhCDc-jcuqcQb7X2-c80gf0lbbdq6n2r7lEfDa6TDqDgW2G1jHdEtg/exec';
 
 // URl dbWETools (SurveyData, DataWE) : 
 // jsDashboard.js, jsFollowWe.js 

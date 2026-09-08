@@ -2697,68 +2697,111 @@ function fallbackUserDataFromDb(userId) {
 }
 
 /**
- * ACTION: Ambil semua soal quiz dari sheet QUIZ
- * Struktur sheet QUIZ:
- *   Kolom A (0) : No (nomor soal)
- *   Kolom B (1) : Pertanyaan
- *   Kolom C (2) : Jawaban Benar (teks jawaban / huruf pilihan)
- *   Kolom D (3) : Pilihan A
- *   Kolom E (4) : Pilihan B
- *   Kolom F (5) : Pilihan C
- *   Kolom G (6) : Pilihan D
- *   Kolom H+   : (opsional) tidak digunakan
+ * ACTION: Ambil semua soal quiz dari sheet QUIZ (dbQuiz.ods Google Sheet)
+ * STRUKTUR KOLOM SHEET QUIZ (9 kolom):
+ *   A (idx0) : NO.            = nomor urut soal
+ *   B (idx1) : PERTANYAAN     = isi soal
+ *   C (idx2) : JAWABAN        = penjelasan jawaban benar (tampil jika user salah jawab)
+ *   D (idx3) : PEMBAHASAN     = pembahasan lengkap (tampil jika user salah jawab)
+ *   E (idx4) : PILIHAN A      = pilihan ganda A
+ *   F (idx5) : PILIHAN B      = pilihan ganda B
+ *   G (idx6) : PILIHAN C      = pilihan ganda C
+ *   H (idx7) : PILIHAN D      = pilihan ganda D
+ *   I (idx8) : JAWABAN_BENAR  = HURUF pilihan yang benar (A/B/C/D) ATAU teks jawaban
+ *
+ * Kolom C (JAWABAN) dan D (PEMBAHASAN) ditampilkan di section "Review Soal Salah"
+ * setelah user submit dan total nilai < 100, sebelum user mengulangi quiz.
  */
 function getQuizQuestions(param) {
   const callback = param.callback;
   try {
     if (!shQuiz) {
-      // Fallback: jika DB_QUIZ belum diisi, berikan soal default minimal 10 soal
-      // agar sistem tetap bisa berjalan sebelum user menyiapkan sheet QUIZ
       const fallback = [
-        { no:1,  pertanyaan:'Apa nama program 10 hari dari BERATidealku?', jawabanBenar:'FIT Challenge',          pilihan:['FIT Challenge','Diet Extreme','Workout 30 Hari','Program Sehat'] },
-        { no:2,  pertanyaan:'Berapa hari durasi FIT Challenge Programme?', jawabanBenar:'10 hari',              pilihan:['7 hari','10 hari','14 hari','30 hari'] },
-        { no:3,  pertanyaan:'Manakah yang termasuk pola hidup SEHAT?',     jawabanBenar:'Olahraga teratur',     pilihan:['Tidur larut malam','Olahraga teratur','Makan sembarangan','Jarang minum air'] },
-        { no:4,  pertanyaan:'Sarapan sebaiknya mengandung nutrisi apa?',   jawabanBenar:'Protein & Karbohidrat',pilihan:['Gula & Lemak','Protein & Karbohidrat','Kafein tinggi','Hanya air putih'] },
-        { no:5,  pertanyaan:'Berapa gelas air putih sebaiknya diminum per hari?', jawabanBenar:'8-15 gelas',     pilihan:['2-3 gelas','4-5 gelas','8-15 gelas','20 gelas'] },
-        { no:6,  pertanyaan:'Durasi olahraga yang dianjurkan per hari?',   jawabanBenar:'20-30 menit',          pilihan:['1-2 menit','20-30 menit','3-5 jam','Tidak usah olahraga'] },
-        { no:7,  pertanyaan:'Istirahat tidur yang baik berapa jam?',       jawabanBenar:'6-8 jam',              pilihan:['1-2 jam','3-4 jam','6-8 jam','12 jam'] },
-        { no:8,  pertanyaan:'Komposisi nutrisi seimbang: Karbohidrat, Protein, Lemak?', jawabanBenar:'40% 30% 30%',pilihan:['10% 20% 70%','40% 30% 30%','50% 50% 0%','Semua lemak'] },
-        { no:9,  pertanyaan:'FIT Challenge by BERATidealku bertujuan untuk?', jawabanBenar:'Pola hidup sehat',   pilihan:['Menghabiskan uang','Pola hidup sehat','Tidur seharian','Main game'] },
-        { no:10, pertanyaan:'Data tracking dilakukan di hari ke berapa saja?', jawabanBenar:'1, 5 dan 10',       pilihan:['Hanya hari 1','1, 5 dan 10','Setiap jam','Tidak pernah'] },
-        { no:11, pertanyaan:'Makan malam idealnya sebelum jam berapa?',    jawabanBenar:'Sebelum jam 19.00',    pilihan:['Tengah malam','Sebelum jam 19.00','Setelah jam 22.00','Sembarang jam'] },
-        { no:12, pertanyaan:'Olahraga jalan cepat termasuk jenis?',        jawabanBenar:'Kardio',               pilihan:['Kardio','Resisten','Angkat besi','Berenang saja'] }
+        { no:1,  pertanyaan:'Apa nama program 10 hari dari BERATidealku?',
+          jawabanBenar:'A', pilihan:['FIT Challenge','Diet Extreme','Workout 30 Hari','Program Sehat'],
+          jawabanPenjelasan:'Program ini dinamakan FIT Challenge, berfokus pada pembentukan pola hidup sehat selama 10 hari berturut-turut.',
+          pembahasan:'FIT Challenge adalah program unggulan dari BERATidealku untuk membangun kebiasaan nutrisi, olahraga, dan istirahat yang terukur.' },
+        { no:2,  pertanyaan:'Berapa hari durasi FIT Challenge Programme?',
+          jawabanBenar:'B', pilihan:['7 hari','10 hari','14 hari','30 hari'],
+          jawabanPenjelasan:'Durasi program FIT Challenge adalah 10 hari, karena penelitian menunjukkan kebiasaan baru mulai terbentuk dalam 10 hari.',
+          pembahasan:'10 hari adalah periode yang cukup untuk mengukur progress awal: Hari-1 (baseline), Hari-5 (mid-check), dan Hari-10 (evaluasi akhir).' },
+        { no:3,  pertanyaan:'Manakah yang termasuk pola hidup SEHAT?',
+          jawabanBenar:'B', pilihan:['Tidur larut malam','Olahraga teratur','Makan sembarangan','Jarang minum air'],
+          jawabanPenjelasan:'Olahraga teratur meningkatkan metabolisme dan daya tahan tubuh, sedangkan 3 pilihan lain adalah pola hidup tidak sehat.',
+          pembahasan:'WHO merekomendasikan aktivitas fisik minimal 150 menit/minggu intensitas sedang (setara 20-30 menit/hari). Olahraga kardio + strength = kombinasi terbaik.' },
+        { no:4,  pertanyaan:'Sarapan sebaiknya mengandung nutrisi apa?',
+          jawabanBenar:'B', pilihan:['Gula & Lemak','Protein & Karbohidrat','Kafein tinggi','Hanya air putih'],
+          jawabanPenjelasan:'Protein membangun otot (30% kalori) dan karbohidrat memberi energi otak (40% kalori) — kombinasi terbaik untuk mulai hari.',
+          pembahasan:'Contoh sarapan ideal: nasi/roti (karbo) + telur dada ayam/tahu (protein) + buah (serat) = nutrisi lengkap, tidak lapar cepat sebelum jam makan siang.' },
+        { no:5,  pertanyaan:'Berapa gelas air putih sebaiknya diminum per hari?',
+          jawabanBenar:'C', pilihan:['2-3 gelas','4-5 gelas','8-15 gelas','20 gelas'],
+          jawabanPenjelasan:'Kebutuhan cairan harian orang dewasa: 2-3 liter setara dengan 8-15 gelas (ukuran gelas 200-250ml), disesuaikan berat badan dan aktivitas.',
+          pembahasan:'Minum air sebelum makan dapat membantu kontrol nafsu makan. Hindari minuman manis (lebih dari 25gr gula/hari meningkatkan risiko diabetes tipe 2).' },
+        { no:6,  pertanyaan:'Durasi olahraga yang dianjurkan per hari?',
+          jawabanBenar:'B', pilihan:['1-2 menit','20-30 menit','3-5 jam','Tidak usah olahraga'],
+          jawabanPenjelasan:'20-30 menit olahraga intensitas sedang (jalan cepat, lari, bersepeda, senam) per hari sudah memenuhi standar kesehatan minimal.',
+          pembahasan:'Jika Anda sibuk, bagi menjadi 2 sesi: 15 menit pagi sebelum beraktivitas + 15 menit sore setelah pulang kerja. Konsistensi > durasi panjang tapi sesekali.' },
+        { no:7,  pertanyaan:'Istirahat tidur yang baik berapa jam?',
+          jawabanBenar:'C', pilihan:['1-2 jam','3-4 jam','6-8 jam','12 jam'],
+          jawabanPenjelasan:'Orang dewasa membutuhkan 6-8 jam tidur berkualitas setiap malam. Tidur kurang dari 6 jam meningkatkan hormon stres (kortisol).',
+          pembahasan:'Tidur adalah masa recovery otot dan konsolidasi memori. Tidur <6 jam/hari berisiko obesitas 2x lipat karena leptin (hormon kenyang) turun 18% dan ghrelin (hormon lapar) naik 23%.' },
+        { no:8,  pertanyaan:'Komposisi nutrisi seimbang: Karbohidrat, Protein, Lemak?',
+          jawabanBenar:'B', pilihan:['10% 20% 70%','40% 30% 30%','50% 50% 0%','Semua lemak'],
+          jawabanPenjelasan:'Komposisi 40% karbo (energi), 30% protein (pembangun), 30% lemak sehat (hormon) = distribusi gizi paling seimbang untuk program fat loss.',
+          pembahasan:'Ini adalah formula dasar program FIT Challenge: karbo = nasi merah/ubi/roti gandum, protein = dada ayam/telur/tahu tempe, lemak = minyak zaitun/alpukat/kacang-kacangan.' },
+        { no:9,  pertanyaan:'FIT Challenge by BERATidealku bertujuan untuk?',
+          jawabanBenar:'B', pilihan:['Menghabiskan uang','Pola hidup sehat','Tidur seharian','Main game'],
+          jawabanPenjelasan:'FIT Challenge membangun kebiasaan baru (mindset, nutrisi, olahraga, istirahat) untuk mencapai dan mempertahankan berat badan IDEAL jangka panjang.',
+          pembahasan:'Bukan program diet cepat (yoyo effect). Peserta diajarkan tracking progress, mencatat asupan makanan, dan memilih nutrisi yang bisa diaplikasikan SEUMUR HIDUP, bukan cuma 10 hari.' },
+        { no:10, pertanyaan:'Data tracking dilakukan di hari ke berapa saja?',
+          jawabanBenar:'B', pilihan:['Hanya hari 1','1, 5 dan 10','Setiap jam','Tidak pernah'],
+          jawabanPenjelasan:'Tracking berat badan, ukuran lingkar perut, dan catatan harian diisi di Hari 1 (baseline), Hari 5 (mid-check koreksi), dan Hari 10 (evaluasi hasil).',
+          pembahasan:'Kenapa tidak setiap hari? Fluktuasi berat badan 0,5-1kg/hari adalah normal (cairan tubuh, pencernaan). Tracking 1/5/10 memberikan data valid tanpa membuat stres peserta.' },
+        { no:11, pertanyaan:'Makan malam idealnya sebelum jam berapa?',
+          jawabanBenar:'B', pilihan:['Tengah malam','Sebelum jam 19.00','Setelah jam 22.00','Sembarang jam'],
+          jawabanPenjelasan:'Makan sebelum jam 19.00 memberi waktu 3-4 jam bagi lambung mencerna sebelum tidur, sehingga mencegah naik asam lambung (GERD) dan penumpukan lemak di perut.',
+          pembahasan:'Jika harus makan malam terlambat (>19.00), kurangi porsi ½ dan pilih karbo rendah + protein ringan: contoh telur rebus + timun, atau sup sayuran. Hindari gorengan dan pedas sebelum tidur.' },
+        { no:12, pertanyaan:'Olahraga jalan cepat termasuk jenis?',
+          jawabanBenar:'A', pilihan:['Kardio','Resisten','Angkat besi','Berenang saja'],
+          jawabanPenjelasan:'Jalan cepat (5-6 km/jam) adalah olahraga kardiovaskular (kardio) paling mudah, murah, dan berisiko rendah cedera dibanding lari.',
+          pembahasan:'Kardio meningkatkan detak jantung 60-85% dari maksimal, membakar lemak, dan memperkuat jantung-paru. Kombinasikan kardio 5x/minggu + latihan beban (resisten) 2x/minggu = hasil maksimal.' }
       ];
       return createJSONPResponse(callback, {
         status: 'success',
         source: 'fallback',
         questions: fallback,
-        message: 'Menggunakan soal default. Segera isi DB_QUIZ & sheet QUIZ untuk soal custom.'
+        message: 'Menggunakan soal default. Segera isi DB_QUIZ & sheet QUIZ (9 kolom) untuk soal custom.'
       });
     }
 
     const vals = shQuiz.getDataRange().getValues();
     const questions = [];
     for (let i = 1; i < vals.length; i++) {
-      const no        = vals[i][0];
-      const pertanyaan= vals[i][1];
-      const jawaban   = vals[i][2];
-      const pilA      = vals[i][3];
-      const pilB      = vals[i][4];
-      const pilC      = vals[i][5];
-      const pilD      = vals[i][6];
+      const no            = vals[i][0]; // A
+      const pertanyaan    = vals[i][1]; // B
+      const jawabanPenjel = vals[i][2]; // C = JAWABAN (penjelasan)
+      const pembahasan    = vals[i][3]; // D = PEMBAHASAN
+      const pilA          = vals[i][4]; // E = PILIHAN A
+      const pilB          = vals[i][5]; // F = PILIHAN B
+      const pilC          = vals[i][6]; // G = PILIHAN C
+      const pilD          = vals[i][7]; // H = PILIHAN D
+      const jawabanBenar  = vals[i][8]; // I = JAWABAN_BENAR (huruf/teks)
+
       if (!pertanyaan || String(pertanyaan).trim() === '') continue;
 
       const pilihan = [];
-      if (pilA !== undefined && pilA !== '') pilihan.push(pilA);
-      if (pilB !== undefined && pilB !== '') pilihan.push(pilB);
-      if (pilC !== undefined && pilC !== '') pilihan.push(pilC);
-      if (pilD !== undefined && pilD !== '') pilihan.push(pilD);
+      if (pilA !== undefined && String(pilA).trim() !== '') pilihan.push(pilA);
+      if (pilB !== undefined && String(pilB).trim() !== '') pilihan.push(pilB);
+      if (pilC !== undefined && String(pilC).trim() !== '') pilihan.push(pilC);
+      if (pilD !== undefined && String(pilD).trim() !== '') pilihan.push(pilD);
 
       questions.push({
         no: no ? no : (questions.length + 1),
         pertanyaan: String(pertanyaan),
-        jawabanBenar: String(jawaban || ''),
-        pilihan: pilihan
+        jawabanBenar: jawabanBenar !== undefined ? String(jawabanBenar) : '',
+        pilihan: pilihan,
+        jawabanPenjelasan: jawabanPenjel ? String(jawabanPenjel) : '',
+        pembahasan: pembahasan ? String(pembahasan) : ''
       });
     }
 
