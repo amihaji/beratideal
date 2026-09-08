@@ -7874,7 +7874,7 @@ function tampilkanDashboardSederhana(data) {
                         ${tukarPointDisabledAttr}>
                         <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                     </button>
-                    <button class="btn btn-sm mt-1 mb-3">
+                    <button class="btn btn-primary btn-sm mt-1 mb-3">
                         <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                     </button>
                 </div>
