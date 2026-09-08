@@ -8953,11 +8953,15 @@ function _quizRenderSoal(soalAcak) {
     const container = document.getElementById('quizSoalContainer');
     if (!container) return;
 
+    const labelHuruf = ['A', 'B', 'C', 'D', 'E', 'F'];
+
     let html = '';
     soalAcak.forEach(function(soal, urutanIdx) {
         const noTampil = urutanIdx + 1;
 
-        const pilihanAcak = soal.pilihan && soal.pilihan.length ? _quizShuffleArray(soal.pilihan) : [];
+        // HANYA urutan soal yang diacak. PILIHAN TIDAK DIACAK → urutan TETAP
+        // A = pilihan[0], B = pilihan[1], C = pilihan[2], D = pilihan[3] (sesuai kolom sheet E-H)
+        const daftarPilihan = (soal.pilihan && soal.pilihan.length) ? soal.pilihan.slice() : [];
 
         html += '<div class="quiz-question-card">';
         html +=   '<div class="quiz-question-text">';
@@ -8965,12 +8969,17 @@ function _quizRenderSoal(soalAcak) {
         html +=     (soal.pertanyaan || '');
         html +=   '</div>';
 
-        pilihanAcak.forEach(function(pil, pilIdx) {
+        daftarPilihan.forEach(function(pil, pilIdx) {
             const idRad = 'q_'+urutanIdx+'_'+pilIdx;
+            const huruf = labelHuruf[pilIdx] || String(pilIdx + 1);
+            const pilTeks = String(pil);
+            // Value disimpan DENGAN prefix huruf "A. teks" agar saat review user
+            // tahu jawabannya huruf apa, dan matching jawaban benar lebih jelas.
+            const nilaiValue = huruf + '. ' + pilTeks;
             html += '<label class="quiz-option" for="'+idRad+'" data-urut="'+urutanIdx+'">';
             html +=   '<input type="radio" name="quiz_opt_'+urutanIdx+'" id="'+idRad+'" ';
-            html +=          'value="'+String(pil).replace(/"/g,'&quot;')+'" data-urut="'+urutanIdx+'">';
-            html +=   String(pil);
+            html +=          'value="'+nilaiValue.replace(/"/g,'&quot;')+'" data-urut="'+urutanIdx+'" data-huruf="'+huruf+'">';
+            html +=   '<strong style="color:#004499; margin-right:4px;">'+huruf+'.</strong>'+pilTeks;
             html += '</label>';
         });
 
