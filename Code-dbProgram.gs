@@ -12,6 +12,23 @@ const shTabelUser       = ssUser.getSheetByName('TabelUser');
 
 const folderDATAIMAGE   = DriveApp.getFolderById("1luBfilKzCmyUBeOD14qcfqpDmPvnMcV_");
 
+/********************************************************
+/*  KONSTANTA UNTUK FITUR QUIZ & SERTIFIKAT
+/*  ⚠️ ISI DENGAN ID YANG SESUAI SEBELUM DEPLOY
+/********************************************************/
+const DB_QUIZ           = 'ISI_DENGAN_ID_GOOGLE_SHEET_DBQUIZ';
+let ssQuiz = null, shQuiz = null;
+try {
+  ssQuiz = SpreadsheetApp.openById(DB_QUIZ);
+  shQuiz = ssQuiz.getSheetByName('QUIZ');
+} catch(e) { ssQuiz = null; shQuiz = null; }
+
+const FOLDER_SERTIFIKAT_ID = 'ISI_DENGAN_ID_FOLDER_SERTIFIKAT';
+let folderSERTIFIKAT = null;
+try {
+  folderSERTIFIKAT = DriveApp.getFolderById(FOLDER_SERTIFIKAT_ID);
+} catch(e) { folderSERTIFIKAT = null; }
+
 /****************************************
 /* Fungsi untuk mengambil data di sheet *
 /****************************************/
@@ -142,6 +159,19 @@ function doGet(e) {
   if (action === 'completeModul') { 
     return completeModul(e.parameter); 
   } 
+
+  // =====================================
+  // FITUR QUIZ DAN DOWNLOAD SERTIFIKAT
+  // =====================================
+  if (action === 'getQuizQuestions') {
+    return getQuizQuestions(e.parameter);
+  }
+  if (action === 'getUserForSertifikat') {
+    return getUserForSertifikat(e.parameter);
+  }
+  if (action === 'prosesDownloadSertifikat') {
+    return prosesDownloadSertifikat(e.parameter);
+  }
 
   return createJSONPResponse(callback, { 
     status: "error", 
