@@ -2578,6 +2578,415 @@ function responseJSON(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+/************************************************************
+ *  KUMPULAN FUNGSI UNTUK QUIZ DAN DOWNLOAD SERTIFIKAT
+ ************************************************************/
+
+/**
+ * Format nama bulan bahasa Indonesia (lowercase)
+ */
+function getNamaBulanIndo(bulanIdx) {
+  const bulan = [
+    'januari','februari','maret','april','mei','juni',
+    'juli','agustus','september','oktober','november','desember'
+  ];
+  return bulan[bulanIdx] || '';
+}
+
+/**
+ * Parse tanggal lahir dari berbagai format dan hasilkan string:
+ *   "01oktober2026"  (dd + bulan lowercase indo + yyyy)
+ */
+function formatTanggalLahirFile(tglLahir) {
+  if (!tglLahir) return '';
+  try {
+    let d;
+    if (tglLahir instanceof Date) {
+      d = tglLahir;
+    } else {
+      const s = String(tglLahir).trim();
+      // Coba parse format umum: dd/mm/yyyy, dd-mm-yyyy, yyyy-mm-dd
+      let parts;
+      if ((parts = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/))) {
+        d = new Date(parseInt(parts[3]), parseInt(parts[2])-1, parseInt(parts[1]));
+      } else if ((parts = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/))) {
+        d = new Date(parseInt(parts[1]), parseInt(parts[2])-1, parseInt(parts[3]));
+      } else {
+        d = new Date(s);
+      }
+    }
+    if (isNaN(d.getTime())) return '';
+    const dd = ('0'+d.getDate()).slice(-2);
+    const mm = getNamaBulanIndo(d.getMonth());
+    const yyyy = d.getFullYear();
+    return dd + mm + yyyy;
+  } catch(e) {
+    return '';
+  }
+}
+
+/**
+ * Normalisasi nama user untuk nama file:
+ * - lowercase
+ * - spasi/tanda baca menjadi _
+ * - karakter non-alfanumerik dibuang kecuali _
+ * - underscore beruntun disatukan
+ * Contoh: "Muh. Assiddiqie" → "muh_assiddiqie"
+ */
+function formatNamaFileUser(nama) {
+  if (!nama) return '';
+  let s = String(nama).toLowerCase().trim();
+  s = s.replace(/[^a-z0-9\s]/g, ' ');       // ganti selain huruf/angka/spasi dgn spasi
+  s = s.replace(/\s+/g, '_');                // spasi beruntun jadi satu _
+  s = s.replace(/^_+|_+$/g, '');             // buang _ di awal/akhir
+  return s || 'user';
+}
+
+/**
+ * Cari baris di sheet DATAKONSUMEN berdasarkan userId (kolom M, idx 12)
+ * return rowIndex (1-based) atau -1
+ */
+function findKonsumenRowByUserId(userId) {
+  if (!userId || !shDataKonsumen) return -1;
+  const uid = String(userId).toLowerCase().trim();
+  const values = shDataKonsumen.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    const v = values[i][12]; // kolom M (idx 12)
+    if (v && String(v).toLowerCase().trim() === uid) {
+      return i + 1;  // 1-based
+    }
+  }
+  return -1;
+}
+
+/**
+ * Cari nama user dan jenis kelamin dari sheet PROGRAM & TabelUser
+ * Fallback jika tidak ketemu di DATAKONSUMEN
+ */
+function fallbackUserDataFromDb(userId) {
+  let namaUser = '', jenisKelamin = '', tglLahir = '';
+
+  // Cari dari TabelUser (kolom B = nama)
+  if (shTabelUser) {
+    try {
+      const uid = String(userId).toLowerCase().trim();
+      const vals = shTabelUser.getDataRange().getValues();
+      for (let i = 1; i < vals.length; i++) {
+        if (vals[i][0] && String(vals[i][0]).toLowerCase().trim() === uid) {
+          namaUser = String(vals[i][1] || '');  // B = nama
+          break;
+        }
+      }
+    } catch(e){}
+  }
+
+  // Cari dari PROGRAM hari ke-1: kolom AF (idx 31) = jenisKelamin, kolom E = nama
+  if (shProgram) {
+    try {
+      const uid = String(userId).toLowerCase().trim();
+      const vals = shProgram.getDataRange().getValues();
+      for (let i = 1; i < vals.length; i++) {
+        if (vals[i][1] && String(vals[i][1]).toLowerCase().trim() === uid) {
+          if (!namaUser && vals[i][4]) namaUser = String(vals[i][4]);
+          if (vals[i][2] == 1 && vals[i][31]) {  // hari ke-1, AF = jenisKelamin
+            jenisKelamin = String(vals[i][31]);
+          }
+        }
+      }
+    } catch(e){}
+  }
+
+  return { namaUser, jenisKelamin, tglLahir };
+}
+
+/**
+ * ACTION: Ambil semua soal quiz dari sheet QUIZ
+ * Struktur sheet QUIZ:
+ *   Kolom A (0) : No (nomor soal)
+ *   Kolom B (1) : Pertanyaan
+ *   Kolom C (2) : Jawaban Benar (teks jawaban / huruf pilihan)
+ *   Kolom D (3) : Pilihan A
+ *   Kolom E (4) : Pilihan B
+ *   Kolom F (5) : Pilihan C
+ *   Kolom G (6) : Pilihan D
+ *   Kolom H+   : (opsional) tidak digunakan
+ */
+function getQuizQuestions(param) {
+  const callback = param.callback;
+  try {
+    if (!shQuiz) {
+      // Fallback: jika DB_QUIZ belum diisi, berikan soal default minimal 10 soal
+      // agar sistem tetap bisa berjalan sebelum user menyiapkan sheet QUIZ
+      const fallback = [
+        { no:1,  pertanyaan:'Apa nama program 10 hari dari BERATidealku?', jawabanBenar:'FIT Challenge',          pilihan:['FIT Challenge','Diet Extreme','Workout 30 Hari','Program Sehat'] },
+        { no:2,  pertanyaan:'Berapa hari durasi FIT Challenge Programme?', jawabanBenar:'10 hari',              pilihan:['7 hari','10 hari','14 hari','30 hari'] },
+        { no:3,  pertanyaan:'Manakah yang termasuk pola hidup SEHAT?',     jawabanBenar:'Olahraga teratur',     pilihan:['Tidur larut malam','Olahraga teratur','Makan sembarangan','Jarang minum air'] },
+        { no:4,  pertanyaan:'Sarapan sebaiknya mengandung nutrisi apa?',   jawabanBenar:'Protein & Karbohidrat',pilihan:['Gula & Lemak','Protein & Karbohidrat','Kafein tinggi','Hanya air putih'] },
+        { no:5,  pertanyaan:'Berapa gelas air putih sebaiknya diminum per hari?', jawabanBenar:'8-15 gelas',     pilihan:['2-3 gelas','4-5 gelas','8-15 gelas','20 gelas'] },
+        { no:6,  pertanyaan:'Durasi olahraga yang dianjurkan per hari?',   jawabanBenar:'20-30 menit',          pilihan:['1-2 menit','20-30 menit','3-5 jam','Tidak usah olahraga'] },
+        { no:7,  pertanyaan:'Istirahat tidur yang baik berapa jam?',       jawabanBenar:'6-8 jam',              pilihan:['1-2 jam','3-4 jam','6-8 jam','12 jam'] },
+        { no:8,  pertanyaan:'Komposisi nutrisi seimbang: Karbohidrat, Protein, Lemak?', jawabanBenar:'40% 30% 30%',pilihan:['10% 20% 70%','40% 30% 30%','50% 50% 0%','Semua lemak'] },
+        { no:9,  pertanyaan:'FIT Challenge by BERATidealku bertujuan untuk?', jawabanBenar:'Pola hidup sehat',   pilihan:['Menghabiskan uang','Pola hidup sehat','Tidur seharian','Main game'] },
+        { no:10, pertanyaan:'Data tracking dilakukan di hari ke berapa saja?', jawabanBenar:'1, 5 dan 10',       pilihan:['Hanya hari 1','1, 5 dan 10','Setiap jam','Tidak pernah'] },
+        { no:11, pertanyaan:'Makan malam idealnya sebelum jam berapa?',    jawabanBenar:'Sebelum jam 19.00',    pilihan:['Tengah malam','Sebelum jam 19.00','Setelah jam 22.00','Sembarang jam'] },
+        { no:12, pertanyaan:'Olahraga jalan cepat termasuk jenis?',        jawabanBenar:'Kardio',               pilihan:['Kardio','Resisten','Angkat besi','Berenang saja'] }
+      ];
+      return createJSONPResponse(callback, {
+        status: 'success',
+        source: 'fallback',
+        questions: fallback,
+        message: 'Menggunakan soal default. Segera isi DB_QUIZ & sheet QUIZ untuk soal custom.'
+      });
+    }
+
+    const vals = shQuiz.getDataRange().getValues();
+    const questions = [];
+    for (let i = 1; i < vals.length; i++) {
+      const no        = vals[i][0];
+      const pertanyaan= vals[i][1];
+      const jawaban   = vals[i][2];
+      const pilA      = vals[i][3];
+      const pilB      = vals[i][4];
+      const pilC      = vals[i][5];
+      const pilD      = vals[i][6];
+      if (!pertanyaan || String(pertanyaan).trim() === '') continue;
+
+      const pilihan = [];
+      if (pilA !== undefined && pilA !== '') pilihan.push(pilA);
+      if (pilB !== undefined && pilB !== '') pilihan.push(pilB);
+      if (pilC !== undefined && pilC !== '') pilihan.push(pilC);
+      if (pilD !== undefined && pilD !== '') pilihan.push(pilD);
+
+      questions.push({
+        no: no ? no : (questions.length + 1),
+        pertanyaan: String(pertanyaan),
+        jawabanBenar: String(jawaban || ''),
+        pilihan: pilihan
+      });
+    }
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      source: 'sheet',
+      questions: questions
+    });
+
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/**
+ * ACTION: Ambil data user (nama, jenisKelamin, tglLahir) untuk keperluan sertifikat
+ * Dicari dari DATAKONSUMEN berdasarkan userId, fallback ke PROGRAM & TabelUser
+ */
+function getUserForSertifikat(param) {
+  const callback = param.callback;
+  try {
+    const userId = param.userId;
+    if (!userId) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'userId tidak disertakan'
+      });
+    }
+
+    let namaUser = '', jenisKelamin = '', tglLahir = '';
+    let rowKonsumen = findKonsumenRowByUserId(userId);
+
+    if (rowKonsumen !== -1 && shDataKonsumen) {
+      // Data dari DATAKONSUMEN:
+      // E(idx4)=nama, N(idx13)=jenisKelamin, O(idx14)=tglLahir, R(idx17)=downloadSertifikat
+      const row = shDataKonsumen.getRange(rowKonsumen, 1, 1, 20).getValues()[0];
+      namaUser     = String(row[4]  || '');  // E
+      jenisKelamin = String(row[13] || '');  // N
+      tglLahir     = row[14] || '';          // O (bisa Date)
+    } else {
+      // Fallback dari PROGRAM + TabelUser
+      const fb = fallbackUserDataFromDb(userId);
+      namaUser     = fb.namaUser;
+      jenisKelamin = fb.jenisKelamin;
+      tglLahir     = fb.tglLahir;
+    }
+
+    // Cek apakah sudah pernah download (kolom R / idx17 di DATAKONSUMEN ada isinya)
+    let sudahDownload = false;
+    let linkSertifikatSudahAda = '';
+    if (rowKonsumen !== -1 && shDataKonsumen) {
+      const v = shDataKonsumen.getRange(rowKonsumen, 18).getValue(); // R
+      if (v && String(v).trim() !== '') {
+        sudahDownload = true;
+        linkSertifikatSudahAda = String(v);
+      }
+    }
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      userId: userId,
+      namaUser: namaUser,
+      jenisKelamin: jenisKelamin,
+      tglLahir: tglLahir instanceof Date ?
+        Utilities.formatDate(tglLahir, Session.getScriptTimeZone(), 'dd/MM/yyyy') :
+        (tglLahir ? String(tglLahir) : ''),
+      sudahDownload: sudahDownload,
+      linkSertifikat: linkSertifikatSudahAda
+    });
+
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+/**
+ * ACTION: Proses download sertifikat
+ *   - Cari file sertifikat di folder SERTIFIKAT dengan nama: {namaFormat}-{tglLahirFormat}.png
+ *   - Simpan/update ke DATAKONSUMEN kolom M(userId), N(jenisKelamin), O(tglLahir), R(linkDrive)
+ *   - Return link download
+ */
+function prosesDownloadSertifikat(param) {
+  const callback = param.callback;
+  try {
+    const userId = param.userId;
+    if (!userId) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'userId tidak disertakan'
+      });
+    }
+
+    // 1. Ambil data user
+    let namaUser = '', jenisKelamin = '', tglLahir = '';
+    let rowKonsumen = findKonsumenRowByUserId(userId);
+
+    if (rowKonsumen !== -1 && shDataKonsumen) {
+      const row = shDataKonsumen.getRange(rowKonsumen, 1, 1, 20).getValues()[0];
+      namaUser     = String(row[4]  || '');
+      jenisKelamin = String(row[13] || '');
+      tglLahir     = row[14] || '';
+    } else {
+      const fb = fallbackUserDataFromDb(userId);
+      namaUser     = fb.namaUser;
+      jenisKelamin = fb.jenisKelamin;
+      tglLahir     = fb.tglLahir;
+    }
+
+    // Jika ada parameter override dari frontend (user input manual)
+    if (param.namaUserOverride && String(param.namaUserOverride).trim() !== '') {
+      namaUser = String(param.namaUserOverride);
+    }
+    if (param.jenisKelaminOverride && String(param.jenisKelaminOverride).trim() !== '') {
+      jenisKelamin = String(param.jenisKelaminOverride);
+    }
+    if (param.tglLahirOverride && String(param.tglLahirOverride).trim() !== '') {
+      tglLahir = String(param.tglLahirOverride);
+    }
+
+    // 2. Build nama file sertifikat
+    const namaFilePart1 = formatNamaFileUser(namaUser);
+    const tglLahirPart  = formatTanggalLahirFile(tglLahir);
+
+    if (!namaFilePart1 || !tglLahirPart) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'Data nama/tgl lahir tidak lengkap untuk mencari sertifikat. ' +
+                 'namaFile=' + namaFilePart1 + ', tglLahirFormat=' + tglLahirPart
+      });
+    }
+
+    const namaFileTarget = namaFilePart1 + '-' + tglLahirPart + '.png';
+
+    // 3. Cari file di folder SERTIFIKAT
+    let fileUrl = '', fileDownloadUrl = '', fileId = '';
+    if (folderSERTIFIKAT) {
+      try {
+        // Cari exact match berdasarkan nama
+        const files = folderSERTIFIKAT.getFilesByName(namaFileTarget);
+        if (files.hasNext()) {
+          const f = files.next();
+          fileId   = f.getId();
+          fileUrl  = f.getUrl();
+          // URL download langsung (webContentLink untuk non-Google Docs, untuk png/jpg bisa pakai uc?export=download)
+          fileDownloadUrl = 'https://drive.google.com/uc?id=' + fileId + '&export=download';
+        } else {
+          // Fallback: cari dengan contains (jika extension berbeda / prefix cocok)
+          const allFiles = folderSERTIFIKAT.getFiles();
+          const prefixTarget = namaFilePart1 + '-' + tglLahirPart;
+          while (allFiles.hasNext()) {
+            const f = allFiles.next();
+            if (String(f.getName()).toLowerCase().indexOf(prefixTarget.toLowerCase()) === 0) {
+              fileId   = f.getId();
+              fileUrl  = f.getUrl();
+              fileDownloadUrl = 'https://drive.google.com/uc?id=' + fileId + '&export=download';
+              break;
+            }
+          }
+        }
+      } catch(fileErr) {
+        console.error('Gagal cari file sertifikat:', fileErr);
+      }
+    }
+
+    if (!fileId) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'Sertifikat dengan nama file "' + namaFileTarget + '" tidak ditemukan di folder SERTIFIKAT. ' +
+                 'Mohon periksa nama user & tanggal lahir anda.'
+      });
+    }
+
+    // 4. Simpan ke DATAKONSUMEN
+    // Pastikan row ada di DATAKONSUMEN (jika belum ada, append row baru; jika ada update)
+    const tglLahirStr = (tglLahir instanceof Date) ? tglLahir : String(tglLahir || '');
+
+    if (shDataKonsumen) {
+      if (rowKonsumen === -1) {
+        // Buat row baru minimal terisi kolom M,N,O,R (lainnya kosong)
+        const fieldsLen = getDataKonsumenFieldNames_().length;
+        const newRow = new Array(fieldsLen).fill('');
+        newRow[12] = userId;         // M  idx12 = userId
+        newRow[13] = jenisKelamin;   // N  idx13 = jenisKelamin
+        newRow[14] = tglLahirStr;    // O  idx14 = tglLahir
+        newRow[17] = fileUrl;        // R  idx17 = downloadSertifikat (link Drive)
+        if (!newRow[4] && namaUser) newRow[4] = namaUser; // E idx4 = nama
+        shDataKonsumen.appendRow(newRow);
+      } else {
+        // Update row yang sudah ada
+        const sheet = shDataKonsumen;
+        sheet.getRange(rowKonsumen, 13).setValue(userId);         // M
+        if (jenisKelamin) sheet.getRange(rowKonsumen, 14).setValue(jenisKelamin); // N
+        if (tglLahirStr)  sheet.getRange(rowKonsumen, 15).setValue(tglLahirStr);  // O
+        sheet.getRange(rowKonsumen, 18).setValue(fileUrl);        // R
+      }
+    }
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      namaFile: namaFileTarget,
+      fileUrl: fileUrl,
+      downloadUrl: fileDownloadUrl,
+      userIdTersimpan: userId,
+      jenisKelamin: jenisKelamin,
+      tglLahir: tglLahir instanceof Date ?
+        Utilities.formatDate(tglLahir, Session.getScriptTimeZone(), 'dd/MM/yyyy') :
+        (tglLahir ? String(tglLahir) : ''),
+      linkDrive: fileUrl,
+      message: 'Download sertifikat berhasil'
+    });
+
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
 /**************************
 * Helper untuk nama hari
 **************************/

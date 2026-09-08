@@ -621,6 +621,152 @@
   </div>
 </div>
 
+<!-- ======================================= -->
+<!--  STYLING UNTUK MODAL QUIZ SERTIFIKAT    -->
+<!-- ======================================= -->
+<style>
+  #quizSertifikatModal .quiz-question-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  #quizSertifikatModal .quiz-question-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #002266 0%, #0066cc 100%);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  #quizSertifikatModal .quiz-question-text {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  #quizSertifikatModal .quiz-option {
+    display: block;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: #fdfdfd;
+  }
+  #quizSertifikatModal .quiz-option:hover {
+    background: #f0f7ff;
+    border-color: #0066cc;
+  }
+  #quizSertifikatModal .quiz-option input[type="radio"] {
+    margin-right: 8px;
+  }
+  #quizSertifikatModal .quiz-option.selected {
+    background: #e6f0ff;
+    border-color: #004499;
+    font-weight: 500;
+  }
+  #quizSertifikatModal .quiz-progress-info {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  #quizSertifikatModal .quiz-result-box {
+    text-align: center;
+    padding: 24px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  #quizSertifikatModal .quiz-result-box.passed {
+    background: linear-gradient(135deg, #d4edda 0%, #b8e6c2 100%);
+    border: 1px solid #28a745;
+  }
+  #quizSertifikatModal .quiz-result-box.failed {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border: 1px solid #dc3545;
+  }
+  #quizSertifikatModal .quiz-score {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  #quizSertifikatModal .quiz-score.passed { color: #155724; }
+  #quizSertifikatModal .quiz-score.failed { color: #721c24; }
+</style>
+
+<!-- ======================================= -->
+<!--  MODAL QUIZ FIT CHALLENGE SERTIFIKAT    -->
+<!-- ======================================= -->
+<div class="modal fade" id="quizSertifikatModal" tabindex="-1" aria-labelledby="quizSertifikatLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <!-- Header Modal -->
+      <div class="modal-header" style="background: linear-gradient(135deg, #002266 0%, #0066cc 100%); color:#fff;">
+        <h5 class="modal-title" id="quizSertifikatLabel">
+          <i class="fas fa-clipboard-check me-2"></i>Quiz FIT Challenge
+        </h5>
+        <button type="button" class="btn-close btn-close-white" id="quizSertifikatCloseBtn" aria-label="Close"></button>
+      </div>
+
+      <!-- Body Modal -->
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <!-- Status / Loading -->
+        <div id="quizStatusBox" class="text-center py-3">
+          <div class="spinner-border text-primary mb-2" role="status" id="quizLoadingSpinner">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <div id="quizStatusMessage">Memuat soal quiz...</div>
+        </div>
+
+        <!-- Progress Info + Soal -->
+        <div id="quizContentBox" style="display:none;">
+          <div class="quiz-progress-info">
+            <div>
+              <i class="fas fa-list-ol text-primary me-1"></i>
+              Total Soal: <strong id="quizTotalSoal">0</strong> &nbsp;|&nbsp;
+              Terjawab: <strong id="quizTerjawab">0</strong>
+            </div>
+            <div>
+              <i class="fas fa-calculator text-primary me-1"></i>
+              Nilai/Soal: <strong id="quizNilaiPerSoal">10</strong> &nbsp;|&nbsp;
+              Total: <strong>100</strong>
+            </div>
+          </div>
+          <div id="quizSoalContainer"><!-- Soal diisi JS --></div>
+        </div>
+
+        <!-- Hasil Quiz -->
+        <div id="quizResultBox" style="display:none;"></div>
+      </div>
+
+      <!-- Footer Modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" id="quizCloseFooterBtn">
+          <i class="fas fa-times"></i> Tutup
+        </button>
+        <button type="button" class="btn btn-warning btn-sm" id="quizUlangiBtn" style="display:none;">
+          <i class="fas fa-redo"></i> Ulangi Quiz
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" id="quizSubmitBtn" style="display:none;">
+          <i class="fas fa-paper-plane"></i> Kirim Jawaban
+        </button>
+        <button type="button" class="btn btn-success btn-sm" id="quizLanjutDownloadBtn" disabled>
+          <i class="fas fa-cloud-download-alt"></i> Lanjut Download
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- About Overlay -->
 <div class="about-overlay" id="aboutOverlay">
   <div class="about-form">

@@ -7874,7 +7874,7 @@ function tampilkanDashboardSederhana(data) {
                         ${tukarPointDisabledAttr}>
                         <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                     </button>
-                    <button class="btn btn-primary btn-sm mt-1 mb-3">
+                    <button id="btnDownloadSertifikat" class="btn btn-primary btn-sm mt-1 mb-3" onclick="bukaModalQuizSertifikat()">
                         <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                     </button>
                 </div>
@@ -8684,4 +8684,450 @@ async function onUserLogin() {
         console.log('🔄 Menjalankan setup ulang semua komponen...');
         await setupAllComponents();
     }, 500);
+}
+
+/*********************************************************
+ *  FITUR QUIZ DAN DOWNLOAD SERTIFIKAT FIT CHALLENGE
+ *********************************************************/
+
+// ===== STATE VARIABLES =====
+let _quizState = {
+    modal: null,
+    questions: [],
+    jawaban: {},
+    nilaiPerSoal: 10,
+    totalNilai: 100,
+    currentScore: 0,
+    userData: null,
+    listenersAttached: false,
+    initialized: false
+};
+
+// ===== UTILITAS =====
+function _quizShuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function _quizNormalize(s) {
+    return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function _quizIsJawabanBenar(userPilihan, jawabanBenar, daftarPilihan) {
+    if (!userPilihan || !jawabanBenar) return false;
+
+    const uNorm = _quizNormalize(userPilihan);
+    const bNorm = _quizNormalize(jawabanBenar);
+
+    if (uNorm === bNorm) return true;
+
+    const huruf = bNorm.match(/^([a-d])[\.\)]/);
+    if (huruf && daftarPilihan && daftarPilihan.length) {
+        const mapHuruf = { a:0, b:1, c:2, d:3 };
+        const idx = mapHuruf[huruf[1]];
+        if (idx !== undefined && daftarPilihan[idx] !== undefined) {
+            if (_quizNormalize(daftarPilihan[idx]) === uNorm) return true;
+        }
+    }
+    const hUser = uNorm.match(/^([a-d])[\.\)]\s*(.*)$/);
+    if (hUser && daftarPilihan && daftarPilihan.length) {
+        const mapHuruf = { a:0, b:1, c:2, d:3 };
+        const idx = mapHuruf[hUser[1]];
+        if (idx !== undefined && daftarPilihan[idx] !== undefined) {
+            if (_quizNormalize(daftarPilihan[idx]) === bNorm) return true;
+        }
+    }
+
+    return false;
+}
+
+// ===== INISIALISASI MODAL & EVENT LISTENER =====
+function _quizInitModal() {
+    if (_quizState.initialized) return;
+    _quizState.initialized = true;
+
+    try {
+        const modalEl = document.getElementById('quizSertifikatModal');
+        if (modalEl && typeof bootstrap !== 'undefined') {
+            _quizState.modal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+        }
+    } catch(e) { console.warn('Gagal init modal quiz:', e); }
+
+    if (_quizState.listenersAttached) return;
+    _quizState.listenersAttached = true;
+
+    const closeBtn = document.getElementById('quizSertifikatCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', _quizTutupModal);
+
+    const closeFooter = document.getElementById('quizCloseFooterBtn');
+    if (closeFooter) closeFooter.addEventListener('click', _quizTutupModal);
+
+    const submitBtn = document.getElementById('quizSubmitBtn');
+    if (submitBtn) submitBtn.addEventListener('click', _quizSubmitJawaban);
+
+    const ulangiBtn = document.getElementById('quizUlangiBtn');
+    if (ulangiBtn) ulangiBtn.addEventListener('click', _quizUlangi);
+
+    const lanjutBtn = document.getElementById('quizLanjutDownloadBtn');
+    if (lanjutBtn) lanjutBtn.addEventListener('click', _quizLanjutDownload);
+}
+
+// ===== TAMPILKAN / SEMBUNYIKAN BOX =====
+function _quizShowBox(which) {
+    const boxes = ['quizStatusBox', 'quizContentBox', 'quizResultBox'];
+    boxes.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = (id === which) ? '' : 'none';
+    });
+}
+
+function _quizSetStatusMessage(msg, showSpinner) {
+    const msgBox = document.getElementById('quizStatusMessage');
+    const spinner = document.getElementById('quizLoadingSpinner');
+    if (msgBox) msgBox.textContent = msg || '';
+    if (spinner) spinner.style.display = showSpinner ? '' : 'none';
+}
+
+// ===== TUTUP MODAL =====
+function _quizTutupModal() {
+    if (_quizState.modal) {
+        try { _quizState.modal.hide(); } catch(e){}
+    }
+}
+
+function _quizBukaModal() {
+    _quizInitModal();
+    if (_quizState.modal) {
+        try { _quizState.modal.show(); } catch(e){}
+    }
+}
+
+// ===== ENTRY POINT: DIPANGGIL OLEH TOMBOL DOWNLOAD SERTIFIKAT =====
+function bukaModalQuizSertifikat() {
+    _quizInitModal();
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert('Sesi login tidak ditemukan. Silakan login kembali.');
+        return;
+    }
+
+    _quizBukaModal();
+    _quizShowBox('quizStatusBox');
+    _quizSetStatusMessage('Memeriksa data user...', true);
+
+    _quizResetFooterButtons();
+
+    kirimKeServer({
+        action: 'getUserForSertifikat',
+        userId: userId
+    }, function(res) {
+        if (!res || res.status !== 'success') {
+            _quizSetStatusMessage((res && res.message) || 'Gagal memuat data user. Coba lagi.', false);
+            console.error('getUserForSertifikat gagal:', res);
+            return;
+        }
+        _quizState.userData = res;
+
+        const btn = document.getElementById('btnDownloadSertifikat');
+        if (res.sudahDownload) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Sertifikat Sudah Diunduh';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-success');
+            }
+            _quizShowBox('quizStatusBox');
+            let info = '<i class="fas fa-check-circle text-success me-1"></i>';
+            info += '<strong>Anda sudah pernah mendownload sertifikat.</strong><br>';
+            if (res.linkSertifikat) {
+                info += '<a href="' + res.linkSertifikat + '" target="_blank" class="btn btn-sm btn-outline-primary mt-2">';
+                info += '<i class="fas fa-external-link-alt"></i> Buka Kembali Sertifikat</a>';
+            }
+            document.getElementById('quizStatusMessage').innerHTML = info;
+            const sp = document.getElementById('quizLoadingSpinner');
+            if (sp) sp.style.display = 'none';
+            const lanjut = document.getElementById('quizLanjutDownloadBtn');
+            if (lanjut) { lanjut.disabled = true; }
+            return;
+        }
+
+        _quizLoadSoal();
+    });
+}
+
+function _quizResetFooterButtons() {
+    const submit  = document.getElementById('quizSubmitBtn');
+    const ulangi  = document.getElementById('quizUlangiBtn');
+    const lanjut  = document.getElementById('quizLanjutDownloadBtn');
+    if (submit)  submit.style.display  = 'none';
+    if (ulangi)  ulangi.style.display  = 'none';
+    if (lanjut) {
+        lanjut.disabled = true;
+        lanjut.innerHTML  = '<i class="fas fa-cloud-download-alt"></i> Lanjut Download';
+    }
+}
+
+// ===== LOAD SOAL QUIZ DARI SERVER =====
+function _quizLoadSoal() {
+    _quizShowBox('quizStatusBox');
+    _quizSetStatusMessage('Memuat soal quiz...', true);
+    _quizResetFooterButtons();
+
+    kirimKeServer({
+        action: 'getQuizQuestions'
+    }, function(res) {
+        if (!res || res.status !== 'success' || !res.questions || !res.questions.length) {
+            _quizSetStatusMessage(
+                (res && res.message) || 'Gagal memuat soal quiz (tidak ada data). Hubungi admin.',
+                false
+            );
+            console.error('getQuizQuestions gagal:', res);
+            return;
+        }
+
+        const soal = res.questions;
+        _quizState.questions   = soal;
+        _quizState.nilaiPerSoal = Math.round((100 / soal.length) * 100) / 100;
+        _quizState.totalNilai  = 100;
+        _quizState.jawaban     = {};
+
+        const tSoal = document.getElementById('quizTotalSoal');
+        const tNil = document.getElementById('quizNilaiPerSoal');
+        if (tSoal) tSoal.textContent = soal.length;
+        if (tNil)  tNil.textContent  = _quizState.nilaiPerSoal;
+
+        const soalAcak = _quizShuffleArray(soal);
+        _quizRenderSoal(soalAcak);
+
+        _quizUpdateTerjawab();
+        _quizShowBox('quizContentBox');
+        const submit = document.getElementById('quizSubmitBtn');
+        if (submit) submit.style.display = '';
+    });
+}
+
+// ===== RENDER SOAL KE DOM =====
+function _quizRenderSoal(soalAcak) {
+    const container = document.getElementById('quizSoalContainer');
+    if (!container) return;
+
+    let html = '';
+    soalAcak.forEach(function(soal, urutanIdx) {
+        const noTampil = urutanIdx + 1;
+
+        const pilihanAcak = soal.pilihan && soal.pilihan.length ? _quizShuffleArray(soal.pilihan) : [];
+
+        html += '<div class="quiz-question-card">';
+        html +=   '<div class="quiz-question-text">';
+        html +=     '<span class="quiz-question-number">'+noTampil+'</span>';
+        html +=     (soal.pertanyaan || '');
+        html +=   '</div>';
+
+        pilihanAcak.forEach(function(pil, pilIdx) {
+            const idRad = 'q_'+urutanIdx+'_'+pilIdx;
+            html += '<label class="quiz-option" for="'+idRad+'" data-urut="'+urutanIdx+'">';
+            html +=   '<input type="radio" name="quiz_opt_'+urutanIdx+'" id="'+idRad+'" ';
+            html +=          'value="'+String(pil).replace(/"/g,'&quot;')+'" data-urut="'+urutanIdx+'">';
+            html +=   String(pil);
+            html += '</label>';
+        });
+
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.quiz-option').forEach(function(label) {
+        label.addEventListener('click', function() {
+            const input = this.querySelector('input[type="radio"]');
+            if (!input) return;
+            const urut = parseInt(input.dataset.urut, 10);
+            const val  = input.value;
+            _quizState.jawaban[urut] = val;
+
+            const groupName = input.name;
+            container.querySelectorAll('label.quiz-option input[name="'+groupName+'"]').forEach(function(r) {
+                const lab = r.closest('label.quiz-option');
+                if (lab) lab.classList.remove('selected');
+            });
+            label.classList.add('selected');
+            _quizUpdateTerjawab();
+        });
+    });
+}
+
+function _quizUpdateTerjawab() {
+    const terjawab = Object.keys(_quizState.jawaban).length;
+    const el = document.getElementById('quizTerjawab');
+    if (el) el.textContent = terjawab;
+}
+
+// ===== SUBMIT JAWABAN & HITUNG NILAI =====
+function _quizSubmitJawaban() {
+    const totalSoal = _quizState.questions.length;
+    const terjawab  = Object.keys(_quizState.jawaban).length;
+
+    if (terjawab < totalSoal) {
+        alert('Anda belum menjawab semua soal.\nSoal terjawab: ' + terjawab + ' / ' + totalSoal +
+              '\nSilakan lengkapi jawaban Anda terlebih dahulu.');
+        return;
+    }
+
+    let benar = 0;
+    const soalContainer = document.getElementById('quizSoalContainer');
+    const cards = soalContainer ? soalContainer.querySelectorAll('.quiz-question-card') : [];
+
+    cards.forEach(function(card, urutanIdx) {
+        const qTextEl = card.querySelector('.quiz-question-text');
+        let pertanyaanText = '';
+        if (qTextEl) {
+            const badge = qTextEl.querySelector('.quiz-question-number');
+            if (badge) {
+                const clone = qTextEl.cloneNode(true);
+                const b = clone.querySelector('.quiz-question-number');
+                if (b) b.remove();
+                pertanyaanText = clone.textContent || '';
+            } else {
+                pertanyaanText = qTextEl.textContent || '';
+            }
+        }
+        const userJawaban = _quizState.jawaban[urutanIdx] || '';
+
+        const originalQ = _quizState.questions.find(function(q) {
+            const normQ = _quizNormalize(q.pertanyaan);
+            const normP = _quizNormalize(pertanyaanText);
+            return normQ && normP && (normQ === normP || normP.indexOf(normQ) !== -1 || normQ.indexOf(normP) !== -1);
+        });
+
+        if (originalQ) {
+            if (_quizIsJawabanBenar(userJawaban, originalQ.jawabanBenar, originalQ.pilihan)) {
+                benar += 1;
+            }
+        } else {
+            console.warn('Soal tidak ditemukan di daftar asli:', pertanyaanText.substring(0,50));
+        }
+    });
+
+    const nilai = Math.round(benar * _quizState.nilaiPerSoal * 100) / 100;
+    _quizState.currentScore = nilai;
+
+    _quizTampilkanHasil(nilai, benar, totalSoal);
+}
+
+function _quizTampilkanHasil(nilai, benar, total) {
+    const box = document.getElementById('quizResultBox');
+    if (!box) return;
+
+    const passed = (nilai >= 100);
+
+    let html = '';
+    html += '<div class="quiz-result-box ' + (passed ? 'passed' : 'failed') + '">';
+    if (passed) {
+        html += '<div style="font-size:3rem; color:#155724;"><i class="fas fa-trophy"></i></div>';
+        html += '<div class="quiz-score passed">'+nilai+' / 100</div>';
+        html += '<div class="mt-2 fw-bold text-success">SELAMAT! Jawaban Anda BENAR SEMUA.</div>';
+        html += '<div class="mt-1 small text-muted">Benar: '+benar+' dari '+total+' soal</div>';
+    } else {
+        html += '<div style="font-size:3rem; color:#721c24;"><i class="fas fa-times-circle"></i></div>';
+        html += '<div class="quiz-score failed">'+nilai+' / 100</div>';
+        html += '<div class="mt-2 fw-bold text-danger">Nilai belum mencapai 100.</div>';
+        html += '<div class="mt-1 small text-muted">Benar: '+benar+' dari '+total+' soal</div>';
+        html += '<div class="mt-2 small">Silakan <b>ULANGI QUIZ</b> dengan urutan soal yang berbeda (diacak) sampai nilai 100.</div>';
+    }
+    html += '</div>';
+
+    box.innerHTML = html;
+    _quizShowBox('quizResultBox');
+
+    const submit  = document.getElementById('quizSubmitBtn');
+    const ulangi  = document.getElementById('quizUlangiBtn');
+    const lanjut  = document.getElementById('quizLanjutDownloadBtn');
+    if (submit) submit.style.display = 'none';
+    if (ulangi) ulangi.style.display = passed ? 'none' : '';
+    if (lanjut) {
+        if (passed) {
+            lanjut.disabled = false;
+        } else {
+            lanjut.disabled = true;
+        }
+    }
+}
+
+// ===== ULANGI QUIZ (ACAK LAGI) =====
+function _quizUlangi() {
+    _quizState.jawaban = {};
+    _quizState.currentScore = 0;
+    _quizLoadSoal();
+}
+
+// ===== LANJUT DOWNLOAD SERTIFIKAT (SETELAH NILAI 100) =====
+function _quizLanjutDownload() {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert('Sesi login tidak ditemukan.');
+        return;
+    }
+
+    const lanjutBtn = document.getElementById('quizLanjutDownloadBtn');
+    if (lanjutBtn) {
+        lanjutBtn.disabled = true;
+        lanjutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    }
+
+    kirimKeServer({
+        action: 'prosesDownloadSertifikat',
+        userId: userId
+    }, function(res) {
+        if (!res || res.status !== 'success') {
+            alert('Gagal mendownload sertifikat: \n' + ((res && res.message) || 'Kesalahan tidak diketahui'));
+            console.error('prosesDownloadSertifikat gagal:', res);
+            if (lanjutBtn) {
+                lanjutBtn.disabled = false;
+                lanjutBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i> Lanjut Download';
+            }
+            return;
+        }
+
+        try {
+            if (res.downloadUrl) {
+                const a = document.createElement('a');
+                a.href = res.downloadUrl;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                if (res.namaFile) a.download = res.namaFile;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else if (res.fileUrl) {
+                window.open(res.fileUrl, '_blank', 'noopener');
+            }
+        } catch(e) {
+            console.warn('Gagal trigger auto-download:', e);
+        }
+
+        if (typeof showMessage === 'function') {
+            showMessage('success', (res.message || 'Download sertifikat berhasil') +
+                        (res.namaFile ? ' ('+res.namaFile+')' : ''), 6000);
+        } else {
+            alert(res.message || 'Download sertifikat berhasil');
+        }
+
+        const btnSertif = document.getElementById('btnDownloadSertifikat');
+        if (btnSertif) {
+            btnSertif.disabled = true;
+            btnSertif.innerHTML = '<i class="fas fa-check-circle"></i> Sertifikat Sudah Diunduh';
+            btnSertif.classList.remove('btn-primary');
+            btnSertif.classList.add('btn-success');
+        }
+
+        setTimeout(function() {
+            _quizTutupModal();
+        }, 1200);
+    });
 }
