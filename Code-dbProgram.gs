@@ -12,18 +12,15 @@ const shTabelUser       = ssUser.getSheetByName('TabelUser');
 
 const folderDATAIMAGE   = DriveApp.getFolderById("1luBfilKzCmyUBeOD14qcfqpDmPvnMcV_");
 
-/********************************************************
-/*  KONSTANTA UNTUK FITUR QUIZ & SERTIFIKAT
-/*  ⚠️ ISI DENGAN ID YANG SESUAI SEBELUM DEPLOY
-/********************************************************/
-const DB_QUIZ           = 'ISI_DENGAN_ID_GOOGLE_SHEET_DBQUIZ';
+/*  KONSTANTA UNTUK FITUR QUIZ & SERTIFIKAT */
+const DB_QUIZ           = '1xUWdAJVuJnoRQ07k_Ch4zapZruhM4Q3B7ZBCP-Bi2Mw';
 let ssQuiz = null, shQuiz = null;
 try {
   ssQuiz = SpreadsheetApp.openById(DB_QUIZ);
   shQuiz = ssQuiz.getSheetByName('QUIZ');
 } catch(e) { ssQuiz = null; shQuiz = null; }
 
-const FOLDER_SERTIFIKAT_ID = 'ISI_DENGAN_ID_FOLDER_SERTIFIKAT';
+const FOLDER_SERTIFIKAT_ID = '1oTHHZBjgqcC0zSGrMdwC90BuNmZ3qUJB?usp=sharing';
 let folderSERTIFIKAT = null;
 try {
   folderSERTIFIKAT = DriveApp.getFolderById(FOLDER_SERTIFIKAT_ID);
