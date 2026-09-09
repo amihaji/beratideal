@@ -8855,7 +8855,7 @@ function bukaModalQuizSertifikat() {
 
     _quizBukaModal();
     _quizShowBox('quizStatusBox');
-    _quizSetStatusMessage('Memeriksa data user...', true);
+    _quizSetStatusMessage('Sebelum Download Sertifikat, terlebih dahulu selesaikan Quiz, untuk mengetahui sejauh mana pemahaman Anda dalam memahami mdoul-modul yang ada pada Program FIT Challange ...', true);
 
     _quizResetFooterButtons();
 
