@@ -8898,12 +8898,17 @@ function bukaModalQuizSertifikat() {
 }
 
 function _quizResetFooterButtons() {
+    const footer  = document.querySelector('#quizSertifikatModal .modal-footer');
     const submit  = document.getElementById('quizSubmitBtn');
     const ulangi  = document.getElementById('quizUlangiBtn');
     const lanjut  = document.getElementById('quizLanjutDownloadBtn');
-    if (submit)  submit.style.display  = 'none';
+    if (footer) footer.classList.remove('quiz-footer-center');
+    if (submit) {
+        submit.style.display = '';
+    }
     if (ulangi)  ulangi.style.display  = 'none';
     if (lanjut) {
+        lanjut.style.display = '';
         lanjut.disabled = true;
         lanjut.innerHTML  = '<i class="fas fa-cloud-download-alt"></i> Lanjut Download';
     }
@@ -9165,12 +9170,22 @@ function _quizTampilkanHasil(nilai, benar, total, soalSalahList) {
     const submit  = document.getElementById('quizSubmitBtn');
     const ulangi  = document.getElementById('quizUlangiBtn');
     const lanjut  = document.getElementById('quizLanjutDownloadBtn');
-    if (submit) submit.style.display = 'none';
-    if (ulangi) ulangi.style.display = passed ? 'none' : '';
-    if (lanjut) {
-        if (passed) {
+    const footer  = document.querySelector('#quizSertifikatModal .modal-footer');
+
+    if (passed) {
+        if (footer) footer.classList.add('quiz-footer-center');
+        if (submit) submit.style.display = 'none';
+        if (ulangi) ulangi.style.display = 'none';
+        if (lanjut) {
+            lanjut.style.display = 'inline-flex';
             lanjut.disabled = false;
-        } else {
+        }
+    } else {
+        if (footer) footer.classList.remove('quiz-footer-center');
+        if (submit) submit.style.display = 'none';
+        if (ulangi) ulangi.style.display = '';
+        if (lanjut) {
+            lanjut.style.display = '';
             lanjut.disabled = true;
         }
     }
@@ -9178,6 +9193,15 @@ function _quizTampilkanHasil(nilai, benar, total, soalSalahList) {
 
 // ===== ULANGI QUIZ (ACAK LAGI) =====
 function _quizUlangi() {
+    const footer = document.querySelector('#quizSertifikatModal .modal-footer');
+    if (footer) footer.classList.remove('quiz-footer-center');
+    const submit = document.getElementById('quizSubmitBtn');
+    const lanjut = document.getElementById('quizLanjutDownloadBtn');
+    if (submit) submit.style.display = '';
+    if (lanjut) {
+        lanjut.style.display = '';
+        lanjut.disabled = true;
+    }
     _quizState.jawaban = {};
     _quizState.currentScore = 0;
     _quizLoadSoal();
