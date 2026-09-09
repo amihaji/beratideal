@@ -622,145 +622,6 @@
 </div>
 
 <!-- ======================================= -->
-<!--  STYLING UNTUK MODAL QUIZ SERTIFIKAT    -->
-<!-- ======================================= -->
-<style>
-  #quizSertifikatModal .quiz-question-card {
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-  }
-  #quizSertifikatModal .quiz-question-number {
-    display: inline-block;
-    background: linear-gradient(135deg, #002266 0%, #0066cc 100%);
-    color: #fff;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  #quizSertifikatModal .quiz-question-text {
-    font-weight: 600;
-    color: #212529;
-    margin-bottom: 10px;
-    line-height: 1.5;
-  }
-  #quizSertifikatModal .quiz-option {
-    display: block;
-    padding: 8px 12px;
-    margin-bottom: 6px;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    background: #fdfdfd;
-  }
-  #quizSertifikatModal .quiz-option:hover {
-    background: #f0f7ff;
-    border-color: #0066cc;
-  }
-  #quizSertifikatModal .quiz-option input[type="radio"] {
-    margin-right: 8px;
-  }
-  #quizSertifikatModal .quiz-option.selected {
-    background: #e6f0ff;
-    border-color: #004499;
-    font-weight: 500;
-  }
-  #quizSertifikatModal .quiz-progress-info {
-    background: #f8f9fa;
-    border-radius: 6px;
-    padding: 8px 14px;
-    margin-bottom: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-  }
-  #quizSertifikatModal .quiz-result-box {
-    text-align: center;
-    padding: 24px 14px;
-    border-radius: 10px;
-    margin-bottom: 14px;
-  }
-  #quizSertifikatModal .quiz-result-box.passed {
-    background: linear-gradient(135deg, #d4edda 0%, #b8e6c2 100%);
-    border: 1px solid #28a745;
-  }
-  #quizSertifikatModal .quiz-result-box.failed {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-    border: 1px solid #dc3545;
-  }
-  #quizSertifikatModal .quiz-score {
-    font-size: 2.5rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-  #quizSertifikatModal .quiz-score.passed { color: #155724; }
-  #quizSertifikatModal .quiz-score.failed { color: #721c24; }
-  #quizSertifikatModal .quiz-review-title {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    padding: 8px 14px;
-    font-weight: 600;
-    color: #856404;
-    border-radius: 4px;
-    margin-bottom: 12px;
-  }
-  #quizSertifikatModal .quiz-review-card {
-    background: #ffffff;
-    border: 1px solid #f0d1d1;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    border-left: 4px solid #dc3545;
-  }
-  #quizSertifikatModal .quiz-review-q {
-    font-weight: 600;
-    color: #212529;
-    margin-bottom: 8px;
-    line-height: 1.45;
-  }
-  #quizSertifikatModal .quiz-review-user {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-  }
-  #quizSertifikatModal .quiz-review-benar {
-    background: #d4edda;
-    color: #155724;
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-  }
-  #quizSertifikatModal .quiz-review-penjelasan {
-    background: #d9edf7;
-    color: #0c5460;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 0.88rem;
-    margin-bottom: 4px;
-    line-height: 1.5;
-  }
-  #quizSertifikatModal .quiz-review-pembahasan {
-    background: #f3e5f5;
-    color: #4a148c;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 0.88rem;
-    line-height: 1.5;
-  }
-  .text-purple { color: #6f42c1 !important; }
-</style>
-
-<!-- ======================================= -->
 <!--  MODAL QUIZ FIT CHALLENGE SERTIFIKAT    -->
 <!-- ======================================= -->
 <div class="modal fade" id="quizSertifikatModal" tabindex="-1" aria-labelledby="quizSertifikatLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -798,6 +659,7 @@
               Total: <strong>100</strong>
             </div>
           </div>
+          <div id="quizInlineAlert" class="quiz-inline-alert"><i class="fas fa-exclamation-triangle me-2"></i><span id="quizInlineAlertText"></span></div>
           <div id="quizSoalContainer"><!-- Soal diisi JS --></div>
         </div>
 
@@ -810,10 +672,10 @@
         <button type="button" class="btn btn-warning btn-sm" id="quizUlangiBtn" style="display:none;">
           <i class="fas fa-redo"></i> Ulangi Quiz
         </button>
-        <button type="button" class="btn btn-primary btn-sm" id="quizSubmitBtn" style="display:none;">
+        <button type="button" class="btn btn-success btn-sm" id="quizSubmitBtn" style="display:none;">
           <i class="fas fa-paper-plane"></i> Kirim Jawaban
         </button>
-        <button type="button" class="btn btn-success btn-sm" id="quizLanjutDownloadBtn" disabled>
+        <button type="button" class="btn btn-primary btn-sm" id="quizLanjutDownloadBtn" disabled>
           <i class="fas fa-cloud-download-alt"></i> Lanjut Download
         </button>
       </div>

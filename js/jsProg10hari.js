@@ -9003,6 +9003,7 @@ function _quizRenderSoal(soalAcak) {
             });
             label.classList.add('selected');
             _quizUpdateTerjawab();
+            _quizHideInlineAlert();
         });
     });
 }
@@ -9013,18 +9014,38 @@ function _quizUpdateTerjawab() {
     if (el) el.textContent = terjawab;
 }
 
+// ===== UTIL: Tampil/sembunyikan inline alert di dalam modal =====
+function _quizShowInlineAlert(pesan, durasiMs) {
+    const box = document.getElementById('quizInlineAlert');
+    const txt = document.getElementById('quizInlineAlertText');
+    if (!box || !txt) return;
+    txt.textContent = pesan;
+    box.classList.add('show');
+    try { box.scrollIntoView({ behavior:'smooth', block:'start' }); } catch(e) {}
+    if (_quizState._inlineTimer) clearTimeout(_quizState._inlineTimer);
+    if (!durasiMs || durasiMs <= 0) return;
+    _quizState._inlineTimer = setTimeout(function() {
+        box.classList.remove('show');
+    }, durasiMs);
+}
+function _quizHideInlineAlert() {
+    const box = document.getElementById('quizInlineAlert');
+    if (box) box.classList.remove('show');
+    if (_quizState._inlineTimer) { clearTimeout(_quizState._inlineTimer); _quizState._inlineTimer = null; }
+}
+
 // ===== SUBMIT JAWABAN & HITUNG NILAI =====
 function _quizSubmitJawaban() {
     const totalSoal = _quizState.questions.length;
     const terjawab  = Object.keys(_quizState.jawaban).length;
 
     if (terjawab < totalSoal) {
-        showMessage('warning',
-            'Anda belum menjawab semua soal. Soal terjawab: ' + terjawab + ' / ' + totalSoal +
-            '. Silakan lengkapi jawaban Anda terlebih dahulu.',
-            5500);
+        const msg = 'Lengkapi soal yang belum terjawab. Soal terjawab: ' + terjawab + ' / ' + totalSoal + '.';
+        showMessage('warning', msg, 5500);
+        _quizShowInlineAlert(msg + ' Silakan klik semua pilihan jawaban sebelum mengirim.', 7000);
         return;
     }
+    _quizHideInlineAlert();
 
     let benar = 0;
     const soalSalahList = [];
@@ -9208,8 +9229,11 @@ function _quizLanjutDownload() {
             console.warn('Gagal trigger auto-download:', e);
         }
 
-        showMessage('success', (res.message || 'Download sertifikat berhasil') +
-                    (res.namaFile ? ' ('+res.namaFile+')' : ''), 6000);
+        _quizTutupModal();
+        setTimeout(function() {
+            showMessage('success', (res.message || 'Sertifikat berhasil terdownload') +
+                        (res.namaFile ? ' ('+res.namaFile+')' : ''), 6500);
+        }, 350);
 
         const btnSertif = document.getElementById('btnDownloadSertifikat');
         if (btnSertif) {
@@ -9218,9 +9242,5 @@ function _quizLanjutDownload() {
             btnSertif.classList.remove('btn-primary');
             btnSertif.classList.add('btn-success');
         }
-
-        setTimeout(function() {
-            _quizTutupModal();
-        }, 1200);
     });
 }

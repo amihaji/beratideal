@@ -692,6 +692,198 @@ body { background-color: #f8f9fa; }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/******************************************************************/
+/*  PERBAIKAN NOTIFIKASI UNTUK QUIZ SERTIFIKAT (z-index + posisi) */
+/*  - Meng-extends .notification-message existing di atas         */
+/*  - Prioritas z-index di atas modal Bootstrap (z-index 1050)   */
+/*  - Posisi fixed pojok kanan atas halaman                      */
+/******************************************************************/
+.notification-message {
+    z-index: 99999 !important;
+    position: relative;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12) !important;
+    padding: 12px 16px !important;
+    font-weight: 500;
+}
+body > .notification-message:last-of-type {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    left: auto !important;
+    max-width: 420px !important;
+    width: auto !important;
+    margin: 0 !important;
+    z-index: 99999 !important;
+    animation: slideDownNotif 0.35s ease-out;
+}
+@keyframes slideDownNotif {
+    from { transform: translateY(-30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+.text-purple { color: #6f42c1 !important; }
+
+/******************************************************************/
+/*  STYLING MODAL QUIZ SERTIFIKAT                                 */
+/*  (dipindahkan dari <style> inline prog10hari.html L624-797)    */
+/*  Scoped dengan parent id #quizSertifikatModal agar tidak       */
+/*  bentrok dengan styling lain di aplikasi.                      */
+/******************************************************************/
+#quizSertifikatModal .modal-header {
+    background: linear-gradient(135deg, #002266 0%, #004499 50%, #0066cc 100%);
+    color: #ffffff;
+    border-radius: 0;
+}
+#quizSertifikatModal .modal-header .btn-close { filter: invert(1); }
+#quizSertifikatModal .modal-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#quizSertifikatModal .quiz-inline-alert {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-weight: 500;
+    display: none;
+}
+#quizSertifikatModal .quiz-inline-alert.show { display: block; }
+#quizSertifikatModal .quiz-question-card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+#quizSertifikatModal .quiz-question-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #002266 0%, #0066cc 100%);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 8px;
+}
+#quizSertifikatModal .quiz-question-text {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+#quizSertifikatModal .quiz-option {
+    display: block;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: #fdfdfd;
+}
+#quizSertifikatModal .quiz-option:hover {
+    background: #f0f7ff;
+    border-color: #0066cc;
+}
+#quizSertifikatModal .quiz-option input[type="radio"] { margin-right: 8px; }
+#quizSertifikatModal .quiz-option.selected {
+    background: #e6f0ff;
+    border-color: #004499;
+    font-weight: 500;
+}
+#quizSertifikatModal .quiz-progress-info {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+#quizSertifikatModal .quiz-result-box {
+    text-align: center;
+    padding: 24px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+}
+#quizSertifikatModal .quiz-result-box.passed {
+    background: linear-gradient(135deg, #d4edda 0%, #b8e6c2 100%);
+    border: 1px solid #28a745;
+}
+#quizSertifikatModal .quiz-result-box.failed {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border: 1px solid #dc3545;
+}
+#quizSertifikatModal .quiz-score {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+#quizSertifikatModal .quiz-score.passed { color: #155724; }
+#quizSertifikatModal .quiz-score.failed { color: #721c24; }
+#quizSertifikatModal .quiz-review-title {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 8px 14px;
+    font-weight: 600;
+    color: #856404;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+#quizSertifikatModal .quiz-review-card {
+    background: #ffffff;
+    border: 1px solid #f0d1d1;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-left: 4px solid #dc3545;
+}
+#quizSertifikatModal .quiz-review-q {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+    line-height: 1.45;
+}
+#quizSertifikatModal .quiz-review-user {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+#quizSertifikatModal .quiz-review-benar {
+    background: #d4edda;
+    color: #155724;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+#quizSertifikatModal .quiz-review-penjelasan {
+    background: #d9edf7;
+    color: #0c5460;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.88rem;
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+#quizSertifikatModal .quiz-review-pembahasan {
+    background: #f3e5f5;
+    color: #4a148c;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
 /***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
 .pesan-notif-icon { font-size: 18px; }
 /* Toast message */

@@ -20,7 +20,7 @@ try {
   shQuiz = ssQuiz.getSheetByName('QUIZ');
 } catch(e) { ssQuiz = null; shQuiz = null; }
 
-const FOLDER_SERTIFIKAT_ID = '1oTHHZBjgqcC0zSGrMdwC90BuNmZ3qUJB?usp=sharing';
+const FOLDER_SERTIFIKAT_ID = '1oTHHZBjgqcC0zSGrMdwC90BuNmZ3qUJB';
 let folderSERTIFIKAT = null;
 try {
   folderSERTIFIKAT = DriveApp.getFolderById(FOLDER_SERTIFIKAT_ID);
@@ -2949,6 +2949,12 @@ function prosesDownloadSertifikat(param) {
 
     // 3. Cari file di folder SERTIFIKAT
     let fileUrl = '', fileDownloadUrl = '', fileId = '';
+    if (!folderSERTIFIKAT) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'Folder SERTIFIKAT tidak dapat diakses.'
+      });
+    }
     if (folderSERTIFIKAT) {
       try {
         // Cari exact match berdasarkan nama
