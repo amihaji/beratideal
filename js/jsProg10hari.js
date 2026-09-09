@@ -8912,7 +8912,7 @@ function _quizResetFooterButtons() {
 // ===== LOAD SOAL QUIZ DARI SERVER =====
 function _quizLoadSoal() {
     _quizShowBox('quizStatusBox');
-    _quizSetStatusMessage('Memuat soal quiz...', true);
+    // _quizSetStatusMessage('Memuat soal quiz...', true); 
     _quizResetFooterButtons();
 
     kirimKeServer({
