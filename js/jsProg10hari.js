@@ -7886,12 +7886,12 @@ function tampilkanDashboardSederhana(data) {
                         ${tukarPointMessage}
                     </p>
                     <div class="d-flex flex-wrap gap-2 align-items-center justify-content-center mt-1 mb-1">
-                        <button class="btn ${tukarPointButtonClass} btn-sm flex-fill" style="min-width:200px;"
+                        <button class="btn ${tukarPointButtonClass} btn-sm"
                             onclick="tukarPoint(${totalPoint})" 
                             ${tukarPointDisabledAttr}>
                             <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                         </button>
-                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm flex-fill" style="min-width:200px;" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
+                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
                             <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                         </button>
                     </div>
