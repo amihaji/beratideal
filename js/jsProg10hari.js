@@ -7612,38 +7612,23 @@ function tampilkanDashboardSederhana(data) {
         pointMessage = '<span style="font-size:14px;"><strong>Point</strong> <i class="fas fa-tasks ms-2" style="font-size:14px;"></i> Belum ada point, selesaikan seluruh program!</span>';
     }
     
-    // 🔥 TENTUKAN APAKAH TOMBOL TUKAR POINT ENABLED
-    // Syarat: totalPoint >= 500 (sudah menyelesaikan semua modul 1-10)
-    var isTukarPointEnabled = (totalPoint >= 500);
-    var tukarPointDisabledAttr = isTukarPointEnabled ? '' : 'disabled';
-    var tukarPointButtonClass = isTukarPointEnabled ? 'btn-outline-success' : 'btn-outline-secondary';
+    // 🔥 TENTUKAN APAKAH TOMBOL TUKAR POINT & SERTIFIKAT ENABLED
+    // Syarat SAMA KEDUA TOMBOL: totalPoint >= 500 (sudah menyelesaikan semua modul 1-10)
+    var isModulSelesai = (totalPoint >= 500);
+    var sharedDisabledAttr   = isModulSelesai ? '' : 'disabled';
+    var tukarButtonClass     = isModulSelesai ? 'btn-outline-success' : 'btn-outline-secondary';
+    var sertifButtonClass    = isModulSelesai ? 'btn-primary' : 'btn-secondary';
     
-    // 🔥 TAMBAHKAN PESAN KETERANGAN
-    var tukarPointMessage = '';
-    if (!isTukarPointEnabled) {
+    // 🔥 PESAN KETERANGAN GABUNGAN (SATU PESAN SAJA, UNTUK KEDUA FUNGSI)
+    var sharedProgressMessage = '';
+    if (!isModulSelesai) {
         if (totalPoint > 0) {
-            tukarPointMessage = '<br><small class="text-muted">* Selesaikan seluruh 10 modul untuk menukarkan point (' + totalPoint + '/500 point terkumpul)</small>';
+            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda : (' + totalPoint + '/500 point terkumpul) dan untuk bisa mendownload sertifikat</small>';
         } else {
-            tukarPointMessage = '<br><small class="text-muted">* Selesaikan seluruh 10 modul untuk menukarkan point</small>';
+            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda dan untuk bisa mendownload sertifikat</small>';
         }
     } else {
-        tukarPointMessage = '<br><small class="text-success"><i class="fas fa-check-circle"></i> Selamat! Anda telah menyelesaikan seluruh modul dan berhak menukarkan point!</small>';
-    }
-
-    // 🔥 TENTUKAN APAKAH TOMBOL DOWNLOAD SERTIFIKAT ENABLED
-    // Syarat SAMA DENGAN Tukar Point: totalPoint >= 500 (selesaikan seluruh 10 modul)
-    var isSertifEnabled = (totalPoint >= 500);
-    var sertifDisabledAttr = isSertifEnabled ? '' : 'disabled';
-    var sertifButtonClass = isSertifEnabled ? 'btn-primary' : 'btn-secondary';
-    var sertifMessage = '';
-    if (!isSertifEnabled) {
-        if (totalPoint > 0) {
-            sertifMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk download sertifikat (' + totalPoint + '/500 point terkumpul)</small>';
-        } else {
-            sertifMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk download sertifikat</small>';
-        }
-    } else {
-        sertifMessage = '<small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Anda telah menyelesaikan seluruh modul — klik untuk uji pemahaman &amp; download sertifikat!</small>';
+        sharedProgressMessage = '<small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Selamat! Anda telah menyelesaikan seluruh modul dan berhak menukarkan point serta mendownload sertifikat!</small>';
     }
     
     // Buat rincian point per hari
@@ -7883,19 +7868,18 @@ function tampilkanDashboardSederhana(data) {
                     ${detailPointHTML}
                     <p class="text-muted small" style="margin: 0.8rem 0;">
                         Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
-                        ${tukarPointMessage}
                     </p>
                     <div class="d-flex flex-wrap gap-2 align-items-center justify-content-center mt-1 mb-1">
-                        <button class="btn ${tukarPointButtonClass} btn-sm"
+                        <button class="btn ${tukarButtonClass} btn-sm"
                             onclick="tukarPoint(${totalPoint})" 
-                            ${tukarPointDisabledAttr}>
+                            ${sharedDisabledAttr}>
                             <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                         </button>
-                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
+                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm" onclick="bukaModalQuizSertifikat()" ${sharedDisabledAttr}>
                             <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                         </button>
                     </div>
-                    ${sertifMessage}
+                    ${sharedProgressMessage}
                 </div>
             </div>
         </div>
