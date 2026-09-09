@@ -7885,14 +7885,16 @@ function tampilkanDashboardSederhana(data) {
                         Tukarkan point anda untuk mendapatkan reward dari kami berupa <strong><br>VOUCHER BELANJA PRODUK HERBALIFE</strong>!
                         ${tukarPointMessage}
                     </p>
-                    <button class="btn ${tukarPointButtonClass} btn-sm mt-1 mb-3" 
-                        onclick="tukarPoint(${totalPoint})" 
-                        ${tukarPointDisabledAttr}>
-                        <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
-                    </button>
-                    <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm mt-1 mb-1" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
-                        <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
-                    </button>
+                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-center mt-1 mb-1">
+                        <button class="btn ${tukarPointButtonClass} btn-sm flex-fill" style="min-width:200px;"
+                            onclick="tukarPoint(${totalPoint})" 
+                            ${tukarPointDisabledAttr}>
+                            <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
+                        </button>
+                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm flex-fill" style="min-width:200px;" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
+                            <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
+                        </button>
+                    </div>
                     ${sertifMessage}
                 </div>
             </div>
