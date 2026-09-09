@@ -7629,6 +7629,22 @@ function tampilkanDashboardSederhana(data) {
     } else {
         tukarPointMessage = '<br><small class="text-success"><i class="fas fa-check-circle"></i> Selamat! Anda telah menyelesaikan seluruh modul dan berhak menukarkan point!</small>';
     }
+
+    // 🔥 TENTUKAN APAKAH TOMBOL DOWNLOAD SERTIFIKAT ENABLED
+    // Syarat SAMA DENGAN Tukar Point: totalPoint >= 500 (selesaikan seluruh 10 modul)
+    var isSertifEnabled = (totalPoint >= 500);
+    var sertifDisabledAttr = isSertifEnabled ? '' : 'disabled';
+    var sertifButtonClass = isSertifEnabled ? 'btn-primary' : 'btn-secondary';
+    var sertifMessage = '';
+    if (!isSertifEnabled) {
+        if (totalPoint > 0) {
+            sertifMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk download sertifikat (' + totalPoint + '/500 point terkumpul)</small>';
+        } else {
+            sertifMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk download sertifikat</small>';
+        }
+    } else {
+        sertifMessage = '<small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Anda telah menyelesaikan seluruh modul — klik untuk uji pemahaman &amp; download sertifikat!</small>';
+    }
     
     // Buat rincian point per hari
     var detailPointHTML = '';
@@ -7874,9 +7890,10 @@ function tampilkanDashboardSederhana(data) {
                         ${tukarPointDisabledAttr}>
                         <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                     </button>
-                    <button id="btnDownloadSertifikat" class="btn btn-primary btn-sm mt-1 mb-3" onclick="bukaModalQuizSertifikat()">
+                    <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm mt-1 mb-1" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
                         <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                     </button>
+                    ${sertifMessage}
                 </div>
             </div>
         </div>
