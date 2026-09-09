@@ -8948,8 +8948,10 @@ function _quizLoadSoal() {
 
         _quizUpdateTerjawab();
         _quizShowBox('quizContentBox');
+        const footer = document.querySelector('#quizSertifikatModal .modal-footer');
         const submit = document.getElementById('quizSubmitBtn');
-        if (submit) submit.style.display = '';
+        if (footer) footer.classList.add('quiz-footer-center');
+        if (submit) submit.style.display = 'inline-flex';
     });
 }
 
