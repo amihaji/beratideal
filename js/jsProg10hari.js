@@ -8849,7 +8849,7 @@ function bukaModalQuizSertifikat() {
 
     const userId = localStorage.getItem('userId');
     if (!userId) {
-        alert('Sesi login tidak ditemukan. Silakan login kembali.');
+        showMessage('error', 'Sesi login tidak ditemukan. Silakan login kembali.', 4500);
         return;
     }
 
@@ -9019,8 +9019,10 @@ function _quizSubmitJawaban() {
     const terjawab  = Object.keys(_quizState.jawaban).length;
 
     if (terjawab < totalSoal) {
-        alert('Anda belum menjawab semua soal.\nSoal terjawab: ' + terjawab + ' / ' + totalSoal +
-              '\nSilakan lengkapi jawaban Anda terlebih dahulu.');
+        showMessage('warning',
+            'Anda belum menjawab semua soal. Soal terjawab: ' + terjawab + ' / ' + totalSoal +
+            '. Silakan lengkapi jawaban Anda terlebih dahulu.',
+            5500);
         return;
     }
 
@@ -9164,7 +9166,7 @@ function _quizUlangi() {
 function _quizLanjutDownload() {
     const userId = localStorage.getItem('userId');
     if (!userId) {
-        alert('Sesi login tidak ditemukan.');
+        showMessage('error', 'Sesi login tidak ditemukan.', 4500);
         return;
     }
 
@@ -9179,7 +9181,8 @@ function _quizLanjutDownload() {
         userId: userId
     }, function(res) {
         if (!res || res.status !== 'success') {
-            alert('Gagal mendownload sertifikat: \n' + ((res && res.message) || 'Kesalahan tidak diketahui'));
+            showMessage('error', 'Gagal mendownload sertifikat: ' +
+                        ((res && res.message) || 'Kesalahan tidak diketahui'), 6000);
             console.error('prosesDownloadSertifikat gagal:', res);
             if (lanjutBtn) {
                 lanjutBtn.disabled = false;
@@ -9205,12 +9208,8 @@ function _quizLanjutDownload() {
             console.warn('Gagal trigger auto-download:', e);
         }
 
-        if (typeof showMessage === 'function') {
-            showMessage('success', (res.message || 'Download sertifikat berhasil') +
-                        (res.namaFile ? ' ('+res.namaFile+')' : ''), 6000);
-        } else {
-            alert(res.message || 'Download sertifikat berhasil');
-        }
+        showMessage('success', (res.message || 'Download sertifikat berhasil') +
+                    (res.namaFile ? ' ('+res.namaFile+')' : ''), 6000);
 
         const btnSertif = document.getElementById('btnDownloadSertifikat');
         if (btnSertif) {

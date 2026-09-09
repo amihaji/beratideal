@@ -2594,6 +2594,13 @@ function getNamaBulanIndo(bulanIdx) {
  * Parse tanggal lahir dari berbagai format dan hasilkan string:
  *   "01oktober2026"  (dd + bulan lowercase indo + yyyy)
  */
+/**
+ * Format tanggal lahir jadi bagian nama file sertifikat:
+ *   FORMAT BARU : ddmmyy  (2 digit hari + 2 digit bulan angka + 2 digit TAHUN AKHIR)
+ *   Contoh input: 28/02/2026 → output: "280226"
+ *                 12/10/2011 → output: "121011"
+ *                 01-10-1995 → output: "011095"
+ */
 function formatTanggalLahirFile(tglLahir) {
   if (!tglLahir) return '';
   try {
@@ -2602,7 +2609,6 @@ function formatTanggalLahirFile(tglLahir) {
       d = tglLahir;
     } else {
       const s = String(tglLahir).trim();
-      // Coba parse format umum: dd/mm/yyyy, dd-mm-yyyy, yyyy-mm-dd
       let parts;
       if ((parts = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/))) {
         d = new Date(parseInt(parts[3]), parseInt(parts[2])-1, parseInt(parts[1]));
@@ -2614,9 +2620,9 @@ function formatTanggalLahirFile(tglLahir) {
     }
     if (isNaN(d.getTime())) return '';
     const dd = ('0'+d.getDate()).slice(-2);
-    const mm = getNamaBulanIndo(d.getMonth());
-    const yyyy = d.getFullYear();
-    return dd + mm + yyyy;
+    const mm = ('0'+(d.getMonth()+1)).slice(-2);
+    const yy = String(d.getFullYear()).slice(-2);
+    return dd + mm + yy;
   } catch(e) {
     return '';
   }
