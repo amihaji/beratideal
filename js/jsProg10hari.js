@@ -1621,10 +1621,10 @@ async function setupAllComponents() {
     const namaTampil = userName && userName.trim() !== '' ? userName : userId;
     const hour       = new Date().getHours();
 
-    let salam = 'SELAMAT MALAM';
-    if (hour >= 4 && hour < 11) salam = 'SELAMAT PAGI';
-    else if (hour >= 11 && hour < 15) salam = 'SELAMAT SIANG';
-    else if (hour >= 15 && hour < 18) salam = 'SELAMAT SORE';
+    let salam = 'Selamat Malam';
+    if (hour >= 4 && hour < 11) salam = 'Selamat Pagi';
+    else if (hour >= 11 && hour < 15) salam = 'Selamat Siang';
+    else if (hour >= 15 && hour < 18) salam = 'Selamat Sore';
 
     const elGreetingName = document.getElementById('greetingName');
     const elGreetingTime = document.getElementById('greetingTime');
