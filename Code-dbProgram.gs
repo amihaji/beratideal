@@ -3233,3 +3233,59 @@ function calculateSkor(imt, lemakTubuh, lemakPerut, jenkel) {
   return (skor);
 }
 
+/******************************************************************
+ * TESTIMONI & FEEDBACK (saat user klik Tukar Point → redirect frmProduk)
+ * Simpan ke sheet DATAKONSUMEN → kolom P(idx15)=testimoni, Q(idx16)=feedback
+ * User diidentifikasi berdasarkan userId (kolom M = idx12)
+ * Jika user row blm ada → create row minimal terisi P & Q (M, N, O juga isi dari fallback)
+ ******************************************************************/
+function simpanTestimoniFeedback(param) {
+  const callback = param.callback || '';
+  try {
+    const userId    = String(param.userId || '').trim();
+    let testimoni   = String(param.testimoni || '').trim();
+    let feedback    = String(param.feedback || '').trim();
+    if (!userId) {
+      return createJSONPResponse(callback, { status:'error', message:'User ID tidak ditemukan. Silakan login kembali.' });
+    }
+    if (!testimoni) {
+      return createJSONPResponse(callback, { status:'error', message:'Testimoni tidak boleh kosong. Silakan isi pengalaman Anda selama 10 hari FIT Challenge.' });
+    }
+    if (!feedback) {
+      return createJSONPResponse(callback, { status:'error', message:'Feedback pilihan belum dipilih. Pilih setidaknya 1 pilihan untuk meningkatkan kualitas aplikasi.' });
+    }
+    // Sanitize & truncate (testimoni max 3000 char, feedback max 2000 char)
+    if (testimoni.length > 3000) testimoni = testimoni.slice(0, 2997) + '...';
+    if (feedback.length > 2000)  feedback  = feedback.slice(0, 1997)  + '...';
+
+    if (!shDataKonsumen) {
+      return createJSONPResponse(callback, { status:'error', message:'Sheet DATAKONSUMEN tidak tersedia. Hubungi admin.' });
+    }
+
+    let rowKonsumen = findKonsumenRowByUserId(userId);
+    if (rowKonsumen === -1) {
+      // Fallback: ambil data user (jenisKelamin + tglLahir) dari database lama
+      const fallback = fallbackUserDataFromDb(userId);
+      const jenisKelamin = fallback.jenisKelamin || '';
+      const tglLahir     = fallback.tglLahir     || '';
+      const fieldsLen    = getDataKonsumenFieldNames_().length;
+      const newRow       = new Array(fieldsLen).fill('');
+      newRow[12] = userId;
+      newRow[13] = jenisKelamin;
+      newRow[14] = tglLahir;
+      newRow[15] = testimoni;
+      newRow[16] = feedback;
+      shDataKonsumen.appendRow(newRow);
+      return createJSONPResponse(callback, { status:'success', message:'Testimoni & Feedback tersimpan. Membuka katalog produk...', rowBaruDibuat:true });
+    }
+
+    // Row ditemukan → Update kolom P(idx15) = testimoni, Q(idx16)=feedback (langsung set 2 kolom berdekatan 1 call range)
+    const rowIndex = rowKonsumen + 1;
+    shDataKonsumen.getRange(rowIndex, 16, 1, 2).setValues([[ testimoni, feedback ]]);
+    return createJSONPResponse(callback, { status:'success', message:'Testimoni & Feedback tersimpan. Membuka katalog produk...', rowBaruDibuat:false });
+  } catch (err) {
+    console.error('[simpanTestimoniFeedback] error:', err);
+    return createJSONPResponse(callback, { status:'error', message:'Terjadi kesalahan saat menyimpan Testimoni & Feedback: ' + (err.message || String(err)) });
+  }
+}
+

@@ -683,6 +683,114 @@
   </div>
 </div>
 
+<!-- =====================================================================
+     MODAL #2: TESTIMONI & FEEDBACK (muncul sebelum TUKAR POINT → frmProduk)
+     Design UI/UX SAMA PERSIS dengan modal Quiz → gradasi biru header + footer tengah
+===================================================================== -->
+<div class="modal fade" id="testimoniFeedbackModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="testimoniFeedbackModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Header Modal (SAMA gradasi biru dengan Quiz Modal) -->
+      <div class="modal-header">
+        <h5 class="modal-title text-white" id="testimoniFeedbackModalLabel">
+          <i class="fas fa-comments me-2"></i> Testimoni &amp; Feedback
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="tfCloseBtn"></button>
+      </div>
+
+      <!-- Body Modal -->
+      <div class="modal-body" style="padding: 20px 24px;">
+
+        <!-- Loading / Status -->
+        <div id="tfStatusBox" class="text-center py-4" style="display:none;">
+          <div class="spinner-border text-primary mb-2" role="status">
+            <span class="visually-hidden">Mengirim...</span>
+          </div>
+          <div id="tfStatusMessage">Menyimpan testimoni &amp; feedback...</div>
+        </div>
+
+        <!-- Form -->
+        <div id="tfFormBox">
+          <div id="tfInlineAlert" class="quiz-inline-alert mb-3" style="display:none;">
+            <i class="fas fa-exclamation-triangle me-2"></i><span id="tfInlineAlertText"></span>
+          </div>
+
+          <!-- Field A: Testimoni -->
+          <div class="mb-4">
+            <label for="tfTestimoni" class="form-label fw-semibold mb-2" style="color:#002266;">
+              <i class="fas fa-quote-left text-primary me-1"></i> Testimoni
+            </label>
+            <p class="small text-muted mb-2 mt-0">Ceritakan pengalaman Anda selama mengikuti eCourse FIT Challenge 10 hari bersama BERATidealku. Apa manfaat yang Anda rasakan setelah menyelesaikan seluruh program?</p>
+            <textarea class="form-control form-control-sm" id="tfTestimoni" rows="5"
+              placeholder="Contoh: Selama mengikuti FIT Challenge 10 hari saya merasa pola makan saya jauh lebih teratur. Berat badan saya turun 3 kg dan lingkar perut berkurang 4 cm. Dukungan dari coach dan komunitas sangat membantu saya tetap konsisten setiap hari! Terima kasih BERATidealku."
+              maxlength="3000"></textarea>
+            <div class="text-end small text-muted mt-1"><span id="tfTestimoniCount">0</span>/3000 karakter</div>
+          </div>
+
+          <!-- Field B: Feedback (4 checklist + textarea lainnya) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold mb-2" style="color:#002266;">
+              <i class="fas fa-lightbulb text-primary me-1"></i> Feedback
+            </label>
+            <p class="small text-muted mb-3 mt-0">Pilih salah satunya untuk meningkatkan atau memperbaiki kualitas dari aplikasi ini (bisa pilih lebih dari 1):</p>
+
+            <div class="d-grid gap-2">
+              <div class="form-check p-3 rounded border" style="background-color: #f7faff;">
+                <input class="form-check-input" type="checkbox" value="Navigasi UI/UX yang agak membingungkan" id="tfFb1">
+                <label class="form-check-label" for="tfFb1">
+                  <strong>Navigasi UI/UX yang agak membingungkan</strong>
+                  <div class="small text-muted ms-4 mt-1">Misal: menu tidak jelas, letak fitur sulit dicari, tombol rancu.</div>
+                </label>
+              </div>
+              <div class="form-check p-3 rounded border" style="background-color: #f7faff;">
+                <input class="form-check-input" type="checkbox" value="Modul-modulnya perlu lebih variatif" id="tfFb2">
+                <label class="form-check-label" for="tfFb2">
+                  <strong>Modul-modulnya perlu lebih variatif</strong>
+                  <div class="small text-muted ms-4 mt-1">Tambah variasi tema nutrisi, resep menu, atau ragam panduan olahraga sesuai kategori pengguna.</div>
+                </label>
+              </div>
+              <div class="form-check p-3 rounded border" style="background-color: #f7faff;">
+                <input class="form-check-input" type="checkbox" value="Response time lambat" id="tfFb3">
+                <label class="form-check-label" for="tfFb3">
+                  <strong>Response time lambat</strong>
+                  <div class="small text-muted ms-4 mt-1">Load data, simpan progress, atau buka halaman terasa lama &amp; perlu ditingkatkan performanya.</div>
+                </label>
+              </div>
+              <div class="form-check p-3 rounded border" style="background-color: #f7faff;">
+                <input class="form-check-input" type="checkbox" value="Fiture yang perlu diperbaiki" id="tfFb4" data-toggle-lainnya="true">
+                <label class="form-check-label" for="tfFb4">
+                  <strong>Fitur yang perlu diperbaiki, seperti :</strong>
+                  <div class="small text-muted ms-4 mt-1">Sebutkan secara spesifik (nama fitur, bug, dsb) di kotak "Fitur lainnya" di bawah ini.</div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Lainnya (aktif jika tfFb4 dicentang) -->
+            <div class="mt-3" id="tfLainnyaWrap" style="opacity: 0.55; pointer-events: none;">
+              <label for="tfLainnya" class="form-label small fw-semibold mb-1" style="color:#002266;">
+                <i class="fas fa-pencil-alt text-primary me-1"></i> Fitur Lainnya yang Perlu Diperbaiki (wajib isi jika pilih "Fitur yang perlu diperbaiki"):
+              </label>
+              <textarea class="form-control form-control-sm" id="tfLainnya" rows="3" maxlength="500"
+                placeholder="Contoh: Fitur tracking berat badan di hari ke-7 tidak bisa tersimpan. Tombol Katalog PDF kadang tidak terbuka. Tambahkan fitur chat dengan coach, dll..."></textarea>
+              <div class="text-end small text-muted mt-1"><span id="tfLainnyaCount">0</span>/500 karakter</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Modal (SAMA rata tengah dengan Quiz Modal) -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" id="tfKirimBtn">
+          <i class="fas fa-paper-plane"></i> Kirim
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- About Overlay -->
 <div class="about-overlay" id="aboutOverlay">
   <div class="about-form">

@@ -7911,21 +7911,192 @@ function tampilkanDashboardSederhana(data) {
 
 /*****************************
 * Fungsi untuk menukar point *
+* (Diubah: sebelum redirect frmProduk.html → user WAJIB isi form Testimoni & Feedback dulu)
 ******************************/
 function tukarPoint(totalPoint) {
-    if (totalPoint === 0) {
-        showMessage('warning', 'Maaf, Anda belum memiliki point untuk ditukarkan.', 3000);
+    if (!totalPoint || totalPoint < 500) {
+        showMessage('warning', 'Maaf, Anda harus menyelesaikan seluruh 10 modul (minimal 500 point) untuk bisa menukarkan point.', 4200);
         return;
     }
-    // Simpan request penukaran point
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
-    console.log('Penukaran point:', { userId, userName, totalPoint, tanggal: new Date() });
-    redirectPage = 'frmProduk.html';
-    setTimeout(() => {
-      window.location.href = redirectPage;
-      }, 500);
+    if (!userId) {
+        showMessage('error', 'Sesi login tidak ditemukan. Silakan login kembali (userId tidak tersedia).', 4500);
+        return;
+    }
+    // Sebelum redirect: buka modal Testimoni & Feedback (user harus isi & kirim dulu)
+    console.log('[Tukar Point] Siapkan modal Testimoni sebelum redirect frmProduk.', { userId, userName, totalPoint });
+    _tfBukaModal();
 }
+
+/*******************************
+* HELPER MODAL TESTIMONI FEEDBACK (TF)
+* Pola sama dengan modal QUIZ (seragam code style)
+*******************************/
+let _tfRedirectSukses = false;
+function _tfBukaModal() {
+    const modalEl = document.getElementById('testimoniFeedbackModal');
+    if (!modalEl) {
+        showMessage('error', 'Modal Testimoni & Feedback tidak ditemukan (structure HTML bermasalah).', 4200);
+        return;
+    }
+    _tfResetForm();
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    bsModal.show();
+    setTimeout(() => document.getElementById('tfTestimoni')?.focus(), 400);
+}
+function _tfTutupModal() {
+    const modalEl = document.getElementById('testimoniFeedbackModal');
+    if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+    _tfResetForm();
+}
+function _tfResetForm() {
+    // Reset semua field ke default kosong
+    const t = document.getElementById('tfTestimoni');
+    const lainnya = document.getElementById('tfLainnya');
+    const wrapLain = document.getElementById('tfLainnyaWrap');
+    ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+    if (t) { t.value = ''; }
+    if (lainnya) { lainnya.value = ''; }
+    if (wrapLain) wrapLain.classList.remove('aktif');
+    _tfUpdateCounter();
+    _tfHideInlineAlert();
+    _tfShowBox('form');
+    document.getElementById('tfKirimBtn').disabled = false;
+    _tfRedirectSukses = false;
+}
+function _tfUpdateCounter() {
+    const t = document.getElementById('tfTestimoni');
+    const l = document.getElementById('tfLainnya');
+    const c1 = document.getElementById('tfTestimoniCount');
+    const c2 = document.getElementById('tfLainnyaCount');
+    if (t && c1) c1.textContent = (t.value||'').length;
+    if (l && c2) c2.textContent = (l.value||'').length;
+}
+function _tfShowBox(which) {
+    const s = document.getElementById('tfStatusBox');
+    const f = document.getElementById('tfFormBox');
+    const k = document.getElementById('tfKirimBtn');
+    if (!s || !f) return;
+    if (which === 'status') {
+        s.style.display = ''; f.style.display = 'none';
+        if (k) k.disabled = true;
+    } else {
+        s.style.display = 'none'; f.style.display = '';
+        if (k) k.disabled = false;
+    }
+}
+function _tfShowInlineAlert(msg) {
+    const el = document.getElementById('tfInlineAlert');
+    const sp = document.getElementById('tfInlineAlertText');
+    if (!el || !sp) { showMessage('warning', msg, 5000); return; }
+    sp.textContent = msg;
+    el.classList.add('show');
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function _tfHideInlineAlert() {
+    document.getElementById('tfInlineAlert')?.classList.remove('show');
+}
+// User klik kirim → validasi → kirim via kirimKeServer → redirect frmProduk.html
+function _tfKirimDanTukar() {
+    _tfHideInlineAlert();
+    // 1. Ambil testimoni
+    const testimoni = (document.getElementById('tfTestimoni')?.value || '').trim();
+    if (!testimoni) {
+        _tfShowInlineAlert('Testimoni wajib diisi. Ceritakan pengalaman Anda selama 10 hari mengikuti FIT Challenge (minimal 10 karakter).');
+        document.getElementById('tfTestimoni').focus();
+        return;
+    }
+    if (testimoni.length < 10) {
+        _tfShowInlineAlert('Testimoni minimal 10 karakter agar lebih jelas menceritakan pengalaman Anda. Panjang sekarang: ' + testimoni.length);
+        document.getElementById('tfTestimoni').focus();
+        return;
+    }
+    // 2. Ambil feedback checklist (minimal 1 dicentang)
+    const pilihan = [];
+    ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el && el.checked) pilihan.push(el.value); });
+    if (pilihan.length === 0) {
+        _tfShowInlineAlert('Feedback pilihan belum dipilih. Silakan pilih setidaknya 1 pilihan checklist (bisa lebih dari 1) untuk meningkatkan kualitas aplikasi.');
+        document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+    }
+    // 3. Jika pilih "Fitur yang perlu diperbaiki" (tfFb4) → LAINNYA WAJIB diisi minimal 10 karakter
+    const lainnyaEl = document.getElementById('tfLainnya');
+    const wrapLain  = document.getElementById('tfLainnyaWrap');
+    const isFb4 = pilihan.indexOf('Fiture yang perlu diperbaiki') !== -1;
+    let lainnya = '';
+    if (isFb4) {
+        lainnya = (lainnyaEl?.value || '').trim();
+        if (lainnya.length < 10) {
+            wrapLain?.classList.add('aktif');
+            _tfShowInlineAlert('Anda memilih "Fitur yang perlu diperbaiki". Silakan isi kotak "Fitur Lainnya" secara spesifik (minimal 10 karakter), misal nama fitur atau bug yang ditemukan.');
+            lainnyaEl?.focus();
+            return;
+        }
+    }
+    // 4. Gabungkan feedback jadi 1 kolom string: "[Pilihan1] · [Pilihan2] · Lainnya: ..."
+    let feedbackFinal = pilihan.join(' | ');
+    if (isFb4 && lainnya) feedbackFinal += ' → Lainnya: ' + lainnya;
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        _tfShowInlineAlert('Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.');
+        return;
+    }
+    // 5. Kirim ke server via kirimKeServer pattern yang ada (JSONP Apps Script)
+    document.getElementById('tfStatusMessage').textContent = 'Menyimpan Testimoni & Feedback...';
+    _tfShowBox('status');
+    kirimKeServer({
+        action: 'simpanTestimoniFeedback',
+        userId: userId,
+        testimoni: testimoni,
+        feedback: feedbackFinal
+    }, function(res) {
+        if (!res) {
+            _tfShowBox('form');
+            _tfShowInlineAlert('Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.');
+            return;
+        }
+        if (res.status !== 'success') {
+            _tfShowBox('form');
+            _tfShowInlineAlert(res.message || 'Gagal menyimpan. Silakan coba kembali.');
+            return;
+        }
+        // 6. BERHASIL → tutup modal → showMessage success → REDIRECT frmProduk.html setelah 900ms
+        document.getElementById('tfStatusMessage').textContent = (res.message || 'Data tersimpan') + ' Membuka katalog produk...';
+        showMessage('success', (res.message || 'Testimoni & Feedback berhasil tersimpan.') + ' Segera membuka katalog produk...', 3000);
+        _tfRedirectSukses = true;
+        redirectPage = 'frmProduk.html';
+        setTimeout(() => {
+            _tfTutupModal();
+            window.location.href = redirectPage;
+        }, 950);
+    });
+}
+// ===== EVENT LISTENER ONLOAD TF (attach ke textarea, checkbox, button) =====
+// Ditempatkan di bawah bootstrap modal script di HTML, tapi kita pakai event delegation document.ready jika sudah
+document.addEventListener('DOMContentLoaded', function() {
+    // --- TF Listener ---
+    document.getElementById('tfTestimoni')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
+    document.getElementById('tfLainnya')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
+    // Toggle lainnya wrap berdasarkan tfFb4 checked
+    document.getElementById('tfFb4')?.addEventListener('change', function() {
+        const wrap = document.getElementById('tfLainnyaWrap');
+        if (!wrap) return;
+        if (this.checked) { wrap.classList.add('aktif'); setTimeout(() => document.getElementById('tfLainnya')?.focus(), 250); }
+        else wrap.classList.remove('aktif');
+    });
+    // Checklist berubah → hilangkan inline error
+    ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', function() { _tfHideInlineAlert(); });
+    });
+    // Tombol Kirim Footer
+    document.getElementById('tfKirimBtn')?.addEventListener('click', function() { _tfKirimDanTukar(); });
+    // Close Modal Button (X) → jika user sudah submit & redirect sukses, jangan izinkan close dulu.
+    document.getElementById('tfCloseBtn')?.addEventListener('click', function(e) {
+        if (_tfRedirectSukses) { e.preventDefault(); return false; }
+        _tfResetForm();
+    });
+});
 
 /**********************************************
  * Buat Grafik dengan Chart.js - Versi Garis

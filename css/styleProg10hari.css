@@ -911,6 +911,97 @@ body > .notification-message:last-of-type {
     min-width: 160px;
 }
 
+/******************************************************************/
+/*  STYLING MODAL TESTIMONI & FEEDBACK (TUKAR POINT SEBUIH */
+/*  Design system SAMA 100% dengan modal Quiz agar seragam          */
+/*  1. Copy style generic dari modal QUIZ (scoped ke selector TF)        */
+/*  2. Tambahkan style spesifik: checklist wrap, lainnya toggle aktif       */
+/******************************************************************/
+#testimoniFeedbackModal .modal-header {
+    background: linear-gradient(135deg, #002266 0%, #004499 50%, #0066cc 100%);
+    color: #ffffff;
+    border-radius: 0;
+}
+#testimoniFeedbackModal .modal-header .btn-close { filter: invert(1); }
+#testimoniFeedbackModal .modal-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+/* Quiz inline alert dipakai kembali untuk TF alert (warning) */
+#testimoniFeedbackModal .quiz-inline-alert {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-weight: 500;
+    display: none;
+}
+#testimoniFeedbackModal .quiz-inline-alert.show { display: block; }
+/* Footer TIDAK usah punya tombol tengah (cuma 1 tombol Kirim) tapi tetap rata tengah 1 tombol */
+#testimoniFeedbackModal .modal-footer {
+    justify-content: center !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 18px;
+}
+#testimoniFeedbackModal .modal-footer button i {
+    margin-right: 8px;
+    display: inline-block;
+}
+#testimoniFeedbackModal .modal-footer #tfKirimBtn {
+    min-width: 200px;
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.15px;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+}
+/* SPESIFIK TF: styling form-control feedback checkbox hover */
+#testimoniFeedbackModal textarea.form-control {
+    resize: vertical;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+#testimoniFeedbackModal textarea.form-control:focus,
+#testimoniFeedbackModal input.form-check-input:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 0.15rem rgba(0, 68, 153, 0.2);
+}
+/* Checkbox card hover agar terasa clickable */
+#testimoniFeedbackModal .form-check.p-3 {
+    transition: all 0.18s ease;
+}
+#testimoniFeedbackModal .form-check.p-3:hover {
+    border-color: #0066cc !important;
+    background-color: #eef6ff !important;
+    transform: translateX(2px);
+    cursor: pointer;
+}
+/* Saat checkbox DICENTANG → card border hijau muda */
+#testimoniFeedbackModal .form-check.p-3:has(input[type="checkbox"]:checked) {
+    border-color: #28a745 !important;
+    background-color: #ecf9f0 !important;
+}
+/* Lainnya wrap AKTIF (opacity 1 & pointer all) saat tfFb4 dicentang */
+#testimoniFeedbackModal #tfLainnyaWrap.aktif {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+#testimoniFeedbackModal #tfLainnyaWrap.aktif label { color: #002266 !important; }
+
+
 /***** STYLING UNTUK PESAN UNIVERSAL POSISI MENU *****/
 .pesan-notif-icon { font-size: 18px; }
 /* Toast message */
