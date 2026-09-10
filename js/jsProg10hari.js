@@ -8089,7 +8089,7 @@ function _tfKirimDanTukar() {
 
     // (C) Gabung feedback final
     let feedbackFinal = pilihan.join(' | ');
-    if (isFb4 && lainnya) feedbackFinal += ' → Lainnya: ' + lainnya;
+    if (isFb4 && lainnya) feedbackFinal += ': ' + lainnya;
     const userId = localStorage.getItem('userId');
     if (!userId) { showMessage('error', 'Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.', 4500); return; }
 
@@ -8105,7 +8105,7 @@ function _tfKirimDanTukar() {
         // Case 1: Koneksi / server tidak merespon → kembalikan tombol normal
         if (!res) {
             _tfTombolKirimLoading(false);
-            showMessage('error', 'Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.', 5000);
+            showMessage('error', 'Coba beberapa saat lagi.', 5000);
             return;
         }
         // Case 2: GAGAL → KEMBALIKAN tombol normal, tampil error message diatas kirim
