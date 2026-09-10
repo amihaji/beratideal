@@ -8064,7 +8064,7 @@ function _tfTombolKirimLoading(aktif) {
 // User klik tombol [Kirim]
 // ============================
 function _tfKirimDanTukar() {
-    const PESAN_ERROR   = 'Isi terlebih data testimoni / Feedback';  // KALIMAT USER (VERBATIM)
+    const PESAN_ERROR   = 'Isi terlebih data testimoni & Feedback';  // KALIMAT USER (VERBATIM)
     const PESAN_SUKSES  = 'Data berhasil terkirim';                  // KALIMAT USER (VERBATIM)
     _tfHideMessage();
     // (A) Ambil value field
