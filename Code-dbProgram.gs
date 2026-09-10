@@ -3267,7 +3267,7 @@ function getStatusTestimoni(param) {
 }
 function simpanTestimoniFeedback(param) {
   const callback = param.callback || '';
-  const PESAN_UMUM = 'Isi terlebih dahulu testimoni dan feedback';
+  const PESAN_UMUM = 'Isi terlebih data testimoni / Feedback';  // KALIMAT BARU USER (sinkron frontend tfMessageBox)
   try {
     const userId    = String(param.userId || '').trim();
     let testimoni   = String(param.testimoni || '').trim();

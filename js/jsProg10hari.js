@@ -7944,6 +7944,13 @@ function tukarPoint(totalPoint) {
 /*******************************
 * HELPER MODAL TESTIMONI FEEDBACK (TF)
 * Pola sama dengan modal QUIZ (seragam code style)
+*
+* USER REQUEST TERBARU (DIPAKAI DISINI):
+*  - ERROR  -> pesan "Isi terlebih data testimoni / Feedback"
+*  - SUKSES -> pesan "Data berhasil terkirim"
+*  - LOKASI PESAN: HANYA di tfMessageBox (persis DIATAS TOMBOL KIRIM di modal TF)
+*  - TIDAK BOLEH showMessage popup global untuk TF error & TF success.
+*  - Setelah sukses tampil pesan: ~900ms kemudian pindah ke frmProduk.html.
 *******************************/
 let _tfRedirectSukses = false;
 function _tfBukaModal() {
@@ -7966,16 +7973,12 @@ function _tfResetForm() {
     const t = document.getElementById('tfTestimoni');
     const lainnya = document.getElementById('tfLainnya');
     const wrapLain = document.getElementById('tfLainnyaWrap');
-    const fw = document.getElementById('tfFieldsWrap');
-    const sa = document.getElementById('tfSuccessAlert');
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
     if (t) { t.value = ''; }
     if (lainnya) { lainnya.value = ''; }
     if (wrapLain) wrapLain.classList.remove('aktif');
-    if (fw) fw.style.display = '';
-    if (sa) sa.style.display = 'none';
     _tfUpdateCounter();
-    _tfHideInlineAlert();
+    _tfHideMessage();
     _tfShowBox('form');
     document.getElementById('tfKirimBtn').disabled = false;
     _tfRedirectSukses = false;
@@ -8003,21 +8006,47 @@ function _tfShowBox(which, successText) {
         if (k) k.disabled = false;
     }
 }
-function _tfShowInlineAlert(msg) {
-    const el = document.getElementById('tfInlineAlert');
-    const sp = document.getElementById('tfInlineAlertText');
-    if (!el || !sp) { showMessage('warning', msg, 5000); return; }
-    sp.textContent = msg;
-    el.classList.add('show');
-    el.scrollIntoView({ behavior:'smooth', block:'center' });
+/* ===================================================================
+   _tfShowMessage / _tfHideMessage
+   TUNGGAL: SEMUA pesan (error ATAU success) TF hanya tampil DISINI.
+   LOKASI: #tfMessageBox → persis DIATAS TOMBOL KIRIM (sesuai user request!).
+=================================================================== */
+function _tfShowMessage(tipe, teks) {
+    const box = document.getElementById('tfMessageBox');
+    const inner = document.getElementById('tfMessageBoxInner');
+    const icon = document.getElementById('tfMessageBoxIcon');
+    const text = document.getElementById('tfMessageBoxText');
+    if (!box || !inner || !icon || !text) {
+        // Fallback jika HTML tidak lengkap — HANYA SAAT INI pakai showMessage global
+        showMessage((tipe === 'success' ? 'success' : 'warning'), teks, 4500);
+        return;
+    }
+    // 1. Set class variant (warna bg, border kiri, icon, teks)
+    inner.classList.remove('msg-error', 'msg-success');
+    if (tipe === 'success') inner.classList.add('msg-success');
+    else                    inner.classList.add('msg-error');
+    // 2. Set ICON (sesuai fungsi existing fa fontawesome)
+    icon.classList.remove('fa-exclamation-triangle', 'fa-check-circle', 'fas');
+    icon.classList.add('fas');
+    if (tipe === 'success') icon.classList.add('fa-check-circle');
+    else                    icon.classList.add('fa-exclamation-triangle');
+    // 3. Set TEKS
+    text.textContent = teks;
+    // 4. Tampilkan + scroll ke posisi (persis diatas tombol kirim)
+    box.style.display = '';
+    try { box.scrollIntoView({ behavior:'smooth', block:'nearest' }); } catch(e) {}
 }
-function _tfHideInlineAlert() {
-    document.getElementById('tfInlineAlert')?.classList.remove('show');
+function _tfHideMessage() {
+    const box = document.getElementById('tfMessageBox');
+    if (box) box.style.display = 'none';
 }
-// User klik kirim → validasi RINGKAS (1 pesan SAJA: "Isi terlebih dahulu testimoni dan feedback" JIKA ADA YANG TIDAK SESUAI)
+// ============================
+// User klik tombol [Kirim]
+// ============================
 function _tfKirimDanTukar() {
-    const PESAN_VALIDASI = 'Isi terlebih dahulu testimoni dan feedback';
-    _tfHideInlineAlert();
+    const PESAN_ERROR   = 'Isi terlebih data testimoni / Feedback';  // KALIMAT BARU DARI USER (VERBATIM)
+    const PESAN_SUKSES  = 'Data berhasil terkirim';                  // KALIMAT BARU DARI USER (VERBATIM)
+    _tfHideMessage();
     // (A) Ambil value field
     const testimoni = (document.getElementById('tfTestimoni')?.value || '').trim();
     const pilihan = [];
@@ -8027,12 +8056,13 @@ function _tfKirimDanTukar() {
     const wrapLain  = document.getElementById('tfLainnyaWrap');
     const lainnya = isFb4 ? (lainnyaEl?.value || '').trim() : '';
 
-    // (B) VALIDASI SEMUA KEMUNGKINAN → HANYA SATU PESAN TUNGGAL TIDAK BOLEH BEDA
-    const fieldAdaYangKosong = (testimoni.length === 0) || (pilihan.length === 0) || (isFb4 && lainnya.length === 0);
-    const panjangKurang = (testimoni.length < 10) || (isFb4 && lainnya.length < 10);
-    if (fieldAdaYangKosong || panjangKurang) {
-        _tfShowInlineAlert(PESAN_VALIDASI);
-        // focus saja ke field bermasalah, tapi pesannya TETAP sama untuk semua kasus
+    // (B) VALIDASI: SEMUA KASUS KESALAHAN FIELD → HANYA 1 PESAN: PESAN_ERROR
+    //    User request JELAS: "kalau field masih kosong atau salah satunya masih kosong, muncul message ..."
+    const fieldKosong  = (testimoni.length === 0) || (pilihan.length === 0) || (isFb4 && lainnya.length === 0);
+    const fieldPendek  = (testimoni.length < 10) || (isFb4 && lainnya.length < 10);
+    if (fieldKosong || fieldPendek) {
+        _tfShowMessage('error', PESAN_ERROR);
+        // Focus ke field yang bermasalah (internal saja; pesan ke user TETAP PESAN_ERROR di atas tombol kirim)
         if (testimoni.length === 0 || testimoni.length < 10) document.getElementById('tfTestimoni')?.focus();
         else if (pilihan.length === 0) document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
         else if (isFb4) { wrapLain?.classList.add('aktif'); lainnyaEl?.focus(); }
@@ -8045,11 +8075,10 @@ function _tfKirimDanTukar() {
     const userId = localStorage.getItem('userId');
     if (!userId) { showMessage('error', 'Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.', 4500); return; }
 
-    // (D) Kirim ke server. Loading ditampilkan box status sebentar, lalu:
-    //   - ERROR: kembali ke form → TAMPILKAN PESAN_VALIDASI (1 kalimat yang sama)
-    //   - SUKSES: KEMBALI KE FORM (AREA FORM SESUAI USER REQUEST "di formnya tersebut"),
-    //             SEMBUNYIKAN semua field (Testimoni/feedback), TAMPILKAN tfSuccessAlert (icon + "Data berhasil terkirim").
-    //             TIDAK ADA showMessage popup SAMA SEKALI.
+    // (D) Kirim ke server. Loading tampil di status box sebentar.
+    // Setelah dapat response SUKSES / ERROR validasi → KEMBALI ke form dan
+    // tampilkan PESAN_SUKSES / PESAN_ERROR di tfMessageBox (TEPAT DIATAS TOMBOL KIRIM).
+    // User request: "JANGAN PESAN TAMPIL DALAM BENTUK MODAL" (tidak pakai showMessage global)
     document.getElementById('tfStatusMessage').textContent = 'Mengirim data...';
     _tfShowBox('status');
     kirimKeServer({
@@ -8058,52 +8087,45 @@ function _tfKirimDanTukar() {
         testimoni: testimoni,
         feedback: feedbackFinal
     }, function(res) {
+        // Case 1: Koneksi / server tidak merespon → HANYA ini pakai showMessage global (bukan pesan field)
         if (!res) {
-            // Hanya error koneksi pakai showMessage (karena butuh perhatian user), error validasi tidak
             _tfShowBox('form');
             showMessage('error', 'Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.', 5000);
             return;
         }
+        // Case 2: GAGAL (tidak sukses) → KEMBALI ke FORM, TAMPILKAN PESAN_ERROR di tfMessageBox diatas tombol KIRIM.
+        //         HANYA jika pesan backend = userId/sheet error (bukan field) → tambah showMessage global agar user perhatian.
         if (res.status !== 'success') {
-            // KESALAHAN VALIDASI / GAGAL SIMPAN → FORCE PESAN YANG SAMA (TIDAK BOLEH ADA VARIASI SESUAI USER)
             _tfShowBox('form');
-            _tfShowInlineAlert(PESAN_VALIDASI);
-            // Kalau backend return specific userId tidak ketemu / data double (bukan field error), tampil showMessage yang relevan
-            // Sisanya = field error → PESAN_VALIDASI saja
-            if (res.message && (res.message.indexOf('userId') !== -1 || res.message.toLowerCase().indexOf('gagal menyimpan') !== -1)) {
+            _tfShowMessage('error', PESAN_ERROR);   // User request tegas: 1 pesan error tunggal, JANGAN variasi.
+            if (res.message && (res.message.indexOf('userId') !== -1 || res.message.indexOf('Sheet') !== -1 || res.message.toLowerCase().indexOf('gagal menyimpan') !== -1)) {
                 showMessage('error', res.message, 4800);
             }
             return;
         }
-        // =========================================================
-        // ✅ BERHASIL SIMPAN: User req #2 → CUKUP tampil "Data berhasil terkirim" DI FORMNYA TERSEBUT.
-        //    - JANGAN showMessage popup TIDAK BOLEH.
-        //    - Tampil di FORM area (bukan status box spinner): sembunyikan semua field, tampilkan tfSuccessAlert
-        //      (icon ceklis hijau + judul bold "Data berhasil terkirim")
-        //    - Setelah 750ms tutup modal & redirect frmProduk.html
-        // =========================================================
+        // Case 3: ✅ BERHASIL SIMPAN → KEMBALI KE FORM (field tetap TAMPIL SEMUA, user request jangan sembunyi).
+        //         - TAMPILKAN PESAN_SUKSES DI tfMessageBox (PERSIS DIATAS TOMBOL KIRIM).
+        //         - JANGAN showMessage popup global!
+        //         - Disable tombol Kirim agar user tidak double submit.
+        //         - Tunggu ~900ms agar user baca pesan → tutup modal → redirect frmProduk.html
         _tfShowBox('form');
-        const fw = document.getElementById('tfFieldsWrap');
-        const sa = document.getElementById('tfSuccessAlert');
-        if (fw) fw.style.display = 'none';
-        if (sa) sa.style.display = '';
+        _tfShowMessage('success', PESAN_SUKSES);
         document.getElementById('tfKirimBtn').disabled = true;
 
-        // (ABSOLUTELY DILARANG panggil showMessage disini sesuai user req #2)
-        // showMessage('success', '...') → DITONDAK / DIBLOKIR.
+        // User request: "beberapa detik pindah ke frmProduk.html"
         _tfRedirectSukses = true;
         redirectPage = 'frmProduk.html';
         setTimeout(() => {
             _tfTutupModal();
             window.location.href = redirectPage;
-        }, 750);
+        }, 900);
     });
 }
 // ===== EVENT LISTENER ONLOAD TF =====
 document.addEventListener('DOMContentLoaded', function() {
     // --- TF Listener ---
-    document.getElementById('tfTestimoni')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
-    document.getElementById('tfLainnya')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
+    document.getElementById('tfTestimoni')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideMessage(); });
+    document.getElementById('tfLainnya')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideMessage(); });
     document.getElementById('tfFb4')?.addEventListener('change', function() {
         const wrap = document.getElementById('tfLainnyaWrap');
         if (!wrap) return;
@@ -8111,7 +8133,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else wrap.classList.remove('aktif');
     });
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => {
-        document.getElementById(id)?.addEventListener('change', function() { _tfHideInlineAlert(); });
+        document.getElementById(id)?.addEventListener('change', function() { _tfHideMessage(); });
     });
     document.getElementById('tfKirimBtn')?.addEventListener('click', function() { _tfKirimDanTukar(); });
     document.getElementById('tfCloseBtn')?.addEventListener('click', function(e) {
