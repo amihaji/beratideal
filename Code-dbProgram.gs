@@ -170,6 +170,13 @@ function doGet(e) {
     return prosesDownloadSertifikat(e.parameter);
   }
 
+  // =====================================
+  // FITUR TESTIMONI & FEEDBACK (TUKAR POINT)
+  // =====================================
+  if (action === 'simpanTestimoniFeedback') {
+    return simpanTestimoniFeedback(e.parameter);
+  }
+
   return createJSONPResponse(callback, { 
     status: "error", 
     message: "Action tidak dikenali" 
