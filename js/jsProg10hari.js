@@ -8040,12 +8040,32 @@ function _tfHideMessage() {
     const box = document.getElementById('tfMessageBox');
     if (box) box.style.display = 'none';
 }
+/* ===================================================================
+   _tfTombolKirimLoading(aktif)
+   HANDLE loading HANYA DI TOMBOL KIRIM (user request: JANGAN modal spinner terpisah!)
+   - aktif = true  : tombol disabled, icon spinner fa-spin, tulisan "Sedang Terkirim"
+   - aktif = false : kembali normal icon pesawat + "Kirim Testimoni & Feedback"
+=================================================================== */
+function _tfTombolKirimLoading(aktif) {
+    const btn = document.getElementById('tfKirimBtn');
+    if (!btn) return;
+    if (aktif === true) {
+        btn.disabled = true;
+        if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sedang Terkirim';
+    } else {
+        btn.innerHTML = btn.dataset.origHtml
+            ? btn.dataset.origHtml
+            : '<i class="fas fa-paper-plane"></i> Kirim Testimoni & Feedback';
+        btn.disabled = false;
+    }
+}
 // ============================
 // User klik tombol [Kirim]
 // ============================
 function _tfKirimDanTukar() {
-    const PESAN_ERROR   = 'Isi terlebih data testimoni / Feedback';  // KALIMAT BARU DARI USER (VERBATIM)
-    const PESAN_SUKSES  = 'Data berhasil terkirim';                  // KALIMAT BARU DARI USER (VERBATIM)
+    const PESAN_ERROR   = 'Isi terlebih data testimoni / Feedback';  // KALIMAT USER (VERBATIM)
+    const PESAN_SUKSES  = 'Data berhasil terkirim';                  // KALIMAT USER (VERBATIM)
     _tfHideMessage();
     // (A) Ambil value field
     const testimoni = (document.getElementById('tfTestimoni')?.value || '').trim();
@@ -8057,12 +8077,10 @@ function _tfKirimDanTukar() {
     const lainnya = isFb4 ? (lainnyaEl?.value || '').trim() : '';
 
     // (B) VALIDASI: SEMUA KASUS KESALAHAN FIELD → HANYA 1 PESAN: PESAN_ERROR
-    //    User request JELAS: "kalau field masih kosong atau salah satunya masih kosong, muncul message ..."
     const fieldKosong  = (testimoni.length === 0) || (pilihan.length === 0) || (isFb4 && lainnya.length === 0);
     const fieldPendek  = (testimoni.length < 10) || (isFb4 && lainnya.length < 10);
     if (fieldKosong || fieldPendek) {
         _tfShowMessage('error', PESAN_ERROR);
-        // Focus ke field yang bermasalah (internal saja; pesan ke user TETAP PESAN_ERROR di atas tombol kirim)
         if (testimoni.length === 0 || testimoni.length < 10) document.getElementById('tfTestimoni')?.focus();
         else if (pilihan.length === 0) document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
         else if (isFb4) { wrapLain?.classList.add('aktif'); lainnyaEl?.focus(); }
@@ -8075,44 +8093,35 @@ function _tfKirimDanTukar() {
     const userId = localStorage.getItem('userId');
     if (!userId) { showMessage('error', 'Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.', 4500); return; }
 
-    // (D) Kirim ke server. Loading tampil di status box sebentar.
-    // Setelah dapat response SUKSES / ERROR validasi → KEMBALI ke form dan
-    // tampilkan PESAN_SUKSES / PESAN_ERROR di tfMessageBox (TEPAT DIATAS TOMBOL KIRIM).
-    // User request: "JANGAN PESAN TAMPIL DALAM BENTUK MODAL" (tidak pakai showMessage global)
-    document.getElementById('tfStatusMessage').textContent = 'Mengirim data...';
-    _tfShowBox('status');
+    // (D) ⚡⚡⚡ USER REQUEST TERBARU: SPINNER HANYA DI TOMBOL KIRIM. JANGAN PAKAI STATUS BOX MODAL!
+    _tfShowBox('form');                             // TETAP di FORM (JANGAN pindah status box modal spinner)
+    _tfTombolKirimLoading(true);                    // LOADING HANYA DI TOMBOL SAJA: spinner + Sedang Terkirim
     kirimKeServer({
         action: 'simpanTestimoniFeedback',
         userId: userId,
         testimoni: testimoni,
         feedback: feedbackFinal
     }, function(res) {
-        // Case 1: Koneksi / server tidak merespon → HANYA ini pakai showMessage global (bukan pesan field)
+        // Case 1: Koneksi / server tidak merespon → kembalikan tombol normal
         if (!res) {
-            _tfShowBox('form');
+            _tfTombolKirimLoading(false);
             showMessage('error', 'Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.', 5000);
             return;
         }
-        // Case 2: GAGAL (tidak sukses) → KEMBALI ke FORM, TAMPILKAN PESAN_ERROR di tfMessageBox diatas tombol KIRIM.
-        //         HANYA jika pesan backend = userId/sheet error (bukan field) → tambah showMessage global agar user perhatian.
+        // Case 2: GAGAL → KEMBALIKAN tombol normal, tampil error message diatas kirim
         if (res.status !== 'success') {
-            _tfShowBox('form');
-            _tfShowMessage('error', PESAN_ERROR);   // User request tegas: 1 pesan error tunggal, JANGAN variasi.
+            _tfTombolKirimLoading(false);
+            _tfShowMessage('error', PESAN_ERROR);
             if (res.message && (res.message.indexOf('userId') !== -1 || res.message.indexOf('Sheet') !== -1 || res.message.toLowerCase().indexOf('gagal menyimpan') !== -1)) {
                 showMessage('error', res.message, 4800);
             }
             return;
         }
-        // Case 3: ✅ BERHASIL SIMPAN → KEMBALI KE FORM (field tetap TAMPIL SEMUA, user request jangan sembunyi).
-        //         - TAMPILKAN PESAN_SUKSES DI tfMessageBox (PERSIS DIATAS TOMBOL KIRIM).
-        //         - JANGAN showMessage popup global!
-        //         - Disable tombol Kirim agar user tidak double submit.
-        //         - Tunggu ~900ms agar user baca pesan → tutup modal → redirect frmProduk.html
-        _tfShowBox('form');
-        _tfShowMessage('success', PESAN_SUKSES);
+        // Case 3: ✅ BERHASIL SIMPAN → reset spinner tombol tapi TETAP disabled (hindari double klik)
+        _tfTombolKirimLoading(false);
         document.getElementById('tfKirimBtn').disabled = true;
-
-        // User request: "beberapa detik pindah ke frmProduk.html"
+        _tfShowMessage('success', PESAN_SUKSES);
+        // beberapa detik pindah ke frmProduk.html
         _tfRedirectSukses = true;
         redirectPage = 'frmProduk.html';
         setTimeout(() => {
