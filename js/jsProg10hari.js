@@ -7623,12 +7623,12 @@ function tampilkanDashboardSederhana(data) {
     var sharedProgressMessage = '';
     if (!isModulSelesai) {
         if (totalPoint > 0) {
-            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda : (' + totalPoint + '/500 point terkumpul) dan untuk bisa mendownload sertifikat</small>';
+            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda : (' + totalPoint + '/500 point terkumpul) serta dapat mendownload sertifikat</small>';
         } else {
-            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda dan untuk bisa mendownload sertifikat</small>';
+            sharedProgressMessage = '<small class="text-muted d-block mt-2">* Selesaikan seluruh 10 modul untuk menukarkan point anda, serta dapat mendownload sertifikat</small>';
         }
     } else {
-        sharedProgressMessage = '<small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Selamat! Anda telah menyelesaikan seluruh modul dan berhak menukarkan point serta mendownload sertifikat!</small>';
+        sharedProgressMessage = '<small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Selamat! Anda telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapat mendownload sertifikat!</small>';
     }
     
     // Buat rincian point per hari
