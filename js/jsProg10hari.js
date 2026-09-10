@@ -7628,7 +7628,7 @@ function tampilkanDashboardSederhana(data) {
             sharedProgressMessage = '<small class="text-muted d-block mt-2 mb-2">* Selesaikan seluruh modul untuk menukarkan point anda, serta dapatkan sertifikat</small>';
         }
     } else {
-        sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul </br> dan berhak menukarkan point serta dapatkan sertifikat!</small>';
+        sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapatkan sertifikat!</small>';
     }
     
     // Buat rincian point per hari
