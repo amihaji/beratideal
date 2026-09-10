@@ -7966,10 +7966,14 @@ function _tfResetForm() {
     const t = document.getElementById('tfTestimoni');
     const lainnya = document.getElementById('tfLainnya');
     const wrapLain = document.getElementById('tfLainnyaWrap');
+    const fw = document.getElementById('tfFieldsWrap');
+    const sa = document.getElementById('tfSuccessAlert');
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
     if (t) { t.value = ''; }
     if (lainnya) { lainnya.value = ''; }
     if (wrapLain) wrapLain.classList.remove('aktif');
+    if (fw) fw.style.display = '';
+    if (sa) sa.style.display = 'none';
     _tfUpdateCounter();
     _tfHideInlineAlert();
     _tfShowBox('form');
@@ -8010,10 +8014,11 @@ function _tfShowInlineAlert(msg) {
 function _tfHideInlineAlert() {
     document.getElementById('tfInlineAlert')?.classList.remove('show');
 }
-// User klik kirim → validasi RINGKAS (1 pesan "Isi terlebih dahulu testimoni dan feedback" jika ada field required kosong)
+// User klik kirim → validasi RINGKAS (1 pesan SAJA: "Isi terlebih dahulu testimoni dan feedback" JIKA ADA YANG TIDAK SESUAI)
 function _tfKirimDanTukar() {
+    const PESAN_VALIDASI = 'Isi terlebih dahulu testimoni dan feedback';
     _tfHideInlineAlert();
-    // (A) Testimoni minimal ada isinya (tidak kosong, tidak cuma spasi)
+    // (A) Ambil value field
     const testimoni = (document.getElementById('tfTestimoni')?.value || '').trim();
     const pilihan = [];
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el && el.checked) pilihan.push(el.value); });
@@ -8021,28 +8026,30 @@ function _tfKirimDanTukar() {
     const lainnyaEl = document.getElementById('tfLainnya');
     const wrapLain  = document.getElementById('tfLainnyaWrap');
     const lainnya = isFb4 ? (lainnyaEl?.value || '').trim() : '';
-    // (B) Cek FIELD KOSONG CORE (testimoni empty ATAU pilihan kosong ATAU fb4 dicentang tapi lainnya kosong) → 1 PESAN RINGKAS SAJA
+
+    // (B) VALIDASI SEMUA KEMUNGKINAN → HANYA SATU PESAN TUNGGAL TIDAK BOLEH BEDA
     const fieldAdaYangKosong = (testimoni.length === 0) || (pilihan.length === 0) || (isFb4 && lainnya.length === 0);
-    if (fieldAdaYangKosong) {
-        _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback');
-        if (testimoni.length === 0) document.getElementById('tfTestimoni')?.focus();
+    const panjangKurang = (testimoni.length < 10) || (isFb4 && lainnya.length < 10);
+    if (fieldAdaYangKosong || panjangKurang) {
+        _tfShowInlineAlert(PESAN_VALIDASI);
+        // focus saja ke field bermasalah, tapi pesannya TETAP sama untuk semua kasus
+        if (testimoni.length === 0 || testimoni.length < 10) document.getElementById('tfTestimoni')?.focus();
         else if (pilihan.length === 0) document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
         else if (isFb4) { wrapLain?.classList.add('aktif'); lainnyaEl?.focus(); }
         return;
     }
-    // (C) Validasi minimal panjang (backend juga sudah validasi)
-    if (testimoni.length < 10) { _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback'); document.getElementById('tfTestimoni').focus(); return; }
-    if (isFb4 && lainnya.length < 10) { wrapLain?.classList.add('aktif'); _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback'); lainnyaEl?.focus(); return; }
 
-    // (D) Gabung feedback
+    // (C) Gabung feedback final
     let feedbackFinal = pilihan.join(' | ');
     if (isFb4 && lainnya) feedbackFinal += ' → Lainnya: ' + lainnya;
     const userId = localStorage.getItem('userId');
-    if (!userId) { _tfShowInlineAlert('Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.'); return; }
+    if (!userId) { showMessage('error', 'Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.', 4500); return; }
 
-    // (E) Kirim ke server. Jika BERHASIL:
-    //     - TAMPILKAN HANYA PESAN INLINE DI FORM MODAL (box status): "Data berhasil terkirim" (PENTING: JANGAN showMessage popup)
-    //     - Setelah 700ms → redirect frmProduk.html
+    // (D) Kirim ke server. Loading ditampilkan box status sebentar, lalu:
+    //   - ERROR: kembali ke form → TAMPILKAN PESAN_VALIDASI (1 kalimat yang sama)
+    //   - SUKSES: KEMBALI KE FORM (AREA FORM SESUAI USER REQUEST "di formnya tersebut"),
+    //             SEMBUNYIKAN semua field (Testimoni/feedback), TAMPILKAN tfSuccessAlert (icon + "Data berhasil terkirim").
+    //             TIDAK ADA showMessage popup SAMA SEKALI.
     document.getElementById('tfStatusMessage').textContent = 'Mengirim data...';
     _tfShowBox('status');
     kirimKeServer({
@@ -8052,40 +8059,38 @@ function _tfKirimDanTukar() {
         feedback: feedbackFinal
     }, function(res) {
         if (!res) {
+            // Hanya error koneksi pakai showMessage (karena butuh perhatian user), error validasi tidak
             _tfShowBox('form');
-            _tfShowInlineAlert('Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.');
+            showMessage('error', 'Tidak mendapatkan respon dari server. Periksa koneksi internet dan coba beberapa saat lagi.', 5000);
             return;
         }
         if (res.status !== 'success') {
+            // KESALAHAN VALIDASI / GAGAL SIMPAN → FORCE PESAN YANG SAMA (TIDAK BOLEH ADA VARIASI SESUAI USER)
             _tfShowBox('form');
-            // Server juga sudah update pesan error generic "Isi terlebih dahulu testimoni dan feedback"
-            const msg = (res.message === 'Isi terlebih dahulu testimoni dan feedback')
-                ? res.message
-                : (res.message || 'Gagal menyimpan. Silakan coba kembali.');
-            _tfShowInlineAlert(msg);
+            _tfShowInlineAlert(PESAN_VALIDASI);
+            // Kalau backend return specific userId tidak ketemu / data double (bukan field error), tampil showMessage yang relevan
+            // Sisanya = field error → PESAN_VALIDASI saja
+            if (res.message && (res.message.indexOf('userId') !== -1 || res.message.toLowerCase().indexOf('gagal menyimpan') !== -1)) {
+                showMessage('error', res.message, 4800);
+            }
             return;
         }
-        // ========================================
-        // ✅ BERHASIL:
-        // a. TAMPILKAN PESAN "Data berhasil terkirim" HANYA DI BOX STATUS DALAM MODAL (PENTING: TIDAK showMessage popup sesuai permintaan user!)
-        // b. Setelah ~700ms → tutup modal → redirect frmProduk.html
-        // ========================================
-        const teksBerhasil = (res.message && res.message.toLowerCase().indexOf('data berhasil terkirim') !== -1)
-            ? res.message
-            : 'Data berhasil terkirim';
-        const htmlSukses = `
-            <div style="text-align:center; padding: 8px 4px;">
-                <div style="width:56px; height:56px; border-radius:50%; background-color:#e6f7ea; display:inline-flex; justify-content:center; align-items:center; margin-bottom:12px;">
-                    <i class="fas fa-check-circle" style="font-size:34px; color:#28a745;"></i>
-                </div>
-                <div style="font-size:1.05rem; font-weight:700; color:#155724; margin-bottom:4px;">${teksBerhasil}</div>
-                <div class="small text-muted mt-2">Membuka katalog produk dalam beberapa saat...</div>
-            </div>`;
-        _tfShowBox('status', htmlSukses);
+        // =========================================================
+        // ✅ BERHASIL SIMPAN: User req #2 → CUKUP tampil "Data berhasil terkirim" DI FORMNYA TERSEBUT.
+        //    - JANGAN showMessage popup TIDAK BOLEH.
+        //    - Tampil di FORM area (bukan status box spinner): sembunyikan semua field, tampilkan tfSuccessAlert
+        //      (icon ceklis hijau + judul bold "Data berhasil terkirim")
+        //    - Setelah 750ms tutup modal & redirect frmProduk.html
+        // =========================================================
+        _tfShowBox('form');
+        const fw = document.getElementById('tfFieldsWrap');
+        const sa = document.getElementById('tfSuccessAlert');
+        if (fw) fw.style.display = 'none';
+        if (sa) sa.style.display = '';
+        document.getElementById('tfKirimBtn').disabled = true;
 
-        // (PENTING USER REQUEST #2): JANGAN showMessage popup eksternal — HANYA DI ATAS INLINE SAJA CUKUP
-        // showMessage TIDAK DIPANGGIL SAMA SEKALI. Hapus line ini, tidak dipakai:
-        // showMessage('success', ....)
+        // (ABSOLUTELY DILARANG panggil showMessage disini sesuai user req #2)
+        // showMessage('success', '...') → DITONDAK / DIBLOKIR.
         _tfRedirectSukses = true;
         redirectPage = 'frmProduk.html';
         setTimeout(() => {

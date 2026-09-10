@@ -3267,6 +3267,7 @@ function getStatusTestimoni(param) {
 }
 function simpanTestimoniFeedback(param) {
   const callback = param.callback || '';
+  const PESAN_UMUM = 'Isi terlebih dahulu testimoni dan feedback';
   try {
     const userId    = String(param.userId || '').trim();
     let testimoni   = String(param.testimoni || '').trim();
@@ -3274,10 +3275,13 @@ function simpanTestimoniFeedback(param) {
     if (!userId) {
       return createJSONPResponse(callback, { status:'error', message:'User ID tidak ditemukan. Silakan login kembali.' });
     }
+    // ⚠️ SEMUA validasi field diseragamkan ke PESAN UMUM (sesuai user request: SATU pesan saja, tidak boleh ada variasi)
     if (!testimoni || !feedback) {
-      return createJSONPResponse(callback, { status:'error', message:'Isi terlebih dahulu testimoni dan feedback' });
+      return createJSONPResponse(callback, { status:'error', message:PESAN_UMUM });
     }
-    // Sanitize & truncate (testimoni max 3000 char, feedback max 2000 char)
+    if (testimoni.length < 10 || feedback.length < 10) {
+      return createJSONPResponse(callback, { status:'error', message:PESAN_UMUM });
+    }
     if (testimoni.length > 3000) testimoni = testimoni.slice(0, 2997) + '...';
     if (feedback.length > 2000)  feedback  = feedback.slice(0, 1997)  + '...';
 
@@ -3286,16 +3290,13 @@ function simpanTestimoniFeedback(param) {
     }
 
     let rowKonsumen = findKonsumenRowByUserId(userId);
-    // 1. CEK DULU: JIKA row ADA, APIKAH KOLOM P/Q SUDAH TERISI?
     if (rowKonsumen !== -1) {
       const cekP = String(shDataKonsumen.getRange(rowKonsumen, 16).getValue() || '').trim(); // P = 16 1-based
       const cekQ = String(shDataKonsumen.getRange(rowKonsumen, 17).getValue() || '').trim(); // Q = 17 1-based
       if (cekP !== '' || cekQ !== '') {
-        // User sudah PERNAH ISI sebelumnya → LANGSUNG redirect (bukan overwrite, hindari salah row)
         return createJSONPResponse(callback, { status:'success', testimoniExists:true, skipSimpan:true, message:'Sudah pernah mengisi. Membuka katalog produk...' });
       }
     }
-    // 2. JIKA BELUM ADA row → buat row baru
     if (rowKonsumen === -1) {
       const fallback = fallbackUserDataFromDb(userId);
       const jenisKelamin = fallback.jenisKelamin || '';
@@ -3310,8 +3311,6 @@ function simpanTestimoniFeedback(param) {
       shDataKonsumen.appendRow(newRow);
       return createJSONPResponse(callback, { status:'success', message:'Data berhasil terkirim', testimoniExists:false, rowBaruDibuat:true });
     }
-    // 3. JIKA row ADA & P/Q masih KOSONG → update 2 kolom di row TERSEBUT (tanpa +1)
-    // FIX BUG LAMA: findKonsumenRowByUserId() return 1-based (L2666). Sebelumnya LAMA ditambah +1 lagi → tersimpan 1 row DI BAWAHNYA.
     const rowIndex_1based = rowKonsumen;
     shDataKonsumen.getRange(rowIndex_1based, 16, 1, 2).setValues([[ testimoni, feedback ]]);
     return createJSONPResponse(callback, { status:'success', message:'Data berhasil terkirim', testimoniExists:false, rowBaruDibuat:false });
