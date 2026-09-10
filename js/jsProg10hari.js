@@ -7911,7 +7911,9 @@ function tampilkanDashboardSederhana(data) {
 
 /*****************************
 * Fungsi untuk menukar point *
-* (Diubah: sebelum redirect frmProduk.html → user WAJIB isi form Testimoni & Feedback dulu)
+* (Diubah: sebelum redirect frmProduk.html
+*   1. CEK DULU ke server getStatusTestimoni(userId) → SUDAH PERNAH ISI? LANGSUNG REDIRECT frmProduk.html TANPA BUKA MODAL
+*   2. JIKA BELUM → baru buka modal Testimoni & Feedback
 ******************************/
 function tukarPoint(totalPoint) {
     if (!totalPoint || totalPoint < 500) {
@@ -7919,14 +7921,24 @@ function tukarPoint(totalPoint) {
         return;
     }
     const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
     if (!userId) {
         showMessage('error', 'Sesi login tidak ditemukan. Silakan login kembali (userId tidak tersedia).', 4500);
         return;
     }
-    // Sebelum redirect: buka modal Testimoni & Feedback (user harus isi & kirim dulu)
-    console.log('[Tukar Point] Siapkan modal Testimoni sebelum redirect frmProduk.', { userId, userName, totalPoint });
-    _tfBukaModal();
+    // ====================================
+    // CEK DULU: SUDAH PERNAH ISI TESTIMONI ATAU BELUM?
+    // ====================================
+    kirimKeServer({ action:'getStatusTestimoni', userId: userId }, function(res){
+        if (res && res.status === 'success' && res.testimoniExists === true) {
+            // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmProduk.html (TIDAK BUKA MODAL SAMA SEKALI)
+            redirectPage = 'frmProduk.html';
+            window.location.href = redirectPage;
+            return;
+        }
+        // BELUM PERNAH ISI → Buka modal TF seperti biasa
+        console.log('[Tukar Point] User BELUM PERNAH isi Testimoni → tampilkan modal TF.', { userId, totalPoint });
+        _tfBukaModal();
+    });
 }
 
 /*******************************
@@ -7951,7 +7963,6 @@ function _tfTutupModal() {
     _tfResetForm();
 }
 function _tfResetForm() {
-    // Reset semua field ke default kosong
     const t = document.getElementById('tfTestimoni');
     const lainnya = document.getElementById('tfLainnya');
     const wrapLain = document.getElementById('tfLainnyaWrap');
@@ -7973,14 +7984,16 @@ function _tfUpdateCounter() {
     if (t && c1) c1.textContent = (t.value||'').length;
     if (l && c2) c2.textContent = (l.value||'').length;
 }
-function _tfShowBox(which) {
+function _tfShowBox(which, successText) {
     const s = document.getElementById('tfStatusBox');
     const f = document.getElementById('tfFormBox');
     const k = document.getElementById('tfKirimBtn');
+    const sm = document.getElementById('tfStatusMessage');
     if (!s || !f) return;
     if (which === 'status') {
         s.style.display = ''; f.style.display = 'none';
         if (k) k.disabled = true;
+        if (sm && successText) sm.innerHTML = successText;
     } else {
         s.style.display = 'none'; f.style.display = '';
         if (k) k.disabled = false;
@@ -7997,53 +8010,40 @@ function _tfShowInlineAlert(msg) {
 function _tfHideInlineAlert() {
     document.getElementById('tfInlineAlert')?.classList.remove('show');
 }
-// User klik kirim → validasi → kirim via kirimKeServer → redirect frmProduk.html
+// User klik kirim → validasi RINGKAS (1 pesan "Isi terlebih dahulu testimoni dan feedback" jika ada field required kosong)
 function _tfKirimDanTukar() {
     _tfHideInlineAlert();
-    // 1. Ambil testimoni
+    // (A) Testimoni minimal ada isinya (tidak kosong, tidak cuma spasi)
     const testimoni = (document.getElementById('tfTestimoni')?.value || '').trim();
-    if (!testimoni) {
-        _tfShowInlineAlert('Testimoni wajib diisi. Ceritakan pengalaman Anda selama 10 hari mengikuti FIT Challenge (minimal 10 karakter).');
-        document.getElementById('tfTestimoni').focus();
-        return;
-    }
-    if (testimoni.length < 10) {
-        _tfShowInlineAlert('Testimoni minimal 10 karakter agar lebih jelas menceritakan pengalaman Anda. Panjang sekarang: ' + testimoni.length);
-        document.getElementById('tfTestimoni').focus();
-        return;
-    }
-    // 2. Ambil feedback checklist (minimal 1 dicentang)
     const pilihan = [];
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => { const el = document.getElementById(id); if (el && el.checked) pilihan.push(el.value); });
-    if (pilihan.length === 0) {
-        _tfShowInlineAlert('Feedback pilihan belum dipilih. Silakan pilih setidaknya 1 pilihan checklist (bisa lebih dari 1) untuk meningkatkan kualitas aplikasi.');
-        document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
-        return;
-    }
-    // 3. Jika pilih "Fitur yang perlu diperbaiki" (tfFb4) → LAINNYA WAJIB diisi minimal 10 karakter
+    const isFb4 = pilihan.indexOf('Fiture yang perlu diperbaiki') !== -1;
     const lainnyaEl = document.getElementById('tfLainnya');
     const wrapLain  = document.getElementById('tfLainnyaWrap');
-    const isFb4 = pilihan.indexOf('Fiture yang perlu diperbaiki') !== -1;
-    let lainnya = '';
-    if (isFb4) {
-        lainnya = (lainnyaEl?.value || '').trim();
-        if (lainnya.length < 10) {
-            wrapLain?.classList.add('aktif');
-            _tfShowInlineAlert('Anda memilih "Fitur yang perlu diperbaiki". Silakan isi kotak "Fitur Lainnya" secara spesifik (minimal 10 karakter), misal nama fitur atau bug yang ditemukan.');
-            lainnyaEl?.focus();
-            return;
-        }
+    const lainnya = isFb4 ? (lainnyaEl?.value || '').trim() : '';
+    // (B) Cek FIELD KOSONG CORE (testimoni empty ATAU pilihan kosong ATAU fb4 dicentang tapi lainnya kosong) → 1 PESAN RINGKAS SAJA
+    const fieldAdaYangKosong = (testimoni.length === 0) || (pilihan.length === 0) || (isFb4 && lainnya.length === 0);
+    if (fieldAdaYangKosong) {
+        _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback');
+        if (testimoni.length === 0) document.getElementById('tfTestimoni')?.focus();
+        else if (pilihan.length === 0) document.getElementById('tfFb1')?.scrollIntoView({ behavior:'smooth', block:'center' });
+        else if (isFb4) { wrapLain?.classList.add('aktif'); lainnyaEl?.focus(); }
+        return;
     }
-    // 4. Gabungkan feedback jadi 1 kolom string: "[Pilihan1] · [Pilihan2] · Lainnya: ..."
+    // (C) Validasi minimal panjang (backend juga sudah validasi)
+    if (testimoni.length < 10) { _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback'); document.getElementById('tfTestimoni').focus(); return; }
+    if (isFb4 && lainnya.length < 10) { wrapLain?.classList.add('aktif'); _tfShowInlineAlert('Isi terlebih dahulu testimoni dan feedback'); lainnyaEl?.focus(); return; }
+
+    // (D) Gabung feedback
     let feedbackFinal = pilihan.join(' | ');
     if (isFb4 && lainnya) feedbackFinal += ' → Lainnya: ' + lainnya;
     const userId = localStorage.getItem('userId');
-    if (!userId) {
-        _tfShowInlineAlert('Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.');
-        return;
-    }
-    // 5. Kirim ke server via kirimKeServer pattern yang ada (JSONP Apps Script)
-    document.getElementById('tfStatusMessage').textContent = 'Menyimpan Testimoni & Feedback...';
+    if (!userId) { _tfShowInlineAlert('Sesi login tidak ditemukan. Silakan refresh halaman dan login kembali.'); return; }
+
+    // (E) Kirim ke server. Jika BERHASIL:
+    //     - TAMPILKAN HANYA PESAN INLINE DI FORM MODAL (box status): "Data berhasil terkirim" (PENTING: JANGAN showMessage popup)
+    //     - Setelah 700ms → redirect frmProduk.html
+    document.getElementById('tfStatusMessage').textContent = 'Mengirim data...';
     _tfShowBox('status');
     kirimKeServer({
         action: 'simpanTestimoniFeedback',
@@ -8058,40 +8058,57 @@ function _tfKirimDanTukar() {
         }
         if (res.status !== 'success') {
             _tfShowBox('form');
-            _tfShowInlineAlert(res.message || 'Gagal menyimpan. Silakan coba kembali.');
+            // Server juga sudah update pesan error generic "Isi terlebih dahulu testimoni dan feedback"
+            const msg = (res.message === 'Isi terlebih dahulu testimoni dan feedback')
+                ? res.message
+                : (res.message || 'Gagal menyimpan. Silakan coba kembali.');
+            _tfShowInlineAlert(msg);
             return;
         }
-        // 6. BERHASIL → tutup modal → showMessage success → REDIRECT frmProduk.html setelah 900ms
-        document.getElementById('tfStatusMessage').textContent = (res.message || 'Data tersimpan') + ' Membuka katalog produk...';
-        showMessage('success', (res.message || 'Testimoni & Feedback berhasil tersimpan.') + ' Segera membuka katalog produk...', 3000);
+        // ========================================
+        // ✅ BERHASIL:
+        // a. TAMPILKAN PESAN "Data berhasil terkirim" HANYA DI BOX STATUS DALAM MODAL (PENTING: TIDAK showMessage popup sesuai permintaan user!)
+        // b. Setelah ~700ms → tutup modal → redirect frmProduk.html
+        // ========================================
+        const teksBerhasil = (res.message && res.message.toLowerCase().indexOf('data berhasil terkirim') !== -1)
+            ? res.message
+            : 'Data berhasil terkirim';
+        const htmlSukses = `
+            <div style="text-align:center; padding: 8px 4px;">
+                <div style="width:56px; height:56px; border-radius:50%; background-color:#e6f7ea; display:inline-flex; justify-content:center; align-items:center; margin-bottom:12px;">
+                    <i class="fas fa-check-circle" style="font-size:34px; color:#28a745;"></i>
+                </div>
+                <div style="font-size:1.05rem; font-weight:700; color:#155724; margin-bottom:4px;">${teksBerhasil}</div>
+                <div class="small text-muted mt-2">Membuka katalog produk dalam beberapa saat...</div>
+            </div>`;
+        _tfShowBox('status', htmlSukses);
+
+        // (PENTING USER REQUEST #2): JANGAN showMessage popup eksternal — HANYA DI ATAS INLINE SAJA CUKUP
+        // showMessage TIDAK DIPANGGIL SAMA SEKALI. Hapus line ini, tidak dipakai:
+        // showMessage('success', ....)
         _tfRedirectSukses = true;
         redirectPage = 'frmProduk.html';
         setTimeout(() => {
             _tfTutupModal();
             window.location.href = redirectPage;
-        }, 950);
+        }, 750);
     });
 }
-// ===== EVENT LISTENER ONLOAD TF (attach ke textarea, checkbox, button) =====
-// Ditempatkan di bawah bootstrap modal script di HTML, tapi kita pakai event delegation document.ready jika sudah
+// ===== EVENT LISTENER ONLOAD TF =====
 document.addEventListener('DOMContentLoaded', function() {
     // --- TF Listener ---
     document.getElementById('tfTestimoni')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
     document.getElementById('tfLainnya')?.addEventListener('input', function() { _tfUpdateCounter(); _tfHideInlineAlert(); });
-    // Toggle lainnya wrap berdasarkan tfFb4 checked
     document.getElementById('tfFb4')?.addEventListener('change', function() {
         const wrap = document.getElementById('tfLainnyaWrap');
         if (!wrap) return;
         if (this.checked) { wrap.classList.add('aktif'); setTimeout(() => document.getElementById('tfLainnya')?.focus(), 250); }
         else wrap.classList.remove('aktif');
     });
-    // Checklist berubah → hilangkan inline error
     ['tfFb1','tfFb2','tfFb3','tfFb4'].forEach(id => {
         document.getElementById(id)?.addEventListener('change', function() { _tfHideInlineAlert(); });
     });
-    // Tombol Kirim Footer
     document.getElementById('tfKirimBtn')?.addEventListener('click', function() { _tfKirimDanTukar(); });
-    // Close Modal Button (X) → jika user sudah submit & redirect sukses, jangan izinkan close dulu.
     document.getElementById('tfCloseBtn')?.addEventListener('click', function(e) {
         if (_tfRedirectSukses) { e.preventDefault(); return false; }
         _tfResetForm();
