@@ -495,7 +495,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                    <i class="fas fa-cart-plus mt-2"> Data Produk</i>
                     <div class="input-group mt-1">
                         <span class="input-group-text">Tanggal </span>
                         <input type="date" class="form-control" id="date" name="date" readonly>
@@ -504,27 +503,30 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <span class="input-group-text">Nomor  </span>
                         <input type="text" class="form-control" id="invoice" name="invoice" readonly>
                     </div>
-                    <div class="input-group mt-1">
-                        <span class="input-group-text">Produk  </span>
-                        <select id="product" placeholder="Pilih jenis produk (wajib isi)" class="form-control form-select" name="product" required>
-                           <!-- Opsi akan diisi oleh JavaScript -->
-                        </select>
-                    </div>
-                    <div class="input-group mt-1">
-                        <span class="input-group-text">Jumlah  </span>
-                        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
-                    </div>
-                    <div class="input-group mt-1">
-                        <span class="input-group-text">Diskon  </span>
-                        <select id="discount" placeholder="Pilih diskon (wajib isi)" class="form-control form-select" name="discount" required>
-                           <!-- Opsi akan diisi oleh JavaScript --> 
-                        </select>
-                    </div>
-                    <div class="input-group mt-1"> 
-                        <span class="input-group-text">By Kirim</span>
-                        <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
-                            <!-- Opsi akan diisi oleh JavaScript --> 
-                        </select>
+                    <div id="dataProdukSection">
+                        <i class="fas fa-cart-plus mt-2"> Data Produk</i>
+                        <div class="input-group mt-1">
+                            <span class="input-group-text">Produk  </span>
+                            <select id="product" placeholder="Pilih jenis produk (wajib isi)" class="form-control form-select" name="product" required>
+                               <!-- Opsi akan diisi oleh JavaScript -->
+                            </select>
+                        </div>
+                        <div class="input-group mt-1">
+                            <span class="input-group-text">Jumlah  </span>
+                            <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                        </div>
+                        <div class="input-group mt-1">
+                            <span class="input-group-text">Diskon  </span>
+                            <select id="discount" placeholder="Pilih diskon (wajib isi)" class="form-control form-select" name="discount" required>
+                               <!-- Opsi akan diisi oleh JavaScript --> 
+                            </select>
+                        </div>
+                        <div class="input-group mt-1"> 
+                            <span class="input-group-text">By Kirim</span>
+                            <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
+                                <!-- Opsi akan diisi oleh JavaScript --> 
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
@@ -615,8 +617,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
                         </button>
 
-                        <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
-                            <i class="fas fa-share-square"></i> KIRIM
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="simpanData()" style="display:none;">
+                            <i class="fas fa-save"></i> SIMPAN
                             <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
                         </button>
                     </div>  

@@ -455,11 +455,17 @@ function resetForm() {
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
     // saat form direset
+    const dataProdukSection = document.getElementById("dataProdukSection");
+    if (dataProdukSection) dataProdukSection.style.display = "block";
+    const orderSummary = document.getElementById("orderSummary");
+    if (orderSummary) orderSummary.style.display = "block";
+    document.getElementById("inputanSection").style.display = "none";
     document.getElementById("submitButton").style.display = "block";        // Tampilkan tombol "Submit"   
     document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "Submit" 
     document.getElementById("kirimButton").style.display  = "none";         // Sembuyikan tombol "Kirim" 
     document.getElementById("kirimButton").disabled       = true;           // Nonaktifkan tombol "Kirim" 
     document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
+    document.getElementById("btnReset").disabled          = false;
     showSpinner("btnReset");
     enableFields();    // Enable semua field kecuali Tanggal dan Invoice
 
@@ -721,19 +727,24 @@ async function submitForm() {
   document.getElementById("discount").disabled = true;
   document.getElementById("shipping").disabled = true;
   document.getElementById("btnAdd").disabled   = true;
+  document.getElementById("btnReset").disabled = true;
  
   // Toggle tombol
   document.getElementById("submitButton").style.display   = "none";
   document.getElementById("kirimButton").style.display    = "inline-block";
   // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
+  const dataProdukSection = document.getElementById("dataProdukSection");
+  if (dataProdukSection) dataProdukSection.style.display = "none";
+  const orderSummary = document.getElementById("orderSummary");
+  if (orderSummary) orderSummary.style.display = "none";
   await prefillDataKonsumen();
 }
 
 // **************************************************
 // Mengirim data ke sheet DataInput dan DataKonsumen
 // **************************************************
-function kirimData() {
+function simpanData() {
   // Validasi form sebelum mengirim
   if (!validateForm()) {
      return false;
@@ -750,13 +761,13 @@ function kirimData() {
       document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
       hideSpinner("kirimButton");
-      showNotification('success', 'SUKSES: Data berhasil dikirim');
+      showNotification('success', 'SUKSES: Data berhasil disimpan');
       resetForm();
     })
     .catch(err => {
       console.error("Error kirim:", err);
       hideSpinner("kirimButton");
-      showNotification('error', 'ERROR: Gagal mengirim data');
+      showNotification('error', 'ERROR: Gagal menyimpan data');
     });   
 }
 
