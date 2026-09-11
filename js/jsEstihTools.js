@@ -66,8 +66,9 @@ function normalizePhoneForInput(value) {
   return v;
 }
 
-async function prefillDataKonsumen() {
+async function prefillDataKonsumen(options = {}) {
   try {
+    const { force = false } = options;
     const userId = String(localStorage.getItem('userId') || '').trim();
     if (!userId || !URL_dbProgram) return;
 
@@ -86,16 +87,16 @@ async function prefillDataKonsumen() {
     const kotaEl = document.getElementById('kota');
     const propensiEl = document.getElementById('propensi');
 
-    if (namaKonsumenEl && !namaKonsumenEl.value) namaKonsumenEl.value = String(data.nama || '').toUpperCase();
-    if (alamatEl && !alamatEl.value) alamatEl.value = String(data.alamat || '').toUpperCase();
-    if (hpKonsumenEl && !hpKonsumenEl.value) hpKonsumenEl.value = normalizePhoneForInput(data.telp);
-    if (kelurahanEl && !kelurahanEl.value) kelurahanEl.value = String(data.kelurahan || '').toUpperCase();
-    if (kecamatanEl && !kecamatanEl.value) kecamatanEl.value = String(data.kecamatan || '').toUpperCase();
-    if (kotaEl && !kotaEl.value) kotaEl.value = String(data.kota || '').toUpperCase();
-    if (propensiEl && !propensiEl.value) propensiEl.value = String(data.propensi || '').toUpperCase();
+    if (namaKonsumenEl && (force || !namaKonsumenEl.value)) namaKonsumenEl.value = String(data.nama || '').toUpperCase();
+    if (alamatEl && (force || !alamatEl.value)) alamatEl.value = String(data.alamat || '').toUpperCase();
+    if (hpKonsumenEl && (force || !hpKonsumenEl.value)) hpKonsumenEl.value = normalizePhoneForInput(data.telp);
+    if (kelurahanEl && (force || !kelurahanEl.value)) kelurahanEl.value = String(data.kelurahan || '').toUpperCase();
+    if (kecamatanEl && (force || !kecamatanEl.value)) kecamatanEl.value = String(data.kecamatan || '').toUpperCase();
+    if (kotaEl && (force || !kotaEl.value)) kotaEl.value = String(data.kota || '').toUpperCase();
+    if (propensiEl && (force || !propensiEl.value)) propensiEl.value = String(data.propensi || '').toUpperCase();
 
-    if (namaSponsorEl && !namaSponsorEl.value) namaSponsorEl.value = String(data.namaSponsor || '').toUpperCase();
-    if (hpSponsorEl && !hpSponsorEl.value) hpSponsorEl.value = normalizePhoneForInput(data.hpSponsor);
+    if (namaSponsorEl && (force || !namaSponsorEl.value)) namaSponsorEl.value = String(data.namaSponsor || '').toUpperCase();
+    if (hpSponsorEl && (force || !hpSponsorEl.value)) hpSponsorEl.value = normalizePhoneForInput(data.hpSponsor);
   } catch (error) {
     console.error(error);
   }
@@ -457,6 +458,8 @@ function resetForm() {
     // saat form direset
     const dataProdukSection = document.getElementById("dataProdukSection");
     if (dataProdukSection) dataProdukSection.style.display = "block";
+    const invoiceSection = document.getElementById("invoiceSection");
+    if (invoiceSection) invoiceSection.style.display = "block";
     const orderSummary = document.getElementById("orderSummary");
     if (orderSummary) orderSummary.style.display = "block";
     document.getElementById("inputanSection").style.display = "none";
@@ -736,9 +739,11 @@ async function submitForm() {
   document.getElementById("inputanSection").style.display = "block";
   const dataProdukSection = document.getElementById("dataProdukSection");
   if (dataProdukSection) dataProdukSection.style.display = "none";
+  const invoiceSection = document.getElementById("invoiceSection");
+  if (invoiceSection) invoiceSection.style.display = "none";
   const orderSummary = document.getElementById("orderSummary");
   if (orderSummary) orderSummary.style.display = "none";
-  await prefillDataKonsumen();
+  await prefillDataKonsumen({ force: true });
 }
 
 // **************************************************
