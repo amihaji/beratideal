@@ -70,10 +70,24 @@ async function prefillDataKonsumen(options = {}) {
   try {
     const { force = false } = options;
     const userId = String(localStorage.getItem('userId') || '').trim();
-    if (!userId || !URL_dbProgram) return;
+    if (!userId) {
+      if (force) showNotification('warning', 'PERHATIAN: userId login tidak ditemukan. Silahkan login ulang.');
+      return;
+    }
+    if (!URL_dbProgram) {
+      if (force) showNotification('error', 'ERROR: URL_dbProgram belum dikonfigurasi.');
+      return;
+    }
 
     const response = await fetchJsonpProgram('getDataKonsumenByUserId', { userId });
-    if (!response || response.status !== 'success' || !response.data) return;
+    if (!response) {
+      if (force) showNotification('error', 'ERROR: Respons dbProgram kosong.');
+      return;
+    }
+    if (response.status !== 'success' || !response.data) {
+      if (force) showNotification('warning', `PERHATIAN: Data konsumen tidak ditemukan untuk userId ${userId}.`);
+      return;
+    }
 
     const data = response.data;
 
