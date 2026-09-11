@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup - Estih Tools</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body { 
+    background-color: #f8f9fa; 
+}
+.table-hover tbody tr:hover { 
+    background-color: #f2f2f2; 
+    cursor: pointer; 
+}
+.actions-col { 
+    width: 220px; 
+    text-align: center; 
+    white-space: nowrap; 
+}
+
+/************************/
+/* Pengaturan Icon-icon */
+/************************/
+/* Default semua icon (enabled & disabled) tidak terlihat */
+.action-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+    margin: 0 5px;
+    cursor: pointer;
+    color: #6c757d;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 15px;
+}
+
+/* Saat hover ke baris, semua icon disabled akan muncul */
+tr:hover .action-icon {
+    opacity: 1;
+}
+/* Hover efek untuk ikon aktif */
+.action-icon:hover {
+    color: red;
+    background-color: #e0e0e0;
+}
+/* Disabled icon – tidak bisa diklik dan tidak bereaksi saat hover */
+.action-icon.disabled {
+    pointer-events: none;
+    color: #bbb !important;
+    background-color: transparent !important;
+}
+
+.sticky-header th { 
+    position: sticky; 
+    top: 0; 
+    background-color: #003366; 
+    color: white; 
+    z-index: 2; 
+    font-size:15px;
+}
+.title-box { 
+    background-color: #003366; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+}
+.title-box i { margin-right: 10px; }
+.button-box {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+    margin: 15px 0;
+    /*gap: 12px !important; */
+}
+.btn-group-vertical-responsive { 
+    display: flex; 
+    flex-direction: row; 
+}
+
+.table-box {
+    position: relative; /* <-- tambahkan ini */
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+}
+.table-wrapper { 
+    max-height: 450px; 
+    overflow-y: auto;  /* Scrools vertikal */
+}
+/* Menjaga sel pindah baris */
+.table th, .table td {
+   white-space: nowrap;
+}
+
+/* Notifikasi Message Box */
+.notification-message {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 10px; /* agar icon dan teks tidak dempet */
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/* Spinner Untuk tabel produk */
+.loading-overlay {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Progress Bar Style untuk import data */
+.progress {
+  height: 20px;
+  border-radius: 5px;
+}
+.progress-bar {
+  transition: width 0.3s ease;
+}
+#importProgress {
+  margin-top: 15px;
+}
+
+/****************************/
+/* Tampilan Vertikal Mobile */
+/****************************/
+@media (max-width: 591.98px) {
+    .sticky-header th tr { 
+       font-size:15px;
+       white-space: nowrap !important;
+    }
+    /* Membuat tabel bisa discroll horizontal di layar kecil */
+    .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    }
+    /* Menjaga sel tidak pndah baris */
+    .table th, .table td {
+    white-space: nowrap;
+    }
+    .btn-group-vertical-responsive {
+       flex-direction: column !important;
+       align-items: stretch !important;
+       gap: 6px; /* jarak antar tombol */
+    }
+    .btn-group-vertical-responsive button,
+    .btn-group-vertical-responsive a {
+       width: 100% !important;
+       text-align: left;
+    }
+}
+</style>
+</head>
+
+<body class="p-2 p-sm-3">
+<div class="container">
+<div class="title-box mb-3">
+    <i class="fas fa-cog"></i>
+    <h6 class="mb-0">SETUP ESTIHTOOLS</h6>
+</div>
+
+<!-- Tombol Form Setup produk -->
+<div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
+    <div>
+      <!-- Tombol Filter Kategori dengan Dropdown -->
+      <button id="btnKategoriFilter" type="button" class="btn btn-outline-primary dropdown-toggle btn-sm mb-1" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-filter"></i> Filter
+      </button>
+      <ul class="dropdown-menu" id="kategoriFilterMenu">
+        <li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>
+        <!-- kategori lainnya diisi lewat JS -->
+      </ul>
+      <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Produk</button>
+      <button class="btn btn-primary btn-sm mb-1" id="btnImport"><i class="fas fa-file-import"></i> Import </button>
+      <button class="btn btn-primary btn-sm mb-1" id="btnExport"><i class="fas fa-file-export"></i> Export </button>
+      <a href="setupKategori.html" class="btn btn-primary btn-sm mb-1"><i class="far fa-list-alt"></i> Kategori</a>
+      <a href="setupBykirim.html" class="btn btn-primary btn-sm mb-1"><i class="fas fa-shipping-fast"></i> By Kirim</a>
+    </div>
+    <div>
+       <a href="https://amihaji.github.io/kitworks/index.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
+    </div>
+</div>
+
+<!-- Notifikasi Pesan -->
+<div id="pesanNotification" class="notification-message" class="notification-message w-100 mb-2" style="display: none;">
+    <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+</div>
+
+   <!-- Tabel Daftar Produk -->
+    <div class="table-box">
+        <!-- Loading Overlay (nama id sesuai showLoading JS) -->
+        <div id="loadingOverlayProduk" class="loading-overlay" style="display: none;">
+          <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <span class="visually-hidden">Memuat Data...</span>
+        </div>
+        
+        <div class="table-wrapper">
+        <table class="table table-hover table-striped table-bordered align-middle " style="table-layout:auto; width:auto;">
+            <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Harga Produk</h6>
+                <tr>
+                    <th>No Stok</th>
+                    <th>Kategori</th>
+                    <th>Nama Produk</th>
+                    <th>VP</th>
+                    <th>Harga Dasar</th>
+                    <th>Harga Eceran</th>
+                    <th>Member 25</th>
+                    <th>SC 35</th>
+                    <th>SB 42</th>
+                    <th>SPV 50</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="produkTableBody" style="font-size: small; align-content: center;"></tbody>
+                <!-- Data akan diisi oleh JavaScript di sini -->  
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add/Edit -->
+<div class="modal fade" id="modalProduk" tabindex="-1" data-mode="add">
+<div class="modal-dialog">
+<form id="produkForm" class="modal-content">
+    <div class="modal-header" style="background-color:#003366; color:white;">
+        <h6 id="judulModal" class="modal-title">Tambah Produk</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" id="mode" value="add"> 
+        <div class="input-group mb-2">
+            <span class="input-group-text">No Stok        </span>
+            <input type="text" id="noStok" class="form-control" placeholder="Masukkan no stok (wajib isi)" minlength="3" maxlength="6" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Kategori       </span>
+            <select id="namaKategori" class="form-control form-select" name="namaKategori" required>
+               <!-- Opsi akan diisi oleh JavaScript -->
+            </select>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Produk         </span>
+            <input type="text" id="namaProduk" class="form-control" placeholder="Masukkan nama produk (wajib isi)" maxlength="60" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Volum Poin  </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" maxlength="6" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga Dasar </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="hargaDasar" class="form-control" placeholder="Masukkan harga dasar (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga Eceran</span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="hargaEceran" class="form-control" placeholder="Masukkan harga eceran (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga 25%   </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="member25" class="form-control" placeholder="Masukkan harga member (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga 35%   </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="sc35" class="form-control" placeholder="Masukkan harga sc (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga 42%   </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="sb42" class="form-control" placeholder="Masukkan harga sb (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Harga 50%   </span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="spv50" class="form-control" placeholder="Masukkan harga spv (wajib isi)" required>
+        </div>
+    </div>
+
+    <div class="modal-footer flex-column align-items-start">
+        <!-- Notifikasi Pesan -->
+        <div id="pesanNotifModalBox" class="notification-message w-100 mb-2" style="display: none;">
+           <i id="pesanNotifModalIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifModalText"></span>
+        </div>
+        <!-- Tombol-tombol untuk Modal Add dan Edit -->
+        <div class="w-100 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanProduk"><i class="fas fa-save"></i> Simpan</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="judulModalImport" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color:#003366; color:white;">
+        <h6 class="modal-title" id="judulModalImport">Import Tabel Harga</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="file" id="fileImport" accept=".xlsx,.xls" class="form-control">
+        <small class="text-muted">Pilih file Excel (.xlsx, .xls) sesuai format Tabel Harga.</small>
+        
+        <!-- Progress Bar -->
+        <div id="importProgress" class="mt-3" style="display: none;">
+          <div class="d-flex justify-content-between">
+            <span id="progressText">Mengimport data...</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" 
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnProsesImport" class="btn btn-primary"><i class="fas fa-upload"></i> Proses</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<SCRIPT>
+// ********* Deklarasi  Public **********
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwDr5F5aCszNE7D5RdTY8m0OaZle_miYBRRJIUZPEcwTuJ0Ue4eqETsBfdkRTaDI7JDkw/exec';
+// **************************************
+
+// **********************************
+// Tampilkan Spinner Loading Overlay
+// **********************************
+function showLoading(show, target = 'Produk') {
+  const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayProduk';
+  let overlay = document.getElementById(overlayId) || document.getElementById(overlayId.toLowerCase());
+  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+// ***************************************************************
+// Tambahkan sebelum loadProdukTable Untuk menghindari error atau 
+// tampilan karakter khusus di data dari sheet
+// ***************************************************************
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;');
+}
+
+// ************************************
+// Fungsi untuk kembali ke setup Produk
+// ************************************
+function kembaliKeSetupProduk() {
+  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
+  document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
+  loadProdukTable(); // Refresh data Produk
+}
+
+// **********************
+// Mengupdate Baris Icon
+// *********************
+function updateRowIcons(row, mode) {
+    const icons = row.querySelectorAll('.action-icon');
+    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
+
+    if (mode === 'unlock') {
+        editIcon.classList.add('disabled');
+        delIcon.classList.add('disabled');
+    } else if (mode === 'kirim') {
+        editIcon.classList.remove('disabled');
+        delIcon.classList.remove('disabled');
+    }
+}
+
+// *******************************************
+// Pesan Notifikasi untuk di Form Tabel Produk
+// *******************************************
+function showPesan(type, message, duration = 3000) {
+  const box      = document.getElementById('pesanNotification');
+  const icon     = document.getElementById('pesanNotifIcon');
+  const text     = document.getElementById('pesanNotifText');
+
+  // Reset class
+  box.className  = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  text.textContent  = message;
+  box.style.display = 'flex';
+  setTimeout(() => {box.style.display = 'none';}, duration);
+}
+
+// **************************************************
+// Pesan Notifikasi untuk di Form Modal Add dan Edit
+// **************************************************
+function showPesanModal(type, message, duration = 3000) {
+  const boxModal  = document.getElementById('pesanNotifModalBox');
+  const iconModal = document.getElementById('pesanNotifModalIcon');
+  const textModal = document.getElementById('pesanNotifModalText');
+
+  // Reset class
+  boxModal.className  = 'notification-message w-100 mb-2';
+  iconModal.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    boxModal.classList.add('notification-error');
+    iconModal.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxModal.classList.add('notification-success');
+    iconModal.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxModal.classList.add('notification-warning');
+    iconModal.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textModal.textContent  = message;
+  boxModal.style.display = 'flex';
+  setTimeout(() => {
+    boxModal.style.display = 'none';
+  }, duration);
+}
+
+// ***************************
+// Tampilkan Modal Edit Produk
+// *************************** 
+function showEditModal(data) {
+  console.log("Edit Produk:", data);
+
+  const modal = document.getElementById("modalProduk");
+  const form = document.getElementById("produkForm");
+  if (!modal || !form) return;
+
+  // Set mode edit
+  modal.setAttribute("data-mode", "edit");
+  document.getElementById('judulModal').textContent = 'Edit Produk';
+
+  // Load dropdown kategori lalu isi form setelah dropdown selesai diisi
+  loadKategoriDropdownWithCallback(() => {
+    // Set kategori terpilih sesuai data
+    document.getElementById('namaKategori').value = data.namaKategori || "";
+
+    // Isi field lainnya
+    document.getElementById('noStok').value = data.noStok || "";
+    document.getElementById('noStok').disabled = true;
+
+    document.getElementById('namaProduk').value = data.namaProduk || "";
+    document.getElementById('volumePoint').value = formatAngka(data.volumePoint, true);
+    document.getElementById('hargaDasar').value = formatAngka(data.hargaDasar);
+    document.getElementById('hargaEceran').value = formatAngka(data.hargaEceran);
+    document.getElementById('member25').value = formatAngka(data.member25);
+    document.getElementById('sc35').value = formatAngka(data.sc35);
+    document.getElementById('sb42').value = formatAngka(data.sb42);
+    document.getElementById('spv50').value = formatAngka(data.spv50);
+
+    new bootstrap.Modal(modal).show();
+  });
+}
+
+// *********************
+// Validasi Form Produk
+// ********************* 
+function validateProdukForm() {
+  const noStok       = document.getElementById('noStok').value.trim();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim();
+  const vp           = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
+
+  // Validasi field wajib (tidak boleh kosong)
+  if (!noStok) {
+    showPesanModal("warning", " WARNING : Field No Stok wajib diisi.");
+    return false;
+  }
+  if (!namaKategori) {
+    showPesanModal("warning", " WARNING : Field Kategori wajib diisi.");
+    return false;
+  }
+  if (!namaProduk) {
+    showPesanModal("warning", " WARNING : Field Nama Produk wajib diisi.");
+    return false;
+  }
+
+  // Unformat angka sebelum validasi
+  const vpRaw    = unformatNumber(vp, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
+
+  if (vpRaw === '' || isNaN(vpRaw)) {
+    showPesanModal("warning", " WARNING : Field VP harus berisi angka.");
+    return false;
+  }
+  if (hdRaw === '' || isNaN(hdRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Dasar harus berisi angka.");
+    return false;
+  }
+  if (heRaw === '' || isNaN(heRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Eceran harus berisi angka.");
+    return false;
+  }
+  if (m25Raw === '' || isNaN(m25Raw)) {
+    showPesanModal("warning", " WARNING : Field Member 25 harus berisi angka.");
+    return false;
+  }
+  if (sc35Raw === '' || isNaN(sc35Raw)) {
+    showPesanModal("warning", " WARNING : Field SC35 harus berisi angka.");
+    return false;
+  }
+  if (sb42Raw === '' || isNaN(sb42Raw)) {
+    showPesanModal("warning", " WARNING : Field SB42 harus berisi angka.");
+    return false;
+  }
+  if (spv50Raw === '' || isNaN(spv50Raw)) {
+    showPesanModal("warning", " WARNING : Field SPV50 harus berisi angka.");
+    return false;
+  }
+
+  return true; // Semua valid
+}
+
+// *****************************************************
+// Format angka sesuai lokal Indonesia (selalu 2 desimal
+// *****************************************************
+function formatAngka(value, isVP = false) {
+  if (value === null || value === undefined || value === '') return '';
+
+  let num;
+
+  if (typeof value === 'number') {
+    num = value;
+  } else {
+    let s = value.toString().trim();
+    if (!isVP) {
+      // untuk harga: hapus titik ribuan lalu ganti koma dengan titik
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      // VP biasanya cuma ada koma desimal
+      s = s.replace(',', '.');
+    }
+    num = parseFloat(s);
+  }
+
+  if (isNaN(num)) return '';
+
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+}
+
+// *************************************************
+// Fungsi untuk ubah formatted string (2.123.700,12) 
+// menjadi angka untuk dikirim ke server
+// *************************************************
+function unformatNumber(formatted, isVP = false) {
+  if (formatted === null || formatted === undefined) return '';
+  let s = String(formatted).trim();
+  if (s === '') return '';
+  if (isVP) {
+    // VP: "21,50" -> "21.50"
+    s = s.replace(/\s/g, '').replace(',', '.');
+  } else {
+    // Harga: "2.123.700,12" -> "2123700.12"
+    s = s.replace(/\./g, '').replace(',', '.').replace(/\s/g, '');
+  }
+  return s;
+}
+
+// **************************************************************
+// auto-format saat input (menulis titik ribuan dan koma desimal)
+// NOTE: kini input type = text sehingga aman untuk menulis titik
+// **************************************************************
+function formatInputCurrency(input) {
+  const raw     = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts     = raw.split(',');
+  let integer   = parts[0].replace(/^0+/, '') || '0';
+  let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (parts.length > 1) {
+    formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
+  }
+  input.value = formatted;
+  // letakkan kursor di akhir (sederhana & stabil)
+  input.setSelectionRange(formatted.length, formatted.length);
+}
+
+// *************************************************************
+// Fungsi untuk jalankan callback setelah dropdown selesai diisi
+// *************************************************************
+function loadKategoriDropdownWithCallback(callback) {
+  const callbackName = 'cb_kat_' + Date.now();
+
+  window[callbackName] = function (response) {
+    const select = document.getElementById('namaKategori');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+
+    if (response && response.data && response.data.length > 0) {
+      response.data.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.kategori;
+        opt.textContent = `${item.kode} - ${item.kategori}`;
+        select.appendChild(opt);
+      });
+    }
+
+    cleanup();
+    if (typeof callback === "function") callback(); // jalankan callback setelah dropdown selesai diisi
+  };
+
+  const params = new URLSearchParams({
+    action: 'getTabelDropdownKategori',
+    callback: callbackName
+  });
+
+  const script = document.createElement('script');
+  script.id = callbackName + '_script';
+  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
+}
+
+// ********************************************
+// Fungsi Load Kategori Filter + Event Listener
+// ********************************************
+function loadKategoriFilterDropdown() {
+  loadKategoriDropdownWithCallback(() => {
+    const menu = document.getElementById('kategoriFilterMenu');
+    if (!menu) return;
+
+    // reset isi menu (sisakan "Semua Kategori")
+    menu.innerHTML = '<li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>';
+
+    // isi kategori dari dropdown input
+    const kategoriSelect = document.getElementById('namaKategori');
+    if (!kategoriSelect) return;
+
+    Array.from(kategoriSelect.options).forEach(opt => {
+      if (opt.value) {
+        const li = document.createElement('li');
+        li.innerHTML = `<a class="dropdown-item" data-value="${opt.value}">${opt.value}</a>`;
+        menu.appendChild(li);
+      }
+    });
+  });
+}
+
+// ************************************
+// Fungsi untuk memanggil Tabel Produk 
+// ************************************
+function loadProdukTable(filterKategori = '') {
+  showLoading(true, 'Produk');
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
+
+  window[callbackName] = function (data) {
+    const tbody = document.getElementById('produkTableBody');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data produk.</td></tr>';
+      cleanup();
+      showLoading(false, 'Produk');
+      return;
+    }
+
+    // Filter data jika ada filter kategori
+    const filteredData = filterKategori
+      ? data.filter(row => row[1] === filterKategori) // row[1] = namaKategori
+      : data;
+
+    if (filteredData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11" class="text-center">Tidak ada data untuk kategori "${filterKategori}".</td></tr>`;
+      cleanup();
+      showLoading(false, 'Produk');
+      return;
+    }
+
+    filteredData.forEach(row => {
+      while (row.length < 10) row.push('');
+
+      const [
+        noStok, namaKategori, namaProduk, volumePoint, hargaDasar,
+        hargaEceran, member25, sc35, sb42, spv50
+      ] = row;
+
+      const tr = document.createElement('tr');
+      tr.id = `row_${noStok}`;
+      tr.innerHTML = `
+        <td class="text-start">${escapeHtml(noStok)}</td>
+        <td class="text-start">${escapeHtml(namaKategori)}</td>
+        <td class="text-start">${escapeHtml(namaProduk)}</td>
+        <td class="text-end">${formatAngka(volumePoint, true)}</td>
+        <td class="text-end">${formatAngka(hargaDasar)}</td>
+        <td class="text-end">${formatAngka(hargaEceran)}</td>
+        <td class="text-end">${formatAngka(member25)}</td>
+        <td class="text-end">${formatAngka(sc35)}</td>
+        <td class="text-end">${formatAngka(sb42)}</td>
+        <td class="text-end">${formatAngka(spv50)}</td>
+        <td class="actions-col text-center">
+          <i class="fas fa-edit action-icon" title="Edit Produk"
+            onclick="showEditModal({
+              noStok: '${escapeHtml(noStok)}',
+              namaKategori: '${escapeHtml(namaKategori)}',
+              namaProduk: '${escapeHtml(namaProduk)}',
+              volumePoint: '${volumePoint}',
+              hargaDasar: '${hargaDasar}',
+              hargaEceran: '${hargaEceran}',
+              member25: '${member25}',
+              sc35: '${sc35}',
+              sb42: '${sb42}',
+              spv50: '${spv50}'
+            })"></i>
+          <i class="fas fa-trash-alt action-icon" title="Hapus Produk" 
+            onclick="deleteProduk('${escapeHtml(noStok)}')"></i>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.onerror = function () {
+    showPesan('error', ' ERROR : Gagal mengambil data Produk!');
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    document.body.removeChild(script);
+  }
+
+  document.body.appendChild(script);
+}
+
+// ****************************
+// Fungsi untuk menambah Produk
+// ****************************
+function addProduk() {
+  // Ambil data input
+  const noStok       = document.getElementById('noStok').value.trim().toLowerCase();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim();
+  const volumePoint  = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
+
+  // Validasi form
+  if (!validateProdukForm()) return;
+
+  // Cek duplikasi NoStok pada tabel saat ini
+  const rows = document.querySelectorAll('#produkTableBody tr');
+  for (let row of rows) {
+    const cellNoStok = row.children[0]?.textContent?.trim();
+    if (cellNoStok === noStok) {
+      showPesanModal("warning", " WARNING : No Stok sudah digunakan.");
+      return;
+    }
+  }
+
+  // Konversi angka ke format kirim (hilangkan titik ribuan, pakai . sebagai desimal)
+  const vpRaw    = unformatNumber(volumePoint, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
+
+  const callbackName = 'cb_' + Date.now();
+
+  window[callbackName] = function(response) {
+    console.log("Respon server addProduk:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
+      showPesanModal("success", " SUKSES : " + (response.message || 'Produk berhasil ditambahkan'));
+      const modalEl = document.getElementById("modalProduk");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      loadProdukTable();
+    } else {
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal menambahkan produk'));
+    }
+    cleanup();
+  };
+
+  const params = new URLSearchParams({
+    action: 'addProduk',
+    noStok,
+    namaKategori,
+    namaProduk,
+    volumePoint: vpRaw,
+    hargaDasar: hdRaw,
+    hargaEceran: heRaw,
+    member25: m25Raw,
+    sc35: sc35Raw,
+    sb42: sb42Raw,
+    spv50: spv50Raw,
+    callback: callbackName
+  });
+
+  console.log("addProduk -> data dikirim:", Object.fromEntries(params.entries()));
+
+  const script = document.createElement('script');
+  script.id    = callbackName + '_script';
+  script.src   = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e){}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
+}
+
+// *******************************
+// Fungsi untuk mengedit Produk id
+// *******************************
+function editProduk() {
+  // Ambil data input
+  const noStok       = document.getElementById('noStok').value.trim();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim();
+  const volumePoint  = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
+
+  // Validasi form
+  if (!validateProdukForm()) return;
+
+  // Konversi angka
+  const vpRaw    = unformatNumber(volumePoint, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
+
+  const callbackName = 'cb_' + Date.now();
+
+  window[callbackName] = function(response) {
+    console.log("Respon server editProduk:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
+      showPesanModal("success", " SUKSES : " + (response.message || 'Produk berhasil diupdate'));
+      const modalEl = document.getElementById("modalProduk");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      document.getElementById("modalProduk").setAttribute("data-mode", "add");
+      loadProdukTable();
+    } else {
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal mengupdate produk'));
+    }
+    cleanup();
+  };
+
+  const params = new URLSearchParams({
+    action: 'editProduk',
+    noStok,
+    namaKategori,
+    namaProduk,
+    volumePoint: vpRaw,
+    hargaDasar: hdRaw,
+    hargaEceran: heRaw,
+    member25: m25Raw,
+    sc35: sc35Raw,
+    sb42: sb42Raw,
+    spv50: spv50Raw,
+    callback: callbackName
+  });
+
+  console.log("editProduk -> data dikirim:", Object.fromEntries(params.entries()));
+
+  const script = document.createElement('script');
+  script.id = callbackName + '_script';
+  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e){}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
+}
+
+// **************************************
+// Fungsi untuk pengaturan tombol simpan
+// **************************************
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById("saveProdukBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const mode = document.getElementById("modalProduk").getAttribute("data-mode");
+      if (mode === "edit") {
+        editProduk();
+      } else {
+        addProduk();
+      }
+    });
+  }
+});
+
+// ********************************
+// Fungsi untuk menghapus Produk id
+// ********************************
+function deleteProduk(noStok) {
+  if (!confirm("Yakin ingin menghapus Produk ini?")) return;
+
+  const callback = 'cb_' + Date.now();
+  window[callback] = function(response) {
+    if (response.status === 'success') {
+       showPesan('success', " SUKSES : " + response.message);
+       loadProdukTable(); // Refresh tabel
+    }
+    delete window[callback];
+  };
+
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=deleteProduk&noStok=${encodeURIComponent(noStok)}&callback=${callback}`;
+  document.body.appendChild(script);
+}
+
+// *******************************************************
+// Fungsi Auto Format Nama Produk hanya huruf awal kapital
+// *******************************************************
+function capitalizeWords(str) {
+  return str.replace(/\b\w+/g, word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+}
+
+// **********************************************************************************
+//  Fungsi Event untuk load Tabel Produk, Kategori, tombol-tombol serta event lainnya
+// **********************************************************************************
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Load tabel awal & kategori filter
+  loadProdukTable();
+  loadKategoriFilterDropdown();
+
+  // --- Event tombol Filter
+  const kategoriMenu = document.getElementById('kategoriFilterMenu');
+  if (kategoriMenu) {
+    kategoriMenu.addEventListener('click', (e) => {
+      const target = e.target.closest('a.dropdown-item');
+      if (!target) return;
+      const selected = target.getAttribute('data-value') || '';
+      loadProdukTable(selected);
+    });
+  }
+
+  // --- Event tombol Tambah Produk
+  const addBtn = document.getElementById('addProdukButton');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      document.getElementById('mode').value = 'add';
+      document.getElementById('modalProduk').setAttribute('data-mode', 'add');
+      document.getElementById('produkForm').reset();
+      document.getElementById('noStok').disabled = false;
+      document.getElementById('judulModal').textContent = 'Tambah Produk';
+      loadKategoriDropdownWithCallback(() => {
+        new bootstrap.Modal(document.getElementById('modalProduk')).show();
+      });
+    });
+  }
+
+  // --- Event tombol Simpan Produk
+  const btnSimpan = document.getElementById('btnSimpanProduk');
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', () => {
+      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
+      if (mode === 'edit') editProduk();
+      else addProduk();
+    });
+  }
+
+  // --- Auto-format angka saat input
+  const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
+  hargaFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => formatInputCurrency(el));
+  });
+
+  // --- Auto-format Nama Produk
+  const namaProdukInput = document.getElementById('namaProduk');
+  if (namaProdukInput) {
+    namaProdukInput.addEventListener('input', () => {
+      const pos = namaProdukInput.selectionStart;
+      namaProdukInput.value = capitalizeWords(namaProdukInput.value);
+      namaProdukInput.setSelectionRange(pos, pos);
+    });
+  }
+  
+  // --- Event tombol Export
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) {
+    btnExport.addEventListener('click', exportToExcel);
+  }
+
+  // --- Event tombol Import ---
+  const btnImport = document.getElementById('btnImport');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ''; // reset input file
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
+
+  const btnProsesImport = document.getElementById('btnProsesImport');
+  if (btnProsesImport) {
+    btnProsesImport.addEventListener('click', () => {
+      const fileInput = document.getElementById('fileImport');
+      if (!fileInput.files.length) {
+        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      
+      // Hanya terima file Excel
+      if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
+        showPesanModal("error", " ERROR : Hanya file Excel (.xlsx, .xls) yang didukung");
+        return;
+      }
+
+      // Tampilkan progress bar, sembunyikan spinner global 
+      const progressDiv = document.getElementById('importProgress');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressText = document.getElementById('progressText');
+      
+      progressDiv.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressBar.classList.add('progress-bar');
+      progressPercent.textContent = '0%';
+      progressText.textContent = 'Mempersiapkan import...';
+
+      const reader = new FileReader();
+
+      reader.onload = async function (e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          
+          // Convert to JSON dengan range yang spesifik
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+            header: 1,
+            defval: "" // Default value empty string
+          });
+          
+          console.log("Data mentah dari Excel:", jsonData.length, "baris");
+          
+          // Cari baris header yang benar
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row.length >= 3) {
+              const firstCell = String(row[0] || '').toLowerCase();
+              if (firstCell.includes('nostok') || firstCell.includes('stock') || firstCell.includes('no.stok') || firstCell.includes('no stok')) {
+                headerRowIndex = i;
+                break;
+              }
+            }
+          }
+          
+          if (headerRowIndex === -1) {
+            throw new Error("Format file Excel tidak sesuai. Pastikan ada header 'NoStok' di kolom pertama");
+          }
+
+          // Ambil data mulai dari baris setelah header
+          const dataRows = jsonData.slice(headerRowIndex + 1).filter(row => 
+            row && row.length > 0 && row[0] !== undefined && row[0] !== null && row[0] !== ''
+          );
+
+          console.log("Data yang akan diimport:", dataRows.length, "baris");
+
+          if (dataRows.length === 0) {
+            throw new Error("Tidak ada data yang ditemukan setelah header");
+          }
+
+          // Proses data untuk dikirim
+          const processedData = dataRows.map(row => {
+            return {
+              noStok: formatNoStokValue(row[0]),
+              kategori: formatExcelValue(row[1]),
+              namaProduk: formatExcelValue(row[2]),
+              vp: formatExcelNumber(row[3]),
+              hargaDasar: formatExcelNumber(row[4]),
+              hargaEceran: formatExcelNumber(row[5]),
+              member25: formatExcelNumber(row[6]),
+              sc35: formatExcelNumber(row[7]),
+              sb42: formatExcelNumber(row[8]),
+              spv50: formatExcelNumber(row[9])
+            };
+          });
+
+          // Kirim data dalam batch kecil
+          const batchSize = 10;
+          let successCount = 0;
+          const totalBatches = Math.ceil(processedData.length / batchSize);
+          
+          progressText.textContent = `Mengimport 0/${processedData.length} data...`;
+          
+          for (let i = 0; i < processedData.length; i += batchSize) {
+            const batch = processedData.slice(i, i + batchSize);
+            const isFirstBatch = (i === 0);
+            const currentBatch = Math.floor(i / batchSize) + 1;
+            
+            // Update progressbar
+            const progress = Math.round((i / processedData.length) * 100);
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${progress}%`;
+            progressText.textContent = `Mengimport ${i}/${processedData.length} data (Batch ${currentBatch}/${totalBatches})...`;
+            
+            try {
+              const response = await sendExcelBatch(batch, isFirstBatch);
+              successCount += batch.length;
+              console.log(`Batch ${currentBatch} berhasil: ${batch.length} data`);
+            } catch (error) {
+              console.error(`Batch ${currentBatch} gagal:`, error);
+              throw new Error(`Gagal import batch ${currentBatch}: ${error.message}`);
+            }
+            
+            // Delay antara batch
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+
+          // Selesaikan progressbar
+          progressBar.style.width = '100%';
+          progressPercent.textContent = '100%';
+          progressText.textContent = `Import selesai! ${successCount} data berhasil diimport.`;
+          
+          // Tunggu sebentar sebelum menutup modal
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+          
+          // Tampilkan spinner saat update tabel
+          showLoading(true, 'Produk');
+          loadProdukTable();
+
+        } catch (err) {
+          console.error("Error Import:", err);
+          progressBar.classList.remove('progress-bar');
+          progressBar.classList.add('bg-danger');
+          progressText.textContent = `Error: ${err.message}`;
+          showPesan('error', ' ERROR : ' + err.message);
+        } finally {
+          
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+});
+// **** Akhir Script Event DOMContent ****
+
+// ****************************************
+// Helper function untuk format nilai text
+// ****************************************
+function formatExcelValue(value) {
+  if (value === null || value === undefined || value === '') return '';
+  return String(value).trim();
+}
+
+// ****************************************
+// Helper function untuk format nilai number
+// ****************************************
+function formatExcelNumber(value) {
+  if (value === null || value === undefined || value === '') return 0;
+  
+  if (typeof value === 'number') {
+    return value;
+  }
+  
+  const strValue = String(value).trim();
+  if (!strValue) return 0;
+  
+  // --- Handle format Indonesia: "100,15" -> 100.15, "100.000,00" -> 100000.00 ---
+  let numericValue = strValue
+    .replace(/\./g, '')  // Hapus titik ribuan
+    .replace(',', '.');  // Ganti koma desimal dengan titik
+  
+  return parseFloat(numericValue) || 0;
+}
+
+// *******************************************
+// Helper function khusus untuk format NoStok
+// *******************************************
+function formatNoStokValue(value) {
+  if (value === null || value === undefined || value === '') return '';
+  let strValue = String(value).trim();
+  
+  // --- Jika mengandung slash (seperti "03/NA"), biarkan ---
+  if (strValue.includes('/')) {
+    return strValue;
+  }
+  
+  // --- Jika mengandung garis (seperti "03-NA"), biarkan ---
+  if (strValue.includes('-')) {
+    return strValue;
+  }
+
+  // --- Jika numerik, format dengan leading zeros ---
+  if (/^\d+$/.test(strValue)) {
+    return strValue.padStart(4, '0');
+  }
+  
+  // --- Jika sudah berupa string dengan huruf, biarkan ---
+  return strValue;
+}
+
+// ********************************
+// Kirim batch data Excel via JSONP
+// ********************************
+function sendExcelBatch(batchData, isFirstBatch) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "cb_excel_" + Date.now();
+    const script = document.createElement("script");
+
+    window[callbackName] = function (response) {
+      try {
+        console.log("Respon server:", response);
+        if (!response || response.status !== "success") {
+          reject(new Error(response?.message || "Gagal simpan batch"));
+        } else {
+          resolve(response);
+        }
+      } catch (err) {
+        reject(err);
+      } finally {
+        cleanup();
+      }
+    };
+
+    const encodedData = encodeURIComponent(JSON.stringify({
+      data: batchData,
+      first: isFirstBatch
+    }));
+    
+    script.id = callbackName + "_script";
+    script.src = `${URL_APPS_SCRIPT}?action=importExcelBatch&data=${encodedData}&callback=${callbackName}`;
+    
+    script.onerror = () => {
+      reject(new Error("Gagal mengirim request ke server"));
+      cleanup();
+    };
+
+    document.body.appendChild(script);
+
+    // --- Timeout setelah 30 detik ---
+    setTimeout(() => {
+      reject(new Error("Timeout - tidak ada respons dari server"));
+      cleanup();
+    }, 30000);
+
+    function cleanup() {
+      try { delete window[callbackName]; } catch (e) {}
+      const scriptEl = document.getElementById(callbackName + "_script");
+      if (scriptEl) scriptEl.remove();
+    }
+  });
+}
+
+// ********************************
+// Fungsi untuk Export Data ke Excel (Direct - XLSX Fixed)
+// ********************************
+function exportToExcel() {
+  showLoading(true, 'Produk');
+  
+  const callbackName = 'cb_export_' + Date.now();
+  const script = document.createElement('script');
+  
+  window[callbackName] = function(response) {
+    if (response && response.status === 'success' && response.data) {
+      try {
+        // Convert base64 to blob
+        const byteCharacters = atob(response.data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        
+        // Create blob
+        const blob = new Blob([byteArray], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        });
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = response.filename || 'TabelHarga_Export.xlsx';
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+        
+        showPesan('success', 'Export berhasil! File Excel sedang didownload.');
+      } catch (error) {
+        console.error('Error creating Excel file:', error);
+        showPesan('error', 'Error creating Excel file: ' + error.message);
+      }
+    } else {
+      showPesan('error', 'Export gagal: ' + (response?.message || 'Unknown error'));
+    }
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.onerror = function() {
+    showPesan('error', 'Gagal melakukan export!');
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.src = `${URL_APPS_SCRIPT}?action=exportTabelHargaDirectXLSX&callback=${callbackName}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e) {}
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  }
+}
+
+</SCRIPT>
+</body>
+</html>

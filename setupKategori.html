@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup - Kategori</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body { 
+    background-color: #f8f9fa; 
+}
+
+/* Layout utama */
+.main-container {
+  flex-direction: row !important;
+  justify-content: center !important;
+  justify-items: center !important;
+}  
+
+.content-wrapper {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.table-hover tbody tr:hover { 
+    background-color: #f2f2f2; 
+    cursor: pointer; 
+}
+.actions-col { 
+    width: 100px; 
+    text-align: center; 
+    white-space: nowrap; 
+}
+
+/************************/
+/* Pengaturan Icon-icon */
+/************************/
+.action-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+    margin: 0 5px;
+    cursor: pointer;
+    color: #6c757d;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 15px;
+}
+
+tr:hover .action-icon {
+    opacity: 1;
+}
+
+.action-icon:hover {
+    color: red;
+    background-color: #e0e0e0;
+}
+
+.action-icon.disabled {
+    pointer-events: none;
+    color: #bbb !important;
+    background-color: transparent !important;
+}
+
+.sticky-header th { 
+    position: sticky; 
+    top: 0; 
+    background-color: #003366; 
+    color: white; 
+    z-index: 2; 
+    font-size:15px;
+}
+.title-box { 
+    background-color: #003366; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+    margin: 0 auto;
+    max-width: 500px;
+}
+.title-box i { margin-right: 10px; }
+.button-box {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+    margin: 15px 0;
+    max-width: 500px;
+}
+
+.table-box {
+    position: relative;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 500px;
+}
+.table-wrapper { 
+    max-height: 450px; 
+    overflow-y: auto;
+}
+
+.table th, .table td {
+   white-space: nowrap;
+}
+
+/* Notifikasi Message Box */
+.notification-message {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/* Spinner Untuk tabel */
+.loading-overlay {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/**********************************************/
+/* Styling untuk modal konfirmasi Penghapusan
+/*********************************************/
+#confirmDeleteModal .modal-dialog .modal-title {
+  max-width: 400px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+}
+#confirmDeleteModal .modal-content {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+#confirmDeleteModal .modal-body .modal-header .modal-footer {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+#confirmDeleteModal .btn-close:focus {
+  box-shadow: none;
+}
+#confirmDeleteModal .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+#confirmDeleteButton {
+  min-width: 80px;
+}
+
+/****************************/
+/* Tampilan Vertikal Mobile */
+/****************************/
+@media (max-width: 491.98px) {
+  .main-container {
+    flex-direction: column !important;
+    justify-content: center;
+    padding-top: 1rem;
+  }
+ 
+  .title-box, 
+  .button-box,
+  .notification-message {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .table-box {
+    padding: 5px;
+  }
+  
+  .sticky-header th tr { 
+     font-size:15px;
+     white-space: nowrap !important;
+  }
+  .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .table th, .table td {
+    white-space: nowrap;
+  }
+  
+  .btn-group-vertical-responsive {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px;
+    width: 100%;
+  }
+  /*
+
+  .btn-group-vertical-responsive > div {
+    width: 100% !important;
+  }
+  */
+
+  .btn-group-vertical-responsive button,
+  .btn-group-vertical-responsive a {
+    width: 100% !important;
+    text-align: left;
+    justify-content: flex-start;
+    padding-left: 12px;
+  }
+  .btn-group-vertical-responsive button i,
+  .btn-group-vertical-responsive a i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+  }
+  
+  /* Modal konfirmasi untuk mobile */
+  #confirmDeleteModal .modal-dialog {
+    margin: 0.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+</style>
+</head>
+
+<body class="p-2 p-sm-3">
+<div class="main-container">
+  <div class="content-wrapper"> 
+
+    <div class="title-box mb-3">
+        <i class="far fa-list-alt"></i>
+        <h6 class="mb-0">SETUP KATEGORI PRODUK</h6>
+    </div>
+
+    <!-- Tombol Form Setup Kategori -->
+    <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
+        <button class="btn btn-primary btn-sm" id="addKategoriButton">
+            <i class="fas fa-plus-square me-1"></i> Tambah
+        </button>
+        <a href="setupEstih.html" class="btn btn-secondary btn-sm">
+            <i class="fas fa-sign-out-alt me-1"></i> Kembali
+        </a>
+    </div>
+
+    <!-- Notifikasi Pesan -->
+    <div id="pesanNotification" class="notification-message w-100 mb-2" style="display: none;">
+        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+    </div>
+
+    <!-- Tabel Daftar Kategori -->
+    <div class="table-box">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlayKategori" class="loading-overlay" style="display: none;">
+          <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <span class="visually-hidden">Memuat Data...</span>
+        </div>
+        
+        <div class="table-wrapper">
+        <table class="table table-hover table-striped table-bordered align-middle">
+          <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Kategori Produk</h6>
+                <tr>
+                    <th>No</th>
+                    <th>Kode</th>
+                    <th>Kategori</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="kategoriTableBody" style="font-size: small; align-content: center;">
+                <!-- Data akan diisi oleh JavaScript di sini -->  
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+  </div> 
+</div>
+
+<!-- Modal Add/Edit -->
+<div class="modal fade" id="modalKategori" tabindex="-1" data-mode="add">
+<div class="modal-dialog">
+<form id="kategoriForm" class="modal-content">
+    <div class="modal-header" style="background-color:#003366; color:white;">
+        <h6 id="judulModal" class="modal-title">Tambah Kategori</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" id="mode" value="add"> 
+        <input type="hidden" id="rowId" value="">
+        
+        <div class="input-group mb-2">
+            <span class="input-group-text">No Kode</span>
+            <input type="text" id="kodeKategori" class="form-control" placeholder="Masukkan kode kategori (wajib isi)" maxlength="10" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Kategori</span>
+            <input type="text" id="namaKategori" class="form-control" placeholder="Masukkan nama kategori (wajib isi)" maxlength="50" required>
+        </div>
+    </div>
+
+    <div class="modal-footer flex-column align-items-start">
+        <!-- Notifikasi Pesan -->
+        <div id="pesanNotifModalBox" class="notification-message w-100 mb-2" style="display: none;">
+           <i id="pesanNotifModalIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifModalText"></span>
+        </div>
+        <!-- Tombol-tombol untuk Modal Add dan Edit -->
+        <div class="w-100 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanKategori"><i class="fas fa-save"></i> Simpan</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white py-2">
+        <h5 class="modal-title fs-6" id="confirmDeleteModalLabel"><i class="fas fa-exclamation-triangle me-1"></i>Konfirmasi</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <div class="d-flex align-items-center mb-2">
+          <i class="fas fa-question-circle text-warning me-2" style="font-size: 1.5rem;"></i>
+          <p id="confirmDeleteMessage" class="mb-0 fs-6"></p>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> Batal</button>
+        <button type="button" class="btn btn-primary btn-sm" id="confirmDeleteButton"><i class="fas fa-trash me-1"></i> Ya</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<SCRIPT>
+// ********* Deklarasi Public **********
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwDr5F5aCszNE7D5RdTY8m0OaZle_miYBRRJIUZPEcwTuJ0Ue4eqETsBfdkRTaDI7JDkw/exec';
+// **************************************
+
+// **********************************
+// Tampilkan Spinner Loading Overlay
+// **********************************
+function showLoading(show) {
+  const overlay = document.getElementById('loadingOverlayKategori');
+  if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+// ***************************************************************
+// Escape HTML untuk menghindari XSS
+// ***************************************************************
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;');
+}
+
+// *******************************************
+// Pesan Notifikasi untuk di Form Tabel Kategori
+// *******************************************
+function showPesan(type, message, duration = 3000) {
+  const box = document.getElementById('pesanNotification');
+  const icon = document.getElementById('pesanNotifIcon');
+  const text = document.getElementById('pesanNotifText');
+
+  box.className = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  
+  text.textContent = message;
+  box.style.display = 'flex';
+  setTimeout(() => { box.style.display = 'none'; }, duration);
+}
+
+// **************************************************
+// Pesan Notifikasi untuk di Form Modal Add dan Edit
+// **************************************************
+function showPesanModal(type, message, duration = 3000) {
+  const boxModal = document.getElementById('pesanNotifModalBox');
+  const iconModal = document.getElementById('pesanNotifModalIcon');
+  const textModal = document.getElementById('pesanNotifModalText');
+
+  // Reset class
+  boxModal.className = 'notification-message w-100 mb-2';
+  iconModal.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    boxModal.classList.add('notification-error');
+    iconModal.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxModal.classList.add('notification-success');
+    iconModal.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxModal.classList.add('notification-warning');
+    iconModal.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textModal.textContent = message;
+  boxModal.style.display = 'flex';
+  setTimeout(() => {
+    boxModal.style.display = 'none';
+  }, duration);
+}
+
+// ************************************
+// Fungsi untuk memanggil Tabel Kategori
+// ************************************
+function loadKategoriTable() {
+  showLoading(true);
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelKategori&callback=${callbackName}`;
+
+  window[callbackName] = function (response) {
+    const tbody = document.getElementById('kategoriTableBody');
+    tbody.innerHTML = '';
+    
+    console.log("Response dari server:", response); // Debugging
+
+    // Cek jika response adalah object dengan properti data
+    if (response && typeof response === 'object' && response.data) {
+      const data = response.data;
+      
+      // Cek jika data kosong atau tidak ada
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Tidak ada data kategori</td></tr>';
+        showLoading(false);
+        return;
+      }
+
+      // Tampilkan data
+      data.forEach((row, index) => {
+        const [kode, kategori] = row;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-center">${escapeHtml(kode)}</td>
+          <td class="text-start">${escapeHtml(kategori)}</td>
+          <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit"
+              onclick="showEditModal(${index}, '${escapeHtml(kode)}', '${escapeHtml(kategori)}')">
+            </i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus" 
+              onclick="deleteKategori(${index}, '${escapeHtml(kode)}', '${escapeHtml(kategori)}')">
+            </i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } 
+    // Cek jika response adalah array langsung (format lama)
+    else if (Array.isArray(response)) {
+      // Cek jika data kosong atau tidak ada
+      if (response.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Tidak ada data kategori</td></tr>';
+        showLoading(false);
+        return;
+      }
+
+      // Tampilkan data
+      response.forEach((row, index) => {
+        const [kode, kategori] = row;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-center">${escapeHtml(kode)}</td>
+          <td class="text-start">${escapeHtml(kategori)}</td>
+          <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit"
+              onclick="showEditModal(${index}, '${escapeHtml(kode)}', '${escapeHtml(kategori)}')">
+            </i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus" 
+              onclick="deleteKategori(${index}, '${escapeHtml(kode)}', '${escapeHtml(kategori)}')">
+            </i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    // Jika response tidak valid
+    else {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-danger">Format data tidak valid</td></tr>';
+      console.error("Format response tidak dikenali:", response);
+    }
+
+    showLoading(false);
+  };
+
+  script.onerror = function () {
+    const tbody = document.getElementById('kategoriTableBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-danger">Gagal memuat data</td></tr>';
+    showPesan('error', 'ERROR: Gagal mengambil data Kategori!');
+    showLoading(false);
+  };
+
+  document.body.appendChild(script);
+}
+
+// ***************************
+// Tampilkan Modal Edit Kategori
+// *************************** 
+function showEditModal(rowIndex, kode, kategori) {
+  const modal = document.getElementById("modalKategori");
+  document.getElementById('judulModal').textContent = 'Edit Kategori';
+  document.getElementById('rowId').value = rowIndex;
+  document.getElementById('kodeKategori').value = kode || "";
+  document.getElementById('namaKategori').value = kategori || "";
+  modal.setAttribute("data-mode", "edit");
+  
+  new bootstrap.Modal(modal).show();
+}
+
+// *********************
+// Validasi Form Kategori
+// ********************* 
+function validateKategoriForm() {
+  const kode = document.getElementById('kodeKategori').value.trim();
+  const kategori = document.getElementById('namaKategori').value.trim();
+
+  if (!kode) {
+    showPesanModal("warning", " WARNING : Field Kode wajib diisi.");
+    return false;
+  }
+
+  if (!kategori) {
+    showPesanModal("warning", " WARNING : Field Kategori wajib diisi.");
+    return false;
+  }
+
+  return true; // Semua valid
+}
+
+// ****************************
+// Fungsi untuk menambah Kategori
+// ****************************
+function addKategori() {
+  // Ambil data input
+  const kode = document.getElementById('kodeKategori').value.trim();
+  const kategori = document.getElementById('namaKategori').value.trim();
+
+  // Validasi form
+  if (!validateKategoriForm()) return;
+
+  const callbackName = 'cb_' + Date.now();
+
+  window[callbackName] = function(response) {
+    console.log("Respon server addKategori:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
+      showPesanModal("success", " SUKSES : " + (response.message || 'Kategori berhasil ditambahkan'));
+      const modalEl = document.getElementById("modalKategori");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      loadKategoriTable();
+    } else {
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal menambahkan kategori'));
+    }
+    cleanup(callbackName);
+  };
+
+  const params = new URLSearchParams({
+    action: 'addKategori',
+    kode: kode,
+    kategori: kategori,
+    callback: callbackName
+  });
+
+  console.log("addKategori -> data dikirim:", Object.fromEntries(params.entries()));
+
+  const script = document.createElement('script');
+  script.id    = callbackName + '_script';
+  script.src   = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+}
+
+// *******************************
+// Fungsi untuk mengedit Kategori
+// *******************************
+function editKategori() {
+  // Ambil data input
+  const rowIndex = document.getElementById('rowId').value;
+  const kode = document.getElementById('kodeKategori').value.trim();
+  const kategori = document.getElementById('namaKategori').value.trim();
+
+  // Validasi form
+  if (!validateKategoriForm()) return;
+
+  const callbackName = 'cb_' + Date.now();
+
+  window[callbackName] = function(response) {
+    console.log("Respon server editKategori:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
+      showPesanModal("success", " SUKSES : " + (response.message || 'Kategori berhasil diupdate'));
+      const modalEl = document.getElementById("modalKategori");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      document.getElementById("modalKategori").setAttribute("data-mode", "add");
+      loadKategoriTable();
+    } else {
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal mengupdate kategori'));
+    }
+    cleanup(callbackName);
+  };
+
+  const params = new URLSearchParams({
+    action: 'editKategori',
+    rowIndex: rowIndex,
+    kode: kode,
+    kategori: kategori,
+    callback: callbackName
+  });
+
+  console.log("editKategori -> data dikirim:", Object.fromEntries(params.entries()));
+
+  const script = document.createElement('script');
+  script.id = callbackName + '_script';
+  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+}
+
+// ************************************
+// Fungsi Konfirmasi Hapus Profesional
+// ************************************
+let currentDeleteCallback = null;
+
+// Fungsi untuk menampilkan modal konfirmasi
+function showDeleteConfirmation(message, callback) {
+  const modalElement = document.getElementById('confirmDeleteModal');
+  const messageElement = document.getElementById('confirmDeleteMessage');
+  const confirmButton = document.getElementById('confirmDeleteButton');
+  
+  // Set pesan konfirmasi
+  messageElement.textContent = message;
+  
+  // Simpan callback function
+  currentDeleteCallback = callback;
+  
+  // Tampilkan modal
+  const modal = new bootstrap.Modal(modalElement);
+  modal.show();
+  
+  // Event listener untuk tombol konfirmasi
+  confirmButton.onclick = function() {
+    if (typeof currentDeleteCallback === 'function') {
+      try {
+        currentDeleteCallback();
+      } catch (error) {
+        console.error("Error dalam callback hapus:", error);
+        showPesan('error', " ERROR : Terjadi kesalahan saat menghapus data");
+      }
+    }
+    modal.hide();
+  };
+}
+
+// ********************************
+// Fungsi untuk menghapus Kategori
+// ********************************
+function deleteKategori(rowIndex, kode, kategori) {
+  const message = `Anda yakin ingin menghapus kategori "${kategori}" (${kode})?`;
+  
+  showDeleteConfirmation(message, function() {
+    // Eksekusi penghapusan setelah konfirmasi
+    const callbackName = 'cb_' + Date.now();
+    
+    window[callbackName] = function(response) {
+      console.log("Respon server deleteKategori:", response);
+      
+      if (response && (response.status === 'success' || response.success === true)) {
+        showPesan('success', " SUKSES : " + (response.message || 'Data berhasil dihapus'));
+        loadKategoriTable(); // Refresh tabel
+      } else {
+        showPesan('error', " ERROR : " + (response?.message || 'Gagal menghapus data'));
+      }
+      
+      // Cleanup
+      cleanup(callbackName);
+    };
+
+    const script = document.createElement('script');
+    script.id = callbackName + '_script';
+    script.src = `${URL_APPS_SCRIPT}?action=deleteKategori&rowIndex=${encodeURIComponent(rowIndex)}&callback=${callbackName}`;
+    
+    document.body.appendChild(script);
+  });
+}
+
+// ******************************
+// Fungsi Cleanup yang Konsisten
+// ******************************
+function cleanup(callbackName) {
+  try { 
+    delete window[callbackName]; 
+  } catch(e) {}
+  const scriptElement = document.getElementById(callbackName + '_script');
+  if (scriptElement) {
+    scriptElement.remove();
+  }
+}
+
+// **********************************************************************************
+// Event Listener
+// **********************************************************************************
+document.addEventListener('DOMContentLoaded', () => {
+  // Load tabel awal
+  loadKategoriTable();
+
+  // Event tombol Tambah Kategori
+  const addBtn = document.getElementById('addKategoriButton');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      document.getElementById('mode').value = 'add';
+      document.getElementById('modalKategori').setAttribute('data-mode', 'add');
+      document.getElementById('kategoriForm').reset();
+      document.getElementById('judulModal').textContent = 'Tambah Kategori';
+      new bootstrap.Modal(document.getElementById('modalKategori')).show();
+    });
+  }
+
+  // Event tombol Simpan Kategori
+  const btnSimpan = document.getElementById('btnSimpanKategori');
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', () => {
+      const mode = document.getElementById('modalKategori').getAttribute('data-mode') || 'add';
+      if (mode === 'edit') editKategori();
+      else addKategori();
+    });
+  }
+
+  // Event listener untuk reset callback ketika modal ditutup
+  document.getElementById('confirmDeleteModal').addEventListener('hidden.bs.modal', function () {
+    currentDeleteCallback = null;
+  });
+});
+</SCRIPT>
+</body>
+</html>

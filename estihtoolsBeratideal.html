@@ -1,0 +1,1579 @@
+<!--------------------------------------------------------------------------------------------------------------------- 
+* EstiH Tools Versi 7.0
+* Aplikasi untuk pemesanan produk web base
+* File index.Html         : script html, CSS, jscript ditempatkan di GITHUB
+* File emailTemplate.html : script html ditempatkan di google sheet
+* File code.gs            : script google script ditempatkan di google script
+*
+* Worksheet : EstiHTools
+* Sheet : DataInput : untuk menyimpan data inputan dari form
+* Sheet : TabelHarga : daftar harga barang
+* Sheet : TabelDiskon : daftar diskon
+* Sheet : TabelByKirim : daftar by pengiriman
+*
+* Versi 5.0 :
+* - Perbaikan Perhitungan ToT VP = VP x Jumlah
+* - Perbaikan Tabel Form Rincian Pesanan
+* - Pada file pdf invoice : perbaikan kolom "Diskon" + label diskon
+* - Pemberian footer pada file pdf : dengan "Copyright" dan pemberian "No halaman"
+* - Validasi Email : Jika diisi maka cek format validasi, jika tidak maka lanjut 
+* - Memperbaiki responsive aplikasi
+*
+* Versi 6.0 :
+* 1.Penambahan fasiltas untuk manghapus item produk pesanan pada Tabel "Form Ringkasan Pesanan"
+*   - Pointer yang menyorot baris saat perpindahan item pada Tabel "Form Ringkasan Pesanan" berwarna "cyan" & tulisan tetap "hitam"
+*   - Jika saat menyorot baris item, maka sisi paling kanan item tersebut otomatis muncul icon "X" warna "abu-abu tua"
+*     
+* 2.Jika kursor menyorot icon "X" 
+*   - Maka icon "X" tersebut otomatis berubah warna "merah"
+*   - Dan muncul Tooltip "Hapus Item", jika di klik icon "X", maka item tersebut terhapus di Tabel "Form Ringkasan Pesanan" 
+*     dan terhapus juga di sheet "DataInput" dan otomatis "No Item" urutannya terupdate serta perhitungan lainnya terupdate juga
+*   - Sorotan pointer pindah baris item maka icon "X", tersembunyi 
+*   - Jika kursor pindah ke Inputan, maka sorotan pointer juga tersembunyi dari tabel "Form Ringkasan Pesanan"
+-------------------------------------------------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>EstiH Tools - Estimasi Harga</title>
+ 
+<style>
+/* ------------------------------- */
+/* Pengaturan Umum Styles CSS Form */
+/* ------------------------------- */
+body {
+  /* background-image: url('../images/Header_WETools.jpg'); */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header dengan Gambar */
+.header { text-align: center; margin-bottom: 20px; }
+.header img { max-width: 100%; height: auto; border-radius: 8px; }
+
+/*****************************/
+/* Styling untuk Menu Utama */
+/****************************/
+
+/* Untuk membuat sudut navbar mengikuti card */
+.card > header:first-child > .navbar {
+    border-top-left-radius: var(--bs-card-border-radius);
+    border-top-right-radius: var(--bs-card-border-radius);
+}
+
+/* Styling untuk Menu Utama */
+.main-menu-link {
+    font-weight: 500;
+    padding: 8px 12px !important;
+    border-radius: 6px;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+.main-menu-link:hover,
+.main-menu-link.active { 
+    color: #dc3545 !important; 
+    background-color: #dadada;
+}
+
+/* Judul Header dan Menu */
+.brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
+.brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
+
+/* Styling untuk Ikon Sosial Media */
+.social-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+}
+.social-icon i { color: #555; transition: color 0.3s ease-in-out; }
+.social-icon:hover { background-color: #dadada; }
+.social-icon:hover i { color: #dc3545; }
+
+/***************/
+/* Form Styles */
+/***************/
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+label { font-weight: bold; margin-bottom: 0; }
+input, select, button {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid  #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* Mengatur kursor saat field dalam keadaan disabled */
+input:disabled, select:disabled { cursor: not-allowed; }
+/* Mengatur kursor saat field dalam keadaan enabled */
+input:enabled, select:enabled { cursor: pointer; }
+
+/**************************/
+/* Notifikasi Message Box */
+/**************************/
+.notification-message {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 8px; /* agar icon dan teks tidak dempet */
+}
+.pesan-notif-icon {font-size: 18px;}
+.notification-error { background-color: #d9534f; color: white; }
+.notification-success { background-color: #0275d8; color: white; }
+.notification-warning { background-color: #f0ad4e; color: black; }
+
+/**********************/
+/* Pesan Validasi Box */
+/**********************/
+.validasi-message {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 8px; /* agar icon dan teks tidak dempet */
+}
+.pesan-validasi-icon {font-size: 18px;}
+.validasi-error { background-color: #d9534f; color: white; }
+.validasi-success { background-color: #0275d8; color: white; }
+.validasi-warning { background-color: #f0ad4e; color: black; }
+
+/* Style spinner */
+/* TIDAK DIGUNAKAN
+#loadingSpinner { display: none; text-align: center; padding: 0.1px; }
+#loadingSpinner .spinner-border { width: 2rem; height: 2rem; border-width: 0.2em; }
+*/
+
+/* Tombol */
+.button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
+button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
+
+/***************************/
+/* Tabel Ringkasan Pesanan */
+/***************************/
+
+/* batas tinggi tabel sebelum muncul scroll */
+.table-container {
+  max-height: 400px;        
+  overflow-y: auto;           /* aktifkan scroll vertical */
+}
+/* Sticky header */
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  background: #f4f4f4; /* warna header */
+  z-index: 2;
+}
+
+#orderTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0px;
+    margin-bottom: 20px;
+    table-layout: auto;    /* Ubah dari fixed ke auto */
+    min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
+}
+#orderTable th, #orderTable td {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;  /* Mencegah teks pindah baris */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Pengaturan kolom field tabel */
+#orderTable th {
+    background-color: #002266;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Perataan Text Field */
+#orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; }
+#orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) {text-align: right;}
+#orderTable td:nth-child(9) { text-align: center;}
+
+/* Input jumlah di tabel */
+#orderTable .qty-input {
+    width: 55px;
+    height: 25px;
+    text-align: center;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+/* Wrapper untuk Tabel */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #ddd;
+}
+
+/* *******************************
+/* Style untuk icon delete      */
+/* ******************************/
+
+/* Default: ikon X tersembunyi */
+.delete-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #6c757d;        /* abu-abu default */
+    text-decoration: none;
+    visibility: hidden;      /* sembunyi default */
+    opacity: 0;              /* transparan default */
+    transition: all 0.2s ease-in-out;
+}
+/* Saat baris tabel di-hover → tampilkan ikon abu-abu */
+#orderTable tbody tr:hover .delete-icon { visibility: visible; opacity: 1; }
+/* Saat ikon di-hover → ubah warna dan lingkaran abu-abu */
+.delete-icon:hover { color: #dc3545 !important; background-color: #d3d3d3; cursor: pointer; }
+
+/* Sorotan Baris record pada tabel */
+#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
+
+/* Tabel Total */
+#orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
+/* Summary Details */
+#summaryDetails {
+    margin-top: 20px;       /* Jarak Summery details dengan tabel */
+    text-align: right;  
+    font-size: 16px;
+    font-weight: bold;
+    margin: 3px 9px;        /* Jarak Summery details antar baris dan jarak sisi kanan */
+}
+
+/*******************/
+/* Tampilan Footer */
+/*******************/
+.footer {
+    background-color: #002266;  
+    color: white;
+    padding: 1px;
+    margin-top: 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+.footer a { color: white; text-decoration: none; }
+.footer a:hover { color: red; }
+
+/**************************************/
+/* Modal Form Ketentuan dan Kebijakan */
+/**************************************/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+.close:hover { color: #000; }
+
+#setujuButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+#setujuButton:disabled { background-color: #ccc; cursor: not-allowed; }
+
+#submitButton[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+/**********************/
+/* About Form Overlay */
+/**********************/
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none; /* Hidden by default */
+}
+.about-form {
+  width: 100%;
+  max-width: 350px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/*************************************/
+/* Responsive Design untuk Handphone */
+/*************************************/
+/* @media (max-width: 768px) { */
+@media (max-width: 991.98px) {
+    /* Ukuran Icon navbar toggler */
+    .navbar-toggler{
+       padding-left: 0.2rem !important;
+       padding-right: 0.5rem !important;
+       max-width: 10%;
+       align-content: flex-end;
+    }
+    /* stretch agar item bisa membentang penuh */
+    .navbar-collapse { align-items:stretch; padding-top: 1rem; }
+    /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
+    .navbar-collapse .mx-auto {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        flex-direction: row;
+        margin-bottom: 1rem;
+    }
+    /* Membuat item menu utama vertikal membentang penuh */
+    .navbar-nav:not(.mx-auto) .nav-item { 
+        width: 100%;        /* Item <li> sekarang akan selebar container */
+    }
+    /* Link <a> di dalamnya juga ikut membentang  dan rata kiri */
+    .navbar-nav:not(.mx-auto) .main-menu-link { width: 100%; text-align: left; }
+
+    /* Formulir */
+    form  { display: flex; flex-direction: column; gap: 10px;  }
+    label { font-size: 14px;}
+    input, select, button { font-size: 14px; padding: 8px; width: 100%; box-sizing: border-box; }
+    
+    /* Tombol Vertikal dan jarak antar tombol */
+    .button-group { flex-direction: column; gap: 5px; }
+    .button-group button { width: 100%; margin-bottom: 5px; }
+
+    /* Tabel Ringkasan Pesanan */
+    #orderTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        table-layout: auto;    /* Ubah dari fixed ke auto */
+        min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
+    }
+    #orderTable th, #orderTable td {
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        white-space: nowrap;   /* Mencegah teks pindah baris */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* Pengaturan kolom field tabel */
+    #orderTable th {
+        background-color: #002266;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    /* Perataan Text Field */
+    #orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; }
+    #orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) { text-align: right; }
+    #orderTable td:nth-child(9) { text-align: center; }
+
+    /* Input jumlah di tabel */
+    #orderTable .qty-input {
+        width: 55px;
+        height: 25px;
+        text-align: center;
+        padding: 2px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    /* Wrapper untuk Tabel */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    /* Sorotan Baris */
+    #orderTable tbody tr:hover { background-color: #f8f9fa; }
+      
+    /* Edit Jumlah Item */
+    .qty-input { width: 55px  !important; height: 20px !important; font-size: 12px ;} 
+   
+    /* Tabel Total */
+    #orderTable tfoot td { 
+        font-weight: bold; 
+        font-size: 12px;
+        background-color: #a5b3c0; 
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+    }
+    .table-wrapper { border: none; }
+    #orderTable { font-size: 12px; min-width: 500px;}
+    #orderTable th, #orderTable td { padding: 6px 8px; }
+    #orderTable .qty-input { width: 45px; height: 22px; font-size: 12px; }
+   
+    /* Summary Details dan pengaturan jarak */
+    #summaryDetails { text-align: right; font-size: 12px; font-weight: bold; }
+
+    /* Footer */
+    .footer {
+        flex-direction: column; /* Footer vertikal di handphone */
+        gap: 3px;               /* Jarak antar baris diperkecil */
+        font-size: 12px;
+        text-align: left !important;
+        padding: 10px;          /* Padding diperkecil */
+    }
+
+    /* Modal Ketentuan dan Kebijakan */
+    .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
+    .modal-content h2 { font-size: 18px; }
+    .modal-content p { font-size: 14px; }
+    /* Input dan Select yang Disabled */
+    input:disabled, select:disabled { cursor: not-allowed; }
+    /* Input dan Select yang Enabled */
+    input:enabled, select:enabled { cursor: pointer; }
+}
+</style>  
+</head>
+
+<body>
+<div class="Container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="card mx-auto card shadow p-0" style="max-width:1024px;">
+   
+            <!--
+            <div class="header">
+                <body background="https://lh3.googleusercontent.com/d/1UMpdpx9R9kr6mfeztn3gSNnvmynLSuSb">
+                <img src="https://lh3.googleusercontent.com/d/1xQki5HyONHi7AcNNi24Q68CzFsTGu9y8" alt="Header EstihTools">
+            </div>      
+            -->
+            
+            <!-- HEADER MENU -->
+            <header>
+                <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
+                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
+                    <div class="container-fluid">
+                    
+                        <!-- Logo dan Nama Brand -->
+                        <a class="navbar-brand d-flex align-items-center" href="#">
+                            <img src="images/logo-EstihTools.png" alt="Logo" width="80" class="me-2">
+                            <div class="d-none d-md-block">
+                            <div class="brand-title">EstihTools</div>
+                            <div class="brand-subtitle">Estimasi Harga Tools</div>
+                            </div>
+                        </a>
+
+                        <!-- Tombol Hamburger untuk Mobile -->
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" width="100%">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <!-- Bagian Menu dan Social Media -->
+                        <div class="collapse navbar-collapse" id="mainNavbar">
+                            <!-- Social Media Icons -->
+                            <ul class="navbar-nav mx-auto">
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku"   target="_blank" title="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a></li>
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a></li>
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com"             target="_blank" title="YouTube"><i class="fab fa-youtube fa-lg"></i></a></li>
+                            </ul>
+                            <!-- Menu Navigasi Utama -->
+                            <ul class="navbar-nav gap-2">
+                            <li class="nav-item"><a class="nav-link main-menu-link" href="#home">Home</a></li>
+                            <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
+                            <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        
+            <!-- HEADER IMAGE DITAMPILKAN
+                <div class="header-image">
+                    <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
+                </div>       
+            -->
+            
+            <div class="card-body">
+                <div class="card-title text-white text-center p-1 rounded" style="background-color:#002266;">
+                    <h4>SIMULASI ESTIMASI HARGA</h4>
+                </div>
+                <!-- Form Pesanan Barang -->        
+                <form id="orderForm">
+                    <i class="fas fa-cart-plus mt-2"> Data Produk</i>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Tanggal </span>
+                        <input type="date" class="form-control" id="date" name="date" readonly>
+                    </div> 
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Nomor  </span>
+                        <input type="text" class="form-control" id="invoice" name="invoice" readonly>
+                    </div>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Produk  </span>
+                        <select id="product" placeholder="Pilih jenis produk (wajib isi)" class="form-control form-select" name="product" required>
+                           <!-- Opsi akan diisi oleh JavaScript -->
+                        </select>
+                    </div>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Jumlah  </span>
+                        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                    </div>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Diskon  </span>
+                        <select id="discount" placeholder="Pilih diskon (wajib isi)" class="form-control form-select" name="discount" required>
+                           <!-- Opsi akan diisi oleh JavaScript --> 
+                        </select>
+                    </div>
+                    <div class="input-group mt-1"> 
+                        <span class="input-group-text">By Kirim</span>
+                        <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
+                            <!-- Opsi akan diisi oleh JavaScript --> 
+                        </select>
+                    </div>
+
+                    <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
+                    <div id="inputanSection" style="display:none; margin-top:5px;">    
+                        <div>
+                            <p><i class="fas fa-user-friends"> Data Personal</i></p>
+                        </div>  
+                        <div class="form-control mt-2">
+                            <p><strong>Silahkan lengkapi Data Personal ini sebelum mengirim hasil estimasi harganya</strong></p>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square"></i></span>
+                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="far fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="consumerName" name="consumerName" placeholder="Input nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
+                                <input type="number" class="form-control" id="consumerPhone" name="consumerPhone" placeholder="Input WA konsumen tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                            </div>
+                            <div class="input-group mt-2 mb-2">
+                                <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
+                                <input type="email" class="form-control" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim hasil ke email konsumen (optional)" maxlength="25">
+                            </div>
+                        </div>
+                    </div>     
+                
+                    <!-- Pesan Notifikasi -->
+                    <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
+                        <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
+                    </div>
+
+                    <!-- Pesan Validasi Inputan -->
+                    <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
+                        <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
+                    </div>                    
+
+                    <!-- Tampilan tombol -->
+                    <div class="button-group"> 
+                  
+                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
+                            <i class="fas fa-save"></i> TAMBAH
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" onclick="resetForm()" id="btnReset">
+                            <i class="fas fa-rotate-left"></i> RESET
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
+                            <i class="fas fa-paper-plane"></i> SUBMIT
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
+                            <i class="fas fa-share-square"></i> KIRIM
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+                    </div>  
+                </form>
+
+                <div id="orderSummary">
+                    <h5>Ringkasan Pesanan</h5>
+                    <div class="table-wrapper">
+                        <div class="table-container">
+                        <table id="orderTable">  
+                            <!-- Kolom Tabel : Judul Nama Field -->
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>No Stok</th>
+                                    <th>Nama Produk</th>
+                                    <th>Harga Eceran</th>
+                                    <th>Diskon</th>
+                                    <th>Jumlah</th>
+                                    <th>Tot VP</th>         
+                                    <th>Harga</th>
+                                    <!-- Kolom "Aksi" dengan ikon tong sampah -->
+                                    <th> <i class="fas fa-trash-alt"></i> </th> 
+                                </tr> 
+                            </thead>
+                            <!-- Baris Data item Tabel -->
+                            <tbody>
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                            <!-- Baris footer Tabel -->
+                            <tfoot>
+                                <tr>
+                                    <td style="text-align: right;" colspan="5"><strong>Total</strong></td>
+                                    <td style="text-align: right;" id="totalJumlah">0</td>
+                                    <td style="text-align: right;" id="totalVP">0,00</td> 
+                                    <td style="text-align: right;" id="totalHarga">0,00</td>
+                                    <td></td> <!-- Kolom kosong untuk aksi -->
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </div>
+                    </div>    
+                  
+                    <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
+                    <div id="summaryDetails">
+                        <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
+                        <div>Pajak : <span id="tax">0,00</span></div>
+                        <div>Total Harga : <span id="totalPrice">0,00</span></div>
+                    </div>
+                </div>
+            
+                <!-- Footer Form -->
+                <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 3px; margin-right: 3px;">  
+                    <a href="ketentuan.html"> - Ketentuan dan Kebijakan</a> 
+                    <a href="https://amihaji.github.io/wetools"> - Cek Survey Kebugaran Anda</a>
+                    <a href="https://bit.ly/LokasiKlubKita"> - Cek Map Lokasi Klub Kita</a>
+                    <a href="https://www.beratidealku.com"> - Copyright (c) 2025, by: beratidealku</a>
+                </footer>
+             
+                <!-- Form Ketentuan dan Kebijakan -->
+                <div id="ketentuanModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h5>Ketentuan dan Kebijakan</h5>
+                        <div id="ketentuanContent">
+                            <!-- Isi ketentuan akan dimuat di sini -->
+                        </div>
+                        <input type="checkbox" id="agreeCheckbox">
+                        <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
+                        <button id="setujuButton" disabled>SETUJU</button>
+                    </div>
+                </div>
+
+                <!-- About Overlay -->
+                <div class="about-overlay" id="aboutOverlay">
+                    <div class="about-form">
+                        <h5 class="mb-2">Aplikasi EstihTools Versi 7.0</h5>
+                        <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a>
+                        <br>Allright Reserved
+                        <br>Simulasi Estimasi Harga Tools
+                        <div class="d-grid mt-4">
+                        <button id="btnCloseAbout" class="btn btn-primary">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>  
+    </div>  
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// *******************************
+// URL Web App Google Apps Script 
+// *******************************
+const API_URL      = "https://script.google.com/macros/s/AKfycbxuxoLblVrBW-VVJZOMDnFU5GF983ap1RYQ10MdBApF8Wb8PCgP2ZPA-lG1F564DvAkrg/exec";
+let isEditMode     = false;  // Untuk mendefenisikan mode Edit
+let currentEditRow = null;   // Untuk menyimpan referensi row yang sedang diedit
+// Untuk memastikan tidak ada event listener ganda
+document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
+
+// **********************************************
+// Fungsi untuk koneksi dengan Google Apps Script 
+// **********************************************
+function callAPI(action, params = {}, method = "GET") {
+  const url = API_URL;
+
+  if (method === "GET") {
+    const requestUrl = new URL(url);
+    requestUrl.searchParams.append("action", action);
+    Object.keys(params).forEach(key => requestUrl.searchParams.append(key, params[key]));
+    return fetch(requestUrl).then(res => res.json());
+  } else {
+    // POST pakai no-cors → biar lolos blokir CORS GAS
+    const payload = JSON.stringify({ action, ...params });
+    return fetch(url, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: payload
+    });
+    // NOTE: tidak bisa pakai res.json() karena no-cors
+  }
+}
+
+// **********************************************
+// Inisialisasi saat halaman sudah load sempurna
+// **********************************************
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("DOM fully loaded and parsed");
+    
+    // Generate Tanggal dan Invoice
+    const mDateField    = document.getElementById('date'); 
+    const mInvoiceField = document.getElementById('invoice');
+    const mToday        = new Date();
+    
+    mDateField.value       = mToday.toISOString().split('T')[0];
+    mInvoiceField.value    = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    mDateField.disabled    = true;
+    mInvoiceField.disabled = true;
+
+    loadOptions();       // Load Dropdown Options
+
+    // Event listener untuk edit jumlah item
+    const tableBody = document.querySelector('#orderTable tbody');
+    if (tableBody) {
+        tableBody.addEventListener('input', function(e) {
+            if (e.target.classList.contains('qty-input')) {
+                console.log("Jumlah item diubah, aktifkan mode edit");
+                
+                // Update tampilan langsung
+                const row = e.target.closest('tr');
+                const qty = parseInt(e.target.value) || 0;
+                const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
+                
+                row.cells[7].textContent = formatCurrency(price * qty);
+                updateTotals();
+              
+            }
+        });
+    } else {
+        console.error("Tabel body tidak ditemukan!");
+    }
+
+    // Event listener untuk tombol close Ketentuan dan Kebijakan
+        document.querySelector('.close').addEventListener('click', hideKetentuanModal);
+        // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
+        document.getElementById('setujuButton').addEventListener('click', function() {
+        hideKetentuanModal();
+        showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
+    });
+
+    // Event listener untuk checkbox Ketentuan dan Kebijakan
+        document.getElementById('agreeCheckbox').addEventListener('change', function() {
+        const setujuButton = document.getElementById('setujuButton');
+        setujuButton.disabled = !this.checked;
+    });
+
+    // Event listener untuk link Ketentuan dan Kebijakan
+        document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
+        event.preventDefault(); // Mencegah navigasi ke halaman lain
+        showKetentuanModal();
+    });      
+    
+    // Intial Aplikasi Siap Digunakam
+    console.log("Aplikasi siap digunakan");
+    isEditMode = false;
+});
+
+// *************************
+// Fungsi untuk nambah data
+// *************************
+function addItem() {
+  const mDiscountSelect = document.getElementById('discount');
+  const mProductSelect = document.getElementById('product');
+  const mQuantity = parseInt(document.getElementById('quantity').value) || 0;
+  const mShippingSelect = document.getElementById('shipping');
+  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
+
+  if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
+    showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah, Diskon dan Pengiriman');
+    return;
+  }
+
+  callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+    const mTableBody = document.querySelector("#orderTable tbody");
+    const mDiscount = mDiscountSelect.value;
+
+    let mPriceAfterDiscount;
+    switch (mDiscount) {
+      case "0%": mPriceAfterDiscount = mProductData.HargaEceran; break;
+      case "25%": mPriceAfterDiscount = mProductData.Member25; break;
+      case "35%": mPriceAfterDiscount = mProductData.SC35; break;
+      case "42%": mPriceAfterDiscount = mProductData.SB42; break;
+      case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
+      default: mPriceAfterDiscount = mProductData.HargaEceran;
+    }
+
+    const mHarga = mPriceAfterDiscount * mQuantity;
+    const mTotVP = mProductData.VP * mQuantity;
+
+    // tambahkan atribut data-kategori, data-vp, dan data-harga ke <tr>
+    const mNewRow = `
+      <tr data-kategori="${mProductData.Kategori}" 
+          data-vp-asli="${mProductData.VP}" 
+          data-harga-setelah-diskon="${mPriceAfterDiscount}">
+        <td>${mTableBody.rows.length + 1}</td>
+        <td>${mProductSelect.value}</td>
+        <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
+        <td>${formatCurrency(mProductData.HargaEceran)}</td>
+        <td>${formatCurrency(mPriceAfterDiscount)}</td>
+        <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
+        <td data-vp-nilai="${mTotVP}">${formatCurrency(mTotVP)}</td>
+        <td data-harga-nilai="${mHarga}">${formatCurrency(mHarga)}</td>
+        <td class="text-center">
+          <span class="delete-icon" onclick="deleteItem(this)">
+            <i class="fas fa-times"></i>
+          </span>
+        </td>
+      </tr>
+    `;
+
+    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
+    document.getElementById("submitButton").disabled = false;
+      
+    // Perbarui total setelah menambahkan item
+    updateTotals();
+ 
+    // kirim per item ke sheet
+    const mOrderData = {
+      mDate: document.getElementById("date").value,
+      mInvoice: document.getElementById("invoice").value,
+      mDistributorName: document.getElementById("distributorName").value,
+      mDistributorPhone: document.getElementById("distributorPhone").value,
+      mConsumerName: document.getElementById("consumerName").value,
+      mConsumerPhone: document.getElementById("consumerPhone").value,
+      mConsumerEmail: document.getElementById("consumerEmail").value,
+      mDiskon: selectedDiscountLabel,
+      mByKirim: parseFloat(mShippingSelect.value),
+      mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
+      mItem: {
+        mNoStok: mProductSelect.value,
+        mKategori: mProductData.Kategori,
+        mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
+        mVp: mProductData.VP,
+        mHargaEceran: mProductData.HargaEceran,
+        mSetelahDiskon: mPriceAfterDiscount,
+        mJumlah: mQuantity,
+        mTotVP: mTotVP,
+        mHarga: mHarga
+      }
+    };
+
+    callAPI("saveItem", mOrderData, "POST");
+    disableFields();
+
+    showSpinner("btnAdd");
+    showNotification('success', 'SUKSES : Item berhasil di tambah');
+    setTimeout(() => hideSpinner("btnAdd"), 1000); // simulasi selesai proses
+  }).catch(error => {
+    showNotification('error', 'ERROR : ' + error.message);
+  });
+}
+
+// *******************
+// Fungsi Delete Item 
+// *******************
+function deleteItem(icon) {
+    const row = icon.closest('tr');
+    const noStok = row.cells[1].textContent.trim();
+    
+    // Hapus dari tampilan
+    row.remove();
+    
+    // Update tampilan
+    updateItemNumbers();
+    updateTotals();
+    
+    // Hapus dari sheet
+    const invoice = document.getElementById("invoice").value;
+    callAPI("deleteItem", { noStok: noStok, invoice: invoice }, "POST")
+        .then(response => {
+            showNotification('success', 'Item berhasil dihapus');
+        })
+        .catch(error => {
+            showNotification('error', 'Gagal menghapus item');
+        });
+}
+
+// ******************
+// Tampilkan spinner
+// *****************
+function showSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = true;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "inline-block";
+}
+
+// ********************
+// Sembunyikan spinner
+// ********************
+function hideSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = false;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "none";
+}
+
+// *********************
+// Update Seluruh Total 
+// *********************
+function updateTotals() {
+  const rows = document.querySelectorAll('#orderTable tbody tr');
+  let totalJumlah = 0;
+  let totalVP = 0;
+  let totalHarga = 0;
+
+    rows.forEach(row => {
+    // Ambil nilai jumlah dari input
+    const qtyInput = row.querySelector('.qty-input');
+    const qty = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+
+    // Ambil VP per item dari atribut data (nilai asli dengan desimal)
+    const vpPerItem = parseFloat(row.getAttribute('data-vp-asli')) || 0;
+
+    // Ambil harga setelah diskon dari atribut data (nilai asli dengan desimal)
+    const priceAfterDiscount = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
+
+    // HITUNG TOTAL VP UNTUK BARIS INI
+    const rowTotalVP = vpPerItem * qty;
+
+    // HITUNG TOTAL HARGA UNTUK BARIS INI
+    const rowTotalHarga = priceAfterDiscount * qty;
+
+    // UPDATE TAMPILAN KOLOM "Tot VP" (kolom ke-7)
+    row.cells[6].textContent = formatCurrency(rowTotalVP);
+    row.cells[6].setAttribute('data-vp-nilai', rowTotalVP);
+    
+    // UPDATE TAMPILAN KOLOM "Harga" (kolom ke-8)
+    row.cells[7].textContent = formatCurrency(rowTotalHarga);
+    row.cells[7].setAttribute('data-harga-nilai', rowTotalHarga);
+
+    totalJumlah += qty;
+    totalVP += rowTotalVP;
+    totalHarga += rowTotalHarga;
+  });
+
+  // Update footer tabel
+  document.getElementById('totalJumlah').textContent = totalJumlah;
+  document.getElementById('totalVP').textContent = formatCurrency(totalVP);
+  document.getElementById('totalHarga').textContent = formatCurrency(totalHarga);
+
+  // Update summary
+  const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
+  const tax = 0;
+  const grandTotal = totalHarga + shippingCost + tax;
+  document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
+  document.getElementById('tax').textContent = formatCurrency(tax);
+  document.getElementById('totalPrice').textContent = formatCurrency(grandTotal);
+}
+
+// *************************
+// Validasi inputan di Form 
+// ************************* 
+function validateForm() {
+    const distributorName  = document.getElementById('distributorName').value.trim().toUpperCase();
+    document.getElementById('distributorName').value = distributorName;
+    const distributorPhone = document.getElementById('distributorPhone').value.trim();
+    const consumerName     = document.getElementById('consumerName').value.trim().toUpperCase();
+    const consumerPhone    = document.getElementById('consumerPhone').value.trim();
+    const consumerEmail    = document.getElementById('consumerEmail').value.trim();
+       
+    const userNamePattern  = /^[A-Z\s]{3,20}$/;                 
+    const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;     
+    const hpPattern        = /^[0-9]{10,14}$/;                 
+    
+    // 🔹 Cek kalau SEMUA input kosong
+    if (!distributorName && !distributorPhone && !consumerName && !consumerPhone && !consumerEmail) {
+        showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+        return false;
+    }
+
+    // 🔹 Validasi Distributor (WAJIB)
+    if (!userNamePattern.test(distributorName)) {
+        showNotifValidasi("warning", " WARNING : Nama Member, huruf besar dan 3-20 karakter.");
+        return false;
+    }
+    if (!hpPattern.test(distributorPhone)) {
+        showNotifValidasi("warning", " WARNING : Nomor HP Member, harus 10-14 digit angka.");
+        return false;
+    }
+
+    // 🔹 Validasi Konsumen (OPSIONAL)
+    if (consumerName && !userNamePattern.test(consumerName)) {
+        showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-20 karakter.");
+        return false;
+    }
+    if (consumerPhone && !hpPattern.test(consumerPhone)) {
+        showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
+        return false;
+    }
+    if (consumerEmail && !emailPattern.test(consumerEmail)) {
+        showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
+        return false;
+    }
+
+    return true;
+}
+
+// **************************
+// Fungsi untuk mereset form
+// **************************
+function resetForm() {
+    console.log("Tombol Reset diklik");
+    // Reset form input
+    document.getElementById('orderForm').reset();
+    
+    // Kosongkan tabel pesanan
+    document.querySelector('#orderTable tbody').innerHTML = '';
+
+    // Set Tanggal  dan invoice baru
+    const mDateField     = document.getElementById('date');       
+    const mToday         = new Date();
+    mDateField.value     = mToday.toISOString().split('T')[0];   // Format: INV-YYYYMMDD-XXX
+    const mInvoiceField  = document.getElementById('invoice');
+    const mInvoiceNumber = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    mInvoiceField.value  = mInvoiceNumber;
+
+    // Reset judul kolom "Diskon" + "Label Diskon" pada Tabel Form Rincian Pesanan
+    document.querySelector('#orderTable th:nth-child(5)').textContent = "Diskon";
+
+    // Reset semua nilai total ke 0
+    document.getElementById('totalVP').textContent       = formatCurrency(0);
+    document.getElementById('totalJumlah').textContent   = 0;
+    document.getElementById('totalHarga').textContent    = formatCurrency(0);
+
+    // Reset By Pengiriman, Pajak, dan Total Harga
+    document.getElementById('shippingCost').textContent  = formatCurrency(0);
+    document.getElementById('tax').textContent           = formatCurrency(0);
+    document.getElementById('totalPrice').textContent    = formatCurrency(0);
+
+    // saat form direset
+    document.getElementById("submitButton").style.display = "block";        // Tampilkan tombol "Submit"   
+    document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "Submit" 
+    document.getElementById("kirimButton").style.display  = "none";         // Sembuyikan tombol "Kirim" 
+    document.getElementById("kirimButton").disabled       = true;           // Nonaktifkan tombol "Kirim" 
+    document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
+    showSpinner("btnReset");
+    enableFields();    // Enable semua field kecuali Tanggal dan Invoice
+
+    // Pastikan kembali ke mode TAMBAH
+    showNotification('success', 'SUKSES : Form telah direset');
+    console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
+    setTimeout(() => hideSpinner("btnReset"), 1000);
+}
+
+// *********************************************
+// Fungsi untuk Pengaturan awal, saat form aktif
+// *********************************************
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate No. Simulasi (invoice)
+    const mDateField    = document.getElementById('date'); 
+    const mInvoiceField = document.getElementById('invoice');
+    const mToday        = new Date();
+    
+    // Format: INV-YYYYMMDD-XXX
+    mDateField.value    = mToday.toISOString().split('T')[0];
+    mInvoiceField.value = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+
+    // Disable fields
+    mDateField.disabled = true;
+    mInvoiceField.disabled = true;
+
+    // Memanggil isi pilihan field dropdown
+    loadOptions();
+});
+
+// ********************************
+// Fungsi untuk DISABLE field-field
+// ********************************
+function disableFields() {
+   const fieldsToDisable = ['discount', 'shipping'];
+    fieldsToDisable.forEach(fieldId => {
+        const field    = document.getElementById(fieldId);
+        field.disabled = true;
+    });
+}
+
+// ********************************
+// Fungsi untuk ENABLE field-field
+// ********************************
+function enableFields() {
+    const fieldsToEnable = ['product','quantity','discount','shipping'];
+    fieldsToEnable.forEach(fieldId => {
+        const field    = document.getElementById(fieldId);
+        field.disabled = false;
+    });
+}
+
+// **********************************************
+// Fungsi untuk memanggil pilihan dropdown field
+// **********************************************
+function loadOptions() {
+    // Load Pilihan Diskon
+    callAPI("getDiscounts").then(mDiscounts => {
+        const discountSelect     = document.getElementById('discount');
+        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+        mDiscounts.forEach(discount => {
+            const option       = document.createElement('option');
+            option.value       = discount.Diskon;
+            option.textContent = discount.Level;
+            discountSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat diskon:", err);
+        showNotification('error', 'ERROR : memuat data diskon');
+    });
+
+    // Load Pilihan Produk
+    callAPI("getProducts").then(mProducts => {
+        const productSelect     = document.getElementById('product');
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        mProducts.forEach(product => {
+            const option       = document.createElement('option');
+            option.value       = product.NoStok;
+            option.textContent = product.NamaProduk;
+            productSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat produk:", err);
+        showNotification('error', 'ERROR : memuat data produk');
+    });
+
+    // Load Jenis Pengiriman
+    callAPI("getShippingOptions").then(mShippingOptions => {
+        const shippingSelect     = document.getElementById('shipping');
+        shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+        mShippingOptions.forEach(shipping => {
+            const option       = document.createElement('option');
+            option.value       = shipping.Biaya;
+            // option.textContent = shipping.JenisPengiriman;
+            option.textContent = `${shipping.JenisPengiriman} By =  ${shipping.Biaya}`;
+            shippingSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat pengiriman:", err);
+        showNotification('error', 'ERROR : Memuat data pengiriman');
+    });
+}
+
+// *****************************************************
+// Tambahkan event listener untuk perubahan input jumlah
+// *****************************************************
+document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
+  if (e.target.classList.contains('qty-input')) {
+    const row   = e.target.closest('tr');
+    const qty   = parseInt(e.target.value) || 0;
+    const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
+    
+    // Update tampilan
+    row.cells[6].textContent = formatCurrency(vpPerItem * qty);
+    row.cells[7].textContent = formatCurrency(price * qty);
+    updateTotals();
+    
+    // Aktifkan mode edit
+    if (!isEditMode) {
+      isEditMode = true;
+      currentEditRow = row;
+    }
+  }
+});
+
+// *******************************************************
+// Fungsi untuk memperbarui nomor item setelah penghapusan
+// *******************************************************
+function updateItemNumbers() {
+    const rows    = document.querySelectorAll('#orderTable tbody tr');
+    const invoice = document.getElementById('invoice').value; // Ambil No Simulasi (Invoice) dari form
+
+    let itemCounter = 1;
+    rows.forEach((row) => {
+        if (row.cells[1].textContent.trim() !== "") {        // Pastikan baris tidak kosong
+            row.cells[0].textContent = itemCounter;          // Update nomor item di kolom pertama
+            itemCounter++;
+        }
+    });
+    console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
+}
+
+// ************************************
+// Kumpulkan data tabel ke object order
+// ************************************ 
+function collectOrderData() {
+  const mTableBody = document.querySelector("#orderTable tbody");
+  const rows = mTableBody.querySelectorAll("tr");
+
+  const items = [];
+  rows.forEach((row, idx) => {
+    const mNoItem = idx + 1;
+    const mNoStok = row.cells[1].textContent.trim();
+    const mNamaProduk = row.cells[2].textContent.trim();
+    const mHargaEceran = parseFloat(row.cells[3].getAttribute('data-nilai-asli') || 
+                                 row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
+    const mSetelahDiskon = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
+    const mJumlah = parseInt(row.querySelector("input").value) || 0;
+    
+    // Gunakan nilai VP dari atribut data, bukan dari teks yang diformat
+    const mTotVP = parseFloat(row.cells[6].getAttribute('data-vp-nilai')) || 0;
+    
+    // Gunakan nilai harga dari atribut data, bukan dari teks yang diformat
+    const mHarga = parseFloat(row.cells[7].getAttribute('data-harga-nilai')) || 0;
+    
+    const mKategori = row.getAttribute("data-kategori") || "";
+    const mVp = parseFloat(row.getAttribute("data-vp-asli")) || 0;
+
+    items.push({
+      mNoItem,
+      mNoStok,
+      mKategori,
+      mNamaProduk,
+      mVp,
+      mHargaEceran,
+      mSetelahDiskon,
+      mJumlah,
+      mTotVP,
+      mHarga
+    });
+  });
+
+  return {
+    // info invoice
+    mDate: document.getElementById("date").value,
+    mInvoice: document.getElementById("invoice").value,
+
+    // info distributor (member)
+    mDistributorName: document.getElementById("distributorName").value || "",
+    mDistributorPhone: document.getElementById("distributorPhone").value || "",
+
+    // info konsumen (akan kosong saat SUBMIT, terisi saat KIRIM)
+    mConsumerName: document.getElementById("consumerName").value || "",
+    mConsumerPhone: document.getElementById("consumerPhone").value || "",
+    mConsumerEmail: document.getElementById("consumerEmail").value || "",
+
+    // info order
+    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+    mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
+    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
+    mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/[^\d]/g, "")) || 0,
+
+    // detail item produk
+    items
+  };
+}
+
+// Helper untuk parsing angka dari string "Rp. 1.500.000"
+function parseCurrency(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
+}
+
+// *****************************
+// Untuk menyimpan data ke sheet
+// *****************************
+function saveOrderToSheet(orderData) {
+  // Tampilkan loading indicator
+  //document.getElementById('loadingSpinner').style.display = 'block';
+  
+  return callAPI("saveOrder", orderData, "POST")
+    .then(res => {
+      console.log("Data tersimpan:", res);
+      return res;
+    })
+    .catch(err => {
+      console.error("Gagal menyimpan:", err);
+      showNotification('error', 'ERROR : Gagal menyimpan perubahan');
+    })
+    .finally(() => {
+       showNotification('success', 'SUKSES : Data tersimpan'); 
+      //document.getElementById('loadingSpinner').style.display = 'none';
+    });
+}
+
+// *******************************************
+// Fungsi untuk simpan data terakhir ke sheet 
+// *******************************************
+function submitForm() {
+  // Hanya mengubah tampilan, tidak menyimpan data
+  console.log("Submit clicked - preparing for final submission");
+
+  // Disable input produk
+  document.getElementById("product").disabled  = true;
+  document.getElementById("quantity").disabled = true;
+  document.getElementById("discount").disabled = true;
+  document.getElementById("shipping").disabled = true;
+  document.getElementById("btnAdd").disabled   = true;
+ 
+  // Toggle tombol
+  document.getElementById("submitButton").style.display   = "none";
+  document.getElementById("kirimButton").style.display    = "inline-block";
+  // Tampilkan inputan konsumen
+  document.getElementById("inputanSection").style.display = "block";
+}
+
+// **************************************************
+// Mengirim data ke sheet DataInput dan DataKonsumen
+// **************************************************
+function kirimData() {
+  // Validasi form sebelum mengirim
+  if (!validateForm()) {
+     return false;
+  }
+  
+  const mOrderData = collectOrderData();
+  document.getElementById("kirimButton").style.display  = "block";
+  // Tampilkan loading spinner
+  showSpinner("kirimButton");
+
+  callAPI("kirimData", mOrderData, "POST")
+  .then(response => {
+      console.log("Kirim berhasil");
+      document.getElementById("submitButton").style.display   = "none";
+      document.getElementById("inputanSection").style.display = "none";
+      setTimeout(() => hideSpinner("kirimButton"), 1000);
+    })
+    .catch(err => {
+      console.error("Error kirim:", err);
+      showNotification('error', 'ERROR: Gagal mengirim data');
+    })
+    .finally(() => {
+      showNotification('success', 'SUKSES: Data berhasil dikirim');
+      // Reset form
+      resetForm();
+    });   
+}
+
+// ************************************************************
+// Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
+// ************************************************************
+document.querySelectorAll('#orderTable tbody tr').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        row.querySelector('.delete-icon').style.display = 'inline';
+    });
+    row.addEventListener('mouseleave', () => {
+        row.querySelector('.delete-icon').style.display = 'none';
+    });
+});
+
+// ********************************
+// Fungsi untuk menformat currency
+// ********************************
+function formatCurrency(amount) {
+  if (isNaN(amount)) return "0";
+  
+  // Konversi ke number jika input string
+  if (typeof amount === 'string') {
+    amount = parseFloat(amount.replace(/[^\d]/g, ''));
+  }
+  
+  // Format tanpa desimal jika angka bulat
+  if (Number.isInteger(amount)) {
+    return new Intl.NumberFormat('id-ID').format(amount);
+  }
+  
+  // Format dengan 2 desimal jika perlu
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
+// *****************************************************
+// Fungsi untuk memformat tanggal Indonesia (DD/MM/YYYY)
+// *****************************************************
+function formatDate(dateString) {
+    const mDate  = new Date(dateString);
+    const mDay   = String(mDate.getDate()).padStart(2, '0');
+    const mMonth = String(mDate.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const mYear  = mDate.getFullYear();
+    return `${mDay}/${mMonth}/${mYear}`;
+}
+
+// ******************************
+// Fungsi untuk Pesan Notifikasi 
+// ******************************
+function showNotification(type, message, duration = 3000) {
+  const box  = document.getElementById('notificationBox');
+  const icon = document.getElementById('pesanNotifIcon');
+  const text = document.getElementById('pesanNotifText');
+
+  // Reset class
+  box.className  = 'notification-message w-100 mb-2';
+  icon.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  text.textContent  = message;
+  box.style.display = 'flex';
+  setTimeout(() => { box.style.display = 'none'; }, duration);
+}
+
+// ***********************************
+// Fungsi untuk Pesan Validasi Inputan
+// ***********************************
+function showNotifValidasi(type, message, duration = 3000) {
+  const boxValidasi  = document.getElementById('validasiBox');
+  const iconValidasi = document.getElementById('pesanValidasiIcon');
+  const textValidasi = document.getElementById('pesanValidasiText');
+
+  // Reset class
+  boxValidasi.className  = 'validasi-message w-100 mb-2';
+  iconValidasi.className = 'pesan-validasi-icon me-2';
+
+  if (type === 'error') {
+    boxValidasi.classList.add('validasi-error');
+    iconValidasi.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxValidasi.classList.add('validasi-success');
+    iconValidasi.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxValidasi.classList.add('validasi-warning');
+    iconValidasi.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textValidasi.textContent  = message;
+  boxValidasi.style.display = 'flex';
+  setTimeout(() => { boxValidasi.style.display = 'none'; }, duration);
+}
+
+// ************************************
+// Fungsi untuk Ketentuan dan Kebijakan
+// ************************************
+function showKetentuanModal() {
+    const modal = document.getElementById('ketentuanModal');
+          modal.style.display = 'block';
+
+    // Memuat isi ketentuan dan kebijakan
+    const ketentuanContent = `
+          <p><strong>Pengertian EstiHTools</strong></p>
+          <ul>
+              <li>Akronim dari EstiHTools, yaitu Esti = Estimasi dan H = Harga, jadi yang dimaksud dengan EstiHTools adalah suatu aplikasi yang berbasis web base yang berfungsi sebagai sarana untuk melakukan pesanan dan perhitungan harga suatu produk</li>
+              <li>Jadi EstiHTools sifatnya memberikan simulasi pesanan, estimasi harga dari suatu produk</li>
+          </ul>
+          <p><strong>Ketentuan keamanan dan privasi</strong></p>
+          <ul>
+              <li>Menyatakan bahwa keamanan informasi pribadi, saat anda menggunakan EstiHTools tidak dapat kami jamin</li>
+              <li>Menyatakan bahwa pihak ketiga dapat melihat atau merusak data yang dipertukarkan dengan cara menghack, diluar tanggung jawab kami</li>
+          </ul>
+          <p><strong>Ketentuan konten</strong></p>
+          <ul>
+              <li>Menyatakan bahwa tidak bertanggung jawab atas konten yang muncul di EstiHTools yang sifatnya iklan atau promosi lain</li>
+              <li>Menyatakan bahwa tidak bertanggung jawab atas konten situs lain</li>
+              <li>Menyatakan bahwa jika terjadi suatu hal atau problem atas EstiHTools, dan mengakibatkan kerugian dari pihak user atau lainnya, maka kami tidak dapat dimintakan pertanggung jawaban atas hal tersebut</li>
+          </ul>
+          <p><strong>Ketentuan lisensi</strong></p>
+          <ul>
+              <li>Memberikan izin untuk dapat menggunkan EstiHTools dengan penuh tanggung jawab dan tidak melanggar hukum yang berlaku</li>
+              <li>Memberikan izin untuk mengunduh hasil dari proses EstiHTools</li>
+              <li>Menyatakan bahwa hasil unduhan tidak boleh dimodifikasi untuk tujuan apapun</li>
+          </ul>
+          `;
+          document.getElementById('ketentuanContent').innerHTML = ketentuanContent;
+}
+
+// *************************************************
+// Fungsi untuk sembunyikan Ketentuan dan Kebijakan
+// *************************************************
+function hideKetentuanModal() {
+    const modal = document.getElementById('ketentuanModal');
+    modal.style.display = 'none';
+}
+
+// ***********************
+// Fungsi Show About form
+// ***********************
+function showAbout() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
+}
+
+// ***********************
+// Fungsi Hide About form
+// ***********************
+function hideAbout() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+// *********************************
+// Fungsi Event untuk tampilan About
+// *********************************
+document.addEventListener('DOMContentLoaded', function () {
+  // Event listener untuk tombol About
+  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    showAbout();
+  }); 
+  // Event listener untuk tombol Close About
+  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+});
+
+</script>
+</body>
+</html>
