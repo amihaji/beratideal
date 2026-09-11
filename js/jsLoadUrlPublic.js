@@ -29,6 +29,11 @@ const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxhU587M2
 // untuk Fiture Referral
 const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbx5W5XBlSIb_GLqCCMJ4JROVRPxAdLyuC7ruaKhacCf3N6YSfrVXS1160O6auWU3Vm3sg/exec';
 
+// url dbEstihtools (DataInput, DataKonsumen, TabelHarga, TabelDiskon, TabelByKirim, TabelKategori) :
+// jsEstihTools.js 
+// untuk estihtoolsBeratideal.html
+const URL_dbEstihtools  = "https://script.google.com/macros/s/AKfycbxuxoLblVrBW-VVJZOMDnFU5GF983ap1RYQ10MdBApF8Wb8PCgP2ZPA-lG1F564DvAkrg/exec";
+
 // ===========================
 // FUNGSI GLOBAL UNTUK TOOLTIP
 // ===========================
