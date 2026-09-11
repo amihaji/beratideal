@@ -633,7 +633,7 @@ function submitForm() {
 }
 
 // **************************************************
-// Mengirim data ke sheet DataInput dan DataKonsumen
+// Mengirim data ke sheet DataInput dan DataPesanan
 // **************************************************
 function kirimData() {
   // Validasi form sebelum mengirim
