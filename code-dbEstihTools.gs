@@ -6,6 +6,7 @@ const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ?usp=sharing';
 const SHEET_PRODUK_NAME   = "TabelHarga";
 const SHEET_KATEGORI_NAME = "TabelKategori";
 const SHEET_BYKIRIM_NAME  = "TabelByKirim"; // Sheet baru untuk biaya pengiriman
+const SHEET_PESANAN_NAME  = "DataPesanan";
 const ss                  = SpreadsheetApp.openById(DB_ESTIHTOOLS);
 const produkSheet         = ss.getSheetByName(SHEET_PRODUK_NAME);
 const kategoriSheet       = ss.getSheetByName(SHEET_KATEGORI_NAME);
@@ -93,11 +94,11 @@ function doPost(e) {
       return processKirimData(data);
     }
 
-    // === Case 2: simpan order ke sheet DataInput ===
+    // === Case 2: simpan order ke sheet DataPesanan ===
     else if (data.action === "saveOrder") {
       saveOrder(data);
       return ContentService.createTextOutput(
-        JSON.stringify({ status: "success", message: "Data order berhasil disimpan ke DataInput" })
+        JSON.stringify({ status: "success", message: "Data order berhasil disimpan" })
       ).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -145,34 +146,34 @@ function processKirimData(data) {
   try {
     Logger.log("processKirimData START, invoice: " + data.mInvoice);
 
-    // 1) Simpan ke DataInput
+    // 1) Simpan ke DataPesanan
     saveOrder(data);
-
-    // 2) Simpan data konsumen (tanpa PDF dulu)
-    saveToDataKonsumen(data);
 
     // Pastikan ada mItems (bukan items)
     if (!data.mItems && data.items) {
       data.mItems = data.items; 
     }
 
-    // 3) Buat PDF + kirim email
-    const fileUrl = sendEmail(data);
+    let fileUrl = "";
+    try {
+      fileUrl = sendEmail(data);
 
-    // 4) Update link PDF di DataKonsumen
-    const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataKonsumen");
-    const lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow, 8).setValue(fileUrl);
+      if (fileUrl) {
+        updatePesananPdfLink_(data.mInvoice, fileUrl);
+      }
 
-    // 5) Kirim WA
-    if (data.mConsumerPhone || data.mDistributorPhone) {
-      kirimDataKonsumen(fileUrl);
+      if (fileUrl && (data.mConsumerPhone || data.mDistributorPhone)) {
+        kirimDataKonsumen(data, fileUrl);
+      }
+    } catch (err) {
+      Logger.log("processKirimData EMAIL/WA ERROR: " + err.message);
     }
 
     return ContentService.createTextOutput(
       JSON.stringify({
         status: "success",
-        message: "Data berhasil diproses: PDF, Email, WA"
+        message: "Data berhasil diproses",
+        fileUrl: fileUrl
       })
     ).setMimeType(ContentService.MimeType.JSON);
 
@@ -184,33 +185,11 @@ function processKirimData(data) {
   }
 }
 
-/************************
-* Simpan ke DataKonsumen
-*************************/
-function saveToDataKonsumen(data) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataKonsumen");
-  if (!sheet) throw new Error("Sheet 'DataKonsumen' tidak ditemukan!");
-  
-  const rowData = [
-    data.mDate,
-    data.mInvoice,
-    data.mDistributorName,
-    data.mDistributorPhone,
-    data.mConsumerName,
-    data.mConsumerPhone,
-    data.mConsumerEmail,
-    "", // Kolom untuk URL PDF (kosongkan dulu)
-    data.mTotalPrice
-  ];
-  
-  sheet.appendRow(rowData);
-}
-
 /**************************************************************
 * Fungsi untuk mengambil level diskon, pada sheet "TabelDiskon"
 ***************************************************************/
 function getDiscounts() {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TabelDiskon');
+    const sheet = ss.getSheetByName('TabelDiskon');
     if (!sheet) throw new Error("Sheet 'TabelDiskon' tidak ditemukan!");
     const data  = sheet.getDataRange().getValues();
     return data.slice(1).map(row => ({ Level: row[0], Diskon: row[1] }));
@@ -220,7 +199,7 @@ function getDiscounts() {
 * Fungsi untuk mengambil nilai No Stok dan Nama Produk, pada sheet "TabelHarga"
 *******************************************************************************/
 function getProducts() {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TabelHarga');
+    const sheet = ss.getSheetByName('TabelHarga');
     // if (!sheet) throw new Error("Sheet 'TabelHarga' tidak ditemukan!");
     const data  = sheet.getDataRange().getValues();
     return data.slice(1).map(row => ({ 
@@ -233,7 +212,7 @@ function getProducts() {
 * Fungsi Pencarian No Stok untuk mengambil Harga Produk dari sheet "TabelHarga"
 *******************************************************************************/
 function getProductDetails(noStok) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("TabelHarga");
+    const sheet = ss.getSheetByName("TabelHarga");
     const data = sheet.getDataRange().getValues();
 
     const product = data.slice(1).find(row => {
@@ -262,7 +241,7 @@ function getProductDetails(noStok) {
 * Fungsi untuk mengambil nilai harga dari jenis pengiriman, pada sheet "TabelByKirim"
 *************************************************************************************/
 function getShippingOptions() {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TabelByKirim');
+    const sheet = ss.getSheetByName('TabelByKirim');
     // if (!sheet) throw new Error("Sheet 'TabelByKirim' tidak ditemukan!");
     const data  = sheet.getDataRange().getValues();
     return data.slice(1).map(row => ({ 
@@ -271,12 +250,12 @@ function getShippingOptions() {
     }));
 }
 
-/************************************************
-* Fungsi untuk menyimpan data di sheet DataInput
-*************************************************/
+/****************************************************
+* Fungsi untuk menyimpan data di sheet DataPesanan
+*****************************************************/
 function saveOrder(orderData) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataInput");
-  if (!sheet) throw new Error("Sheet 'DataInput' tidak ditemukan!");
+  const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+  if (!sheet) throw new Error(`Sheet '${SHEET_PESANAN_NAME}' tidak ditemukan!`);
 
   // Hapus data lama dengan invoice yang sama (jika ada)
   const allData    = sheet.getDataRange().getValues();
@@ -315,7 +294,13 @@ function saveOrder(orderData) {
     item.mTotVP,                         // Q: Tot VP (sudah dihitung dengan benar)
     orderData.mByKirim,                  // R: By Pengiriman
     orderData.mPajak,                    // S: Pajak
-    item.mHarga                          // T: Harga (sudah dihitung dengan benar)
+    item.mHarga,                         // T: Harga (sudah dihitung dengan benar)
+    orderData.mTotalPrice,               // U: Grand Total Harga
+    orderData.mAlamat || "",             // V: Alamat
+    orderData.mKelurahan || "",          // W: Kelurahan
+    orderData.mKecamatan || "",          // X: Kecamatan
+    orderData.mKota || "",               // Y: Kota
+    orderData.mPropensi || ""            // Z: Propensi
   ]);
 
   if (newRows.length > 0) {
@@ -325,6 +310,28 @@ function saveOrder(orderData) {
   return ContentService.createTextOutput(
     JSON.stringify({ status: "success", message: "Pesanan berhasil disimpan" })
   ).setMimeType(ContentService.MimeType.JSON);
+}
+
+function updatePesananPdfLink_(invoice, fileUrl) {
+  const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+  if (!sheet) return;
+
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return;
+
+  const colInvoiceIdx = 6;
+  const colLinkPdf = 27;
+
+  const rowIndexes = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][colInvoiceIdx] === invoice) {
+      rowIndexes.push(i + 1);
+    }
+  }
+
+  for (const rowIndex of rowIndexes) {
+    sheet.getRange(rowIndex, colLinkPdf).setValue(fileUrl);
+  }
 }
 
 /******************************************************************************
@@ -360,11 +367,11 @@ function normalizeNumber(value) {
   return Math.round(value * 100) / 100;
 }
 
-/**********************************************************
-* Fungsi untuk memperbarui nomor item di sheet "DataInput"
-**********************************************************/
+/*************************************************************
+* Fungsi untuk memperbarui nomor item di sheet "DataPesanan"
+**************************************************************/
 function updateItemNumbersInSheet(invoiceToUpdate) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataInput");
+    const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
     const data  = sheet.getDataRange().getValues();
     
     // Filter data berdasarkan No Simulasi (Invoice) yang sama
@@ -382,7 +389,7 @@ function updateItemNumbersInSheet(invoiceToUpdate) {
             itemCounter++;
         }
     }
-    console.log("Nomor item di sheet 'DataInput' berhasil diperbarui untuk No Simulasi: " + invoiceToUpdate);
+    console.log("Nomor item di sheet 'DataPesanan' berhasil diperbarui untuk No Simulasi: " + invoiceToUpdate);
 }
 
 /*************************************************
@@ -481,22 +488,18 @@ function sendEmail(data) {
 /**************************
 * Kirim Data Konsumen ke WA 
 ***************************/
-function kirimDataKonsumen(mFileUrl) {
+function kirimDataKonsumen(orderData, mFileUrl) {
   try {
-    const sheet   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataKonsumen");
-    const lastRow = sheet.getLastRow();
-    const rowData = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
-
     const data = {
-      mDate: rowData[0],
-      mInvoice: rowData[1],
-      mDistributorName: rowData[2],
-      mDistributorPhone: rowData[3],
-      mConsumerName: rowData[4],
-      mConsumerPhone: rowData[5],
-      mConsumerEmail: rowData[6],
+      mDate: orderData.mDate,
+      mInvoice: orderData.mInvoice,
+      mDistributorName: orderData.mDistributorName,
+      mDistributorPhone: orderData.mDistributorPhone,
+      mConsumerName: orderData.mConsumerName,
+      mConsumerPhone: orderData.mConsumerPhone,
+      mConsumerEmail: orderData.mConsumerEmail,
       mFileUrl: mFileUrl,   // link PDF dari sendEmail
-      mTotalPrice: rowData[8]
+      mTotalPrice: orderData.mTotalPrice
     };
 
     Logger.log("kirimDataKonsumen START, invoice: " + data.mInvoice + ", fileUrl: " + mFileUrl);
@@ -516,8 +519,10 @@ function kirimWA(data) {
   Logger.log("kirimWA START, tujuan: " + data.mConsumerPhone);
 
   // Format tanggal
-  const mBulan = data.mDate.getMonth() + 1;
-  const mTgl   = data.mDate.getDate() + "-" + mBulan + "-" + data.mDate.getFullYear();
+  const dateObj = (data.mDate instanceof Date) ? data.mDate : new Date(data.mDate);
+  const safeDate = isNaN(dateObj.getTime()) ? new Date() : dateObj;
+  const mBulan = safeDate.getMonth() + 1;
+  const mTgl   = safeDate.getDate() + "-" + mBulan + "-" + safeDate.getFullYear();
 
   // Gabungkan teks yang akan dikirim
   var t1 = '*Estimasi Harga Produk*';
@@ -717,7 +722,7 @@ function handleGetDropdownKategori(e) {
 ************************************/
 function handleImportExcelBatch(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("TabelHarga");
+    const sheet = produkSheet;
     if (!sheet) throw new Error("Sheet 'TabelHarga' tidak ditemukan");
 
     const data = JSON.parse(decodeURIComponent(e.parameter.data || "{}"));
@@ -839,7 +844,7 @@ function formatSheetColumns(sheet, startRow, rowCount) {
 **********************************************************/
 function handleExportTabelHargaDirectXLSX(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("TabelHarga");
+    const sheet = produkSheet;
     if (!sheet) {
       throw new Error("Sheet 'TabelHarga' tidak ditemukan");
     }

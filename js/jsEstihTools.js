@@ -30,6 +30,77 @@ function callAPI(action, params = {}, method = "GET") {
   }
 }
 
+function cleanupJsonp(script, callbackName) {
+  delete window[callbackName];
+  if (script && document.body.contains(script)) {
+    document.body.removeChild(script);
+  }
+}
+
+function fetchJsonpProgram(action, params = {}) {
+  return new Promise((resolve) => {
+    const callbackName = `estih_cb_${action}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    const script = document.createElement('script');
+    const query = new URLSearchParams({ action, callback: callbackName, ...params });
+
+    script.onerror = () => {
+      cleanupJsonp(script, callbackName);
+      resolve({ status: 'error', message: 'Gagal menghubungi server data konsumen.' });
+    };
+
+    window[callbackName] = (response) => {
+      cleanupJsonp(script, callbackName);
+      resolve(response || { status: 'error', message: 'Respons server kosong.' });
+    };
+
+    script.src = `${URL_dbProgram}?${query.toString()}`;
+    document.body.appendChild(script);
+  });
+}
+
+function normalizePhoneForInput(value) {
+  let v = String(value || '').replace(/\D/g, '');
+  if (!v) return '';
+  if (v.indexOf('62') === 0) v = v.slice(2);
+  v = v.replace(/^0+/, '');
+  return v;
+}
+
+async function prefillDataKonsumen() {
+  try {
+    const userId = String(localStorage.getItem('userId') || '').trim();
+    if (!userId || !URL_dbProgram) return;
+
+    const response = await fetchJsonpProgram('getDataKonsumenByUserId', { userId });
+    if (!response || response.status !== 'success' || !response.data) return;
+
+    const data = response.data;
+
+    const namaSponsorEl = document.getElementById('namaSponsor');
+    const hpSponsorEl = document.getElementById('hpSponsor');
+    const namaKonsumenEl = document.getElementById('namaKonsumen');
+    const hpKonsumenEl = document.getElementById('hpKonsumen');
+    const alamatEl = document.getElementById('alamat');
+    const kelurahanEl = document.getElementById('kelurahan');
+    const kecamatanEl = document.getElementById('kecamatan');
+    const kotaEl = document.getElementById('kota');
+    const propensiEl = document.getElementById('propensi');
+
+    if (namaKonsumenEl && !namaKonsumenEl.value) namaKonsumenEl.value = String(data.nama || '').toUpperCase();
+    if (alamatEl && !alamatEl.value) alamatEl.value = String(data.alamat || '').toUpperCase();
+    if (hpKonsumenEl && !hpKonsumenEl.value) hpKonsumenEl.value = normalizePhoneForInput(data.telp);
+    if (kelurahanEl && !kelurahanEl.value) kelurahanEl.value = String(data.kelurahan || '').toUpperCase();
+    if (kecamatanEl && !kecamatanEl.value) kecamatanEl.value = String(data.kecamatan || '').toUpperCase();
+    if (kotaEl && !kotaEl.value) kotaEl.value = String(data.kota || '').toUpperCase();
+    if (propensiEl && !propensiEl.value) propensiEl.value = String(data.propensi || '').toUpperCase();
+
+    if (namaSponsorEl && !namaSponsorEl.value) namaSponsorEl.value = String(data.namaSponsor || '').toUpperCase();
+    if (hpSponsorEl && !hpSponsorEl.value) hpSponsorEl.value = normalizePhoneForInput(data.hpSponsor);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // **********************************************
 // Inisialisasi saat halaman sudah load sempurna
 // **********************************************
@@ -47,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
     mInvoiceField.disabled = true;
 
     loadOptions();       // Load Dropdown Options
+    prefillDataKonsumen();
 
     // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
@@ -158,11 +230,11 @@ function addItem() {
     const mOrderData = {
       mDate: document.getElementById("date").value,
       mInvoice: document.getElementById("invoice").value,
-      mDistributorName: document.getElementById("distributorName").value,
-      mDistributorPhone: document.getElementById("distributorPhone").value,
-      mConsumerName: document.getElementById("consumerName").value,
-      mConsumerPhone: document.getElementById("consumerPhone").value,
-      mConsumerEmail: document.getElementById("consumerEmail").value,
+      mDistributorName: (document.getElementById("namaSponsor") && document.getElementById("namaSponsor").value) ? document.getElementById("namaSponsor").value : "",
+      mDistributorPhone: (document.getElementById("hpSponsor") && document.getElementById("hpSponsor").value) ? document.getElementById("hpSponsor").value : "",
+      mConsumerName: (document.getElementById("namaKonsumen") && document.getElementById("namaKonsumen").value) ? document.getElementById("namaKonsumen").value : "",
+      mConsumerPhone: (document.getElementById("hpKonsumen") && document.getElementById("hpKonsumen").value) ? document.getElementById("hpKonsumen").value : "",
+      mConsumerEmail: (document.getElementById("emailKonsumen") && document.getElementById("emailKonsumen").value) ? document.getElementById("emailKonsumen").value : "",
       mDiskon: selectedDiscountLabel,
       mByKirim: parseFloat(mShippingSelect.value),
       mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
@@ -294,14 +366,26 @@ function updateTotals() {
 // Validasi inputan di Form 
 // ************************* 
 function validateForm() {
-    const distributorName  = document.getElementById('distributorName').value.trim().toUpperCase();
-    document.getElementById('distributorName').value = distributorName;
-    const distributorPhone = document.getElementById('distributorPhone').value.trim();
-    const consumerName     = document.getElementById('consumerName').value.trim().toUpperCase();
-    const consumerPhone    = document.getElementById('consumerPhone').value.trim();
-    const consumerEmail    = document.getElementById('consumerEmail').value.trim();
+    const sponsorNameEl  = document.getElementById('namaSponsor');
+    const sponsorPhoneEl = document.getElementById('hpSponsor');
+    const consumerNameEl = document.getElementById('namaKonsumen');
+    const consumerPhoneEl = document.getElementById('hpKonsumen');
+    const consumerEmailEl = document.getElementById('emailKonsumen');
+
+    if (!sponsorNameEl || !sponsorPhoneEl || !consumerNameEl || !consumerPhoneEl || !consumerEmailEl) {
+        showNotification('error', 'ERROR: Field form tidak lengkap (cek id input HTML)');
+        return false;
+    }
+
+    const distributorName  = sponsorNameEl.value.trim().toUpperCase();
+    sponsorNameEl.value = distributorName;
+    const distributorPhone = sponsorPhoneEl.value.trim();
+    const consumerName     = consumerNameEl.value.trim().toUpperCase();
+    consumerNameEl.value = consumerName;
+    const consumerPhone    = consumerPhoneEl.value.trim();
+    const consumerEmail    = consumerEmailEl.value.trim();
        
-    const userNamePattern  = /^[A-Z\s]{3,20}$/;                 
+    const userNamePattern  = /^[A-Z\s]{3,30}$/;                 
     const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;     
     const hpPattern        = /^[0-9]{10,14}$/;                 
     
@@ -321,12 +405,12 @@ function validateForm() {
         return false;
     }
 
-    // 🔹 Validasi Konsumen (OPSIONAL)
-    if (consumerName && !userNamePattern.test(consumerName)) {
-        showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-20 karakter.");
+    // 🔹 Validasi Konsumen (WAJIB)
+    if (!userNamePattern.test(consumerName)) {
+        showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-30 karakter.");
         return false;
     }
-    if (consumerPhone && !hpPattern.test(consumerPhone)) {
+    if (!hpPattern.test(consumerPhone)) {
         showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
         return false;
     }
@@ -486,11 +570,17 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
   if (e.target.classList.contains('qty-input')) {
     const row   = e.target.closest('tr');
     const qty   = parseInt(e.target.value) || 0;
-    const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
+    const vpPerItem = parseFloat(row.getAttribute('data-vp-asli')) || 0;
+    const priceAfterDiscount = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
     
     // Update tampilan
-    row.cells[6].textContent = formatCurrency(vpPerItem * qty);
-    row.cells[7].textContent = formatCurrency(price * qty);
+    const rowTotalVP = vpPerItem * qty;
+    const rowTotalHarga = priceAfterDiscount * qty;
+
+    row.cells[6].textContent = formatCurrency(rowTotalVP);
+    row.cells[6].setAttribute('data-vp-nilai', rowTotalVP);
+    row.cells[7].textContent = formatCurrency(rowTotalHarga);
+    row.cells[7].setAttribute('data-harga-nilai', rowTotalHarga);
     updateTotals();
     
     // Aktifkan mode edit
@@ -564,13 +654,20 @@ function collectOrderData() {
     mInvoice: document.getElementById("invoice").value,
 
     // info distributor (member)
-    mDistributorName: document.getElementById("distributorName").value || "",
-    mDistributorPhone: document.getElementById("distributorPhone").value || "",
+    mDistributorName: (document.getElementById("namaSponsor") && document.getElementById("namaSponsor").value) ? document.getElementById("namaSponsor").value : "",
+    mDistributorPhone: (document.getElementById("hpSponsor") && document.getElementById("hpSponsor").value) ? document.getElementById("hpSponsor").value : "",
 
     // info konsumen (akan kosong saat SUBMIT, terisi saat KIRIM)
-    mConsumerName: document.getElementById("consumerName").value || "",
-    mConsumerPhone: document.getElementById("consumerPhone").value || "",
-    mConsumerEmail: document.getElementById("consumerEmail").value || "",
+    mConsumerName: (document.getElementById("namaKonsumen") && document.getElementById("namaKonsumen").value) ? document.getElementById("namaKonsumen").value : "",
+    mConsumerPhone: (document.getElementById("hpKonsumen") && document.getElementById("hpKonsumen").value) ? document.getElementById("hpKonsumen").value : "",
+    mConsumerEmail: (document.getElementById("emailKonsumen") && document.getElementById("emailKonsumen").value) ? document.getElementById("emailKonsumen").value : "",
+
+    // alamat pengiriman (prefill dari dbProgram, bisa diedit)
+    mAlamat: (document.getElementById("alamat") && document.getElementById("alamat").value) ? document.getElementById("alamat").value : "",
+    mKelurahan: (document.getElementById("kelurahan") && document.getElementById("kelurahan").value) ? document.getElementById("kelurahan").value : "",
+    mKecamatan: (document.getElementById("kecamatan") && document.getElementById("kecamatan").value) ? document.getElementById("kecamatan").value : "",
+    mKota: (document.getElementById("kota") && document.getElementById("kota").value) ? document.getElementById("kota").value : "",
+    mPropensi: (document.getElementById("propensi") && document.getElementById("propensi").value) ? document.getElementById("propensi").value : "",
 
     // info order
     mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
@@ -651,16 +748,14 @@ function kirimData() {
       console.log("Kirim berhasil");
       document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
-      setTimeout(() => hideSpinner("kirimButton"), 1000);
+      hideSpinner("kirimButton");
+      showNotification('success', 'SUKSES: Data berhasil dikirim');
+      resetForm();
     })
     .catch(err => {
       console.error("Error kirim:", err);
+      hideSpinner("kirimButton");
       showNotification('error', 'ERROR: Gagal mengirim data');
-    })
-    .finally(() => {
-      showNotification('success', 'SUKSES: Data berhasil dikirim');
-      // Reset form
-      resetForm();
     });   
 }
 

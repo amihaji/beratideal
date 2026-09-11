@@ -143,6 +143,10 @@ function doGet(e) {
     return getSingleDataKonsumen(e.parameter);
   }
 
+  if (action === 'getDataKonsumenByUserId') {
+    return getDataKonsumenByUserId(e.parameter);
+  }
+
   if (action === 'sendFollowUpWACRM') {
     return sendFollowUpWACRM(e.parameter);
   }
@@ -1950,6 +1954,33 @@ function getSingleDataKonsumen(param) {
     const rowIndex = parseInt(param.rowIndex, 10);
     if (!rowIndex || rowIndex < 2 || rowIndex > shDataKonsumen.getLastRow()) {
       throw new Error('Baris data konsumen tidak valid.');
+    }
+
+    const row = shDataKonsumen.getRange(rowIndex, 1, 1, 25).getValues()[0];
+    return createJSONPResponse(callback, {
+      status: 'success',
+      data: buildDataKonsumenRecord_(rowIndex, row)
+    });
+  } catch (error) {
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: error.toString()
+    });
+  }
+}
+
+function getDataKonsumenByUserId(param) {
+  const callback = param.callback;
+
+  try {
+    const userId = String(param.userId || '').trim();
+    if (!userId) {
+      throw new Error('User ID wajib diisi.');
+    }
+
+    const rowIndex = findKonsumenRowByUserId(userId);
+    if (rowIndex === -1) {
+      throw new Error('Data konsumen tidak ditemukan.');
     }
 
     const row = shDataKonsumen.getRange(rowIndex, 1, 1, 25).getValues()[0];
