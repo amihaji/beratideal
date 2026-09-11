@@ -711,7 +711,7 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-function submitForm() {
+async function submitForm() {
   // Hanya mengubah tampilan, tidak menyimpan data
   console.log("Submit clicked - preparing for final submission");
 
@@ -727,6 +727,7 @@ function submitForm() {
   document.getElementById("kirimButton").style.display    = "inline-block";
   // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
+  await prefillDataKonsumen();
 }
 
 // **************************************************
