@@ -633,7 +633,7 @@ function submitForm() {
 }
 
 // **************************************************
-// Mengirim data ke sheet DataInput dan DataPesanan
+// Mengirim data ke sheet DataInput dan DataKonsumen
 // **************************************************
 function kirimData() {
   // Validasi form sebelum mengirim
@@ -835,4 +835,3 @@ document.addEventListener('DOMContentLoaded', function () {
   // Event listener untuk tombol Close About
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
 });
-
