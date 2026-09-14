@@ -9103,7 +9103,7 @@ function bukaModalQuizSertifikat() {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> Sertifikat Sudah Diunduh';
                 btn.classList.remove('btn-primary');
-                btn.classList.add('btn-success');
+                btn.classList.add('btn-primary');
             }
             _quizShowBox('quizStatusBox');
             let info = '<i class="fas fa-check-circle text-success me-1"></i>';
@@ -9482,7 +9482,7 @@ function _quizLanjutDownload() {
             btnSertif.disabled = true;
             btnSertif.innerHTML = '<i class="fas fa-check-circle"></i> Sertifikat Sudah Diunduh';
             btnSertif.classList.remove('btn-primary');
-            btnSertif.classList.add('btn-success');
+            btnSertif.classList.add('btn-primary');
         }
     });
 }
