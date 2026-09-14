@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const mToday        = new Date();
     
     mDateField.value       = mToday.toISOString().split('T')[0];
-    mInvoiceField.value    = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    mInvoiceField.value    = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
     mDateField.disabled    = true;
     mInvoiceField.disabled = true;
 
@@ -453,7 +453,7 @@ function resetForm() {
     const mToday         = new Date();
     mDateField.value     = mToday.toISOString().split('T')[0];   // Format: INV-YYYYMMDD-XXX
     const mInvoiceField  = document.getElementById('invoice');
-    const mInvoiceNumber = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    const mInvoiceNumber = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
     mInvoiceField.value  = mInvoiceNumber;
 
     // Reset judul kolom "Diskon" + "Label Diskon" pada Tabel Form Rincian Pesanan
@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Format: INV-YYYYMMDD-XXX
     mDateField.value    = mToday.toISOString().split('T')[0];
-    mInvoiceField.value = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    mInvoiceField.value = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
 
     // Disable fields
     mDateField.disabled = true;
