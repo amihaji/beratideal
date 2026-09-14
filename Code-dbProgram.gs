@@ -2929,7 +2929,7 @@ function getUserForSertifikat(param) {
 /**
  * ACTION: Proses download sertifikat
  *   - Cari file sertifikat di folder SERTIFIKAT dengan nama: {namaFormat}-{tglLahirFormat}.png
- *   - Simpan/update ke DATAKONSUMEN kolom M(userId), N(jenisKelamin), O(tglLahir), R(linkDrive)
+ *   - Simpan/update ke DATAKONSUMEN kolom M(userId), N(jenisKelamin), O(tglLahir), R(linkDrive), S(Status eCourse="OK")
  *   - Return link download
  */
 function prosesDownloadSertifikat(param) {
@@ -3042,6 +3042,7 @@ function prosesDownloadSertifikat(param) {
         newRow[13] = jenisKelamin;   // N  idx13 = jenisKelamin
         newRow[14] = tglLahirStr;    // O  idx14 = tglLahir
         newRow[17] = fileUrl;        // R  idx17 = downloadSertifikat (link Drive)
+        newRow[18] = "OK";           // S  idx18 = Status eCourse
         if (!newRow[4] && namaUser) newRow[4] = namaUser; // E idx4 = nama
         shDataKonsumen.appendRow(newRow);
       } else {
@@ -3051,6 +3052,7 @@ function prosesDownloadSertifikat(param) {
         if (jenisKelamin) sheet.getRange(rowKonsumen, 14).setValue(jenisKelamin); // N
         if (tglLahirStr)  sheet.getRange(rowKonsumen, 15).setValue(tglLahirStr);  // O
         sheet.getRange(rowKonsumen, 18).setValue(fileUrl);        // R
+        sheet.getRange(rowKonsumen, 19).setValue("OK");           // S - Status eCourse
       }
     }
 
