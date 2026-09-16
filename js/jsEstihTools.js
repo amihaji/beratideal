@@ -221,8 +221,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (e.target.classList.contains('qty-input')) {
                 const row = e.target.closest('tr');
                 const qty = parseInt(e.target.value) || 0;
-                const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
-                row.cells[7].textContent = formatCurrency(price * qty);
+                const priceAfterDiscount = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
+                row.cells[7].textContent = formatCurrency(priceAfterDiscount * qty);
                 updateTotals();
             }
         });
@@ -302,6 +302,7 @@ function addItem() {
       default: mPriceAfterDiscount = mProductData.HargaEceran;
     }
 
+    const mDiskonNominal = Math.max(0, (Number(mProductData.HargaEceran) || 0) - (Number(mPriceAfterDiscount) || 0));
     const mHarga = mPriceAfterDiscount * mQuantity;
     const mTotVP = mProductData.VP * mQuantity;
 
@@ -314,7 +315,7 @@ function addItem() {
         <td>${mProductSelect.value}</td>
         <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
         <td>${formatCurrency(mProductData.HargaEceran)}</td>
-        <td>${formatCurrency(mPriceAfterDiscount)}</td>
+        <td>${formatCurrency(mDiskonNominal)}</td>
         <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
         <td data-vp-nilai="${mTotVP}">${formatCurrency(mTotVP)}</td>
         <td data-harga-nilai="${mHarga}">${formatCurrency(mHarga)}</td>
@@ -332,33 +333,8 @@ function addItem() {
       
     // Perbarui total setelah menambahkan item
     updateTotals();
- 
-    // kirim per item ke sheet
-    const mOrderData = {
-      mDate: document.getElementById("date").value,
-      mInvoice: document.getElementById("invoice").value,
-      mDistributorName: (document.getElementById("namaSponsor") && document.getElementById("namaSponsor").value) ? document.getElementById("namaSponsor").value : "",
-      mDistributorPhone: (document.getElementById("hpSponsor") && document.getElementById("hpSponsor").value) ? document.getElementById("hpSponsor").value : "",
-      mConsumerName: (document.getElementById("namaKonsumen") && document.getElementById("namaKonsumen").value) ? document.getElementById("namaKonsumen").value : "",
-      mConsumerPhone: (document.getElementById("hpKonsumen") && document.getElementById("hpKonsumen").value) ? document.getElementById("hpKonsumen").value : "",
-      mConsumerEmail: (document.getElementById("emailKonsumen") && document.getElementById("emailKonsumen").value) ? document.getElementById("emailKonsumen").value : "",
-      mDiskon: selectedDiscountLabel,
-      mByKirim: parseFloat(mShippingSelect.value),
-      mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
-      mItem: {
-        mNoStok: mProductSelect.value,
-        mKategori: mProductData.Kategori,
-        mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
-        mVp: mProductData.VP,
-        mHargaEceran: mProductData.HargaEceran,
-        mSetelahDiskon: mPriceAfterDiscount,
-        mJumlah: mQuantity,
-        mTotVP: mTotVP,
-        mHarga: mHarga
-      }
-    };
 
-    callAPI("saveItem", mOrderData, "POST");
+    callAPI("saveOrder", collectOrderData(), "POST");
     disableFields();
 
     showSpinner("btnAdd");
@@ -689,7 +665,7 @@ function loadOptions() {
     if (shippingSelect) {
       if (isPeserta) {
         // Requirement 5: level peserta -> By Kirim otomatis 50000 (fixed disabled)
-        shippingSelect.innerHTML = '<option value="50000">Ongkos Kirim = 50000</option>';
+        shippingSelect.innerHTML = '<option value="50000">50000</option>';
         shippingSelect.value = '50000';
         shippingSelect.disabled = true;
         doneOne();
@@ -702,7 +678,7 @@ function loadOptions() {
             list.forEach(shipping => {
               const option = document.createElement('option');
               option.value = shipping.Biaya || 0;
-              option.textContent = `${shipping.JenisPengiriman || ''} By =  ${shipping.Biaya || 0}`;
+              option.textContent = String(shipping.Biaya || 0);
               shippingSelect.appendChild(option);
             });
           }
@@ -793,25 +769,25 @@ function applyVoucherBasedOnLevel() {
     if (!isPeserta) {
       // member: sembunyikan + voucher = 0
       if (voucherSection) voucherSection.style.display = 'none';
-      if (voucherInfoEl) voucherInfoEl.value = '(Member - Tidak berlaku)';
+      if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
     }
 
     // peserta: tampilkan + cari berdasarkan totalPoint
-    if (voucherSection) voucherSection.style.display = 'block';
+    if (voucherSection) voucherSection.style.display = 'flex';
     const totalPoint = Number(pesananState.totalPoint || 0);
 
     if (!totalPoint || totalPoint <= 0) {
-      if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: 0 | Voucher: ${formatCurrency(0)}`;
+      if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
       pesananState.voucherAmount = 0;
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
     }
 
-    if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: ${totalPoint} (memuat voucher...)`;
+    if (voucherInfoEl) voucherInfoEl.value = '(memuat...)';
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
     fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint })
@@ -826,15 +802,14 @@ function applyVoucherBasedOnLevel() {
         pesananState.voucherAmount = potongan;
         if (voucherAmountInput) voucherAmountInput.value = String(potongan);
         if (voucherInfoEl) {
-          const ket = keterangan ? ` - ${keterangan}` : '';
-          voucherInfoEl.value = `Point terkumpul: ${totalPoint} | Voucher: ${formatCurrency(potongan)}${ket}`;
+          voucherInfoEl.value = formatCurrency(potongan);
         }
         if (typeof updateTotals === 'function') updateTotals();
       })
       .catch(err => {
         console.error('getVoucherByPoint error:', err);
         pesananState.voucherAmount = 0;
-        if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: ${totalPoint} | Voucher: ${formatCurrency(0)}`;
+        if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
         if (typeof updateTotals === 'function') updateTotals();
       })
       .finally(resolve);
