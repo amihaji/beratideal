@@ -317,32 +317,47 @@ function saveOrder(orderData) {
 
   // Tambahkan semua item baru dari orderData
   const newRows = orderData.items.map(item => [
-    orderData.mDate,                     // A: Tanggal
-    orderData.mDistributorName,          // B: Nama Member
-    orderData.mDistributorPhone,         // C: No HP Member
-    orderData.mConsumerName,             // D: Nama Konsumen
-    orderData.mConsumerPhone,            // E: No HP Konsumen
-    orderData.mConsumerEmail,            // F: Email Konsumen
-    orderData.mInvoice,                  // G: No Invoice
-    item.mNoItem,                        // H: No Item
-    item.mNoStok,                        // I: No Stok
-    item.mKategori,                      // J: Kategori
-    item.mNamaProduk,                    // K: Nama Produk
-    item.mVp,                            // L: VP (nilai asli per item)
-    orderData.mDiskon,                   // M: Diskon
-    item.mHargaEceran,                   // N: Harga Eceran
-    item.mSetelahDiskon,                 // O: Setelah Diskon
-    item.mJumlah,                        // P: Jumlah
-    item.mTotVP,                         // Q: Tot VP (sudah dihitung dengan benar)
-    orderData.mByKirim,                  // R: By Pengiriman
-    orderData.mPajak,                    // S: Pajak
-    item.mHarga,                         // T: Harga (sudah dihitung dengan benar)
-    orderData.mTotalPrice,               // U: Grand Total Harga
-    orderData.mAlamat || "",             // V: Alamat
-    orderData.mKelurahan || "",          // W: Kelurahan
-    orderData.mKecamatan || "",          // X: Kecamatan
-    orderData.mKota || "",               // Y: Kota
-    orderData.mPropensi || ""            // Z: Propensi
+    orderData.mDate,                     // 1  Tgl Invoice
+    orderData.mDistributorName,          // 2  Nama Sponsor
+    orderData.mDistributorPhone,         // 3  HP Sponsor
+    orderData.mConsumerName,             // 4  Nama Konsumen
+    orderData.mConsumerPhone,            // 5  HP Konsumen
+    orderData.mConsumerEmail,            // 6  Email Konsumen
+    orderData.mInvoice,                  // 7  No Invoice
+    item.mNoItem,                        // 8  No Item
+    item.mNoStok,                        // 9  No Stok
+    item.mKategori,                      // 10 Kategori
+    item.mNamaProduk,                    // 11 Nama Produk
+    item.mVp,                            // 12 VP
+    item.mHargaEceran,                   // 13 Harga Eceran
+    orderData.mDiskonValue || orderData.mDiskon || "", // 14 Diskon
+    Number(orderData.mVoucher || 0) || 0,              // 15 Voucer
+    item.mSetelahDiskon,                 // 16 Setelah Potongan
+    item.mJumlah,                        // 17 Jumlah
+    item.mTotVP,                         // 18 Tot VP
+    orderData.mByKirim,                  // 19 By Pengiriman
+    orderData.mPajak,                    // 20 Pajak
+    item.mHarga,                         // 21 Harga
+    orderData.mTotalPrice,               // 22 Grand Total Harga
+    orderData.mAlamat || "",             // 23 Alamat
+    orderData.mKelurahan || "",          // 24 Kelurahan
+    orderData.mKecamatan || "",          // 25 Kecamatan
+    orderData.mKota || "",               // 26 Kota
+    orderData.mPropensi || "",           // 27 Propensi
+    "",                                  // 28 link URL file PDF
+    "",                                  // 29 Metode Bayar
+    "",                                  // 30 Nama Bank
+    "",                                  // 31 Nama Penerima
+    "",                                  // 32 AC Penerima
+    "",                                  // 33 Nominal Transfer
+    "",                                  // 34 Status WA
+    "",                                  // 35 Status Email
+    "",                                  // 36 Tgl Bayar
+    "",                                  // 37 Link Bukti Transfer
+    "",                                  // 38 Status Bayar
+    "",                                  // 39 Tgl Terima
+    "",                                  // 40 Link Bukti Produk
+    ""                                   // 41 Status Terima
   ]);
 
   if (newRows.length > 0) {
@@ -362,7 +377,7 @@ function updatePesananPdfLink_(invoice, fileUrl) {
   if (data.length <= 1) return;
 
   const colInvoiceIdx = 6;
-  const colLinkPdf = 27;
+  const colLinkPdf = 28;
 
   const rowIndexes = [];
   for (let i = 1; i < data.length; i++) {
