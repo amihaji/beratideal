@@ -180,6 +180,13 @@ function doGet(e) {
     return getStatusTestimoni(e.parameter);
   }
 
+  // FITUR PEMESANAN PRODUK BERATIDEAL (estihtoolsBeratideal.html)
+  // Ambil level user (peserta/member), totalPoint (sum PROGRAM AZ), namaSponsor/hpSponsor
+  // Kembalikan via JSONP (digunakan frontend jsEstihTools.js -> initPesananContext)
+  if (action === 'getPesananContextByUserId') {
+    return getPesananContextByUserId(e.parameter);
+  }
+
   return createJSONPResponse(callback, { 
     status: "error", 
     message: "Action tidak dikenali" 
@@ -3350,6 +3357,168 @@ function simpanTestimoniFeedback(param) {
   } catch (err) {
     console.error('[simpanTestimoniFeedback] error:', err);
     return createJSONPResponse(callback, { status:'error', message:'Terjadi kesalahan saat menyimpan: ' + (err.message || String(err)) });
+  }
+}
+
+/**********************************************************************************
+ * FITUR PEMESANAN PRODUK BERATIDEAL (estihtoolsBeratideal.html)
+ * Digunakan oleh frontend js/jsEstihTools.js -> initPesananContext() via JSONP
+ *   action = getPesananContextByUserId
+ *   params = userId, callback
+ *
+ * Return: {
+ *   status: 'success'|'error',
+ *   level: 'peserta'|'member' (dari shTabelUser kolom F idx4),
+ *   totalPoint: number (SUM kolom AZ dari semua row PROGRAM milik userId — AZ=52 kolom 1-based = idx51)
+ *   namaKonsumen: string,
+ *   hpKonsumen: string,
+ *   namaSponsor: string (dari DATAKONSUMEN kolom U idx20),
+ *   hpSponsor: string   (dari DATAKONSUMEN kolom V idx21)
+ * }
+ * Mapping sheet struktur (PENTING — JANGAN salah indeks):
+ *   - DB_USER / TABELUSER (shTabelUser): 0=A userId, 1=B nama, 2=C email, 3=D hp, 4=E pass, 5=F level
+ *   - DATAKONSUMEN (shDataKonsumen): idx12=M userId, 20=U namaSponsor, 21=V hpSponsor
+ *   - PROGRAM (shProgram): kolom 1-based ke-52 (AZ) = Total Point per modul hari (digunakan completeModul L1107)
+ **********************************************************************************/
+function getPesananContextByUserId(param) {
+  const callback = param.callback || '';
+  try {
+    const userId = String(param.userId || '').trim();
+    if (!userId) {
+      return createJSONPResponse(callback, {
+        status: 'error',
+        message: 'userId tidak ditemukan. Silakan login kembali.',
+        level: 'peserta', totalPoint: 0, namaKonsumen: '', hpKonsumen: '', namaSponsor: '', hpSponsor: ''
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // 1. Cari user di TABELUSER (DB_USER) untuk dapat level + nama/hp
+    // ---------------------------------------------------------------
+    let level = 'peserta';
+    let namaKonsumen = '';
+    let hpKonsumen = '';
+    let userDitemukanDiTabelUser = false;
+
+    if (shTabelUser) {
+      try {
+        const dataUser = shTabelUser.getDataRange().getValues();
+        if (dataUser && dataUser.length > 1) {
+          for (let i = 1; i < dataUser.length; i++) {
+            const row = dataUser[i];
+            if (!row || !row[0]) continue;
+            if (String(row[0]).trim() === userId) {
+              userDitemukanDiTabelUser = true;
+              namaKonsumen = String(row[1] || '').trim(); // B = nama
+              hpKonsumen   = String(row[3] || '').trim(); // D = hp
+              const lvRaw  = String(row[5] || '').trim().toLowerCase(); // F = level
+              if (lvRaw === 'member' || lvRaw === 'anggota' || lvRaw === 'sponsor') {
+                level = 'member';
+              } else {
+                level = 'peserta';
+              }
+              break;
+            }
+          }
+        }
+      } catch (eTbl) {
+        console.warn('[getPesananContextByUserId] gagal baca TABELUSER:', eTbl);
+      }
+    }
+
+    // ---------------------------------------------------------------
+    // 2. Cari namaSponsor + hpSponsor di DATAKONSUMEN (sesi 1: kolom U/V)
+    //    Fallback: cek di TABELUSER berdasarkan nama dari sponsorField
+    // ---------------------------------------------------------------
+    let namaSponsor = '';
+    let hpSponsor = '';
+
+    if (shDataKonsumen) {
+      try {
+        const dataKon = shDataKonsumen.getDataRange().getValues();
+        if (dataKon && dataKon.length > 1) {
+          for (let i = 1; i < dataKon.length; i++) {
+            const row = dataKon[i];
+            if (!row || !row[12]) continue; // M = userId idx12
+            if (String(row[12]).trim() === userId) {
+              namaSponsor = String(row[20] || '').trim(); // U idx20
+              hpSponsor   = String(row[21] || '').trim(); // V idx21
+              // Fallback isi nama/hp konsumen jika TABELUSER tidak punya
+              if (!namaKonsumen) namaKonsumen = String(row[1] || '').trim(); // B namaKonsumen
+              if (!hpKonsumen)   hpKonsumen   = String(row[4] || '').trim(); // E hpKonsumen
+              break;
+            }
+          }
+        }
+      } catch (eKon) {
+        console.warn('[getPesananContextByUserId] gagal baca DATAKONSUMEN:', eKon);
+      }
+    }
+
+    // Jika namaSponsor ada tapi hpSponsor kosong → coba cari hp dari TABELUSER by namaSponsor
+    if (namaSponsor && !hpSponsor && shTabelUser) {
+      try {
+        const dataUser2 = shTabelUser.getDataRange().getValues();
+        for (let i = 1; i < dataUser2.length; i++) {
+          const row = dataUser2[i];
+          if (!row || !row[1]) continue;
+          if (String(row[1]).trim().toLowerCase() === namaSponsor.toLowerCase()) {
+            hpSponsor = String(row[3] || '').trim(); // D = hp
+            break;
+          }
+        }
+      } catch (e2) {}
+    }
+
+    // ---------------------------------------------------------------
+    // 3. Hitung totalPoint = SUM kolom AZ (idx51) PROGRAM milik userId
+    //    (completeModul L1107 simpan point ke kolom AZ = 1-based ke-52)
+    // ---------------------------------------------------------------
+    let totalPoint = 0;
+    if (shProgram) {
+      try {
+        const dataProg = shProgram.getDataRange().getValues();
+        if (dataProg && dataProg.length > 1) {
+          for (let i = 1; i < dataProg.length; i++) {
+            const row = dataProg[i];
+            if (!row || !row[1]) continue; // asumsi B = userId (kolom ke-2 PROGRAM)
+            // Coba scan 3 kolom pertama (A/B/C) untuk mencari userId
+            let match = false;
+            for (let c = 0; c < Math.min(5, row.length); c++) {
+              if (row[c] && String(row[c]).trim() === userId) { match = true; break; }
+            }
+            if (match && row[51] !== undefined && row[51] !== null && row[51] !== '') {
+              const p = Number(row[51]);
+              if (!isNaN(p) && p > 0) totalPoint += p;
+            }
+          }
+        }
+      } catch (eProg) {
+        console.warn('[getPesananContextByUserId] gagal hitung PROGRAM point:', eProg);
+      }
+    }
+
+    // Fallback level: bila userId tidak ditemukan di TABELUSER → default 'peserta'
+    if (!userDitemukanDiTabelUser) {
+      level = 'peserta';
+    }
+
+    return createJSONPResponse(callback, {
+      status: 'success',
+      level: level,
+      totalPoint: totalPoint,
+      namaKonsumen: namaKonsumen,
+      hpKonsumen: hpKonsumen,
+      namaSponsor: namaSponsor,
+      hpSponsor: hpSponsor
+    });
+  } catch (err) {
+    console.error('[getPesananContextByUserId] error:', err);
+    return createJSONPResponse(callback, {
+      status: 'error',
+      message: 'Terjadi kesalahan server: ' + (err.message || String(err)),
+      level: 'peserta', totalPoint: 0, namaKonsumen: '', hpKonsumen: '', namaSponsor: '', hpSponsor: ''
+    });
   }
 }
 

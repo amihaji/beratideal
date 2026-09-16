@@ -1,68 +1,48 @@
-// ******************************************** 
-// Memanggail data inputan ke dalam form bayar
-// ********************************************
+// *************************************************** 
+// FORM KONFIRMASI PEMBAYARAN - KHUSUS PENDAFTARAN
+// Target API: URL_dbDaftarBeratideal (sheet DAFTAR pendaftaran)
+// ***************************************************
 document.addEventListener('DOMContentLoaded', function () {
-    // Ambil noPesanan dari query string
     const params        = new URLSearchParams(window.location.search);
-    const noPesanan     = params.get("noPesanan");
+    const noPesanan     = params.get("noPesanan") || (function(){ try { return localStorage.getItem('noPesanan') || ''; } catch(e){ return ''; } })();
     const konfirmasiBtn = document.getElementById('btnKonfirmasi');
-            
+    const formBayar     = document.getElementById('formBayar');
+
     if (!noPesanan) {
-      //alert("Data tidak ditemukan. Silakan daftar ulang.");
-      tampilPesan('error', '❌ Data tidak ditemukan. Silahkan daftar ulang');
+      tampilPesan('error', '❌ No. Pesanan tidak ditemukan. Silakan buat pendaftaran ulang.');
       return;
     }
-  
-    // 1. Ambil data dari Apps Script via noPesanan
-    fetch(URL_dbDaftarBeratideal + "?noPesanan=" + noPesanan)
+
+    // 1. Ambil data dari Apps Script via noPesanan (PENDAFTARAN)
+    fetch(URL_dbDaftarBeratideal + "?noPesanan=" + encodeURIComponent(noPesanan))
     .then(res => res.json())
       .then(data => {
         if (data.error) {
-          //alert("Data tidak ditemukan di server.");
-          tampilPesan('error', '❌ Data tidak ditemukan diserver');
+          tampilPesan('error', '❌ Data pendaftaran tidak ditemukan di server.');
           return;
         }
 
-        const mapping = {
-          tanggal: "tanggal",
-          noPesanan: "nomorPesanan",
-          program: "program",
-          harga: "harga",
-          nama: "nama",
-          alamat: "alamat",
-          telp: "telp",
-          email: "email",
-          kelurahan: "kelurahan",
-          kecamatan: "kecamatan",
-          kota: "kota",
-          propinsi: "propinsi",
-          pembayaran: "sistemBayar",
-          namaPenerima: "namaPenerima",
-          acPenerima: "acPenerima",
-          nominal: "nominal"
-        };
-       
-        // Format tanggal
-        Object.entries(mapping).forEach(([key, id]) => {
-          const el = document.getElementById(id);
-          if (el) {
-            // Format tanggal jika field adalah tanggal
-            if (key === "tanggal" && data[key]) {
-              const date  = new Date(data[key]);
-              const day   = String(date.getDate()).padStart(2, '0');
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const year  = date.getFullYear();
-              el.value = `${day}-${month}-${year}`;
-            } else {
-              el.value = data[key] || "";
-            }
-          }
-        });
- 
+        // Isi data ke form
+        document.getElementById('tanggal').value       = data.tanggal      || "";
+        document.getElementById('nomorPesanan').value  = data.noPesanan    || "";
+        document.getElementById('program').value       = data.program      || "";
+        document.getElementById('harga').value         = data.harga ? Number(data.harga).toLocaleString('id-ID') : "";
+        document.getElementById('nama').value          = data.nama         || "";
+        document.getElementById('alamat').value        = data.alamat       || "";
+        document.getElementById('telp').value          = data.telp         || "";
+        document.getElementById('email').value         = data.email        || "";
+        document.getElementById('kelurahan').value     = data.kelurahan    || "";
+        document.getElementById('kecamatan').value     = data.kecamatan    || "";
+        document.getElementById('kota').value          = data.kota         || "";
+        document.getElementById('propinsi').value      = data.propinsi     || "";
+        document.getElementById('pembayaran').value    = data.pembayaran   || "";
+        document.getElementById('namaPenerima').value  = data.namaPenerima || "";
+        document.getElementById('acPenerima').value    = data.acPenerima   || "";
+        document.getElementById('nominal').value       = data.nominal ? Number(data.nominal).toLocaleString('id-ID') : "";
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
-        tampilPesan('error', 'Gagal mengambil data dari server.');
+        console.error('Error fetching data pendaftaran:', error);
+        tampilPesan('warning', '⚠️ Gagal mengambil data pendaftaran otomatis. Anda tetap bisa upload bukti transfer.');
       });
 
     // 2. Preview gambar bukti transfer
@@ -70,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const file = this.files[0];
       const preview = document.getElementById("preview");
       preview.innerHTML = "";
-
       if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -80,64 +59,59 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   
-    // Submit konfirmasi
-    document.getElementById("formBayar").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const bukti = document.getElementById("buktiTransfer").files[0];
-      if (!bukti) {
-        tampilPesan('error', 'Silakan upload bukti transfer.');
-        return;
-      }
+    // Submit konfirmasi pembayaran pendaftaran
+    if (formBayar) {
+      formBayar.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const bukti = document.getElementById("buktiTransfer").files[0];
+        if (!bukti) {
+          tampilPesan('error', 'Silakan upload bukti transfer terlebih dahulu.');
+          return;
+        }
 
-      // Convert file to base64
-      const reader  = new FileReader();
-      reader.onload = function(e) {
-        const base64Data = e.target.result.split(',')[1]; // Remove data:image/jpeg;base64,
-        
-        // Kirim data sebagai form-urlencoded 
-        const formData = new URLSearchParams();
-        formData.append("file", base64Data);
-        formData.append("noPesanan", noPesanan);
+        const reader  = new FileReader();
+        reader.onload = function(e) {
+          const base64Data = e.target.result.split(',')[1];
 
-        // Tampilkan spinner di tombol konfirmasi
-        konfirmasiBtn.disabled  = true;
-        konfirmasiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+          const formData = new URLSearchParams();
+          formData.append("file", base64Data);
+          formData.append("noPesanan", noPesanan);
 
-        fetch(URL_dbDaftarBeratideal, {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: formData
-        })
-        .then(response => response.json())
-        .then(res => {
-          if (res.success) {
-            const tambahanLink = res.tandaTerimaLink
-              ? `<br><small>Link tanda terima: <a href="${res.tandaTerimaLink}" target="_blank" rel="noopener noreferrer">formTandaTerima.html</a></small>`
-              : '';
+          konfirmasiBtn.disabled  = true;
+          konfirmasiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
 
-            // Tombol konfirmasi menampilkan pesan
-            konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
-            tampilPesan('success', `✅ ${res.message || 'Pembayaran berhasil dikonfirmasi. Admin segera menghubungi.'}${tambahanLink}`);
-      
-            // Setelah Konfirmasi Pembayaran kembali ke home
-            setTimeout(function() {
-              // kembali ke landingpage
-              window.location.href = 'index.html';
-            }, 3000); // delay 3 detik (3000 milidetik)
-
-          } else {
-            tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          tampilPesan('error', '❌ Gagal koneksi ke server: ' + error.message);
-        });
-      };
-      reader.readAsDataURL(bukti);
-    });
+          fetch(URL_dbDaftarBeratideal, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+          })
+          .then(response => response.json())
+          .then(res => {
+            if (res.success) {
+              const tambahanLink = res.tandaTerimaLink
+                ? `<br><small>Link tanda terima: <a href="${res.tandaTerimaLink}" target="_blank" rel="noopener noreferrer">formTandaTerima.html</a></small>`
+                : '';
+              konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
+              tampilPesan('success', `✅ ${res.message || 'Pembayaran berhasil dikonfirmasi. Admin segera menghubungi.'}${tambahanLink}`);
+              setTimeout(function() {
+                window.location.href = 'index.html';
+              }, 3000);
+            } else {
+              tampilPesan('error', res.message || '❌ Gagal mengupdate pembayaran.');
+              konfirmasiBtn.disabled  = false;
+              konfirmasiBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Konfirmasi Pembayaran';
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            tampilPesan('error', '❌ Gagal koneksi ke server: ' + error.message);
+            konfirmasiBtn.disabled  = false;
+            konfirmasiBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Konfirmasi Pembayaran';
+          });
+        };
+        reader.readAsDataURL(bukti);
+      });
+    }
 });
 
 /************************
@@ -145,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 ************************/
 function tampilPesan(tipe, pesan) {
   const msg = document.getElementById("formMessage");
-  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success' ;
+  if (!msg) return;
+  const alertClass = tipe === 'error' ? 'alert alert-danger' : 'alert alert-success';
   msg.innerHTML = `<div class="${alertClass}">${pesan}</div>`;
 }

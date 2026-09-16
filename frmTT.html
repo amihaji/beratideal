@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Form Tanda Terima Produk - Beratidealku</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container mt-5 mb-5">
+    <div class="card mx-auto shadow" style="max-width: 600px;">
+      <div class="card-header text-white" style="background-color: #041e55;">
+        <h5 class="mb-0"><i class="fas fa-box"></i> Form Tanda Terima Produk</h5>
+      </div>
+      <div class="card-body">
+        <form id="formTandaTerima">
+          <!-- Informasi Pesanan -->
+          <div class="mb-4">
+            <h6><i class="fas fa-list"></i> Informasi Pesanan Produk</h6>
+            <div class="form-group">
+              <label>Tanggal Terima</label>
+              <input type="text" class="form-control" id="tanggalTerima" readonly />
+            </div>
+            <div class="form-group">
+              <label>No Pesanan</label>
+              <input type="text" class="form-control" id="nomorPesanan" readonly />
+            </div>
+            <div class="form-group">
+              <label>Nama Konsumen</label>
+              <input type="text" class="form-control" id="nama" readonly />
+            </div>
+            <div class="form-group">
+              <label>Nama Sponsor</label>
+              <input type="text" class="form-control" id="namaSponsor" readonly />
+            </div>
+            <div class="form-group">
+              <label>Alamat Konsumen</label>
+              <textarea class="form-control" id="alamat" readonly rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Detail Produk</label>
+              <textarea class="form-control" id="detailProduk" readonly rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- Upload Bukti Produk -->
+          <div class="mb-4">
+            <h6><i class="fas fa-image"></i> Bukti Produk Diterima</h6>
+            <div class="form-group">
+              <label>Upload Foto Produk</label>
+              <input type="file" class="form-control-file" id="buktiProduk" accept="image/*" required />
+              <small class="form-text text-muted">Upload foto produk yang sudah diterima dengan baik</small>
+            </div>
+            <div class="mt-2" id="preview"></div>
+          </div>
+
+          <!-- Pernyataan Tanda Terima -->
+          <div class="border p-3 rounded bg-light mt-4" style="text-align: center;" >
+            <h6 style="color:#cc0000;">PERNYATAAN TANDA TERIMA PRODUK</h6>
+            <div class="form-check text-center text-muted mt-3">
+              <input class="form-check-input" type="checkbox" id="pernyataan" required>
+              <label class="form-check-label" for="pernyataan">
+                Saya menyatakan telah menerima produk dengan baik dan dalam kondisi yang sesuai
+              </label>
+            </div>
+          </div>
+
+          <!-- Pesan status -->
+          <div id="formMessage" class="mt-3"></div>
+
+          <!-- Tombol Submit -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-success w-100" id="btnSubmit">
+              <i class="fas fa-paper-plane"></i> Submit Tanda Terima Produk
+            </button>
+          </div>
+        </form>
+
+        <!-- Tampilan Footer pada form -->
+        <footer class="section footer-classic context-light mt-2">
+          <div class="row row-30 justify-content-center">
+            <div>
+              Powered By :<a class="brand" href="index.html"><img src="images/logo-beratidealku.png" width="99" height="19"></a>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+<!-- Custom JS Untuk Load URL public  -->
+<script src="js/jsLoadUrlPublic.js"></script>
+<!-- Custom JS Untuk Form Tanda Terima Produk  -->
+<script src="js/jsFrmTT.js"></script>
+</body>
+</html>

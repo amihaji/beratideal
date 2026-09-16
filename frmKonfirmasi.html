@@ -3,19 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Form Konfirmasi Pembayaran Pendaftaran</title>
+  <title>Form Konfirmasi Pembayaran Produk - Beratidealku</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .info-pesanan-box {
+      background-color: #f7f9ff;
+      border: 1px solid #d8dee8;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+    }
+    .info-pesanan-box p { margin-bottom: 6px; font-size: 14px; }
+    .info-pesanan-box .label { color: #495057; font-weight: 600; }
+    .info-pesanan-box .nominal { color: #041e55; font-size: 18px; font-weight: 700; }
+    #qrCodeBox {
+      display: none;
+      text-align: center;
+      margin-top: 12px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px dashed #041e55;
+      border-radius: 8px;
+    }
+    #qrCodeBox img { max-width: 260px; height: auto; }
+  </style>
 </head>
 <body>
   <div class="container mt-5 mb-5">
-    <div class="card mx-auto shadow" style="max-width: 600px;">
+    <div class="card mx-auto shadow" style="max-width: 650px;">
       <div class="card-header text-white" style="background-color: #041e55;">
-        <h5 class="mb-0"><i class="fas fa-credit-card"></i> Form Konfirmasi Pembayaran Pendaftaran</h5>
+        <h5 class="mb-0"><i class="fas fa-credit-card"></i> Form Konfirmasi Pembayaran Produk</h5>
       </div>
       <div class="card-body">
+
+        <!-- Info Ringkasan Pesanan (auto dari localStorage / backend) -->
+        <div class="info-pesanan-box">
+          <h6 class="mb-2"><i class="fas fa-receipt text-primary"></i> Ringkasan Pesanan</h6>
+          <p><span class="label">Nomor Pesanan:</span> <span id="ringkasanNoPesanan">-</span></p>
+          <p><span class="label">Nama Konsumen:</span> <span id="ringkasanNama">-</span></p>
+          <p><span class="label">Sponsor:</span> <span id="ringkasanSponsor">-</span></p>
+          <p><span class="label">Alamat:</span> <span id="ringkasanAlamat">-</span></p>
+          <p><span class="label">Total Item:</span> <span id="ringkasanTotalItem">-</span></p>
+          <p><span class="label">Grand Total Bayar:</span> <span class="nominal" id="ringkasanGrandTotal">Rp. 0</span></p>
+        </div>
+
         <form id="formBayar">
-          <!-- Informasi Program -->
+          <!-- Informasi Program / Produk -->
           <div class="mb-4">
             <h6><i class="fas fa-list"></i> Data Pesanan</h6>
             <div class="form-group">
@@ -27,12 +61,8 @@
               <input type="text" class="form-control" id="nomorPesanan" readonly />
             </div>
             <div class="form-group">
-              <label>Program</label>
+              <label>Program / Produk</label>
               <input type="text" class="form-control" id="program" readonly />
-            </div>
-            <div class="form-group">
-              <label>Harga</label>
-              <input type="text" class="form-control" id="harga" readonly />
             </div>
           </div>
 
@@ -53,8 +83,16 @@
           <div class="mb-4">
             <h6><i class="fas fa-money-bill-wave"></i> Informasi Pembayaran</h6>
             <div class="form-group">
-              <label>Sistem Pembayaran</label>
-              <input type="text" class="form-control" id="pembayaran" readonly />
+              <label>Metode</label>
+              <select class="form-control" id="sistemBayar" required>
+                <option value="Transfer">Transfer Bank</option>
+                <option value="QR Code">QR Code</option>
+              </select>
+            </div>
+            <div id="qrCodeBox">
+              <p class="font-weight-bold mb-2">Silahkan Scan QR Code dibawah ini:</p>
+              <img id="qrCodeImg" src="" alt="QR Code Pembayaran" onerror="this.style.display='none'" />
+              <p class="mt-2 mb-0 text-muted small">QRIS Merchant Beratidealku</p>
             </div>
             <div class="form-group"><label>Nama Penerima</label>    <input type="text" class="form-control" id="namaPenerima" readonly /></div>
             <div class="form-group"><label>AC Penerima</label>      <input type="text" class="form-control" id="acPenerima" readonly /></div>
@@ -94,8 +132,8 @@
 
 <!-- Custom JS Untuk Load URL public  -->
 <script src="js/jsLoadUrlPublic.js"></script>  
-<!-- Custom JS Untuk Form Pembayaran Pendaftaran  -->
-<script src="js/jsFrmBayar.js"></script>  
+<!-- Custom JS Untuk Form Konfirmasi Pembayaran Produk  -->
+<script src="js/jsFrmKonfirmasi.js"></script>  
 
 </body>
 </html>

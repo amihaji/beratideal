@@ -12,7 +12,7 @@ const URL_dbUser ='https://script.google.com/macros/s/AKfycbxXxje8Jxg-ZmTFMt21Ud
 // jsFitTracker.js, jsFollowCrm.js, jsProg10hari untuk :
 // - formDashboard.html
 // - prog10hari.html
-const URL_dbProgram ='https://script.google.com/macros/s/AKfycbwtRQkdHRLXZaR9o2LySH167R5MuzZtUgWrsDPkNRETQdOVriIkHKvjTUYKv4d9tn6FMA/exec';
+const URL_dbProgram ='https://script.google.com/macros/s/AKfycbxZM6wn-U8mJfNzLm3iXFNlWA1Mlt6Cjk-A_zYmErsezi2lsVpSEp628qj--I4alN_24Q/exec';
 
 // URl dbWETools (SurveyData, DataWE) : 
 // jsDashboard.js, jsFollowWe.js 
@@ -32,7 +32,7 @@ const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbx5W5XBlSIb_GLqC
 // url dbEstihtools (DataInput, DataKonsumen, TabelHarga, TabelDiskon, TabelByKirim, TabelKategori) :
 // jsEstihTools.js 
 // untuk estihtoolsBeratideal.html
-const URL_dbEstihtools  = 'https://script.google.com/macros/s/AKfycbzqKALGLi1ijNH-z9xbCbfFDToS2A2aU1qVc72CKtrRQCczevutkytw-ZY83wmSxzL0/exec';
+const URL_dbEstihtools  = 'https://script.google.com/macros/s/AKfycbw4TFis0dFNpM6THTFnqcaLWBsVsHKmkrp5ZUjpeL6JA_1V7_Hhu9zv1vTdjpUsnlya/exec';
 
 // ===========================
 // FUNGSI GLOBAL UNTUK TOOLTIP

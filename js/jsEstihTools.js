@@ -6,6 +6,51 @@ let currentEditRow = null;   // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
 document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
 
+// ****************************************************************
+// MAPPING KATEGORI -> PAKET PRODUK (verbatim dari requirement user)
+// key = kode localStorage.pesananKategori dari frmProduk.html
+// ****************************************************************
+const PAKET_PRODUK_BY_KATEGORI = {
+  lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
+  dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+  remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+  sarapan: "Paket Start Now Pack ( F1, Aloe Vera, Teh Concentrate, Tas Produk)",
+  naikBB:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
+  turunBB: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
+};
+
+// ****************************************************************
+// Global state untuk conditional behavior level user (peserta/member)
+// Diisi oleh initPesananContext() saat DOMContentLoaded pertama.
+// ****************************************************************
+const pesananState = {
+  level: 'peserta',       // default = peserta
+  totalPoint: 0,          // total point dari PROGRAM kolom AZ
+  voucherAmount: 0,       // nilai voucher potongan (Rp) dari TabelVoucer
+  userId: ''              // userId login (dari localStorage.userId)
+};
+
+// ****************************************************************
+// Helper JSONP ke URL_dbEstihtools (TabelDiskon, TabelByKirim, TabelVoucer, TabelBank, DataPesanan)
+// ****************************************************************
+function fetchJsonpEstihtools(action, params = {}) {
+  return new Promise((resolve) => {
+    const callbackName = `est_${action}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    const script = document.createElement('script');
+    const query = new URLSearchParams({ action, callback: callbackName, ...params });
+    script.onerror = () => {
+      cleanupJsonp(script, callbackName);
+      resolve({ status: 'error', message: 'Gagal menghubungi server Estihtools.' });
+    };
+    window[callbackName] = (response) => {
+      cleanupJsonp(script, callbackName);
+      resolve(response || { status: 'error', message: 'Respons server kosong.' });
+    };
+    script.src = `${URL_dbEstihtools}?${query.toString()}`;
+    document.body.appendChild(script);
+  });
+}
+
 // **********************************************
 // Fungsi untuk koneksi dengan Google Apps Script 
 // **********************************************
@@ -118,9 +163,11 @@ async function prefillDataKonsumen(options = {}) {
 
 // **********************************************
 // Inisialisasi saat halaman sudah load sempurna
+// Urutan: initPesananContext() -> loadOptions() -> prefillDataKonsumen()
+// Catatan: HANYA ADA SATU DOMContentLoaded UTAMA agar loadOptions tidak inject opsi ganda.
 // **********************************************
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("DOM fully loaded and parsed");
+    console.log("DOM fully loaded and parsed - mode pemesanan produk Beratidealku");
     
     // Generate Tanggal dan Invoice
     const mDateField    = document.getElementById('date'); 
@@ -132,52 +179,69 @@ document.addEventListener("DOMContentLoaded", function() {
     mDateField.disabled    = true;
     mInvoiceField.disabled = true;
 
-    loadOptions();       // Load Dropdown Options
-    prefillDataKonsumen();
+    // quantity default = 1 (minimal 1 paket), sesuai requirement 2
+    const qtyEl = document.getElementById('quantity');
+    if (qtyEl) {
+      qtyEl.min = '1';
+      if (!qtyEl.value || parseInt(qtyEl.value,10) < 1) qtyEl.value = '1';
+    }
+
+    // AMBIL USER CONTEXT (level, totalPoint, namaSponsor, hpSponsor, namaKonsumen)
+    // HANYA setelah context didapat -> loadOptions() + prefillDataKonsumen()
+    initPesananContext()
+      .then(() => {
+        return loadOptions();
+      })
+      .then(() => {
+        return prefillDataKonsumen();
+      })
+      .then(() => {
+        // Set Diskon label di header tabel kolom ke-5 sesuai pilihan awal
+        const disSel = document.getElementById('discount');
+        if (disSel && disSel.options[disSel.selectedIndex]) {
+          document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${disSel.options[disSel.selectedIndex].text}`;
+        }
+      })
+      .catch(err => {
+        console.error('init error:', err);
+        showNotification('warning', '⚠️ Sebagian data gagal dimuat. Form tetap bisa digunakan.');
+      });
 
     // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
     if (tableBody) {
         tableBody.addEventListener('input', function(e) {
             if (e.target.classList.contains('qty-input')) {
-                console.log("Jumlah item diubah, aktifkan mode edit");
-                
-                // Update tampilan langsung
                 const row = e.target.closest('tr');
                 const qty = parseInt(e.target.value) || 0;
                 const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
-                
                 row.cells[7].textContent = formatCurrency(price * qty);
                 updateTotals();
-              
             }
         });
-    } else {
-        console.error("Tabel body tidak ditemukan!");
     }
 
     // Event listener untuk tombol close Ketentuan dan Kebijakan
-        document.querySelector('.close').addEventListener('click', hideKetentuanModal);
-        // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
-        document.getElementById('setujuButton').addEventListener('click', function() {
-        hideKetentuanModal();
-        showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
+    document.querySelector('.close').addEventListener('click', hideKetentuanModal);
+    // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
+    document.getElementById('setujuButton').addEventListener('click', function() {
+      hideKetentuanModal();
+      showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
     });
 
     // Event listener untuk checkbox Ketentuan dan Kebijakan
-        document.getElementById('agreeCheckbox').addEventListener('change', function() {
-        const setujuButton = document.getElementById('setujuButton');
-        setujuButton.disabled = !this.checked;
+    document.getElementById('agreeCheckbox').addEventListener('change', function() {
+      const setujuButton = document.getElementById('setujuButton');
+      setujuButton.disabled = !this.checked;
     });
 
     // Event listener untuk link Ketentuan dan Kebijakan
-        document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
-        event.preventDefault(); // Mencegah navigasi ke halaman lain
-        showKetentuanModal();
+    document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
+      event.preventDefault();
+      showKetentuanModal();
     });      
     
-    // Intial Aplikasi Siap Digunakam
-    console.log("Aplikasi siap digunakan");
+    console.log("Aplikasi siap digunakan - mode pemesanan produk");
     isEditMode = false;
 });
 
@@ -189,10 +253,17 @@ function addItem() {
   const mProductSelect = document.getElementById('product');
   const mQuantity = parseInt(document.getElementById('quantity').value) || 0;
   const mShippingSelect = document.getElementById('shipping');
-  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
+  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex]
+    ? mDiscountSelect.options[mDiscountSelect.selectedIndex].text
+    : '';
 
-  if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
-    showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah, Diskon dan Pengiriman');
+  // Requirement 2: Jumlah minimal 1 Paket -> notifikasi khusus
+  if (mQuantity < 1) {
+    showNotification('warning', 'PERHATIAN : Jumlah minimal 1 (satu) Paket');
+    return;
+  }
+  if (!mProductSelect.value || !mDiscountSelect.value || !mShippingSelect.value) {
+    showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah (min. 1 Paket), Diskon dan Pengiriman');
     return;
   }
 
@@ -326,6 +397,8 @@ function hideSpinner(buttonId) {
 
 // *********************
 // Update Seluruh Total 
+// Catatan: Rumus diperbarui agar memperhitungkan Voucher (potongan).
+//   grandTotal = Total Harga + By Kirim + Pajak - Voucher
 // *********************
 function updateTotals() {
   const rows = document.querySelectorAll('#orderTable tbody tr');
@@ -334,27 +407,16 @@ function updateTotals() {
   let totalHarga = 0;
 
     rows.forEach(row => {
-    // Ambil nilai jumlah dari input
     const qtyInput = row.querySelector('.qty-input');
     const qty = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
-
-    // Ambil VP per item dari atribut data (nilai asli dengan desimal)
     const vpPerItem = parseFloat(row.getAttribute('data-vp-asli')) || 0;
-
-    // Ambil harga setelah diskon dari atribut data (nilai asli dengan desimal)
     const priceAfterDiscount = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
 
-    // HITUNG TOTAL VP UNTUK BARIS INI
     const rowTotalVP = vpPerItem * qty;
-
-    // HITUNG TOTAL HARGA UNTUK BARIS INI
     const rowTotalHarga = priceAfterDiscount * qty;
 
-    // UPDATE TAMPILAN KOLOM "Tot VP" (kolom ke-7)
     row.cells[6].textContent = formatCurrency(rowTotalVP);
     row.cells[6].setAttribute('data-vp-nilai', rowTotalVP);
-    
-    // UPDATE TAMPILAN KOLOM "Harga" (kolom ke-8)
     row.cells[7].textContent = formatCurrency(rowTotalHarga);
     row.cells[7].setAttribute('data-harga-nilai', rowTotalHarga);
 
@@ -363,17 +425,23 @@ function updateTotals() {
     totalHarga += rowTotalHarga;
   });
 
-  // Update footer tabel
   document.getElementById('totalJumlah').textContent = totalJumlah;
   document.getElementById('totalVP').textContent = formatCurrency(totalVP);
   document.getElementById('totalHarga').textContent = formatCurrency(totalHarga);
 
-  // Update summary
   const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
   const tax = 0;
-  const grandTotal = totalHarga + shippingCost + tax;
+  const voucherAmt = (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0;
+  const grandTotal = Math.max(0, totalHarga + shippingCost + tax - voucherAmt);
+
   document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
   document.getElementById('tax').textContent = formatCurrency(tax);
+
+  const voucherCostEl = document.getElementById('voucherCost');
+  if (voucherCostEl) {
+    voucherCostEl.textContent = voucherAmt > 0 ? `- ${formatCurrency(voucherAmt)}` : formatCurrency(0);
+  }
+
   document.getElementById('totalPrice').textContent = formatCurrency(grandTotal);
 }
 
@@ -492,27 +560,6 @@ function resetForm() {
     setTimeout(() => hideSpinner("btnReset"), 1000);
 }
 
-// *********************************************
-// Fungsi untuk Pengaturan awal, saat form aktif
-// *********************************************
-document.addEventListener('DOMContentLoaded', function() {
-    // Generate No. Simulasi (invoice)
-    const mDateField    = document.getElementById('date'); 
-    const mInvoiceField = document.getElementById('invoice');
-    const mToday        = new Date();
-    
-    // Format: INV-YYYYMMDD-XXX
-    mDateField.value    = mToday.toISOString().split('T')[0];
-    mInvoiceField.value = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
-
-    // Disable fields
-    mDateField.disabled = true;
-    mInvoiceField.disabled = true;
-
-    // Memanggil isi pilihan field dropdown
-    loadOptions();
-});
-
 // ********************************
 // Fungsi untuk DISABLE field-field
 // ********************************
@@ -537,53 +584,272 @@ function enableFields() {
 
 // **********************************************
 // Fungsi untuk memanggil pilihan dropdown field
+// DISESUAIKAN DENGAN LEVEL USER (peserta vs member)
+// Requirement 3, 4, 5:
+//   PESERTA : Diskon=0% (fixed disabled), ByKirim=50000 (fixed disabled), VOUCER TAMPIL.
+//   MEMBER  : Diskon=dropdown TabelDiskon, ByKirim=dropdown TabelByKirim, VOUCER HIDDEN=0.
 // **********************************************
 function loadOptions() {
-    // Load Pilihan Diskon
-    callAPI("getDiscounts").then(mDiscounts => {
-        const discountSelect     = document.getElementById('discount');
-        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
-        mDiscounts.forEach(discount => {
-            const option       = document.createElement('option');
-            option.value       = discount.Diskon;
-            option.textContent = discount.Level;
-            discountSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat diskon:", err);
-        showNotification('error', 'ERROR : memuat data diskon');
-    });
+  const level = (pesananState && pesananState.level) ? String(pesananState.level).toLowerCase() : 'peserta';
+  const isPeserta = (level !== 'member');
 
-    // Load Pilihan Produk
-    callAPI("getProducts").then(mProducts => {
-        const productSelect     = document.getElementById('product');
+  return new Promise((resolve) => {
+    let tasksDone = 0;
+    const totalTasks = 4; // diskon + produk + shipping + voucher
+    const doneOne = () => {
+      tasksDone++;
+      if (tasksDone >= totalTasks) resolve();
+    };
+
+    // ======================================================================
+    // (1) DISKON
+    // ======================================================================
+    const discountSelect = document.getElementById('discount');
+    if (discountSelect) {
+      if (isPeserta) {
+        // Requirement 3: level peserta -> Diskon=0% (fixed)
+        discountSelect.innerHTML = '<option value="0%">0%</option>';
+        discountSelect.value = '0%';
+        discountSelect.disabled = true;
+        doneOne();
+      } else {
+        // Requirement 3: member -> dropdown TabelDiskon
+        callAPI("getDiscounts").then(mDiscounts => {
+          discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+          if (Array.isArray(mDiscounts)) {
+            mDiscounts.forEach(discount => {
+              const option = document.createElement('option');
+              option.value = discount.Diskon || '';
+              option.textContent = discount.Level || '';
+              discountSelect.appendChild(option);
+            });
+          }
+        }).catch(err => {
+          console.error("Gagal memuat diskon:", err);
+          discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+        }).finally(doneOne);
+      }
+    } else {
+      doneOne();
+    }
+
+    // ======================================================================
+    // (2) PRODUK + auto fill berdasarkan kategori frmProduk.html
+    // ======================================================================
+    const productSelect = document.getElementById('product');
+    if (productSelect) {
+      callAPI("getProducts").then(mProducts => {
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        mProducts.forEach(product => {
-            const option       = document.createElement('option');
-            option.value       = product.NoStok;
-            option.textContent = product.NamaProduk;
+        if (Array.isArray(mProducts)) {
+          mProducts.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.NoStok || '';
+            option.textContent = product.NamaProduk || '';
             productSelect.appendChild(option);
-        });
-    }).catch(err => {
+          });
+        }
+        // Requirement 1: Auto isi field Produk sesuai localStorage.pesananKategori
+        autoFillProdukByKategori(mProducts || []);
+      }).catch(err => {
         console.error("Gagal memuat produk:", err);
-        showNotification('error', 'ERROR : memuat data produk');
-    });
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        autoFillProdukByKategori([]); // fallback inject opsi manual
+      }).finally(doneOne);
+    } else {
+      doneOne();
+    }
 
-    // Load Jenis Pengiriman
-    callAPI("getShippingOptions").then(mShippingOptions => {
-        const shippingSelect     = document.getElementById('shipping');
-        shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
-        mShippingOptions.forEach(shipping => {
-            const option       = document.createElement('option');
-            option.value       = shipping.Biaya;
-            // option.textContent = shipping.JenisPengiriman;
-            option.textContent = `${shipping.JenisPengiriman} By =  ${shipping.Biaya}`;
-            shippingSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat pengiriman:", err);
-        showNotification('error', 'ERROR : Memuat data pengiriman');
-    });
+    // ======================================================================
+    // (3) BY KIRIM
+    // ======================================================================
+    const shippingSelect = document.getElementById('shipping');
+    if (shippingSelect) {
+      if (isPeserta) {
+        // Requirement 5: level peserta -> By Kirim otomatis 50000 (fixed disabled)
+        shippingSelect.innerHTML = '<option value="50000">Ongkos Kirim = 50000</option>';
+        shippingSelect.value = '50000';
+        shippingSelect.disabled = true;
+        doneOne();
+      } else {
+        // Requirement 5: member -> dropdown TabelByKirim
+        callAPI("getShippingOptions").then(mShippingOptions => {
+          shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+          if (Array.isArray(mShippingOptions)) {
+            mShippingOptions.forEach(shipping => {
+              const option = document.createElement('option');
+              option.value = shipping.Biaya || 0;
+              option.textContent = `${shipping.JenisPengiriman || ''} By =  ${shipping.Biaya || 0}`;
+              shippingSelect.appendChild(option);
+            });
+          }
+        }).catch(err => {
+          console.error("Gagal memuat pengiriman:", err);
+          shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+        }).finally(doneOne);
+      }
+    } else {
+      doneOne();
+    }
+
+    // ======================================================================
+    // (4) VOUCER (conditional PESERTA/MEMBER)
+    // ======================================================================
+    applyVoucherBasedOnLevel().finally(doneOne);
+
+    // Update total display
+    setTimeout(() => {
+      if (typeof updateTotals === 'function') updateTotals();
+    }, 50);
+  });
+}
+
+// ============================================================
+// Requirement 1: Auto isi field Produk dari localStorage.pesananKategori
+// Mencari exact/substring match di daftar produk terlebih dahulu.
+// Jika tidak ada, inject opsi manual secara paksa agar value dapat tersimpan.
+// ============================================================
+function autoFillProdukByKategori(productList) {
+  try {
+    const kategori = localStorage.getItem('pesananKategori') || '';
+    if (!kategori) return;
+    const teksPaket = PAKET_PRODUK_BY_KATEGORI[kategori];
+    if (!teksPaket) return;
+
+    const productSelect = document.getElementById('product');
+    if (!productSelect) return;
+
+    // 1) cari exact match dulu
+    let foundValue = '';
+    const teksPaketShort = String(teksPaket).substring(0, 30).trim().toLowerCase();
+    if (Array.isArray(productList)) {
+      for (const p of productList) {
+        const nama = String(p.NamaProduk || '').toLowerCase();
+        if (nama === teksPaket.toLowerCase()) { foundValue = p.NoStok || ''; break; }
+      }
+      if (!foundValue) {
+        for (const p of productList) {
+          const nama = String(p.NamaProduk || '').toLowerCase();
+          if (nama.includes(teksPaketShort)) { foundValue = p.NoStok || ''; break; }
+        }
+      }
+    }
+    if (foundValue) {
+      productSelect.value = foundValue;
+      return;
+    }
+    // 2) fallback: inject opsi custom agar field terisi otomatis (tanpa need exact NoStok)
+    const optCustom = document.createElement('option');
+    optCustom.value = `PAKET-${kategori.toUpperCase()}`;
+    optCustom.textContent = teksPaket;
+    productSelect.insertBefore(optCustom, productSelect.firstChild);
+    productSelect.value = optCustom.value;
+  } catch (e) {
+    console.error('autoFillProdukByKategori error:', e);
+  }
+}
+
+// ============================================================
+// Requirement 4: Atur field Voucher berdasarkan level user.
+// - PESERTA: field TAMPIL + isi sesuai totalPoint dari TabelVoucer
+//            via API getVoucherByPoint (fallback = 0)
+// - MEMBER : field HIDDEN + voucherAmount=0
+// ============================================================
+function applyVoucherBasedOnLevel() {
+  return new Promise((resolve) => {
+    const level = (pesananState && pesananState.level) ? String(pesananState.level).toLowerCase() : 'peserta';
+    const isPeserta = (level !== 'member');
+
+    const voucherSection = document.getElementById('voucherSection');
+    const voucherInfoEl  = document.getElementById('voucherInfo');
+    const voucherAmountInput = document.getElementById('voucherAmount');
+
+    if (voucherAmountInput) voucherAmountInput.value = '0';
+    pesananState.voucherAmount = 0;
+
+    if (!isPeserta) {
+      // member: sembunyikan + voucher = 0
+      if (voucherSection) voucherSection.style.display = 'none';
+      if (voucherInfoEl) voucherInfoEl.textContent = '(Member - Tidak berlaku)';
+      resolve();
+      return;
+    }
+
+    // peserta: tampilkan + cari berdasarkan totalPoint
+    if (voucherSection) voucherSection.style.display = 'block';
+    const totalPoint = Number(pesananState.totalPoint || 0);
+
+    if (!totalPoint || totalPoint <= 0) {
+      if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: 0 (belum ada voucher)`;
+      pesananState.voucherAmount = 0;
+      resolve();
+      return;
+    }
+
+    if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: ${totalPoint} (memuat voucher...)`;
+
+    // Panggil backend URL_dbEstihtools action=getVoucherByPoint
+    fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint })
+      .then(resp => {
+        let potongan = 0;
+        let keterangan = '';
+        if (resp && resp.status !== 'error') {
+          potongan  = Number(resp.potongan || resp.voucher || resp.amount || 0) || 0;
+          keterangan = String(resp.keterangan || resp.nama || resp.deskripsi || '').trim();
+        }
+        if (potongan < 0) potongan = 0;
+        pesananState.voucherAmount = potongan;
+        if (voucherAmountInput) voucherAmountInput.value = String(potongan);
+        if (voucherInfoEl) {
+          const ket = keterangan ? ` - ${keterangan}` : '';
+          voucherInfoEl.textContent = `Point terkumpul: ${totalPoint}${ket}`;
+        }
+      })
+      .catch(err => {
+        console.error('getVoucherByPoint error:', err);
+        pesananState.voucherAmount = 0;
+        if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: ${totalPoint}`;
+      })
+      .finally(resolve);
+  });
+}
+
+// ============================================================
+// Init: Ambil userId dari localStorage, panggil
+//       action=getPesananContextByUserId ke Code-dbProgram.gs
+//       untuk mendapatkan: level, totalPoint, namaSponsor, hpSponsor
+// ============================================================
+function initPesananContext() {
+  return new Promise((resolve) => {
+    let userId = '';
+    try { userId = String(localStorage.getItem('userId') || '').trim(); } catch (e) { userId = ''; }
+    pesananState.userId = userId;
+
+    if (!userId) {
+      pesananState.level = 'peserta';
+      pesananState.totalPoint = 0;
+      pesananState.voucherAmount = 0;
+      resolve();
+      return;
+    }
+
+    fetchJsonpProgram('getPesananContextByUserId', { userId })
+      .then(resp => {
+        if (resp && resp.status === 'success') {
+          const lv = String(resp.level || 'peserta').trim().toLowerCase();
+          pesananState.level = (lv === 'member') ? 'member' : 'peserta';
+          pesananState.totalPoint = Number(resp.totalPoint || 0) || 0;
+        } else {
+          pesananState.level = 'peserta';
+          pesananState.totalPoint = 0;
+        }
+      })
+      .catch(err => {
+        console.error('getPesananContextByUserId error:', err);
+        pesananState.level = 'peserta';
+        pesananState.totalPoint = 0;
+      })
+      .finally(resolve);
+  });
 }
 
 // *****************************************************
@@ -693,10 +959,20 @@ function collectOrderData() {
     mPropensi: (document.getElementById("propensi") && document.getElementById("propensi").value) ? document.getElementById("propensi").value : "",
 
     // info order
-    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex]
+      ? document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text
+      : "",
+    mDiskonValue: document.getElementById("discount").value || "",
+    mVoucher: (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0,
+    mVoucherPoint: (pesananState && pesananState.totalPoint) ? Number(pesananState.totalPoint) : 0,
     mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
     mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
     mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/[^\d]/g, "")) || 0,
+
+    // user context (untuk tracking backend)
+    mUserId: (pesananState && pesananState.userId) ? String(pesananState.userId) : "",
+    mLevelUser: (pesananState && pesananState.level) ? String(pesananState.level) : "peserta",
+    mKategoriPesanan: (function(){ try { return localStorage.getItem('pesananKategori') || ''; } catch(e){ return ''; } })(),
 
     // detail item produk
     items
@@ -761,7 +1037,11 @@ async function submitForm() {
 }
 
 // **************************************************
-// Mengirim data ke sheet DataInput dan DataKonsumen
+// Mengirim data ke sheet DataPesanan/DataInput (backend dbEstihtools)
+// Setelah sukses:
+//   1. simpan lastOrderData di localStorage (backup untuk frmKonfirmasi.html)
+//   2. redirect ke frmKonfirmasi.html?noPesanan=INVxxxx
+// JANGAN pakai formKonfirmasiBayar.html (itu milik flow PENDAFTARAN)
 // **************************************************
 function simpanData() {
   // Validasi form sebelum mengirim
@@ -770,6 +1050,7 @@ function simpanData() {
   }
   
   const mOrderData = collectOrderData();
+  const noPesanan  = mOrderData.mInvoice;
   document.getElementById("kirimButton").style.display  = "block";
   // Tampilkan loading spinner
   showSpinner("kirimButton");
@@ -780,8 +1061,43 @@ function simpanData() {
       document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
       hideSpinner("kirimButton");
-      showNotification('success', 'SUKSES: Data berhasil disimpan');
-      resetForm();
+      showNotification('success', 'SUKSES: Data berhasil disimpan. Mengarahkan ke Form Konfirmasi Bayar Produk...');
+
+      // Simpan backup data order ke localStorage (jalur utama untuk frmKonfirmasi)
+      try {
+        localStorage.setItem('lastOrderData', JSON.stringify({
+          noPesanan: noPesanan,
+          tanggal: mOrderData.mDate,
+          namaSponsor: mOrderData.mDistributorName,
+          hpSponsor: mOrderData.mDistributorPhone,
+          namaKonsumen: mOrderData.mConsumerName,
+          hpKonsumen: mOrderData.mConsumerPhone,
+          emailKonsumen: mOrderData.mConsumerEmail,
+          alamat: mOrderData.mAlamat,
+          kelurahan: mOrderData.mKelurahan,
+          kecamatan: mOrderData.mKecamatan,
+          kota: mOrderData.mKota,
+          propensi: mOrderData.mPropensi,
+          byKirim: mOrderData.mByKirim,
+          diskon: mOrderData.mDiskon,
+          voucher: mOrderData.mVoucher,
+          pajak: mOrderData.mPajak,
+          grandTotal: mOrderData.mTotalPrice,
+          items: (mOrderData.items || []).map(it => ({
+            noStok: it.mNoStok || '',
+            nama: it.mNamaProduk || '',
+            qty: it.mJumlah || 0,
+            vp: it.mVp || 0,
+            hargaSatuan: it.mSetelahDiskon || 0,
+            subtotal: it.mHarga || 0
+          }))
+        }));
+      } catch (e) { console.error('simpan localStorage error', e); }
+
+      // Redirect ke FORM KONFIRMASI PRODUK (file BARU, bukan formKonfirmasiBayar.html)
+      setTimeout(function() {
+        window.location.href = 'frmKonfirmasi.html?noPesanan=' + encodeURIComponent(noPesanan);
+      }, 1200);
     })
     .catch(err => {
       console.error("Error kirim:", err);

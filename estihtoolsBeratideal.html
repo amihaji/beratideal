@@ -526,6 +526,12 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                <!-- Opsi akan diisi oleh JavaScript --> 
                             </select>
                         </div>
+                        <!-- Requirement 4: Field Voucer (PESERTA=TAMPIL, MEMBER=HIDDEN) -->
+                        <div id="voucherSection" class="input-group mt-1" style="display:none;">
+                            <span class="input-group-text">Voucer  </span>
+                            <input type="text" id="voucherInfo" class="form-control" placeholder="(memuat...)" readonly />
+                            <input type="hidden" id="voucherAmount" name="voucherAmount" value="0" />
+                        </div>
                         <div class="input-group mt-1"> 
                             <span class="input-group-text">By Kirim</span>
                             <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
@@ -667,9 +673,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         </div>
                     </div>    
                   
-                    <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
+                    <!-- Baris untuk By Pengiriman, Voucher, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
                     <div id="summaryDetails">
                         <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
+                        <div>Voucher Potongan : <span id="voucherCost">0,00</span></div>
                         <div>Pajak : <span id="tax">0,00</span></div>
                         <div>Total Harga : <span id="totalPrice">0,00</span></div>
                     </div>

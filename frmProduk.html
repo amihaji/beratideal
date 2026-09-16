@@ -648,7 +648,7 @@
                              onclick="tampilkanPdfProduk('lansia')">
                         <h5>Kebutuhan Esensial Lansia</h5>
                         <p>Penunjang kesehatan dan kebugaran untuk kebutuhan utama lansia</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('lansia')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -662,7 +662,7 @@
                              onclick="tampilkanPdfProduk('dewasa')">
                         <h5>Kebutuhan Esensial Dewasa</h5>
                         <p>Penunjang kesehatan dan kebugaran untuk kebutuhan utama usia dewasa</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('dewasa')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -676,7 +676,7 @@
                              onclick="tampilkanPdfProduk('remaja')">
                         <h5>Kebutuhan Esensial Remaja</h5>
                         <p>Penunjang kesehatan dan kebugaran untuk kebutuhan utama usia remaja</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('remaja')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -690,7 +690,7 @@
                              onclick="tampilkanPdfProduk('sarapan')">
                         <h5>Kebutuhan Sarapan Sehat</h5>
                         <p>Penunjang aktifitas dipagi hari agar lebih berstamina dan berenergi</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('sarapan')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -704,7 +704,7 @@
                              onclick="tampilkanPdfProduk('naikBB')">
                         <h5>Kebutuhan Muscle Gain</h5>
                         <p>Penunjang untuk penambah massa otot agar lebih berstamina dan berenergi</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('naikBB')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -718,7 +718,7 @@
                              onclick="tampilkanPdfProduk('turunBB')">
                         <h5>Kebutuhan Fat Loss</h5>
                         <p>Penunjang untuk mengurangi lemak tubuh agar lebih berstamina dan berenergi</p>
-                        <button class="btn-order" onclick="pesanProduk()">
+                        <button class="btn-order" onclick="pesanProduk('turunBB')">
                             <i class="fas fa-shopping-cart"></i> Pesan Produk
                         </button>
                     </div>
@@ -787,7 +787,8 @@
             }, 600);
         });
 
-        function pesanProduk() {
+        function pesanProduk(kategori) {
+            try { localStorage.setItem('pesananKategori', kategori || ''); } catch (e) {}
             window.location.href = 'estihtoolsBeratideal.html';
         }
 
