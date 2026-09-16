@@ -83,18 +83,18 @@ document.addEventListener('DOMContentLoaded', function () {
           action: 'konfirmasiBayarProduk',
           // identitas
           noPesanan: noPesanan,
-          tanggal: (currentOrderData && currentOrderData.tanggal) ? currentOrderData.tanggal : document.getElementById('tanggal').value,
+          tanggal: (currentOrderData && currentOrderData.tanggal) ? currentOrderData.tanggal : '',
           // data sponsor / bank
           namaSponsor: (currentOrderData && currentOrderData.namaSponsor) ? currentOrderData.namaSponsor : '',
           hpSponsor: (currentOrderData && currentOrderData.hpSponsor) ? currentOrderData.hpSponsor : '',
           namaPenerima: namaPenerima,
           acPenerima: acPenerima,
           // data konsumen
-          namaKonsumen: (currentOrderData && currentOrderData.namaKonsumen) ? currentOrderData.namaKonsumen : document.getElementById('nama').value,
-          hpKonsumen: (currentOrderData && currentOrderData.hpKonsumen) ? currentOrderData.hpKonsumen : document.getElementById('telp').value,
-          emailKonsumen: (currentOrderData && currentOrderData.emailKonsumen) ? currentOrderData.emailKonsumen : document.getElementById('email').value,
+          namaKonsumen: (currentOrderData && currentOrderData.namaKonsumen) ? currentOrderData.namaKonsumen : '',
+          hpKonsumen: (currentOrderData && currentOrderData.hpKonsumen) ? currentOrderData.hpKonsumen : '',
+          emailKonsumen: (currentOrderData && currentOrderData.emailKonsumen) ? currentOrderData.emailKonsumen : '',
           // produk & harga
-          produkText: itemsText || document.getElementById('program').value,
+          produkText: itemsText || '',
           metodeBayar: sistemBayar,
           grandTotal: nominal,
           // bukti
@@ -225,28 +225,14 @@ function applyOrderDataToForm(orderData) {
   const alamatLengkap = [orderData.alamat, orderData.kelurahan, orderData.kecamatan, orderData.kota, orderData.propensi]
     .filter(Boolean).join(', ') || '-';
   safeSetText('ringkasanAlamat', alamatLengkap);
+  const produkText = (orderData.items && orderData.items.length)
+    ? orderData.items.map(it => `${it.nama} x${it.qty}`).join(', ')
+    : '-';
+  safeSetText('ringkasanProduk', produkText);
   const totalItem = (orderData.items && orderData.items.length) ? orderData.items.length : 0;
   safeSetText('ringkasanTotalItem', String(totalItem));
   const grand = parseInt(orderData.grandTotal, 10) || 0;
   safeSetText('ringkasanGrandTotal', formatRupiah(grand));
-
-  // data pesanan
-  document.getElementById('tanggal').value      = orderData.tanggal || new Date().toLocaleDateString('id-ID');
-  document.getElementById('nomorPesanan').value = orderData.noPesanan || '';
-  const produkText = (orderData.items && orderData.items.length)
-    ? orderData.items.map(it => `${it.nama} x${it.qty}`).join(', ')
-    : '';
-  document.getElementById('program').value = produkText;
-
-  // data pengiriman
-  document.getElementById('nama').value      = orderData.namaKonsumen || '';
-  document.getElementById('alamat').value    = orderData.alamat || '';
-  document.getElementById('telp').value      = orderData.hpKonsumen || '';
-  document.getElementById('email').value     = orderData.emailKonsumen || '';
-  document.getElementById('kelurahan').value = orderData.kelurahan || '';
-  document.getElementById('kecamatan').value = orderData.kecamatan || '';
-  document.getElementById('kota').value      = orderData.kota || '';
-  document.getElementById('propinsi').value  = orderData.propensi || '';
 
   // nominal awal (bisa di-overlay nanti bila loadBank sukses)
   document.getElementById('nominal').value = formatRupiah(grand);
