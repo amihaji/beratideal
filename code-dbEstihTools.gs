@@ -43,6 +43,11 @@ function doGet(e) {
       return buildDoGetResponse(getVoucherByPoint(totalPoint), callback);
     }
 
+    if (action === "getBankBySponsor") {
+      const namaSponsor = String(e.parameter.namaSponsor || '').trim();
+      return buildDoGetResponse(getBankBySponsor(namaSponsor), callback);
+    }
+
     // --- Tabel Harga ---
     if (action === 'getTabelProduk')           return handleGetTabelProduk(e);
     if (action === 'addProduk')                return handleAddProduk(e);
@@ -290,6 +295,38 @@ function getVoucherByPoint(totalPoint) {
 
   if (bestPoint < 0) return { status: 'success', potongan: 0, keterangan: '' };
   return { status: 'success', potongan: bestPotongan, keterangan: bestKet, point: bestPoint };
+}
+
+function getBankBySponsor(namaSponsor) {
+  const sheet = ss.getSheetByName('TabelBank');
+  if (!sheet) return { status: 'error', message: "Sheet 'TabelBank' tidak ditemukan!" };
+  const data = sheet.getDataRange().getValues();
+  if (!data || data.length <= 1) return { status: 'error', message: 'Data bank kosong' };
+
+  const target = String(namaSponsor || '').trim().toLowerCase();
+  if (!target) return { status: 'error', message: 'Nama sponsor kosong' };
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i] || [];
+    const rowSponsor = String(row[0] || '').trim().toLowerCase();
+    if (!rowSponsor) continue;
+    if (rowSponsor !== target) continue;
+
+    const hpSponsor = String(row[1] || '').trim();
+    const namaBank = String(row[2] || row[1] || '').trim();
+    const acPenerima = String(row[3] || row[2] || '').trim();
+    const namaPenerima = String(row[4] || row[3] || '').trim();
+
+    return {
+      status: 'success',
+      namaBank: namaBank,
+      namaPenerima: namaPenerima,
+      acPenerima: acPenerima,
+      hpSponsor: hpSponsor
+    };
+  }
+
+  return { status: 'error', message: 'Data bank sponsor tidak ditemukan' };
 }
 
 /****************************************************

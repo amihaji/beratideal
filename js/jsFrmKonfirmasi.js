@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // data sponsor / bank
           namaSponsor: (currentOrderData && currentOrderData.namaSponsor) ? currentOrderData.namaSponsor : '',
           hpSponsor: (currentOrderData && currentOrderData.hpSponsor) ? currentOrderData.hpSponsor : '',
+          namaBank: document.getElementById('namaBank') ? document.getElementById('namaBank').value : '',
           namaPenerima: namaPenerima,
           acPenerima: acPenerima,
           // data konsumen
@@ -268,6 +269,7 @@ function loadBankData(orderData) {
           return;
         }
         resolve({
+          namaBank: resp.namaBank || resp.bank || resp.nama_bank || '',
           namaPenerima: resp.namaPenerima || resp.nama || 'HESTY HUSAIN',
           acPenerima: resp.acPenerima || resp.noRek || resp.rekening || '',
           qrCodeUrl: resp.qrCodeUrl || resp.qr || ''
@@ -289,6 +291,7 @@ function loadBankData(orderData) {
 
 function defaultBankAdmin(orderData) {
   return {
+    namaBank: '',
     namaPenerima: 'HESTY HUSAIN',
     acPenerima: '',
     qrCodeUrl: 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'
@@ -299,6 +302,10 @@ function defaultBankAdmin(orderData) {
 // Helper: Terapkan data bank ke field Nama Penerima / AC
 // ============================================================
 function applyBankInfo(bankInfo) {
+  if (bankInfo && bankInfo.namaBank) {
+    const el = document.getElementById('namaBank');
+    if (el) el.value = bankInfo.namaBank;
+  }
   if (bankInfo && bankInfo.namaPenerima) {
     document.getElementById('namaPenerima').value = bankInfo.namaPenerima;
   }
