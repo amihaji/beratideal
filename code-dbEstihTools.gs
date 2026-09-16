@@ -265,14 +265,21 @@ function getVoucherByPoint(totalPoint) {
   const data = sheet.getDataRange().getValues();
   if (!data || data.length <= 1) return { status: 'success', potongan: 0, keterangan: '' };
 
+  const parseIntLoose = (value) => {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === 'number' && !isNaN(value)) return Math.floor(value);
+    const digits = String(value).replace(/\D/g, '');
+    return digits ? parseInt(digits, 10) : 0;
+  };
+
   let bestPoint = -1;
   let bestPotongan = 0;
   let bestKet = '';
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i] || [];
-    const point = Number(row[0] || 0) || 0;
-    const potongan = Number(row[1] || 0) || 0;
+    const point = parseIntLoose(row[0]);
+    const potongan = parseIntLoose(row[1]);
     const ket = String(row[2] || '').trim();
     if (point <= totalPoint && point > bestPoint) {
       bestPoint = point;
