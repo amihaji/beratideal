@@ -966,7 +966,12 @@ function collectOrderData() {
       ? document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text
       : "",
     mDiskonValue: document.getElementById("discount").value || "",
-    mVoucher: (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0,
+    mVoucher: (function() {
+      const el = document.getElementById('voucherAmount');
+      if (!el) return (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0;
+      const digits = String(el.value || '').replace(/\D/g, '');
+      return digits ? Number(digits) : 0;
+    })(),
     mVoucherPoint: (pesananState && pesananState.totalPoint) ? Number(pesananState.totalPoint) : 0,
     mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
     mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
