@@ -18,28 +18,29 @@ const CACHE               = CacheService.getScriptCache();
 *******************************************/
 function doGet(e) {
   const action   = e.parameter.action;
-  const callback = e.parameter.callback || "callback";
+  const callback = e.parameter.callback;
 
   try {
     if (action === "getDiscounts") {
-      return ContentService.createTextOutput(JSON.stringify(getDiscounts()))
-        .setMimeType(ContentService.MimeType.JSON);
+      return buildDoGetResponse(getDiscounts(), callback);
     }
 
     if (action === "getProducts") {
-      return ContentService.createTextOutput(JSON.stringify(getProducts()))
-        .setMimeType(ContentService.MimeType.JSON);
+      return buildDoGetResponse(getProducts(), callback);
     }
 
     if (action === "getShippingOptions") {
-      return ContentService.createTextOutput(JSON.stringify(getShippingOptions()))
-        .setMimeType(ContentService.MimeType.JSON);
+      return buildDoGetResponse(getShippingOptions(), callback);
     }
 
     if (action === "getProductDetails") {
       const noStok = e.parameter.noStok;
-      return ContentService.createTextOutput(JSON.stringify(getProductDetails(noStok)))
-        .setMimeType(ContentService.MimeType.JSON);
+      return buildDoGetResponse(getProductDetails(noStok), callback);
+    }
+
+    if (action === "getVoucherByPoint") {
+      const totalPoint = Number(e.parameter.totalPoint || 0) || 0;
+      return buildDoGetResponse(getVoucherByPoint(totalPoint), callback);
     }
 
     // --- Tabel Harga ---
@@ -68,13 +69,21 @@ function doGet(e) {
     // --- Export Tabel Harga langsung tanpa membuat file di Drive ---
     if (action === 'exportTabelHargaDirectXLSX') return handleExportTabelHargaDirectXLSX(e);
     
-    return ContentService.createTextOutput(JSON.stringify({ error: "Unknown action" }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return buildDoGetResponse({ status: "error", message: "Unknown action" }, callback);
 
   } catch (err) {
-    return ContentService.createTextOutput(`${callback}(${JSON.stringify({ status: "error", message: err.message })})`)
+    return buildDoGetResponse({ status: "error", message: err.message }, callback);
+  }
+}
+
+function buildDoGetResponse(payload, callback) {
+  const json = JSON.stringify(payload);
+  if (callback) {
+    return ContentService.createTextOutput(`${callback}(${json});`)
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
+  return ContentService.createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /************************************************
@@ -248,6 +257,32 @@ function getShippingOptions() {
         JenisPengiriman: row[0], 
         Biaya: row[1] 
     }));
+}
+
+function getVoucherByPoint(totalPoint) {
+  const sheet = ss.getSheetByName('TabelVoucer');
+  if (!sheet) return { status: 'error', message: "Sheet 'TabelVoucer' tidak ditemukan!" };
+  const data = sheet.getDataRange().getValues();
+  if (!data || data.length <= 1) return { status: 'success', potongan: 0, keterangan: '' };
+
+  let bestPoint = -1;
+  let bestPotongan = 0;
+  let bestKet = '';
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i] || [];
+    const point = Number(row[0] || 0) || 0;
+    const potongan = Number(row[1] || 0) || 0;
+    const ket = String(row[2] || '').trim();
+    if (point <= totalPoint && point > bestPoint) {
+      bestPoint = point;
+      bestPotongan = potongan;
+      bestKet = ket;
+    }
+  }
+
+  if (bestPoint < 0) return { status: 'success', potongan: 0, keterangan: '' };
+  return { status: 'success', potongan: bestPotongan, keterangan: bestKet, point: bestPoint };
 }
 
 /****************************************************

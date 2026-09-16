@@ -4,7 +4,10 @@
 let isEditMode     = false;  // Untuk mendefenisikan mode Edit
 let currentEditRow = null;   // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
-document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
+const orderTbody = document.querySelector('#orderTable tbody');
+if (orderTbody) {
+  orderTbody.replaceWith(orderTbody.cloneNode(true));
+}
 
 // ****************************************************************
 // MAPPING KATEGORI -> PAKET PRODUK (verbatim dari requirement user)
@@ -174,10 +177,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const mInvoiceField = document.getElementById('invoice');
     const mToday        = new Date();
     
-    mDateField.value       = mToday.toISOString().split('T')[0];
-    mInvoiceField.value    = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
-    mDateField.disabled    = true;
-    mInvoiceField.disabled = true;
+    if (mDateField) {
+      mDateField.value = mToday.toISOString().split('T')[0];
+      mDateField.disabled = true;
+    }
+    if (mInvoiceField) {
+      mInvoiceField.value = `INV-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+      mInvoiceField.disabled = true;
+    }
 
     // quantity default = 1 (minimal 1 paket), sesuai requirement 2
     const qtyEl = document.getElementById('quantity');
@@ -222,24 +229,34 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Event listener untuk tombol close Ketentuan dan Kebijakan
-    document.querySelector('.close').addEventListener('click', hideKetentuanModal);
+    const closeKetentuanBtn = document.querySelector('.close');
+    if (closeKetentuanBtn) closeKetentuanBtn.addEventListener('click', hideKetentuanModal);
     // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
-    document.getElementById('setujuButton').addEventListener('click', function() {
-      hideKetentuanModal();
-      showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
-    });
+    const setujuButtonEl = document.getElementById('setujuButton');
+    if (setujuButtonEl) {
+      setujuButtonEl.addEventListener('click', function() {
+        hideKetentuanModal();
+        showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
+      });
+    }
 
     // Event listener untuk checkbox Ketentuan dan Kebijakan
-    document.getElementById('agreeCheckbox').addEventListener('change', function() {
-      const setujuButton = document.getElementById('setujuButton');
-      setujuButton.disabled = !this.checked;
-    });
+    const agreeCheckboxEl = document.getElementById('agreeCheckbox');
+    if (agreeCheckboxEl) {
+      agreeCheckboxEl.addEventListener('change', function() {
+        const setujuButton = document.getElementById('setujuButton');
+        if (setujuButton) setujuButton.disabled = !this.checked;
+      });
+    }
 
     // Event listener untuk link Ketentuan dan Kebijakan
-    document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
-      event.preventDefault();
-      showKetentuanModal();
-    });      
+    const ketentuanLinkEl = document.querySelector('a[href="ketentuan.html"]');
+    if (ketentuanLinkEl) {
+      ketentuanLinkEl.addEventListener('click', function(event) {
+        event.preventDefault();
+        showKetentuanModal();
+      });
+    }      
     
     console.log("Aplikasi siap digunakan - mode pemesanan produk");
     isEditMode = false;
@@ -267,7 +284,11 @@ function addItem() {
     return;
   }
 
-  callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+  fetchJsonpEstihtools("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+    if (!mProductData || mProductData.status === 'error') {
+      showNotification('error', (mProductData && mProductData.message) ? mProductData.message : 'ERROR: Gagal memuat detail produk');
+      return;
+    }
     const mTableBody = document.querySelector("#orderTable tbody");
     const mDiscount = mDiscountSelect.value;
 
@@ -614,10 +635,11 @@ function loadOptions() {
         doneOne();
       } else {
         // Requirement 3: member -> dropdown TabelDiskon
-        callAPI("getDiscounts").then(mDiscounts => {
+  fetchJsonpEstihtools("getDiscounts").then(mDiscounts => {
+          const list = Array.isArray(mDiscounts) ? mDiscounts : (mDiscounts && Array.isArray(mDiscounts.data) ? mDiscounts.data : []);
           discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
-          if (Array.isArray(mDiscounts)) {
-            mDiscounts.forEach(discount => {
+          if (Array.isArray(list)) {
+            list.forEach(discount => {
               const option = document.createElement('option');
               option.value = discount.Diskon || '';
               option.textContent = discount.Level || '';
@@ -638,10 +660,11 @@ function loadOptions() {
     // ======================================================================
     const productSelect = document.getElementById('product');
     if (productSelect) {
-      callAPI("getProducts").then(mProducts => {
+      fetchJsonpEstihtools("getProducts").then(mProducts => {
+        const list = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        if (Array.isArray(mProducts)) {
-          mProducts.forEach(product => {
+        if (Array.isArray(list)) {
+          list.forEach(product => {
             const option = document.createElement('option');
             option.value = product.NoStok || '';
             option.textContent = product.NamaProduk || '';
@@ -649,7 +672,7 @@ function loadOptions() {
           });
         }
         // Requirement 1: Auto isi field Produk sesuai localStorage.pesananKategori
-        autoFillProdukByKategori(mProducts || []);
+        autoFillProdukByKategori(list || []);
       }).catch(err => {
         console.error("Gagal memuat produk:", err);
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
@@ -672,10 +695,11 @@ function loadOptions() {
         doneOne();
       } else {
         // Requirement 5: member -> dropdown TabelByKirim
-        callAPI("getShippingOptions").then(mShippingOptions => {
+        fetchJsonpEstihtools("getShippingOptions").then(mShippingOptions => {
+          const list = Array.isArray(mShippingOptions) ? mShippingOptions : (mShippingOptions && Array.isArray(mShippingOptions.data) ? mShippingOptions.data : []);
           shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
-          if (Array.isArray(mShippingOptions)) {
-            mShippingOptions.forEach(shipping => {
+          if (Array.isArray(list)) {
+            list.forEach(shipping => {
               const option = document.createElement('option');
               option.value = shipping.Biaya || 0;
               option.textContent = `${shipping.JenisPengiriman || ''} By =  ${shipping.Biaya || 0}`;
@@ -769,7 +793,8 @@ function applyVoucherBasedOnLevel() {
     if (!isPeserta) {
       // member: sembunyikan + voucher = 0
       if (voucherSection) voucherSection.style.display = 'none';
-      if (voucherInfoEl) voucherInfoEl.textContent = '(Member - Tidak berlaku)';
+      if (voucherInfoEl) voucherInfoEl.value = '(Member - Tidak berlaku)';
+      if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
     }
@@ -779,13 +804,14 @@ function applyVoucherBasedOnLevel() {
     const totalPoint = Number(pesananState.totalPoint || 0);
 
     if (!totalPoint || totalPoint <= 0) {
-      if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: 0 (belum ada voucher)`;
+      if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: 0 | Voucher: ${formatCurrency(0)}`;
       pesananState.voucherAmount = 0;
+      if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
     }
 
-    if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: ${totalPoint} (memuat voucher...)`;
+    if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: ${totalPoint} (memuat voucher...)`;
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
     fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint })
@@ -801,13 +827,15 @@ function applyVoucherBasedOnLevel() {
         if (voucherAmountInput) voucherAmountInput.value = String(potongan);
         if (voucherInfoEl) {
           const ket = keterangan ? ` - ${keterangan}` : '';
-          voucherInfoEl.textContent = `Point terkumpul: ${totalPoint}${ket}`;
+          voucherInfoEl.value = `Point terkumpul: ${totalPoint} | Voucher: ${formatCurrency(potongan)}${ket}`;
         }
+        if (typeof updateTotals === 'function') updateTotals();
       })
       .catch(err => {
         console.error('getVoucherByPoint error:', err);
         pesananState.voucherAmount = 0;
-        if (voucherInfoEl) voucherInfoEl.textContent = `Point terkumpul: ${totalPoint}`;
+        if (voucherInfoEl) voucherInfoEl.value = `Point terkumpul: ${totalPoint} | Voucher: ${formatCurrency(0)}`;
+        if (typeof updateTotals === 'function') updateTotals();
       })
       .finally(resolve);
   });
@@ -1270,10 +1298,14 @@ function hideAbout() {
 // *********************************
 document.addEventListener('DOMContentLoaded', function () {
   // Event listener untuk tombol About
-  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
-    e.preventDefault();
-    showAbout();
-  }); 
+  const aboutLinkEl = document.querySelector('a[href="#about"]');
+  if (aboutLinkEl) {
+    aboutLinkEl.addEventListener('click', function(e) {
+      e.preventDefault();
+      showAbout();
+    });
+  } 
   // Event listener untuk tombol Close About
-  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+  const btnCloseAboutEl = document.getElementById('btnCloseAbout');
+  if (btnCloseAboutEl) btnCloseAboutEl.addEventListener('click', hideAbout);
 });
