@@ -314,8 +314,6 @@ function applyBankInfo(bankInfo) {
         const opt = document.createElement('option');
         opt.value = String(b.namaBank || '');
         opt.textContent = String(b.namaBank || '');
-        opt.dataset.acPenerima = String(b.acPenerima || '');
-        opt.dataset.namaPenerima = String(b.namaPenerima || '');
         bankSelectEl.appendChild(opt);
         if (idx === 0 && opt.value) bankSelectEl.value = opt.value;
       });
@@ -323,8 +321,6 @@ function applyBankInfo(bankInfo) {
       const opt = document.createElement('option');
       opt.value = String(bankInfo.namaBank || '');
       opt.textContent = String(bankInfo.namaBank || '');
-      opt.dataset.acPenerima = String(bankInfo.acPenerima || '');
-      opt.dataset.namaPenerima = String(bankInfo.namaPenerima || '');
       bankSelectEl.appendChild(opt);
       bankSelectEl.value = opt.value;
     } else {
@@ -337,22 +333,22 @@ function applyBankInfo(bankInfo) {
   }
 
   const applySelectedBank = () => {
-    if (!bankSelectEl || !bankSelectEl.options || !bankSelectEl.options.length) return;
-    const opt = bankSelectEl.options[bankSelectEl.selectedIndex];
-    const namaPenerima = (opt && opt.dataset && opt.dataset.namaPenerima) ? opt.dataset.namaPenerima : (bankInfo && bankInfo.namaPenerima) ? bankInfo.namaPenerima : '';
-    const acPenerima = (opt && opt.dataset && opt.dataset.acPenerima) ? opt.dataset.acPenerima : (bankInfo && bankInfo.acPenerima) ? bankInfo.acPenerima : '';
-    if (namaPenerima) document.getElementById('namaPenerima').value = namaPenerima;
-    if (acPenerima) document.getElementById('acPenerima').value = acPenerima;
+    const namaPenerimaEl = document.getElementById('namaPenerima');
+    const acPenerimaEl = document.getElementById('acPenerima');
+    if (!namaPenerimaEl || !acPenerimaEl) return;
+    if (!bankSelectEl) return;
+
+    const selectedBank = String(bankSelectEl.value || '');
+    const match = banks.find(b => String(b.namaBank || '') === selectedBank);
+    const namaPenerima = match ? String(match.namaPenerima || '') : (bankInfo && bankInfo.namaPenerima) ? String(bankInfo.namaPenerima) : '';
+    const acPenerima = match ? String(match.acPenerima || '') : (bankInfo && bankInfo.acPenerima) ? String(bankInfo.acPenerima) : '';
+
+    namaPenerimaEl.value = namaPenerima;
+    acPenerimaEl.value = acPenerima;
   };
 
-  if (bankInfo && bankInfo.namaPenerima) {
-    document.getElementById('namaPenerima').value = bankInfo.namaPenerima;
-  }
-  if (bankInfo && bankInfo.acPenerima) {
-    document.getElementById('acPenerima').value = bankInfo.acPenerima;
-  }
   applySelectedBank();
-  if (bankSelectEl) bankSelectEl.addEventListener('change', applySelectedBank);
+  if (bankSelectEl) bankSelectEl.onchange = applySelectedBank;
   // tampilkan gambar QR
   const img = document.getElementById('qrCodeImg');
   if (img && bankInfo && bankInfo.qrCodeUrl) {
