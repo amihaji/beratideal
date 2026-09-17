@@ -268,10 +268,12 @@ function loadBankData(orderData) {
           resolve(defaultBankAdmin(orderData));
           return;
         }
+        const banks = Array.isArray(resp.banks) ? resp.banks : [];
         resolve({
-          namaBank: resp.namaBank || resp.bank || resp.nama_bank || '',
-          namaPenerima: resp.namaPenerima || resp.nama || 'HESTY HUSAIN',
-          acPenerima: resp.acPenerima || resp.noRek || resp.rekening || '',
+          banks: banks,
+          namaBank: resp.namaBank || '',
+          namaPenerima: resp.namaPenerima || 'HESTY HUSAIN',
+          acPenerima: resp.acPenerima || '',
           qrCodeUrl: resp.qrCodeUrl || resp.qr || ''
         });
       };
@@ -291,6 +293,7 @@ function loadBankData(orderData) {
 
 function defaultBankAdmin(orderData) {
   return {
+    banks: [],
     namaBank: '',
     namaPenerima: 'HESTY HUSAIN',
     acPenerima: '',
@@ -302,16 +305,54 @@ function defaultBankAdmin(orderData) {
 // Helper: Terapkan data bank ke field Nama Penerima / AC
 // ============================================================
 function applyBankInfo(bankInfo) {
-  if (bankInfo && bankInfo.namaBank) {
-    const el = document.getElementById('namaBank');
-    if (el) el.value = bankInfo.namaBank;
+  const bankSelectEl = document.getElementById('namaBank');
+  const banks = (bankInfo && Array.isArray(bankInfo.banks)) ? bankInfo.banks : [];
+  if (bankSelectEl) {
+    bankSelectEl.innerHTML = '';
+    if (banks.length) {
+      banks.forEach((b, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(b.namaBank || '');
+        opt.textContent = String(b.namaBank || '');
+        opt.dataset.acPenerima = String(b.acPenerima || '');
+        opt.dataset.namaPenerima = String(b.namaPenerima || '');
+        bankSelectEl.appendChild(opt);
+        if (idx === 0 && opt.value) bankSelectEl.value = opt.value;
+      });
+    } else if (bankInfo && bankInfo.namaBank) {
+      const opt = document.createElement('option');
+      opt.value = String(bankInfo.namaBank || '');
+      opt.textContent = String(bankInfo.namaBank || '');
+      opt.dataset.acPenerima = String(bankInfo.acPenerima || '');
+      opt.dataset.namaPenerima = String(bankInfo.namaPenerima || '');
+      bankSelectEl.appendChild(opt);
+      bankSelectEl.value = opt.value;
+    } else {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '-';
+      bankSelectEl.appendChild(opt);
+      bankSelectEl.value = '';
+    }
   }
+
+  const applySelectedBank = () => {
+    if (!bankSelectEl || !bankSelectEl.options || !bankSelectEl.options.length) return;
+    const opt = bankSelectEl.options[bankSelectEl.selectedIndex];
+    const namaPenerima = (opt && opt.dataset && opt.dataset.namaPenerima) ? opt.dataset.namaPenerima : (bankInfo && bankInfo.namaPenerima) ? bankInfo.namaPenerima : '';
+    const acPenerima = (opt && opt.dataset && opt.dataset.acPenerima) ? opt.dataset.acPenerima : (bankInfo && bankInfo.acPenerima) ? bankInfo.acPenerima : '';
+    if (namaPenerima) document.getElementById('namaPenerima').value = namaPenerima;
+    if (acPenerima) document.getElementById('acPenerima').value = acPenerima;
+  };
+
   if (bankInfo && bankInfo.namaPenerima) {
     document.getElementById('namaPenerima').value = bankInfo.namaPenerima;
   }
   if (bankInfo && bankInfo.acPenerima) {
     document.getElementById('acPenerima').value = bankInfo.acPenerima;
   }
+  applySelectedBank();
+  if (bankSelectEl) bankSelectEl.addEventListener('change', applySelectedBank);
   // tampilkan gambar QR
   const img = document.getElementById('qrCodeImg');
   if (img && bankInfo && bankInfo.qrCodeUrl) {
