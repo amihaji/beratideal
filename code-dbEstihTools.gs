@@ -307,39 +307,27 @@ function getBankBySponsor(namaSponsor) {
   const target = normalizeText_(namaSponsor);
   if (!target) return { status: 'error', message: 'Nama sponsor kosong' };
 
-  const headers = (data[0] || []).map(normalizeText_);
-  const findHeaderIndex_ = (candidates) => {
-    for (let i = 0; i < headers.length; i++) {
-      const h = headers[i] || '';
-      for (const c of candidates) {
-        if (h === c || h.indexOf(c) >= 0) return i;
-      }
-    }
-    return -1;
-  };
-
-  const idxSponsor = findHeaderIndex_(['nama sponsor', 'sponsor', 'nama member', 'member']);
-  const idxHpSponsor = findHeaderIndex_(['hp sponsor', 'no hp sponsor', 'hp member', 'no hp member', 'hp', 'no hp', 'wa', 'no wa']);
-  const idxNamaBank = findHeaderIndex_(['nama bank', 'bank']);
-  const idxAc = findHeaderIndex_(['ac penerima', 'a/c penerima', 'no rekening', 'rekening', 'ac', 'no rek']);
-  const idxNamaPenerima = findHeaderIndex_(['nama penerima', 'penerima', 'atas nama', 'nama a/n', 'an']);
+  const idxSponsor = 0;
+  const idxHpSponsor = 1;
+  const idxNamaBank = 2;
+  const idxAc = 3;
+  const idxNamaPenerima = 4;
 
   const banks = [];
   let hpSponsor = '';
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i] || [];
-    const rowSponsorRaw = (idxSponsor >= 0) ? row[idxSponsor] : row[0];
-    const rowSponsor = normalizeText_(rowSponsorRaw);
+    const rowSponsor = normalizeText_(row[idxSponsor]);
     if (!rowSponsor) continue;
-    if (!(rowSponsor === target || rowSponsor.indexOf(target) >= 0 || target.indexOf(rowSponsor) >= 0)) continue;
+    if (rowSponsor !== target) continue;
 
-    const hp = String((idxHpSponsor >= 0) ? row[idxHpSponsor] : (row[1] || '')).trim();
+    const hp = String(row[idxHpSponsor] || '').trim();
     if (!hpSponsor && hp) hpSponsor = hp;
 
-    const namaBank = String((idxNamaBank >= 0) ? row[idxNamaBank] : (row[2] || '')).trim();
-    const acPenerima = String((idxAc >= 0) ? row[idxAc] : (row[3] || '')).trim();
-    const namaPenerima = String((idxNamaPenerima >= 0) ? row[idxNamaPenerima] : (row[4] || '')).trim();
+    const namaBank = String(row[idxNamaBank] || '').trim();
+    const acPenerima = String(row[idxAc] || '').trim();
+    const namaPenerima = String(row[idxNamaPenerima] || '').trim();
     if (!namaBank) continue;
 
     banks.push({
