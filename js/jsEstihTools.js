@@ -636,23 +636,17 @@ function loadOptions() {
     // ======================================================================
     const productSelect = document.getElementById('product');
     if (productSelect) {
-      fetchJsonpEstihtools("getProducts").then(mProducts => {
-        const list = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
-        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        if (Array.isArray(list)) {
-          list.forEach(product => {
-            const option = document.createElement('option');
-            option.value = product.NoStok || '';
-            option.textContent = product.NamaProduk || '';
-            productSelect.appendChild(option);
-          });
-        }
-        // Requirement 1: Auto isi field Produk sesuai localStorage.pesananKategori
-        autoFillProdukByKategori(list || []);
+      Promise.all([
+        fetchJsonpEstihtools("getTabelDropdownKategori"),
+        fetchJsonpEstihtools("getProducts")
+      ]).then(([mKategori, mProducts]) => {
+        const kategoriList = (mKategori && Array.isArray(mKategori.data)) ? mKategori.data : [];
+        const productList = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
+        autoFillProdukByKategori(productList || [], kategoriList || []);
       }).catch(err => {
         console.error("Gagal memuat produk:", err);
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        autoFillProdukByKategori([]); // fallback inject opsi manual
+        autoFillProdukByKategori([], []);
       }).finally(doneOne);
     } else {
       doneOne();
@@ -708,41 +702,51 @@ function loadOptions() {
 // Mencari exact/substring match di daftar produk terlebih dahulu.
 // Jika tidak ada, inject opsi manual secara paksa agar value dapat tersimpan.
 // ============================================================
-function autoFillProdukByKategori(productList) {
+function autoFillProdukByKategori(productList, kategoriList = []) {
   try {
-    const kategori = localStorage.getItem('pesananKategori') || '';
-    if (!kategori) return;
-    const teksPaket = PAKET_PRODUK_BY_KATEGORI[kategori];
-    if (!teksPaket) return;
-
+    const kategoriKey = String(localStorage.getItem('pesananKategori') || '').trim();
     const productSelect = document.getElementById('product');
     if (!productSelect) return;
 
-    // 1) cari exact match dulu
-    let foundValue = '';
-    const teksPaketShort = String(teksPaket).substring(0, 30).trim().toLowerCase();
-    if (Array.isArray(productList)) {
-      for (const p of productList) {
-        const nama = String(p.NamaProduk || '').toLowerCase();
-        if (nama === teksPaket.toLowerCase()) { foundValue = p.NoStok || ''; break; }
-      }
-      if (!foundValue) {
-        for (const p of productList) {
-          const nama = String(p.NamaProduk || '').toLowerCase();
-          if (nama.includes(teksPaketShort)) { foundValue = p.NoStok || ''; break; }
-        }
-      }
+    const normalizeKategori_ = (v) => String(v || '')
+      .replace(/\u00A0/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    const normalizeKategoriCompact_ = (v) => normalizeKategori_(v).replace(/\s+/g, '');
+
+    const keyNorm = normalizeKategoriCompact_(kategoriKey);
+    let kategoriTarget = kategoriKey;
+    if (keyNorm && Array.isArray(kategoriList)) {
+      const match = kategoriList.find(k =>
+        normalizeKategoriCompact_(k && k.kode) === keyNorm ||
+        normalizeKategoriCompact_(k && k.kategori) === keyNorm
+      );
+      if (match && match.kategori) kategoriTarget = match.kategori;
     }
-    if (foundValue) {
-      productSelect.value = foundValue;
-      return;
+
+    const targetNorm = normalizeKategoriCompact_(kategoriTarget);
+    const filtered = (Array.isArray(productList) && targetNorm)
+      ? productList.filter(p => {
+          const pKat = normalizeKategoriCompact_(p && p.Kategori);
+          return pKat === targetNorm || (keyNorm && pKat === keyNorm);
+        })
+      : (Array.isArray(productList) ? productList : []);
+
+    const finalList = filtered.length ? filtered : (Array.isArray(productList) ? productList : []);
+
+    productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+    finalList.forEach(product => {
+      const option = document.createElement('option');
+      option.value = product.NoStok || '';
+      option.textContent = product.NamaProduk || '';
+      productSelect.appendChild(option);
+    });
+
+    if (finalList.length && keyNorm) {
+      productSelect.value = finalList[0].NoStok || '';
     }
-    // 2) fallback: inject opsi custom agar field terisi otomatis (tanpa need exact NoStok)
-    const optCustom = document.createElement('option');
-    optCustom.value = `PAKET-${kategori.toUpperCase()}`;
-    optCustom.textContent = teksPaket;
-    productSelect.insertBefore(optCustom, productSelect.firstChild);
-    productSelect.value = optCustom.value;
   } catch (e) {
     console.error('autoFillProdukByKategori error:', e);
   }

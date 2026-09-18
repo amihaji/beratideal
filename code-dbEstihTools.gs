@@ -216,9 +216,19 @@ function getProducts() {
     const sheet = ss.getSheetByName('TabelHarga');
     // if (!sheet) throw new Error("Sheet 'TabelHarga' tidak ditemukan!");
     const data  = sheet.getDataRange().getValues();
+
+    const normalizeNoStok_ = (v) => String(v || '')
+      .replace(/\u00A0/g, ' ')
+      .trim()
+      .toUpperCase()
+      .replace(/[‐‑‒–—−]/g, '-')
+      .replace(/\s+/g, '');
+
     return data.slice(1).map(row => ({ 
-        NoStok: row[0].toString(), // Konversi ke string
-        NamaProduk: row[2] 
+        NoStok: normalizeNoStok_(row[0]),
+        Kategori: row[1],
+        NamaProduk: row[2],
+        HargaEceran: parseFloat(row[5]) || 0
     }));
 }
 
@@ -229,9 +239,21 @@ function getProductDetails(noStok) {
     const sheet = ss.getSheetByName("TabelHarga");
     const data = sheet.getDataRange().getValues();
 
+    const normalizeNoStok_ = (v) => String(v || '')
+      .replace(/\u00A0/g, ' ')
+      .trim()
+      .toUpperCase()
+      .replace(/[‐‑‒–—−]/g, '-')
+      .replace(/\s+/g, '');
+
+    const targetNoStok = normalizeNoStok_(noStok);
+    if (!targetNoStok) {
+        throw new Error("No Stok kosong");
+    }
+
     const product = data.slice(1).find(row => {
-        const rowNoStok = row[0]?.toString().trim();
-        return rowNoStok === noStok.toString().trim();
+        const rowNoStok = normalizeNoStok_(row[0]);
+        return rowNoStok === targetNoStok;
     });
     
     if (!product) {
