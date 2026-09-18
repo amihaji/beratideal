@@ -725,16 +725,37 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
       );
       if (match && match.kategori) kategoriTarget = match.kategori;
     }
+    if (kategoriTarget === kategoriKey && PAKET_PRODUK_BY_KATEGORI && PAKET_PRODUK_BY_KATEGORI[kategoriKey]) {
+      kategoriTarget = PAKET_PRODUK_BY_KATEGORI[kategoriKey];
+    }
 
-    const targetNorm = normalizeKategoriCompact_(kategoriTarget);
-    const filtered = (Array.isArray(productList) && targetNorm)
-      ? productList.filter(p => {
-          const pKat = normalizeKategoriCompact_(p && p.Kategori);
-          return pKat === targetNorm || (keyNorm && pKat === keyNorm);
-        })
-      : (Array.isArray(productList) ? productList : []);
+    const normalizeText_ = (v) => String(v || '')
+      .replace(/\u00A0/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
 
-    const finalList = filtered.length ? filtered : (Array.isArray(productList) ? productList : []);
+    const allProducts = Array.isArray(productList) ? productList : [];
+    const targetNameNorm = normalizeText_(kategoriTarget);
+    let recommendedNoStok = '';
+
+    if (keyNorm && targetNameNorm && allProducts.length) {
+      const exact = allProducts.find(p => normalizeText_(p && p.NamaProduk) === targetNameNorm);
+      if (exact && exact.NoStok) {
+        recommendedNoStok = String(exact.NoStok);
+      } else {
+        const shortNeedle = targetNameNorm.substring(0, 30);
+        const partial = allProducts.find(p => normalizeText_(p && p.NamaProduk).includes(shortNeedle));
+        if (partial && partial.NoStok) recommendedNoStok = String(partial.NoStok);
+      }
+    }
+
+    const finalList = recommendedNoStok
+      ? [
+          ...allProducts.filter(p => String(p && p.NoStok) === recommendedNoStok),
+          ...allProducts.filter(p => String(p && p.NoStok) !== recommendedNoStok)
+        ]
+      : allProducts;
 
     productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
     finalList.forEach(product => {
@@ -744,8 +765,8 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
       productSelect.appendChild(option);
     });
 
-    if (finalList.length && keyNorm) {
-      productSelect.value = finalList[0].NoStok || '';
+    if (recommendedNoStok) {
+      productSelect.value = recommendedNoStok;
     }
   } catch (e) {
     console.error('autoFillProdukByKategori error:', e);
