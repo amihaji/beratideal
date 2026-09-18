@@ -72,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const sistemBayar  = document.getElementById('sistemBayar').value;
         const namaPenerima = document.getElementById('namaPenerima').value;
         const acPenerima   = document.getElementById('acPenerima').value;
+        const namaBankRaw  = document.getElementById('namaBank') ? document.getElementById('namaBank').value : '';
+        const namaBank     = String(namaBankRaw || '').split('|||')[0] || '';
         const nominalRaw   = document.getElementById('nominal').value || '0';
         const nominal      = parseInt(String(nominalRaw).replace(/[^\d]/g, ''), 10) || 0;
 
@@ -87,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // data sponsor / bank
           namaSponsor: (currentOrderData && currentOrderData.namaSponsor) ? currentOrderData.namaSponsor : '',
           hpSponsor: (currentOrderData && currentOrderData.hpSponsor) ? currentOrderData.hpSponsor : '',
-          namaBank: document.getElementById('namaBank') ? document.getElementById('namaBank').value : '',
+          namaBank: namaBank,
           namaPenerima: namaPenerima,
           acPenerima: acPenerima,
           // data konsumen
@@ -311,16 +313,20 @@ function applyBankInfo(bankInfo) {
     bankSelectEl.innerHTML = '';
     if (banks.length) {
       banks.forEach((b, idx) => {
+        const namaBank = String(b.namaBank || '').trim();
+        const acPenerima = String(b.acPenerima || '').trim();
         const opt = document.createElement('option');
-        opt.value = String(b.namaBank || '');
-        opt.textContent = String(b.namaBank || '');
+        opt.value = `${namaBank}|||${acPenerima}`;
+        opt.textContent = acPenerima ? `${namaBank} - ${acPenerima}` : namaBank;
         bankSelectEl.appendChild(opt);
         if (idx === 0 && opt.value) bankSelectEl.value = opt.value;
       });
     } else if (bankInfo && bankInfo.namaBank) {
+      const namaBank = String(bankInfo.namaBank || '').trim();
+      const acPenerima = String(bankInfo.acPenerima || '').trim();
       const opt = document.createElement('option');
-      opt.value = String(bankInfo.namaBank || '');
-      opt.textContent = String(bankInfo.namaBank || '');
+      opt.value = `${namaBank}|||${acPenerima}`;
+      opt.textContent = acPenerima ? `${namaBank} - ${acPenerima}` : namaBank;
       bankSelectEl.appendChild(opt);
       bankSelectEl.value = opt.value;
     } else {
@@ -338,8 +344,10 @@ function applyBankInfo(bankInfo) {
     if (!namaPenerimaEl || !acPenerimaEl) return;
     if (!bankSelectEl) return;
 
-    const selectedBank = String(bankSelectEl.value || '');
-    const match = banks.find(b => String(b.namaBank || '') === selectedBank);
+    const raw = String(bankSelectEl.value || '');
+    const [selectedNamaBank, selectedAc] = raw.split('|||');
+    const match = banks.find(b => String(b.namaBank || '').trim() === String(selectedNamaBank || '').trim()
+      && String(b.acPenerima || '').trim() === String(selectedAc || '').trim());
     const namaPenerima = match ? String(match.namaPenerima || '') : (bankInfo && bankInfo.namaPenerima) ? String(bankInfo.namaPenerima) : '';
     const acPenerima = match ? String(match.acPenerima || '') : (bankInfo && bankInfo.acPenerima) ? String(bankInfo.acPenerima) : '';
 
