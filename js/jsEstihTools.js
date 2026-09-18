@@ -1066,7 +1066,7 @@ async function submitForm() {
   if (invoiceSection) invoiceSection.style.display = "none";
   const orderSummary = document.getElementById("orderSummary");
   if (orderSummary) orderSummary.style.display = "none";
-  await prefillDataKonsumen({ force: true });
+  await prefillDataKonsumen({ force: false });
 }
 
 // **************************************************
