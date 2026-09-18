@@ -317,7 +317,7 @@ function applyBankInfo(bankInfo) {
         const acPenerima = String(b.acPenerima || '').trim();
         const opt = document.createElement('option');
         opt.value = `${namaBank}|||${acPenerima}`;
-        opt.textContent = acPenerima ? `${namaBank} - ${acPenerima}` : namaBank;
+        opt.textContent = namaBank;
         bankSelectEl.appendChild(opt);
         if (idx === 0 && opt.value) bankSelectEl.value = opt.value;
       });
@@ -326,7 +326,7 @@ function applyBankInfo(bankInfo) {
       const acPenerima = String(bankInfo.acPenerima || '').trim();
       const opt = document.createElement('option');
       opt.value = `${namaBank}|||${acPenerima}`;
-      opt.textContent = acPenerima ? `${namaBank} - ${acPenerima}` : namaBank;
+      opt.textContent = namaBank;
       bankSelectEl.appendChild(opt);
       bankSelectEl.value = opt.value;
     } else {
