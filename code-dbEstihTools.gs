@@ -1920,7 +1920,7 @@ function handleKonfirmasiBayarProduk(data) {
       statusEmail: 'OK',
       tglBayar: tglBayar,
       linkBukti: buktiLink,
-      statusBayar: 'Sudah Bayar'
+      statusBayar: 'OK'
     };
 
     updateDataPesananKolomBayar_(noPesanan, pembayaran);
