@@ -96,10 +96,20 @@ document.addEventListener('DOMContentLoaded', function () {
           namaKonsumen: (currentOrderData && currentOrderData.namaKonsumen) ? currentOrderData.namaKonsumen : '',
           hpKonsumen: (currentOrderData && currentOrderData.hpKonsumen) ? currentOrderData.hpKonsumen : '',
           emailKonsumen: (currentOrderData && currentOrderData.emailKonsumen) ? currentOrderData.emailKonsumen : '',
+          alamat: (currentOrderData && currentOrderData.alamat) ? currentOrderData.alamat : '',
+          kelurahan: (currentOrderData && currentOrderData.kelurahan) ? currentOrderData.kelurahan : '',
+          kecamatan: (currentOrderData && currentOrderData.kecamatan) ? currentOrderData.kecamatan : '',
+          kota: (currentOrderData && currentOrderData.kota) ? currentOrderData.kota : '',
+          propensi: (currentOrderData && currentOrderData.propensi) ? currentOrderData.propensi : '',
           // produk & harga
           produkText: itemsText || '',
+          items: JSON.stringify((currentOrderData && currentOrderData.items) ? currentOrderData.items : []),
           metodeBayar: sistemBayar,
           grandTotal: nominal,
+          byKirim: (currentOrderData && currentOrderData.byKirim) ? currentOrderData.byKirim : 0,
+          voucher: (currentOrderData && currentOrderData.voucher) ? currentOrderData.voucher : 0,
+          diskon: (currentOrderData && currentOrderData.diskon) ? currentOrderData.diskon : 0,
+          pajak: (currentOrderData && currentOrderData.pajak) ? currentOrderData.pajak : 0,
           // bukti
           buktiTransferBase64: base64Data
         };
@@ -115,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
             tampilPesan('success', `✅ ${res.message || 'Pembayaran berhasil dikonfirmasi. Admin & Sponsor segera memproses pesanan Anda.'}`);
             setTimeout(function() {
-              window.location.href = 'index.html';
+              window.location.href = 'frmTT.html?noPesanan=' + encodeURIComponent(noPesanan);
             }, 3500);
           } else {
             tampilPesan('error', res.message || '❌ Gagal mengirim konfirmasi pembayaran.');

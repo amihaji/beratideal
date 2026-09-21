@@ -1,16 +1,17 @@
 /*******************************************************
 /*               DEKLARASI GLOBAL                      *
 /*******************************************************/
-const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';
-const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ?usp=sharing';
-const SHEET_PRODUK_NAME   = "TabelHarga";
-const SHEET_KATEGORI_NAME = "TabelKategori";
-const SHEET_BYKIRIM_NAME  = "TabelByKirim"; // Sheet baru untuk biaya pengiriman
+const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
+const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ?usp=sharing';  // ID tempat menyimpan file invoice
+const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef?usp=sharing';  // ID tempat menyimpan file struk pembayaran
+const SHEET_PRODUK_NAME   = "TabelHarga";      // Sheet untuk Tabel Harga
+const SHEET_KATEGORI_NAME = "TabelKategori";   // Sheet untuk Tabel Kategori
+const SHEET_BYKIRIM_NAME  = "TabelByKirim";    // Sheet untuk Tabel By pengiriman
 const SHEET_PESANAN_NAME  = "DataPesanan";
 const ss                  = SpreadsheetApp.openById(DB_ESTIHTOOLS);
 const produkSheet         = ss.getSheetByName(SHEET_PRODUK_NAME);
 const kategoriSheet       = ss.getSheetByName(SHEET_KATEGORI_NAME);
-const byKirimSheet        = ss.getSheetByName(SHEET_BYKIRIM_NAME); // Sheet untuk biaya pengiriman
+const byKirimSheet        = ss.getSheetByName(SHEET_BYKIRIM_NAME); 
 const CACHE               = CacheService.getScriptCache();
 
 /******************************************
@@ -46,6 +47,11 @@ function doGet(e) {
     if (action === "getBankBySponsor") {
       const namaSponsor = String(e.parameter.namaSponsor || '').trim();
       return buildDoGetResponse(getBankBySponsor(namaSponsor), callback);
+    }
+
+    if (action === "getDataPesananByInvoice") {
+      const invoice = String(e.parameter.invoice || '').trim();
+      return buildDoGetResponse(getDataPesananByInvoice(invoice), callback);
     }
 
     // --- Tabel Harga ---
@@ -100,8 +106,28 @@ function doPost(e) {
       throw new Error("Tidak ada data post yang diterima");
     }
 
-    const data = JSON.parse(e.postData.contents);
-    Logger.log("doPost: action = " + data.action);
+    let data;
+    const contentType = String(e.postData.type || '').toLowerCase();
+
+    // Coba parse sebagai JSON terlebih dahulu
+    try {
+      data = JSON.parse(e.postData.contents);
+    } catch (jsonErr) {
+      // Jika bukan JSON, parse sebagai application/x-www-form-urlencoded
+      data = {};
+      try {
+        const params = e.parameter || {};
+        for (const key in params) {
+          if (params.hasOwnProperty(key)) {
+            data[key] = params[key];
+          }
+        }
+      } catch (formErr) {
+        throw new Error("Format data tidak dikenal (bukan JSON maupun form-urlencoded)");
+      }
+    }
+
+    Logger.log("doPost: action = " + (data.action || '(none)'));
 
     // === Case 1: kirim data (PDF, Email, WA) ===
     if (data.action === "kirimData") {
@@ -135,6 +161,11 @@ function doPost(e) {
       if (data.mode === 'addKategori') return handleAddKategori(data);
       if (data.mode === 'editKategori') return handleEditKategori(data);
       if (data.mode === 'deleteKategori') return handleDeleteKategori(data);
+    }
+
+    // === Case 6: konfirmasi pembayaran produk ===
+    else if (data.action === "konfirmasiBayarProduk") {
+      return handleKonfirmasiBayarProduk(data);
     }
 
     return ContentService.createTextOutput(
@@ -1412,4 +1443,509 @@ function handleDeleteKategori(e) {
 function jsonpResponse(callback, data) {
   return ContentService.createTextOutput(callback + '(' + JSON.stringify(data) + ')')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+/***********************************************************
+* Fungsi: getDataPesananByInvoice
+* Ambil data pesanan dari sheet DataPesanan berdasarkan No. Invoice
+* Digunakan untuk prefill frmKonfirmasi.html ketika localStorage kosong
+************************************************************/
+function getDataPesananByInvoice(invoice) {
+  try {
+    const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+    if (!sheet) return { status: 'error', message: 'Sheet DataPesanan tidak ditemukan' };
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { status: 'error', message: 'Data pesanan kosong' };
+
+    const target = String(invoice || '').trim();
+    if (!target) return { status: 'error', message: 'Invoice kosong' };
+
+    let found = null;
+    const items = [];
+
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (String(row[6] || '').trim() !== target) continue;
+
+      if (!found) {
+        found = {
+          status: 'success',
+          mDate: row[0] || '',
+          mDistributorName: row[1] || '',
+          mDistributorPhone: row[2] || '',
+          mConsumerName: row[3] || '',
+          mConsumerPhone: row[4] || '',
+          mConsumerEmail: row[5] || '',
+          mInvoice: row[6] || '',
+          mAlamat: row[21] || '',
+          mKelurahan: row[22] || '',
+          mKecamatan: row[23] || '',
+          mKota: row[24] || '',
+          mPropensi: row[25] || '',
+          mByKirim: Number(row[17] || 0),
+          mPajak: Number(row[18] || 0),
+          mTotalPrice: Number(row[20] || 0),
+          mVoucher: 0,
+          items: []
+        };
+        let totalVoucher = 0;
+        for (let j = 1; j < data.length; j++) {
+          if (String(data[j][6] || '').trim() === target) {
+            totalVoucher += Number(data[j][14] || 0);
+          }
+        }
+        found.mVoucher = totalVoucher;
+      }
+
+      items.push({
+        noItem: row[7] || '',
+        noStok: row[8] || '',
+        kategori: row[9] || '',
+        nama: row[10] || '',
+        vp: Number(row[11] || 0),
+        hargaEceran: Number(row[12] || 0),
+        diskon: Number(row[13] || 0),
+        voucher: Number(row[14] || 0),
+        qty: Number(row[15] || 0),
+        totVP: Number(row[16] || 0),
+        harga: Number(row[19] || 0)
+      });
+    }
+
+    if (!found) return { status: 'error', message: 'Pesanan dengan invoice ' + target + ' tidak ditemukan' };
+
+    found.items = items;
+    return found;
+
+  } catch (err) {
+    Logger.log('getDataPesananByInvoice ERROR: ' + err.message);
+    return { status: 'error', message: err.message };
+  }
+}
+
+/***********************************************************
+* Fungsi: cleanPhoneNumber_
+* Bersihkan nomor HP: hilangkan leading 0, spasi, strip, dll
+************************************************************/
+function cleanPhoneNumber_(hp) {
+  let cleaned = String(hp || '').replace(/[^0-9]/g, '');
+  if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+  if (cleaned.startsWith('62')) cleaned = cleaned.substring(2);
+  return cleaned;
+}
+
+/***********************************************************
+* Fungsi: uploadBuktiTransferToDrive_
+* Upload base64 gambar bukti transfer ke folder DATASTRUK
+* Jika DATASTRUK kosong (belum diisi ID-nya), fallback ke DATAINVOICE
+* Mengembalikan URL file Drive (public anyone with link)
+************************************************************/
+function uploadBuktiTransferToDrive_(base64Data, invoice) {
+  try {
+    if (!base64Data) return '';
+
+    // Pilih folder tujuan: DATASTRUK jika diisi,否则 fallback ke DATAINVOICE
+    const folderId = (DATASTRUK && String(DATASTRUK).trim()) ? DATASTRUK : DATAINVOICE;
+    const folder = DriveApp.getFolderById(folderId);
+    const fileName = `BUKTI_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+
+    const bytes = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(bytes, 'image/jpeg', fileName);
+    const file = folder.createFile(blob);
+
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    Logger.log('Bukti transfer berhasil diupload ke folder ' + folder.getName() + ': ' + file.getUrl());
+    return file.getUrl();
+
+  } catch (err) {
+    Logger.log('uploadBuktiTransferToDrive_ ERROR: ' + err.message);
+    return '';
+  }
+}
+
+/***********************************************************
+* Fungsi: generatePdfInvoiceProduk_
+* Generate PDF Invoice dari template email (reuse logic sendEmail)
+* Nama file PDF sama dengan No. Invoice
+* Mengembalikan URL file PDF di Drive
+************************************************************/
+function generatePdfInvoiceProduk_(orderData) {
+  try {
+    Logger.log('generatePdfInvoiceProduk_ START, invoice: ' + orderData.mInvoice);
+
+    // Normalisasi supaya template selalu punya mOrderData.mItems
+    if (!orderData.mItems && orderData.items) {
+      orderData.mItems = orderData.items;
+    }
+
+    const items  = Array.isArray(orderData.mItems) ? orderData.mItems : [];
+    const totals = items.reduce((acc, it) => {
+      acc.jumlah += Number(it.mJumlah || it.qty || 0);
+      acc.vp     += Number(it.mTotVP || it.totVP || 0);
+      acc.harga  += Number(it.mHarga || it.harga || 0);
+      return acc;
+    }, { jumlah: 0, vp: 0, harga: 0 });
+
+    orderData.mTotalJumlah = totals.jumlah;
+    orderData.mTotalVP     = totals.vp;
+    orderData.mTotalHarga  = totals.harga;
+
+    // Load template
+    const htmlTemplate      = HtmlService.createTemplateFromFile('emailTemplate');
+    htmlTemplate.mOrderData = orderData;
+    const htmlContent       = htmlTemplate.evaluate().getContent();
+
+    // Buat PDF di folder "DataInvoice" Google Drive
+    const folder = DriveApp.getFolderById(DATAINVOICE);
+    const fileName = `${orderData.mInvoice}.pdf`;
+    const blob     = Utilities.newBlob(htmlContent, 'text/html', fileName);
+    const pdf      = blob.getAs('application/pdf').setName(fileName);
+    const file     = folder.createFile(pdf);
+
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    const mFileUrl = file.getUrl();
+    Logger.log('PDF Invoice berhasil dibuat: ' + mFileUrl);
+    return mFileUrl;
+
+  } catch (err) {
+    Logger.log('generatePdfInvoiceProduk_ ERROR: ' + err.message);
+    throw new Error('Gagal generate PDF: ' + err.message);
+  }
+}
+
+/***********************************************************
+* Fungsi: updateDataPesananKolomBayar_
+* Update kolom AA sampai AK (27-37) di sheet DataPesanan
+* untuk semua baris dengan No. Invoice yang sama
+************************************************************/
+function updateDataPesananKolomBayar_(invoice, pembayaran) {
+  try {
+    const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+    if (!sheet) throw new Error('Sheet DataPesanan tidak ditemukan');
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return;
+
+    const colInvoiceIdx = 6;
+    const target = String(invoice || '').trim();
+
+    const rowIndexes = [];
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][colInvoiceIdx] || '').trim() === target) {
+        rowIndexes.push(i + 1);
+      }
+    }
+
+    // Kolom (1-based):
+    // 27 = AA  link URL file PDF
+    // 28 = AB  Metode Bayar
+    // 29 = AC  Nama Bank
+    // 30 = AD  Nama Penerima
+    // 31 = AE  AC Penerima
+    // 32 = AF  Nominal Transfer
+    // 33 = AG  Status WA
+    // 34 = AH  Status Email
+    // 35 = AI  Tgl Bayar
+    // 36 = AJ  Link Bukti Transfer
+    // 37 = AK  Status Bayar
+
+    for (const rowIndex of rowIndexes) {
+      sheet.getRange(rowIndex, 27).setValue(pembayaran.linkPdf || '');
+      sheet.getRange(rowIndex, 28).setValue(pembayaran.metodeBayar || '');
+      sheet.getRange(rowIndex, 29).setValue(pembayaran.namaBank || '');
+      sheet.getRange(rowIndex, 30).setValue(pembayaran.namaPenerima || '');
+      sheet.getRange(rowIndex, 31).setValue(pembayaran.acPenerima || '');
+      sheet.getRange(rowIndex, 32).setValue(pembayaran.nominalTransfer || 0);
+      sheet.getRange(rowIndex, 33).setValue(pembayaran.statusWA || '');
+      sheet.getRange(rowIndex, 34).setValue(pembayaran.statusEmail || '');
+      sheet.getRange(rowIndex, 35).setValue(pembayaran.tglBayar || '');
+      sheet.getRange(rowIndex, 36).setValue(pembayaran.linkBukti || '');
+      sheet.getRange(rowIndex, 37).setValue(pembayaran.statusBayar || '');
+    }
+
+    Logger.log('Update kolom bayar sukses untuk invoice: ' + invoice + ', baris: ' + rowIndexes.length);
+
+  } catch (err) {
+    Logger.log('updateDataPesananKolomBayar_ ERROR: ' + err.message);
+    throw err;
+  }
+}
+
+/***********************************************************
+* Fungsi: kirimWAPesananProdukKonsumen_
+* Kirim WA ke Konsumen tentang "Pesanan Produk"
+* Lampirkan: Link URL Invoice PDF + Link URL frmTT.html
+* Status WA disimpan "OK" jika berhasil
+************************************************************/
+function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
+  try {
+    const hpKonsumen = cleanPhoneNumber_(orderData.hpKonsumen || orderData.mConsumerPhone);
+    if (!hpKonsumen) {
+      Logger.log('HP Konsumen kosong, skip kirim WA');
+      return false;
+    }
+
+    const dateObj = new Date();
+    const mBulan = dateObj.getMonth() + 1;
+    const mTgl   = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
+
+    const t1 = '*Konfirmasi Pesanan Produk - Beratidealku*';
+    const t2 = '\n---------------------------------------------';
+    const t3 = '\nTgl : ' + mTgl;
+    const t4 = '\nHalo Kak *' + (orderData.namaKonsumen || orderData.mConsumerName) + '*';
+    const t5 = '\nTerima kasih telah melakukan konfirmasi pembayaran untuk pesanan:';
+    const t6 = '\n*No. Pesanan :* ' + orderData.noPesanan;
+    const t7 = '\n*Total Bayar : Rp. ' + formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0) + '*';
+    const t8 = '\n\n*Link Download Invoice :*\n' + (pdfLink || '-');
+    const t9 = '\n\n*Link Tanda Terima Produk :*\n' + (ttLink || '-');
+    const t10 = '\n\nSilakan simpan link diatas sebagai bukti. Admin dan Sponsor akan segera memproses pengiriman produk Anda.';
+    const t11 = '\n\nJika ada pertanyaan silakan hubungi:';
+    const t12 = '\n*' + (orderData.namaSponsor || orderData.mDistributorName) + '*';
+    const t13 = '\nHP : ' + (orderData.hpSponsor || orderData.mDistributorPhone || '-');
+    const t14 = '\n\n---------------------------------------------';
+    const t15 = '\n*Copyright by :*\nwww.beratidealku.com';
+
+    const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14 + t15;
+
+    const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+    const url = "https://api.fonnte.com/send";
+
+    const options = {
+      "method": "post",
+      "headers": {
+        "Authorization": TokenFonnte
+      },
+      "payload": {
+        "target": "62" + hpKonsumen,
+        "message": pesan
+      },
+      "muteHttpExceptions": true
+    };
+
+    const response = UrlFetchApp.fetch(url, options);
+    const respCode = response.getResponseCode();
+    const respText = response.getContentText();
+    Logger.log('WA Konsumen (' + hpKonsumen + ') resp: ' + respCode + ' - ' + respText);
+
+    return (respCode >= 200 && respCode < 300);
+
+  } catch (err) {
+    Logger.log('kirimWAPesananProdukKonsumen_ ERROR: ' + err.message);
+    return false;
+  }
+}
+
+/***********************************************************
+* Fungsi: kirimWAPesananProdukSponsor_
+* Kirim WA ke Sponsor tentang "Pesanan Konsumen"
+* Lampirkan: Link URL Invoice PDF
+* Status WA disimpan "OK" jika berhasil
+************************************************************/
+function kirimWAPesananProdukSponsor_(orderData, pdfLink) {
+  try {
+    const hpSponsor = cleanPhoneNumber_(orderData.hpSponsor || orderData.mDistributorPhone);
+    if (!hpSponsor) {
+      Logger.log('HP Sponsor kosong, skip kirim WA');
+      return false;
+    }
+
+    const dateObj = new Date();
+    const mBulan = dateObj.getMonth() + 1;
+    const mTgl   = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
+
+    const t1 = '*Pesanan Konsumen - Beratidealku*';
+    const t2 = '\n---------------------------------------------';
+    const t3 = '\nTgl : ' + mTgl;
+    const t4 = '\nHalo Kak *' + (orderData.namaSponsor || orderData.mDistributorName) + '*';
+    const t5 = '\nAda pesanan baru dari konsumen Anda:';
+    const t6 = '\n*Nama Konsumen :* ' + (orderData.namaKonsumen || orderData.mConsumerName);
+    const t7 = '\n*No. Pesanan   :* ' + orderData.noPesanan;
+    const t8 = '\n*Total Bayar   : Rp. ' + formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0) + '*';
+    const t9 = '\n\n*Link Download Invoice :*\n' + (pdfLink || '-');
+    const t10 = '\n\nSilakan segera proses dan koordinasi pengiriman produk dengan konsumen yang bersangkutan. Terima kasih.';
+    const t11 = '\n\n---------------------------------------------';
+    const t12 = '\n*Copyright by :*\nwww.beratidealku.com';
+
+    const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12;
+
+    const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+    const url = "https://api.fonnte.com/send";
+
+    const options = {
+      "method": "post",
+      "headers": {
+        "Authorization": TokenFonnte
+      },
+      "payload": {
+        "target": "62" + hpSponsor,
+        "message": pesan
+      },
+      "muteHttpExceptions": true
+    };
+
+    const response = UrlFetchApp.fetch(url, options);
+    const respCode = response.getResponseCode();
+    const respText = response.getContentText();
+    Logger.log('WA Sponsor (' + hpSponsor + ') resp: ' + respCode + ' - ' + respText);
+
+    return (respCode >= 200 && respCode < 300);
+
+  } catch (err) {
+    Logger.log('kirimWAPesananProdukSponsor_ ERROR: ' + err.message);
+    return false;
+  }
+}
+
+/***********************************************************
+* Fungsi: handleKonfirmasiBayarProduk
+* Handler utama action=konfirmasiBayarProduk dari frmKonfirmasi.html
+* Alur:
+*  1. Ambil data pesanan lama dari sheet
+*  2. Upload bukti transfer ke Drive
+*  3. Generate PDF invoice → dapat URL
+*  4. Generate link frmTT.html (tanda terima)
+*  5. Update kolom AA-AK di sheet DataPesanan
+*  6. Kirim WA ke Konsumen (invoice + tanda terima)
+*  7. Kirim WA ke Sponsor (invoice)
+*  8. Beri response sukses ke frontend
+************************************************************/
+function handleKonfirmasiBayarProduk(data) {
+  try {
+    Logger.log('=== handleKonfirmasiBayarProduk START ===');
+    Logger.log('No. Pesanan: ' + data.noPesanan);
+
+    const noPesanan = String(data.noPesanan || '').trim();
+    if (!noPesanan) throw new Error('No. Pesanan tidak boleh kosong');
+
+    // 1. Ambil data pesanan dari sheet (untuk mendapatkan items detail, dll)
+    const pesananFromSheet = getDataPesananByInvoice(noPesanan);
+    const itemsSheet = (pesananFromSheet && pesananFromSheet.items) ? pesananFromSheet.items : [];
+
+    // Parse items dari frontend (jika ada)
+    let itemsFrontend = [];
+    try {
+      if (data.items) {
+        itemsFrontend = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
+      }
+    } catch (e) { itemsFrontend = []; }
+
+    const items = (itemsSheet && itemsSheet.length) ? itemsSheet : itemsFrontend;
+
+    // Build orderData lengkap untuk generate PDF
+    const safeNum = (v) => Number(v) || 0;
+    const orderDataForPdf = {
+      mDate: data.tanggal || pesananFromSheet.mDate || Utilities.formatDate(new Date(), "GMT+7", "dd-MM-yyyy"),
+      mInvoice: noPesanan,
+      mDistributorName: data.namaSponsor || pesananFromSheet.mDistributorName || '',
+      mDistributorPhone: data.hpSponsor || pesananFromSheet.mDistributorPhone || '',
+      mConsumerName: data.namaKonsumen || pesananFromSheet.mConsumerName || '',
+      mConsumerPhone: data.hpKonsumen || pesananFromSheet.mConsumerPhone || '',
+      mConsumerEmail: data.emailKonsumen || pesananFromSheet.mConsumerEmail || '',
+      mAlamat: data.alamat || pesananFromSheet.mAlamat || '',
+      mKelurahan: data.kelurahan || pesananFromSheet.mKelurahan || '',
+      mKecamatan: data.kecamatan || pesananFromSheet.mKecamatan || '',
+      mKota: data.kota || pesananFromSheet.mKota || '',
+      mPropensi: data.propensi || pesananFromSheet.mPropensi || '',
+      mByKirim: safeNum(data.byKirim || pesananFromSheet.mByKirim),
+      mPajak: safeNum(data.pajak || pesananFromSheet.mPajak),
+      mTotalPrice: safeNum(data.grandTotal || pesananFromSheet.mTotalPrice),
+      mVoucher: safeNum(data.voucher || pesananFromSheet.mVoucher),
+      mDiskonValue: safeNum(data.diskon || 0),
+      mItems: items.map((it, idx) => ({
+        mNoItem: idx + 1,
+        mNoStok: it.noStok || it.mNoStok || '',
+        mKategori: it.kategori || it.mKategori || '',
+        mNamaProduk: it.nama || it.mNamaProduk || '',
+        mVp: safeNum(it.vp || it.mVp),
+        mHargaEceran: safeNum(it.hargaEceran || it.mHargaEceran),
+        mSetelahDiskon: safeNum((it.hargaEceran || it.mHargaEceran || 0)) - safeNum((it.diskon || 0) / safeNum(it.qty || 1)),
+        mJumlah: safeNum(it.qty || it.mJumlah),
+        mVoucher: safeNum(it.voucher || 0),
+        mTotVP: safeNum(it.totVP || it.mTotVP),
+        mHarga: safeNum(it.harga || it.mHarga)
+      }))
+    };
+
+    // 2. Upload bukti transfer ke Drive
+    const buktiLink = uploadBuktiTransferToDrive_(data.buktiTransferBase64, noPesanan);
+    Logger.log('Link bukti transfer: ' + buktiLink);
+
+    // 3. Generate PDF invoice
+    const pdfLink = generatePdfInvoiceProduk_(orderDataForPdf);
+    Logger.log('Link PDF: ' + pdfLink);
+
+    // 4. Generate link tanda terima produk frmTT.html
+    //    Diisi BASE_URL lengkap dengan domain publik hosting (tanpa trailing slash)
+    //    Contoh: 'https://beratidealku.com' atau 'https://amihaji.github.io/beratideal'
+    const BASE_URL = 'https://amihaji.github.io/beratideal';
+    const ttLink = BASE_URL + '/frmTT.html?noPesanan=' + encodeURIComponent(noPesanan);
+    Logger.log('Link Tanda Terima: ' + ttLink);
+
+    // 6 & 7. Kirim WA ke Konsumen dan Sponsor
+    const waKonsumenOK = kirimWAPesananProdukKonsumen_({
+      noPesanan: noPesanan,
+      namaKonsumen: orderDataForPdf.mConsumerName,
+      hpKonsumen: orderDataForPdf.mConsumerPhone,
+      namaSponsor: orderDataForPdf.mDistributorName,
+      hpSponsor: orderDataForPdf.mDistributorPhone,
+      grandTotal: orderDataForPdf.mTotalPrice
+    }, pdfLink, ttLink);
+
+    const waSponsorOK = kirimWAPesananProdukSponsor_({
+      noPesanan: noPesanan,
+      namaKonsumen: orderDataForPdf.mConsumerName,
+      hpKonsumen: orderDataForPdf.mConsumerPhone,
+      namaSponsor: orderDataForPdf.mDistributorName,
+      hpSponsor: orderDataForPdf.mDistributorPhone,
+      grandTotal: orderDataForPdf.mTotalPrice
+    }, pdfLink);
+
+    const statusWA = (waKonsumenOK && waSponsorOK) ? 'OK' : (waKonsumenOK ? 'OK-KONS' : (waSponsorOK ? 'OK-SPON' : 'GAGAL'));
+
+    // 5. Update kolom AA-AK di sheet DataPesanan
+    const nominalTransfer = safeNum(data.grandTotal || orderDataForPdf.mTotalPrice);
+    const tglBayar = Utilities.formatDate(new Date(), "GMT+7", "dd-MM-yyyy HH:mm:ss");
+
+    const pembayaran = {
+      linkPdf: pdfLink,
+      metodeBayar: String(data.metodeBayar || 'Transfer'),
+      namaBank: String(data.namaBank || ''),
+      namaPenerima: String(data.namaPenerima || ''),
+      acPenerima: String(data.acPenerima || ''),
+      nominalTransfer: nominalTransfer,
+      statusWA: statusWA,
+      statusEmail: 'OK',
+      tglBayar: tglBayar,
+      linkBukti: buktiLink,
+      statusBayar: 'Sudah Bayar'
+    };
+
+    updateDataPesananKolomBayar_(noPesanan, pembayaran);
+
+    Logger.log('=== handleKonfirmasiBayarProduk SELESAI ===');
+
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: true,
+        message: 'Konfirmasi pembayaran berhasil. Notifikasi WA ' + statusWA + '.',
+        noPesanan: noPesanan,
+        pdfLink: pdfLink,
+        buktiLink: buktiLink,
+        ttLink: ttLink,
+        statusWA: statusWA
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    Logger.log('handleKonfirmasiBayarProduk ERROR: ' + err.message);
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: false,
+        message: 'Gagal memproses konfirmasi: ' + err.message
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
 }
