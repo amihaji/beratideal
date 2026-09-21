@@ -642,13 +642,13 @@ function sendEmail(data) {
 
     // 3) Kirim email kalau ada alamat konsumen
     if (data.mConsumerEmail) {
-      const subject = `Simulasi Estimasi Harga ${data.mInvoice}`;
+      const subject = `Daftar Pesanan Produk ${data.mInvoice}`;
       const htmlBody = `
-        <h2>EstiHTools - Estimasi Harga Produk</h2>
+        <h2>Daftar Pesanan Produk</h2>
         <br>Terima kasih kak ${data.mConsumerName}</br>
-        <br>Terlampir Simulasi untuk pesanannya.</br>
-        <br>Total Estimasi Harga : Rp. ${formatCurrency(data.mTotalPrice)}</br>
-        <p>Silahkan download rincian hasil simulasi anda: <a href="${mFileUrl}">Klik ini untuk Download !</a></p>
+        <br>Terlampir daftar pesanan produk.</br>
+        <br>Total Harga : Rp. ${formatCurrency(data.mTotalPrice)}</br>
+        <p>Silahkan download rincian pesanan anda: <a href="${mFileUrl}">Klik ini untuk Download !</a></p>
         <br>Untuk melakukan order, silahkan akses myHerbalife.com. Gunakan user dan password anda atau menghubungi :</br>
         <br>Member Independen</br>
         <br>${data.mDistributorName}</br>
@@ -717,11 +717,11 @@ function kirimWA(data) {
   const mTgl   = safeDate.getDate() + "-" + mBulan + "-" + safeDate.getFullYear();
 
   // Gabungkan teks yang akan dikirim
-  var t1 = '*Estimasi Harga Produk*';
+  var t1 = '*Daftar Pesanan Produk*';
   var t2 = '\n---------------------------------------------';
   var t3 = '\nTgl : ' + mTgl;
   var t4 = '\nHalo Kak ' + data.mConsumerName;
-  var t5 = '\nSimulasi Estimasi Harga : ' ;
+  var t5 = '\nPesanan Produk : ' ;
   var t6 = '\nNo : ' + data.mInvoice;
   var t7 = '\nTotal Harga Rp : '+ formatCurrency(data.mTotalPrice);
   var t8 = '\n\n*Silahkan download* :\n'+ data.mFileUrl ;  
@@ -732,10 +732,10 @@ function kirimWA(data) {
   var t13 = '\n\Terima kasih';
   var t14 = '\n\n---------------------------------------------';
   var t15 = '\n*Copyright by :*\nwww.beratidealku.com';
-  var t16 = '\n\n*Survey Kebugaran, klik ini:*\nbit.ly/Cek_Kebugaran_Anda';
-  var t17 = '\n\n*Map Klub Nutrisi, klik ini:*\nbit.ly/LokasiKlubKita';
+  // var t16 = '\n\n*Survey Kebugaran, klik ini:*\nbit.ly/Cek_Kebugaran_Anda';
+  // var t17 = '\n\n*Map Klub Nutrisi, klik ini:*\nbit.ly/LokasiKlubKita';
 
-  const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14 + t15 + t16 + t17;
+  const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14 + t15;
 
   var tlpDist = data.mDistributorPhone;
   var tlpCust = data.mConsumerPhone;
