@@ -2,8 +2,8 @@
 /*               DEKLARASI GLOBAL                      *
 /*******************************************************/
 const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
-const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ?usp=sharing';  // ID tempat menyimpan file invoice
-const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef?usp=sharing';  // ID tempat menyimpan file struk pembayaran
+const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ';              // ID tempat menyimpan file invoice
+const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file struk pembayaran
 const SHEET_PRODUK_NAME   = "TabelHarga";      // Sheet untuk Tabel Harga
 const SHEET_KATEGORI_NAME = "TabelKategori";   // Sheet untuk Tabel Kategori
 const SHEET_BYKIRIM_NAME  = "TabelByKirim";    // Sheet untuk Tabel By pengiriman
