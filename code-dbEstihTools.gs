@@ -1771,10 +1771,10 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
 /***********************************************************
 * Fungsi: kirimWAPesananProdukSponsor_
 * Kirim WA ke Sponsor tentang "Pesanan Konsumen"
-* Isi: Notifikasi pesanan baru + Link Invoice (pdfLink)
+* Isi: Notifikasi pesanan baru + Link Invoice (pdfLink) + Link Bukti Bayar (buktiLink)
 * Mengembalikan TRUE jika Fonnte response JSON.status === true
 ************************************************************/
-function kirimWAPesananProdukSponsor_(orderData, pdfLink) {
+function kirimWAPesananProdukSponsor_(orderData, pdfLink, buktiLink) {
   try {
     const rawHp = String(orderData.hpSponsor || orderData.mDistributorPhone || '').trim();
     if (!rawHp) {
@@ -1804,11 +1804,12 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink) {
     const t7  = '\n*No. Pesanan   :* ' + orderData.noPesanan;
     const t8  = '\n*Total Bayar   : Rp. ' + formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0) + '*';
     const t9  = '\n\n*Download Invoice :*\n' + (pdfLink || '-');
+    const t9a = '\n\n*Bukti Transfer :*\n' + (buktiLink || '-');
     const t10 = '\n\nSilakan segera proses dan koordinasi pengiriman produk dengan konsumen yang bersangkutan. Terima kasih.';
     const t11 = '\n\n---------------------------------------------';
     const t12 = '\n*Copyright by :*\nwww.beratidealku.com';
 
-    const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12;
+    const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t9a + t10 + t11 + t12;
 
     // Pakai TOKEN & URL SAMA PERSIS dengan fungsi kirimWA() asli yang WORKING
     const TokenFonnte = "9yeq3JusFP9YZobuYTai";
@@ -1860,6 +1861,178 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink) {
 }
 
 /***********************************************************
+* Fungsi: kirimEmailPesananProdukKonsumen_
+* Kirim Email ke Konsumen tentang "Pesanan Produk"
+* Isi: Ringkasan pesanan + Link Tanda Terima (ttLink)
+* Mengembalikan TRUE jika sukses
+************************************************************/
+function kirimEmailPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
+  try {
+    const email = String(orderData.emailKonsumen || orderData.mConsumerEmail || '').trim();
+    if (!email) {
+      Logger.log('❌ Email Konsumen: Kosong, skip');
+      return false;
+    }
+
+    const namaKonsumen = orderData.namaKonsumen || orderData.mConsumerName || '';
+    const namaSponsor  = orderData.namaSponsor  || orderData.mDistributorName || '';
+    const hpSponsor    = orderData.hpSponsor    || orderData.mDistributorPhone || '-';
+    const noPesanan    = orderData.noPesanan || '';
+    const grandTotal   = formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0);
+
+    const dateObj = new Date();
+    const mBulan  = dateObj.getMonth() + 1;
+    const mTgl    = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
+
+    const subject = `Konfirmasi Pembayaran Produk - ${noPesanan}`;
+
+    const body = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #041e55;">Konfirmasi Pembayaran Produk - Beratidealku</h2>
+        <p style="color: #495057;"><strong>Tanggal:</strong> ${mTgl}</p>
+        <hr>
+        <p>Halo Kak <strong>${namaKonsumen}</strong>,</p>
+        <p>Terima kasih telah melakukan konfirmasi pembayaran untuk pesanan produk:</p>
+        <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; width: 40%;"><strong>No. Pesanan</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6;">${noPesanan}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>Total Bayar</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; color: #041e55; font-weight: bold;">Rp. ${grandTotal}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 20px;">
+          <strong>Silahkan isi form Tanda Terima Produk di link berikut setelah barang diterima:</strong><br>
+          <a href="${ttLink}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #041e55; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-box"></i> Isi Form Tanda Terima Produk
+          </a>
+        </p>
+        <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
+          Atau salin link ini: <a href="${ttLink}" target="_blank" rel="noopener noreferrer">${ttLink}</a>
+        </p>
+        <p>
+          <strong>Download Invoice:</strong><br>
+          <a href="${pdfLink}" target="_blank" rel="noopener noreferrer">${pdfLink}</a>
+        </p>
+        <p>Simpan link diatas sebagai bukti. Admin & Sponsor segera memproses pengiriman produk Anda.</p>
+        <hr>
+        <p><strong>Kontak Sponsor:</strong><br>
+          ${namaSponsor}<br>
+          HP: ${hpSponsor}
+        </p>
+        <hr>
+        <p style="font-size: 12px; color: #6c757d;">
+          <strong>Copyright by:</strong> <a href="https://www.beratidealku.com" target="_blank">www.beratidealku.com</a><br>
+          <strong>Disclaimer:</strong> Hasil yang dicapai setiap individu berbeda-beda
+        </p>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: body
+    });
+
+    Logger.log('✅ Email Konsumen BERHASIL terkirim ke: ' + email);
+    return true;
+
+  } catch (err) {
+    Logger.log('❌ Email Konsumen ERROR: ' + err.message + '\n' + err.stack);
+    return false;
+  }
+}
+
+/***********************************************************
+* Fungsi: kirimEmailPesananProdukSponsor_
+* Kirim Email ke Sponsor tentang "Pesanan Konsumen"
+* Isi: Notifikasi pesanan baru + Link Invoice (pdfLink) + Link Bukti Bayar (buktiLink)
+* Mengembalikan TRUE jika sukses
+************************************************************/
+function kirimEmailPesananProdukSponsor_(orderData, pdfLink, buktiLink, emailSponsor) {
+  try {
+    const email = String(emailSponsor || '').trim();
+    if (!email) {
+      Logger.log('❌ Email Sponsor: Kosong, skip');
+      return false;
+    }
+
+    const namaKonsumen = orderData.namaKonsumen || orderData.mConsumerName || '';
+    const hpKonsumen   = orderData.hpKonsumen   || orderData.mConsumerPhone || '-';
+    const namaSponsor  = orderData.namaSponsor  || orderData.mDistributorName || '';
+    const noPesanan    = orderData.noPesanan || '';
+    const grandTotal   = formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0);
+
+    const dateObj = new Date();
+    const mBulan  = dateObj.getMonth() + 1;
+    const mTgl    = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
+
+    const subject = `Pesanan Konsumen Baru - ${noPesanan}`;
+
+    const body = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #041e55;">Notifikasi Pesanan Konsumen - Beratidealku</h2>
+        <p style="color: #495057;"><strong>Tanggal:</strong> ${mTgl}</p>
+        <hr>
+        <p>Halo Kak <strong>${namaSponsor}</strong>,</p>
+        <p>Ada pesanan baru dari konsumen Anda:</p>
+        <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; width: 40%;"><strong>Nama Konsumen</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6;">${namaKonsumen}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>No. Pesanan</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6;">${noPesanan}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>HP Konsumen</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6;">${hpKonsumen}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>Total Bayar</strong></td>
+            <td style="padding: 8px; border: 1px solid #dee2e6; color: #041e55; font-weight: bold;">Rp. ${grandTotal}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 20px;">
+          <strong>Bukti Transfer Konsumen:</strong><br>
+          <a href="${buktiLink}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-image"></i> Lihat Bukti Transfer
+          </a>
+        </p>
+        <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
+          Atau salin link: <a href="${buktiLink}" target="_blank" rel="noopener noreferrer">${buktiLink}</a>
+        </p>
+        <p>
+          <strong>Download Invoice:</strong><br>
+          <a href="${pdfLink}" target="_blank" rel="noopener noreferrer">${pdfLink}</a>
+        </p>
+        <p>Silakan segera proses dan koordinasi pengiriman produk dengan konsumen yang bersangkutan. Terima kasih.</p>
+        <hr>
+        <p style="font-size: 12px; color: #6c757d;">
+          <strong>Copyright by:</strong> <a href="https://www.beratidealku.com" target="_blank">www.beratidealku.com</a>
+        </p>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: body
+    });
+
+    Logger.log('✅ Email Sponsor BERHASIL terkirim ke: ' + email);
+    return true;
+
+  } catch (err) {
+    Logger.log('❌ Email Sponsor ERROR: ' + err.message + '\n' + err.stack);
+    return false;
+  }
+}
+
+/***********************************************************
 * Fungsi: handleKonfirmasiBayarProduk
 * Handler utama action=konfirmasiBayarProduk dari frmKonfirmasi.html
 * Alur:
@@ -1869,8 +2042,10 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink) {
 *  4. Generate link frmTT.html (tanda terima)
 *  5. Update kolom AA-AK di sheet DataPesanan
 *  6. Kirim WA ke Konsumen (invoice + tanda terima)
-*  7. Kirim WA ke Sponsor (invoice)
-*  8. Beri response sukses ke frontend
+*  7. Kirim WA ke Sponsor (invoice + bukti bayar)
+*  8. Kirim Email ke Konsumen (link tanda terima)
+*  9. Kirim Email ke Sponsor (link bukti bayar)
+* 10. Beri response sukses ke frontend
 ************************************************************/
 function handleKonfirmasiBayarProduk(data) {
   try {
@@ -1949,6 +2124,7 @@ function handleKonfirmasiBayarProduk(data) {
       noPesanan: noPesanan,
       namaKonsumen: orderDataForPdf.mConsumerName,
       hpKonsumen: orderDataForPdf.mConsumerPhone,
+      emailKonsumen: orderDataForPdf.mConsumerEmail,
       namaSponsor: orderDataForPdf.mDistributorName,
       hpSponsor: orderDataForPdf.mDistributorPhone,
       grandTotal: orderDataForPdf.mTotalPrice
@@ -1961,9 +2137,77 @@ function handleKonfirmasiBayarProduk(data) {
       namaSponsor: orderDataForPdf.mDistributorName,
       hpSponsor: orderDataForPdf.mDistributorPhone,
       grandTotal: orderDataForPdf.mTotalPrice
-    }, pdfLink);
+    }, pdfLink, buktiLink);
 
     const statusWA = (waKonsumenOK && waSponsorOK) ? 'OK' : (waKonsumenOK ? 'OK-KONS' : (waSponsorOK ? 'OK-SPON' : 'GAGAL'));
+
+    // 8 & 9. Kirim Email ke Konsumen dan Sponsor
+    //    Lookup email sponsor:
+    //    1. Cari di TabelUser (DB_USER) berdasarkan nama user (kolom B) → email kolom C
+    //    2. Fallback: cari di DATAKONSUMEN (DB_PROGRAM) berdasarkan nama konsumen (kolom E) → email kolom H
+    const namaSponsorForEmail = String(orderDataForPdf.mDistributorName || '').trim();
+    let emailSponsor = '';
+    try {
+      if (namaSponsorForEmail) {
+        // Prioritas 1: Cari di TabelUser (DB_USER)
+        const DB_USER = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
+        const ssUser = SpreadsheetApp.openById(DB_USER);
+        const shTU = ssUser.getSheetByName('TabelUser');
+        if (shTU) {
+          const tuData = shTU.getDataRange().getValues();
+          for (let i = 1; i < tuData.length; i++) {
+            const namaRow = String(tuData[i][1] || '').trim(); // Kolom B = Nama User
+            if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
+              emailSponsor = String(tuData[i][2] || '').trim(); // Kolom C = Email User
+              if (emailSponsor) break;
+            }
+          }
+        }
+        // Prioritas 2: Jika tidak ketemu di TabelUser, cari di DATAKONSUMEN (DB_PROGRAM)
+        if (!emailSponsor) {
+          const DB_PROGRAM = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
+          const ssProgram = SpreadsheetApp.openById(DB_PROGRAM);
+          const shDK = ssProgram.getSheetByName('DATAKONSUMEN');
+          if (shDK) {
+            const dkData = shDK.getDataRange().getValues();
+            for (let i = 1; i < dkData.length; i++) {
+              const namaRow = String(dkData[i][4] || '').trim(); // Kolom E = Nama Konsumen
+              if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
+                emailSponsor = String(dkData[i][7] || '').trim(); // Kolom H = Email
+                if (emailSponsor) break;
+              }
+            }
+          }
+        }
+      }
+    } catch (eLookup) {
+      Logger.log('⚠️ Lookup email sponsor gagal: ' + eLookup.message);
+    }
+    // Fallback terakhir: jika ada data email dari kolom sponsor di DataPesanan, pakai itu
+    if (!emailSponsor && pesananFromSheet && pesananFromSheet.mDistributorEmail) {
+      emailSponsor = String(pesananFromSheet.mDistributorEmail || '').trim();
+    }
+
+    const emailKonsumenOK = kirimEmailPesananProdukKonsumen_({
+      noPesanan: noPesanan,
+      namaKonsumen: orderDataForPdf.mConsumerName,
+      hpKonsumen: orderDataForPdf.mConsumerPhone,
+      emailKonsumen: orderDataForPdf.mConsumerEmail,
+      namaSponsor: orderDataForPdf.mDistributorName,
+      hpSponsor: orderDataForPdf.mDistributorPhone,
+      grandTotal: orderDataForPdf.mTotalPrice
+    }, pdfLink, ttLink);
+
+    const emailSponsorOK = kirimEmailPesananProdukSponsor_({
+      noPesanan: noPesanan,
+      namaKonsumen: orderDataForPdf.mConsumerName,
+      hpKonsumen: orderDataForPdf.mConsumerPhone,
+      namaSponsor: orderDataForPdf.mDistributorName,
+      hpSponsor: orderDataForPdf.mDistributorPhone,
+      grandTotal: orderDataForPdf.mTotalPrice
+    }, pdfLink, buktiLink, emailSponsor);
+
+    const statusEmail = (emailKonsumenOK && emailSponsorOK) ? 'OK' : (emailKonsumenOK ? 'OK-KONS' : (emailSponsorOK ? 'OK-SPON' : 'GAGAL'));
 
     // 5. Update kolom AA-AK di sheet DataPesanan
     const nominalTransfer = safeNum(data.grandTotal || orderDataForPdf.mTotalPrice);
@@ -1977,7 +2221,7 @@ function handleKonfirmasiBayarProduk(data) {
       acPenerima: String(data.acPenerima || ''),
       nominalTransfer: nominalTransfer,
       statusWA: statusWA,
-      statusEmail: 'OK',
+      statusEmail: statusEmail,
       tglBayar: tglBayar,
       linkBukti: buktiLink,
       statusBayar: 'OK'
@@ -1990,12 +2234,13 @@ function handleKonfirmasiBayarProduk(data) {
     return ContentService.createTextOutput(
       JSON.stringify({
         success: true,
-        message: 'Konfirmasi pembayaran berhasil. Notifikasi WA ' + statusWA + '.',
+        message: 'Konfirmasi pembayaran berhasil. Notifikasi WA ' + statusWA + ', Email ' + statusEmail + '.',
         noPesanan: noPesanan,
         pdfLink: pdfLink,
         buktiLink: buktiLink,
         ttLink: ttLink,
-        statusWA: statusWA
+        statusWA: statusWA,
+        statusEmail: statusEmail
       })
     ).setMimeType(ContentService.MimeType.JSON);
 

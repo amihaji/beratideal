@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
             konfirmasiBtn.innerHTML = '<i class="fas fa-check"></i> Berhasil Terkirim';
             tampilPesan('success', `✅ ${res.message || 'Pembayaran berhasil dikonfirmasi. Admin & Sponsor segera memproses pesanan Anda.'}`);
             setTimeout(function() {
-              window.location.href = 'frmTT.html?noPesanan=' + encodeURIComponent(noPesanan);
+              window.location.href = 'index.html';
             }, 3500);
           } else {
             tampilPesan('error', res.message || '❌ Gagal mengirim konfirmasi pembayaran.');
