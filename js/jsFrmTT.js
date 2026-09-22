@@ -14,11 +14,29 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    prefillOrderData(noPesanan)
-      .then(orderData => applyOrderData(orderData))
+    // PRIORITAS 1: Prefill dari URL query params (dikirim via WA/Email)
+    //              100% work tanpa perlu request server (JSONP)
+    prefillFromQueryParams(params)
+      .then(orderData => {
+        if (orderData && orderData._prefilled) {
+          applyOrderData(orderData);
+          console.log('✅ Prefill dari URL query params sukses');
+        } else {
+          // PRIORITAS 2: localStorage
+          // PRIORITAS 3: JSONP getDataPesananByInvoice
+          prefillOrderData(noPesanan)
+            .then(orderData2 => applyOrderData(orderData2))
+            .catch(err => {
+              console.error('prefill order error:', err);
+              tampilPesan('warning', '⚠️ Data pesanan tidak dimuat otomatis. Anda tetap bisa submit bukti terima.');
+            });
+        }
+      })
       .catch(err => {
-        console.error('prefill order error:', err);
-        tampilPesan('warning', '⚠️ Data pesanan tidak dimuat otomatis. Anda tetap bisa submit bukti terima.');
+        console.error('prefill query params error:', err);
+        prefillOrderData(noPesanan)
+          .then(orderData2 => applyOrderData(orderData2))
+          .catch(() => {});
       });
 
     // Preview gambar bukti produk
@@ -97,6 +115,54 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 });
+
+// ============================================================
+// Prefill dari URL query params (prioritas tertinggi)
+// Data dikirim via WA/Email link dengan encode base64 untuk items
+// ============================================================
+function prefillFromQueryParams(params) {
+  return new Promise((resolve) => {
+    try {
+      const noPesanan = params.get('noPesanan') || '';
+      if (!noPesanan) { resolve({}); return; }
+
+      const orderData = {
+        _prefilled: true,
+        noPesanan: noPesanan,
+        namaKonsumen: params.get('namaKonsumen') || '',
+        hpKonsumen: params.get('hpKonsumen') || '',
+        namaSponsor: params.get('namaSponsor') || '',
+        hpSponsor: params.get('hpSponsor') || '',
+        alamat: params.get('alamat') || '',
+        kelurahan: params.get('kelurahan') || '',
+        kecamatan: params.get('kecamatan') || '',
+        kota: params.get('kota') || '',
+        propensi: params.get('propensi') || '',
+        items: []
+      };
+
+      // Decode items dari base64 jika ada
+      const itemsB64 = params.get('items');
+      if (itemsB64) {
+        try {
+          const decoded = atob(itemsB64);
+          const parsed = JSON.parse(decoded);
+          if (Array.isArray(parsed)) orderData.items = parsed;
+        } catch (e) { /* ignore */ }
+      }
+
+      // Jika namaKonsumen ada (salah satu field terisi dari URL), anggap valid
+      if (orderData.namaKonsumen || orderData.items.length) {
+        resolve(orderData);
+      } else {
+        resolve({});
+      }
+    } catch (err) {
+      console.error('prefillFromQueryParams error:', err);
+      resolve({});
+    }
+  });
+}
 
 // ============================================================
 // Prefill order: coba dari localStorage.lastOrderData (jika noPesanan cocok)

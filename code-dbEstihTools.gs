@@ -168,6 +168,11 @@ function doPost(e) {
       return handleKonfirmasiBayarProduk(data);
     }
 
+    // === Case 7: tanda terima produk (frmTT.html) ===
+    else if (data.action === "tandaTerimaProduk") {
+      return handleTandaTerimaProduk(data);
+    }
+
     return ContentService.createTextOutput(
       JSON.stringify({ status: "error", message: "Action tidak dikenal: " + data.action })
     ).setMimeType(ContentService.MimeType.JSON);
@@ -1675,6 +1680,239 @@ function updateDataPesananKolomBayar_(invoice, pembayaran) {
 }
 
 /***********************************************************
+* Fungsi: uploadBuktiProdukToDrive_
+* Upload base64 gambar bukti produk diterima ke folder DATASTRUK
+* (fallback ke DATAINVOICE)
+* Mengembalikan URL file Drive (public anyone with link)
+************************************************************/
+function uploadBuktiProdukToDrive_(base64Data, invoice) {
+  try {
+    if (!base64Data) return '';
+
+    const folderId = (DATASTRUK && String(DATASTRUK).trim()) ? DATASTRUK : DATAINVOICE;
+    const folder = DriveApp.getFolderById(folderId);
+    const fileName = `TERIMA_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+
+    const bytes = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(bytes, 'image/jpeg', fileName);
+    const file = folder.createFile(blob);
+
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    Logger.log('Bukti produk berhasil diupload: ' + file.getUrl());
+    return file.getUrl();
+
+  } catch (err) {
+    Logger.log('uploadBuktiProdukToDrive_ ERROR: ' + err.message);
+    return '';
+  }
+}
+
+/***********************************************************
+* Fungsi: updateDataPesananKolomTerima_
+* Update kolom AL, AM, AN (38, 39, 40) di sheet DataPesanan
+* untuk semua baris dengan No. Invoice yang sama:
+*   AL (38) = Tgl Terima
+*   AM (39) = Link Bukti Produk
+*   AN (40) = Status Terima ("OK")
+************************************************************/
+function updateDataPesananKolomTerima_(invoice, terima) {
+  try {
+    const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+    if (!sheet) throw new Error('Sheet DataPesanan tidak ditemukan');
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return;
+
+    const colInvoiceIdx = 6;
+    const target = String(invoice || '').trim();
+
+    const rowIndexes = [];
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][colInvoiceIdx] || '').trim() === target) {
+        rowIndexes.push(i + 1);
+      }
+    }
+
+    // 38 = AL Tgl Terima
+    // 39 = AM Link Bukti Produk
+    // 40 = AN Status Terima ("OK")
+    for (const rowIndex of rowIndexes) {
+      sheet.getRange(rowIndex, 38).setValue(terima.tglTerima || '');
+      sheet.getRange(rowIndex, 39).setValue(terima.linkBuktiProduk || '');
+      sheet.getRange(rowIndex, 40).setValue(terima.statusTerima || '');
+    }
+
+    Logger.log('Update kolom terima sukses untuk invoice: ' + invoice + ', baris: ' + rowIndexes.length);
+
+  } catch (err) {
+    Logger.log('updateDataPesananKolomTerima_ ERROR: ' + err.message);
+    throw err;
+  }
+}
+
+/***********************************************************
+* Fungsi: handleTandaTerimaProduk
+* Handler action=tandaTerimaProduk dari frmTT.html
+* Alur:
+*  1. Upload gambar bukti produk ke Drive → dapat link
+*  2. Update kolom AL, AM, AN di sheet DataPesanan
+*  3. Kirim WA ke Admin (notifikasi tanda terima)
+*  4. Kirim Email ke Admin (notifikasi tanda terima)
+*  5. Response sukses ke frontend
+************************************************************/
+function handleTandaTerimaProduk(data) {
+  try {
+    Logger.log('=== handleTandaTerimaProduk START ===');
+
+    const noPesanan = String(data.noPesanan || '').trim();
+    if (!noPesanan) throw new Error('No. Pesanan tidak boleh kosong');
+
+    // 1. Upload bukti produk ke Drive
+    const linkBukti = uploadBuktiProdukToDrive_(data.fileProduk, noPesanan);
+
+    // 2. Ambil data dari sheet (untuk dapat nama konsumen, sponsor, dll untuk notif)
+    let pesananInfo = null;
+    try { pesananInfo = getDataPesananByInvoice(noPesanan); } catch (e) { pesananInfo = null; }
+
+    const tglTerima = String(data.tanggalTerima || '').trim()
+      || Utilities.formatDate(new Date(), "GMT+7", "dd-MM-yyyy");
+
+    // 3. Update sheet DataPesanan kolom AL, AM, AN
+    const terima = {
+      tglTerima: tglTerima,
+      linkBuktiProduk: linkBukti,
+      statusTerima: 'OK'
+    };
+    updateDataPesananKolomTerima_(noPesanan, terima);
+
+    // 4. Kirim Notifikasi WA ke Admin (jika ada pesananInfo)
+    try {
+      if (pesananInfo && pesananInfo.status !== 'error') {
+        const dateObj = new Date();
+        const mBulan  = dateObj.getMonth() + 1;
+        const mTgl    = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
+
+        const namaKonsumen = data.namaKonsumen || pesananInfo.mConsumerName || '';
+        const namaSponsor  = data.namaSponsor  || pesananInfo.mDistributorName || '';
+
+        const t1  = '*Tanda Terima Produk - Beratidealku*';
+        const t2  = '\n---------------------------------------------';
+        const t3  = '\nTgl Submit : ' + mTgl;
+        const t4  = '\nTgl Terima Produk : ' + tglTerima;
+        const t5  = '\n*No. Pesanan :* ' + noPesanan;
+        const t6  = '\n*Nama Konsumen :* ' + namaKonsumen;
+        const t7  = '\n*Nama Sponsor   :* ' + namaSponsor;
+        const t8  = '\n\n*Bukti Produk Diterima :*\n' + (linkBukti || '-');
+        const t9  = '\n\n---------------------------------------------';
+        const t10 = '\n*Copyright by :*\nwww.beratidealku.com';
+
+        const pesanWA = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10;
+
+        const TokenFonnte = "NPUQeEn4zATP628wK7au";
+        const urlWA = "https://api.fonnte.com/send";
+
+        const options_a1 = {
+          method: "post",
+          headers: { "Authorization": TokenFonnte },
+          payload: { target: "8114499640", message: pesanWA }
+        };
+        //const options_a2 = {
+        //  method: "post",
+        //  headers: { "Authorization": TokenFonnte },
+        //  payload: { target: "81241318600", message: pesanWA }
+        //};
+        UrlFetchApp.fetch(urlWA, options_a1);
+        //UrlFetchApp.fetch(urlWA, options_a2);
+
+        Logger.log('✅ WA Notif Tanda Terima ke Admin terkirim');
+      }
+    } catch (eWA) {
+      Logger.log('⚠️ WA Notif Tanda Terima GAGAL: ' + eWA.message);
+    }
+
+    // 5. Kirim Notifikasi Email ke Admin
+    try {
+      const namaKonsumen = data.namaKonsumen || (pesananInfo && pesananInfo.mConsumerName ? pesananInfo.mConsumerName : '');
+      const namaSponsor  = data.namaSponsor  || (pesananInfo && pesananInfo.mDistributorName ? pesananInfo.mDistributorName : '');
+      const hpKonsumen   = (pesananInfo && pesananInfo.mConsumerPhone) ? pesananInfo.mConsumerPhone : '';
+
+      const subjectEmail = `Tanda Terima Produk - ${noPesanan}`;
+      const bodyEmail = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #041e55;">Tanda Terima Produk - Beratidealku</h2>
+          <hr>
+          <table style="width: 100%%; margin: 15px 0; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; width: 40%%;"><strong>No. Pesanan</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6;">${noPesanan}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>Tgl Terima</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6;">${tglTerima}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>Nama Konsumen</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6;">${namaKonsumen}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>HP Konsumen</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6;">${hpKonsumen || '-'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa;"><strong>Nama Sponsor</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6;">${namaSponsor}</td>
+            </tr>
+          </table>
+          <p><strong>Bukti Produk Diterima:</strong><br>
+            <a href="${linkBukti}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;" rel="noopener noreferrer">
+              <i class="fas fa-image"></i> Lihat Bukti Produk
+            </a>
+          </p>
+          <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
+            Atau salin link: <a href="${linkBukti}" target="_blank" rel="noopener noreferrer">${linkBukti}</a>
+          </p>
+          <hr>
+          <p style="font-size: 12px; color: #6c757d;">
+            <strong>Copyright by:</strong> <a href="https://www.beratidealku.com" target="_blank">www.beratidealku.com</a>
+          </p>
+        </div>
+      `;
+
+      MailApp.sendEmail({
+        to: "amihaji@gmail.com",
+        subject: subjectEmail,
+        htmlBody: bodyEmail
+      });
+      Logger.log('✅ Email Notif Tanda Terima ke Admin terkirim');
+    } catch (eEmail) {
+      Logger.log('⚠️ Email Notif Tanda Terima GAGAL: ' + eEmail.message);
+    }
+
+    Logger.log('=== handleTandaTerimaProduk SELESAI ===');
+
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: true,
+        message: 'Tanda terima produk berhasil disimpan.',
+        noPesanan: noPesanan,
+        linkBuktiProduk: linkBukti,
+        tglTerima: tglTerima
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    Logger.log('handleTandaTerimaProduk ERROR: ' + err.message);
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: false,
+        message: 'Gagal memproses tanda terima: ' + err.message
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/***********************************************************
 * Fungsi: kirimWAPesananProdukKonsumen_
 * Kirim WA ke Konsumen tentang "Pesanan Produk"
 * Isi: Ringkasan pesanan + Link Invoice (pdfLink) + Link Tanda Terima (ttLink)
@@ -1688,11 +1926,16 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
       return false;
     }
 
-    // Format nomor HP (sama pola dengan cleanPhoneNumber_ tapi inline + pastikan 62 di depan)
-    let hpKonsumen = rawHp.replace(/[^0-9]/g, '');
-    if (hpKonsumen.startsWith('0')) hpKonsumen = hpKonsumen.substring(1);
-    if (hpKonsumen.startsWith('62')) hpKonsumen = hpKonsumen.substring(2);
-    if (!hpKonsumen) {
+    // Format nomor HP SAMA PERSIS dengan fungsi asli kirimWA() di code-dbDaftarBeratideal.gs
+    let hpKonsumen = rawHp.replace(/\D/g, '');
+    if (hpKonsumen.startsWith('62')) {
+      // sudah 62
+    } else if (hpKonsumen.startsWith('0')) {
+      hpKonsumen = '62' + hpKonsumen.replace(/^0+/, '');
+    } else {
+      hpKonsumen = '62' + hpKonsumen;
+    }
+    if (hpKonsumen === '62' || hpKonsumen.length < 8) {
       Logger.log('❌ WA Konsumen: HP tidak valid -> ' + rawHp);
       return false;
     }
@@ -1719,46 +1962,47 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
 
     const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14 + t15;
 
-    // Pakai TOKEN & URL SAMA PERSIS dengan fungsi kirimWA() asli yang WORKING
-    const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+    // PAKAI TOKEN & URL SAMA PERSIS dengan code-dbDaftarBeratideal.gs yang WORKING
+    const TokenFonnte = "NPUQeEn4zATP628wK7au";
     const url = "https://api.fonnte.com/send";
 
-    const options = {
-      "method": "post",
-      "headers": {
-        "Authorization": TokenFonnte
-      },
-      "payload": {
-        "target": "62" + hpKonsumen,
-        "message": pesan
-      },
-      "muteHttpExceptions": true
+    const options_konsumen = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: hpKonsumen, message: pesan }
     };
 
-    Logger.log('📤 WA Konsumen -> 62' + hpKonsumen + ' | invoice: ' + orderData.noPesanan);
-    const response = UrlFetchApp.fetch(url, options);
-    const respCode = response.getResponseCode();
-    const respText = response.getContentText();
-    Logger.log('📥 Response Konsumen HTTP ' + respCode + ': ' + respText);
+    const options_admin1 = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: "8114499640", message: pesan }
+    };
 
-    // Parse JSON response Fonnte, cek field `status` === true
+    const options_admin2 = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: "81241318600", message: pesan }
+    };
+
+    Logger.log('📤 WA Konsumen -> ' + hpKonsumen + ' | invoice: ' + orderData.noPesanan);
     let success = false;
-    let reason = '';
     try {
-      const respJson = JSON.parse(respText);
-      success = (respJson.status === true);
-      if (respJson.reason) reason = String(respJson.reason);
-      if (respJson.detail) reason = reason ? (reason + ' | ' + respJson.detail) : String(respJson.detail);
-    } catch (parseErr) {
-      // Jika bukan JSON, fallback cek HTTP code
-      success = (respCode >= 200 && respCode < 300);
-      Logger.log('⚠️ Response Konsumen bukan JSON: ' + parseErr.message);
+      const r1 = UrlFetchApp.fetch(url, options_konsumen);
+      Logger.log('📥 Response Konsumen HTTP ' + r1.getResponseCode() + ': ' + r1.getContentText().substring(0, 200));
+      success = (r1.getResponseCode() >= 200 && r1.getResponseCode() < 300);
+    } catch (e) {
+      Logger.log('❌ WA Konsumen fetch error: ' + e.message);
+      success = false;
     }
+
+    // Kirim CC ke Admin (jangan sampai mengganggu status sukses konsumen)
+    try { UrlFetchApp.fetch(url, options_admin1); } catch (e) { Logger.log('⚠️ CC Admin1 WA gagal: ' + e.message); }
+    //try { UrlFetchApp.fetch(url, options_admin2); } catch (e) { Logger.log('⚠️ CC Admin2 WA gagal: ' + e.message); }
 
     if (success) {
       Logger.log('✅ WA Konsumen BERHASIL terkirim');
     } else {
-      Logger.log('❌ WA Konsumen GAGAL terkirim' + (reason ? '. Alasan: ' + reason : ''));
+      Logger.log('❌ WA Konsumen GAGAL terkirim');
     }
     return success;
 
@@ -1782,11 +2026,16 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink, buktiLink) {
       return false;
     }
 
-    // Format nomor HP (sama pola dengan cleanPhoneNumber_ tapi inline + pastikan 62 di depan)
-    let hpSponsor = rawHp.replace(/[^0-9]/g, '');
-    if (hpSponsor.startsWith('0')) hpSponsor = hpSponsor.substring(1);
-    if (hpSponsor.startsWith('62')) hpSponsor = hpSponsor.substring(2);
-    if (!hpSponsor) {
+    // Format nomor HP SAMA PERSIS dengan fungsi asli kirimWA() di code-dbDaftarBeratideal.gs
+    let hpSponsor = rawHp.replace(/\D/g, '');
+    if (hpSponsor.startsWith('62')) {
+      // sudah 62
+    } else if (hpSponsor.startsWith('0')) {
+      hpSponsor = '62' + hpSponsor.replace(/^0+/, '');
+    } else {
+      hpSponsor = '62' + hpSponsor;
+    }
+    if (hpSponsor === '62' || hpSponsor.length < 8) {
       Logger.log('❌ WA Sponsor: HP tidak valid -> ' + rawHp);
       return false;
     }
@@ -1811,46 +2060,47 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink, buktiLink) {
 
     const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t9a + t10 + t11 + t12;
 
-    // Pakai TOKEN & URL SAMA PERSIS dengan fungsi kirimWA() asli yang WORKING
-    const TokenFonnte = "9yeq3JusFP9YZobuYTai";
+    // PAKAI TOKEN & URL SAMA PERSIS dengan code-dbDaftarBeratideal.gs yang WORKING
+    const TokenFonnte = "NPUQeEn4zATP628wK7au";
     const url = "https://api.fonnte.com/send";
 
-    const options = {
-      "method": "post",
-      "headers": {
-        "Authorization": TokenFonnte
-      },
-      "payload": {
-        "target": "62" + hpSponsor,
-        "message": pesan
-      },
-      "muteHttpExceptions": true
+    const options_sponsor = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: hpSponsor, message: pesan }
     };
 
-    Logger.log('📤 WA Sponsor -> 62' + hpSponsor + ' | invoice: ' + orderData.noPesanan);
-    const response = UrlFetchApp.fetch(url, options);
-    const respCode = response.getResponseCode();
-    const respText = response.getContentText();
-    Logger.log('📥 Response Sponsor HTTP ' + respCode + ': ' + respText);
+    const options_admin1 = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: "8114499640", message: pesan }
+    };
 
-    // Parse JSON response Fonnte, cek field `status` === true
+    const options_admin2 = {
+      method: "post",
+      headers: { "Authorization": TokenFonnte },
+      payload: { target: "81241318600", message: pesan }
+    };
+
+    Logger.log('📤 WA Sponsor -> ' + hpSponsor + ' | invoice: ' + orderData.noPesanan);
     let success = false;
-    let reason = '';
     try {
-      const respJson = JSON.parse(respText);
-      success = (respJson.status === true);
-      if (respJson.reason) reason = String(respJson.reason);
-      if (respJson.detail) reason = reason ? (reason + ' | ' + respJson.detail) : String(respJson.detail);
-    } catch (parseErr) {
-      // Jika bukan JSON, fallback cek HTTP code
-      success = (respCode >= 200 && respCode < 300);
-      Logger.log('⚠️ Response Sponsor bukan JSON: ' + parseErr.message);
+      const r1 = UrlFetchApp.fetch(url, options_sponsor);
+      Logger.log('📥 Response Sponsor HTTP ' + r1.getResponseCode() + ': ' + r1.getContentText().substring(0, 200));
+      success = (r1.getResponseCode() >= 200 && r1.getResponseCode() < 300);
+    } catch (e) {
+      Logger.log('❌ WA Sponsor fetch error: ' + e.message);
+      success = false;
     }
+
+    // Kirim CC ke Admin (jangan sampai mengganggu status sukses sponsor)
+    try { UrlFetchApp.fetch(url, options_admin1); } catch (e) { Logger.log('⚠️ CC Admin1 WA gagal: ' + e.message); }
+    //try { UrlFetchApp.fetch(url, options_admin2); } catch (e) { Logger.log('⚠️ CC Admin2 WA gagal: ' + e.message); }
 
     if (success) {
       Logger.log('✅ WA Sponsor BERHASIL terkirim');
     } else {
-      Logger.log('❌ WA Sponsor GAGAL terkirim' + (reason ? '. Alasan: ' + reason : ''));
+      Logger.log('❌ WA Sponsor GAGAL terkirim');
     }
     return success;
 
@@ -2115,8 +2365,31 @@ function handleKonfirmasiBayarProduk(data) {
     // 4. Generate link tanda terima produk frmTT.html
     //    Diisi BASE_URL lengkap dengan domain publik hosting (tanpa trailing slash)
     //    Contoh: 'https://beratidealku.com' atau 'https://amihaji.github.io/beratideal'
+    //    IMPORTANT: Semua field prefill di-encode ke URL query param supaya prefill 100% work
+    //               tanpa perlu request server (JSONP) saat user klik link dari WA/Email
     const BASE_URL = 'https://amihaji.github.io/beratideal';
-    const ttLink = BASE_URL + '/frmTT.html?noPesanan=' + encodeURIComponent(noPesanan);
+    const prefillParams = new URLSearchParams();
+    prefillParams.append('noPesanan', noPesanan);
+    prefillParams.append('namaKonsumen', String(orderDataForPdf.mConsumerName || ''));
+    prefillParams.append('hpKonsumen', String(orderDataForPdf.mConsumerPhone || ''));
+    prefillParams.append('namaSponsor', String(orderDataForPdf.mDistributorName || ''));
+    prefillParams.append('hpSponsor', String(orderDataForPdf.mDistributorPhone || ''));
+    prefillParams.append('alamat', String(orderDataForPdf.mAlamat || ''));
+    prefillParams.append('kelurahan', String(orderDataForPdf.mKelurahan || ''));
+    prefillParams.append('kecamatan', String(orderDataForPdf.mKecamatan || ''));
+    prefillParams.append('kota', String(orderDataForPdf.mKota || ''));
+    prefillParams.append('propensi', String(orderDataForPdf.mPropensi || ''));
+    // Items: encode sebagai JSON string → base64 agar URL bersih
+    try {
+      if (Array.isArray(orderDataForPdf.mItems) && orderDataForPdf.mItems.length) {
+        const itemsStr = JSON.stringify(orderDataForPdf.mItems.map(it => ({
+          nama: it.mNama || it.nama || '',
+          qty: it.mJumlah || it.qty || 0
+        })));
+        prefillParams.append('items', Utilities.base64Encode(itemsStr, Utilities.Charset.UTF_8));
+      }
+    } catch (eItems) { /* ignore */ }
+    const ttLink = BASE_URL + '/frmTT.html?' + prefillParams.toString();
     Logger.log('Link Tanda Terima: ' + ttLink);
 
     // 6 & 7. Kirim WA ke Konsumen dan Sponsor
