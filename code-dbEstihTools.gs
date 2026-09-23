@@ -6,7 +6,10 @@ const DB_PROGRAM          = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
 const DB_USER             = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
 const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
 const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ';              // ID tempat menyimpan file invoice
-const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file struk pembayaran
+const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file bukti pembayaran
+const DATATANDATERIMA     = '1B2HIfleUBug0utiyE04LwW5MeWw0ap5X';              // ID tempat menyimpan file bukti tanda terima
+
+// ID tempat menyimpan file struk pembayaran
 const SHEET_PRODUK_NAME   = "TabelHarga";      // Sheet untuk Tabel Harga
 const SHEET_KATEGORI_NAME = "TabelKategori";   // Sheet untuk Tabel Kategori
 const SHEET_BYKIRIM_NAME  = "TabelByKirim";    // Sheet untuk Tabel By pengiriman
@@ -1811,15 +1814,18 @@ function updateDataPesananKolomBayar_(invoice, pembayaran) {
 
 /***********************************************************
 * Fungsi: uploadBuktiProdukToDrive_
-* Upload base64 gambar bukti produk diterima ke folder DATASTRUK
-* (fallback ke DATAINVOICE)
+* Upload base64 gambar bukti produk diterima HANYA ke folder
+* TANDATERIMA (konstanta DATATANDATERIMA). TIDAK ADA fallback
+* ke DATASTRUK / DATAINVOICE agar hemat ruang penyimpanan.
 * Mengembalikan URL file Drive (public anyone with link)
 ************************************************************/
 function uploadBuktiProdukToDrive_(base64Data, invoice) {
   try {
     if (!base64Data) return '';
-
-    const folderId = (DATASTRUK && String(DATASTRUK).trim()) ? DATASTRUK : DATAINVOICE;
+    if (!DATATANDATERIMA || !String(DATATANDATERIMA).trim()) {
+      throw new Error('Folder TANDATERIMA (DATATANDATERIMA) belum dikonfigurasi');
+    }
+    const folderId = String(DATATANDATERIMA).trim();
     const folder = DriveApp.getFolderById(folderId);
     // const fileName = `TERIMA_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
     const fileName = `TERIMA_${invoice}.jpg`;
