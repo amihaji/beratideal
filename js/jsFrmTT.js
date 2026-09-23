@@ -14,29 +14,40 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // PRIORITAS 1: Prefill dari URL query params (dikirim via WA/Email)
-    //              100% work tanpa perlu request server (JSONP)
-    prefillFromQueryParams(params)
-      .then(orderData => {
-        if (orderData && orderData._prefilled) {
-          applyOrderData(orderData);
-          console.log('✅ Prefill dari URL query params sukses');
-        } else {
-          // PRIORITAS 2: localStorage
-          // PRIORITAS 3: JSONP getDataPesananByInvoice
-          prefillOrderData(noPesanan)
-            .then(orderData2 => applyOrderData(orderData2))
-            .catch(err => {
-              console.error('prefill order error:', err);
-              tampilPesan('warning', '⚠️ Data pesanan tidak dimuat otomatis. Anda tetap bisa submit bukti terima.');
-            });
-        }
-      })
-      .catch(err => {
-        console.error('prefill query params error:', err);
-        prefillOrderData(noPesanan)
-          .then(orderData2 => applyOrderData(orderData2))
-          .catch(() => {});
+    // SUMBER KEBENARAN: Ambil mapping kategori -> nama paket LENGKAP dari sheet TabelHarga
+    // via backend action getPaketProdukByKategori. Jika request gagal / timeout,
+    // pakai FALLBACK_MAP saja sebagai safety net (bukan sumber utama).
+    loadPaketMapFromTabelHarga_()
+      .catch(function(){ return null; })
+      .then(function(paketCtx){
+        const paketMap = (paketCtx && paketCtx.mapPaket) ? paketCtx.mapPaket : null;
+        const aliasKat = (paketCtx && paketCtx.aliasKategori) ? paketCtx.aliasKategori : null;
+
+        // PRIORITAS 1: Prefill dari URL query params (dikirim via WA/Email)
+        //              100% work tanpa perlu request server (JSONP)
+        prefillFromQueryParams(params)
+          .then(orderData => {
+            if (orderData && orderData._prefilled) {
+              applyOrderData(orderData, paketMap, aliasKat);
+              console.log('✅ Prefill dari URL query params sukses');
+            } else {
+              // PRIORITAS 2: localStorage
+              // PRIORITAS 3: JSONP getDataPesananByInvoice
+              prefillOrderData(noPesanan)
+                .then(orderData2 => applyOrderData(orderData2, paketMap, aliasKat))
+                .catch(err => {
+                  console.error('prefill order error:', err);
+                  applyOrderData({ noPesanan: noPesanan }, paketMap, aliasKat);
+                  tampilPesan('warning', '⚠️ Data pesanan tidak dimuat otomatis. Anda tetap bisa submit bukti terima.');
+                });
+            }
+          })
+          .catch(err => {
+            console.error('prefill query params error:', err);
+            prefillOrderData(noPesanan)
+              .then(orderData2 => applyOrderData(orderData2, paketMap, aliasKat))
+              .catch(() => applyOrderData({ noPesanan: noPesanan }, paketMap, aliasKat));
+          });
       });
 
     // Preview gambar bukti produk
@@ -145,14 +156,36 @@ function prefillFromQueryParams(params) {
       const itemsB64 = params.get('items');
       if (itemsB64) {
         try {
-          const decoded = atob(itemsB64);
+          // Apps Script: Utilities.base64Encode(itemsStr, UTF_8).
+          // JS: atob mengembalikan byte string → didecode dengan decodeURIComponent(escape(...))
+          //     agar karakter UTF-8 (mis. tanda kurung, nama dengan char non-ASCII) tidak rusak
+          //     dan parsing JSON tidak throw SyntaxError.
+          const byteStr = atob(itemsB64);
+          const decoded = decodeURIComponent(escape(byteStr));
           const parsed = JSON.parse(decoded);
           if (Array.isArray(parsed)) orderData.items = parsed;
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+          // Fallback: coba atob langsung tanpa escape decode
+          try {
+            const decoded2 = atob(itemsB64);
+            const parsed2 = JSON.parse(decoded2);
+            if (Array.isArray(parsed2)) orderData.items = parsed2;
+          } catch (e2) {
+            console.warn('decode items b64 gagal kedua metode:', e2 && e2.message);
+          }
+        }
       }
 
-      // Jika namaKonsumen ada (salah satu field terisi dari URL), anggap valid
-      if (orderData.namaKonsumen || orderData.items.length) {
+      // Jika field apapun terisi (nama OR items OR namaSponsor), anggap URL prefill valid.
+      const hasAnyField = Boolean(orderData.namaKonsumen
+        || (orderData.items && orderData.items.length)
+        || orderData.namaSponsor
+        || orderData.alamat
+        || orderData.kota);
+      console.log('🔎 prefillFromQueryParams: noPesanan=', noPesanan,
+                  'namaKonsumen=', orderData.namaKonsumen,
+                  'items.length=', (orderData.items||[]).length);
+      if (hasAnyField) {
         resolve(orderData);
       } else {
         resolve({});
@@ -160,6 +193,53 @@ function prefillFromQueryParams(params) {
     } catch (err) {
       console.error('prefillFromQueryParams error:', err);
       resolve({});
+    }
+  });
+}
+
+// ============================================================
+// Ambil mapping kategori -> nama paket LENGKAP dari sheet TabelHarga
+// via endpoint getPaketProdukByKategori (single source of truth).
+// Menggunakan JSONP pattern (sama dengan getDataPesananByInvoice).
+// Mengembalikan { mapPaket, aliasKategori } atau throw error jika timeout/gagal.
+// ============================================================
+function loadPaketMapFromTabelHarga_() {
+  return new Promise(function(resolve, reject) {
+    try {
+      const cbName = 'cb_paketmap_' + Date.now();
+      const script = document.createElement('script');
+      const url = URL_dbEstihtools
+        + '?action=getPaketProdukByKategori'
+        + '&callback=' + cbName;
+      const timeoutId = setTimeout(function() {
+        try { document.head.removeChild(script); } catch (e) {}
+        try { delete window[cbName]; } catch (e) {}
+        reject(new Error('timeout getPaketProdukByKategori'));
+      }, 4000);
+
+      window[cbName] = function(resp) {
+        clearTimeout(timeoutId);
+        try { document.head.removeChild(script); } catch (e) {}
+        try { delete window[cbName]; } catch (e) {}
+        if (!resp || resp.status === 'error') {
+          reject(new Error((resp && resp.message) || 'gagal getPaketProdukByKategori'));
+          return;
+        }
+        resolve({
+          mapPaket: resp.mapPaket || {},
+          aliasKategori: resp.aliasKategori || {}
+        });
+      };
+      script.src = url;
+      script.onerror = function() {
+        clearTimeout(timeoutId);
+        try { document.head.removeChild(script); } catch (e) {}
+        try { delete window[cbName]; } catch (e) {}
+        reject(new Error('onerror getPaketProdukByKategori'));
+      };
+      document.head.appendChild(script);
+    } catch (err) {
+      reject(err);
     }
   });
 }
@@ -234,7 +314,7 @@ function prefillOrderData(noPesanan) {
   });
 }
 
-function applyOrderData(orderData) {
+function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabelHarga) {
   document.getElementById('nomorPesanan').value = orderData.noPesanan || "";
   document.getElementById('nama').value         = orderData.namaKonsumen || "";
   document.getElementById('namaSponsor').value  = orderData.namaSponsor  || "";
@@ -245,55 +325,179 @@ function applyOrderData(orderData) {
   if (alamatEl) alamatEl.value = alamatLengkap;
 
   const detailEl = document.getElementById('detailProduk');
-  if (detailEl && orderData.items && orderData.items.length) {
-    // Mapping kategori paket → nama paket LENGKAP (sumber identik dengan jsEstihTools.js)
-    const PAKET_MAP = {
-      lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
-      dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
-      remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
-      sarapan: "Paket Start Now Pack ( F1, Aloe Vera, Teh Concentrate, Tas Produk)",
-      naikBB:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
-      turunBB: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
-    };
-    const KATEGORI_ALIAS = {
-      'manula':'lansia','usia dewasa':'dewasa','usia remaja':'remaja',
-      'start now':'sarapan','start now pack':'sarapan','muscle gain':'naikbb',
-      'weight loss':'turunbb','weight losss':'turunbb','naik bb':'naikbb','turun bb':'turunbb'
-    };
-    // Kumpulkan kategori unik dari items jika ada field kategori
-    const kategoriDariItems = [];
-    (orderData.items || []).forEach(function(it){
-      const kat = String(it.kategori || it.mKategori || '').trim().toLowerCase();
-      if (kat && !kategoriDariItems.includes(kat)) kategoriDariItems.push(kat);
-    });
+  if (!detailEl) return;
 
-    const resolvedPaketList = [];
-    // Jika ada kategori eksplisit dari orderData (prioritas tertinggi)
-    if (orderData.kategoriPesanan) {
-      const k1 = String(orderData.kategoriPesanan).trim().toLowerCase();
-      const key1 = PAKET_MAP[k1] ? k1 : (KATEGORI_ALIAS[k1] || null);
-      if (key1 && PAKET_MAP[key1]) resolvedPaketList.push(PAKET_MAP[key1]);
-    }
-    // Jika dari kategori items
-    kategoriDariItems.forEach(function(k){
-      const key = PAKET_MAP[k] ? k : (KATEGORI_ALIAS[k] || null);
-      if (key && PAKET_MAP[key]) {
-        if (!resolvedPaketList.includes(PAKET_MAP[key])) resolvedPaketList.push(PAKET_MAP[key]);
-      }
-    });
-
-    if (resolvedPaketList.length) {
-      // User request: TAMPILKAN NAMA PAKET LENGKAP (bukan item per stok + x1)
-      // Bila ada kategori, cukup sebutkan nama paket nya.
-      detailEl.value = resolvedPaketList.join('\n');
-    } else {
-      // Fallback (jika data tidak punya kategori): tampilkan nama produk tanpa "x1"
-      // User request: BUKAN jumlah pesanan "x1" yang ditampilkan.
-      detailEl.value = orderData.items.map(function(it){ return String(it.nama || ''); }).filter(Boolean).join('\n');
-    }
-  } else if (detailEl) {
-    detailEl.value = '';
+  // Helper: dapatkan nama dari satu item dengan semua kemungkinan field (case insensitive)
+  function getItemName(it) {
+    if (!it) return '';
+    if (typeof it === 'string') return it.trim();
+    return String(
+      it.nama ||
+      it.mNama ||
+      it.mNamaProduk ||
+      it.namaProduk ||
+      it.mNamaPaket ||
+      it.namaPaket ||
+      it.mNamaProdukLengkap ||
+      it.mNamaPkt ||
+      it.product ||
+      it.itemName ||
+      ''
+    ).trim();
   }
+  function getItemKategori(it) {
+    if (!it || typeof it !== 'object') return '';
+    return String(
+      it.kategori ||
+      it.mKategori ||
+      it.kategoriPesanan ||
+      it.mKategoriPesanan ||
+      it.category ||
+      ''
+    ).trim().toLowerCase();
+  }
+  function getItemQty(it) {
+    if (!it || typeof it !== 'object') return 0;
+    return (
+      Number(it.qty) ||
+      Number(it.jumlah) ||
+      Number(it.mJumlah) ||
+      Number(it.mJml) ||
+      Number(it.quantity) ||
+      0
+    );
+  }
+
+  console.log('🔎 applyOrderData: orderData=', orderData,
+              'paketMapFromTabelHarga=', paketMapFromTabelHarga,
+              'aliasKategoriFromTabelHarga=', aliasKategoriFromTabelHarga);
+
+  // Normalisasi items: ambil setidaknya nama (bisa dari banyak sumber field)
+  const normalized = (orderData.items || [])
+    .map(function(it) { return { nama: getItemName(it), kategori: getItemKategori(it), qty: getItemQty(it) }; })
+    .filter(function(it) { return it.nama || it.kategori; });
+
+  // SUMBER KEBENARAN: PAKET MAP DARI SHEET TabelHarga (via getPaketProdukByKategori)
+  // Fallback HANYA jika request sheet TabelHarga gagal.
+  const FALLBACK_MAP = {
+    lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
+    dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+    remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+    sarapan: "Paket Start Now Pack ( F1, Aloe Vera, Teh Concentrate, Tas Produk)",
+    naikbb:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
+    turunbb: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
+  };
+  const FALLBACK_ALIAS = {
+    'manula':'lansia','usiadewasa':'dewasa','usiaremaja':'remaja',
+    'startnow':'sarapan','startnowpack':'sarapan','musclegain':'naikbb',
+    'weightloss':'turunbb','weightlosss':'turunbb','naikbb':'naikbb','turunbb':'turunbb',
+    'lansia':'lansia','dewasa':'dewasa','remaja':'remaja','sarapan':'sarapan',
+    'usia dewasa':'dewasa','usia remaja':'remaja','start now':'sarapan',
+    'start now pack':'sarapan','muscle gain':'naikbb','weight loss':'turunbb',
+    'weight losss':'turunbb','naik bb':'naikbb','turun bb':'turunbb'
+  };
+  const PAKET_MAP = Object.assign(
+    {},
+    FALLBACK_MAP,
+    (paketMapFromTabelHarga && typeof paketMapFromTabelHarga === 'object') ? paketMapFromTabelHarga : {}
+  );
+  // Alias gabungan: alias dari sheet TabelHarga diutamakan (override fallback alias)
+  const ALIAS_KAT = Object.assign(
+    {},
+    FALLBACK_ALIAS,
+    (aliasKategoriFromTabelHarga && typeof aliasKategoriFromTabelHarga === 'object') ? aliasKategoriFromTabelHarga : {}
+  );
+
+  // Normalizer kategori: persis sama dengan backend normalizeKat_
+  // trim lowercase -> hapus spasi -> lookup alias
+  function normalizeKat_(k) {
+    var raw = String(k || '').trim().toLowerCase();
+    if (!raw) return '';
+    var compact = raw.replace(/\s+/g, '');
+    // cek 3 layer: raw, compact, alias of raw/compact
+    if (PAKET_MAP[raw]) return raw;
+    if (PAKET_MAP[compact]) return compact;
+    if (ALIAS_KAT[raw]) {
+      var r1 = ALIAS_KAT[raw];
+      if (PAKET_MAP[r1]) return r1;
+    }
+    if (ALIAS_KAT[compact]) {
+      var r2 = ALIAS_KAT[compact];
+      if (PAKET_MAP[r2]) return r2;
+    }
+    return '';
+  }
+
+  // Kumpulkan kategori unik dari items
+  const kategoriDariItems = [];
+  normalized.forEach(function(it){
+    if (!it.kategori) return;
+    const resolved = normalizeKat_(it.kategori);
+    if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
+  });
+  // Tambahkan kategori eksplisit dari orderData (jika ada)
+  if (orderData.kategoriPesanan) {
+    const resolved = normalizeKat_(orderData.kategoriPesanan);
+    if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
+  }
+
+  const resolvedPaketList = [];
+  kategoriDariItems.forEach(function(k){
+    if (PAKET_MAP[k]) {
+      if (!resolvedPaketList.includes(PAKET_MAP[k])) resolvedPaketList.push(PAKET_MAP[k]);
+    }
+  });
+
+  console.log('🔎 applyOrderData kategoriDariItems=', kategoriDariItems,
+              'resolvedPaketList=', resolvedPaketList,
+              'normalized=', normalized);
+
+  // SCENARIO A: Ada kategori yang match ke paket → tampilkan NAMA PAKET LENGKAP
+  if (resolvedPaketList.length) {
+    detailEl.value = resolvedPaketList.join('\n');
+    return;
+  }
+
+  // SCENARIO B: Tidak ada kategori tapi ada nama items → tampilkan nama produk TANPA x1
+  const daftarNamaProduk = normalized.map(function(it){ return it.nama; }).filter(Boolean);
+  if (daftarNamaProduk.length) {
+    detailEl.value = daftarNamaProduk.join('\n');
+    return;
+  }
+
+  // SCENARIO C: items normalized kosong TAPI orderData.items asli (belum ternormalisasi) punya data → coba langsung
+  if (orderData.items && orderData.items.length && orderData.items.map) {
+    const langsung = orderData.items.map(function(it){
+      if (typeof it === 'string') return it.trim();
+      return '';
+    }).filter(Boolean);
+    if (langsung.length) { detailEl.value = langsung.join('\n'); return; }
+  }
+
+  // SCENARIO D: items dari query params tidak ada → mungkin data dari JSONP resp.items
+  // pakai object asli items asli lagi
+  const rawItems = orderData.items || [];
+  if (rawItems.length) {
+    const namaMentah = rawItems.map(function(x){
+      if (!x) return '';
+      if (typeof x === 'string') return x.trim();
+      // ambil semua nilai string dari object, yang panjang >1 karakter (bukan flag boolean/number)
+      var vals = [];
+      for (var k in x) {
+        if (Object.prototype.hasOwnProperty.call(x, k)) {
+          var v = x[k];
+          if (typeof v === 'string' && v.trim().length > 1 && !v.startsWith('http')) vals.push(v.trim());
+        }
+      }
+      return vals.join(' ');
+    }).filter(Boolean);
+    if (namaMentah.length) { detailEl.value = namaMentah.join('\n'); return; }
+  }
+
+  // SCENARIO E: Semua percobaan di atas gagal → Detail Produk tetap terisi placeholder
+  //             agar user tidak bingung "kenapa kosong". Bisa dihapus user mau ubah.
+  detailEl.value = '-';
+  console.warn('⚠️ Detail Produk tidak bisa diisi otomatis. orderData:', orderData);
 }
 
 function tampilPesan(tipe, pesan) {

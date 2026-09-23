@@ -54,6 +54,10 @@ function doGet(e) {
       return buildDoGetResponse(getDataPesananByInvoice(invoice), callback);
     }
 
+    if (action === "getPaketProdukByKategori") {
+      return buildDoGetResponse(getPaketProdukByKategori(), callback);
+    }
+
     // --- Tabel Harga ---
     if (action === 'getTabelProduk')           return handleGetTabelProduk(e);
     if (action === 'addProduk')                return handleAddProduk(e);
@@ -353,6 +357,128 @@ function getVoucherByPoint(totalPoint) {
 
   if (bestPoint < 0) return { status: 'success', potongan: 0, keterangan: '' };
   return { status: 'success', potongan: bestPotongan, keterangan: bestKet, point: bestPoint };
+}
+
+/*******************************************************************************
+* Fungsi: getPaketProdukByKategori
+* Membaca sheet TabelHarga, group produk per Kategori (kolom B), lalu membuat
+* teks nama paket LENGKAP: "Paket [Nama Kategori] ( Produk1, Produk2, ... )"
+* Ini adalah sumber kebenaran TUNGGAL (single source of truth), menggantikan
+* hardcode PAKET_MAP di frontend jsFrmTT.js.
+*
+* Structure TabelHarga (sesuai function getProducts):
+*   A = NoStok, B = Kategori, C = NamaProduk, D=?, E=?, F = HargaEceran
+*
+* Return:
+*   {
+*     status: "success",
+*     mapPaket: { 'lansia': "Paket Manula (...)",
+*                 'dewasa': "Paket Usia Dewasa (...)",
+*                 ... semua kategori unik dari sheet TabelHarga ... }
+*     aliasKategori: { 'manula': 'lansia', ... }  -> mapping compact
+*     daftarProdukByKategori: { 'lansia': [NamaProduk1, NamaProduk2, ...], ... }
+*   }
+*******************************************************************************/
+function getPaketProdukByKategori() {
+  try {
+    const sheet = ss.getSheetByName(SHEET_PRODUK_NAME); // "TabelHarga"
+    if (!sheet) return { status: 'error', message: "Sheet 'TabelHarga' tidak ditemukan!", mapPaket: {}, aliasKategori: {}, daftarProdukByKategori: {} };
+    const data = sheet.getDataRange().getValues();
+    if (!data || data.length <= 1) {
+      return { status: 'error', message: 'Data TabelHarga kosong', mapPaket: {}, aliasKategori: {}, daftarProdukByKategori: {} };
+    }
+
+    // Step 1: Group NamaProduk (kolom C) per Kategori (kolom B)
+    //   Key: normalized kategori compact; value: { labelKategori: string, produk: [string,...] }
+    const normalizeKat_ = (v) => String(v || '').trim().toLowerCase().replace(/\s+/g, '');
+    const normalizeLabel_ = (v) => String(v || '').trim().replace(/\s+/g, ' ');
+
+    const rawGroups = {}; // { keyNormalized: { labelKategori, produk: [] } }
+    for (let i = 1; i < data.length; i++) {
+      const katRaw = data[i][1];
+      const namaProduk = normalizeLabel_(data[i][2]);
+      if (!katRaw || !namaProduk) continue;
+      const key = normalizeKat_(katRaw);
+      if (!key) continue;
+      if (!rawGroups[key]) {
+        rawGroups[key] = {
+          labelKategori: normalizeLabel_(katRaw),
+          produk: []
+        };
+      }
+      if (!rawGroups[key].produk.includes(namaProduk)) {
+        rawGroups[key].produk.push(namaProduk);
+      }
+    }
+
+    // Step 2: Buat prefix "Paket " berdasarkan label kategori,
+    //         tapi gunakan nama PAKET FRIENDLY sesuai mapping sebelumnya bila
+    //         tersedia (fallback, karena mungkin di sheet kolom B cuma "Lansia").
+    //         Prioritas: nama dari sheet dulu -> fallback alias friendly name.
+    const FRIENDLY_PREFIX = {
+      'lansia':      'Paket Manula',
+      'manula':      'Paket Manula',
+      'usiadewasa':  'Paket Usia Dewasa',
+      'dewasa':      'Paket Usia Dewasa',
+      'usiaremaja':  'Paket Usia Remaja',
+      'remaja':      'Paket Usia Remaja',
+      'sarapan':     'Paket Start Now Pack',
+      'startnow':    'Paket Start Now Pack',
+      'startnowpack':'Paket Start Now Pack',
+      'musclegain':  'Paket Muscle Gain',
+      'naikbb':      'Paket Muscle Gain',
+      'weightloss':  'Paket Weight Losss',
+      'weightlosss': 'Paket Weight Losss',
+      'turunbb':     'Paket Weight Losss'
+    };
+    function getPrefixByKey(key, labelKat) {
+      if (FRIENDLY_PREFIX[key]) return FRIENDLY_PREFIX[key];
+      // Jika tidak ada alias, coba prefix dari nama kategori
+      const s = (labelKat || key || '').trim();
+      if (!s) return 'Paket';
+      const upperFirst = s.charAt(0).toUpperCase() + s.slice(1);
+      return 'Paket ' + upperFirst;
+    }
+
+    // Step 3: Build mapPaket, daftarProdukByKategori, dan aliasKategori
+    const mapPaket = {};
+    const daftarProdukByKategori = {};
+    const aliasKategori = {};
+    const keys = Object.keys(rawGroups);
+    keys.sort();
+
+    // aliasKategori: setiap kategori punya 2 key (original normalized + alias text manusiawi jika ada)
+    keys.forEach(function(key) {
+      const g = rawGroups[key];
+      const prefix = getPrefixByKey(key, g.labelKategori);
+      const produkList = g.produk.slice();
+      const isiProduk = produkList.length ? produkList.join(', ') : '';
+      const namaPaketLengkap = isiProduk ? (prefix + ' ( ' + isiProduk + ' )') : prefix;
+      mapPaket[key] = namaPaketLengkap;
+      daftarProdukByKategori[key] = produkList;
+      // alias dari labelKategori (jika berbeda key)
+      const labelKey = normalizeKat_(g.labelKategori);
+      if (labelKey && labelKey !== key) aliasKategori[labelKey] = key;
+      // alias friendly (jika key sendiri tidak match tapi alias manusiawi match)
+      Object.keys(FRIENDLY_PREFIX).forEach(function(alias) {
+        if (FRIENDLY_PREFIX[alias] === prefix && !mapPaket[alias]) {
+          aliasKategori[alias] = key;
+        }
+      });
+    });
+
+    Logger.log('✅ getPaketProdukByKategori sukses: ' + keys.length + ' kategori');
+    return {
+      status: 'success',
+      mapPaket: mapPaket,
+      aliasKategori: aliasKategori,
+      daftarProdukByKategori: daftarProdukByKategori
+    };
+
+  } catch (err) {
+    Logger.log('getPaketProdukByKategori ERROR: ' + err.message);
+    return { status: 'error', message: err.message, mapPaket: {}, aliasKategori: {}, daftarProdukByKategori: {} };
+  }
 }
 
 function getBankBySponsor(namaSponsor) {
@@ -1952,7 +2078,7 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
     const t6  = '\n*No. Pesanan :* ' + orderData.noPesanan;
     const t7  = '\n*Total Bayar : Rp. ' + formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0) + '*';
     const t8  = '\n\n*Download Invoice :*\n' + (pdfLink || '-');
-    const t9  = '\n\n*Tanda Terima Produk :*\n' + (ttLink || '-');
+    const t9  = '\n\n*Silahkan isi form tanda terima, jika barang telah diterima: *\n' + (ttLink || '-');
     const t10 = '\n\nSimpan link diatas sebagai bukti. Admin & Sponsor segera memproses pengiriman produk Anda.';
     const t11 = '\n\nKontak Sponsor :';
     const t12 = '\n*' + (orderData.namaSponsor || orderData.mDistributorName || '') + '*';
@@ -2382,10 +2508,15 @@ function handleKonfirmasiBayarProduk(data) {
     try {
       if (Array.isArray(orderDataForPdf.mItems) && orderDataForPdf.mItems.length) {
         const itemsStr = JSON.stringify(orderDataForPdf.mItems.map(function(it) {
+          var namaItem = String(it.mNamaProduk || it.mNama || it.nama || '').trim();
+          // fallback: nama field lain kadang beda
+          if (!namaItem && typeof it === 'object') {
+            namaItem = String(it.mNamaPkt || it.mNamaPaket || it.mNamaProdukLengkap || it.namaProduk || it.namaPaket || '').trim();
+          }
           return {
-            nama: it.mNamaProduk || it.nama || '',
-            qty: it.mJumlah || it.qty || 0,
-            kategori: it.mKategori || it.kategori || ''
+            nama: namaItem,
+            qty: it.mJumlah || it.qty || it.mJml || it.jumlah || 0,
+            kategori: String(it.mKategori || it.kategori || it.mKategoriPesanan || it.kategoriPesanan || '').trim()
           };
         }));
         ttQs += '&items=' + _enc(Utilities.base64Encode(itemsStr, Utilities.Charset.UTF_8));
