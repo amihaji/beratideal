@@ -246,7 +246,51 @@ function applyOrderData(orderData) {
 
   const detailEl = document.getElementById('detailProduk');
   if (detailEl && orderData.items && orderData.items.length) {
-    detailEl.value = orderData.items.map(it => `${it.nama} x${it.qty}`).join('\n');
+    // Mapping kategori paket → nama paket LENGKAP (sumber identik dengan jsEstihTools.js)
+    const PAKET_MAP = {
+      lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
+      dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+      remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
+      sarapan: "Paket Start Now Pack ( F1, Aloe Vera, Teh Concentrate, Tas Produk)",
+      naikBB:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
+      turunBB: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
+    };
+    const KATEGORI_ALIAS = {
+      'manula':'lansia','usia dewasa':'dewasa','usia remaja':'remaja',
+      'start now':'sarapan','start now pack':'sarapan','muscle gain':'naikbb',
+      'weight loss':'turunbb','weight losss':'turunbb','naik bb':'naikbb','turun bb':'turunbb'
+    };
+    // Kumpulkan kategori unik dari items jika ada field kategori
+    const kategoriDariItems = [];
+    (orderData.items || []).forEach(function(it){
+      const kat = String(it.kategori || it.mKategori || '').trim().toLowerCase();
+      if (kat && !kategoriDariItems.includes(kat)) kategoriDariItems.push(kat);
+    });
+
+    const resolvedPaketList = [];
+    // Jika ada kategori eksplisit dari orderData (prioritas tertinggi)
+    if (orderData.kategoriPesanan) {
+      const k1 = String(orderData.kategoriPesanan).trim().toLowerCase();
+      const key1 = PAKET_MAP[k1] ? k1 : (KATEGORI_ALIAS[k1] || null);
+      if (key1 && PAKET_MAP[key1]) resolvedPaketList.push(PAKET_MAP[key1]);
+    }
+    // Jika dari kategori items
+    kategoriDariItems.forEach(function(k){
+      const key = PAKET_MAP[k] ? k : (KATEGORI_ALIAS[k] || null);
+      if (key && PAKET_MAP[key]) {
+        if (!resolvedPaketList.includes(PAKET_MAP[key])) resolvedPaketList.push(PAKET_MAP[key]);
+      }
+    });
+
+    if (resolvedPaketList.length) {
+      // User request: TAMPILKAN NAMA PAKET LENGKAP (bukan item per stok + x1)
+      // Bila ada kategori, cukup sebutkan nama paket nya.
+      detailEl.value = resolvedPaketList.join('\n');
+    } else {
+      // Fallback (jika data tidak punya kategori): tampilkan nama produk tanpa "x1"
+      // User request: BUKAN jumlah pesanan "x1" yang ditampilkan.
+      detailEl.value = orderData.items.map(function(it){ return String(it.nama || ''); }).filter(Boolean).join('\n');
+    }
   } else if (detailEl) {
     detailEl.value = '';
   }

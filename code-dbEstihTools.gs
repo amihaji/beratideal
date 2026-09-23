@@ -2382,7 +2382,11 @@ function handleKonfirmasiBayarProduk(data) {
     try {
       if (Array.isArray(orderDataForPdf.mItems) && orderDataForPdf.mItems.length) {
         const itemsStr = JSON.stringify(orderDataForPdf.mItems.map(function(it) {
-          return { nama: it.mNama || it.nama || '', qty: it.mJumlah || it.qty || 0 };
+          return {
+            nama: it.mNamaProduk || it.nama || '',
+            qty: it.mJumlah || it.qty || 0,
+            kategori: it.mKategori || it.kategori || ''
+          };
         }));
         ttQs += '&items=' + _enc(Utilities.base64Encode(itemsStr, Utilities.Charset.UTF_8));
       }
