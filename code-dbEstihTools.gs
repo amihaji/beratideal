@@ -734,50 +734,34 @@ function formatCurrency(amount) {
 }
 
 /****************************************
-* Mengirim email dengan link URl file pdf
+* Mengirim email dengan link URL file pdf.
+*
+* ⚠️ PERUBAHAN KRITIS HEMAT STORAGE:
+*    Fungsi ini TIDAK BOLEH membuat PDF baru LAGI di dalamnya.
+*    Parameter kedua `pdfLink` OPTIONAL:
+*      - Jika disediakan → LANGSUNG PAKAI itu (cuma kirim email, TIDAK create file).
+*      - Jika TIDAK disediakan → panggil getOrCreatePdfInvoiceProduk_() yang
+*        sendirinya juga CUKUP membuat PDF bila belum ada.
+*    Hasilnya: selalu 1 file `${invoice}.pdf` per invoice di folder DATAINVOICE.
 *****************************************/
-function sendEmail(data) {
+function sendEmail(data, pdfLink) {
   try {
     Logger.log("=== SEND EMAIL MULAI ===");
     Logger.log("Invoice: " + data.mInvoice);
 
-    // Normalisasi supaya template selalu punya mOrderData.mItems
-    if (!data.mItems && data.items) {
-      data.mItems = data.items;
+    // 1) SIAPKAN PDF LINK (TANPA create baru jika tidak perlu)
+    let mFileUrl = (pdfLink && String(pdfLink).trim()) ? String(pdfLink).trim() : '';
+    if (!mFileUrl) {
+      // Hanya jika caller tidak menyediakan pdfLink → gunakan helper (cek existing dulu)
+      mFileUrl = getOrCreatePdfInvoiceProduk_(data);
     }
+    Logger.log("PDF URL (pakai existing / skip create baru): " + mFileUrl);
 
-    const items  = Array.isArray(data.mItems) ? data.mItems : [];
-    const totals = items.reduce((acc, it) => {
-      acc.jumlah += Number(it.mJumlah) || 0;
-      acc.vp     += Number(it.mTotVP)  || 0;
-      acc.harga  += Number(it.mHarga)  || 0;
-      return acc;
-    }, { jumlah: 0, vp: 0, harga: 0 });
+    // (TIDAK ADA LAGI: buat PDF di sini dengan nama NO_${invoice}.pdf)
+    // Karena sekarang semua alur pakai nama tunggal: ${invoice}.pdf
+    // dan folder DATAINVOICE hanya berisi 1 file per invoice.
 
-    data.mTotalJumlah = totals.jumlah;
-    data.mTotalVP     = totals.vp;
-    data.mTotalHarga  = totals.harga;
-    Logger.log(`TOTALS -> jumlah: ${data.mTotalJumlah}, vp: ${data.mTotalVP}, harga: ${data.mTotalHarga}`);
-    
-    // 1) Load template
-    const htmlTemplate      = HtmlService.createTemplateFromFile('emailTemplate');
-    htmlTemplate.mOrderData = data;  // penting: pakai mOrderData sesuai template
-    const htmlContent       = htmlTemplate.evaluate().getContent();
-    Logger.log("Template berhasil di-load");
-
-    // 2) Buat PDF di folder "DataInvoice" Google Drive
-    const folderId = DATAINVOICE ;
-    const folder   = DriveApp.getFolderById(folderId);
-    Logger.log("Folder ditemukan: " + folder.getName());
-
-    const fileName = `NO_${data.mInvoice}.pdf`;
-    const blob     = Utilities.newBlob(htmlContent, 'text/html', fileName);
-    const pdf      = blob.getAs('application/pdf').setName(fileName);
-    const file     = folder.createFile(pdf);
-    const mFileUrl = file.getUrl();
-    Logger.log("PDF berhasil dibuat: " + mFileUrl);
-
-    // 3) Kirim email kalau ada alamat konsumen
+    // 2) Kirim email kalau ada alamat konsumen
     if (data.mConsumerEmail) {
       const subject = `Daftar Pesanan Produk ${data.mInvoice}`;
       const htmlBody = `
@@ -797,7 +781,6 @@ function sendEmail(data) {
         to: data.mConsumerEmail,
         subject: subject,
         htmlBody: htmlBody
-        // attachments: [file.getAs(MimeType.PDF)] // kalau mau lampirkan file PDF juga
       });
 
       Logger.log("Email terkirim ke: " + data.mConsumerEmail);
@@ -812,6 +795,88 @@ function sendEmail(data) {
     Logger.log("sendEmail ERROR: " + error.message);
     throw new Error("Gagal mengirim email: " + error.message);
   }
+}
+
+/******************************************************************
+* Fungsi: getOrCreatePdfInvoiceProduk_
+* Helper: Cek apakah PDF dengan nama `${invoice}.pdf` SUDAH ADA di
+* folder DATAINVOICE. Jika SUDAH ADA → langsung return URL yang lama
+* (tidak bikin file baru → hemat storage). Jika BELUM ADA → buat
+* persis 1x dan return URL.
+*
+* Ini adalah single source of truth untuk PDF invoice.
+* Semua fungsi (sendEmail, generatePdfInvoiceProduk_, handleKonfirmasiBayarProduk)
+* HANYA boleh memanggil helper ini untuk mendapatkan/membuat PDF.
+* Sehingga tidak pernah ada 2 file untuk invoice yang sama.
+******************************************************************/
+function getOrCreatePdfInvoiceProduk_(orderData) {
+  try {
+    const invoice = String(orderData.mInvoice || orderData.noPesanan || orderData.invoice || '').trim();
+    if (!invoice) throw new Error('getOrCreatePdfInvoiceProduk_: Invoice kosong!');
+    Logger.log('getOrCreatePdfInvoiceProduk_ invoice=' + invoice);
+
+    // 1) CARI DULU di folder DATAINVOICE. JANGAN buat duplikat.
+    const folder = DriveApp.getFolderById(DATAINVOICE);
+    const expectedName = `${invoice}.pdf`;
+    const filesByName = folder.getFilesByName(expectedName);
+    if (filesByName && filesByName.hasNext()) {
+      const existingFile = filesByName.next();
+      Logger.log('✅ PDF SUDAH ADA (skip buat baru): ' + existingFile.getUrl());
+      // Pastikan access tetap ANYONE_WITH_LINK (jika file lama sharing nya diubah)
+      try { existingFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (eSh) {}
+      return existingFile.getUrl();
+    }
+
+    // 2) BELUM ADA → BUAT BARU PERSIS SEKALI.
+    //    Normalisasi supaya template selalu punya mOrderData.mItems
+    if (!orderData.mItems && orderData.items) {
+      orderData.mItems = orderData.items;
+    }
+
+    const items  = Array.isArray(orderData.mItems) ? orderData.mItems : [];
+    const totals = items.reduce((acc, it) => {
+      acc.jumlah += Number(it.mJumlah || it.qty || 0);
+      acc.vp     += Number(it.mTotVP || it.totVP || 0);
+      acc.harga  += Number(it.mHarga || it.harga || 0);
+      return acc;
+    }, { jumlah: 0, vp: 0, harga: 0 });
+
+    orderData.mTotalJumlah = totals.jumlah;
+    orderData.mTotalVP     = totals.vp;
+    orderData.mTotalHarga  = totals.harga;
+
+    // Load template
+    const htmlTemplate      = HtmlService.createTemplateFromFile('emailTemplate');
+    htmlTemplate.mOrderData = orderData;
+    const htmlContent       = htmlTemplate.evaluate().getContent();
+
+    // Buat PDF di folder DATAINVOICE Google Drive
+    const fileName = expectedName;  // selalu: ${invoice}.pdf  (TIDAK ADA prefix NO_ lagi)
+    const blob     = Utilities.newBlob(htmlContent, 'text/html', fileName);
+    const pdf      = blob.getAs('application/pdf').setName(fileName);
+    const file     = folder.createFile(pdf);
+
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    const mFileUrl = file.getUrl();
+    Logger.log('✅ PDF Invoice BARU berhasil dibuat: ' + mFileUrl);
+    return mFileUrl;
+
+  } catch (err) {
+    Logger.log('getOrCreatePdfInvoiceProduk_ ERROR: ' + err.message);
+    throw new Error('Gagal siapkan PDF: ' + err.message);
+  }
+}
+
+/***********************************************************
+* Fungsi: generatePdfInvoiceProduk_
+* Generate PDF Invoice (WRAPPER backward-compatible).
+* ⚠️ SEKARANG TIDAK PERNAH membuat file duplikat:
+*    jika PDF `${invoice}.pdf` sudah ada → langsung return URL yang sama.
+* Mengembalikan URL file PDF di Drive.
+************************************************************/
+function generatePdfInvoiceProduk_(orderData) {
+  return getOrCreatePdfInvoiceProduk_(orderData);
 }
 
 /**************************
@@ -1700,57 +1765,6 @@ function uploadBuktiTransferToDrive_(base64Data, invoice) {
   } catch (err) {
     Logger.log('uploadBuktiTransferToDrive_ ERROR: ' + err.message);
     return '';
-  }
-}
-
-/***********************************************************
-* Fungsi: generatePdfInvoiceProduk_
-* Generate PDF Invoice dari template email (reuse logic sendEmail)
-* Nama file PDF sama dengan No. Invoice
-* Mengembalikan URL file PDF di Drive
-************************************************************/
-function generatePdfInvoiceProduk_(orderData) {
-  try {
-    Logger.log('generatePdfInvoiceProduk_ START, invoice: ' + orderData.mInvoice);
-
-    // Normalisasi supaya template selalu punya mOrderData.mItems
-    if (!orderData.mItems && orderData.items) {
-      orderData.mItems = orderData.items;
-    }
-
-    const items  = Array.isArray(orderData.mItems) ? orderData.mItems : [];
-    const totals = items.reduce((acc, it) => {
-      acc.jumlah += Number(it.mJumlah || it.qty || 0);
-      acc.vp     += Number(it.mTotVP || it.totVP || 0);
-      acc.harga  += Number(it.mHarga || it.harga || 0);
-      return acc;
-    }, { jumlah: 0, vp: 0, harga: 0 });
-
-    orderData.mTotalJumlah = totals.jumlah;
-    orderData.mTotalVP     = totals.vp;
-    orderData.mTotalHarga  = totals.harga;
-
-    // Load template
-    const htmlTemplate      = HtmlService.createTemplateFromFile('emailTemplate');
-    htmlTemplate.mOrderData = orderData;
-    const htmlContent       = htmlTemplate.evaluate().getContent();
-
-    // Buat PDF di folder "DataInvoice" Google Drive
-    const folder = DriveApp.getFolderById(DATAINVOICE);
-    const fileName = `${orderData.mInvoice}.pdf`;
-    const blob     = Utilities.newBlob(htmlContent, 'text/html', fileName);
-    const pdf      = blob.getAs('application/pdf').setName(fileName);
-    const file     = folder.createFile(pdf);
-
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-
-    const mFileUrl = file.getUrl();
-    Logger.log('PDF Invoice berhasil dibuat: ' + mFileUrl);
-    return mFileUrl;
-
-  } catch (err) {
-    Logger.log('generatePdfInvoiceProduk_ ERROR: ' + err.message);
-    throw new Error('Gagal generate PDF: ' + err.message);
   }
 }
 
