@@ -1,6 +1,8 @@
 /*******************************************************
 /*               DEKLARASI GLOBAL                      *
 /*******************************************************/
+const DB_PROGRAM          = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
+const DB_USER             = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
 const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
 const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ';              // ID tempat menyimpan file invoice
 const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file struk pembayaran
@@ -1679,7 +1681,8 @@ function uploadBuktiTransferToDrive_(base64Data, invoice) {
     // Pilih folder tujuan: DATASTRUK jika diisi,否则 fallback ke DATAINVOICE
     const folderId = (DATASTRUK && String(DATASTRUK).trim()) ? DATASTRUK : DATAINVOICE;
     const folder = DriveApp.getFolderById(folderId);
-    const fileName = `BUKTI_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+    //const fileName = `BUKTI_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+    const fileName = `BUKTI_${invoice}.jpg`;
 
     const bytes = Utilities.base64Decode(base64Data);
     const blob = Utilities.newBlob(bytes, 'image/jpeg', fileName);
@@ -2582,7 +2585,7 @@ function handleKonfirmasiBayarProduk(data) {
       if (namaSponsorForEmail) {
         // Prioritas 1: Cari di TabelUser (DB_USER) - Kolom B Nama, Kolom C Email
         try {
-          const DB_USER = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
+          // const DB_USER = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
           const ssUser = SpreadsheetApp.openById(DB_USER);
           const shTU = ssUser.getSheetByName('TabelUser');
           if (shTU) {
@@ -2599,7 +2602,7 @@ function handleKonfirmasiBayarProduk(data) {
         // Prioritas 2: Cari di DATAKONSUMEN (DB_PROGRAM) - Kolom E Nama, Kolom H Email
         if (!emailSponsor) {
           try {
-            const DB_PROGRAM = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
+            // const DB_PROGRAM = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
             const ssProgram = SpreadsheetApp.openById(DB_PROGRAM);
             const shDK = ssProgram.getSheetByName('DATAKONSUMEN');
             if (shDK) {
