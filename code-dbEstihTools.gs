@@ -2045,7 +2045,7 @@ function handleTandaTerimaProduk(data) {
 
 /***********************************************************
 * Fungsi: kirimWAPesananProdukKonsumen_
-* Kirim WA ke Konsumen tentang "Pesanan Produk"
+* Kirim WA ke Konsumen tentang "Pesanan Produk" 
 * Isi: Ringkasan pesanan + Link Invoice (pdfLink) + Link Tanda Terima (ttLink)
 * Mengembalikan TRUE jika Fonnte response JSON.status === true
 ************************************************************/
@@ -2126,8 +2126,8 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
       success = false;
     }
 
-    // Kirim CC ke Admin (jangan sampai mengganggu status sukses konsumen)
-    try { UrlFetchApp.fetch(url, options_admin1); } catch (e) { Logger.log('⚠️ CC Admin1 WA gagal: ' + e.message); }
+    // TIDAK DI AKTIFKAN Kirim CC ke Admin (jangan sampai mengganggu status sukses konsumen)
+    //try { UrlFetchApp.fetch(url, options_admin1); } catch (e) { Logger.log('⚠️ CC Admin1 WA gagal: ' + e.message); }
     //try { UrlFetchApp.fetch(url, options_admin2); } catch (e) { Logger.log('⚠️ CC Admin2 WA gagal: ' + e.message); }
 
     if (success) {
