@@ -10,10 +10,19 @@ if (orderTbody) {
 }
 
 // ****************************************************************
-// MAPPING KATEGORI -> PAKET PRODUK (verbatim dari requirement user)
-// key = kode localStorage.pesananKategori dari frmProduk.html
+// MAPPING KATEGORI -> PAKET PRODUK
+// ATURAN BARU FLEXIBEL (TIDAK hardcode lagi!):
+//   ✅ Data mapping diambil dari SHEET Google Sheets:
+//        1) Sheet "TabelKategori"  (Kolom A = kode kategori, Kolom B = label kategori)
+//        2) Sheet "TabelHarga"     (Kolom B = Kategori [label], Kolom C = NamaProduk)
+//        via backend action getPaketProdukByKategori.
+//   ✅ Mapping disimpan di sessionStorage (TTL 10 menit) agar tidak request setiap load,
+//      hemat bandwidth dan page lebih cepat.
+//   ✅ FALLBACK_MAP: di bawah ini hanya sebagai SAFETY NET (jika server error / timeout),
+//      BUKAN sumber kebenaran lagi. Jadi jika kategori baru ditambahkan di sheet,
+//      otomatis muncul tanpa ubah kode — cukup update sheet saja.
 // ****************************************************************
-const PAKET_PRODUK_BY_KATEGORI = {
+const PAKET_PRODUK_FALLBACK = {
   lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
   dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
   remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
@@ -21,6 +30,70 @@ const PAKET_PRODUK_BY_KATEGORI = {
   naikBB:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
   turunBB: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
 };
+// Diisi async saat DOMContentLoaded (dari getPaketProdukByKategori JSONP).
+// Mutabel: bisa di-replace kapan saja (bukan const).
+let PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
+
+const PAKET_BY_KATEGORI_CACHE_KEY = 'cache_paket_by_kategori_v1';
+const PAKET_BY_KATEGORI_CACHE_TTL = 10 * 1000; // 10 detik (ms)
+
+// Refresh PAKET_PRODUK_BY_KATEGORI dari backend TabelHarga + TabelKategori.
+// Hasil disimpan ke sessionStorage (TTL 10 detik).
+function refreshPaketByKategoriFromSheet_() {
+  return new Promise(function(resolve) {
+    try {
+      // Step 1: Coba baca dari sessionStorage duluan (jika masih valid).
+      try {
+        const raw = sessionStorage.getItem(PAKET_BY_KATEGORI_CACHE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const ts = Number(parsed && parsed._ts) || 0;
+          const age = Date.now() - ts;
+          if (age >= 0 && age < PAKET_BY_KATEGORI_CACHE_TTL && parsed.mapPaket && typeof parsed.mapPaket === 'object') {
+            PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK, parsed.mapPaket);
+            console.log('✅ PAKET_PRODUK_BY_KATEGORI: pakai cache sessionStorage (age=' + Math.round(age/1000) + 's), jumlah kategori=' + Object.keys(PAKET_PRODUK_BY_KATEGORI).length);
+            resolve(true);
+            return;
+          }
+        }
+      } catch (eCache) { /* abaikan, lanjut ke network */ }
+
+      // Step 2: Request backend getPaketProdukByKategori (pakai fetchJsonpEstihtools helper).
+      fetchJsonpEstihtools('getPaketProdukByKategori', {}).then(function(resp) {
+        try {
+          if (!resp || resp.status === 'error') {
+            throw new Error((resp && resp.message) || 'getPaketProdukByKategori gagal');
+          }
+          const mapPaket = resp.mapPaket || {};
+          // Update global variable (merge dengan fallback agar kategori lama yang tidak di sheet
+          // TabelKategori tetap terbaca).
+          PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK, mapPaket);
+          // Simpan ke sessionStorage dengan timestamp.
+          try {
+            sessionStorage.setItem(PAKET_BY_KATEGORI_CACHE_KEY, JSON.stringify({
+              _ts: Date.now(),
+              mapPaket: PAKET_PRODUK_BY_KATEGORI
+            }));
+          } catch (eSave) { /* abaikan quota penuh */ }
+          console.log('✅ PAKET_PRODUK_BY_KATEGORI: refresh dari TabelKategori + TabelHarga SUKSES, jumlah kategori=' + Object.keys(PAKET_PRODUK_BY_KATEGORI).length);
+          resolve(true);
+        } catch (errInner) {
+          console.warn('⚠️ PAKET_PRODUK_BY_KATEGORI: parse response gagal, pakai FALLBACK_MAP. Error:', errInner);
+          PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
+          resolve(false);
+        }
+      }).catch(function(errNet) {
+        console.warn('⚠️ PAKET_PRODUK_BY_KATEGORI: network/JSONP error, pakai FALLBACK_MAP. Error:', errNet);
+        PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
+        resolve(false);
+      });
+    } catch (errOuter) {
+      console.warn('⚠️ PAKET_PRODUK_BY_KATEGORI: wrapper error, pakai FALLBACK_MAP. Error:', errOuter);
+      PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
+      resolve(false);
+    }
+  });
+}
 
 // ****************************************************************
 // Global state untuk conditional behavior level user (peserta/member)
@@ -171,7 +244,12 @@ async function prefillDataKonsumen(options = {}) {
 // **********************************************
 document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM fully loaded and parsed - mode pemesanan produk Beratidealku");
-    
+
+    // 🔹 PERTAMA: Refresh mapping PAKET_PRODUK_BY_KATEGORI dari sheet TabelKategori + TabelHarga
+    //    (cache 10 menit, fallback ke PAKET_PRODUK_FALLBACK jika error / timeout)
+    //    Berjalan async PARALEL dengan initPesananContext supaya tidak delay load form lebih lama
+    const paketReady = refreshPaketByKategoriFromSheet_().catch(()=>false);
+
     // Generate Tanggal dan Invoice
     const mDateField    = document.getElementById('date'); 
     const mInvoiceField = document.getElementById('invoice');
@@ -195,7 +273,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // AMBIL USER CONTEXT (level, totalPoint, namaSponsor, hpSponsor, namaKonsumen)
     // HANYA setelah context didapat -> loadOptions() + prefillDataKonsumen()
-    initPesananContext()
+    Promise.all([
+      paketReady,
+      initPesananContext()
+    ])
       .then(() => {
         return loadOptions();
       })
@@ -716,6 +797,24 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
 
     const normalizeKategoriCompact_ = (v) => normalizeKategori_(v).replace(/\s+/g, '');
 
+    // Helper: lookup PAKET_PRODUK_BY_KATEGORI secara CASE-INSENSITIVE + compact key
+    // (backend TabelHarga key biasanya lowercase compact: "naikbb", bukan "naikBB")
+    function getPaketLengkapByKey_(key) {
+      if (!key) return '';
+      if (PAKET_PRODUK_BY_KATEGORI[key]) return PAKET_PRODUK_BY_KATEGORI[key];
+      const keyLower = key.toLowerCase();
+      if (PAKET_PRODUK_BY_KATEGORI[keyLower]) return PAKET_PRODUK_BY_KATEGORI[keyLower];
+      const keyCompact = keyLower.replace(/\s+/g, '');
+      if (PAKET_PRODUK_BY_KATEGORI[keyCompact]) return PAKET_PRODUK_BY_KATEGORI[keyCompact];
+      // Terakhir: cari di seluruh key PAKET_PRODUK_BY_KATEGORI, compare compact
+      var keys = Object.keys(PAKET_PRODUK_BY_KATEGORI || {});
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (k && k.toLowerCase().replace(/\s+/g, '') === keyCompact) return PAKET_PRODUK_BY_KATEGORI[k];
+      }
+      return '';
+    }
+
     const keyNorm = normalizeKategoriCompact_(kategoriKey);
     let kategoriTarget = kategoriKey;
     if (keyNorm && Array.isArray(kategoriList)) {
@@ -725,8 +824,9 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
       );
       if (match && match.kategori) kategoriTarget = match.kategori;
     }
-    if (kategoriTarget === kategoriKey && PAKET_PRODUK_BY_KATEGORI && PAKET_PRODUK_BY_KATEGORI[kategoriKey]) {
-      kategoriTarget = PAKET_PRODUK_BY_KATEGORI[kategoriKey];
+    const paketLengkap = getPaketLengkapByKey_(kategoriKey);
+    if (kategoriTarget === kategoriKey && paketLengkap) {
+      kategoriTarget = paketLengkap;
     }
 
     const normalizeText_ = (v) => String(v || '')
@@ -744,9 +844,34 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
       if (exact && exact.NoStok) {
         recommendedNoStok = String(exact.NoStok);
       } else {
-        const shortNeedle = targetNameNorm.substring(0, 30);
-        const partial = allProducts.find(p => normalizeText_(p && p.NamaProduk).includes(shortNeedle));
-        if (partial && partial.NoStok) recommendedNoStok = String(partial.NoStok);
+        // Jika exact match dengan teks paket lengkap gagal, coba match dengan nama paket pendek
+        // mis. "start now" cari NamaProduk yang mengandung keyword 2 suku kata pertama paketLengkap
+        var keywords = paketLengkap
+          ? paketLengkap.split(/\s+|[(),]/).map(function(s){return s.trim().toLowerCase();}).filter(Boolean).slice(0,4)
+          : [];
+        if (!keywords.length) {
+          const shortNeedle = targetNameNorm.substring(0, 30);
+          const partial = allProducts.find(p => normalizeText_(p && p.NamaProduk).includes(shortNeedle));
+          if (partial && partial.NoStok) recommendedNoStok = String(partial.NoStok);
+        } else {
+          const partial = allProducts.find(p => {
+            const nm = normalizeText_(p && p.NamaProduk);
+            if (!nm) return false;
+            return keywords.every(function(kw){ return nm.indexOf(kw) !== -1; });
+          });
+          if (partial && partial.NoStok) recommendedNoStok = String(partial.NoStok);
+          if (!recommendedNoStok) {
+            // fallback: match minimal 2 dari 4 keyword
+            var partial2 = allProducts.find(p => {
+              const nm = normalizeText_(p && p.NamaProduk);
+              if (!nm) return false;
+              var matchCount = 0;
+              keywords.forEach(function(kw){ if (nm.indexOf(kw)!==-1) matchCount++; });
+              return matchCount >= Math.max(2, Math.floor(keywords.length/2));
+            });
+            if (partial2 && partial2.NoStok) recommendedNoStok = String(partial2.NoStok);
+          }
+        }
       }
     }
 

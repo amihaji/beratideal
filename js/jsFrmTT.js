@@ -149,6 +149,7 @@ function prefillFromQueryParams(params) {
         kecamatan: params.get('kecamatan') || '',
         kota: params.get('kota') || '',
         propensi: params.get('propensi') || '',
+        kategoriPesanan: params.get('kategoriPesanan') || '',
         items: []
       };
 
@@ -296,6 +297,7 @@ function prefillOrderData(noPesanan) {
           kecamatan: resp.mKecamatan || '',
           kota: resp.mKota || '',
           propensi: resp.mPropensi || '',
+          kategoriPesanan: resp.mKategoriPesanan || resp.kategoriPesanan || '',
           grandTotal: resp.mTotalPrice || 0,
           items: Array.isArray(resp.items) ? resp.items : []
         });
@@ -428,17 +430,32 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     return '';
   }
 
-  // Kumpulkan kategori unik dari items
-  const kategoriDariItems = [];
-  normalized.forEach(function(it){
-    if (!it.kategori) return;
-    const resolved = normalizeKat_(it.kategori);
-    if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
-  });
-  // Tambahkan kategori eksplisit dari orderData (jika ada)
+  // 🔎 PRIORITAS KATEGORI (MENJAGA AGAR TIDAK TAMPIL SEMUA PAKET):
+  // ------------------------------------------------------------------
+  // User request: Detail Produk JANGAN tampilkan semua paket, CUKUP
+  // yang konsumen BELI saja.
+  //
+  // Rule prioritas (sangat ketat):
+  //   1. TERTINGGI = orderData.kategoriPesanan  (single value dari
+  //      localStorage.pesananKategori di frmProduk.html).
+  //      JIKA ADA → HANYA GUNAKAN INI SAJA, JANGAN lihat items-level kategori
+  //      (karena item-level kadang fieldnya tidak konsisten antar sheet dan
+  //       bisa menyebabkan kebetulan match ke SEMUA kategori 6 paket).
+  //   2. HANYA JIKA kategoriPesanan KOSONG → baru gabung dari kategori item per item.
+  // ------------------------------------------------------------------
+  let kategoriDariItems = [];
   if (orderData.kategoriPesanan) {
     const resolved = normalizeKat_(orderData.kategoriPesanan);
-    if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
+    if (resolved) kategoriDariItems = [resolved];  // HANYA 1 nilai, tidak digabung items
+    console.log('🔎 applyOrderData: PAKAI kategoriPesanan (prioritas tertinggi):', kategoriDariItems);
+  } else {
+    // Hanya jika kategoriPesanan tidak ada, baru gabung kategori dari tiap item
+    normalized.forEach(function(it){
+      if (!it.kategori) return;
+      const resolved = normalizeKat_(it.kategori);
+      if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
+    });
+    console.log('🔎 applyOrderData: PAKAI kategori dari tiap item (kategoriPesanan kosong):', kategoriDariItems);
   }
 
   const resolvedPaketList = [];
