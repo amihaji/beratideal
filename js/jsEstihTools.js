@@ -1091,10 +1091,10 @@ function simpanData() {
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
-      document.getElementById("submitButton").style.display   = "none";
-      document.getElementById("inputanSection").style.display = "none";
+      // document.getElementById("submitButton").style.display   = "none";
+      // document.getElementById("inputanSection").style.display = "none";
       hideSpinner("kirimButton");
-      showNotification('success', 'SUKSES: Data berhasil disimpan. Mengarahkan ke Form Konfirmasi Bayar Produk...');
+      // showNotification('success', 'SUKSES: Data berhasil disimpan. Mengarahkan ke Form Konfirmasi Bayar Produk...');
 
       // Simpan backup data order ke localStorage (jalur utama untuk frmKonfirmasi)
       try {

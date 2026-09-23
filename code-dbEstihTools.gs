@@ -1842,9 +1842,9 @@ function handleTandaTerimaProduk(data) {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #041e55;">Tanda Terima Produk - Beratidealku</h2>
           <hr>
-          <table style="width: 100%%; margin: 15px 0; border-collapse: collapse;">
+          <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
             <tr>
-              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; width: 40%%;"><strong>No. Pesanan</strong></td>
+              <td style="padding: 8px; border: 1px solid #dee2e6; background-color: #f8f9fa; width: 40%;"><strong>No. Pesanan</strong></td>
               <td style="padding: 8px; border: 1px solid #dee2e6;">${noPesanan}</td>
             </tr>
             <tr>
@@ -2365,124 +2365,34 @@ function handleKonfirmasiBayarProduk(data) {
     // 4. Generate link tanda terima produk frmTT.html
     //    Diisi BASE_URL lengkap dengan domain publik hosting (tanpa trailing slash)
     //    Contoh: 'https://beratidealku.com' atau 'https://amihaji.github.io/beratideal'
-    //    IMPORTANT: Semua field prefill di-encode ke URL query param supaya prefill 100% work
-    //               tanpa perlu request server (JSONP) saat user klik link dari WA/Email
+    //    NOTE: Google Apps Script TIDAK memiliki URLSearchParams (API browser saja).
+    //          Build query string MANUAL dengan encodeURIComponent.
     const BASE_URL = 'https://amihaji.github.io/beratideal';
-    const prefillParams = new URLSearchParams();
-    prefillParams.append('noPesanan', noPesanan);
-    prefillParams.append('namaKonsumen', String(orderDataForPdf.mConsumerName || ''));
-    prefillParams.append('hpKonsumen', String(orderDataForPdf.mConsumerPhone || ''));
-    prefillParams.append('namaSponsor', String(orderDataForPdf.mDistributorName || ''));
-    prefillParams.append('hpSponsor', String(orderDataForPdf.mDistributorPhone || ''));
-    prefillParams.append('alamat', String(orderDataForPdf.mAlamat || ''));
-    prefillParams.append('kelurahan', String(orderDataForPdf.mKelurahan || ''));
-    prefillParams.append('kecamatan', String(orderDataForPdf.mKecamatan || ''));
-    prefillParams.append('kota', String(orderDataForPdf.mKota || ''));
-    prefillParams.append('propensi', String(orderDataForPdf.mPropensi || ''));
-    // Items: encode sebagai JSON string → base64 agar URL bersih
+    function _enc(s) { return encodeURIComponent(String(s == null ? '' : s)); }
+    let ttQs  = 'noPesanan='    + _enc(noPesanan);
+    ttQs     += '&namaKonsumen=' + _enc(orderDataForPdf.mConsumerName || '');
+    ttQs     += '&hpKonsumen='   + _enc(orderDataForPdf.mConsumerPhone || '');
+    ttQs     += '&namaSponsor='  + _enc(orderDataForPdf.mDistributorName || '');
+    ttQs     += '&hpSponsor='    + _enc(orderDataForPdf.mDistributorPhone || '');
+    ttQs     += '&alamat='       + _enc(orderDataForPdf.mAlamat || '');
+    ttQs     += '&kelurahan='    + _enc(orderDataForPdf.mKelurahan || '');
+    ttQs     += '&kecamatan='    + _enc(orderDataForPdf.mKecamatan || '');
+    ttQs     += '&kota='         + _enc(orderDataForPdf.mKota || '');
+    ttQs     += '&propensi='     + _enc(orderDataForPdf.mPropensi || '');
     try {
       if (Array.isArray(orderDataForPdf.mItems) && orderDataForPdf.mItems.length) {
-        const itemsStr = JSON.stringify(orderDataForPdf.mItems.map(it => ({
-          nama: it.mNama || it.nama || '',
-          qty: it.mJumlah || it.qty || 0
-        })));
-        prefillParams.append('items', Utilities.base64Encode(itemsStr, Utilities.Charset.UTF_8));
+        const itemsStr = JSON.stringify(orderDataForPdf.mItems.map(function(it) {
+          return { nama: it.mNama || it.nama || '', qty: it.mJumlah || it.qty || 0 };
+        }));
+        ttQs += '&items=' + _enc(Utilities.base64Encode(itemsStr, Utilities.Charset.UTF_8));
       }
-    } catch (eItems) { /* ignore */ }
-    const ttLink = BASE_URL + '/frmTT.html?' + prefillParams.toString();
+    } catch (eItems) { Logger.log('⚠️ items encode skip: ' + eItems.message); }
+    const ttLink = BASE_URL + '/frmTT.html?' + ttQs;
     Logger.log('Link Tanda Terima: ' + ttLink);
 
-    // 6 & 7. Kirim WA ke Konsumen dan Sponsor
-    const waKonsumenOK = kirimWAPesananProdukKonsumen_({
-      noPesanan: noPesanan,
-      namaKonsumen: orderDataForPdf.mConsumerName,
-      hpKonsumen: orderDataForPdf.mConsumerPhone,
-      emailKonsumen: orderDataForPdf.mConsumerEmail,
-      namaSponsor: orderDataForPdf.mDistributorName,
-      hpSponsor: orderDataForPdf.mDistributorPhone,
-      grandTotal: orderDataForPdf.mTotalPrice
-    }, pdfLink, ttLink);
-
-    const waSponsorOK = kirimWAPesananProdukSponsor_({
-      noPesanan: noPesanan,
-      namaKonsumen: orderDataForPdf.mConsumerName,
-      hpKonsumen: orderDataForPdf.mConsumerPhone,
-      namaSponsor: orderDataForPdf.mDistributorName,
-      hpSponsor: orderDataForPdf.mDistributorPhone,
-      grandTotal: orderDataForPdf.mTotalPrice
-    }, pdfLink, buktiLink);
-
-    const statusWA = (waKonsumenOK && waSponsorOK) ? 'OK' : (waKonsumenOK ? 'OK-KONS' : (waSponsorOK ? 'OK-SPON' : 'GAGAL'));
-
-    // 8 & 9. Kirim Email ke Konsumen dan Sponsor
-    //    Lookup email sponsor:
-    //    1. Cari di TabelUser (DB_USER) berdasarkan nama user (kolom B) → email kolom C
-    //    2. Fallback: cari di DATAKONSUMEN (DB_PROGRAM) berdasarkan nama konsumen (kolom E) → email kolom H
-    const namaSponsorForEmail = String(orderDataForPdf.mDistributorName || '').trim();
-    let emailSponsor = '';
-    try {
-      if (namaSponsorForEmail) {
-        // Prioritas 1: Cari di TabelUser (DB_USER)
-        const DB_USER = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
-        const ssUser = SpreadsheetApp.openById(DB_USER);
-        const shTU = ssUser.getSheetByName('TabelUser');
-        if (shTU) {
-          const tuData = shTU.getDataRange().getValues();
-          for (let i = 1; i < tuData.length; i++) {
-            const namaRow = String(tuData[i][1] || '').trim(); // Kolom B = Nama User
-            if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
-              emailSponsor = String(tuData[i][2] || '').trim(); // Kolom C = Email User
-              if (emailSponsor) break;
-            }
-          }
-        }
-        // Prioritas 2: Jika tidak ketemu di TabelUser, cari di DATAKONSUMEN (DB_PROGRAM)
-        if (!emailSponsor) {
-          const DB_PROGRAM = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
-          const ssProgram = SpreadsheetApp.openById(DB_PROGRAM);
-          const shDK = ssProgram.getSheetByName('DATAKONSUMEN');
-          if (shDK) {
-            const dkData = shDK.getDataRange().getValues();
-            for (let i = 1; i < dkData.length; i++) {
-              const namaRow = String(dkData[i][4] || '').trim(); // Kolom E = Nama Konsumen
-              if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
-                emailSponsor = String(dkData[i][7] || '').trim(); // Kolom H = Email
-                if (emailSponsor) break;
-              }
-            }
-          }
-        }
-      }
-    } catch (eLookup) {
-      Logger.log('⚠️ Lookup email sponsor gagal: ' + eLookup.message);
-    }
-    // Fallback terakhir: jika ada data email dari kolom sponsor di DataPesanan, pakai itu
-    if (!emailSponsor && pesananFromSheet && pesananFromSheet.mDistributorEmail) {
-      emailSponsor = String(pesananFromSheet.mDistributorEmail || '').trim();
-    }
-
-    const emailKonsumenOK = kirimEmailPesananProdukKonsumen_({
-      noPesanan: noPesanan,
-      namaKonsumen: orderDataForPdf.mConsumerName,
-      hpKonsumen: orderDataForPdf.mConsumerPhone,
-      emailKonsumen: orderDataForPdf.mConsumerEmail,
-      namaSponsor: orderDataForPdf.mDistributorName,
-      hpSponsor: orderDataForPdf.mDistributorPhone,
-      grandTotal: orderDataForPdf.mTotalPrice
-    }, pdfLink, ttLink);
-
-    const emailSponsorOK = kirimEmailPesananProdukSponsor_({
-      noPesanan: noPesanan,
-      namaKonsumen: orderDataForPdf.mConsumerName,
-      hpKonsumen: orderDataForPdf.mConsumerPhone,
-      namaSponsor: orderDataForPdf.mDistributorName,
-      hpSponsor: orderDataForPdf.mDistributorPhone,
-      grandTotal: orderDataForPdf.mTotalPrice
-    }, pdfLink, buktiLink, emailSponsor);
-
-    const statusEmail = (emailKonsumenOK && emailSponsorOK) ? 'OK' : (emailKonsumenOK ? 'OK-KONS' : (emailSponsorOK ? 'OK-SPON' : 'GAGAL'));
-
     // 5. Update kolom AA-AK di sheet DataPesanan
+    // PENTING: Simpan ke sheet DULU, sebelum kirim notifikasi.
+    //          Meskipun WA/Email gagal, DATA PEMBAYARAN TETAP TERSIMPAN.
     const nominalTransfer = safeNum(data.grandTotal || orderDataForPdf.mTotalPrice);
     const tglBayar = Utilities.formatDate(new Date(), "GMT+7", "dd-MM-yyyy HH:mm:ss");
 
@@ -2493,14 +2403,132 @@ function handleKonfirmasiBayarProduk(data) {
       namaPenerima: String(data.namaPenerima || ''),
       acPenerima: String(data.acPenerima || ''),
       nominalTransfer: nominalTransfer,
-      statusWA: statusWA,
-      statusEmail: statusEmail,
+      statusWA: 'PENDING',
+      statusEmail: 'PENDING',
       tglBayar: tglBayar,
       linkBukti: buktiLink,
       statusBayar: 'OK'
     };
-
     updateDataPesananKolomBayar_(noPesanan, pembayaran);
+    Logger.log('✅ Data konfirmasi bayar TERSIMPAN di sheet: ' + noPesanan);
+
+    // 6 & 7. Kirim WA ke Konsumen dan Sponsor
+    // BUNGKUS dengan try/catch terpisah: JANGAN SAMPAI WA GAGAL => crash handler
+    let waKonsumenOK = false, waSponsorOK = false;
+    try {
+      waKonsumenOK = kirimWAPesananProdukKonsumen_({
+        noPesanan: noPesanan,
+        namaKonsumen: orderDataForPdf.mConsumerName,
+        hpKonsumen: orderDataForPdf.mConsumerPhone,
+        emailKonsumen: orderDataForPdf.mConsumerEmail,
+        namaSponsor: orderDataForPdf.mDistributorName,
+        hpSponsor: orderDataForPdf.mDistributorPhone,
+        grandTotal: orderDataForPdf.mTotalPrice
+      }, pdfLink, ttLink);
+    } catch (eWA1) { Logger.log('❌ WA Konsumen exc: ' + eWA1.message); waKonsumenOK = false; }
+    try {
+      waSponsorOK = kirimWAPesananProdukSponsor_({
+        noPesanan: noPesanan,
+        namaKonsumen: orderDataForPdf.mConsumerName,
+        hpKonsumen: orderDataForPdf.mConsumerPhone,
+        namaSponsor: orderDataForPdf.mDistributorName,
+        hpSponsor: orderDataForPdf.mDistributorPhone,
+        grandTotal: orderDataForPdf.mTotalPrice
+      }, pdfLink, buktiLink);
+    } catch (eWA2) { Logger.log('❌ WA Sponsor exc: ' + eWA2.message); waSponsorOK = false; }
+
+    const statusWA = (waKonsumenOK && waSponsorOK) ? 'OK' : (waKonsumenOK ? 'OK-KONS' : (waSponsorOK ? 'OK-SPON' : 'GAGAL'));
+
+    // 8 & 9. Kirim Email ke Konsumen dan Sponsor
+    // BUNGKUS dengan try/catch terpisah: JANGAN SAMPAI EMAIL GAGAL => crash handler
+    const namaSponsorForEmail = String(orderDataForPdf.mDistributorName || '').trim();
+    let emailSponsor = '';
+    try {
+      if (namaSponsorForEmail) {
+        // Prioritas 1: Cari di TabelUser (DB_USER) - Kolom B Nama, Kolom C Email
+        try {
+          const DB_USER = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
+          const ssUser = SpreadsheetApp.openById(DB_USER);
+          const shTU = ssUser.getSheetByName('TabelUser');
+          if (shTU) {
+            const tuData = shTU.getDataRange().getValues();
+            for (let i = 1; i < tuData.length; i++) {
+              const namaRow = String(tuData[i][1] || '').trim();
+              if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
+                emailSponsor = String(tuData[i][2] || '').trim();
+                if (emailSponsor) break;
+              }
+            }
+          }
+        } catch (eTU) { Logger.log('⚠️ lookup TabelUser skip: ' + eTU.message); }
+        // Prioritas 2: Cari di DATAKONSUMEN (DB_PROGRAM) - Kolom E Nama, Kolom H Email
+        if (!emailSponsor) {
+          try {
+            const DB_PROGRAM = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
+            const ssProgram = SpreadsheetApp.openById(DB_PROGRAM);
+            const shDK = ssProgram.getSheetByName('DATAKONSUMEN');
+            if (shDK) {
+              const dkData = shDK.getDataRange().getValues();
+              for (let i = 1; i < dkData.length; i++) {
+                const namaRow = String(dkData[i][4] || '').trim();
+                if (namaRow.toLowerCase() === namaSponsorForEmail.toLowerCase()) {
+                  emailSponsor = String(dkData[i][7] || '').trim();
+                  if (emailSponsor) break;
+                }
+              }
+            }
+          } catch (eDK) { Logger.log('⚠️ lookup DATAKONSUMEN skip: ' + eDK.message); }
+        }
+      }
+    } catch (eLookup) {
+      Logger.log('⚠️ Lookup email sponsor gagal: ' + eLookup.message);
+    }
+    if (!emailSponsor && pesananFromSheet && pesananFromSheet.mDistributorEmail) {
+      emailSponsor = String(pesananFromSheet.mDistributorEmail || '').trim();
+    }
+
+    let emailKonsumenOK = false, emailSponsorOK = false;
+    try {
+      emailKonsumenOK = kirimEmailPesananProdukKonsumen_({
+        noPesanan: noPesanan,
+        namaKonsumen: orderDataForPdf.mConsumerName,
+        hpKonsumen: orderDataForPdf.mConsumerPhone,
+        emailKonsumen: orderDataForPdf.mConsumerEmail,
+        namaSponsor: orderDataForPdf.mDistributorName,
+        hpSponsor: orderDataForPdf.mDistributorPhone,
+        grandTotal: orderDataForPdf.mTotalPrice
+      }, pdfLink, ttLink);
+    } catch (eEM1) { Logger.log('❌ Email Konsumen exc: ' + eEM1.message); emailKonsumenOK = false; }
+    try {
+      emailSponsorOK = kirimEmailPesananProdukSponsor_({
+        noPesanan: noPesanan,
+        namaKonsumen: orderDataForPdf.mConsumerName,
+        hpKonsumen: orderDataForPdf.mConsumerPhone,
+        namaSponsor: orderDataForPdf.mDistributorName,
+        hpSponsor: orderDataForPdf.mDistributorPhone,
+        grandTotal: orderDataForPdf.mTotalPrice
+      }, pdfLink, buktiLink, emailSponsor);
+    } catch (eEM2) { Logger.log('❌ Email Sponsor exc: ' + eEM2.message); emailSponsorOK = false; }
+
+    const statusEmail = (emailKonsumenOK && emailSponsorOK) ? 'OK' : (emailKonsumenOK ? 'OK-KONS' : (emailSponsorOK ? 'OK-SPON' : 'GAGAL'));
+
+    // UPDATE kembali kolom status WA & Email setelah notifikasi selesai
+    try {
+      const pembayaranUpdate = {
+        linkPdf: pdfLink,
+        metodeBayar: String(data.metodeBayar || 'Transfer'),
+        namaBank: String(data.namaBank || ''),
+        namaPenerima: String(data.namaPenerima || ''),
+        acPenerima: String(data.acPenerima || ''),
+        nominalTransfer: nominalTransfer,
+        statusWA: statusWA,
+        statusEmail: statusEmail,
+        tglBayar: tglBayar,
+        linkBukti: buktiLink,
+        statusBayar: 'OK'
+      };
+      updateDataPesananKolomBayar_(noPesanan, pembayaranUpdate);
+    } catch (eUpd) { Logger.log('⚠️ Update status notifikasi gagal (data sudah tersimpan): ' + eUpd.message); }
 
     Logger.log('=== handleKonfirmasiBayarProduk SELESAI ===');
 
