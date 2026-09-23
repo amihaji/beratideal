@@ -1,6 +1,7 @@
 /*******************************************************
 /*               DEKLARASI GLOBAL                      *
 /*******************************************************/
+const TokenFonnte         = "NPUQeEn4zATP628wK7au";
 const DB_PROGRAM          = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
 const DB_USER             = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
 const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
@@ -1820,7 +1821,8 @@ function uploadBuktiProdukToDrive_(base64Data, invoice) {
 
     const folderId = (DATASTRUK && String(DATASTRUK).trim()) ? DATASTRUK : DATAINVOICE;
     const folder = DriveApp.getFolderById(folderId);
-    const fileName = `TERIMA_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+    // const fileName = `TERIMA_${invoice}_${Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss")}.jpg`;
+    const fileName = `TERIMA_${invoice}.jpg`;
 
     const bytes = Utilities.base64Decode(base64Data);
     const blob = Utilities.newBlob(bytes, 'image/jpeg', fileName);
@@ -1938,7 +1940,7 @@ function handleTandaTerimaProduk(data) {
 
         const pesanWA = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10;
 
-        const TokenFonnte = "NPUQeEn4zATP628wK7au";
+        // const TokenFonnte = "NPUQeEn4zATP628wK7au";
         const urlWA = "https://api.fonnte.com/send";
 
         const options_a1 = {
@@ -2081,7 +2083,7 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
     const t6  = '\n*No. Pesanan :* ' + orderData.noPesanan;
     const t7  = '\n*Total Bayar : Rp. ' + formatCurrency(orderData.grandTotal || orderData.mTotalPrice || 0) + '*';
     const t8  = '\n\n*Download Invoice :*\n' + (pdfLink || '-');
-    const t9  = '\n\n*Silahkan isi form tanda terima, jika barang telah diterima: *\n' + (ttLink || '-');
+    const t9  = '\n\n*Silahkan isi form tanda terima, jika barang telah diterima:*\n' + (ttLink || '-');
     const t10 = '\n\nSimpan link diatas sebagai bukti. Admin & Sponsor segera memproses pengiriman produk Anda.';
     const t11 = '\n\nKontak Sponsor :';
     const t12 = '\n*' + (orderData.namaSponsor || orderData.mDistributorName || '') + '*';
@@ -2092,7 +2094,7 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
     const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14 + t15;
 
     // PAKAI TOKEN & URL SAMA PERSIS dengan code-dbDaftarBeratideal.gs yang WORKING
-    const TokenFonnte = "NPUQeEn4zATP628wK7au";
+    // const TokenFonnte = "NPUQeEn4zATP628wK7au";
     const url = "https://api.fonnte.com/send";
 
     const options_konsumen = {
@@ -2190,7 +2192,7 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink, buktiLink) {
     const pesan = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t9a + t10 + t11 + t12;
 
     // PAKAI TOKEN & URL SAMA PERSIS dengan code-dbDaftarBeratideal.gs yang WORKING
-    const TokenFonnte = "NPUQeEn4zATP628wK7au";
+    // const TokenFonnte = "NPUQeEn4zATP628wK7au";
     const url = "https://api.fonnte.com/send";
 
     const options_sponsor = {
