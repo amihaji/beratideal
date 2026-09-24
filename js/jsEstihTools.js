@@ -247,8 +247,28 @@ async function prefillDataKonsumen(options = {}) {
 document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM fully loaded and parsed - mode pemesanan produk Beratidealku");
 
+    // 🔹 INISIALISASI BOOTSTRAP TOOLTIPS (global di halaman utama, bukan hanya modal)
+    //    Sama persis dengan pola tooltips di formDashboard.html FollowupCrm Edit menu
+    try {
+      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const allTooltipTriggers = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        allTooltipTriggers.forEach(function(el) {
+          var old = bootstrap.Tooltip.getInstance(el);
+          if (old) old.dispose();
+          new bootstrap.Tooltip(el, {
+            trigger: 'hover focus',
+            container: 'body',
+            placement: 'top'
+          });
+        });
+        console.log('✅ Global tooltips diinisialisasi: jumlah=' + allTooltipTriggers.length);
+      }
+    } catch (eTt) {
+      console.warn('⚠️ Init tooltips gagal (abaikan jika bootstrap belum load):', eTt.message);
+    }
+
     // 🔹 PERTAMA: Refresh mapping PAKET_PRODUK_BY_KATEGORI dari sheet TabelKategori + TabelHarga
-    //    (cache 10 menit, fallback ke PAKET_PRODUK_FALLBACK jika error / timeout)
+    //    (cache 10 detik, fallback ke PAKET_PRODUK_FALLBACK jika error / timeout)
     //    Berjalan async PARALEL dengan initPesananContext supaya tidak delay load form lebih lama
     const paketReady = refreshPaketByKategoriFromSheet_().catch(()=>false);
 
