@@ -1,13 +1,14 @@
 /*******************************************************
 /*               DEKLARASI GLOBAL                      *
 /*******************************************************/
-const TokenFonnte         = "NPUQeEn4zATP628wK7au";
-const DB_PROGRAM          = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
-const DB_USER             = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
-const DB_ESTIHTOOLS       = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
-const DATAINVOICE         = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ';              // ID tempat menyimpan file invoice
-const DATASTRUK           = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file bukti pembayaran
-const DATATANDATERIMA     = '1B2HIfleUBug0utiyE04LwW5MeWw0ap5X';              // ID tempat menyimpan file bukti tanda terima
+const BASE_URL        = 'https://amihaji.github.io/beratideal';
+const TokenFonnte     = "NPUQeEn4zATP628wK7au";
+const DB_PROGRAM      = '12PzCrNdv_0Xxa4a8RBBv4d005hXmYFY5DjqxGl3QbE8';
+const DB_USER         = '1oNOSh0L9HkXDpEXGMAZOVRMw7crMGWbuOKUu7f4sSqY';
+const DB_ESTIHTOOLS   = '15c7FVZ-zfTtGTAMxgCb2HkmDdetybQtbpa4xqqUZ70E';   // ID database dbEstihTools
+const DATAINVOICE     = '1Sin4KLBYGFEzrmVH_2iEHIOoDQd_hBJJ';              // ID tempat menyimpan file invoice
+const DATASTRUK       = '1qyF_aBaLkKBxxT8PWnofAX3UGc50ztef';              // ID tempat menyimpan file bukti pembayaran
+const DATATANDATERIMA = '1B2HIfleUBug0utiyE04LwW5MeWw0ap5X';              // ID tempat menyimpan file bukti tanda terima
 
 // ID tempat menyimpan file struk pembayaran
 const SHEET_PRODUK_NAME   = "TabelHarga";      // Sheet untuk Tabel Harga
@@ -2026,7 +2027,7 @@ function handleTandaTerimaProduk(data) {
         const namaKonsumen = data.namaKonsumen || pesananInfo.mConsumerName || '';
         const namaSponsor  = data.namaSponsor  || pesananInfo.mDistributorName || '';
 
-        const t1  = '*Tanda Terima Produk - Beratidealku*';
+        const t1  = '*Tanda Terima Produk*';
         const t2  = '\n---------------------------------------------';
         const t3  = '\nTgl Submit : ' + mTgl;
         const t4  = '\nTgl Terima Produk : ' + tglTerima;
@@ -2070,7 +2071,7 @@ function handleTandaTerimaProduk(data) {
       const subjectEmail = `Tanda Terima Produk - ${noPesanan}`;
       const bodyEmail = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #041e55;">Tanda Terima Produk - Beratidealku</h2>
+          <h2 style="color: #041e55;">Tanda Terima Produk</h2>
           <hr>
           <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
             <tr>
@@ -2174,7 +2175,7 @@ function kirimWAPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
     const mBulan  = dateObj.getMonth() + 1;
     const mTgl    = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
 
-    const t1  = '*Pesanan Produk - Beratidealku*';
+    const t1  = '*Pesanan Produk*';
     const t2  = '\n---------------------------------------------';
     const t3  = '\nTgl : ' + mTgl;
     const t4  = '\nHalo Kak *' + (orderData.namaKonsumen || orderData.mConsumerName || '') + '*';
@@ -2274,7 +2275,7 @@ function kirimWAPesananProdukSponsor_(orderData, pdfLink, buktiLink) {
     const mBulan  = dateObj.getMonth() + 1;
     const mTgl    = dateObj.getDate() + "-" + mBulan + "-" + dateObj.getFullYear();
 
-    const t1  = '*Pesanan Konsumen - Beratidealku*';
+    const t1  = '*Pesanan Konsumen*';
     const t2  = '\n---------------------------------------------';
     const t3  = '\nTgl : ' + mTgl;
     const t4  = '\nHalo Kak *' + (orderData.namaSponsor || orderData.mDistributorName || '') + '*';
@@ -2368,7 +2369,7 @@ function kirimEmailPesananProdukKonsumen_(orderData, pdfLink, ttLink) {
 
     const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #041e55;">Konfirmasi Pembayaran Produk - Beratidealku</h2>
+        <h2 style="color: #041e55;">Konfirmasi Pembayaran Produk</h2>
         <p style="color: #495057;"><strong>Tanggal:</strong> ${mTgl}</p>
         <hr>
         <p>Halo Kak <strong>${namaKonsumen}</strong>,</p>
@@ -2453,7 +2454,7 @@ function kirimEmailPesananProdukSponsor_(orderData, pdfLink, buktiLink, emailSpo
 
     const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #041e55;">Notifikasi Pesanan Konsumen - Beratidealku</h2>
+        <h2 style="color: #041e55;">Notifikasi Pesanan Konsumen</h2>
         <p style="color: #495057;"><strong>Tanggal:</strong> ${mTgl}</p>
         <hr>
         <p>Halo Kak <strong>${namaSponsor}</strong>,</p>
@@ -2606,9 +2607,7 @@ function handleKonfirmasiBayarProduk(data) {
     // 4. Generate link tanda terima produk frmTT.html
     //    Diisi BASE_URL lengkap dengan domain publik hosting (tanpa trailing slash)
     //    Contoh: 'https://beratidealku.com' atau 'https://amihaji.github.io/beratideal'
-    //    NOTE: Google Apps Script TIDAK memiliki URLSearchParams (API browser saja).
-    //          Build query string MANUAL dengan encodeURIComponent.
-    const BASE_URL = 'https://amihaji.github.io/beratideal';
+    //    const BASE_URL = 'https://amihaji.github.io/beratideal';
     function _enc(s) { return encodeURIComponent(String(s == null ? '' : s)); }
     let ttQs  = 'noPesanan='    + _enc(noPesanan);
     ttQs     += '&namaKonsumen=' + _enc(orderDataForPdf.mConsumerName || '');
