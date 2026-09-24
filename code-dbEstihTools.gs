@@ -65,6 +65,11 @@ function doGet(e) {
       return buildDoGetResponse(getPaketProdukByKategori(), callback);
     }
 
+    if (action === "getTukarPointStatusByUserId") {
+      const userId = String(e.parameter.userId || '').trim();
+      return buildDoGetResponse(getTukarPointStatusByUserId_(userId), callback);
+    }
+
     // --- Tabel Harga ---
     if (action === 'getTabelProduk')           return handleGetTabelProduk(e);
     if (action === 'addProduk')                return handleAddProduk(e);
@@ -657,7 +662,8 @@ function saveOrder(orderData) {
   //  24 Kecamatan, 25 Kota, 26 Propensi, 27 link URL file PDF, 28 Metode Bayar,
   //  29 Nama Bank, 30 Nama Penerima, 31 AC Penerima, 32 Nominal Transfer,
   //  33 Status WA, 34 Status Email, 35 Tgl Bayar, 36 Link Bukti Transfer,
-  //  37 Status Bayar, 38 Tgl Terima, 39 Link Bukti Produk, 40 Status Terima
+  //  37 Status Bayar, 38 Tgl Terima, 39 Link Bukti Produk, 40 Status Terima,
+  //  41 Tukar Point, 42 UserId
   const newRows = orderData.items.map((item, idx) => {
     const qty = safeNumber_(item.mJumlah || 0);
     const hargaEceranPerUnit = safeNumber_(item.mHargaEceran || 0);
@@ -708,7 +714,9 @@ function saveOrder(orderData) {
       "",                                  // 37 Status Bayar
       "",                                  // 38 Tgl Terima
       "",                                  // 39 Link Bukti Produk
-      ""                                   // 40 Status Terima
+      "",                                  // 40 Status Terima
+      "",                                  // 41 Tukar Point (AO: otomatis OK saat konfirmasi bayar)
+      orderData.mUserId || ""              // 42 UserId (AP: userId dari localStorage, dipakai untuk cek Tukar Point sudah dipakai)
     ];
   });
 
@@ -1807,6 +1815,52 @@ function getDataPesananByInvoice(invoice) {
 }
 
 /***********************************************************
+* Fungsi: getTukarPointStatusByUserId_
+* Cek apakah user (userId) SUDAH PERNAH menukarkan point.
+* Logic: Cari di sheet DataPesanan -> kolom AP (42) = userId
+*        DAN kolom AO (41, Tukar Point) = "OK"
+*        Jika ada SETIDAKNYA 1 baris match -> tukarPointUsed: true
+*        (artinya user sudah menukarkan point, tombol Tukar Point Sekarang harus DISABLED)
+************************************************************/
+function getTukarPointStatusByUserId_(userId) {
+  try {
+    const sheet = ss.getSheetByName(SHEET_PESANAN_NAME);
+    if (!sheet) return { status: 'success', tukarPointUsed: false, message: 'Sheet tidak ditemukan' };
+
+    const target = String(userId || '').trim();
+    if (!target) return { status: 'success', tukarPointUsed: false, message: 'userId kosong' };
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { status: 'success', tukarPointUsed: false, message: 'Data kosong' };
+
+    const COL_USERID     = 42 - 1; // AP=42 (0-based)
+    const COL_TUKARPOINT = 41 - 1; // AO=41 (0-based)
+
+    let matchCount = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const uid    = String(row[COL_USERID]     || '').trim();
+      const tukar  = String(row[COL_TUKARPOINT] || '').trim().toUpperCase();
+      if (uid === target && tukar === 'OK') {
+        matchCount++;
+      }
+    }
+
+    const used = (matchCount > 0);
+    Logger.log('[getTukarPointStatusByUserId_] userId=' + target + ' -> TukarPointUsed=' + used + ' (match=' + matchCount + ')');
+    return {
+      status: 'success',
+      tukarPointUsed: used,
+      matchCount: matchCount
+    };
+
+  } catch (err) {
+    Logger.log('getTukarPointStatusByUserId_ ERROR: ' + err.message);
+    return { status: 'error', tukarPointUsed: false, message: err.message };
+  }
+}
+
+/***********************************************************
 * Fungsi: cleanPhoneNumber_
 * Bersihkan nomor HP: hilangkan leading 0, spasi, strip, dll
 ************************************************************/
@@ -1883,6 +1937,7 @@ function updateDataPesananKolomBayar_(invoice, pembayaran) {
     // 35 = AI  Tgl Bayar
     // 36 = AJ  Link Bukti Transfer
     // 37 = AK  Status Bayar
+    // 41 = AO  Tukar Point  (otomatis "OK" jika statusBayar=OK)
 
     for (const rowIndex of rowIndexes) {
       sheet.getRange(rowIndex, 27).setValue(pembayaran.linkPdf || '');
@@ -1896,6 +1951,7 @@ function updateDataPesananKolomBayar_(invoice, pembayaran) {
       sheet.getRange(rowIndex, 35).setValue(pembayaran.tglBayar || '');
       sheet.getRange(rowIndex, 36).setValue(pembayaran.linkBukti || '');
       sheet.getRange(rowIndex, 37).setValue(pembayaran.statusBayar || '');
+      sheet.getRange(rowIndex, 41).setValue(pembayaran.tukarPoint || '');
     }
 
     Logger.log('Update kolom bayar sukses untuk invoice: ' + invoice + ', baris: ' + rowIndexes.length);
@@ -2657,7 +2713,8 @@ function handleKonfirmasiBayarProduk(data) {
       statusEmail: 'PENDING',
       tglBayar: tglBayar,
       linkBukti: buktiLink,
-      statusBayar: 'OK'
+      statusBayar: 'OK',
+      tukarPoint: 'OK'
     };
     updateDataPesananKolomBayar_(noPesanan, pembayaran);
     Logger.log('✅ Data konfirmasi bayar TERSIMPAN di sheet: ' + noPesanan);
@@ -2775,7 +2832,8 @@ function handleKonfirmasiBayarProduk(data) {
         statusEmail: statusEmail,
         tglBayar: tglBayar,
         linkBukti: buktiLink,
-        statusBayar: 'OK'
+        statusBayar: 'OK',
+        tukarPoint: 'OK'
       };
       updateDataPesananKolomBayar_(noPesanan, pembayaranUpdate);
     } catch (eUpd) { Logger.log('⚠️ Update status notifikasi gagal (data sudah tersimpan): ' + eUpd.message); }

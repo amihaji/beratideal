@@ -10,6 +10,49 @@ if (orderTbody) {
 }
 
 // ****************************************************************
+// FLAG MODE "BELI PRODUK" (dipicu dari menu prog10hari.html ?source=beliProduk)
+// Jika true -> TERAPKAN RULE A, B, C, D (lihat dokumentasi inline):
+//   A. Produk       = User harus manual pilih dropdown "Pilih Nama Produk"
+//   B. Diskon       : - Peserta -> forced "Non Member 0%" (disabled)
+//                     - Member  -> dropdown normal (bisa pilih)
+//   C. Voucher      : Selalu 0 (Peserta & Member) + hidden
+//   D. Biaya Kirim  : Dropdown normal
+// ****************************************************************
+(function _initBeliProdukFlag() {
+  try {
+    var _src = '';
+    if (window && window.location && window.location.search) {
+      var _s = String(window.location.search || '').replace(/^\?/, '');
+      var _parts = _s.split('&');
+      for (var i=0; i<_parts.length; i++) {
+        var kv = _parts[i].split('=');
+        if (kv[0] === 'source' || kv[0] === 'src') {
+          try { _src = decodeURIComponent(String(kv[1] || '').trim().toLowerCase()); }
+          catch(e) { _src = String(kv[1] || '').trim().toLowerCase(); }
+          break;
+        }
+      }
+    }
+    // Fallback: cek localStorage (jika user navigasi internal tanpa query param)
+    if (!_src) {
+      try { _src = String(localStorage.getItem('beliProdukMode') || '').trim().toLowerCase(); } catch(_e){}
+    }
+    // TANDAI GLOBAL
+    window.IS_BELI_PRODUK_MODE = (_src === 'beli-produk' || _src === 'beliproduk' || _src === 'beli_produk' || _src === 'beliProduk');
+    // Simpan ke localStorage agar bertahan (kalau user navigasi ke halaman lain lalu balik)
+    if (window.IS_BELI_PRODUK_MODE) {
+      try { localStorage.setItem('beliProdukMode', 'true'); } catch(_e){}
+    } else {
+      try { localStorage.removeItem('beliProdukMode'); } catch(_e){}
+    }
+    console.log('[MODE] IS_BELI_PRODUK_MODE =', window.IS_BELI_PRODUK_MODE, '(source="'+_src+'")');
+  } catch(_e) {
+    window.IS_BELI_PRODUK_MODE = false;
+    console.warn('[MODE] Init beliProduk gagal:', _e.message);
+  }
+})();
+
+// ****************************************************************
 // MAPPING KATEGORI -> PAKET PRODUK
 // ATURAN BARU FLEXIBEL (TIDAK hardcode lagi!):
 //   ✅ Data mapping diambil dari SHEET Google Sheets:
@@ -531,7 +574,19 @@ function updateTotals() {
 
   const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
   const tax = 0;
-  const voucherAmt = (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0;
+  // 🔥 OVERRIDE RULE C (Beli Produk Mode) — DOUBLE GUARD
+  //    Di updateTotals(), paksa voucherAmt = 0, sehingga tidak bisa di bypass melalui inspect element.
+  var voucherAmt = (pesananState && pesananState.voucherAmount) ? Number(pesananState.voucherAmount) : 0;
+  if (window.IS_BELI_PRODUK_MODE === true) {
+    voucherAmt = 0;
+    if (pesananState) pesananState.voucherAmount = 0;
+    const _vInp = document.getElementById('voucherAmount');
+    if (_vInp) { _vInp.value = '0'; _vInp.disabled = true; _vInp.readOnly = true; }
+    const _vInfo = document.getElementById('voucherInfo');
+    if (_vInfo) _vInfo.value = formatCurrency(0);
+    const _vSect = document.getElementById('voucherSection');
+    if (_vSect) _vSect.style.display = 'none';
+  }
   const grandTotal = Math.max(0, totalHarga + shippingCost + tax - voucherAmt);
 
   document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
@@ -704,16 +759,24 @@ function loadOptions() {
     // ======================================================================
     // (1) DISKON
     // ======================================================================
+    // 🔥 OVERRIDE RULE B (Beli Produk Mode):
+    //    - Peserta: forced "Non Member 0%" (disabled)
+    //    - Member : dropdown TabelDiskon normal
+    // 🔥 JIKA BUKAN Beli Produk:
+    //    - Peserta: 0% (default behaviour)
+    //    - Member : dropdown TabelDiskon
     const discountSelect = document.getElementById('discount');
     if (discountSelect) {
       if (isPeserta) {
-        // Requirement 3: level peserta -> Diskon=0% (fixed)
-        discountSelect.innerHTML = '<option value="0%">0%</option>';
+        // Peserta: selalu paksa diskon = 0%
+        // BeliProduk Mode -> label "Non Member 0%", else -> label "0%"
+        const label0Pct = (window.IS_BELI_PRODUK_MODE) ? 'Non Member 0%' : '0%';
+        discountSelect.innerHTML = '<option value="0%">' + label0Pct + '</option>';
         discountSelect.value = '0%';
         discountSelect.disabled = true;
         doneOne();
       } else {
-        // Requirement 3: member -> dropdown TabelDiskon
+        // Member: TabelDiskon (default behaviour, BeliProduk juga sama)
   fetchJsonpEstihtools("getDiscounts").then(mDiscounts => {
           const list = Array.isArray(mDiscounts) ? mDiscounts : (mDiscounts && Array.isArray(mDiscounts.data) ? mDiscounts.data : []);
           discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
@@ -737,6 +800,9 @@ function loadOptions() {
     // ======================================================================
     // (2) PRODUK + auto fill berdasarkan kategori frmProduk.html
     // ======================================================================
+    // 🔥 OVERRIDE RULE A (Beli Produk Mode):
+    //    JANGAN panggil autoFillProdukByKategori() -> user harus MANUAL pilih dropdown
+    //    "Pilih Nama Produk" (Tetap load daftar produk ke dropdown)
     const productSelect = document.getElementById('product');
     if (productSelect) {
       Promise.all([
@@ -745,11 +811,29 @@ function loadOptions() {
       ]).then(([mKategori, mProducts]) => {
         const kategoriList = (mKategori && Array.isArray(mKategori.data)) ? mKategori.data : [];
         const productList = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
-        autoFillProdukByKategori(productList || [], kategoriList || []);
+        // Isi dropdown produk terlebih dahulu (agar user bisa pilih)
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        if (Array.isArray(productList)) {
+          productList.forEach(prod => {
+            if (!prod) return;
+            const opt = document.createElement('option');
+            const val = prod.NoStok || prod.noStok || prod.nomorStok || '';
+            const label = prod.NamaProduk || prod.namaProduk || prod.name || String(val);
+            opt.value = String(val);
+            opt.textContent = String(label);
+            if (val) productSelect.appendChild(opt);
+          });
+        }
+        // HANYA autoFill JIKA BUKAN BeliProduk Mode (user bebas pilih manual)
+        if (window.IS_BELI_PRODUK_MODE !== true) {
+          autoFillProdukByKategori(productList || [], kategoriList || []);
+        } else {
+          console.log('[MODE BeliProduk] Rule A (Produk): Skip autoFillProdukByKategori -> user pilih manual dropdown');
+        }
       }).catch(err => {
         console.error("Gagal memuat produk:", err);
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        autoFillProdukByKategori([], []);
+        if (window.IS_BELI_PRODUK_MODE !== true) autoFillProdukByKategori([], []);
       }).finally(doneOne);
     } else {
       doneOne();
@@ -937,6 +1021,24 @@ function applyVoucherBasedOnLevel() {
 
     if (voucherAmountInput) voucherAmountInput.value = '0';
     pesananState.voucherAmount = 0;
+
+    // 🔥 OVERRIDE RULE C (Beli Produk Mode):
+    //    Voucher SELALU = 0, Section DISABLED / HIDDEN, untuk BOTH Peserta & Member.
+    //    (Tidak boleh pakai voucher point apapun di mode "Beli Produk" dari menu prog10hari)
+    if (window.IS_BELI_PRODUK_MODE === true) {
+      if (voucherSection) voucherSection.style.display = 'none';
+      if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
+      if (voucherAmountInput) {
+        voucherAmountInput.value = '0';
+        voucherAmountInput.disabled = true;
+        voucherAmountInput.readOnly = true;
+      }
+      pesananState.voucherAmount = 0;
+      if (typeof updateTotals === 'function') updateTotals();
+      console.log('[MODE BeliProduk] Rule C (Voucher): Dipaksa = 0 (hidden) untuk semua level user');
+      resolve();
+      return;
+    }
 
     if (!isPeserta) {
       // member: sembunyikan + voucher = 0

@@ -7618,7 +7618,19 @@ function tampilkanDashboardSederhana(data) {
     var sharedDisabledAttr   = isModulSelesai ? '' : 'disabled';
     var tukarButtonClass     = isModulSelesai ? 'btn-outline-success' : 'btn-outline-secondary';
     var sertifButtonClass    = isModulSelesai ? 'btn-primary' : 'btn-secondary';
-    
+
+    // 🔥 TAMBAHAN ATURAN BARU:
+    //    Jika user SUDAH PERNAH menukarkan point => tombol "Tukar Point Sekarang" DISABLED PERMANEN.
+    //    Sumber kebenaran: (a) localStorage flag; (b) sheet DataPesanan kolom AO=OK via backend.
+    //    Kita gunakan localStorage DULU untuk UI cepat, lalu cross-check ke server via async di bawah.
+    var _flagTukarSudah = false;
+    try { _flagTukarSudah = (localStorage.getItem('tukarPointDone') === 'true'); } catch(_e){}
+    if (_flagTukarSudah) {
+      // User sudah pernah tukar point (catatan lokal) → tombol DISABLED
+      sharedDisabledAttr = 'disabled';
+      tukarButtonClass   = 'btn-outline-secondary';
+    }
+
     // 🔥 PESAN KETERANGAN GABUNGAN (SATU PESAN SAJA, UNTUK KEDUA FUNGSI)
     var sharedProgressMessage = '';
     if (!isModulSelesai) {
@@ -7628,7 +7640,11 @@ function tampilkanDashboardSederhana(data) {
             sharedProgressMessage = '<small class="text-muted d-block mt-2 mb-2">* Selesaikan seluruh modul untuk menukarkan point anda, serta dapatkan sertifikat</small>';
         }
     } else {
-        sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapatkan sertifikat!</small>';
+        if (_flagTukarSudah) {
+          sharedProgressMessage = '<small class="text-primary d-block mt-2 mb-2"><i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda, dan selamat Anda berhak mendapatkan sertifikat!</small>';
+        } else {
+          sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapatkan sertifikat!</small>';
+        }
     }
     
     // Buat rincian point per hari
@@ -7887,6 +7903,64 @@ function tampilkanDashboardSederhana(data) {
     
     container.innerHTML = html;
     
+    // ========================================================
+    // 🔍 CROSS-CHECK ASYNC KE SERVER: Apakah AO (TukarPoint) SUDAH "OK"?
+    //    Jika true tapi localStorage.tukarPointDone belum diset →
+    //    set localStorage flag + DISABLE tombol "Tukar Point Sekarang" via DOM
+    //    Menggunakan pola JSONP (mirip fetchJsonpEstihtools) karena endpoint Apps Script Web App
+    // ========================================================
+    (function _asyncCekTukarPointUsed() {
+      try {
+        var _uid = localStorage.getItem('userId');
+        if (!_uid) return;
+        if (typeof URL_dbEstihtools === 'undefined' || !URL_dbEstihtools) return;
+
+        var cbName = '__cb_tp_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        var timeoutMs = 4500;
+        var timeoutId = null;
+        var script = document.createElement('script');
+        var cleaned = false;
+
+        function _cleanup() {
+          if (cleaned) return;
+          cleaned = true;
+          if (timeoutId) clearTimeout(timeoutId);
+          try { delete window[cbName]; } catch(e) { try { window[cbName] = undefined; } catch(e2){} }
+          if (script && script.parentNode) { try { script.parentNode.removeChild(script); } catch(e){} }
+        }
+
+        window[cbName] = function(res) {
+          try {
+            if (res && res.status === 'success' && res.tukarPointUsed === true) {
+              // SERVER KONFIRMASI: user SUDAH PERNAH tukar point (AO=OK)
+              localStorage.setItem('tukarPointDone', 'true');
+              var _btn;
+              try { _btn = container.querySelector('button[onclick^="tukarPoint("]'); } catch(e){}
+              if (_btn) {
+                _btn.classList.remove('btn-outline-success');
+                _btn.classList.add('btn-outline-secondary');
+                _btn.setAttribute('disabled', 'disabled');
+              }
+              var _msgWrap = container.querySelector('small.text-success.d-block.mt-2.mb-2');
+              if (_msgWrap && _msgWrap.innerHTML.indexOf('menukarkan point') !== -1) {
+                _msgWrap.className = 'small text-primary d-block mt-2 mb-2';
+                _msgWrap.innerHTML = '<i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda, dan selamat Anda berhak mendapatkan sertifikat!';
+              }
+            }
+          } catch(eInner){ console.warn('_asyncCekTukarPointUsed inner err:', eInner.message); }
+          finally { _cleanup(); }
+        };
+
+        timeoutId = setTimeout(function() { _cleanup(); }, timeoutMs);
+
+        var qs = 'action=getTukarPointStatusByUserId&userId=' + encodeURIComponent(String(_uid || '')) + '&callback=' + encodeURIComponent(cbName);
+        script.src = URL_dbEstihtools + (URL_dbEstihtools.indexOf('?') >= 0 ? '&' : '?') + qs;
+        script.onerror = function() { _cleanup(); };
+        document.head.appendChild(script);
+
+      } catch(eOuter) { console.warn('_asyncCekTukarPointUsed err:', eOuter.message); }
+    })();
+
     // Buat grafik setelah HTML siap (hanya jika ada data)
     if (hasChartData) {
         setTimeout(function() {
@@ -7916,6 +7990,16 @@ function tampilkanDashboardSederhana(data) {
 *   2. JIKA BELUM → baru buka modal Testimoni & Feedback
 ******************************/
 function tukarPoint(totalPoint) {
+    // 🔥 VALIDASI SERVER-SIDE / DOUBLE GUARD:
+    //    Jika AO (TukarPoint) di sheet DataPesanan SUDAH = "OK" -> user tidak boleh tukar lagi
+    //    Juga cek localStorage flag = true (lebih cepat)
+    try {
+      if (localStorage.getItem('tukarPointDone') === 'true') {
+        showMessage('info', 'Point Anda sudah pernah ditukarkan sebelumnya. Silakan tunggu voucher dari admin. Terima kasih!', 5000);
+        return;
+      }
+    } catch(_e){}
+
     if (!totalPoint || totalPoint < 500) {
         showMessage('warning', 'Maaf, Anda harus menyelesaikan seluruh 10 modul (minimal 500 point) untuk bisa menukarkan point.', 4200);
         return;
@@ -7931,11 +8015,15 @@ function tukarPoint(totalPoint) {
     kirimKeServer({ action:'getStatusTestimoni', userId: userId }, function(res){
         if (res && res.status === 'success' && res.testimoniExists === true) {
             // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmProduk.html (TIDAK BUKA MODAL SAMA SEKALI)
+            // 🔥 SEBELUM REDIRECT: tandai "tukar point telah dijalankan"
+            //    (agar tombol langsung DISABLED saat user balik nanti, sebelum AO=OK terkonfirmasi)
+            try { localStorage.setItem('tukarPointDone', 'true'); } catch(_e){}
             redirectPage = 'frmProduk.html';
             window.location.href = redirectPage;
             return;
         }
         // BELUM PERNAH ISI → Buka modal TF seperti biasa
+        // 🔥 (Setelah user submit TF sukses & redirect frmProduk, _tfKirimBtn handler juga akan set flag ini)
         console.log('[Tukar Point] User BELUM PERNAH isi Testimoni → tampilkan modal TF.', { userId, totalPoint });
         _tfBukaModal();
     });
@@ -8124,6 +8212,9 @@ function _tfKirimDanTukar() {
         // beberapa detik pindah ke frmProduk.html
         _tfRedirectSukses = true;
         redirectPage = 'frmProduk.html';
+        // 🔥 SEBELUM REDIRECT frmProduk.html: TANDAI tukarPointDone=true
+        //    (agar tombol Tukar Point Sekarang otomatis DISABLED saat balik ke prog10hari.html nanti)
+        try { localStorage.setItem('tukarPointDone', 'true'); } catch(_e){}
         setTimeout(() => {
             _tfTutupModal();
             window.location.href = redirectPage;
