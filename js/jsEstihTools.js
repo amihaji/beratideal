@@ -959,7 +959,7 @@ function applyVoucherBasedOnLevel() {
       return;
     }
 
-    if (voucherInfoEl) voucherInfoEl.value = '(memuat...)';
+    if (voucherInfoEl) voucherInfoEl.value = 'memuat...';
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
     fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint })
