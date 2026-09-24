@@ -33,7 +33,7 @@ const PAKET_PRODUK_FALLBACK = {
 };
 
 // Diisi async saat DOMContentLoaded (dari getPaketProdukByKategori JSONP).
-// Mutabel: bisa di-replace kapan saja (bukan const).
+// Tabel: bisa di-replace kapan saja (bukan const).
 let PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
 
 const PAKET_BY_KATEGORI_CACHE_KEY = 'cache_paket_by_kategori_v1';
