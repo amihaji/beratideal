@@ -32,7 +32,7 @@ const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbx5W5XBlSIb_GLqC
 // url dbEstihtools (DataInput, DataKonsumen, TabelHarga, TabelDiskon, TabelByKirim, TabelKategori) :
 // jsEstihTools.js 
 // untuk estihtoolsBeratideal.html
-const URL_dbEstihtools = 'https://script.google.com/macros/s/AKfycbxD9Ogo7d1BI3h6bwo8mCtN23Vr8gvSf8QYc9Ei93gd4zGtqDgHf3gXC435YmqV3xgi/exec';
+const URL_dbEstihtools = 'https://script.google.com/macros/s/AKfycbzsX9m1BLmfienviXJbLIwgM3o1aaQ6bbMlJMVMMNrTHkwpTS5XVW7Kq-Tlo2RL9nr5/exec';
 
 // ===========================
 // FUNGSI GLOBAL UNTUK TOOLTIP
