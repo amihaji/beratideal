@@ -22,14 +22,16 @@ if (orderTbody) {
 //      BUKAN sumber kebenaran lagi. Jadi jika kategori baru ditambahkan di sheet,
 //      otomatis muncul tanpa ubah kode — cukup update sheet saja.
 // ****************************************************************
+
 const PAKET_PRODUK_FALLBACK = {
   lansia:  "Paket Manula (Formula 1, PP3, Multivitamin, Herbalifeline, Tas Produk)",
   dewasa:  "Paket Usia Dewasa (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
   remaja:  "Paket Usia Remaja (Formula 1, PP3, Aloe Vera, Teh NRG, Tas Produk)",
   sarapan: "Paket Start Now Pack ( F1, Aloe Vera, Teh Concentrate, Tas Produk)",
   naikBB:  "Paket Muscle Gain (RS Pro24, Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Viber, Tas Produk)",
-  turunBB: "Paket Weight Losss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
+  turunBB: "Paket Fat Loss (Formula 1, PP3, Aloe Vera, Teh Concentrate, Mixed Fiber, Cell U Loss, Tas Produk)"
 };
+
 // Diisi async saat DOMContentLoaded (dari getPaketProdukByKategori JSONP).
 // Mutabel: bisa di-replace kapan saja (bukan const).
 let PAKET_PRODUK_BY_KATEGORI = Object.assign({}, PAKET_PRODUK_FALLBACK);
