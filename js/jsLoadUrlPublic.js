@@ -2,6 +2,7 @@
 // UNTUK APLIKASI BERATIDEAL DAN FILE-FILE PENDUKUNGNYA
 // **************************************************** 
 
+
 // URl dbUSER (TabelUser, LogNotif) :
 // jsDashboard.js, jsSetupUser.js untuk :
 // - loginBeratideal.html
