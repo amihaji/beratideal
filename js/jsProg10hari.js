@@ -7613,23 +7613,27 @@ function tampilkanDashboardSederhana(data) {
     }
     
     // 🔥 TENTUKAN APAKAH TOMBOL TUKAR POINT & SERTIFIKAT ENABLED
-    // Syarat SAMA KEDUA TOMBOL: totalPoint >= 500 (sudah menyelesaikan semua modul 1-10)
+    // 🚨 PERATURAN BARU (DIPISAHKAN STATUSNYA):
+    //    1) TOMBOL "Tukar Point Sekarang":
+    //       - DISABLED JIKA: (totalPoint < 500) ATAU (kolom AO=Tukar Point = OK / flag tukarPointDone=true)
+    //    2) TOMBOL "Download Sertifikat":
+    //       - DISABLED HANYA JIKA: totalPoint < 500
+    //       - TIDAK PERNAH DISABLED hanya karena AO=TukarPoint=OK ✅ (tetap enabled meskipun point sudah ditukar)
     var isModulSelesai = (totalPoint >= 500);
-    var sharedDisabledAttr   = isModulSelesai ? '' : 'disabled';
-    var tukarButtonClass     = isModulSelesai ? 'btn-outline-success' : 'btn-outline-secondary';
-    var sertifButtonClass    = isModulSelesai ? 'btn-primary' : 'btn-secondary';
 
-    // 🔥 TAMBAHAN ATURAN BARU:
-    //    Jika user SUDAH PERNAH menukarkan point => tombol "Tukar Point Sekarang" DISABLED PERMANEN.
-    //    Sumber kebenaran: (a) localStorage flag; (b) sheet DataPesanan kolom AO=OK via backend.
-    //    Kita gunakan localStorage DULU untuk UI cepat, lalu cross-check ke server via async di bawah.
+    // --- FLAG: Apakah user SUDAH PERNAH tukarkan point? ---
+    // Sumber kebenaran: (a) localStorage flag; (b) sheet DataPesanan kolom AO=OK via backend async crosscheck
     var _flagTukarSudah = false;
     try { _flagTukarSudah = (localStorage.getItem('tukarPointDone') === 'true'); } catch(_e){}
-    if (_flagTukarSudah) {
-      // User sudah pernah tukar point (catatan lokal) → tombol DISABLED
-      sharedDisabledAttr = 'disabled';
-      tukarButtonClass   = 'btn-outline-secondary';
-    }
+
+    // --- Status untuk tombol Tukar Point ---
+    var tukarPointDisabledAttr = (isModulSelesai && !_flagTukarSudah) ? '' : 'disabled';
+    var tukarButtonClass       = (isModulSelesai && !_flagTukarSudah) ? 'btn-outline-success' : 'btn-outline-secondary';
+
+    // --- Status untuk tombol Sertifikat (TERDIRI DARI 2 TOMBOL: Email & Download) ---
+    // Selalu enabled jika isModulSelesai (tidak peduli _flagTukarSudah true / false)  ✅
+    var sertifDisabledAttr  = isModulSelesai ? '' : 'disabled';
+    var sertifButtonClass   = isModulSelesai ? 'btn-primary' : 'btn-secondary';
 
     // 🔥 PESAN KETERANGAN GABUNGAN (SATU PESAN SAJA, UNTUK KEDUA FUNGSI)
     var sharedProgressMessage = '';
@@ -7641,7 +7645,7 @@ function tampilkanDashboardSederhana(data) {
         }
     } else {
         if (_flagTukarSudah) {
-          sharedProgressMessage = '<small class="text-primary d-block mt-2 mb-2"><i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda, dan selamat Anda berhak mendapatkan sertifikat!</small>';
+          sharedProgressMessage = '<small class="text-primary d-block mt-2 mb-2"><i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda. <strong>Download Sertifikat tetap dapat dilakukan.</strong> 👍</small>';
         } else {
           sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapatkan sertifikat!</small>';
         }
@@ -7888,10 +7892,10 @@ function tampilkanDashboardSederhana(data) {
                     <div class="d-flex flex-wrap gap-2 align-items-center justify-content-center mt-1 mb-1">
                         <button class="btn ${tukarButtonClass} btn-sm"
                             onclick="tukarPoint(${totalPoint})" 
-                            ${sharedDisabledAttr}>
+                            ${tukarPointDisabledAttr}>
                             <i class="fas fa-exchange-alt"></i> Tukar Point Sekarang
                         </button>
-                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm" onclick="bukaModalQuizSertifikat()" ${sharedDisabledAttr}>
+                        <button id="btnDownloadSertifikat" class="btn ${sertifButtonClass} btn-sm" onclick="bukaModalQuizSertifikat()" ${sertifDisabledAttr}>
                             <i class="fas fa-cloud-download-alt"></i> Download Sertifikat
                         </button>
                     </div>
@@ -7944,7 +7948,7 @@ function tampilkanDashboardSederhana(data) {
               var _msgWrap = container.querySelector('small.text-success.d-block.mt-2.mb-2');
               if (_msgWrap && _msgWrap.innerHTML.indexOf('menukarkan point') !== -1) {
                 _msgWrap.className = 'small text-primary d-block mt-2 mb-2';
-                _msgWrap.innerHTML = '<i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda, dan selamat Anda berhak mendapatkan sertifikat!';
+                _msgWrap.innerHTML = '<i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda. <strong>Download Sertifikat tetap dapat dilakukan.</strong> 👍';
               }
             }
           } catch(eInner){ console.warn('_asyncCekTukarPointUsed inner err:', eInner.message); }
@@ -7995,7 +7999,7 @@ function tukarPoint(totalPoint) {
     //    Juga cek localStorage flag = true (lebih cepat)
     try {
       if (localStorage.getItem('tukarPointDone') === 'true') {
-        showMessage('info', 'Point Anda sudah pernah ditukarkan sebelumnya. Silakan tunggu voucher dari admin. Terima kasih!', 5000);
+        showMessage('info', 'Point Anda sudah pernah ditukarkan sebelumnya. Silakan tunggu voucher dari admin. <strong>Download Sertifikat tetap dapat dilakukan.</strong> 👍', 5500);
         return;
       }
     } catch(_e){}
@@ -8010,21 +8014,22 @@ function tukarPoint(totalPoint) {
         return;
     }
     // ====================================
-    // CEK DULU: SUDAH PERNAH ISI TESTIMONI ATAU BELUM?
+    // CEK DULU: SUDAH PERNAH ISI TESTIMONI & FEEDBACK ATAU BELUM?
+    // Aturan terbaru user: JIKA BELUM → TAMPILKAN TERLEBIH DAHULU MODAL "TESTIMONI DAN FEEDBACK",
+    //                    setelah user submit → lanjut ke frmTukarPoint.html
+    //                    JIKA SUDAH → LANGSUNG ke frmTukarPoint.html
     // ====================================
     kirimKeServer({ action:'getStatusTestimoni', userId: userId }, function(res){
         if (res && res.status === 'success' && res.testimoniExists === true) {
-            // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmTukarPoint.html (TIDAK BUKA MODAL SAMA SEKALI)
-            // 🔥 SEBELUM REDIRECT: tandai "tukar point telah dijalankan"
-            //    (agar tombol langsung DISABLED saat user balik nanti, sebelum AO=OK terkonfirmasi)
+            // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmTukarPoint.html
             try { localStorage.setItem('tukarPointDone', 'true'); } catch(_e){}
             redirectPage = 'frmTukarPoint.html';
             window.location.href = redirectPage;
             return;
         }
-        // BELUM PERNAH ISI → Buka modal TF seperti biasa
-        // 🔥 (Setelah user submit TF sukses & redirect frmProduk, _tfKirimBtn handler juga akan set flag ini)
-        console.log('[Tukar Point] User BELUM PERNAH isi Testimoni → tampilkan modal TF.', { userId, totalPoint });
+        // BELUM PERNAH ISI → Buka modal "Testimoni & Feedback" TERLEBIH DAHULU
+        // Setelah submit sukses → redirect frmTukarPoint.html (lihat handler _tfKirimDanTukar)
+        console.log('[Tukar Point] User BELUM PERNAH isi Testimoni & Feedback → tampilkan modal Testimoni dan Feedback.', { userId, totalPoint });
         _tfBukaModal();
     });
 }
