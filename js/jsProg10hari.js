@@ -7645,7 +7645,7 @@ function tampilkanDashboardSederhana(data) {
         }
     } else {
         if (_flagTukarSudah) {
-          sharedProgressMessage = '<small class="text-primary d-block mt-2 mb-2"><i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Tunggu konfirmasi dari admin untuk voucher Anda. <strong>Download Sertifikat tetap dapat dilakukan.</strong> 👍</small>';
+          sharedProgressMessage = '<small class="text-primary d-block mt-2 mb-2"><strong>Point sudah Anda tukarkan, Download Sertifikat tetap dapat dilakukan.</strong> 👍</small>';
         } else {
           sharedProgressMessage = '<small class="text-success d-block mt-2 mb-2"><i class="fas fa-check-circle"></i> Selamat! telah menyelesaikan seluruh modul dan berhak </br> menukarkan point serta dapatkan sertifikat!</small>';
         }
