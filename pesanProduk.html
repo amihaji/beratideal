@@ -495,185 +495,199 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                    <div id="invoiceSection">
-                        <div class="input-group mt-1">
-                            <span class="input-group-text">Tanggal </span>
-                            <input type="date" class="form-control" id="date" name="date" readonly>
-                        </div> 
-                        <div class="input-group mt-1">
-                            <span class="input-group-text">Nomor  </span>
-                            <input type="text" class="form-control" id="invoice" name="invoice" readonly>
-                        </div>
-                    </div>
-                    <div id="dataProdukSection"> 
-                        <i class="fas fa-shopping-cart mt-2"> Data Produk</i>
-                        <div class="input-group mt-1">
-                            <span class="input-group-text">Produk  </span>
-                            <select id="product" placeholder="Pilih jenis produk (wajib isi)" class="form-control form-select" name="product" required>
-                               <!-- Opsi akan diisi oleh JavaScript -->
-                            </select>
-                        </div>
-                        <div class="input-group mt-1">
-                            <span class="input-group-text">Jumlah  </span>
-                            <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
-                        </div>
-                        <div class="input-group mt-1">
-                            <span class="input-group-text">Diskon  </span>
-                            <select id="discount" placeholder="Pilih diskon (wajib isi)" class="form-control form-select" name="discount" required>
-                               <!-- Opsi akan diisi oleh JavaScript --> 
-                            </select>
-                        </div>
-                        <!-- Requirement 4: Field Voucer (PESERTA=TAMPIL, MEMBER=HIDDEN) -->
-                        <div id="voucherSection" class="input-group mt-1" style="display:none; flex-wrap:nowrap;">
-                            <span class="input-group-text">Voucer  </span>
+                    <!-- ============================================================== -->
+                    <!--  SEMUA INPUT ELEMENT WAJIB ADA (TIDAK DIHAPUS / DIUBAH PRINSIP) -->
+                    <!--  HANYA DIPINDAHKAN KE HIDDEN CONTAINER AGAR HTML TIDAK PANJANG   -->
+                    <!--  Semua ID, NAME, ATTRIBUTE REQUIRED, READONLY, MAXLENGTH, dll    -->
+                    <!--  TETAP PERSIS SEBELUMNYA TANPA PERUBAHAN SATU PUN, agar          -->
+                    <!--  jsPesanProduk.js & inline script bekerja normal persis.         -->
+                    <!-- ============================================================== -->
+                    <div id="requiredHiddenDOMElements" style="display:none !important;">
+
+                        <!-- 1. Tanggal + Nomor Invoice (dari invoiceSection) -->
+                        <input type="date" class="form-control" id="date" name="date" readonly>
+                        <input type="text" class="form-control" id="invoice" name="invoice" readonly>
+
+                        <!-- 2. Data Produk (dari dataProdukSection) — id & name persis -->
+                        <select id="product" placeholder="Pilih jenis produk (wajib isi)" class="form-control form-select" name="product" required>
+                           <!-- Opsi akan diisi oleh JavaScript -->
+                        </select>
+                        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                        <select id="discount" placeholder="Pilih diskon (wajib isi)" class="form-control form-select" name="discount" required>
+                           <!-- Opsi akan diisi oleh JavaScript --> 
+                        </select>
+                        <!-- Voucer section + 2 element input persis -->
+                        <div id="voucherSection" style="display:none;">
                             <input type="text" id="voucherInfo" class="form-control" placeholder="memuat..." readonly />
                             <input type="hidden" id="voucherAmount" name="voucherAmount" value="0" />
                         </div>
-                        <div class="input-group mt-1"> 
-                            <span class="input-group-text">By Kirim</span>
-                            <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
-                                <!-- Opsi akan diisi oleh JavaScript --> 
-                            </select>
+                        <select id="shipping" placeholder="Pilih biaya pengiriman (wajib isi)" class="form-control form-select" name="shipping" required>
+                            <!-- Opsi akan diisi oleh JavaScript --> 
+                        </select>
+
+                        <!-- 3. Data Personal + Alamat Pengiriman (dari inputanSection) — SEMUA ATTRIBUTE PERSIS -->
+                        <input type="text" class="form-control" id="namaSponsor" name="namaSponsor" placeholder="Input nama sponsor (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama sponsor">
+                        <input type="number" class="form-control" id="hpSponsor" name="hpSponsor" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA sponsor (tanpa awalan 0)">
+                        <input type="text" class="form-control" id="namaKonsumen" name="namaKonsumen" placeholder="Input nama konsumen (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama konsumen">
+                        <input type="number" class="form-control" id="hpKonsumen" name="hpKonsumen" placeholder="Input WA konsumen tanpa diawali angka 0, jika kirim invoice ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA konsumen (tanpa awalan 0)">
+                        <input type="email" class="form-control" id="emailKonsumen" name="emailKonsumen" placeholder="Input jika ingin kirim invoice ke email konsumen (optional)" maxlength="25" data-bs-toggle="tooltip" data-bs-placement="top" title="Email konsumen (optional)">
+                        <input type="text" class="form-control" id="alamat" name="alamat" placeholder="Input alamat (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat lengkap">
+                        <input type="text" class="form-control" id="kelurahan" name="kelurahan" placeholder="Input kelurahan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kelurahan">
+                        <input type="text" class="form-control" id="kecamatan" name="kecamatan" placeholder="Input kecamatan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kecamatan">
+                        <input type="text" class="form-control" id="kota" name="kota" placeholder="input kota (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kota / Kabupaten">
+                        <input type="text" class="form-control" id="propensi" name="propensi" placeholder="Input propensi (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Propinsi">
+
+                        <!-- 4. Tombol lama (hidden, onsubmit handler js dll butuh element ID ini exist) -->
+                        <div id="buttonGroupLama"> 
+                            <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
+                                <i class="fas fa-cart-plus"></i> TAMBAH
+                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()" id="btnReset">
+                                <i class="fas fa-rotate-left"></i> RESET
+                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
+                                <i class="fas fa-paper-plane"></i> SUBMIT
+                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-success" id="kirimButton" onclick="simpanData()" style="display:none;">
+                                <i class="far fa-clipboard"></i> CHECKOUT
+                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
                         </div>
+
+                        <!-- 5. orderTable + summaryDetails (dibutuhkan oleh addItem(), updateTotals(), dll) -->
+                        <!-- Semua struktur & ID tabel PERSIS, hanya hapus wrapper visual <h5>/<div> outer -->
+                        <div id="orderSummary">
+                            <table id="orderTable">  
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>No Stok</th> 
+                                        <th>Nama Produk</th>
+                                        <th>Harga Eceran</th>
+                                        <th>Diskon</th>
+                                        <th>Jumlah</th>
+                                        <th>Tot VP</th>  
+                                        <th>Harga</th>
+                                        <th> <i class="fas fa-trash-alt"></i> </th> 
+                                    </tr> 
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be populated by JavaScript -->
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td style="text-align: right;" colspan="5"><strong>Total</strong></td>
+                                        <td style="text-align: right;" id="totalJumlah">0</td>
+                                        <td style="text-align: right;" id="totalVP">0,00</td>
+                                        <td style="text-align: right;" id="totalHarga">0,00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <div id="summaryDetails">
+                                <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
+                                <div>Voucher Potongan : <span id="voucherCost">0,00</span></div>
+                                <div>Pajak : <span id="tax">0,00</span></div>
+                                <div>Total Harga : <span id="totalPrice">0,00</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Legacy ID wrapper section yang dicari getElementById di submitForm() JS -->
+                        <div id="invoiceSection"></div>
+                        <div id="dataProdukSection"></div>
+                        <div id="inputanSection" style="margin-top:5px;"></div>
                     </div>
-
-                    <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
-                    <div id="inputanSection" style="display:none; margin-top:5px;">    
-                        <!-- FORM DATA PERSONAL -->
-                        <div>
-                            <p><i class="fas fa-user-friends"> Data Personal</i></p>
-                        </div>  
-                        <div class="form-control mt-2">
-                            <p><strong>Silahkan lengkapi Data Personal anda</strong></p>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
-                                <input type="text" class="form-control" id="namaSponsor" name="namaSponsor" placeholder="Input nama sponsor (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama sponsor">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-phone-square"></i></span>
-                                <input type="number" class="form-control" id="hpSponsor" name="hpSponsor" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA sponsor (tanpa awalan 0)">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="far fa-user-circle"></i></span>
-                                <input type="text" class="form-control" id="namaKonsumen" name="namaKonsumen" placeholder="Input nama konsumen (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama konsumen">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
-                                <input type="number" class="form-control" id="hpKonsumen" name="hpKonsumen" placeholder="Input WA konsumen tanpa diawali angka 0, jika kirim invoice ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA konsumen (tanpa awalan 0)">
-                            </div>
-                            <div class="input-group mt-2 mb-2">
-                                <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
-                                <input type="email" class="form-control" id="emailKonsumen" name="emailKonsumen" placeholder="Input jika ingin kirim invoice ke email konsumen (optional)" maxlength="25" data-bs-toggle="tooltip" data-bs-placement="top" title="Email konsumen (optional)">
-                            </div>
-                        </div>
-
-                        <!-- FORM DATA ALAMAT PENGIRIMAN -->
-                        <div class="mt-2">
-                            <p><i class="fas fa-map-marker-alt"> Data Alamat Pengiriman</i></p>
-                        </div>  
-              
-                        <div class="form-control mt-2">
-                            <p><strong>Silahkan lengkapi data alamat pengiriman anda</strong></p>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-home"></i></span>
-                                <input type="text" class="form-control" id="alamat" name="alamat" placeholder="Input alamat (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat lengkap">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-map-marked"></i></span>
-                                <input type="text" class="form-control" id="kelurahan" name="kelurahan" placeholder="Input kelurahan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kelurahan">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class=" fas fa-map-marked-alt"></i></span>
-                                <input type="text" class="form-control" id="kecamatan" name="kecamatan" placeholder="Input kecamatan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kecamatan">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-city"></i></span>
-                                <input type="text" class="form-control" id="kota" name="kota" placeholder="input kota (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kota / Kabupaten">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-globe-asia"></i></span>
-                                <input type="text" class="form-control" id="propensi" name="propensi" placeholder="Input propensi (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Propinsi">
-                            </div>
-                        </div>
-                    </div>     
                 
-                    <!-- Pesan Notifikasi -->
+                    <!-- Pesan Notifikasi (TETAP DITAMPILKAN ketika ada error/sukses) -->
                     <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
                         <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
                     </div>
 
-                    <!-- Pesan Validasi Inputan -->
+                    <!-- Pesan Validasi Inputan (TETAP DITAMPILKAN ketika required field kosong) -->
                     <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
                         <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
                     </div>                    
 
-                    <!-- Tampilan tombol -->
-                    <div class="button-group"> 
-                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
-                            <i class="fas fa-cart-plus"></i> TAMBAH
-                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()" id="btnReset">
-                            <i class="fas fa-rotate-left"></i> RESET
-                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                        </button>
-                        <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
-                            <i class="fas fa-paper-plane"></i> SUBMIT
-                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                        </button>
-                        <button type="button" class="btn btn-success" id="kirimButton" onclick="simpanData()" style="display:none;">
-                            <i class="far fa-clipboard"></i> CHECKOUT
-                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                        </button>
-                    </div>  
-                </form>
-
-                <div id="orderSummary">
-                    <h5>Ringkasan Pesanan</h5>
-                    <div class="table-wrapper">
-                        <div class="table-container">
-                        <table id="orderTable">  
-                            <!-- Kolom Tabel : Judul Nama Field -->
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>No Stok</th> 
-                                    <th>Nama Produk</th>
-                                    <th>Harga Eceran</th>
-                                    <th>Diskon</th>
-                                    <th>Jumlah</th>
-                                    <th>Tot VP</th>  
-                                    <th>Harga</th>
-                                    <!-- Kolom "Aksi" dengan ikon tong sampah -->
-                                    <th> <i class="fas fa-trash-alt"></i> </th> 
-                                </tr> 
-                            </thead>
-                            <!-- Baris Data item Tabel -->
-                            <tbody>
-                                <!-- Rows will be populated by JavaScript -->
-                            </tbody>
-                            <!-- Baris footer Tabel -->
-                            <tfoot>
-                                <tr>
-                                    <td style="text-align: right;" colspan="5"><strong>Total</strong></td>
-                                    <td style="text-align: right;" id="totalJumlah">0</td>
-                                    <td style="text-align: right;" id="totalVP">0,00</td>
-                                    <td style="text-align: right;" id="totalHarga">0,00</td>
-                                    <td></td> <!-- Kolom kosong untuk aksi -->
-                                </tr>
-                            </tfoot>
-                        </table>
+                    <!-- ============================================================== -->
+                    <!--  UI BARU: Data Pesanan Produk SEDERHANA (sesuai spec user)     -->
+                    <!-- ============================================================== -->
+                    <div id="dataPesananSederhanaContainer" class="mt-3 mb-3 p-3" style="border:1px solid var(--border-muted, #e5e7eb); border-radius:10px; background-color: #fbfcfe;">
+                        <h5 class="mb-3 text-center" style="font-weight:600; color:#172554;"><i class="fas fa-receipt me-2"></i>Data Pesanan Produk</h5>
+                        <div class="d-flex flex-column gap-2" id="dataPesananSederhanaRows" style="font-size: 0.95rem;">
+                            <!-- Tanggal -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Tanggal</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_tanggal" class="text-dark fw-medium">09/25/2026</span>
+                            </div>
+                            <!-- Nomor Invoice -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Nomor</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_nomor" class="text-dark fw-medium">INV-xxxxxxx-xxx</span>
+                            </div>
+                            <!-- Nama Produk (BISA PILIH / EDITABLE via select) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Nama Produk</span>
+                                <span class="me-2">:</span>
+                                <select id="sederhana_namaProduk" class="form-select form-select-sm" style="max-width: 420px; flex: 1 1 auto;" required>
+                                    <option value="">Memuat daftar produk...</option>
+                                </select>
+                            </div>
+                            <!-- Jumlah (EDITABLE input number, min 1) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Jumlah</span>
+                                <span class="me-2">:</span>
+                                <input type="number" id="sederhana_jumlah" class="form-control form-control-sm" min="1" max="99" value="1" style="max-width: 120px;" required>
+                                <small class="text-muted ms-2"><em>(minimal 1, bisa diubah)</em></small>
+                            </div>
+                            <!-- Diskon (READONLY, otomatis: Peserta=0% Non Member) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Diskon</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_diskon" class="text-dark fw-medium">0% (Non Member)</span>
+                            </div>
+                            <!-- By Pengiriman (READONLY, otomatis 50.000 untuk Peserta sesuai requirement) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">By Pengiriman</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_byKirim" class="text-dark fw-medium">Rp 50.000</span>
+                            </div>
+                            <!-- Pajak (READONLY, selalu 0 sesuai spec) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Pajak</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_pajak" class="text-dark fw-medium">Rp 0</span>
+                            </div>
+                            <!-- Voucher (READONLY, auto ambil dari TabelVoucher berdasarkan point) -->
+                            <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
+                                <span class="fw-semibold text-muted" style="min-width: 140px; display:inline-block;">Voucher</span>
+                                <span class="me-2">:</span>
+                                <span id="sederhana_voucher" class="text-success fw-medium">Rp 0 <small id="sederhana_voucherDesc" class="text-muted ms-1"></small></span>
+                            </div>
+                            <!-- Total Harga (READONLY, auto hitung) -->
+                            <div class="d-flex align-items-center border-0 pb-2 pt-2" style="background-color: #eef6ff; border-radius: 8px; margin-top:6px; padding: 10px 12px;">
+                                <span class="fw-bold text-primary" style="min-width: 140px; display:inline-block;">Total Harga</span>
+                                <span class="me-2 fw-bold text-primary">:</span>
+                                <span id="sederhana_totalHarga" class="text-primary fw-bold fs-6">Rp 0</span>
+                            </div>
                         </div>
-                    </div>    
-                  
-                    <!-- Baris untuk By Pengiriman, Voucher, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
-                    <div id="summaryDetails">
-                        <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
-                        <div>Voucher Potongan : <span id="voucherCost">0,00</span></div>
-                        <div>Pajak : <span id="tax">0,00</span></div>
-                        <div>Total Harga : <span id="totalPrice">0,00</span></div>
+
+                        <!-- TOMBOL SUBMIT TUNGGAL (satu-satunya tombol) -->
+                        <div class="d-flex justify-content-center mt-4">
+                            <button type="button" class="btn btn-primary btn-sm px-5 py-2" id="sederhana_submitBtn" style="border-radius: 8px; min-width: 200px;">
+                                <i class="fas fa-paper-plane me-2"></i>SUBMIT
+                                <span id="sederhana_submitSpinner" class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                    <!-- ============================================================== -->
+                    <!--  END UI BARU                                                      -->
+                    <!-- ============================================================== -->
+                </form>
             
 
             </div>
@@ -687,5 +701,400 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 <script src="js/jsLoadUrlPublic.js"></script>
 <!-- Custom JS Untuk Aplikasi EstihTools  -->
 <script src="js/jsPesanProduk.js"></script>
+
+<!-- ============================================================== -->
+<!-- INLINE SCRIPT untuk UI BARU Data Pesanan Produk Sederhana       -->
+<!-- (menghubungkan select/input UI baru dengan field lama hidden    -->
+<!--  dan menangani tombol SUBMIT tunggal)                           -->
+<!-- ============================================================== -->
+<script>
+(function() {
+    // ---------- Helper kecil ----------
+    function _fmtIDR(num) {
+        var val = Number(num || 0);
+        if (isNaN(val) || !isFinite(val)) val = 0;
+        if (val < 0) val = 0;
+        // Format: Rp 12.345.678 (tanpa desimal)
+        return 'Rp ' + String(Math.round(val)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    function _parseIDR(strVal) {
+        try {
+            var s = String(strVal || '').replace(/[^\d,\-]/g, '').replace(/,/g, '.');
+            if (!s) return 0;
+            var v = parseFloat(s);
+            return isNaN(v) ? 0 : v;
+        } catch (_e) { return 0; }
+    }
+    function _fmtTanggalMMDDYYYY(dateInputElValue) {
+        if (!dateInputElValue) return '';
+        try {
+            var parts = String(dateInputElValue).split('-'); // YYYY-MM-DD
+            if (parts.length !== 3) return dateInputElValue;
+            var y = parts[0], m = parts[1], d = parts[2];
+            return String(m) + '/' + String(d) + '/' + String(y);
+        } catch (e) { return dateInputElValue; }
+    }
+
+    // ---------- Referensi UI baru ----------
+    var ui = {
+        tanggal:      document.getElementById('sederhana_tanggal'),
+        nomor:        document.getElementById('sederhana_nomor'),
+        namaProduk:   document.getElementById('sederhana_namaProduk'),
+        jumlah:       document.getElementById('sederhana_jumlah'),
+        diskon:       document.getElementById('sederhana_diskon'),
+        byKirim:      document.getElementById('sederhana_byKirim'),
+        pajak:        document.getElementById('sederhana_pajak'),
+        voucher:      document.getElementById('sederhana_voucher'),
+        voucherDesc:  document.getElementById('sederhana_voucherDesc'),
+        totalHarga:   document.getElementById('sederhana_totalHarga'),
+        submitBtn:    document.getElementById('sederhana_submitBtn'),
+        submitSpin:   document.getElementById('sederhana_submitSpinner')
+    };
+
+    // ---------- Referensi field lama (hidden, tapi JS lama bekerja disini) ----------
+    var old = {
+        date:         document.getElementById('date'),
+        invoice:      document.getElementById('invoice'),
+        product:      document.getElementById('product'),
+        quantity:     document.getElementById('quantity'),
+        discount:     document.getElementById('discount'),
+        shipping:     document.getElementById('shipping'),
+        voucherInfo:  document.getElementById('voucherInfo'),
+        voucherAmt:   document.getElementById('voucherAmount'),
+        tax:          document.getElementById('tax'),
+        totalPrice:   document.getElementById('totalPrice'),
+        shippingCost: document.getElementById('shippingCost'),
+        submitButton: document.getElementById('submitButton'),   // tombol SUBMIT lama (yang akan kita trigger addItem+submitForm)
+        kirimButton:  document.getElementById('kirimButton'),    // tombol CHECKOUT lama (simpanData)
+        inputanSect:  document.getElementById('inputanSection'),
+        dataProdukS:  document.getElementById('dataProdukSection'),
+        invoiceSect:  document.getElementById('invoiceSection'),
+        orderSum:     document.getElementById('orderSummary')
+    };
+
+    // ---------- 1) Sync Field UI baru dari Field Lama (read-only) ----------
+    function syncDariFieldLamaKeUI() {
+        try {
+            // Tanggal: value lama YYYY-MM-DD → MM/DD/YYYY
+            if (ui.tanggal && old.date) {
+                ui.tanggal.textContent = _fmtTanggalMMDDYYYY(old.date.value);
+            }
+            // Nomor
+            if (ui.nomor && old.invoice) {
+                ui.nomor.textContent = String(old.invoice.value || 'INV-xxxxxxx-xxx');
+            }
+            // Diskon: baca text option yang terpilih
+            if (ui.diskon && old.discount) {
+                var sel = old.discount;
+                var txt = '0%';
+                if (sel.options && sel.options[sel.selectedIndex]) txt = String(sel.options[sel.selectedIndex].text || '0%').trim();
+                // Jika user peserta (value 0%) → tambahkan label "Non Member"
+                if (txt === '0%' || txt === '0') txt = '0% (Non Member)';
+                ui.diskon.textContent = txt;
+            }
+            // By Pengiriman: dari option yang terpilih atau shippingCost span
+            if (ui.byKirim) {
+                var byVal = 50000; // Default sesuai spec: 50.000
+                if (old.shippingCost) {
+                    byVal = _parseIDR(old.shippingCost.textContent || old.shippingCost.innerText);
+                }
+                if (old.shipping && old.shipping.options && old.shipping.options[old.shipping.selectedIndex]) {
+                    // Jika option terpilih punya nilai numerik, gunakan itu
+                    var optVal = parseFloat(old.shipping.value);
+                    if (!isNaN(optVal) && optVal > 0) byVal = optVal;
+                }
+                ui.byKirim.textContent = _fmtIDR(byVal);
+            }
+            // Pajak: Selalu 0
+            if (ui.pajak) ui.pajak.textContent = 'Rp 0';
+            // Voucher: dari voucherInfo + voucherAmount
+            if (ui.voucher) {
+                var vAmt = 0;
+                if (old.voucherAmt) vAmt = parseFloat(old.voucherAmt.value || '0') || 0;
+                if (old.totalPrice) {
+                    // Fallback: dari span voucherCost di summaryDetails
+                    try {
+                        var s = document.getElementById('voucherCost');
+                        if (s) {
+                            var p = _parseIDR(s.textContent || s.innerText);
+                            if (!vAmt && p > 0) vAmt = p;
+                        }
+                    } catch(e) {}
+                }
+                ui.voucher.textContent = _fmtIDR(vAmt);
+                if (ui.voucherDesc) {
+                    var desc = '';
+                    if (old.voucherInfo) {
+                        var rawInfo = String(old.voucherInfo.value || '').trim();
+                        // Hanya lampirkan deskripsi jika bukan angka / format rupiah
+                        if (rawInfo && !/^[Rp0-9\.\s,]+$/.test(rawInfo)) {
+                            desc = rawInfo;
+                        }
+                    }
+                    ui.voucherDesc.textContent = desc ? '(' + desc + ')' : '';
+                }
+            }
+            // Total Harga: dari totalPrice span (auto di update JS lama)
+            if (ui.totalHarga && old.totalPrice) {
+                var t = _parseIDR(old.totalPrice.textContent || old.totalPrice.innerText);
+                // Jika totalPrice 0, hitung manual (ketika addItem belum dipanggil)
+                if (!t) {
+                    try {
+                        var _tbody = document.querySelector('#orderTable tbody');
+                        if (_tbody && _tbody.rows && _tbody.rows.length) {
+                            var _tfootTotalHarga = document.getElementById('totalHarga');
+                            if (_tfootTotalHarga) t = _parseIDR(_tfootTotalHarga.textContent || _tfootTotalHarga.innerText);
+                        }
+                    } catch(e) {}
+                }
+                ui.totalHarga.textContent = _fmtIDR(t);
+            }
+        } catch (err) {
+            console.warn('[pesanProduk-sederhana] syncDariFieldLamaKeUI error:', err.message);
+        }
+    }
+
+    // ---------- 2) Copy option dari product select lama ke UI baru ----------
+    var _lastOptionLen = 0;
+    function syncOptionProduk() {
+        if (!ui.namaProduk || !old.product) return;
+        try {
+            // Panjang option lama berubah? copy ulang
+            if (old.product.options.length === _lastOptionLen) {
+                // Sama panjang, cuma sync value
+                if (old.product.value && ui.namaProduk.value !== old.product.value) {
+                    ui.namaProduk.value = old.product.value;
+                }
+                return;
+            }
+            var selectedVal = old.product.value || ui.namaProduk.value;
+            // Simpan default placeholder
+            var placeholderOption = (ui.namaProduk.options[0] && ui.namaProduk.options[0].value === '') 
+                ? ui.namaProduk.options[0].outerHTML 
+                : '<option value="">Pilih Nama Produk</option>';
+            // Copy dari old.product
+            var html = placeholderOption;
+            for (var i = 0; i < old.product.options.length; i++) {
+                var o = old.product.options[i];
+                if (!String(o.value || '').trim()) continue;
+                html += '<option value="' + String(o.value).replace(/"/g, '&quot;') + '">' + String(o.textContent || o.text).replace(/</g, '&lt;') + '</option>';
+            }
+            ui.namaProduk.innerHTML = html;
+            _lastOptionLen = old.product.options.length;
+            // Set value yang terpilih
+            if (selectedVal) ui.namaProduk.value = selectedVal;
+        } catch (e) {
+            console.warn('[pesanProduk-sederhana] syncOptionProduk error:', e.message);
+        }
+    }
+
+    // ---------- 3) Saat UI baru berubah (produk/jumlah) -> sync ke field lama & trigger change ----------
+    if (ui.namaProduk && old.product) {
+        ui.namaProduk.addEventListener('change', function() {
+            try {
+                if (old.product.value !== ui.namaProduk.value) {
+                    old.product.value = ui.namaProduk.value;
+                    // Fire change event agar JS lama recompute harga dll
+                    try {
+                        var ev;
+                        if (typeof Event === 'function') ev = new Event('change', { bubbles: true });
+                        else { ev = document.createEvent('Event'); ev.initEvent('change', true, true); }
+                        old.product.dispatchEvent(ev);
+                    } catch(e) {}
+                }
+            } finally { syncDariFieldLamaKeUI(); }
+        });
+    }
+    if (ui.jumlah && old.quantity) {
+        // Sync initial value dari field lama jika ada
+        if (old.quantity.value && parseInt(old.quantity.value, 10) >= 1) {
+            ui.jumlah.value = String(Math.max(1, parseInt(old.quantity.value, 10) || 1));
+        }
+        ui.jumlah.addEventListener('input', function() {
+            var v = parseInt(ui.jumlah.value, 10);
+            if (isNaN(v) || v < 1) v = 1;
+            if (v > 99) v = 99;
+            if (old.quantity.value !== String(v)) old.quantity.value = String(v);
+            syncDariFieldLamaKeUI();
+        });
+        ui.jumlah.addEventListener('change', function() {
+            var v = parseInt(ui.jumlah.value, 10);
+            if (isNaN(v) || v < 1) { v = 1; ui.jumlah.value = '1'; }
+            if (v > 99) { v = 99; ui.jumlah.value = String(v); }
+            old.quantity.value = String(v);
+            try {
+                var ev;
+                if (typeof Event === 'function') ev = new Event('change', { bubbles: true });
+                else { ev = document.createEvent('Event'); ev.initEvent('change', true, true); }
+                old.quantity.dispatchEvent(ev);
+            } catch(e) {}
+            syncDariFieldLamaKeUI();
+        });
+    }
+
+    // ---------- 4) Polling sinkronisasi periodik (setiap 250ms) ----------
+    //   → catch perubahan yang JS lama lakukan (diskon option, voucher, harga otomatis)
+    function _polling() {
+        try { syncOptionProduk(); } catch(_) {}
+        try { syncDariFieldLamaKeUI(); } catch(_) {}
+        // Aktifkan tombol submit baru ketika tombol submit lama sudah enabled (artinya JS sdh siap)
+        try {
+            if (ui.submitBtn && old.submitButton) {
+                // Tombol submit baru SELALU bisa diklik, tetapi disable saat spinner
+                // (jika submitButton lama disabled bukan karena data belum lengkap -> kita biarkan tetap cek di handler)
+            }
+        } catch(_) {}
+    }
+    setInterval(_polling, 250);
+    // Juga jalankan sekali di awal
+    setTimeout(_polling, 200);
+    setTimeout(_polling, 800);
+    setTimeout(_polling, 1600);
+
+    // ---------- 5) Handler SUBMIT BUTTON UI BARU ----------
+    //    Alur dalam 1 klik:
+    //    a) Validasi kelengkapan
+    //    b) addItem() -> tambahkan item ke orderTable (hidden)
+    //    c) Tunggu sebentar, lalu panggil submitForm() (tombol SUBMIT lama)
+    //       * submitForm() biasanya akan menampilkan inputanSection & menyembunyikan form produk
+    //       → KITA OVERRIDE: segera force hide kembali dan auto-prefill data konsumen
+    //    d) Panggil prefillDataKonsumen({ force: true }) -> isi data personal & alamat otomatis
+    //    e) validateForm() -> cek semua required terisi
+    //    f) PANGGIL simpanData() -> yang mengirim ke sheet & redirect frmKonfirmasi.html
+    if (ui.submitBtn) {
+        ui.submitBtn.addEventListener('click', async function() {
+            // Spinner aktif & disable tombol
+            if (ui.submitSpin) ui.submitSpin.style.display = 'inline-block';
+            if (ui.submitBtn) ui.submitBtn.disabled = true;
+            try {
+                // ---- a) Validasi dasar -----
+                if (!old.product || !old.product.value) {
+                    if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Pilih dahulu Nama Produk yang tersedia');
+                    return;
+                }
+                var qty = 0;
+                if (old.quantity) qty = parseInt(old.quantity.value, 10) || 0;
+                if (qty < 1) {
+                    if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Jumlah minimal 1 (satu) Paket');
+                    return;
+                }
+                if (!old.discount || !old.discount.value) {
+                    if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Diskon belum tersedia. Silakan refresh halaman.');
+                    return;
+                }
+                if (!old.shipping || !old.shipping.value) {
+                    if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Biaya Pengiriman belum tersedia. Silakan refresh halaman.');
+                    return;
+                }
+
+                // ---- b) addItem() -> tambahkan ke orderTable (hidden) -----
+                if (typeof addItem !== 'function') {
+                    throw new Error('Fungsi addItem() tidak tersedia (JS belum load)');
+                }
+                // Clear existing rows di orderTable (hindari penambahan double jika user klik submit 2x)
+                try {
+                    var tb = document.querySelector('#orderTable tbody');
+                    if (tb) tb.innerHTML = '';
+                    // Update footer row (karena tbody dikosongkan)
+                    var tj = document.getElementById('totalJumlah'); if (tj) tj.textContent = '0';
+                    var tvp = document.getElementById('totalVP'); if (tvp) tvp.textContent = '0,00';
+                    var th = document.getElementById('totalHarga'); if (th) th.textContent = '0,00';
+                } catch(_e) {}
+                // addItem() mengembalikan undefined / tapi throw error jika ada masalah
+                addItem();
+                // Tunggu sebentar agar addItem + getProductDetails (async JSONP) selesai
+                await new Promise(function(res){ setTimeout(res, 350); });
+                // Cek apakah rows berhasil ditambah
+                try {
+                    var tb2 = document.querySelector('#orderTable tbody');
+                    if (!tb2 || !tb2.rows || tb2.rows.length === 0) {
+                        throw new Error('Gagal menambahkan item ke pesanan (periksa koneksi / data produk)');
+                    }
+                } catch(er1) {
+                    throw new Error(er1.message || 'Gagal menambahkan item');
+                }
+
+                // ---- c) PANGGIL submitForm() -> function SUBMIT lama -----
+                if (typeof submitForm !== 'function') {
+                    throw new Error('Fungsi submitForm() tidak tersedia');
+                }
+                // Sebelum panggil submitForm: sembunyikan terlebih dahulu section agar inputanSection tidak kelihatan
+                submitForm();
+                // Setelah submitForm: (berdasarkan code asli di jsPesanProduk.js L1299-L1318)
+                // submitForm akan: disable input produk, TAMPILKAN inputanSection, dan SEMBUNYIKAN dataProdukSection + invoiceSection + orderSummary
+                // KITA OVERRIDE DISINI: Force hide SEMUA section lama agar tampilan TETAP MENUNJUKKAN UI BARU SAJA
+                setTimeout(function() {
+                    try {
+                        if (old.inputanSect) old.inputanSect.style.display = 'none !important';
+                        if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
+                        if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
+                        if (old.orderSum)   old.orderSum.style.display   = 'none !important';
+                    } catch(_eHide) {}
+                }, 10);
+                setTimeout(function() {
+                    try {
+                        if (old.inputanSect) old.inputanSect.style.display = 'none !important';
+                        if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
+                        if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
+                        if (old.orderSum)   old.orderSum.style.display   = 'none !important';
+                    } catch(_eHide) {}
+                }, 100);
+
+                // ---- d) Prefill otomatis data personal + alamat pengiriman -----
+                if (typeof prefillDataKonsumen === 'function') {
+                    try {
+                        // force=true: isi ulang field walaupun ada isinya (lebih aman)
+                        await prefillDataKonsumen({ force: true });
+                        await new Promise(function(res){ setTimeout(res, 250); });
+                    } catch(errPrefill) {
+                        console.warn('prefillDataKonsumen warning (boleh lanjut):', errPrefill.message);
+                    }
+                }
+
+                // ---- e) Validasi Form (pastikan semua required terisi) -----
+                if (typeof validateForm === 'function') {
+                    var ok = validateForm();
+                    if (!ok) {
+                        // validateForm sudah menampilkan pesan error via showValidasi
+                        return;
+                    }
+                }
+
+                // ---- f) PANGGIL simpanData() -> CHECKOUT = mengirim ke sheet -----
+                if (typeof simpanData !== 'function') {
+                    throw new Error('Fungsi simpanData() tidak tersedia');
+                }
+                if (typeof showNotification === 'function') showNotification('info', 'Memproses pesanan & mengarahkan ke konfirmasi pembayaran...', 2500);
+                // Tunggu sebentar agar notifikasi terlihat, lalu kirim
+                setTimeout(function() {
+                    try {
+                        simpanData();
+                    } catch(errSimpan) {
+                        console.error(errSimpan);
+                        if (typeof showNotification === 'function') showNotification('error', 'Gagal memproses pesanan: ' + (errSimpan.message || 'Internal error'));
+                    }
+                }, 400);
+                // Setelah simpanData() sukses, jsPesanProduk.js akan redirect ke frmKonfirmasi.html?noPesanan=INVxxx (otomatis)
+
+            } catch(errMain) {
+                console.error('[pesanProduk-sederhana] submit error:', errMain);
+                if (typeof showNotification === 'function') {
+                    showNotification('error', 'Gagal SUBMIT: ' + (errMain.message || 'Periksa kembali form dan koneksi internet Anda'));
+                }
+            } finally {
+                // Kembalikan tombol jika belum redirect
+                setTimeout(function() {
+                    try {
+                        if (ui.submitSpin) ui.submitSpin.style.display = 'none';
+                        if (ui.submitBtn) ui.submitBtn.disabled = false;
+                    } catch(_e) {}
+                }, 1200);
+            }
+        });
+    }
+
+})();
+</script>
+
 </body>
 </html>
