@@ -7985,8 +7985,8 @@ function tampilkanDashboardSederhana(data) {
 
 /*****************************
 * Fungsi untuk menukar point *
-* (Diubah: sebelum redirect frmTukarPoin.html
-*   1. CEK DULU ke server getStatusTestimoni(userId) → SUDAH PERNAH ISI? LANGSUNG REDIRECT frmTukarPoin.html TANPA BUKA MODAL
+* (Diubah: sebelum redirect frmTukarPoint.html
+*   1. CEK DULU ke server getStatusTestimoni(userId) → SUDAH PERNAH ISI? LANGSUNG REDIRECT frmTukarPoint.html TANPA BUKA MODAL
 *   2. JIKA BELUM → baru buka modal Testimoni & Feedback
 ******************************/
 function tukarPoint(totalPoint) {
@@ -8014,11 +8014,11 @@ function tukarPoint(totalPoint) {
     // ====================================
     kirimKeServer({ action:'getStatusTestimoni', userId: userId }, function(res){
         if (res && res.status === 'success' && res.testimoniExists === true) {
-            // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmTukarPoin.html (TIDAK BUKA MODAL SAMA SEKALI)
+            // SUDAH PERNAH ISI → LANGSUNG REDIRECT frmTukarPoint.html (TIDAK BUKA MODAL SAMA SEKALI)
             // 🔥 SEBELUM REDIRECT: tandai "tukar point telah dijalankan"
             //    (agar tombol langsung DISABLED saat user balik nanti, sebelum AO=OK terkonfirmasi)
             try { localStorage.setItem('tukarPointDone', 'true'); } catch(_e){}
-            redirectPage = 'frmTukarPoin.html';
+            redirectPage = 'frmTukarPoint.html';
             window.location.href = redirectPage;
             return;
         }
@@ -8038,7 +8038,7 @@ function tukarPoint(totalPoint) {
 *  - SUKSES -> pesan "Data berhasil terkirim"
 *  - LOKASI PESAN: HANYA di tfMessageBox (persis DIATAS TOMBOL KIRIM di modal TF)
 *  - TIDAK BOLEH showMessage popup global untuk TF error & TF success.
-*  - Setelah sukses tampil pesan: ~900ms kemudian pindah ke frmTukarPoin.html.
+*  - Setelah sukses tampil pesan: ~900ms kemudian pindah ke frmTukarPoint.html.
 *******************************/
 let _tfRedirectSukses = false;
 function _tfBukaModal() {
@@ -8209,10 +8209,10 @@ function _tfKirimDanTukar() {
         _tfTombolKirimLoading(false);
         document.getElementById('tfKirimBtn').disabled = true;
         _tfShowMessage('success', PESAN_SUKSES);
-        // beberapa detik pindah ke frmTukarPoin.html
+        // beberapa detik pindah ke frmTukarPoint.html
         _tfRedirectSukses = true;
-        redirectPage = 'frmTukarPoin.html';
-        // 🔥 SEBELUM REDIRECT frmTukarPoin.html: TANDAI tukarPointDone=true
+        redirectPage = 'frmTukarPoint.html';
+        // 🔥 SEBELUM REDIRECT frmTukarPoint.html: TANDAI tukarPointDone=true
         //    (agar tombol Tukar Point Sekarang otomatis DISABLED saat balik ke prog10hari.html nanti)
         try { localStorage.setItem('tukarPointDone', 'true'); } catch(_e){}
         setTimeout(() => {
