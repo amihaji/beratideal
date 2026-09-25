@@ -772,6 +772,59 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         orderSum:     document.getElementById('orderSummary')
     };
 
+    // ---------- Helper: Auto Recalc Total Harga via RUMUS YANG SUDAH ADA di JS ASLI ----------
+    //    Prinsip: JANGAN hitung manual di inline. PAKAI fungsi addItem() + updateTotals()
+    //    dari jsPesanProduk.js agar 100% sama persis dengan rumus existing (harga dasar,
+    //    VP, diskon %, voucher, pajak, shipping — SEMUA dihitung oleh JS asli).
+    //    Caranya:
+    //      1) Clear tbody orderTable (agar tidak menumpuk row lama)
+    //      2) Call addItem() -> ini akan generate 1 row + panggil updateTotals() otomatis
+    //      3) syncDariFieldLamaKeUI() -> baca totalPrice span yang baru di-update
+    //    Gunakan DEBOUNCE 400ms agar tidak spam addItem() saat user masih mengetik jumlah.
+    var _recalcDebounceTimer = null;
+    function _clearOrderTableBody_() {
+        try {
+            var tb = document.querySelector('#orderTable tbody');
+            if (tb) tb.innerHTML = '';
+            var tj = document.getElementById('totalJumlah'); if (tj) tj.textContent = '0';
+            var tvp = document.getElementById('totalVP'); if (tvp) tvp.textContent = '0,00';
+            var th = document.getElementById('totalHarga'); if (th) th.textContent = '0,00';
+        } catch(_e) {}
+    }
+    function _isReadyForRecalc_() {
+        if (!old.product || !old.product.value) return false;
+        var qty = 0;
+        if (old.quantity) qty = parseInt(old.quantity.value, 10) || 0;
+        if (qty < 1) return false;
+        if (!old.discount || !old.discount.value) return false;
+        if (!old.shipping || !old.shipping.value) return false;
+        return true;
+    }
+    function _recalcTotalViaExistingFormula_(syncNow) {
+        try {
+            if (!_isReadyForRecalc_()) {
+                syncDariFieldLamaKeUI();
+                return;
+            }
+            if (typeof addItem !== 'function') return;
+            _clearOrderTableBody_();
+            addItem();
+            if (syncNow !== false) {
+                setTimeout(function(){ try { syncDariFieldLamaKeUI(); } catch(_e){} }, 60);
+            }
+        } catch(e) {
+            console.warn('[recalc] warning:', e.message);
+            try { syncDariFieldLamaKeUI(); } catch(_e){}
+        }
+    }
+    function _recalcDebounced_() {
+        if (_recalcDebounceTimer) clearTimeout(_recalcDebounceTimer);
+        _recalcDebounceTimer = setTimeout(function(){
+            _recalcDebounceTimer = null;
+            _recalcTotalViaExistingFormula_();
+        }, 400);
+    }
+
     // ---------- 1) Sync Field UI baru dari Field Lama (read-only) ----------
     function syncDariFieldLamaKeUI() {
         try {
@@ -894,7 +947,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             try {
                 if (old.product.value !== ui.namaProduk.value) {
                     old.product.value = ui.namaProduk.value;
-                    // Fire change event agar JS lama recompute harga dll
                     try {
                         var ev;
                         if (typeof Event === 'function') ev = new Event('change', { bubbles: true });
@@ -902,11 +954,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         old.product.dispatchEvent(ev);
                     } catch(e) {}
                 }
-            } finally { syncDariFieldLamaKeUI(); }
+            } finally {
+                syncDariFieldLamaKeUI();
+                _recalcDebounced_();
+            }
         });
     }
     if (ui.jumlah && old.quantity) {
-        // Sync initial value dari field lama jika ada
         if (old.quantity.value && parseInt(old.quantity.value, 10) >= 1) {
             ui.jumlah.value = String(Math.max(1, parseInt(old.quantity.value, 10) || 1));
         }
@@ -916,6 +970,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             if (v > 99) v = 99;
             if (old.quantity.value !== String(v)) old.quantity.value = String(v);
             syncDariFieldLamaKeUI();
+            _recalcDebounced_();
         });
         ui.jumlah.addEventListener('change', function() {
             var v = parseInt(ui.jumlah.value, 10);
@@ -929,27 +984,51 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 old.quantity.dispatchEvent(ev);
             } catch(e) {}
             syncDariFieldLamaKeUI();
+            _recalcDebounced_();
         });
+    }
+    // --- 3b) Listener Diskon & By Kirim berubah dari JS asli (JSONP selesai load, dll) ---
+    if (old.discount) {
+        old.discount.addEventListener('change', function() {
+            syncDariFieldLamaKeUI();
+            _recalcDebounced_();
+        });
+    }
+    if (old.shipping) {
+        old.shipping.addEventListener('change', function() {
+            syncDariFieldLamaKeUI();
+            _recalcDebounced_();
+        });
+    }
+    // --- 3c) Listener Voucher berubah (updateTotals mengisi voucherAmount / voucherInfo) ---
+    if (old.voucherAmt) {
+        old.voucherAmt.addEventListener('change', function() { syncDariFieldLamaKeUI(); });
+        old.voucherAmt.addEventListener('input',  function() { syncDariFieldLamaKeUI(); });
     }
 
     // ---------- 4) Polling sinkronisasi periodik (setiap 250ms) ----------
     //   → catch perubahan yang JS lama lakukan (diskon option, voucher, harga otomatis)
+    var _lastReadyForRecalc = false;
     function _polling() {
         try { syncOptionProduk(); } catch(_) {}
         try { syncDariFieldLamaKeUI(); } catch(_) {}
-        // Aktifkan tombol submit baru ketika tombol submit lama sudah enabled (artinya JS sdh siap)
+        // Trigger recalc PERTAMA KALI ketika semua field required sudah terisi (JSONP selesai load options)
         try {
-            if (ui.submitBtn && old.submitButton) {
-                // Tombol submit baru SELALU bisa diklik, tetapi disable saat spinner
-                // (jika submitButton lama disabled bukan karena data belum lengkap -> kita biarkan tetap cek di handler)
+            var nowReady = _isReadyForRecalc_();
+            if (nowReady && !_lastReadyForRecalc) {
+                _lastReadyForRecalc = true;
+                _recalcDebounced_();
+            } else if (!nowReady) {
+                _lastReadyForRecalc = false;
             }
         } catch(_) {}
     }
     setInterval(_polling, 250);
-    // Juga jalankan sekali di awal
     setTimeout(_polling, 200);
     setTimeout(_polling, 800);
     setTimeout(_polling, 1600);
+    // Pastikan recalc juga dijalankan setelah 2 detik (jika JSONP lambat)
+    setTimeout(function(){ try { _recalcDebounced_(); } catch(_){} }, 2000);
 
     // ---------- 5) Handler SUBMIT BUTTON UI BARU ----------
     //    Alur dalam 1 klik:
