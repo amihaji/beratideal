@@ -537,24 +537,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <input type="text" class="form-control" id="kota" name="kota" placeholder="input kota (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kota / Kabupaten">
                         <input type="text" class="form-control" id="propensi" name="propensi" placeholder="Input propensi (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Propinsi">
 
-                        <!-- 4. Tombol lama (hidden, onsubmit handler js dll butuh element ID ini exist) -->
-                        <div id="buttonGroupLama"> 
-                            <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
-                                <i class="fas fa-cart-plus"></i> TAMBAH
-                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="resetForm()" id="btnReset">
-                                <i class="fas fa-rotate-left"></i> RESET
-                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                            </button>
-                            <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
-                                <i class="fas fa-paper-plane"></i> SUBMIT
-                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                            </button>
-                            <button type="button" class="btn btn-success" id="kirimButton" onclick="simpanData()" style="display:none;">
-                                <i class="far fa-clipboard"></i> CHECKOUT
-                                <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
-                            </button>
+                        <!-- 4. Tombol legacy (btnAdd & btnReset DIHAPUS — null-check ditambahkan di JS, tugas dialihkan) -->
+                        <div id="buttonGroupLama">
+                            <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> SUBMIT<span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span></button>
+                            <button type="button" class="btn btn-success" id="kirimButton" onclick="simpanData()" style="display:none;"><i class="far fa-clipboard"></i> CHECKOUT<span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span></button>
                         </div>
 
                         <!-- 5. orderTable + summaryDetails (dibutuhkan oleh addItem(), updateTotals(), dll) -->
@@ -676,7 +662,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             </div>
                         </div>
 
-                        <!-- TOMBOL SUBMIT TUNGGAL (satu-satunya tombol) -->
+                        <!-- TOMBOL SUBMIT (Langkah 1: munculkan Data Personal + Checkout) -->
                         <div class="d-flex justify-content-center mt-4">
                             <button type="button" class="btn btn-primary btn-sm px-5 py-2" id="sederhana_submitBtn" style="border-radius: 8px; min-width: 200px;">
                                 <i class="fas fa-paper-plane me-2"></i>SUBMIT
@@ -684,8 +670,80 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             </button>
                         </div>
                     </div>
+
                     <!-- ============================================================== -->
-                    <!--  END UI BARU                                                      -->
+                    <!--  UI BARU: Data Personal & Pengiriman (muncul SETELAH SUBMIT)   -->
+                    <!-- ============================================================== -->
+                    <div id="dataPersonalContainer" class="mt-2 mb-3 p-3" style="display:none; border:1px solid var(--border-muted, #e5e7eb); border-radius:10px; background-color: #fbfcfe;">
+                        <h5 class="mb-3 text-center" style="font-weight:600; color:#172554;"><i class="fas fa-user-circle me-2"></i>Data Personal &amp; Pengiriman</h5>
+
+                        <div class="row g-2">
+                            <!-- Data Sponsor -->
+                            <div class="col-12">
+                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-user-tie me-1"></i>Data Sponsor</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label mb-1 small fw-medium">Nama Sponsor <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_namaSponsor" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" placeholder="Nama sponsor">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label mb-1 small fw-medium">WA Sponsor <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm" id="ui_hpSponsor" maxlength="14" placeholder="WA tanpa awalan 0">
+                            </div>
+
+                            <!-- Data Konsumen -->
+                            <div class="col-12 mt-2">
+                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-user me-1"></i>Data Konsumen</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label mb-1 small fw-medium">Nama Konsumen <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_namaKonsumen" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" placeholder="Nama konsumen">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label mb-1 small fw-medium">WA Konsumen <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control form-control-sm" id="ui_hpKonsumen" maxlength="14" placeholder="WA tanpa awalan 0">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label mb-1 small fw-medium">Email Konsumen <small class="text-muted">(opsional)</small></label>
+                                <input type="email" class="form-control form-control-sm" id="ui_emailKonsumen" maxlength="25" placeholder="Email (opsional)">
+                            </div>
+
+                            <!-- Alamat Pengiriman -->
+                            <div class="col-12 mt-2">
+                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-truck me-1"></i>Alamat Pengiriman</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-1 small fw-medium">Alamat <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_alamat" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Alamat lengkap">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label mb-1 small fw-medium">Kelurahan <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_kelurahan" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kelurahan">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label mb-1 small fw-medium">Kecamatan <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_kecamatan" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kecamatan">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label mb-1 small fw-medium">Kota / Kabupaten <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_kota" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kota / Kabupaten">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label mb-1 small fw-medium">Propinsi <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="ui_propensi" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Propinsi">
+                            </div>
+                        </div>
+
+                        <!-- TOMBOL CHECKOUT (Langkah 2: simpanData + redirect frmKonfirmasi) -->
+                        <div class="d-flex justify-content-center mt-4">
+                            <button type="button" class="btn btn-success btn-sm px-5 py-2" id="sederhana_checkoutBtn" style="border-radius: 8px; min-width: 220px;">
+                                <i class="fas fa-cart-arrow-down me-2"></i>CHECKOUT
+                                <span id="sederhana_checkoutSpinner" class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- ============================================================== -->
+                    <!--  END UI BARU Data Personal                                      -->
                     <!-- ============================================================== -->
                 </form>
             
@@ -748,7 +806,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         voucherDesc:  document.getElementById('sederhana_voucherDesc'),
         totalHarga:   document.getElementById('sederhana_totalHarga'),
         submitBtn:    document.getElementById('sederhana_submitBtn'),
-        submitSpin:   document.getElementById('sederhana_submitSpinner')
+        submitSpin:   document.getElementById('sederhana_submitSpinner'),
+        // Data Personal (visible)
+        dataPersonalContainer: document.getElementById('dataPersonalContainer'),
+        namaSponsor:  document.getElementById('ui_namaSponsor'),
+        hpSponsor:    document.getElementById('ui_hpSponsor'),
+        namaKonsumen: document.getElementById('ui_namaKonsumen'),
+        hpKonsumen:   document.getElementById('ui_hpKonsumen'),
+        emailKonsumen:document.getElementById('ui_emailKonsumen'),
+        alamat:       document.getElementById('ui_alamat'),
+        kelurahan:    document.getElementById('ui_kelurahan'),
+        kecamatan:    document.getElementById('ui_kecamatan'),
+        kota:         document.getElementById('ui_kota'),
+        propensi:     document.getElementById('ui_propensi'),
+        // Checkout
+        checkoutBtn:  document.getElementById('sederhana_checkoutBtn'),
+        checkoutSpin: document.getElementById('sederhana_checkoutSpinner')
     };
 
     // ---------- Referensi field lama (hidden, tapi JS lama bekerja disini) ----------
@@ -764,13 +837,63 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         tax:          document.getElementById('tax'),
         totalPrice:   document.getElementById('totalPrice'),
         shippingCost: document.getElementById('shippingCost'),
-        submitButton: document.getElementById('submitButton'),   // tombol SUBMIT lama (yang akan kita trigger addItem+submitForm)
-        kirimButton:  document.getElementById('kirimButton'),    // tombol CHECKOUT lama (simpanData)
+        submitButton: document.getElementById('submitButton'),
+        kirimButton:  document.getElementById('kirimButton'),
         inputanSect:  document.getElementById('inputanSection'),
         dataProdukS:  document.getElementById('dataProdukSection'),
         invoiceSect:  document.getElementById('invoiceSection'),
-        orderSum:     document.getElementById('orderSummary')
+        orderSum:     document.getElementById('orderSummary'),
+        // Hidden field Data Personal (id asli dari jsPesanProduk.js)
+        _namaSponsor:  document.getElementById('namaSponsor'),
+        _hpSponsor:    document.getElementById('hpSponsor'),
+        _namaKonsumen: document.getElementById('namaKonsumen'),
+        _hpKonsumen:   document.getElementById('hpKonsumen'),
+        _emailKonsumen:document.getElementById('emailKonsumen'),
+        _alamat:       document.getElementById('alamat'),
+        _kelurahan:    document.getElementById('kelurahan'),
+        _kecamatan:    document.getElementById('kecamatan'),
+        _kota:         document.getElementById('kota'),
+        _propensi:     document.getElementById('propensi')
     };
+
+    // ---------- Helper Sync Data Personal: UI visible ↔ Hidden field ----------
+    var _dpSyncing = false;
+    var _dpMap = [
+        ['namaSponsor','_namaSponsor'],  ['hpSponsor','_hpSponsor'],
+        ['namaKonsumen','_namaKonsumen'],['hpKonsumen','_hpKonsumen'],
+        ['emailKonsumen','_emailKonsumen'],
+        ['alamat','_alamat'],  ['kelurahan','_kelurahan'],
+        ['kecamatan','_kecamatan'], ['kota','_kota'], ['propensi','_propensi']
+    ];
+    function _copyVisibleToHidden_() {
+        if (_dpSyncing) return;
+        _dpSyncing = true;
+        try {
+            for (var i = 0; i < _dpMap.length; i++) {
+                var u = ui[_dpMap[i][0]], o = old[_dpMap[i][1]];
+                if (u && o && o.value !== u.value) o.value = u.value;
+            }
+        } catch(_e) {} finally { _dpSyncing = false; }
+    }
+    function _copyHiddenToVisible_() {
+        if (_dpSyncing) return;
+        _dpSyncing = true;
+        try {
+            for (var i = 0; i < _dpMap.length; i++) {
+                var u = ui[_dpMap[i][0]], o = old[_dpMap[i][1]];
+                if (u && o && u.value !== o.value) u.value = o.value;
+            }
+        } catch(_e) {} finally { _dpSyncing = false; }
+    }
+    // Attach listener: setiap perubahan di UI visible, copy ke hidden (biar validateForm / collectOrderData baca yang benar)
+    (function _attachUiDataPersonalListeners_() {
+        for (var i = 0; i < _dpMap.length; i++) {
+            var u = ui[_dpMap[i][0]];
+            if (!u) continue;
+            u.addEventListener('input',  _copyVisibleToHidden_);
+            u.addEventListener('change', _copyVisibleToHidden_);
+        }
+    })();
 
     // ---------- Helper: Auto Recalc Total Harga via RUMUS YANG SUDAH ADA di JS ASLI ----------
     //    Prinsip: JANGAN hitung manual di inline. PAKAI fungsi addItem() + updateTotals()
@@ -1093,60 +1216,28 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     // Pastikan recalc juga dijalankan setelah 2 detik (jika JSONP lambat)
     setTimeout(function(){ try { _recalcDebounced_(); } catch(_){} }, 2000);
 
-    // ---------- 5) Handler SUBMIT BUTTON UI BARU ----------
-    //    Alur dalam 1 klik:
-    //    a) Validasi kelengkapan
-    //    b) addItem() -> tambahkan item ke orderTable (hidden)
-    //    c) Tunggu sebentar, lalu panggil submitForm() (tombol SUBMIT lama)
-    //       * submitForm() biasanya akan menampilkan inputanSection & menyembunyikan form produk
-    //       → KITA OVERRIDE: segera force hide kembali dan auto-prefill data konsumen
-    //    d) Panggil prefillDataKonsumen({ force: true }) -> isi data personal & alamat otomatis
-    //    e) validateForm() -> cek semua required terisi
-    //    f) PANGGIL simpanData() -> yang mengirim ke sheet & redirect frmKonfirmasi.html
+    // ---------- 5a) Handler SUBMIT BUTTON (Langkah 1: addItem + prefill + munculkan Data Personal) ----------
+    //    Hasil akhir: section "Data Personal & Pengiriman" MUNCUL + Checkout button tersedia
+    //    (BELUM redirect, user harus isi/cek data lalu klik CHECKOUT)
     if (ui.submitBtn) {
         ui.submitBtn.addEventListener('click', async function() {
-            // Spinner aktif & disable tombol
             if (ui.submitSpin) ui.submitSpin.style.display = 'inline-block';
             if (ui.submitBtn) ui.submitBtn.disabled = true;
-
-            // ============ FALLBACK REDIRECT PALING AWAL (CRITICAL SAFETY) ============
-            //   SELALU disetup SEBELUM logic apapun. Jadi MESKIPUN throw error di TENGAH jalan,
-            //   user TETAP akan pindah ke frmKonfirmasi.html dalam ~3.5 detik.
-            //   (sesuai permintaan user: "setelah Submit maka langsung mengakses frmKonfirmasi.html")
-            var _fallbackInvVal = '';
-            try { _fallbackInvVal = String(old.invoice ? (old.invoice.value || '') : ''); } catch(_eInv0){ _fallbackInvVal=''; }
-            var _fallbackRedirectTimer = setTimeout(function() {
-                try {
-                    var _href = 'frmKonfirmasi.html';
-                    try {
-                        var __inv = String(old.invoice ? (old.invoice.value || '') : '');
-                        if (__inv) _href += '?noPesanan=' + encodeURIComponent(__inv);
-                    } catch(_e2) {}
-                    if (typeof showNotification === 'function') {
-                        try { showNotification('info', 'Mengalihkan ke Form Konfirmasi...', 1500); } catch(_n){}
-                    }
-                    setTimeout(function(){
-                        try { window.location.href = _href; }
-                        catch(_er){ try { window.location.replace(_href); } catch(_){} }
-                    }, 400);
-                } catch(_eFb) {
-                    try { window.location.href = 'frmKonfirmasi.html'; } catch(_){}
-                }
-            }, 3500);
 
             try {
                 // ---- a) Validasi dasar -----
                 if (!old.product || !old.product.value) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Pilih dahulu Nama Produk yang tersedia');
-                    // Jangan return tanpa cleanup — fallback timer sudah berjalan, biarkan redirect
-                    try { if (ui.submitSpin) ui.submitSpin.style.display = 'none'; } catch(_){}
+                    if (ui.submitSpin) ui.submitSpin.style.display = 'none';
+                    if (ui.submitBtn) ui.submitBtn.disabled = false;
                     return;
                 }
                 var qty = 0;
                 if (old.quantity) qty = parseInt(old.quantity.value, 10) || 0;
                 if (qty < 1) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Jumlah minimal 1 (satu) Paket');
-                    try { if (ui.submitSpin) ui.submitSpin.style.display = 'none'; } catch(_){}
+                    if (ui.submitSpin) ui.submitSpin.style.display = 'none';
+                    if (ui.submitBtn) ui.submitBtn.disabled = false;
                     return;
                 }
                 if (!old.discount || !old.discount.value) {
@@ -1156,9 +1247,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Biaya Pengiriman belum tersedia. Silakan refresh halaman.');
                 }
 
-                // ---- b) addItem() -> tambahkan ke orderTable (hidden) -----
+                // ---- b) addItem() -> tambahkan ke orderTable (hidden) + polling sampai row ada -----
                 if (typeof addItem === 'function') {
-                    // Clear existing rows di orderTable (hindari penambahan double jika user klik submit 2x)
                     try {
                         var tb = document.querySelector('#orderTable tbody');
                         if (tb) tb.innerHTML = '';
@@ -1166,108 +1256,175 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         var tvp = document.getElementById('totalVP'); if (tvp) tvp.textContent = '0,00';
                         var th = document.getElementById('totalHarga'); if (th) th.textContent = '0,00';
                     } catch(_e) {}
-                    // Trigger addItem (async JSONP internal)
                     try { addItem(); } catch(_addErr) {
-                        console.warn('[submit] addItem throw exception (dilanjutkan):', _addErr.message);
+                        console.warn('[submit-step1] addItem exception (dilanjutkan):', _addErr.message);
                     }
-
-                    // POLLING: cek setiap 150ms apakah row sudah muncul (async getProductDetails selesai)
-                    // Maks menunggu 5 detik — jika masih 0 row, TETAP LANJUTKAN (jangan block redirect)
-                    var _pollMaxMs = 5000;
-                    var _pollIntervalMs = 150;
-                    var _polled = 0;
-                    var _rowFound = false;
-                    while (_polled < _pollMaxMs) {
-                        await new Promise(function(r){ setTimeout(r, _pollIntervalMs); });
-                        _polled += _pollIntervalMs;
+                    var _pmax = 5000, _pint = 150, _pd = 0, _rf = false;
+                    while (_pd < _pmax) {
+                        await new Promise(function(r){ setTimeout(r, _pint); });
+                        _pd += _pint;
                         try {
-                            var _tb = document.querySelector('#orderTable tbody');
-                            if (_tb && _tb.rows && _tb.rows.length > 0) { _rowFound = true; break; }
+                            var _tb2 = document.querySelector('#orderTable tbody');
+                            if (_tb2 && _tb2.rows && _tb2.rows.length > 0) { _rf = true; break; }
                         } catch(_ch) {}
                     }
-                    if (!_rowFound) {
-                        console.warn('[submit] addItem polling timeout — row orderTable kosong. Tetap dilanjutkan ke simpanData + redirect.');
-                        if (typeof showNotification === 'function') {
-                            try { showNotification('warning', 'Memproses data produk... lanjut ke Form Konfirmasi.', 1800); } catch(_n){}
-                        }
+                    if (!_rf) {
+                        console.warn('[submit-step1] addItem polling timeout — tetap lanjut ke tampilkan data personal.');
                     }
-                } else {
-                    console.warn('[submit] addItem() tidak tersedia — tetap lanjut ke submitForm + simpanData.');
                 }
 
-                // ---- c) PANGGIL submitForm() -> function SUBMIT lama -----
+                // ---- c) PANGGIL submitForm() asli -> disable field produk, kirimButton visible, prefillDataKonsumen -----
                 if (typeof submitForm === 'function') {
-                    try { submitForm(); } catch(_sfErr) {
-                        console.warn('[submit] submitForm exception (dilanjutkan):', _sfErr.message);
+                    try { await submitForm(); } catch(_sfErr) {
+                        console.warn('[submit-step1] submitForm exception:', _sfErr.message);
                     }
-                    // Override: force hide section lama
+                    // Force hide section lama (inputanSection / dataProdukSection / dll) — KITA PAKAI UI BARU
                     var _hideOld = function() {
                         try {
                             if (old.inputanSect) old.inputanSect.style.display = 'none !important';
                             if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
                             if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
                             if (old.orderSum)   old.orderSum.style.display   = 'none !important';
-                        } catch(_eHide) {}
+                        } catch(_) {}
                     };
                     setTimeout(_hideOld, 10);
                     setTimeout(_hideOld, 100);
-                }
-
-                // ---- d) Prefill otomatis data personal + alamat pengiriman -----
-                if (typeof prefillDataKonsumen === 'function') {
+                    setTimeout(_hideOld, 500);
+                } else {
+                    // Fallback: set manual disabled state produk agar user tidak ubah-ubah lagi
                     try {
-                        await prefillDataKonsumen({ force: true });
-                        await new Promise(function(res){ setTimeout(res, 250); });
-                    } catch(errPrefill) {
-                        console.warn('prefillDataKonsumen warning (boleh lanjut):', errPrefill.message);
+                        if (ui.namaProduk) ui.namaProduk.disabled = true;
+                        if (ui.jumlah) ui.jumlah.disabled = true;
+                        if (old.product) old.product.disabled = true;
+                        if (old.quantity) old.quantity.disabled = true;
+                    } catch(_) {}
+                    // Tetap coba prefill
+                    if (typeof prefillDataKonsumen === 'function') {
+                        try { await prefillDataKonsumen({ force: false }); } catch(_p){}
                     }
                 }
 
-                // ---- d+) SAFETY GUARD: PASTIKAN 4 field required (nama/hp sponsor+konsumen) TETAP VALID -----
+                // ---- d) Prefill tambahan (jika prefill di submitForm kurang) + copy hidden → visible -----
                 _ensureValidasiDataPersonalTetapLolos_();
+                _copyHiddenToVisible_();
 
-                // ---- e) Validasi Form (hanya petunjuk, tidak block) -----
-                if (typeof validateForm === 'function') {
+                // ---- e) MUNCULKAN section "Data Personal & Pengiriman" + scroll ke sana -----
+                if (ui.dataPersonalContainer) {
+                    ui.dataPersonalContainer.style.display = 'block';
                     try {
-                        var _okValid = validateForm();
-                        if (!_okValid) {
-                            console.warn('[submit] validateForm belum lulus, TETAP dilanjutkan ke simpanData sesuai flow lama');
-                            _ensureValidasiDataPersonalTetapLolos_();
-                        }
-                    } catch(_vErr) { console.warn('validateForm exception (safe):', _vErr.message); }
+                        ui.dataPersonalContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } catch(_s) {}
                 }
 
-                // ---- f) PANGGIL simpanData() -> kirim ke sheet -----
-                //   fallback redirect timer sudah berjalan di atas, jadi user PASTI pindah
                 if (typeof showNotification === 'function') {
-                    try { showNotification('info', 'Memproses pesanan & mengarahkan ke Form Konfirmasi Pembayaran...', 3000); } catch(_n){}
-                }
-
-                if (typeof simpanData === 'function') {
-                    setTimeout(function() {
-                        try { simpanData(); } catch(_errInternal) {
-                            console.error('simpanData error, fallback redirect berjalan:', _errInternal);
-                        }
-                    }, 400);
-                } else {
-                    console.warn('[submit] simpanData() tidak tersedia — fallback redirect akan mengalihkan.');
+                    try { showNotification('success', 'Silakan cek / lengkapi Data Personal & Pengiriman, lalu klik CHECKOUT.', 3500); } catch(_n){}
                 }
 
             } catch(errMain) {
-                console.error('[pesanProduk-sederhana] submit error:', errMain);
+                console.error('[submit-step1] error:', errMain);
+                // Meskipun error, coba munculkan data personal agar user tidak stuck
+                try {
+                    _ensureValidasiDataPersonalTetapLolos_();
+                    _copyHiddenToVisible_();
+                    if (ui.dataPersonalContainer) ui.dataPersonalContainer.style.display = 'block';
+                } catch(_f) {}
                 if (typeof showNotification === 'function') {
-                    try {
-                        showNotification('warning', 'Memproses... lanjut ke Form Konfirmasi Pembayaran...', 1800);
-                    } catch(_n){}
+                    try { showNotification('warning', 'Silakan cek data, lalu klik CHECKOUT untuk lanjut.', 2500); } catch(_n){}
                 }
             } finally {
-                // Kembalikan tombol jika belum redirect (jika fallback timer masih menunggu)
+                // SUBMIT step selesai: spinner off, tombol submit tetap disabled (produk tidak boleh diubah)
                 setTimeout(function() {
                     try {
                         if (ui.submitSpin) ui.submitSpin.style.display = 'none';
-                        if (ui.submitBtn) ui.submitBtn.disabled = false;
-                    } catch(_e) {}
-                }, 1500);
+                    } catch(_) {}
+                }, 400);
+            }
+        });
+    }
+
+    // ---------- 5b) Handler CHECKOUT BUTTON (Langkah 2: validate + simpanData + redirect frmKonfirmasi.html) ----------
+    if (ui.checkoutBtn) {
+        ui.checkoutBtn.addEventListener('click', async function() {
+            if (ui.checkoutSpin) ui.checkoutSpin.style.display = 'inline-block';
+            if (ui.checkoutBtn) ui.checkoutBtn.disabled = true;
+
+            // ============ FALLBACK REDIRECT SAFETY ============
+            //   Jika apapun gagal, user PASTI pindah ke frmKonfirmasi.html dalam 4 detik
+            var _fallbackInv = '';
+            try { _fallbackInv = String(old.invoice ? (old.invoice.value || '') : ''); } catch(_eI){ _fallbackInv=''; }
+            var _fallbackT = setTimeout(function() {
+                try {
+                    var _h = 'frmKonfirmasi.html';
+                    try {
+                        var _ii = String(old.invoice ? (old.invoice.value || '') : '');
+                        if (_ii) _h += '?noPesanan=' + encodeURIComponent(_ii);
+                    } catch(_){}
+                    try { window.location.href = _h; }
+                    catch(_er){ try { window.location.replace(_h); } catch(_){} }
+                } catch(_){}
+            }, 4000);
+
+            try {
+                // ---- a) Pastikan UI visible tercopy ke hidden (terakhir sebelum validate) -----
+                _copyVisibleToHidden_();
+                // Safety guard: jika ada field required yang masih kosong, isi default
+                _ensureValidasiDataPersonalTetapLolos_();
+                // Copy lg setelah guard mengisi
+                _copyHiddenToVisible_();
+                _copyVisibleToHidden_();
+
+                // ---- b) Validasi Form (menggunakan JS asli validateForm) -----
+                //   Kalau gagal, beri notifikasi dan TIDAK lanjut simpanData
+                var _valid = true;
+                if (typeof validateForm === 'function') {
+                    try { _valid = validateForm(); } catch(_v) { _valid = true; console.warn('validateForm exception:', _v.message); }
+                }
+                if (!_valid) {
+                    // User perlu cek field — berikan pesan, tetap berikan opsi klik lagi
+                    if (typeof showNotification === 'function') {
+                        try { showNotification('warning', 'Periksa kembali field Data Personal & Pengiriman yang belum terisi dengan benar.', 3000); } catch(_n){}
+                    }
+                    if (ui.checkoutSpin) ui.checkoutSpin.style.display = 'none';
+                    if (ui.checkoutBtn) ui.checkoutBtn.disabled = false;
+                    clearTimeout(_fallbackT);
+                    return;
+                }
+
+                // ---- c) PANGGIL simpanData() -> kirim ke sheet + redirect internal ke frmKonfirmasi -----
+                if (typeof showNotification === 'function') {
+                    try { showNotification('info', 'Memproses pesanan & mengarahkan ke Form Konfirmasi Pembayaran...', 3500); } catch(_n){}
+                }
+                if (typeof simpanData === 'function') {
+                    // simpanData() sendiri akan redirect via window.location.href sukses atau timeout internal 1200ms
+                    try { simpanData(); } catch(_sdErr) {
+                        console.error('simpanData throw — fallback redirect aktif:', _sdErr);
+                    }
+                } else {
+                    console.warn('[checkout] simpanData() tidak tersedia — fallback redirect.');
+                    // Manual redirect jika simpanData tidak ada
+                    var _href2 = 'frmKonfirmasi.html';
+                    if (_fallbackInv) _href2 += '?noPesanan=' + encodeURIComponent(_fallbackInv);
+                    setTimeout(function(){
+                        try { window.location.href = _href2; } catch(_){}
+                    }, 600);
+                }
+
+            } catch(errMain) {
+                console.error('[checkout-step2] error:', errMain);
+                if (typeof showNotification === 'function') {
+                    try { showNotification('warning', 'Memproses... mengarahkan ke Form Konfirmasi...', 2000); } catch(_n){}
+                }
+                // Fallback manual redirect (timer 4dtk juga tetap berjalan)
+                var _href3 = 'frmKonfirmasi.html';
+                try {
+                    var _i3 = String(old.invoice ? (old.invoice.value || '') : '');
+                    if (_i3) _href3 += '?noPesanan=' + encodeURIComponent(_i3);
+                } catch(_){}
+                setTimeout(function(){
+                    try { window.location.href = _href3; } catch(_){ try { window.location.replace(_href3); } catch(_){} }
+                }, 700);
+            } finally {
+                // Tidak re-enable tombol checkout (biar disabled kalau redirect masih berjalan)
             }
         });
     }

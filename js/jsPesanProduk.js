@@ -704,8 +704,8 @@ function resetForm() {
     document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "Submit" 
     document.getElementById("kirimButton").style.display  = "none";         // Sembuyikan tombol "Kirim" 
     document.getElementById("kirimButton").disabled       = true;           // Nonaktifkan tombol "Kirim" 
-    document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
-    document.getElementById("btnReset").disabled          = false;
+    var _ba = document.getElementById("btnAdd");  if (_ba) _ba.disabled = false;
+    var _br = document.getElementById("btnReset"); if (_br) _br.disabled = false;
     showSpinner("btnReset");
     enableFields();    // Enable semua field kecuali Tanggal dan Invoice
 
@@ -1301,8 +1301,8 @@ async function submitForm() {
   document.getElementById("quantity").disabled = true;
   document.getElementById("discount").disabled = true;
   document.getElementById("shipping").disabled = true;
-  document.getElementById("btnAdd").disabled   = true;
-  document.getElementById("btnReset").disabled = true;
+  var _ba2 = document.getElementById("btnAdd");  if (_ba2) _ba2.disabled = true;
+  var _br2 = document.getElementById("btnReset"); if (_br2) _br2.disabled = true;
  
   // Toggle tombol
   document.getElementById("submitButton").style.display   = "none";
