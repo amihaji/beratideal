@@ -1128,6 +1128,26 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         }
     }
 
+    // ---------- 2b) MutationObserver: pantai perubahan <option> di old.product (loadOptions Promise) -> auto sync UI ----------
+    try {
+        if (old.product && typeof MutationObserver !== 'undefined') {
+            var _syncOpt = function(){ try { syncOptionProduk(); syncDariFieldLamaKeUI(); if (old.product && old.product.value) _recalcDebounced_(); } catch(_eo){} };
+            var _prodObs = new MutationObserver(function(mutations){
+                var needResync = false;
+                for (var i = 0; i < mutations.length; i++) {
+                    var m = mutations[i];
+                    if (m.type === 'childList' && (m.addedNodes.length > 0 || m.removedNodes.length > 0)) { needResync = true; break; }
+                    if (m.type === 'attributes' && m.attributeName === 'value') { needResync = true; break; }
+                }
+                if (needResync) _syncOpt();
+            });
+            _prodObs.observe(old.product, { childList: true, subtree: false, attributes: true, attributeFilter: ['value'] });
+            // 1x fallback (jika loadOptions resolve SANGAT cepat sebelum observer attach)
+            setTimeout(_syncOpt, 150);
+            setTimeout(_syncOpt, 600);
+        }
+    } catch(eObs) { console.warn('[pesanProduk-sederhana] observer produk warning:', eObs.message); }
+
     // ---------- 3) Saat UI baru berubah (produk/jumlah) -> sync ke field lama & trigger change ----------
     if (ui.namaProduk && old.product) {
         ui.namaProduk.addEventListener('change', function() {

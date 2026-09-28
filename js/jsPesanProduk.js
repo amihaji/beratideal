@@ -484,7 +484,7 @@ function addItem() {
     disableFields();
 
     showSpinner("btnAdd");
-    showNotification('success', 'SUKSES : Item berhasil di tambah');
+    // showNotification('success', 'SUKSES : Item berhasil di tambah');
     setTimeout(() => hideSpinner("btnAdd"), 1000); // simulasi selesai proses
   }).catch(error => {
     showNotification('error', 'ERROR : ' + error.message);
@@ -803,6 +803,10 @@ function loadOptions() {
     // 🔥 OVERRIDE RULE A (Beli Produk Mode):
     //    JANGAN panggil autoFillProdukByKategori() -> user harus MANUAL pilih dropdown
     //    "Pilih Nama Produk" (Tetap load daftar produk ke dropdown)
+    // 🔥 OVERRIDE UNTUK pesanProduk.html:
+    //    - DROPDOWN HANYA filter Kategori = "Paket FIT Challenge" (sheet TabelHarga kolom B)
+    //    - Auto-pilih dari localStorage.pesananKategori (dikirim dari frmTukarPoint.pesanProduk)
+    const FIT_CHALLENGE_KAT = "Paket FIT Challenge";
     const productSelect = document.getElementById('product');
     if (productSelect) {
       Promise.all([
@@ -810,7 +814,14 @@ function loadOptions() {
         fetchJsonpEstihtools("getProducts")
       ]).then(([mKategori, mProducts]) => {
         const kategoriList = (mKategori && Array.isArray(mKategori.data)) ? mKategori.data : [];
-        const productList = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
+        const productListAll = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
+        // ===== Filter HANYA Kategori = "Paket FIT Challenge" =====
+        const productList = (Array.isArray(productListAll) ? productListAll : []).filter(function(prod){
+          if (!prod) return false;
+          const kat = String(prod.Kategori || prod.kategori || '').trim().toLowerCase();
+          return kat === FIT_CHALLENGE_KAT.trim().toLowerCase();
+        });
+        console.log('[loadOptions PRODUK] pesanProduk.html: filter Kategori="%s" → %d dari %d produk', FIT_CHALLENGE_KAT, productList.length, (productListAll||[]).length);
         // Isi dropdown produk terlebih dahulu (agar user bisa pilih)
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
         if (Array.isArray(productList)) {
@@ -824,6 +835,42 @@ function loadOptions() {
             if (val) productSelect.appendChild(opt);
           });
         }
+        // ===== AUTO-PILIH dari localStorage.pesananKategori (frmTukarPoint.pesanProduk) =====
+        // Jika kategori dikirim cocok FIT_CHALLENGE_KAT → pilih produk pertama (jika cuma 1)
+        let selectedByKategori = null;
+        try {
+          const katFromStorage = String((localStorage && localStorage.getItem('pesananKategori')) || '').trim();
+          if (katFromStorage) {
+            const katNorm = katFromStorage.toLowerCase();
+            const targetKat = FIT_CHALLENGE_KAT.trim().toLowerCase();
+            // Cek exact match / contains (user mungkin kirim "FIT Challenge" atau "Paket FIT Challenge")
+            if (katNorm === targetKat || katNorm.indexOf(targetKat.replace(/^paket\s+/i,'')) !== -1 || targetKat.indexOf(katNorm) !== -1) {
+              // Pilih produk pertama di filtered list
+              if (productList.length === 1) {
+                selectedByKategori = productList[0];
+              } else if (productList.length > 0) {
+                // Jika >1 produk dalam kategori, cari NamaProduk yang mengandung katFromStorage
+                const firstMatch = productList.find(function(p){
+                  return String(p.NamaProduk||'').toLowerCase().indexOf(katNorm.replace(/^paket\s+/i,'')) !== -1;
+                }) || productList[0];
+                selectedByKategori = firstMatch;
+              }
+            }
+          }
+        } catch(eKatSel){ console.warn('[loadOptions] gagal baca localStorage.pesananKategori:', eKatSel); }
+        if (selectedByKategori) {
+          const val = String(selectedByKategori.NoStok || selectedByKategori.noStok || '').trim();
+          if (val) {
+            productSelect.value = val;
+            // Trigger change event agar syncOptionProduk (pesanProduk.html) copy ke ui_namaProduk + hitung harga
+            try { productSelect.dispatchEvent(new Event('change', { bubbles:true })); } catch(_d){}
+            try { productSelect.dispatchEvent(new Event('input', { bubbles:true }));  } catch(_d){}
+            console.log('[loadOptions PRODUK] auto-pilih dari localStorage.pesananKategori: %s = %s',
+              (selectedByKategori.NamaProduk||val), val);
+          }
+        }
+        // Re-sync UI dropdown sederhana_namaProduk (pesanProduk.html) setlah options di-load via Promise
+        try { if (typeof window.syncOptionProduk === 'function') window.syncOptionProduk(); } catch(_s){}
         // HANYA autoFill JIKA BUKAN BeliProduk Mode (user bebas pilih manual)
         if (window.IS_BELI_PRODUK_MODE !== true) {
           autoFillProdukByKategori(productList || [], kategoriList || []);
