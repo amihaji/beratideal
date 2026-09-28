@@ -924,17 +924,213 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         if (!old.shipping || !old.shipping.value) return false;
         return true;
     }
+    // ---------- CACHE PRODUK (untuk hitung harga LOKAL TANPA JSONP) ----------
+    //    Key   = normalize(NoStok)
+    //    Value = {NoStok,NamaProduk,Kategori,HargaEceran,Member25,SC35,SB42,SPV50,VP}
+    //    Diisi dari: (a) loadOptions jsPesanProduk.js jika backend TabelHarga return field lengkap,
+    //                (b) setiap addItem() resolve getProductDetails — intersep via _interceptAddItemCache_()
+    var _PRODUK_CACHE_ = (window.__PRODUK_CACHE__ = window.__PRODUK_CACHE__ || new Map());
+    function _normKey_(s){ return String(s||'').trim().toUpperCase().replace(/\s+/g,'').replace(/[‐‑‒–—−]/g,'-'); }
+    function _cacheSetProduk_(data) {
+        if (!data) return;
+        try {
+            var k = _normKey_(data.NoStok || data.noStok);
+            if (!k) return;
+            var entry = {
+                NoStok:       String(data.NoStok       || data.noStok      || '').trim(),
+                NamaProduk:   String(data.NamaProduk   || data.namaProduk  || data.name || '').trim(),
+                Kategori:     String(data.Kategori     || data.kategori    || '').trim(),
+                HargaEceran:  Number(data.HargaEceran  || data.hargaEceran || data.price || 0) || 0,
+                Member25:     Number(data.Member25     || data.member25    || 0) || 0,
+                SC35:         Number(data.SC35         || data.sc35        || 0) || 0,
+                SB42:         Number(data.SB42         || data.sb42        || 0) || 0,
+                SPV50:        Number(data.SPV50        || data.spv50       || 0) || 0,
+                VP:           Number(data.VP           || data.vp          || 0) || 0
+            };
+            _PRODUK_CACHE_.set(k, entry);
+            window.__PRODUK_CACHE__.set(k, entry);
+        } catch(_ce){}
+    }
+    function _cacheGetProduk_(noStok) { try { return _PRODUK_CACHE_.get(_normKey_(noStok)) || null; } catch(_){ return null; } }
+    function _cacheIsiDariLoadOptionsIfAny_() {
+        try {
+            var pSel = document.getElementById('product');
+            if (!pSel || !pSel.options || pSel.options.length < 2) return;
+            // Jika loadOptions mengembalikan __lastLoadedProdukListAll (yang kita set dibawah)
+            var all = window.__LAST_LOADED_PRODUK_LISTALL__;
+            if (Array.isArray(all)) {
+                all.forEach(function(p){ _cacheSetProduk_(p); });
+            }
+        } catch(_i){}
+    }
+    // Intersep global window.addItem agar setiap kali JSONP resolve, cache diisi otomatis
+    (function _interceptAddItemCache_(){
+        try {
+            if (typeof window._original_addItem === 'function') return; // sudah di-intersep
+            if (typeof window.addItem !== 'function') {
+                // belum ready, coba lagi nanti
+                setTimeout(_interceptAddItemCache_, 200);
+                return;
+            }
+            window._original_addItem = window.addItem;
+            window.addItem = function(){
+                try { _cacheIsiDariLoadOptionsIfAny_(); } catch(_){}
+                var res = window._original_addItem.apply(this, arguments);
+                // Kita intersep fetchJsonpEstihtools juga agar setiap resolve getProductDetails cache diisi
+                return res;
+            };
+            if (typeof window.fetchJsonpEstihtools === 'function' && typeof window._original_fetchJsonpEstihtools !== 'function') {
+                window._original_fetchJsonpEstihtools = window.fetchJsonpEstihtools;
+                window.fetchJsonpEstihtools = function(action, params){
+                    var p = window._original_fetchJsonpEstihtools.apply(this, arguments);
+                    if (p && typeof p.then === 'function' && String(action || '').toLowerCase() === 'getproductdetails') {
+                        p.then(function(data){ try { _cacheSetProduk_(data); } catch(_c){} return data; });
+                    }
+                    // Bonus: intercept getProducts → masukkan semua produk ke cache
+                    if (p && typeof p.then === 'function' && String(action || '').toLowerCase() === 'getproducts') {
+                        p.then(function(data){
+                            try {
+                                var arr = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+                                if (Array.isArray(arr)) {
+                                    window.__LAST_LOADED_PRODUK_LISTALL__ = arr;
+                                    arr.forEach(function(p){ _cacheSetProduk_(p); });
+                                }
+                            } catch(_c){}
+                            return data;
+                        });
+                    }
+                    return p;
+                };
+            }
+        } catch(_ie){}
+    })();
+
+    function _priceAfterDiscount_(prodData, mDiscount) {
+        if (!prodData) return 0;
+        switch (String(mDiscount || '').trim()) {
+            case '0%':  return Number(prodData.HargaEceran) || 0;
+            case '25%': return Number(prodData.Member25)    || 0;
+            case '35%': return Number(prodData.SC35)        || 0;
+            case '42%': return Number(prodData.SB42)        || 0;
+            case '50%': return Number(prodData.SPV50)       || 0;
+            default:    return Number(prodData.HargaEceran) || 0;
+        }
+    }
+    function _formatRupiah_(n) {
+        if (typeof formatCurrency === 'function') return formatCurrency(n);
+        n = Number(n) || 0;
+        return 'Rp ' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+    // Hitung harga SECARA LOKAL + inject orderTable TANPA PERLU JSONP (INSTAN 10ms)
+    function _recalcLokalInstan_(syncNow) {
+        try {
+            if (!_isReadyForRecalc_()) { syncDariFieldLamaKeUI(); return false; }
+            var noStokVal = old.product ? String(old.product.value || '').trim() : '';
+            if (!noStokVal) return false;
+            var prodData = _cacheGetProduk_(noStokVal);
+            if (!prodData) {
+                console.log('[recalcLokal] cache MISS utk NoStok='+noStokVal+' → fallback addItem JSONP');
+                return false; // cache miss → biar _recalcTotalViaExistingFormula_ fallback ke addItem()
+            }
+            var qty = parseInt((old.quantity ? old.quantity.value : '1'), 10) || 1;
+            if (qty < 1) qty = 1;
+            var mDiscount  = (old.discount  ? old.discount.value  : '0%')  || '0%';
+            var mKirim     = Number((old.shipping ? old.shipping.value : 0)) || 0;
+            var priceAfter = _priceAfterDiscount_(prodData, mDiscount);
+            var hargaEcer  = Number(prodData.HargaEceran) || 0;
+            var diskonNom  = Math.max(0, hargaEcer - priceAfter);
+            var hargaTotal = priceAfter * qty;
+            var vpPerItem  = Number(prodData.VP) || 0;
+            var vpTotal    = vpPerItem * qty;
+            // Dapatkan nama produk dari options <select> (fallback dari cache)
+            var namaProd = '';
+            try {
+                if (old.product && old.product.options && old.product.selectedIndex >= 0) {
+                    namaProd = String(old.product.options[old.product.selectedIndex].textContent || old.product.options[old.product.selectedIndex].text || '').trim();
+                }
+            } catch(_np){}
+            if (!namaProd) namaProd = String(prodData.NamaProduk || noStokVal);
+            // Dapatkan label diskon
+            var discLabel = 'Diskon';
+            try {
+                if (old.discount && old.discount.options && old.discount.selectedIndex >= 0) {
+                    discLabel = 'Diskon ' + String(old.discount.options[old.discount.selectedIndex].textContent || old.discount.options[old.discount.selectedIndex].text || '').trim();
+                }
+            } catch(_dl){}
+            // Bersihkan tbody lama → inject 1 row persis seperti addItem() buat
+            _clearOrderTableBody_();
+            var mTableBody = document.querySelector('#orderTable tbody');
+            if (!mTableBody) return false;
+            var trHtml = '' +
+                '<tr data-kategori="'+String(prodData.Kategori||'').replace(/"/g,'&quot;')+'" '+
+                    'data-vp-asli="'+vpPerItem+'" '+
+                    'data-harga-setelah-diskon="'+priceAfter+'">'+
+                    '<td>1</td>'+
+                    '<td>'+String(noStokVal).replace(/</g,'&lt;')+'</td>'+
+                    '<td>'+String(namaProd).replace(/</g,'&lt;')+'</td>'+
+                    '<td>'+_formatRupiah_(hargaEcer)+'</td>'+
+                    '<td>'+_formatRupiah_(diskonNom)+'</td>'+
+                    '<td><input type="number" value="'+qty+'" min="1" max="999" class="qty-input" style="width:60px"></td>'+
+                    '<td data-vp-nilai="'+vpTotal+'">'+_formatRupiah_(vpTotal)+'</td>'+
+                    '<td data-harga-nilai="'+hargaTotal+'">'+_formatRupiah_(hargaTotal)+'</td>'+
+                    '<td class="text-center"><span class="delete-icon" onclick="deleteItem(this)"><i class="fas fa-times"></i></span></td>'+
+                '</tr>';
+            mTableBody.insertAdjacentHTML('beforeend', trHtml);
+            var thDiskon = document.querySelector('#orderTable th:nth-child(5)');
+            if (thDiskon) thDiskon.textContent = discLabel;
+            // Update submitButton & callAPI & saveOrder (partial, karena addItem JSONP asli tidak dipanggil)
+            try {
+                var sbtn = document.getElementById('submitButton');
+                if (sbtn) sbtn.disabled = false;
+            } catch(_sb){}
+            try { if (typeof disableFields === 'function') disableFields(); } catch(_df){}
+            // Update total + UI card
+            if (typeof updateTotals === 'function') updateTotals();
+            if (typeof collectOrderData === 'function' && typeof callAPI === 'function') {
+                try { callAPI('saveOrder', collectOrderData(), 'POST'); } catch(_so){}
+            }
+            if (syncNow !== false) {
+                try { syncDariFieldLamaKeUI(); } catch(_e){}
+            }
+            // Listener qty input di orderTable (sync ke old.quantity + recalc lagi INSTAN)
+            try {
+                var qtyInp = mTableBody.querySelector('input.qty-input');
+                if (qtyInp && !qtyInp._syncAttached) {
+                    qtyInp._syncAttached = true;
+                    qtyInp.addEventListener('input', function(){
+                        var v = parseInt(qtyInp.value, 10);
+                        if (isNaN(v) || v < 1) v = 1; if (v > 999) v = 999;
+                        qtyInp.value = String(v);
+                        if (old.quantity && old.quantity.value !== String(v)) { old.quantity.value = String(v); if (ui.jumlah) ui.jumlah.value = String(v); }
+                        _recalcLokalInstan_();
+                    });
+                }
+            } catch(_qi){}
+            console.log('[recalcLokal] CACHE HIT → INSTAN update selesai ('+namaProd+' x'+qty+' = '+_formatRupiah_(hargaTotal)+')');
+            return true;
+        } catch (e) {
+            console.warn('[recalcLokal] error:', e.message);
+            return false;
+        }
+    }
+
     function _recalcTotalViaExistingFormula_(syncNow) {
         try {
             if (!_isReadyForRecalc_()) {
                 syncDariFieldLamaKeUI();
                 return;
             }
+            // PRIORITAS: HITUNG LOKAL DARI CACHE → INSTAN
+            try { _cacheIsiDariLoadOptionsIfAny_(); } catch(_){}
+            if (_recalcLokalInstan_(syncNow)) {
+                return; // BERHASIL secara lokal, TIDAK PERLU panggil addItem() JSONP (hemat 1-3 detik)
+            }
+            // FALLBACK: cache MISS → pakai addItem() + JSONP (asli)
             if (typeof addItem !== 'function') return;
             _clearOrderTableBody_();
             addItem();
             if (syncNow !== false) {
-                setTimeout(function(){ try { syncDariFieldLamaKeUI(); } catch(_e){} }, 60);
+                setTimeout(function(){ try { syncDariFieldLamaKeUI(); } catch(_e){} }, 120);
             }
         } catch(e) {
             console.warn('[recalc] warning:', e.message);
@@ -946,7 +1142,15 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         _recalcDebounceTimer = setTimeout(function(){
             _recalcDebounceTimer = null;
             _recalcTotalViaExistingFormula_();
-        }, 400);
+        }, 220); // dikurangi dari 400 → 220 agar lebih responsif
+    }
+    // Eager: trigger hitung lokal SEGERA ketika ada input/change (tanpa nunggu debounce)
+    function _recalcSegera_() {
+        try { _cacheIsiDariLoadOptionsIfAny_(); } catch(_){}
+        try {
+            if (_recalcLokalInstan_()) return;
+        } catch(_l){}
+        _recalcDebounced_();
     }
     // ---------- Helper tambahan: Pastikan 4 field required (nama/hp sponsor & konsumen) VALID agar validateForm tidak block ----------
     //    (Prefill dari localStorage / lastOrderData, atau pakai dummy default yang LOLOS regex pattern validateForm).
@@ -1163,7 +1367,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 }
             } finally {
                 syncDariFieldLamaKeUI();
-                _recalcDebounced_();
+                _recalcSegera_(); // → INSTAN hitung lokal (jika cache ada)
             }
         });
     }
@@ -1177,7 +1381,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             if (v > 99) v = 99;
             if (old.quantity.value !== String(v)) old.quantity.value = String(v);
             syncDariFieldLamaKeUI();
-            _recalcDebounced_();
+            _recalcSegera_(); // → INSTAN (keystroke jumlah)
         });
         ui.jumlah.addEventListener('change', function() {
             var v = parseInt(ui.jumlah.value, 10);
@@ -1191,20 +1395,20 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 old.quantity.dispatchEvent(ev);
             } catch(e) {}
             syncDariFieldLamaKeUI();
-            _recalcDebounced_();
+            _recalcSegera_(); // → INSTAN (jumlah selesai diubah)
         });
     }
     // --- 3b) Listener Diskon & By Kirim berubah dari JS asli (JSONP selesai load, dll) ---
     if (old.discount) {
         old.discount.addEventListener('change', function() {
             syncDariFieldLamaKeUI();
-            _recalcDebounced_();
+            _recalcSegera_(); // → INSTAN (diskon berubah → harga berubah)
         });
     }
     if (old.shipping) {
         old.shipping.addEventListener('change', function() {
             syncDariFieldLamaKeUI();
-            _recalcDebounced_();
+            _recalcSegera_(); // → INSTAN (ongkir berubah → total berubah)
         });
     }
     // --- 3c) Listener Voucher berubah (updateTotals mengisi voucherAmount / voucherInfo) ---
@@ -1213,7 +1417,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         old.voucherAmt.addEventListener('input',  function() { syncDariFieldLamaKeUI(); });
     }
 
-    // ---------- 4) Polling sinkronisasi periodik (setiap 250ms) ----------
+    // ---------- 4) Polling sinkronisasi periodik (setiap 300ms) ----------
     //   → catch perubahan yang JS lama lakukan (diskon option, voucher, harga otomatis)
     var _lastReadyForRecalc = false;
     function _polling() {
@@ -1224,18 +1428,19 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             var nowReady = _isReadyForRecalc_();
             if (nowReady && !_lastReadyForRecalc) {
                 _lastReadyForRecalc = true;
-                _recalcDebounced_();
+                _recalcSegera_(); // → INSTAN (pakai cache jika sudah ada)
             } else if (!nowReady) {
                 _lastReadyForRecalc = false;
             }
         } catch(_) {}
     }
-    setInterval(_polling, 250);
-    setTimeout(_polling, 200);
-    setTimeout(_polling, 800);
-    setTimeout(_polling, 1600);
+    setInterval(_polling, 300);
+    setTimeout(_polling, 150);
+    setTimeout(_polling, 700);
+    setTimeout(_polling, 1500);
     // Pastikan recalc juga dijalankan setelah 2 detik (jika JSONP lambat)
-    setTimeout(function(){ try { _recalcDebounced_(); } catch(_){} }, 2000);
+    setTimeout(function(){ try { _recalcSegera_(); } catch(_){} }, 2000);
+    setTimeout(function(){ try { _recalcSegera_(); } catch(_){} }, 3500);
 
     // ---------- 5a) Handler SUBMIT BUTTON (Langkah 1: addItem + prefill + munculkan Data Personal) ----------
     //    Hasil akhir: section "Data Personal & Pengiriman" MUNCUL + Checkout button tersedia
