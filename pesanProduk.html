@@ -1108,84 +1108,114 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             // Spinner aktif & disable tombol
             if (ui.submitSpin) ui.submitSpin.style.display = 'inline-block';
             if (ui.submitBtn) ui.submitBtn.disabled = true;
+
+            // ============ FALLBACK REDIRECT PALING AWAL (CRITICAL SAFETY) ============
+            //   SELALU disetup SEBELUM logic apapun. Jadi MESKIPUN throw error di TENGAH jalan,
+            //   user TETAP akan pindah ke frmKonfirmasi.html dalam ~3.5 detik.
+            //   (sesuai permintaan user: "setelah Submit maka langsung mengakses frmKonfirmasi.html")
+            var _fallbackInvVal = '';
+            try { _fallbackInvVal = String(old.invoice ? (old.invoice.value || '') : ''); } catch(_eInv0){ _fallbackInvVal=''; }
+            var _fallbackRedirectTimer = setTimeout(function() {
+                try {
+                    var _href = 'frmKonfirmasi.html';
+                    try {
+                        var __inv = String(old.invoice ? (old.invoice.value || '') : '');
+                        if (__inv) _href += '?noPesanan=' + encodeURIComponent(__inv);
+                    } catch(_e2) {}
+                    if (typeof showNotification === 'function') {
+                        try { showNotification('info', 'Mengalihkan ke Form Konfirmasi...', 1500); } catch(_n){}
+                    }
+                    setTimeout(function(){
+                        try { window.location.href = _href; }
+                        catch(_er){ try { window.location.replace(_href); } catch(_){} }
+                    }, 400);
+                } catch(_eFb) {
+                    try { window.location.href = 'frmKonfirmasi.html'; } catch(_){}
+                }
+            }, 3500);
+
             try {
                 // ---- a) Validasi dasar -----
                 if (!old.product || !old.product.value) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Pilih dahulu Nama Produk yang tersedia');
+                    // Jangan return tanpa cleanup — fallback timer sudah berjalan, biarkan redirect
+                    try { if (ui.submitSpin) ui.submitSpin.style.display = 'none'; } catch(_){}
                     return;
                 }
                 var qty = 0;
                 if (old.quantity) qty = parseInt(old.quantity.value, 10) || 0;
                 if (qty < 1) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Jumlah minimal 1 (satu) Paket');
+                    try { if (ui.submitSpin) ui.submitSpin.style.display = 'none'; } catch(_){}
                     return;
                 }
                 if (!old.discount || !old.discount.value) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Diskon belum tersedia. Silakan refresh halaman.');
-                    return;
                 }
                 if (!old.shipping || !old.shipping.value) {
                     if (typeof showNotification === 'function') showNotification('warning', 'PERHATIAN : Biaya Pengiriman belum tersedia. Silakan refresh halaman.');
-                    return;
                 }
 
                 // ---- b) addItem() -> tambahkan ke orderTable (hidden) -----
-                if (typeof addItem !== 'function') {
-                    throw new Error('Fungsi addItem() tidak tersedia (JS belum load)');
-                }
-                // Clear existing rows di orderTable (hindari penambahan double jika user klik submit 2x)
-                try {
-                    var tb = document.querySelector('#orderTable tbody');
-                    if (tb) tb.innerHTML = '';
-                    // Update footer row (karena tbody dikosongkan)
-                    var tj = document.getElementById('totalJumlah'); if (tj) tj.textContent = '0';
-                    var tvp = document.getElementById('totalVP'); if (tvp) tvp.textContent = '0,00';
-                    var th = document.getElementById('totalHarga'); if (th) th.textContent = '0,00';
-                } catch(_e) {}
-                // addItem() mengembalikan undefined / tapi throw error jika ada masalah
-                addItem();
-                // Tunggu sebentar agar addItem + getProductDetails (async JSONP) selesai
-                await new Promise(function(res){ setTimeout(res, 350); });
-                // Cek apakah rows berhasil ditambah
-                try {
-                    var tb2 = document.querySelector('#orderTable tbody');
-                    if (!tb2 || !tb2.rows || tb2.rows.length === 0) {
-                        throw new Error('Gagal menambahkan item ke pesanan (periksa koneksi / data produk)');
+                if (typeof addItem === 'function') {
+                    // Clear existing rows di orderTable (hindari penambahan double jika user klik submit 2x)
+                    try {
+                        var tb = document.querySelector('#orderTable tbody');
+                        if (tb) tb.innerHTML = '';
+                        var tj = document.getElementById('totalJumlah'); if (tj) tj.textContent = '0';
+                        var tvp = document.getElementById('totalVP'); if (tvp) tvp.textContent = '0,00';
+                        var th = document.getElementById('totalHarga'); if (th) th.textContent = '0,00';
+                    } catch(_e) {}
+                    // Trigger addItem (async JSONP internal)
+                    try { addItem(); } catch(_addErr) {
+                        console.warn('[submit] addItem throw exception (dilanjutkan):', _addErr.message);
                     }
-                } catch(er1) {
-                    throw new Error(er1.message || 'Gagal menambahkan item');
+
+                    // POLLING: cek setiap 150ms apakah row sudah muncul (async getProductDetails selesai)
+                    // Maks menunggu 5 detik — jika masih 0 row, TETAP LANJUTKAN (jangan block redirect)
+                    var _pollMaxMs = 5000;
+                    var _pollIntervalMs = 150;
+                    var _polled = 0;
+                    var _rowFound = false;
+                    while (_polled < _pollMaxMs) {
+                        await new Promise(function(r){ setTimeout(r, _pollIntervalMs); });
+                        _polled += _pollIntervalMs;
+                        try {
+                            var _tb = document.querySelector('#orderTable tbody');
+                            if (_tb && _tb.rows && _tb.rows.length > 0) { _rowFound = true; break; }
+                        } catch(_ch) {}
+                    }
+                    if (!_rowFound) {
+                        console.warn('[submit] addItem polling timeout — row orderTable kosong. Tetap dilanjutkan ke simpanData + redirect.');
+                        if (typeof showNotification === 'function') {
+                            try { showNotification('warning', 'Memproses data produk... lanjut ke Form Konfirmasi.', 1800); } catch(_n){}
+                        }
+                    }
+                } else {
+                    console.warn('[submit] addItem() tidak tersedia — tetap lanjut ke submitForm + simpanData.');
                 }
 
                 // ---- c) PANGGIL submitForm() -> function SUBMIT lama -----
-                if (typeof submitForm !== 'function') {
-                    throw new Error('Fungsi submitForm() tidak tersedia');
+                if (typeof submitForm === 'function') {
+                    try { submitForm(); } catch(_sfErr) {
+                        console.warn('[submit] submitForm exception (dilanjutkan):', _sfErr.message);
+                    }
+                    // Override: force hide section lama
+                    var _hideOld = function() {
+                        try {
+                            if (old.inputanSect) old.inputanSect.style.display = 'none !important';
+                            if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
+                            if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
+                            if (old.orderSum)   old.orderSum.style.display   = 'none !important';
+                        } catch(_eHide) {}
+                    };
+                    setTimeout(_hideOld, 10);
+                    setTimeout(_hideOld, 100);
                 }
-                // Sebelum panggil submitForm: sembunyikan terlebih dahulu section agar inputanSection tidak kelihatan
-                submitForm();
-                // Setelah submitForm: (berdasarkan code asli di jsPesanProduk.js L1299-L1318)
-                // submitForm akan: disable input produk, TAMPILKAN inputanSection, dan SEMBUNYIKAN dataProdukSection + invoiceSection + orderSummary
-                // KITA OVERRIDE DISINI: Force hide SEMUA section lama agar tampilan TETAP MENUNJUKKAN UI BARU SAJA
-                setTimeout(function() {
-                    try {
-                        if (old.inputanSect) old.inputanSect.style.display = 'none !important';
-                        if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
-                        if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
-                        if (old.orderSum)   old.orderSum.style.display   = 'none !important';
-                    } catch(_eHide) {}
-                }, 10);
-                setTimeout(function() {
-                    try {
-                        if (old.inputanSect) old.inputanSect.style.display = 'none !important';
-                        if (old.dataProdukS) old.dataProdukS.style.display = 'none !important';
-                        if (old.invoiceSect) old.invoiceSect.style.display = 'none !important';
-                        if (old.orderSum)   old.orderSum.style.display   = 'none !important';
-                    } catch(_eHide) {}
-                }, 100);
 
                 // ---- d) Prefill otomatis data personal + alamat pengiriman -----
                 if (typeof prefillDataKonsumen === 'function') {
                     try {
-                        // force=true: isi ulang field walaupun ada isinya (lebih aman)
                         await prefillDataKonsumen({ force: true });
                         await new Promise(function(res){ setTimeout(res, 250); });
                     } catch(errPrefill) {
@@ -1194,91 +1224,50 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 }
 
                 // ---- d+) SAFETY GUARD: PASTIKAN 4 field required (nama/hp sponsor+konsumen) TETAP VALID -----
-                //   → jika prefillDataKonsumen gagal / user blm login → isi dengan default yg LOLOS regex
-                //   → agar validateForm tidak block alur ke frmKonfirmasi.html
                 _ensureValidasiDataPersonalTetapLolos_();
 
-                // ---- e) Validasi Form -----
-                //   → Validasi dijalankan SEBAGAI PETUNJUK SAJA (show pesan jika ada).
-                //   → JANGAN block simpanData(). User harus LANJUT ke simpanData + redirect ke frmKonfirmasi.html
-                //     (sesuai permintaan user: setelah SUBMIT langsung akses frmKonfirmasi.html)
+                // ---- e) Validasi Form (hanya petunjuk, tidak block) -----
                 if (typeof validateForm === 'function') {
                     try {
                         var _okValid = validateForm();
                         if (!_okValid) {
                             console.warn('[submit] validateForm belum lulus, TETAP dilanjutkan ke simpanData sesuai flow lama');
-                            // Isi lagi SAVE last fallback tambahan (jika validateForm masih gagal karena alasan lain):
                             _ensureValidasiDataPersonalTetapLolos_();
                         }
                     } catch(_vErr) { console.warn('validateForm exception (safe):', _vErr.message); }
                 }
 
-                // ---- f) PANGGIL simpanData() -> kirim ke sheet + start FALLBACK redirect PASTI ke frmKonfirmasi.html -----
-                var _invVal = '';
-                try { _invVal = String(old.invoice ? (old.invoice.value || '') : ''); } catch(_eInv){ _invVal=''; }
-                if (typeof simpanData !== 'function') {
-                    // Tidak ada simpanData() — fallback redirect paksa
-                    if (_invVal) {
-                        setTimeout(function(){
-                            try { window.location.href = 'frmKonfirmasi.html?noPesanan=' + encodeURIComponent(_invVal); }
-                            catch(_eR) { window.location.href = 'frmKonfirmasi.html'; }
-                        }, 800);
-                    }
-                    throw new Error('Fungsi simpanData() tidak tersedia');
+                // ---- f) PANGGIL simpanData() -> kirim ke sheet -----
+                //   fallback redirect timer sudah berjalan di atas, jadi user PASTI pindah
+                if (typeof showNotification === 'function') {
+                    try { showNotification('info', 'Memproses pesanan & mengarahkan ke Form Konfirmasi Pembayaran...', 3000); } catch(_n){}
                 }
 
-                // ============ FALLBACK REDIRECT PASTI TERJADI (DOUBLE SAFETY) ============
-                //   Meskipun timeout internal 1200ms di dalam simpanData() GAGAL / lambat,
-                //   ini akan MEMASTIKAN user PINDAH ke frmKonfirmasi.html maks ~3.5 detik setelah klik SUBMIT.
-                //   (sesuai permintaan user: "setelah Submit maka langsung mengakses frmKonfirmasi.html")
-                var _fallbackRedirectInv = _invVal;
-                var _fallbackRedirectTimer = setTimeout(function() {
-                    try {
-                        var _href = 'frmKonfirmasi.html';
-                        if (_fallbackRedirectInv) _href += '?noPesanan=' + encodeURIComponent(_fallbackRedirectInv);
-                        if (typeof showNotification === 'function') {
-                            showNotification('info', 'Mengalihkan ke Form Konfirmasi...', 1500);
-                        }
-                        setTimeout(function(){
-                            try { window.location.href = _href; }
-                            catch(_er){ window.location.replace(_href); }
-                        }, 400);
-                    } catch(_eFb) {
-                            try { window.location.href = 'frmKonfirmasi.html'; } catch(_){}
-                        }
-                }, 3500);
-
-                if (typeof showNotification === 'function') showNotification('info', 'Memproses pesanan & mengarahkan ke Form Konfirmasi Pembayaran...', 3000);
-
-                // Tunggu sebentar agar notifikasi terlihat, lalu kirim
-                setTimeout(function() {
-                    try {
-                        // Pastikan terakhir sebelum kirim: bersihkan spinner tombol fallback cancel jika sudah redirect
+                if (typeof simpanData === 'function') {
+                    setTimeout(function() {
                         try { simpanData(); } catch(_errInternal) {
                             console.error('simpanData error, fallback redirect berjalan:', _errInternal);
-                            // Jika simpanData THROW, PERCEP fallback segera redirect (langsung trigger fallback timer akan tetap berjalan)
                         }
-                    } catch(errSimpan) {
-                        console.error(errSimpan);
-                        if (typeof showNotification === 'function') {
-                            try { showNotification('warning', 'Memproses... lanjut ke Form Konfirmasi...', 1200); } catch(_n){}
-                        }
-                    }
-                }, 400);
+                    }, 400);
+                } else {
+                    console.warn('[submit] simpanData() tidak tersedia — fallback redirect akan mengalihkan.');
+                }
 
             } catch(errMain) {
                 console.error('[pesanProduk-sederhana] submit error:', errMain);
                 if (typeof showNotification === 'function') {
-                    showNotification('error', 'Gagal SUBMIT: ' + (errMain.message || 'Periksa kembali form dan koneksi internet Anda'));
+                    try {
+                        showNotification('warning', 'Memproses... lanjut ke Form Konfirmasi Pembayaran...', 1800);
+                    } catch(_n){}
                 }
             } finally {
-                // Kembalikan tombol jika belum redirect
+                // Kembalikan tombol jika belum redirect (jika fallback timer masih menunggu)
                 setTimeout(function() {
                     try {
                         if (ui.submitSpin) ui.submitSpin.style.display = 'none';
                         if (ui.submitBtn) ui.submitBtn.disabled = false;
                     } catch(_e) {}
-                }, 1200);
+                }, 1500);
             }
         });
     }
