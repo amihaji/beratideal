@@ -601,7 +601,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!--  UI BARU: Data Pesanan Produk SEDERHANA (sesuai spec user)     -->
                     <!-- ============================================================== -->
                     <div id="dataPesananSederhanaContainer" class="mt-3 mb-3 p-3" style="border:1px solid var(--border-muted, #e5e7eb); border-radius:10px; background-color: #fbfcfe;">
-                        <h5 class="mb-3 text-center" style="font-weight:600; color:#172554;"><i class="fas fa-receipt me-2"></i>Data Pesanan Produk</h5>
+                        <h5 class="mb-3 text-start" style="font-weight:600; color:#172554;"><i class="fas fa-receipt me-2"></i>Data Pesanan Produk</h5>
                         <div class="d-flex flex-column gap-2" id="dataPesananSederhanaRows" style="font-size: 0.95rem;">
                             <!-- Tanggal -->
                             <div class="d-flex align-items-center border-bottom pb-2 pt-1" style="border-color:#f1f5f9;">
@@ -675,7 +675,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!--  UI BARU: Data Personal & Pengiriman (muncul SETELAH SUBMIT)   -->
                     <!-- ============================================================== -->
                     <div id="dataPersonalContainer" class="mt-2 mb-3 p-3" style="display:none; border:1px solid var(--border-muted, #e5e7eb); border-radius:10px; background-color: #fbfcfe;">
-                        <h5 class="mb-3 text-center" style="font-weight:600; color:#172554;"><i class="fas fa-user-circle me-2"></i>Data Personal &amp; Pengiriman</h5>
+                        <h5 class="mb-3 text-start" style="font-weight:600; color:#172554;"><i class="fas fa-user-circle me-2"></i>Data Personal &amp; Pengiriman</h5>
 
                         <div class="row g-2">
                             <!-- Data Sponsor -->
@@ -795,6 +795,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
     // ---------- Referensi UI baru ----------
     var ui = {
+        dataPesananContainer: document.getElementById('dataPesananSederhanaContainer'),
         tanggal:      document.getElementById('sederhana_tanggal'),
         nomor:        document.getElementById('sederhana_nomor'),
         namaProduk:   document.getElementById('sederhana_namaProduk'),
@@ -1308,7 +1309,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 _ensureValidasiDataPersonalTetapLolos_();
                 _copyHiddenToVisible_();
 
-                // ---- e) MUNCULKAN section "Data Personal & Pengiriman" + scroll ke sana -----
+                // ---- e) Hide kartu "Data Pesanan Produk" → HANYA tampilkan kartu "Data Personal & Pengiriman" -----
+                if (ui.dataPesananContainer) {
+                    ui.dataPesananContainer.style.display = 'none';
+                }
+                // ---- f) MUNCULKAN section "Data Personal & Pengiriman" + scroll ke sana -----
                 if (ui.dataPersonalContainer) {
                     ui.dataPersonalContainer.style.display = 'block';
                     try {
@@ -1322,7 +1327,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
             } catch(errMain) {
                 console.error('[submit-step1] error:', errMain);
-                // Meskipun error, coba munculkan data personal agar user tidak stuck
+                // Meskipun error: hide kartu pesanan, munculkan data personal (tetap lanjut)
+                try {
+                    if (ui.dataPesananContainer) ui.dataPesananContainer.style.display = 'none';
+                } catch(_hp) {}
                 try {
                     _ensureValidasiDataPersonalTetapLolos_();
                     _copyHiddenToVisible_();
