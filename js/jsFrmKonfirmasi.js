@@ -13,6 +13,22 @@
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', function () {
+  // ---- Inisialisasi Tooltip Bootstrap (sesuai pola pesanProduk.html) ----
+  try {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl, {
+        container: 'body',
+        trigger: 'hover focus',
+        placement: 'top',
+        boundary: 'clippingParents',
+        fallbackPlacements: ['top', 'bottom', 'right', 'left']
+      });
+    });
+  } catch (err) {
+    console.warn('Gagal init tooltip frmKonfirmasi:', err);
+  }
+
   const params        = new URLSearchParams(window.location.search);
   const noPesanan     = params.get("noPesanan");
   const konfirmasiBtn = document.getElementById('btnKonfirmasi');
