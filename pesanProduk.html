@@ -674,66 +674,62 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!-- ============================================================== -->
                     <!--  UI BARU: Data Personal & Pengiriman (muncul SETELAH SUBMIT)   -->
                     <!-- ============================================================== -->
-                    <div id="dataPersonalContainer" class="mt-2 mb-3 p-3" style="display:none; border:1px solid var(--border-muted, #e5e7eb); border-radius:10px; background-color: #fbfcfe;">
-                        <h5 class="mb-3 text-start" style="font-weight:600; color:#172554;"><i class="fas fa-user-circle me-2"></i>Data Personal &amp; Pengiriman</h5>
-
-                        <div class="row g-2">
-                            <!-- Data Sponsor -->
-                            <div class="col-12">
-                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-user-tie me-1"></i>Data Sponsor</p>
+                    <div id="dataPersonalContainer" style="display:none; margin-top:5px;">
+                        <!-- FORM DATA PERSONAL -->
+                        <div>
+                            <p><i class="fas fa-user-friends"> Data Personal</i></p>
+                        </div>
+                        <div class="form-control mt-2">
+                            <p><strong>Silahkan lengkapi Data Personal anda</strong></p>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="ui_namaSponsor" placeholder="Input nama sponsor (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama sponsor">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label mb-1 small fw-medium">Nama Sponsor <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_namaSponsor" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" placeholder="Nama sponsor">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square"></i></span>
+                                <input type="number" class="form-control" id="ui_hpSponsor" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA sponsor (tanpa awalan 0)">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label mb-1 small fw-medium">WA Sponsor <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control form-control-sm" id="ui_hpSponsor" maxlength="14" placeholder="WA tanpa awalan 0">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="far fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="ui_namaKonsumen" placeholder="Input nama konsumen (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Nama konsumen">
                             </div>
-
-                            <!-- Data Konsumen -->
-                            <div class="col-12 mt-2">
-                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-user me-1"></i>Data Konsumen</p>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
+                                <input type="number" class="form-control" id="ui_hpKonsumen" placeholder="Input WA konsumen tanpa diawali angka 0, jika kirim invoice ke WA (wajib isi)" maxlength="14" required data-bs-toggle="tooltip" data-bs-placement="top" title="WA konsumen (tanpa awalan 0)">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label mb-1 small fw-medium">Nama Konsumen <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_namaKonsumen" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" placeholder="Nama konsumen">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label mb-1 small fw-medium">WA Konsumen <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control form-control-sm" id="ui_hpKonsumen" maxlength="14" placeholder="WA tanpa awalan 0">
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label mb-1 small fw-medium">Email Konsumen <small class="text-muted">(opsional)</small></label>
-                                <input type="email" class="form-control form-control-sm" id="ui_emailKonsumen" maxlength="25" placeholder="Email (opsional)">
-                            </div>
-
-                            <!-- Alamat Pengiriman -->
-                            <div class="col-12 mt-2">
-                                <p class="mb-2 mt-1 fw-semibold text-muted" style="font-size:0.88rem; border-bottom:1px dashed #d1d5db; padding-bottom:4px;"><i class="fas fa-truck me-1"></i>Alamat Pengiriman</p>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label mb-1 small fw-medium">Alamat <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_alamat" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Alamat lengkap">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label mb-1 small fw-medium">Kelurahan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_kelurahan" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kelurahan">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label mb-1 small fw-medium">Kecamatan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_kecamatan" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kecamatan">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label mb-1 small fw-medium">Kota / Kabupaten <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_kota" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Kota / Kabupaten">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label mb-1 small fw-medium">Propinsi <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="ui_propensi" oninput="this.value = this.value.toUpperCase()" maxlength="30" placeholder="Propinsi">
+                            <div class="input-group mt-2 mb-2">
+                                <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
+                                <input type="email" class="form-control" id="ui_emailKonsumen" placeholder="Input jika ingin kirim invoice ke email konsumen (optional)" maxlength="25" data-bs-toggle="tooltip" data-bs-placement="top" title="Email konsumen (optional)">
                             </div>
                         </div>
 
+                        <!-- FORM DATA ALAMAT PENGIRIMAN -->
+                        <div class="mt-2">
+                            <p><i class="fas fa-map-marker-alt"> Data Alamat Pengiriman</i></p>
+                        </div>
+                        <div class="form-control mt-2">
+                            <p><strong>Silahkan lengkapi data alamat pengiriman anda</strong></p>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                <input type="text" class="form-control" id="ui_alamat" placeholder="Input alamat (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Alamat lengkap">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-map-marked"></i></span>
+                                <input type="text" class="form-control" id="ui_kelurahan" placeholder="Input kelurahan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kelurahan">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-map-marked-alt"></i></span>
+                                <input type="text" class="form-control" id="ui_kecamatan" placeholder="Input kecamatan (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kecamatan">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-city"></i></span>
+                                <input type="text" class="form-control" id="ui_kota" placeholder="Input kota / kabupaten (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Kota / Kabupaten">
+                            </div>
+                            <div class="input-group mt-2 mb-2">
+                                <span class="input-group-text"><i class="fas fa-globe-asia"></i></span>
+                                <input type="text" class="form-control" id="ui_propensi" placeholder="Input propinsi (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required data-bs-toggle="tooltip" data-bs-placement="top" title="Propinsi">
+                            </div>
+                        </div>
                         <!-- TOMBOL CHECKOUT (Langkah 2: simpanData + redirect frmKonfirmasi) -->
                         <div class="d-flex justify-content-center mt-4">
                             <button type="button" class="btn btn-success btn-sm px-5 py-2" id="sederhana_checkoutBtn" style="border-radius: 8px; min-width: 220px;">
