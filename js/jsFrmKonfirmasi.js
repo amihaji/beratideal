@@ -74,22 +74,36 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formBayar) {
     formBayar.addEventListener("submit", function (e) {
       e.preventDefault();
-      const bukti = document.getElementById("buktiTransfer").files[0];
+
+      // ---- VALIDASI CUSTOM (menghindari double tooltip native HTML5) ----
+      // (Atribut `required` di HTML sudah dihapus, validasi hanya lewat sini + Bootstrap Tooltip)
+      const bukti        = document.getElementById("buktiTransfer").files[0];
+      const sistemBayar  = document.getElementById('sistemBayar').value || '';
+      const namaBankRaw  = document.getElementById('namaBank') ? document.getElementById('namaBank').value : '';
+      const namaBank     = String(namaBankRaw || '').split('|||')[0] || '';
+
       if (!bukti) {
         tampilPesan('error', 'Silakan upload bukti transfer terlebih dahulu.');
         return;
       }
+      if (!sistemBayar) {
+        tampilPesan('error', 'Silakan pilih metode pembayaran terlebih dahulu.');
+        return;
+      }
+      if (!namaBank) {
+        tampilPesan('error', 'Silakan pilih nama bank tujuan transfer terlebih dahulu.');
+        return;
+      }
+      // --- end validasi ---
+
       konfirmasiBtn.disabled  = true;
       konfirmasiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
       const reader  = new FileReader();
       reader.onload = function(e) {
         const base64Data = e.target.result.split(',')[1];
-        const sistemBayar  = document.getElementById('sistemBayar').value;
         const namaPenerima = document.getElementById('namaPenerima').value;
         const acPenerima   = document.getElementById('acPenerima').value;
-        const namaBankRaw  = document.getElementById('namaBank') ? document.getElementById('namaBank').value : '';
-        const namaBank     = String(namaBankRaw || '').split('|||')[0] || '';
         const nominalRaw   = document.getElementById('nominal').value || '0';
         const nominal      = parseInt(String(nominalRaw).replace(/[^\d]/g, ''), 10) || 0;
 
