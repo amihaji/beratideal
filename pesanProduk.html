@@ -460,6 +460,25 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     /* Input dan Select yang Enabled */
     input:enabled, select:enabled { cursor: pointer; }
 }
+
+/* ===== Kursor Global untuk Input & Tombol (Semua Ukuran Layar) ===== */
+/* Elemen AKTIF / DAPAT DIPILIH → pointer (tangan tunjuk) */
+select:not(:disabled),
+input:not(:disabled),
+button:not(:disabled),
+.btn:not(:disabled) {
+    cursor: pointer;
+}
+select option { cursor: pointer; }
+
+/* Elemen NON-AKTIF (DISABLED / READONLY) → no-drop (lingkaran larangan) */
+select:disabled,
+input:disabled,
+input[readonly],
+button:disabled,
+.btn:disabled {
+    cursor: no-drop !important;
+}
 </style>  
 </head>
 
