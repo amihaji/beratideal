@@ -401,7 +401,10 @@ function applyBankInfo(bankInfo) {
   const img = document.getElementById('qrCodeImg');
   const dlBtn = document.getElementById('btnDownloadQr');
   const qrUrl = (bankInfo && bankInfo.qrCodeUrl) ? bankInfo.qrCodeUrl : 'images/qris_club_kita.jpeg';
-  if (img) img.setAttribute('src', qrUrl);
+  if (img) {
+    img.style.display = '';
+    img.setAttribute('src', qrUrl);
+  }
   if (dlBtn) dlBtn.setAttribute('href', qrUrl);
 }
 
@@ -421,7 +424,10 @@ function bindSystemBayarToggle(bankInfo) {
       const qrUrl = (bankInfo && bankInfo.qrCodeUrl) ? bankInfo.qrCodeUrl : 'images/qris_club_kita.jpeg';
       const img = document.getElementById('qrCodeImg');
       const dlBtn = document.getElementById('btnDownloadQr');
-      if (img) img.setAttribute('src', qrUrl);
+      if (img) {
+        img.style.display = '';
+        img.setAttribute('src', qrUrl);
+      }
       if (dlBtn) dlBtn.setAttribute('href', qrUrl);
     } else {
       box.style.display = 'none';
