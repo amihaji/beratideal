@@ -337,9 +337,9 @@ function defaultBankAdmin(orderData) {
   return {
     banks: [],
     namaBank: '',
-    namaPenerima: 'HESTY HUSAIN',
+    namaPenerima: '',
     acPenerima: '',
-    qrCodeUrl: 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg'
+    qrCodeUrl: 'images/qris_club_kita.jpeg'
   };
 }
 
@@ -399,10 +399,13 @@ function applyBankInfo(bankInfo) {
   if (bankSelectEl) bankSelectEl.onchange = applySelectedBank;
   // tampilkan gambar QR
   const img = document.getElementById('qrCodeImg');
-  if (img && bankInfo && bankInfo.qrCodeUrl) {
-    img.src = bankInfo.qrCodeUrl;
-  } else if (img) {
-    img.src = 'https://amihaji.github.io/beratideal/images/qris_club_kita.jpeg';
+  const dlBtn = document.getElementById('btnDownloadQr');
+  const qrUrl = (bankInfo && bankInfo.qrCodeUrl) ? bankInfo.qrCodeUrl : 'images/qris_club_kita.jpeg';
+  if (img) {
+    img.src = qrUrl;
+  }
+  if (dlBtn) {
+    dlBtn.href = qrUrl;
   }
 }
 
@@ -419,10 +422,11 @@ function bindSystemBayarToggle(bankInfo) {
     const val = sel.value;
     if (val === 'QR Code') {
       box.style.display = 'block';
-      if (bankInfo && bankInfo.qrCodeUrl) {
-        const img = document.getElementById('qrCodeImg');
-        if (img && !img.src) img.src = bankInfo.qrCodeUrl;
-      }
+      const qrUrl = (bankInfo && bankInfo.qrCodeUrl) ? bankInfo.qrCodeUrl : 'images/qris_club_kita.jpeg';
+      const img = document.getElementById('qrCodeImg');
+      const dlBtn = document.getElementById('btnDownloadQr');
+      if (img && !img.src) img.src = qrUrl;
+      if (dlBtn) dlBtn.href = qrUrl;
     } else {
       box.style.display = 'none';
     }
