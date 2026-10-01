@@ -7948,7 +7948,7 @@ function tampilkanDashboardSederhana(data) {
               var _msgWrap = container.querySelector('small.text-success.d-block.mt-2.mb-2');
               if (_msgWrap && _msgWrap.innerHTML.indexOf('menukarkan point') !== -1) {
                 _msgWrap.className = 'small text-primary d-block mt-2 mb-2';
-                _msgWrap.innerHTML = '<i class="fas fa-check-double"></i> Point <strong>sudah Anda tukarkan</strong>. Download Sertifikat tetap dapat dilakukan. 👍';
+                _msgWrap.innerHTML = '<strong>Point sudah Anda tukarkan</strong>. Download Sertifikat tetap dapat dilakukan. 👍';
               }
             }
           } catch(eInner){ console.warn('_asyncCekTukarPointUsed inner err:', eInner.message); }
