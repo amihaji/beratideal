@@ -9188,7 +9188,7 @@ function bukaModalQuizSertifikat() {
 
     _quizBukaModal();
     _quizShowBox('quizStatusBox');
-    _quizSetStatusMessage('Sebelum Download Sertifikat, terlebih dahulu selesaikan Quiz, untuk mengetahui sejauh mana pemahaman Anda dalam memahami modoul-modul yang ada pada Program FIT Challange ...', 4000);
+    _quizSetStatusMessage('Sebelum Download Sertifikat, terlebih dahulu selesaikan Quiz, untuk mengetahui sejauh mana pemahaman Anda dalam memahami modoul-modul yang ada pada Program FIT Challange', 4000);
 
     _quizResetFooterButtons();
 
