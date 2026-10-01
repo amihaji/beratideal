@@ -9143,6 +9143,16 @@ function _quizShowBox(which) {
         if (!el) return;
         el.style.display = (id === which) ? '' : 'none';
     });
+
+    const modalDialog = document.querySelector('#quizSertifikatModal .modal-dialog');
+    if (modalDialog) {
+        modalDialog.classList.remove('modal-sm', 'modal-md', 'modal-lg', 'modal-xl');
+        if (which === 'quizStatusBox') {
+            modalDialog.classList.add('modal-md');
+        } else {
+            modalDialog.classList.add('modal-lg');
+        }
+    }
 }
 
 function _quizSetStatusMessage(msg, showSpinner) {
