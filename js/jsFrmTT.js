@@ -447,33 +447,61 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     return '';
   }
 
-  // 🔎 PRIORITAS KATEGORI (MENJAGA AGAR TIDAK TAMPIL SEMUA PAKET):
+  // 🔎 PRIORITAS TAMPILAN DETAIL PRODUK (BERDASARKAN ALUR):
   // ------------------------------------------------------------------
-  // User request: Detail Produk JANGAN tampilkan semua paket, CUKUP
-  // yang konsumen BELI saja.
+  // Ada 2 alur yang berbeda:
   //
-  // Rule prioritas (sangat ketat):
-  //   1. TERTINGGI = orderData.kategoriPesanan  (single value dari
-  //      localStorage.pesananKategori di frmProduk.html).
-  //      JIKA ADA → HANYA GUNAKAN INI SAJA, JANGAN lihat items-level kategori
-  //      (karena item-level kadang fieldnya tidak konsisten antar sheet dan
-  //       bisa menyebabkan kebetulan match ke SEMUA kategori 6 paket).
-  //   2. HANYA JIKA kategoriPesanan KOSONG → baru gabung dari kategori item per item.
+  // 1. ALUR TUKAR POINT (frmTukarPoint.html -> pesanProduk.html):
+  //    kategoriPesanan = paket key (lansia, dewasa, remaja, sarapan,
+  //    naikBB, turunBB) yang ADA di PAKET_MAP.
+  //    -> Tampilkan NAMA PAKET LENGKAP dari PAKET_MAP
+  //       (mis: "Paket Manula (Formula 1, PP3, Multivitamin, ...)")
+  //
+  // 2. ALUR BELI PRODUK (frmProduk.html -> estihtoolsBeratideal.html):
+  //    kategoriPesanan = katalogHerbalife / healthyVibes yang TIDAK ADA
+  //    di PAKET_MAP.
+  //    -> Tampilkan produk yang DIPILIH USER dari dropdown (data items)
+  //       format "Nama Produk xQty"
   // ------------------------------------------------------------------
-  let kategoriDariItems = [];
+
+  // Cek apakah kategoriPesanan resolve ke paket di PAKET_MAP (alur Tukar Point)
+  let resolvedPaket = '';
   if (orderData.kategoriPesanan) {
-    const resolved = normalizeKat_(orderData.kategoriPesanan);
-    if (resolved) kategoriDariItems = [resolved];  // HANYA 1 nilai, tidak digabung items
-    console.log('🔎 applyOrderData: PAKAI kategoriPesanan (prioritas tertinggi):', kategoriDariItems);
-  } else {
-    // Hanya jika kategoriPesanan tidak ada, baru gabung kategori dari tiap item
-    normalized.forEach(function(it){
-      if (!it.kategori) return;
-      const resolved = normalizeKat_(it.kategori);
-      if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
-    });
-    console.log('🔎 applyOrderData: PAKAI kategori dari tiap item (kategoriPesanan kosong):', kategoriDariItems);
+    const resolvedKat = normalizeKat_(orderData.kategoriPesanan);
+    if (resolvedKat && PAKET_MAP[resolvedKat]) {
+      resolvedPaket = PAKET_MAP[resolvedKat];
+    }
   }
+
+  console.log('🔎 applyOrderData: kategoriPesanan=', orderData.kategoriPesanan,
+              'resolvedPaket=', resolvedPaket,
+              'normalized=', normalized);
+
+  // ALUR TUKAR POINT: kategoriPesanan resolve ke paket -> tampilkan nama paket lengkap
+  if (resolvedPaket) {
+    detailEl.value = resolvedPaket;
+    return;
+  }
+
+  // ALUR BELI PRODUK: kategoriPesanan bukan paket key -> tampilkan produk yang dipilih dari dropdown
+  const daftarProdukDipilih = normalized
+    .filter(function(it){ return it.nama; })
+    .map(function(it){
+      const qty = it.qty || 0;
+      return qty > 1 ? (it.nama + ' x' + qty) : it.nama;
+    });
+  if (daftarProdukDipilih.length) {
+    detailEl.value = daftarProdukDipilih.join('\n');
+    return;
+  }
+
+  // Fallback: items tidak punya nama, coba ambil nama paket dari kategori item-level
+  let kategoriDariItems = [];
+  normalized.forEach(function(it){
+    if (!it.kategori) return;
+    const resolved = normalizeKat_(it.kategori);
+    if (resolved && !kategoriDariItems.includes(resolved)) kategoriDariItems.push(resolved);
+  });
 
   const resolvedPaketList = [];
   kategoriDariItems.forEach(function(k){
@@ -482,24 +510,12 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     }
   });
 
-  console.log('🔎 applyOrderData kategoriDariItems=', kategoriDariItems,
-              'resolvedPaketList=', resolvedPaketList,
-              'normalized=', normalized);
-
-  // SCENARIO A: Ada kategori yang match ke paket → tampilkan NAMA PAKET LENGKAP
   if (resolvedPaketList.length) {
     detailEl.value = resolvedPaketList.join('\n');
     return;
   }
 
-  // SCENARIO B: Tidak ada kategori tapi ada nama items → tampilkan nama produk TANPA x1
-  const daftarNamaProduk = normalized.map(function(it){ return it.nama; }).filter(Boolean);
-  if (daftarNamaProduk.length) {
-    detailEl.value = daftarNamaProduk.join('\n');
-    return;
-  }
-
-  // SCENARIO C: items normalized kosong TAPI orderData.items asli (belum ternormalisasi) punya data → coba langsung
+  // Fallback: items normalized kosong TAPI orderData.items asli punya data -> coba langsung
   if (orderData.items && orderData.items.length && orderData.items.map) {
     const langsung = orderData.items.map(function(it){
       if (typeof it === 'string') return it.trim();
@@ -508,14 +524,12 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     if (langsung.length) { detailEl.value = langsung.join('\n'); return; }
   }
 
-  // SCENARIO D: items dari query params tidak ada → mungkin data dari JSONP resp.items
-  // pakai object asli items asli lagi
+  // Fallback: ambil semua nilai string dari object items asli
   const rawItems = orderData.items || [];
   if (rawItems.length) {
     const namaMentah = rawItems.map(function(x){
       if (!x) return '';
       if (typeof x === 'string') return x.trim();
-      // ambil semua nilai string dari object, yang panjang >1 karakter (bukan flag boolean/number)
       var vals = [];
       for (var k in x) {
         if (Object.prototype.hasOwnProperty.call(x, k)) {
@@ -528,8 +542,7 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     if (namaMentah.length) { detailEl.value = namaMentah.join('\n'); return; }
   }
 
-  // SCENARIO E: Semua percobaan di atas gagal → Detail Produk tetap terisi placeholder
-  //             agar user tidak bingung "kenapa kosong". Bisa dihapus user mau ubah.
+  // Fallback terakhir: placeholder
   detailEl.value = '-';
   console.warn('⚠️ Detail Produk tidak bisa diisi otomatis. orderData:', orderData);
 }
