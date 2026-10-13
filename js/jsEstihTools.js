@@ -810,7 +810,22 @@ function loadOptions() {
         fetchJsonpEstihtools("getProducts")
       ]).then(([mKategori, mProducts]) => {
         const kategoriList = (mKategori && Array.isArray(mKategori.data)) ? mKategori.data : [];
-        const productList = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
+        let productList = Array.isArray(mProducts) ? mProducts : (mProducts && Array.isArray(mProducts.data) ? mProducts.data : []);
+
+        // Filter: jika user masuk via tombol "Beli Produk" Katalog Herbalife
+        // (pesananKategori === 'katalogHerbalife'), sembunyikan kategori "Healthy Vibes"
+        // karena Healthy Vibes memiliki tombol Beli Produk sendiri.
+        try {
+          const _katPesanan = String(localStorage.getItem('pesananKategori') || '').trim();
+          if (_katPesanan === 'katalogHerbalife') {
+            productList = (Array.isArray(productList) ? productList : []).filter(function(p){
+              if (!p) return false;
+              const _k = String(p.Kategori || p.kategori || '').replace(/\s+/g,'').toLowerCase();
+              return _k !== 'healthyvibes';
+            });
+          }
+        } catch(_e){}
+
         // Isi dropdown produk terlebih dahulu (agar user bisa pilih)
         productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
         if (Array.isArray(productList)) {
