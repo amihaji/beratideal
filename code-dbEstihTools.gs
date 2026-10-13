@@ -1777,6 +1777,7 @@ function getDataPesananByInvoice(invoice) {
           mPajak: Number(row[18] || 0),
           mTotalPrice: Number(row[20] || 0),
           mVoucher: 0,
+          mKategoriPesanan: row[9] || '',
           items: []
         };
         let totalVoucher = 0;

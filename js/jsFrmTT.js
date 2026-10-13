@@ -30,6 +30,23 @@ document.addEventListener('DOMContentLoaded', function () {
             if (orderData && orderData._prefilled) {
               applyOrderData(orderData, paketMap, aliasKat);
               console.log('✅ Prefill dari URL query params sukses');
+
+              // Fallback: jika items (kolom K DataPesanan) tidak terbawa di URL,
+              // ambil dari backend agar Detail Produk tetap terisi.
+              const hasItems = !!(orderData.items && orderData.items.length);
+              if (!hasItems) {
+                prefillOrderData(noPesanan)
+                  .then(orderData2 => {
+                    if (orderData2 && orderData2.items && orderData2.items.length) {
+                      const merged = Object.assign({}, orderData, {
+                        items: orderData2.items,
+                        kategoriPesanan: orderData2.kategoriPesanan || orderData.kategoriPesanan
+                      });
+                      applyOrderData(merged, paketMap, aliasKat);
+                    }
+                  })
+                  .catch(() => {});
+              }
             } else {
               // PRIORITAS 2: localStorage
               // PRIORITAS 3: JSONP getDataPesananByInvoice
