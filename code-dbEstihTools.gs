@@ -48,7 +48,8 @@ function doGet(e) {
 
     if (action === "getVoucherByPoint") {
       const totalPoint = Number(e.parameter.totalPoint || 0) || 0;
-      return buildDoGetResponse(getVoucherByPoint(totalPoint), callback);
+      const userId = String(e.parameter.userId || '').trim();
+      return buildDoGetResponse(getVoucherByPoint(totalPoint, userId), callback);
     }
 
     if (action === "getBankBySponsor") {
@@ -338,7 +339,20 @@ function getShippingOptions() {
     }));
 }
 
-function getVoucherByPoint(totalPoint) {
+function getVoucherByPoint(totalPoint, userId) {
+  // Jika user SUDAH menukarkan point (kolom AO = "OK"), voucher dipaksa 0.
+  // Alasannya: voucher hanya bisa dipakai SEKALI saat tukar point.
+  if (userId) {
+    try {
+      const status = getTukarPointStatusByUserId_(userId);
+      if (status && status.tukarPointUsed === true) {
+        return { status: 'success', potongan: 0, keterangan: '', point: 0, voucherUsed: true };
+      }
+    } catch (e) {
+      Logger.log('getVoucherByPoint: cek tukar point gagal, lanjut hitung voucher. Error: ' + e.message);
+    }
+  }
+
   const sheet = ss.getSheetByName('TabelVoucer');
   if (!sheet) return { status: 'error', message: "Sheet 'TabelVoucer' tidak ditemukan!" };
   const data = sheet.getDataRange().getValues();

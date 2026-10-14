@@ -1079,7 +1079,10 @@ function applyVoucherBasedOnLevel() {
     if (voucherInfoEl) voucherInfoEl.value = 'memuat...';
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
-    fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint })
+    // Sertakan userId agar backend bisa cek apakah user sudah menukarkan point.
+    // Jika sudah (AO=OK), backend mengembalikan potongan=0.
+    const _uid = (pesananState && pesananState.userId) ? String(pesananState.userId) : '';
+    fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint, userId: _uid })
       .then(resp => {
         let potongan = 0;
         let keterangan = '';
