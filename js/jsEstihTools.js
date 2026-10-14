@@ -1058,7 +1058,10 @@ function applyVoucherBasedOnLevel() {
     if (!isPeserta) {
       // member: sembunyikan + voucher = 0
       if (voucherSection) voucherSection.style.display = 'none';
-      if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
+      if (voucherInfoEl) {
+        voucherInfoEl.value = formatCurrency(0);
+        voucherInfoEl.disabled = true;
+      }
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
@@ -1069,14 +1072,20 @@ function applyVoucherBasedOnLevel() {
     const totalPoint = Number(pesananState.totalPoint || 0);
 
     if (!totalPoint || totalPoint <= 0) {
-      if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
+      if (voucherInfoEl) {
+        voucherInfoEl.value = formatCurrency(0);
+        voucherInfoEl.disabled = true;
+      }
       pesananState.voucherAmount = 0;
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
     }
 
-    if (voucherInfoEl) voucherInfoEl.value = 'memuat...';
+    if (voucherInfoEl) {
+      voucherInfoEl.value = 'memuat...';
+      voucherInfoEl.disabled = true;
+    }
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
     // Sertakan userId agar backend bisa cek apakah user sudah menukarkan point.
@@ -1095,13 +1104,18 @@ function applyVoucherBasedOnLevel() {
         if (voucherAmountInput) voucherAmountInput.value = String(potongan);
         if (voucherInfoEl) {
           voucherInfoEl.value = formatCurrency(potongan);
+          // Disabled ketika voucher = 0 (sudah dipakai / tidak ada point)
+          voucherInfoEl.disabled = (potongan === 0);
         }
         if (typeof updateTotals === 'function') updateTotals();
       })
       .catch(err => {
         console.error('getVoucherByPoint error:', err);
         pesananState.voucherAmount = 0;
-        if (voucherInfoEl) voucherInfoEl.value = formatCurrency(0);
+        if (voucherInfoEl) {
+          voucherInfoEl.value = formatCurrency(0);
+          voucherInfoEl.disabled = true;
+        }
         if (typeof updateTotals === 'function') updateTotals();
       })
       .finally(resolve);
