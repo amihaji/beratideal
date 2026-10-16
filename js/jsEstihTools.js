@@ -162,7 +162,7 @@ function fetchJsonpEstihtools(action, params = {}) {
     const query = new URLSearchParams({ action, callback: callbackName, ...params });
     script.onerror = () => {
       cleanupJsonp(script, callbackName);
-      resolve({ status: 'error', message: 'Gagal menghubungi server Estihtools.' });
+      resolve({ status: 'error', message: 'Gagal terhubung server' });
     };
     window[callbackName] = (response) => {
       cleanupJsonp(script, callbackName);
