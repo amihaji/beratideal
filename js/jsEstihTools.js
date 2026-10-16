@@ -148,7 +148,8 @@ const pesananState = {
   level: 'peserta',       // default = peserta
   totalPoint: 0,          // total point dari PROGRAM kolom AZ
   voucherAmount: 0,       // nilai voucher potongan (Rp) dari TabelVoucer
-  userId: ''              // userId login (dari localStorage.userId)
+  userId: '',             // userId login (dari localStorage.userId)
+  voucherResolved: false  // true setelah nilai voucher final didapat (anti-flicker)
 };
 
 // ****************************************************************
@@ -587,6 +588,18 @@ function updateTotals() {
     const _vSect = document.getElementById('voucherSection');
     if (_vSect) _vSect.style.display = 'none';
   }
+
+  // 🔒 Anti-flicker: begitu nilai voucher FINAL didapat, sinkronkan field dari
+  //    pesananState. Dengan begitu nilai transien (mis. hasil async yang telat)
+  //    tidak bisa menyisakan angka yang salah di UI.
+  if (window.IS_BELI_PRODUK_MODE !== true && pesananState && pesananState.voucherResolved) {
+    const _vInfoR = document.getElementById('voucherInfo');
+    if (_vInfoR) {
+      _vInfoR.value = formatCurrency(voucherAmt);
+      _vInfoR.disabled = (voucherAmt === 0);
+    }
+  }
+
   const grandTotal = Math.max(0, totalHarga + shippingCost + tax - voucherAmt);
 
   document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
@@ -1079,6 +1092,7 @@ function applyVoucherBasedOnLevel() {
         voucherInfoEl.value = formatCurrency(0);
         voucherInfoEl.disabled = true;
       }
+      pesananState.voucherResolved = true;
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
@@ -1095,6 +1109,7 @@ function applyVoucherBasedOnLevel() {
       if (voucherInfoEl) { voucherInfoEl.value = formatCurrency(0); voucherInfoEl.disabled = true; }
       if (voucherAmountInput) voucherAmountInput.value = '0';
       pesananState.voucherAmount = 0;
+      pesananState.voucherResolved = true;
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
@@ -1106,6 +1121,7 @@ function applyVoucherBasedOnLevel() {
         voucherInfoEl.disabled = true;
       }
       pesananState.voucherAmount = 0;
+      pesananState.voucherResolved = true;
       if (typeof updateTotals === 'function') updateTotals();
       resolve();
       return;
@@ -1141,6 +1157,7 @@ function applyVoucherBasedOnLevel() {
           // Disabled ketika voucher = 0 (sudah dipakai / tidak ada point)
           voucherInfoEl.disabled = (potongan === 0);
         }
+        pesananState.voucherResolved = true;
         if (typeof updateTotals === 'function') updateTotals();
       })
       .catch(err => {
@@ -1150,6 +1167,7 @@ function applyVoucherBasedOnLevel() {
           voucherInfoEl.value = formatCurrency(0);
           voucherInfoEl.disabled = true;
         }
+        pesananState.voucherResolved = true;
         if (typeof updateTotals === 'function') updateTotals();
       })
       .finally(resolve);
