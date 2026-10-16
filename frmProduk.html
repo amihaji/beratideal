@@ -728,7 +728,9 @@
 
         function pesanProduk(kategori) {
             try { localStorage.setItem('pesananKategori', kategori || ''); } catch (e) {}
-            window.location.href = 'estihtoolsBeratideal.html';
+            // source=beliProduk wajib dibawa agar IS_BELI_PRODUK_MODE aktif di
+            // estihtoolsBeratideal.html (voucher dipaksa 0 & disembunyikan).
+            window.location.href = 'estihtoolsBeratideal.html?source=beliProduk';
         }
 
         
