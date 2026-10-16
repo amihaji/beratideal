@@ -381,8 +381,8 @@ function getVoucherByPoint(totalPoint, userId) {
     }
   }
 
-  if (bestPoint < 0) return { status: 'success', potongan: 0, keterangan: '' };
-  return { status: 'success', potongan: bestPotongan, keterangan: bestKet, point: bestPoint };
+  if (bestPoint < 0) return { status: 'success', potongan: 0, keterangan: '', voucherUsed: false };
+  return { status: 'success', potongan: bestPotongan, keterangan: bestKet, point: bestPoint, voucherUsed: false };
 }
 
 /*******************************************************************************

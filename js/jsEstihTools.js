@@ -1025,6 +1025,23 @@ function autoFillProdukByKategori(productList, kategoriList = []) {
 //            via API getVoucherByPoint (fallback = 0)
 // - MEMBER : field HIDDEN + voucherAmount=0
 // ============================================================
+// Helper "Voucher Sudah Dipakai" (sticky, per-user).
+// Voucher hanya boleh dipakai SEKALI saat Tukar Point. Begitu backend
+// mengonfirmasi voucher sudah dipakai, status dikunci di localStorage
+// agar render berikutnya TIDAK PERNAH kembali ke nilai voucher normal
+// (mencegah nilai berubah lagi menjadi 50.000 setelah tampil 0).
+// ============================================================
+function voucherUsedKey_() {
+  var uid = (pesananState && pesananState.userId) ? String(pesananState.userId) : '';
+  return 'voucherUsed_' + uid;
+}
+function isVoucherUsedLocked_() {
+  try { return localStorage.getItem(voucherUsedKey_()) === '1'; } catch (e) { return false; }
+}
+function lockVoucherUsed_() {
+  try { localStorage.setItem(voucherUsedKey_(), '1'); } catch (e) {}
+}
+
 function applyVoucherBasedOnLevel() {
   return new Promise((resolve) => {
     const level = (pesananState && pesananState.level) ? String(pesananState.level).toLowerCase() : 'peserta';
@@ -1071,6 +1088,18 @@ function applyVoucherBasedOnLevel() {
     if (voucherSection) voucherSection.style.display = 'flex';
     const totalPoint = Number(pesananState.totalPoint || 0);
 
+    // 🔒 Voucher sudah pernah dipakai (Tukar Point) -> kunci = 0 & disabled.
+    //    Dicek SINKRON dari localStorage agar tidak bisa tertimpa oleh
+    //    pemanggilan async lain (mis. totalPoint yang baru masuk belakangan).
+    if (isVoucherUsedLocked_()) {
+      if (voucherInfoEl) { voucherInfoEl.value = formatCurrency(0); voucherInfoEl.disabled = true; }
+      if (voucherAmountInput) voucherAmountInput.value = '0';
+      pesananState.voucherAmount = 0;
+      if (typeof updateTotals === 'function') updateTotals();
+      resolve();
+      return;
+    }
+
     if (!totalPoint || totalPoint <= 0) {
       if (voucherInfoEl) {
         voucherInfoEl.value = formatCurrency(0);
@@ -1089,7 +1118,7 @@ function applyVoucherBasedOnLevel() {
 
     // Panggil backend URL_dbEstihtools action=getVoucherByPoint
     // Sertakan userId agar backend bisa cek apakah user sudah menukarkan point.
-    // Jika sudah (AO=OK), backend mengembalikan potongan=0.
+    // Jika sudah (AO=OK), backend mengembalikan potongan=0 + voucherUsed=true.
     const _uid = (pesananState && pesananState.userId) ? String(pesananState.userId) : '';
     fetchJsonpEstihtools('getVoucherByPoint', { totalPoint: totalPoint, userId: _uid })
       .then(resp => {
@@ -1098,6 +1127,11 @@ function applyVoucherBasedOnLevel() {
         if (resp && resp.status !== 'error') {
           potongan  = Number(resp.potongan || resp.voucher || resp.amount || 0) || 0;
           keterangan = String(resp.keterangan || resp.nama || resp.deskripsi || '').trim();
+        }
+        // Backend menandai voucher sudah dipakai -> kunci permanen (sticky)
+        if (resp && resp.voucherUsed === true) {
+          lockVoucherUsed_();
+          potongan = 0;
         }
         if (potongan < 0) potongan = 0;
         pesananState.voucherAmount = potongan;
