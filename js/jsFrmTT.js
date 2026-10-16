@@ -447,21 +447,13 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     return '';
   }
 
-  // 🔎 PRIORITAS TAMPILAN DETAIL PRODUK (BERDASARKAN ALUR):
+  // 🔎 PRIORITAS TAMPILAN DETAIL PRODUK:
   // ------------------------------------------------------------------
-  // Ada 2 alur yang berbeda:
-  //
-  // 1. ALUR TUKAR POINT (frmTukarPoint.html -> pesanProduk.html):
-  //    kategoriPesanan = paket key (lansia, dewasa, remaja, sarapan,
-  //    naikBB, turunBB) yang ADA di PAKET_MAP.
-  //    -> Tampilkan NAMA PAKET LENGKAP dari PAKET_MAP
-  //       (mis: "Paket Manula (Formula 1, PP3, Multivitamin, ...)")
-  //
-  // 2. ALUR BELI PRODUK (frmProduk.html -> estihtoolsBeratideal.html):
-  //    kategoriPesanan = katalogHerbalife / healthyVibes yang TIDAK ADA
-  //    di PAKET_MAP.
-  //    -> Tampilkan produk yang DIPILIH USER dari dropdown (data items)
-  //       format "Nama Produk xQty"
+  // 1. Tampilkan PRODUK YANG DIPILIH saja (data items / kolom K DataPesanan),
+  //    berlaku untuk KEDUA alur -> Tukar Point maupun Beli Produk.
+  //    Format "Nama Produk xQty".
+  // 2. Fallback: jika items tidak punya nama, tampilkan NAMA PAKET LENGKAP
+  //    dari PAKET_MAP (khusus kategori Tukar Point).
   // ------------------------------------------------------------------
 
   // Cek apakah kategoriPesanan resolve ke paket di PAKET_MAP (alur Tukar Point)
@@ -477,13 +469,7 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
               'resolvedPaket=', resolvedPaket,
               'normalized=', normalized);
 
-  // ALUR TUKAR POINT: kategoriPesanan resolve ke paket -> tampilkan nama paket lengkap
-  if (resolvedPaket) {
-    detailEl.value = resolvedPaket;
-    return;
-  }
-
-  // ALUR BELI PRODUK: kategoriPesanan bukan paket key -> tampilkan produk yang dipilih dari dropdown
+  // PRIORITAS: tampilkan hanya produk yang dipilih (kedua alur)
   const daftarProdukDipilih = normalized
     .filter(function(it){ return it.nama; })
     .map(function(it){
@@ -492,6 +478,12 @@ function applyOrderData(orderData, paketMapFromTabelHarga, aliasKategoriFromTabe
     });
   if (daftarProdukDipilih.length) {
     detailEl.value = daftarProdukDipilih.join('\n');
+    return;
+  }
+
+  // Fallback Tukar Point: items tanpa nama -> tampilkan nama paket lengkap
+  if (resolvedPaket) {
+    detailEl.value = resolvedPaket;
     return;
   }
 
