@@ -7,7 +7,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 
 const REFERRAL_SPREADSHEET_NAME = 'dbReferral';
 const REFERRAL_SHEET_NAME       = 'REFERRAL';
-const REFERRAL_BASE_URL         = 'https://beratidealku.com/?ref=';
+const REFERRAL_BASE_URL         = 'https://www.beratidealku.com/?ref=';
 
 
 const DB_REFERRAL = '1QBXPEYLNDYuu_dsoyTE6cgshLLq_fpNA7QNEWXXUuJc';
@@ -26,6 +26,10 @@ function doGet(e) {
 
   if (action === 'getReferralData') {
     return jsonpResponse_(callback, getReferralData_(params));
+  }
+
+  if (action === 'getReferralBySlug') {
+    return jsonpResponse_(callback, getReferralBySlug_(params));
   }
 
   if (action === 'getReferralSheetInfo') {
@@ -199,6 +203,36 @@ function getReferralData_(params) {
     status: 'success',
     data: null,
     message: 'Data Referral belum tersedia.',
+    meta: buildReferralSheetMeta_(sheet)
+  };
+}
+
+function getReferralBySlug_(params) {
+  const sheet = getReferralSheet_();
+  const values = sheet.getDataRange().getValues();
+  const slug = createReferralSlug_(params.slug || params.ref || params.refLink || '');
+  if (!slug) {
+    return {
+      status: 'error',
+      message: 'Slug Referral tidak boleh kosong.'
+    };
+  }
+
+  for (let i = values.length - 1; i >= 1; i--) {
+    const row = values[i];
+    if (normalizeText_(row[19]).toLowerCase() === slug) {
+      return {
+        status: 'success',
+        data: mapReferralRow_(row, i + 1),
+        meta: buildReferralSheetMeta_(sheet)
+      };
+    }
+  }
+
+  return {
+    status: 'success',
+    data: null,
+    message: 'Data Referral tidak ditemukan.',
     meta: buildReferralSheetMeta_(sheet)
   };
 }
@@ -407,7 +441,7 @@ function collectReferralSlugs_(values) {
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
     if (!row || row.length === 0) continue;
-    const slug = normalizeText_(row[20]).toLowerCase();
+    const slug = normalizeText_(row[19]).toLowerCase();
     const owner = normalizeText_(row[2] || '');
     if (slug) used[slug] = owner;
   }

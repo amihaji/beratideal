@@ -6,7 +6,7 @@ Data awal diambil dbDaftarBeratideal sheet "DAFTAR"
 ***************************************************************/
 
 (function () {
-    const REFERRAL_BASE_URL = 'https://beratidealku.com/?ref=';
+    const REFERRAL_BASE_URL = 'https://www.beratidealku.com/?ref=';
 
     const state = {
         loaded: false,

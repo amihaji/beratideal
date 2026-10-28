@@ -3,6 +3,90 @@
 *****************************/ 
 let currentStep = 1;
 
+function normalizeReferralSlug(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 24);
+}
+
+function getReferralSlugFromLocation() {
+  if (!window || !window.location || !window.location.search) return '';
+  const params = new URLSearchParams(window.location.search);
+  return normalizeReferralSlug(params.get('ref'));
+}
+
+function getStoredReferralContext() {
+  const slug = normalizeReferralSlug(localStorage.getItem('referralSlug'));
+  const capturedAt = parseInt(localStorage.getItem('referralCapturedAt') || '0', 10);
+  const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+  if (slug && capturedAt && Date.now() - capturedAt > maxAgeMs) {
+    localStorage.removeItem('referralSlug');
+    localStorage.removeItem('referralCapturedAt');
+    localStorage.removeItem('referralSponsorName');
+    localStorage.removeItem('referralSponsorPhone');
+    return { slug: '', sponsorName: '', sponsorPhone: '' };
+  }
+  return {
+    slug,
+    sponsorName: String(localStorage.getItem('referralSponsorName') || '').trim(),
+    sponsorPhone: String(localStorage.getItem('referralSponsorPhone') || '').trim()
+  };
+}
+
+function storeReferralSlug(slug) {
+  const cleanSlug = normalizeReferralSlug(slug);
+  if (!cleanSlug) return '';
+  localStorage.setItem('referralSlug', cleanSlug);
+  localStorage.setItem('referralCapturedAt', String(Date.now()));
+  return cleanSlug;
+}
+
+function fetchReferralBySlug(slug) {
+  return new Promise((resolve) => {
+    const cleanSlug = normalizeReferralSlug(slug);
+    if (!cleanSlug || !URL_dbReferral) {
+      resolve({ status: 'error', message: 'Slug/URL referral tidak valid.' });
+      return;
+    }
+    const callbackName = `cb_referral_slug_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    const script = document.createElement('script');
+    const cleanup = () => {
+      delete window[callbackName];
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+    window[callbackName] = function(response) {
+      cleanup();
+      resolve(response || { status: 'error', message: 'Respons server referral kosong.' });
+    };
+    script.onerror = function() {
+      cleanup();
+      resolve({ status: 'error', message: 'Gagal menghubungi server referral.' });
+    };
+    script.src = `${URL_dbReferral}?action=getReferralBySlug&slug=${encodeURIComponent(cleanSlug)}&callback=${encodeURIComponent(callbackName)}`;
+    document.body.appendChild(script);
+  });
+}
+
+function applySponsorToForm(name, phone, lockFields) {
+  const sponsorEl = document.getElementById('mSponsor');
+  const sponsorPhoneEl = document.getElementById('mHpSponsor');
+  if (!sponsorEl || !sponsorPhoneEl) return;
+
+  if (name) sponsorEl.value = String(name).toUpperCase().substring(0, 40);
+  if (phone) sponsorPhoneEl.value = String(phone).replace(/\D/g, '').replace(/^0+/, '').substring(0, 14);
+
+  if (lockFields) {
+    sponsorEl.readOnly = true;
+    sponsorPhoneEl.readOnly = true;
+  }
+}
+
 // *********************************************
 // Memanggail data inputan ke dalam form daftar
 // *********************************************
@@ -16,6 +100,28 @@ document.addEventListener('DOMContentLoaded', function() {
   const harga = getHargaProgram(this.value);
   document.getElementById('harga').value = harga.toLocaleString('id-ID');
   });
+
+  (async function() {
+    const urlSlug = getReferralSlugFromLocation();
+    const stored = getStoredReferralContext();
+    const activeSlug = urlSlug || stored.slug;
+    if (!activeSlug) return;
+
+    const finalSlug = storeReferralSlug(activeSlug);
+    if (stored.sponsorName || stored.sponsorPhone) {
+      applySponsorToForm(stored.sponsorName, stored.sponsorPhone, true);
+    }
+    const response = await fetchReferralBySlug(finalSlug);
+    if (response && response.status === 'success' && response.data) {
+      const sponsorName = String(response.data.nama || '').trim();
+      const sponsorPhone = String(response.data.telp || '').trim();
+      if (sponsorName || sponsorPhone) {
+        localStorage.setItem('referralSponsorName', sponsorName);
+        localStorage.setItem('referralSponsorPhone', sponsorPhone);
+        applySponsorToForm(sponsorName, sponsorPhone, true);
+      }
+    }
+  })();
 });
 
 /**********************************
@@ -267,6 +373,11 @@ async function submitForm() {
 
   if (!validateStep(3)) return false;
 
+  const referralContext = getStoredReferralContext();
+  const hasActiveReferral = Boolean(referralContext && referralContext.slug);
+  const sponsorInputValue = document.getElementById("mSponsor").value;
+  const sponsorPhoneInputValue = document.getElementById("mHpSponsor").value;
+
   const formData = {
     tglDaftar:    document.getElementById('tanggal').value,
     noPesanan:    document.getElementById('nomorPesanan').value,
@@ -284,8 +395,8 @@ async function submitForm() {
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima:   document.getElementById('acPenerima').value,
     nominal:      document.getElementById('nominal').value.replace(/\D/g,''),
-    mSponsor:     document.getElementById("mSponsor").value || "HESTY HUSAIN", 
-    mHpSponsor:   document.getElementById("mHpSponsor").value || "81241318600"
+    mSponsor:     sponsorInputValue || (hasActiveReferral ? '' : "HESTY HUSAIN"),
+    mHpSponsor:   sponsorPhoneInputValue || (hasActiveReferral ? '' : "81241318600")
   };
 
   try {

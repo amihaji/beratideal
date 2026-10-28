@@ -28,7 +28,7 @@ const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxhU587M2
 // url dbReferral (REFERRAL) :
 // jsReferral.js untuk formDashboard.html
 // untuk Fiture Referral
-const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbx5W5XBlSIb_GLqCCMJ4JROVRPxAdLyuC7ruaKhacCf3N6YSfrVXS1160O6auWU3Vm3sg/exec';
+const URL_dbReferral = 'https://script.google.com/macros/s/AKfycbxAoOfeJpeu074u0NiFSmaFS2C7jqCY2OXly9EYYAQSr-IxI6rmApUKuVET6lYeBq8cFQ/exec';
 
 // url dbEstihtools (DataInput, DataKonsumen, TabelHarga, TabelDiskon, TabelByKirim, TabelKategori) :
 // jsEstihTools.js 

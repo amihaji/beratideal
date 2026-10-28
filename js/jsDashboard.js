@@ -41,6 +41,98 @@ const MENU_ACCESS_MAP = [
     { page: 'lognotif', navId: 'nav-lognotif', accessKey: 'aksesLogNotif' }
 ];
 
+function getActiveUserLevel() {
+    return String(localStorage.getItem('userLevel') || '').trim().toLowerCase();
+}
+
+function normalizePhoneForCompare(value) {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('62')) return digits.slice(2);
+    if (digits.startsWith('0')) return digits.slice(1);
+    return digits;
+}
+
+function buildAnalyticsFromParticipants(participants) {
+    const items = Array.isArray(participants) ? participants.slice() : [];
+    const total = items.length;
+    const pointsSum = items.reduce((sum, item) => sum + (parseFloat(item.pointsTotal) || 0), 0);
+
+    const moduleCompletions = Array.from({ length: 10 }, (_, index) => {
+        const moduleNumber = index + 1;
+        const completedCount = items.filter((item) => {
+            const completedModules = Math.max(
+                parseInt(item.completedModules || 0, 10) || 0,
+                parseInt(item.lastCompletedModule || 0, 10) || 0
+            );
+            return completedModules >= moduleNumber;
+        }).length;
+
+        return {
+            module: moduleNumber,
+            label: `Modul ${moduleNumber}`,
+            completedCount: completedCount,
+            completionRate: total ? Math.round((completedCount / total) * 100) : 0
+        };
+    });
+
+    const completionOverview = {
+        started: items.filter((item) => (item.completedModules || 0) >= 1).length,
+        reachedHalfway: items.filter((item) => (item.completedModules || 0) >= 5).length,
+        finished: items.filter((item) => (item.completedModules || 0) >= 10).length,
+        active: items.filter((item) => item.isActive).length
+    };
+
+    const topPerformers = items
+        .slice()
+        .sort((a, b) => (b.performanceScore || b.progress || 0) - (a.performanceScore || a.progress || 0))
+        .slice(0, 5);
+
+    const programMap = {};
+    items.forEach((item) => {
+        const program = String(item.program || '').trim() || 'Belum Ditentukan';
+        programMap[program] = (programMap[program] || 0) + 1;
+    });
+
+    const programDistribution = Object.keys(programMap).map((programName) => ({
+        name: programName,
+        participants: programMap[programName]
+    }));
+
+    return {
+        moduleCompletions: moduleCompletions,
+        monthlyTrend: [],
+        completionOverview: completionOverview,
+        avgPoints: total ? Math.round(pointsSum / total) : 0,
+        topPerformers: topPerformers,
+        programDistribution: programDistribution
+    };
+}
+
+function filterDashboardPayloadByRole(payload) {
+    const level = getActiveUserLevel();
+    if (level !== 'member') return payload;
+    if (!payload || !Array.isArray(payload.participants)) return payload;
+
+    const memberName = String(localStorage.getItem('userName') || '').trim().toLowerCase();
+    const memberPhone = normalizePhoneForCompare(localStorage.getItem('userHP'));
+
+    const filteredParticipants = payload.participants.filter((item) => {
+        const sponsorPhone = normalizePhoneForCompare(item && item.sponsorPhone);
+        if (memberPhone && sponsorPhone && sponsorPhone === memberPhone) return true;
+        const sponsorName = String(item && item.sponsorName || '').trim().toLowerCase();
+        if (memberName && sponsorName && sponsorName === memberName) return true;
+        return false;
+    });
+
+    return {
+        ...payload,
+        participants: filteredParticipants,
+        programs: [],
+        analytics: buildAnalyticsFromParticipants(filteredParticipants)
+    };
+}
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', async function() {
     await initializeApp();
@@ -586,7 +678,7 @@ function cleanupFollowUpWEJsonp(script, callbackName) {
 async function loadAllData() {
     showLoading(true);
     try {
-        dashboardAdminPayload = await fetchAdminDashboardData();
+        dashboardAdminPayload = filterDashboardPayloadByRole(await fetchAdminDashboardData());
         pesertaData = Array.isArray(dashboardAdminPayload.participants) ? dashboardAdminPayload.participants : [];
         programsData = Array.isArray(dashboardAdminPayload.programs) ? dashboardAdminPayload.programs : [];
         analytics = dashboardAdminPayload.analytics || getEmptyAnalyticsData();
