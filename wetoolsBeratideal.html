@@ -581,10 +581,24 @@ function normalizeReferralSlug(value) {
     .substring(0, 24);
 }
 
+// Nilai ?ref= bisa berupa slug ("klikdisini") atau URL lengkap
+// ("https://beratidealku.com/?ref=klikdisini") -> ambil slug-nya.
+function extractSlugFromReferralValue(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const match = raw.match(/[?&]ref=([^&#\s]+)/i);
+  if (!match) return raw;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch (e) {
+    return match[1];
+  }
+}
+
 function getReferralSlugFromLocation() {
   if (!window || !window.location || !window.location.search) return '';
   const params = new URLSearchParams(window.location.search);
-  return normalizeReferralSlug(params.get('ref'));
+  return normalizeReferralSlug(extractSlugFromReferralValue(params.get('ref')));
 }
 
 function getStoredReferralContext() {
@@ -705,17 +719,23 @@ async function initReferralSponsorAutoFill() {
 // Event untuk tampilan About
 // ***************************
 document.addEventListener('DOMContentLoaded', function () {
-  // Event listener untuk tombol About
-  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
-    e.preventDefault();
-    showAbout();
-  });
-  
-  // Event listener untuk tombol Close About
-  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
-
   // Auto-fill Data Sponsor dari link referral
   initReferralSponsorAutoFill();
+
+  // Event listener untuk tombol About (menu About bersifat opsional)
+  const aboutLink = document.querySelector('a[href="#about"]');
+  if (aboutLink) {
+    aboutLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showAbout();
+    });
+  }
+
+  // Event listener untuk tombol Close About
+  const btnCloseAbout = document.getElementById('btnCloseAbout');
+  if (btnCloseAbout) {
+    btnCloseAbout.addEventListener('click', hideAbout);
+  }
 });
 
 // ***********************
@@ -835,8 +855,8 @@ function submitForm() {
             mBBNaik: document.querySelector('input[name="mBBNaik"]:checked').value,
             mRokok: document.querySelector('input[name="mRokok"]:checked').value, 
             mAlkohol: document.querySelector('input[name="mAlkohol"]:checked').value,
-            mSponsor: document.getElementById("mSponsor").value || "HESTY HUSAIN", 
-            mHpSponsor: document.getElementById("mHpSponsor").value || "81241318600",
+            mSponsor: document.getElementById("mSponsor").value, 
+            mHpSponsor: document.getElementById("mHpSponsor").value,
         };
 
         navigate(2, 3);
