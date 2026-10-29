@@ -484,7 +484,7 @@ function kirimWA(noOrder) {
     '\n\nTerima kasih,' +
     '\nKak '+ nama +
     '\nTelah mendaftar Kelas Online'+
-    '\nFit Challenge www.beratidealku.com' +
+    '\nFit Challenge https://www.beratidealku.com' +
     '\n\nSilahkan konfirmasi pembayaran di link ini 👇' +
     `\n${linkKonfirmasi}` +
     '\n\nUntuk info lebih lanjut silahkan menghubungi:' +
@@ -493,8 +493,8 @@ function kirimWA(noOrder) {
     '\nWA: 081241318600' +
     '\nTerima kasih 🙏\n' +
     '\n---------------------------------------------' +
-    '\n*Copyright by* : \nwww.beratidealku.com \n' +
-    '\n*Map Klub Nutrisi* : \nbit.ly/LokasiKlubKita \n' +
+    '\n*Copyright by* : \nhttps://www.beratidealku.com \n' +
+    '\n*Map Klub Nutrisi* : \nhttps://bit.ly/LokasiKlubKita \n' +
     '\n*Disclaimer* : Hasil yang dicapai setiap individu berbeda-beda';
 
   const options_konsumen = {
@@ -570,8 +570,8 @@ function kirimEmail(noOrder) {
     <br>WA: 081241318600
     <br>Terima kasih 🙏
     <p>----------------------------------------------------
-    <br><strong>Copyright by : <a href="www.beratidealku.com">www.beratidealku.com</a></strong>
-    <br><strong>Lokasi Map NC : <a href="bit.ly/LokasiKlubKita">klubKITA</a></strong> 
+    <br><strong>Copyright by : <a href="https://www.beratidealku.com">www.beratidealku.com</a></strong>
+    <br><strong>Lokasi Map NC : <a href="https://bit.ly/LokasiKlubKita">klubKITA</a></strong>
     <br><strong>Disclaimer :</strong> Hasil yang dicapai setiap individu berbeda-beda</strong>
   `;
 
@@ -721,7 +721,7 @@ function kirimLinkTandaTerimaKePeserta(noPesanan) {
     `\n${linkTandaTerima}` +
     '\n\nTerima kasih.' +
     '\n---------------------------------------------' +
-    '\nwww.beratidealku.com';
+    '\nhttps://www.beratidealku.com';
 
   const options = {
     method: "post",

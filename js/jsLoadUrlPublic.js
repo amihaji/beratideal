@@ -23,7 +23,7 @@ const URL_dbWETools ='https://script.google.com/macros/s/AKfycbyscUEUpSOywPEs2-V
 // url dbDaftarBeratideal (DAFTAR) :
 // jsFrmDaftar.js, jsFrmBayar.js, jsFrmTandaTerima.js
 // untuk formDaftar.html
-const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbxhU587M27xL6GJbRo0CGIVTaqYv_0U6P-tSllJhpNV-snCfmq4HrzBv1EkxD5JPIK3/exec'
+const URL_dbDaftarBeratideal ='https://script.google.com/macros/s/AKfycbyVJryxrDDCCTtgSXGyOwrN9TEf3dXpzRuKb6dy8EPRwYFlXMKGF3XABxcxaxkteBc/exec'
 
 // url dbReferral (REFERRAL) :
 // jsReferral.js untuk formDashboard.html
