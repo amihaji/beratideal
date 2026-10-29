@@ -40,6 +40,12 @@ function getStoredReferralContext() {
 function storeReferralSlug(slug) {
   const cleanSlug = normalizeReferralSlug(slug);
   if (!cleanSlug) return '';
+  const previousSlug = normalizeReferralSlug(localStorage.getItem('referralSlug'));
+  if (previousSlug && previousSlug !== cleanSlug) {
+    // Link referral baru -> buang cache sponsor lama agar tidak salah sponsor
+    localStorage.removeItem('referralSponsorName');
+    localStorage.removeItem('referralSponsorPhone');
+  }
   localStorage.setItem('referralSlug', cleanSlug);
   localStorage.setItem('referralCapturedAt', String(Date.now()));
   return cleanSlug;
@@ -84,6 +90,8 @@ function applySponsorToForm(name, phone, lockFields) {
   if (lockFields) {
     sponsorEl.readOnly = true;
     sponsorPhoneEl.readOnly = true;
+    sponsorEl.style.cursor = 'no-drop';
+    sponsorPhoneEl.style.cursor = 'no-drop';
   }
 }
 
@@ -108,7 +116,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!activeSlug) return;
 
     const finalSlug = storeReferralSlug(activeSlug);
-    if (stored.sponsorName || stored.sponsorPhone) {
+    // Cache sponsor hanya dipakai jika slug-nya sama dengan link yang aktif
+    if (stored.slug === finalSlug && (stored.sponsorName || stored.sponsorPhone)) {
       applySponsorToForm(stored.sponsorName, stored.sponsorPhone, true);
     }
     const response = await fetchReferralBySlug(finalSlug);
