@@ -1531,21 +1531,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        (function() {
-            const params = new URLSearchParams(window.location.search || '');
-            const raw = params.get('ref');
-            const slug = String(raw || '')
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9-]/g, '')
-                .replace(/-+/g, '-')
-                .replace(/^-|-$/g, '')
-                .substring(0, 24);
-            if (!slug) return;
-            localStorage.setItem('referralSlug', slug);
-            localStorage.setItem('referralCapturedAt', String(Date.now()));
-        })();
-
         // Preloader
         window.addEventListener('load', function() {
             setTimeout(function() {
@@ -1596,11 +1581,13 @@
 
         // Bawa slug referral di URL tujuan agar halaman berikutnya
         // (wetoolsBeratideal.html / formDaftar.html) bisa mengisi Data Sponsor otomatis.
+        // Sumber tunggal: parameter ?ref= pada URL halaman ini. Tanpa ?ref=,
+        // halaman berikutnya memakai sponsor default.
         function tambahParamReferral(link) {
             try {
                 if (!link || link.indexOf('ref=') !== -1) return link;
                 const params = new URLSearchParams(window.location.search || '');
-                const slug = String(params.get('ref') || localStorage.getItem('referralSlug') || '').trim();
+                const slug = String(params.get('ref') || '').trim();
                 if (!slug) return link;
                 return link + (link.indexOf('?') === -1 ? '?' : '&') + 'ref=' + encodeURIComponent(slug);
             } catch (e) {

@@ -13,43 +13,29 @@ function normalizeReferralSlug(value) {
     .substring(0, 24);
 }
 
+// Nilai ?ref= bisa berupa slug ("klikdisini") atau URL lengkap
+// ("https://beratidealku.com/?ref=klikdisini") -> ambil slug-nya.
+function extractSlugFromReferralValue(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const match = raw.match(/[?&]ref=([^&#\s]+)/i);
+  if (!match) return raw;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch (e) {
+    return match[1];
+  }
+}
+
 function getReferralSlugFromLocation() {
   if (!window || !window.location || !window.location.search) return '';
   const params = new URLSearchParams(window.location.search);
-  return normalizeReferralSlug(params.get('ref'));
+  return normalizeReferralSlug(extractSlugFromReferralValue(params.get('ref')));
 }
 
-function getStoredReferralContext() {
-  const slug = normalizeReferralSlug(localStorage.getItem('referralSlug'));
-  const capturedAt = parseInt(localStorage.getItem('referralCapturedAt') || '0', 10);
-  const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
-  if (slug && capturedAt && Date.now() - capturedAt > maxAgeMs) {
-    localStorage.removeItem('referralSlug');
-    localStorage.removeItem('referralCapturedAt');
-    localStorage.removeItem('referralSponsorName');
-    localStorage.removeItem('referralSponsorPhone');
-    return { slug: '', sponsorName: '', sponsorPhone: '' };
-  }
-  return {
-    slug,
-    sponsorName: String(localStorage.getItem('referralSponsorName') || '').trim(),
-    sponsorPhone: String(localStorage.getItem('referralSponsorPhone') || '').trim()
-  };
-}
-
-function storeReferralSlug(slug) {
-  const cleanSlug = normalizeReferralSlug(slug);
-  if (!cleanSlug) return '';
-  const previousSlug = normalizeReferralSlug(localStorage.getItem('referralSlug'));
-  if (previousSlug && previousSlug !== cleanSlug) {
-    // Link referral baru -> buang cache sponsor lama agar tidak salah sponsor
-    localStorage.removeItem('referralSponsorName');
-    localStorage.removeItem('referralSponsorPhone');
-  }
-  localStorage.setItem('referralSlug', cleanSlug);
-  localStorage.setItem('referralCapturedAt', String(Date.now()));
-  return cleanSlug;
-}
+// Sponsor default dipakai jika user masuk TANPA link referral (?ref=...)
+const DEFAULT_SPONSOR_NAME = 'HESTY HUSAIN';
+const DEFAULT_SPONSOR_PHONE = '81241318600';
 
 function fetchReferralBySlug(slug) {
   return new Promise((resolve) => {
@@ -110,26 +96,24 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   (async function() {
-    const urlSlug = getReferralSlugFromLocation();
-    const stored = getStoredReferralContext();
-    const activeSlug = urlSlug || stored.slug;
-    if (!activeSlug) return;
+    const slug = getReferralSlugFromLocation();
+    let sponsorName = DEFAULT_SPONSOR_NAME;
+    let sponsorPhone = DEFAULT_SPONSOR_PHONE;
 
-    const finalSlug = storeReferralSlug(activeSlug);
-    // Cache sponsor hanya dipakai jika slug-nya sama dengan link yang aktif
-    if (stored.slug === finalSlug && (stored.sponsorName || stored.sponsorPhone)) {
-      applySponsorToForm(stored.sponsorName, stored.sponsorPhone, true);
-    }
-    const response = await fetchReferralBySlug(finalSlug);
-    if (response && response.status === 'success' && response.data) {
-      const sponsorName = String(response.data.nama || '').trim();
-      const sponsorPhone = String(response.data.telp || '').trim();
-      if (sponsorName || sponsorPhone) {
-        localStorage.setItem('referralSponsorName', sponsorName);
-        localStorage.setItem('referralSponsorPhone', sponsorPhone);
-        applySponsorToForm(sponsorName, sponsorPhone, true);
+    if (slug) {
+      try {
+        const response = await fetchReferralBySlug(slug);
+        const data = (response && response.status === 'success') ? response.data : null;
+        if (data && (data.nama || data.telp)) {
+          sponsorName = String(data.nama || '').trim();
+          sponsorPhone = String(data.telp || '').trim();
+        }
+      } catch (err) {
+        console.warn('Auto-fill sponsor referral dilewati:', err);
       }
     }
+
+    applySponsorToForm(sponsorName, sponsorPhone, true);
   })();
 });
 
@@ -382,8 +366,6 @@ async function submitForm() {
 
   if (!validateStep(3)) return false;
 
-  const referralContext = getStoredReferralContext();
-  const hasActiveReferral = Boolean(referralContext && referralContext.slug);
   const sponsorInputValue = document.getElementById("mSponsor").value;
   const sponsorPhoneInputValue = document.getElementById("mHpSponsor").value;
 
@@ -404,8 +386,8 @@ async function submitForm() {
     namaPenerima: document.getElementById('namaPenerima').value,
     acPenerima:   document.getElementById('acPenerima').value,
     nominal:      document.getElementById('nominal').value.replace(/\D/g,''),
-    mSponsor:     sponsorInputValue || (hasActiveReferral ? '' : "HESTY HUSAIN"),
-    mHpSponsor:   sponsorPhoneInputValue || (hasActiveReferral ? '' : "81241318600")
+    mSponsor:     sponsorInputValue,
+    mHpSponsor:   sponsorPhoneInputValue
   };
 
   try {
