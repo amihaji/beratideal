@@ -1593,8 +1593,23 @@
 
         // Modal Konfirmasi
         let linkTujuan = "";
+
+        // Bawa slug referral di URL tujuan agar halaman berikutnya
+        // (wetoolsBeratideal.html / formDaftar.html) bisa mengisi Data Sponsor otomatis.
+        function tambahParamReferral(link) {
+            try {
+                if (!link || link.indexOf('ref=') !== -1) return link;
+                const params = new URLSearchParams(window.location.search || '');
+                const slug = String(params.get('ref') || localStorage.getItem('referralSlug') || '').trim();
+                if (!slug) return link;
+                return link + (link.indexOf('?') === -1 ? '?' : '&') + 'ref=' + encodeURIComponent(slug);
+            } catch (e) {
+                return link;
+            }
+        }
+
         function tampilkanKonfirmasi(link) {
-            linkTujuan = link;
+            linkTujuan = tambahParamReferral(link);
             document.getElementById('modalKonfirmasi').style.display = 'block';
             document.getElementById('bagianPertanyaan').style.display = 'block';
             document.getElementById('pesanKonfirmasi').style.display = 'none';

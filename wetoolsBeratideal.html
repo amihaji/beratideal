@@ -663,6 +663,16 @@ function applySponsorToForm(name, phone, lockFields) {
   }
 }
 
+// Lanjutkan slug referral ke halaman formDaftar
+function buildReferralQuery() {
+  try {
+    const slug = getReferralSlugFromLocation() || getStoredReferralContext().slug;
+    return slug ? ('?ref=' + encodeURIComponent(slug)) : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 // Fail-safe: jika server referral gagal, form tetap bisa diisi manual.
 async function initReferralSponsorAutoFill() {
   try {
@@ -997,7 +1007,7 @@ function handleKirimSurvey() {
     // resetForm();
     
     // Setelah cek kebugaran, tampilkan Form Daftar ADA PILIHAN TARGET PROGRAM
-    window.location.href = 'formDaftar.html'; 
+    window.location.href = 'formDaftar.html' + buildReferralQuery(); 
 
     }, 3000);
   })
