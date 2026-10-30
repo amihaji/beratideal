@@ -255,14 +255,16 @@
             line-height: 1.5;
             border-radius: var(--radius-sm);
             box-shadow: none;
+            /* Login hanya menganimasikan warna, bukan ukuran atau ketebalan teks. */
+            transition: background-color var(--t), color var(--t);
         }
         .navbar-login .nav-link::after { display: none; }
         .navbar-login .nav-link:hover,
         .navbar-login .nav-link:focus-visible {
             background: var(--navy-800);
             color: var(--white);
-            padding: 9px 26px;
-            box-shadow: none;
+            /* Batalkan efek penebalan dari aturan hover menu umum. */
+            text-shadow: none;
         }
         .navbar-toggler { border: none; background: var(--gray-soft); border-radius: var(--radius-sm); padding: 9px 11px; }
         .navbar-toggler:focus { box-shadow: none; }
