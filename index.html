@@ -575,16 +575,19 @@
         .testimonial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
         .testimonial-grid-item {
             display: grid;
-            grid-template-columns: 96px minmax(0, 1fr);
+            grid-template-columns: 120px minmax(0, 1fr);
             gap: 22px;
             padding: 26px;
             background: var(--white);
             border: 1px solid var(--line);
             border-radius: var(--radius);
             transition: var(--t);
+            /* Bingkai berpendar abu-abu muda (statis, tidak berdenyut) */
+            box-shadow: 0 0 18px 3px rgba(154, 167, 184, .45);
         }
-        .testimonial-grid-item:hover { transform: translateY(-3px); border-color: #d3dce7; box-shadow: var(--shadow); }
-        .testimonial-grid-item .avatar { width: 96px; height: 112px; border-radius: var(--radius-sm); overflow: hidden; background: var(--gray-soft); }
+        .testimonial-grid-item:hover { transform: translateY(-3px); border-color: #d3dce7; box-shadow: 0 0 22px 4px rgba(154, 167, 184, .6), var(--shadow); }
+        /* Foto dibuat lebih lebar mengikuti rasio asli (315x264) agar tidak terpotong */
+        .testimonial-grid-item .avatar { width: 120px; height: 100px; border-radius: var(--radius-sm); overflow: hidden; background: var(--gray-soft); }
         .testimonial-grid-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .testimonial-grid-item .quote-icon { color: var(--orange); opacity: .85; font-size: 1rem; margin-bottom: 8px; }
         .testimonial-grid-item .content p { font-size: .86rem; line-height: 1.8; color: var(--text-soft); margin-bottom: 12px; }
@@ -755,8 +758,8 @@
             .services-layout .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .service-card { min-height: 190px; }
             .about-section .row { --bs-gutter-x: 36px; }
-            .testimonial-grid-item { grid-template-columns: 80px minmax(0, 1fr); gap: 18px; padding: 22px; }
-            .testimonial-grid-item .avatar { width: 80px; height: 98px; }
+            .testimonial-grid-item { grid-template-columns: 100px minmax(0, 1fr); gap: 18px; padding: 22px; }
+            .testimonial-grid-item .avatar { width: 100px; height: 84px; }
             .challenge-panel { --bs-gutter-x: 36px; }
         }
 
@@ -791,8 +794,10 @@
                 background: var(--gray-soft);
                 border: 1px solid var(--line);
                 border-radius: var(--radius);
+                /* Bingkai berpendar abu-abu muda (statis) */
+                box-shadow: 0 0 18px 3px rgba(154, 167, 184, .45);
             }
-            .testimonial-carousel-item .avatar { width: 96px; height: 112px; margin: 0 auto 16px; border-radius: var(--radius-sm); overflow: hidden; }
+            .testimonial-carousel-item .avatar { width: 130px; height: 109px; margin: 0 auto 16px; border-radius: var(--radius-sm); overflow: hidden; }
             .testimonial-carousel-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
             .testimonial-carousel-item .quote-icon { color: var(--orange); }
             .testimonial-carousel-item p { font-size: .88rem; color: var(--text-soft); margin: 10px 0; }
@@ -827,7 +832,7 @@
             .coach-signature { flex-wrap: wrap; }
             .about-section .btn-about { width: 100%; }
             .testimonial-carousel-item { min-height: 380px; padding: 26px 20px; }
-            .testimonial-carousel-item .avatar { width: 84px; height: 98px; }
+            .testimonial-carousel-item .avatar { width: 110px; height: 92px; }
             .cta-section { padding: 56px 0; }
             .cta-section .big-title { font-size: 2.3rem; }
             .challenge-action { padding: 24px 20px; }
