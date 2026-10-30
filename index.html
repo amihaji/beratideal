@@ -646,6 +646,16 @@
             border-radius: var(--radius);
             background: var(--white);
             box-shadow: var(--shadow-lg);
+            /* Efek berpendar: cahaya orange yang berdenyut lembut di sekeliling kotak */
+            animation: ctaGlow 2.4s ease-in-out infinite;
+        }
+        @keyframes ctaGlow {
+            0%, 100% {
+                box-shadow: var(--shadow-lg), 0 0 0 0 rgba(245, 130, 31, .0);
+            }
+            50% {
+                box-shadow: var(--shadow-lg), 0 0 26px 6px rgba(245, 130, 31, .55);
+            }
         }
         .challenge-kicker { display: block; font-size: .90rem; font-weight: 800; letter-spacing: 1.2px; color: var(--navy-900); }
         .cta-section .feature-list { list-style: none; padding: 0; margin: 22px 0 28px; display: flex; flex-direction: column; gap: 16px; }
