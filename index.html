@@ -50,6 +50,13 @@
            Palet: biru tua · biru · orange · abu-abu muda · hitam · putih
            ===================================================================== */
 
+        /* Panduan: .nama memilih class HTML, #nama memilih id; var(--nama) memakai variabel.
+           padding = jarak dalam, margin = jarak luar, gap = jarak antar elemen.
+           font-size = ukuran teks, line-height = jarak antar baris, text-align = perataan teks.
+           grid = susunan kolom/baris, flex = susunan elemen satu arah.
+           :hover berlaku saat kursor diarahkan; ::before/::after menambah hiasan lewat CSS. */
+
+        /* Pengaturan bersama: ubah variabel di sini agar desain tetap konsisten. */
         :root {
             /* Variabel legacy (dipakai oleh inline style & skrip) */
             --color-1: #08192e;
@@ -77,6 +84,7 @@
             --blue-500: #1478de;
             --line: #e6eaf0;
             --black: #0d1117;
+            /* Bayangan kartu, kelengkungan sudut, dan durasi perubahan efek hover. */
             --shadow: 0 18px 44px rgba(8, 25, 46, .10);
             --shadow-lg: 0 28px 70px rgba(8, 25, 46, .16);
             --radius: 8px;
@@ -84,10 +92,13 @@
             --t: .28s ease;
         }
 
+        /* Ukuran elemen sudah termasuk padding dan border agar layout mudah dihitung. */
         * { box-sizing: border-box; }
 
+        /* Perpindahan ke bagian halaman lewat tautan dibuat halus. */
         html { scroll-behavior: smooth; }
 
+        /* Gaya dasar halaman: font, warna teks, jarak baris, dan pencegahan scroll horizontal. */
         body {
             margin: 0;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -98,11 +109,15 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* Gambar tidak melebar keluar wadah; tautan mengikuti warna teks di sekitarnya. */
         img { max-width: 100%; }
         a { text-decoration: none; color: inherit; }
+        /* Jarak saat menuju anchor agar judul bagian tidak tertutup navbar. */
         section[id] { scroll-margin-top: 110px; }
+        /* Penanda fokus saat pengguna berpindah tautan/tombol dengan keyboard. */
         a:focus-visible, button:focus-visible { outline: 3px solid var(--blue-500); outline-offset: 3px; }
 
+        /* Wadah konten di tengah dengan batas lebar dan ruang di sisi kiri/kanan. */
         .container {
             width: 100%;
             max-width: 1240px;
@@ -265,6 +280,7 @@
             overflow: hidden;
         }
         .hero-media { position: absolute; inset: 0; z-index: 0; }
+        /* Lapisan gelap di atas foto membantu judul putih tetap terbaca. */
         .hero-media::after {
             content: "";
             position: absolute;
@@ -308,6 +324,7 @@
             margin-bottom: 20px;
         }
         .hero-badge i { color: var(--orange); }
+        /* clamp(minimum, ukuran fleksibel, maksimum) membuat judul mengikuti lebar layar. */
         .hero-title {
             font-size: clamp(2.4rem, 4.4vw, 4rem);
             font-weight: 800;
@@ -478,6 +495,7 @@
         }
         .services-note i { color: var(--orange); }
         .services-note strong { color: var(--navy-900); margin-left: 4px; }
+        /* Desktop: empat kolom sama lebar; jumlah kolom dikurangi pada aturan responsive. */
         .services-layout .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; margin: 0; }
         .services-layout .row > div { width: auto; margin: 0; padding: 0; }
         .service-card {
@@ -573,6 +591,7 @@
         .testimonial-section { padding: 88px 0; background: var(--white); }
         .testimonial-section .section-header { padding-bottom: 26px; border-bottom: 1px solid var(--line); }
         .testimonial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+        /* Setiap kartu desktop: foto di kolom kiri, teks di kolom kanan. */
         .testimonial-grid-item {
             display: grid;
             grid-template-columns: 120px minmax(0, 1fr);
@@ -593,6 +612,7 @@
         .testimonial-grid-item .content p { font-size: .86rem; line-height: 1.8; color: var(--text-soft); margin-bottom: 12px; }
         .testimonial-grid-item .content .author { font-size: .88rem; font-weight: 700; color: var(--navy-900); }
         .testimonial-grid-item .content .author small { display: block; font-size: .77rem; font-weight: 500; color: var(--text-soft); }
+        /* Carousel disembunyikan di desktop; tombol panah digunakan pada layar kecil. */
         .testimonial-carousel-wrapper { display: none; }
         .testimonial-nav { display: flex; justify-content: center; gap: 14px; margin-top: 22px; }
         .testimonial-nav button {
@@ -750,8 +770,11 @@
         .modal-box .btn-group-modal .btn { min-width: 96px; min-height: 44px; border-radius: var(--radius-sm); transition: var(--t); }
         .modal-box .btn-group-modal .btn:hover { transform: translateY(-2px); }
 
-        /* ------------------------------- Responsive ----------------------------- */
+        /* ------------------------------- Responsive ----------------------------------- */
         /* Penyesuaian tampilan untuk layar lebih kecil: tablet (1199/991px) & HP (575px) */
+        /* max-width: aturan aktif jika lebar viewport tidak melebihi angka ini.
+           Aturan layar kecil menimpa aturan dasar; beberapa breakpoint bisa aktif bersamaan. */
+        /* <=1199px: rapatkan jarak, layanan menjadi dua kolom, dan foto testimoni diperkecil. */
         @media (max-width: 1199px) {
             .hero-copy { max-width: 580px; }
             .hero-image-caption { bottom: 200px; width: 260px; }
@@ -763,6 +786,7 @@
             .challenge-panel { --bs-gutter-x: 36px; }
         }
 
+        /* <=991px: layout tablet/mobile, menu lipat Bootstrap, dan testimoni berupa carousel. */
         @media (max-width: 991px) {
             .container { max-width: 800px; }
             .topbar-inner { justify-content: center; }
@@ -771,6 +795,7 @@
             .navbar-nav .nav-item:last-child { margin: 6px 0 0; }
             .navbar-nav .nav-item:last-child .nav-link { text-align: center; }
             .hero-section .container { padding-bottom: 128px; }
+            /* Gradien menjadi vertikal agar teks pada layar kecil tetap jelas. */
             .hero-media::after {
                 background: linear-gradient(180deg,
                     rgba(8, 25, 46, .55) 0%,
@@ -778,6 +803,7 @@
                     var(--navy-900) 100%);
             }
             .hero-copy { max-width: 100%; padding-top: 56px; }
+            /* Keterangan foto tidak lagi melayang, tetapi mengikuti alur konten. */
             .hero-image-caption { position: static; width: 100%; max-width: 420px; margin: 34px 0 0; }
             .hero-stats-wrap { margin-top: -74px; }
             .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -786,17 +812,21 @@
             .services-layout .section-header h2 { margin-bottom: 18px; }
             .about-section .row { --bs-gutter-y: 40px; }
             .coach-portrait { max-width: 460px; }
+            /* Ganti grid desktop dengan carousel khusus layar kecil. */
             .testimonial-grid { display: none; }
             .testimonial-carousel-wrapper { display: block; }
             .testimonial-carousel-item {
                 min-height: 340px;
                 padding: 30px;
+                /* Teks, ikon kutipan, dan nama rata tengah; grid desktop tidak terpengaruh. */
+                text-align: center;
                 background: var(--gray-soft);
                 border: 1px solid var(--line);
                 border-radius: var(--radius);
                 /* Bingkai berpendar abu-abu muda (statis) */
                 box-shadow: 0 0 18px 3px rgba(154, 167, 184, .45);
             }
+            /* margin kiri/kanan auto menempatkan foto di tengah kartu. */
             .testimonial-carousel-item .avatar { width: 130px; height: 109px; margin: 0 auto 16px; border-radius: var(--radius-sm); overflow: hidden; }
             .testimonial-carousel-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
             .testimonial-carousel-item .quote-icon { color: var(--orange); }
@@ -807,6 +837,7 @@
             .challenge-action { max-width: 580px; }
         }
 
+        /* <=575px: khusus HP kecil, perkecil teks/jarak dan susun layanan dalam satu kolom. */
         @media (max-width: 575px) {
             .container { padding-inline: 20px; }
             .navbar .container { min-height: 66px; }
@@ -816,6 +847,7 @@
             .hero-title { font-size: clamp(2.1rem, 8.6vw, 2.7rem); letter-spacing: -1px; }
             .hero-subtitle { font-size: .9rem; }
             .hero-actions { gap: 10px !important; }
+            /* Tombol hero memenuhi lebar wadah agar lebih mudah disentuh. */
             .hero-actions > * { width: 100%; }
             .hero-section .container { padding-bottom: 108px; }
             .hero-image-caption { max-width: 100%; }
@@ -825,6 +857,7 @@
             .hero-stats .stat-label { font-size: .64rem; line-height: 1.4; }
             .services-section, .about-section, .testimonial-section { padding: 56px 0; }
             .section-header h2, .about-section h2 { font-size: 2rem; }
+            /* Kartu layanan satu kolom; di dalam kartu, ikon di kiri dan teks di kanan. */
             .services-layout .row { grid-template-columns: 1fr; gap: 14px; }
             .service-card { min-height: 0; padding: 22px; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 4px 16px; }
             .service-card .icon-wrapper { grid-row: span 2; width: 46px; height: 46px; margin: 0; }
@@ -841,6 +874,7 @@
             .back-to-top { right: 18px; bottom: 18px; }
         }
 
+        /* Hormati pengaturan perangkat untuk mengurangi gerakan: matikan animasi dan transisi. */
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
             *, *::before, *::after { animation: none !important; transition: none !important; }
