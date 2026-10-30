@@ -245,8 +245,10 @@
         }
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link:focus-visible::after { transform: scaleX(1); }
-        .navbar-nav .nav-item:last-child { margin-left: 10px; }
-        .navbar-nav .nav-item:last-child .nav-link {
+        /* Kelompok Login terpisah agar berada di kanan, sementara menu utama tetap di tengah. */
+        .navbar-login { flex-shrink: 0; }
+        .navbar-login .nav-item { margin-left: 10px; }
+        .navbar-login .nav-link {
             background: var(--blue-600);
             color: var(--white);
             padding: 9px 26px;
@@ -254,9 +256,9 @@
             border-radius: var(--radius-sm);
             box-shadow: none;
         }
-        .navbar-nav .nav-item:last-child .nav-link::after { display: none; }
-        .navbar-nav .nav-item:last-child .nav-link:hover,
-        .navbar-nav .nav-item:last-child .nav-link:focus-visible {
+        .navbar-login .nav-link::after { display: none; }
+        .navbar-login .nav-link:hover,
+        .navbar-login .nav-link:focus-visible {
             background: var(--navy-800);
             color: var(--white);
             padding: 9px 26px;
@@ -798,8 +800,8 @@
             .topbar-inner { justify-content: center; }
             .topbar-social { display: none; }
             .navbar-nav { align-items: stretch; padding: 12px 0 6px; }
-            .navbar-nav .nav-item:last-child { margin: 6px 0 0; }
-            .navbar-nav .nav-item:last-child .nav-link { text-align: center; }
+            .navbar-login .nav-item { margin: 6px 0 0; }
+            .navbar-login .nav-link { text-align: center; }
             .hero-section .container { padding-bottom: 128px; }
             /* Gradien menjadi vertikal agar teks pada layar kecil tetap jelas. */
             .hero-media::after {
@@ -928,6 +930,9 @@
                     <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
                     <li class="nav-item"><a class="nav-link" href="#testimonial">Testimonial</a></li>
                     <li class="nav-item"><a class="nav-link" href="#tantangan">FIT Challenge</a></li>
+                </ul>
+                <!-- Login di ujung kanan desktop; tetap di dalam menu lipat pada mobile. -->
+                <ul class="navbar-nav navbar-login">
                     <li class="nav-item"><a class="nav-link" href="https://amihaji.github.io/beratideal/loginBeratideal">Login</a></li>
                 </ul>
             </div>
