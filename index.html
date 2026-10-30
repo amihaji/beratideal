@@ -1,18 +1,44 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!--
+      ==========================================================================
+      BERATidealku — Landing Page (halaman utama)
+      --------------------------------------------------------------------------
+      Urutan bagian halaman (dari atas ke bawah):
+        1. Preloader    : layar loading singkat saat halaman dibuka
+        2. Topbar       : bar biru tua berisi kontak & sosial media
+        3. Navbar       : menu navigasi + tombol Login
+        4. Hero         : banner utama + tombol aksi
+        5. Hero Stats   : kartu statistik yang menumpuk di bawah hero
+        6. Layanan      : grid 8 kartu layanan
+        7. Tentang      : profil coach (Hesty)
+        8. Testimonial  : grid di desktop, carousel di mobile
+        9. CTA          : ajakan "Join With Us"
+       10. Footer       : info kontak & alamat
+       11. Back to top  : tombol kembali ke atas
+       12. Modal        : konfirmasi sebelum masuk ke halaman produk
+
+      Seluruh gaya (CSS) ada di dalam tag <style>, seluruh logika (JavaScript) ada
+      di tag <script> paling bawah. Warna brand dikelola lewat variabel di :root.
+      ==========================================================================
+    -->
+    <!-- Informasi dasar dokumen: encoding karakter & skala tampilan di perangkat mobile -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Judul yang tampil di tab browser & hasil pencarian Google -->
     <title>BERATidealku | Gaya Hidup Sehat & Aktif - FIT Challenge Programme</title>
+    <!-- Deskripsi & kata kunci untuk SEO (optimasi mesin pencari) -->
     <meta name="description" content="Bergabunglah dengan FIT Challenge Programme by BERATidealku, program transformasi kebugaran yang menyenangkan dengan bimbingan coach profesional.">
     <meta name="keywords" content="gaya hidup sehat, kebugaran, weight loss challenge, fit challenge, hidup sehat, berat ideal">
+    <!-- Kode verifikasi kepemilikan situs di Google Search Console -->
     <meta name="google-site-verification" content="Jyw_mpxcDPRJUOvqGGhxhqqFf_eoW4WnAQBodseJ7g8">
 
-    <!-- Bootstrap 5 CSS ================ -->
+    <!-- Bootstrap 5 : kerangka layout (grid), navbar lipat, carousel, dan modal -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <!-- Font Awesome -->
+    <!-- Font Awesome : sumber semua ikon (class fa-*) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
+    <!-- Google Fonts : font "tulisan tangan" untuk tanda tangan coach -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Caveat:wght@700&display=swap">
@@ -20,7 +46,7 @@
     <style>
         /* =====================================================================
            BERATidealku — Landing Page
-           Arah visual: korporat & bersih (mengacu pada gaya situs perbankan)
+           Arah visual: korporat & bersih 
            Palet: biru tua · biru · orange · abu-abu muda · hitam · putih
            ===================================================================== */
 
@@ -85,6 +111,7 @@
         }
 
         /* ------------------------------- Preloader ------------------------------ */
+        /* Layar loading (spinner berputar) yang menutup halaman & disembunyikan lewat JS */
         #preloader {
             position: fixed;
             inset: 0;
@@ -108,6 +135,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ------------------------------ Animations ------------------------------ */
+        /* Animasi masuk (fade & naik) + class delay agar elemen muncul berurutan */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 1s ease forwards; }
@@ -120,6 +148,7 @@
         .delay-5 { animation-delay: .5s; }
 
         /* -------------------------------- Topbar -------------------------------- */
+        /* Bar tipis paling atas: info kontak, jam operasional, dan ikon sosial media */
         .topbar { background: var(--navy-900); color: rgba(255, 255, 255, .72); font-size: .78rem; }
         .topbar-inner {
             display: flex;
@@ -146,6 +175,7 @@
         .social-icon:hover { background: var(--orange); color: var(--white); }
 
         /* -------------------------------- Navbar -------------------------------- */
+        /* Menu utama: logo kiri, menu kanan + tombol Login; berubah saat halaman di-scroll */
         .navbar {
             background: var(--white);
             padding: 0;
@@ -228,6 +258,7 @@
         }
 
         /* --------------------------------- Hero --------------------------------- */
+        /* Banner pembuka: foto besar + lapisan gelap + judul/tombol ajakan di atasnya */
         .hero-section {
             position: relative;
             background: var(--navy-900);
@@ -322,6 +353,7 @@
         .hero-image-caption div > span { display: block; font-size: .72rem; color: var(--text-soft); line-height: 1.6; }
 
         /* Tombol */
+        /* Gaya dasar semua tombol + varian utama (orange) dan garis tepi (outline) */
         .btn-primary-custom,
         .btn-outline-custom,
         .cta-section .btn-cta,
@@ -360,6 +392,7 @@
         .btn-outline-custom:hover { background: rgba(255, 255, 255, .1); border-color: var(--white); color: var(--white); transform: translateY(-2px); }
 
         /* ----------------------------- Baris Statistik -------------------------- */
+        /* Kartu angka statistik yang menumpuk naik menimpa bagian bawah hero */
         .hero-stats-wrap { position: relative; z-index: 3; margin-top: -86px; }
         .hero-stats {
             display: grid;
@@ -387,6 +420,7 @@
         .hero-stats .stat-label { font-size: .74rem; color: var(--text-soft); font-weight: 600; }
 
         /* ---------------------------- Section header ---------------------------- */
+        /* Judul & subjudul yang dipakai berulang di tiap bagian (Layanan, Tentang, dll) */
         .section-header { margin-bottom: 38px; }
         .section-header .subtitle,
         .coach-kicker {
@@ -421,6 +455,7 @@
         .section-header p { color: var(--text-soft); font-size: .95rem; line-height: 1.85; margin: 0; }
 
         /* -------------------------------- Layanan ------------------------------- */
+        /* Grid 8 kartu layanan; kartu pertama (gelap) & terakhir (krem) diberi warna khusus */
         .services-section { padding: 88px 0; background: var(--gray-soft); }
         .services-layout .section-header {
             display: grid;
@@ -494,6 +529,7 @@
         .services-layout .row > div:last-child .service-card { background: var(--orange-light); border-color: #f2ddc6; }
 
         /* --------------------------------- Tentang ------------------------------ */
+        /* Profil coach Hesty: foto, deskripsi, tanda tangan, dan tombol; latar biru tua */
         .about-section {
             padding: 88px 0;
             background: var(--navy-900);
@@ -533,6 +569,7 @@
         .handwritten-title { font-family: 'Caveat', cursive; font-size: 1.25rem; color: #c1cfdf; }
 
         /* ------------------------------ Testimonial ----------------------------- */
+        /* Testimoni klien: grid 2 kolom di desktop, carousel di layar kecil */
         .testimonial-section { padding: 88px 0; background: var(--white); }
         .testimonial-section .section-header { padding-bottom: 26px; border-bottom: 1px solid var(--line); }
         .testimonial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
@@ -567,6 +604,7 @@
         .testimonial-nav button:hover { background: var(--navy-900); border-color: var(--navy-900); color: var(--white); }
 
         /* ----------------------------- FIT Challenge ---------------------------- */
+        /* Bagian ajakan "Join With Us": panel kiri penjelasan + panel kanan (putih) berisi tombol */
         .cta-section {
             position: relative;
             padding: 84px 0;
@@ -609,7 +647,7 @@
             background: var(--white);
             box-shadow: var(--shadow-lg);
         }
-        .challenge-kicker { display: block; font-size: .62rem; font-weight: 800; letter-spacing: 1.4px; color: var(--orange); }
+        .challenge-kicker { display: block; font-size: .74rem; font-weight: 800; letter-spacing: 1.2px; color: var(--navy-900); }
         .cta-section .feature-list { list-style: none; padding: 0; margin: 22px 0 28px; display: flex; flex-direction: column; gap: 16px; }
         .cta-section .feature-list li { display: flex; align-items: flex-start; gap: 12px; font-size: .86rem; line-height: 1.6; color: #d5dfea; }
         .cta-section .challenge-action .feature-list li { color: var(--text-soft); }
@@ -617,6 +655,7 @@
         .cta-section .btn-cta { width: 100%; font-size: 1.05rem; letter-spacing: .2px; }
 
         /* --------------------------------- Footer ------------------------------- */
+        /* Kaki halaman: logo, kontak, tautan menu, sosial media, dan hak cipta */
         footer { background: #061426; color: rgba(255, 255, 255, .66); padding: 64px 0 0; }
         footer .brand { display: block; margin-bottom: 20px; }
         footer .brand img { max-height: 36px; filter: brightness(0) invert(1); }
@@ -651,6 +690,7 @@
         }
 
         /* ------------------------------ Back to top ----------------------------- */
+        /* Tombol melayang kanan bawah untuk kembali ke atas; tampil lewat JS saat di-scroll */
         .back-to-top {
             position: fixed;
             right: 26px;
@@ -670,6 +710,7 @@
         .back-to-top:hover { background: var(--orange); color: var(--white); transform: translateY(-3px); }
 
         /* --------------------------------- Modal -------------------------------- */
+        /* Kotak konfirmasi sebelum masuk halaman produk (tampil/disembunyikan lewat JS) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -697,6 +738,7 @@
         .modal-box .btn-group-modal .btn:hover { transform: translateY(-2px); }
 
         /* ------------------------------- Responsive ----------------------------- */
+        /* Penyesuaian tampilan untuk layar lebih kecil: tablet (1199/991px) & HP (575px) */
         @media (max-width: 1199px) {
             .hero-copy { max-width: 580px; }
             .hero-image-caption { bottom: 200px; width: 260px; }
@@ -793,13 +835,13 @@
 </head>
 <body>
 
-    <!-- Preloader -->
+    <!-- Preloader : layar loading singkat, disembunyikan otomatis oleh script di bawah -->
     <div id="preloader">
         <div class="spinner"></div>
         <div class="loading-text">Loading ...</div>
     </div>
 
-    <!-- Topbar -->
+    <!-- Topbar : bar biru tua berisi nomor telepon, email, dan tautan sosial media -->
     <div class="topbar">
         <div class="container topbar-inner">
             <div class="topbar-links">
@@ -814,7 +856,7 @@
         </div>
     </div>
 
-    <!-- Navbar -->
+    <!-- Navbar : logo, menu navigasi antar-bagian, dan tombol Login (menu diringkas di layar kecil) -->
     <nav class="navbar navbar-expand-lg sticky-top" id="navbar">
         <div class="container">
             <a class="navbar-brand" href="#home">
@@ -838,7 +880,7 @@
     </nav>
 
     <main>
-    <!-- Hero -->
+    <!-- Hero : banner pembuka dengan foto latar, judul, dan tombol ajakan "Mulai Sekarang" -->
     <section class="hero-section" id="home">
         <div class="hero-media">
             <img src="images/Hesty-lari-di-taman-optimized.webp" alt="Gaya Hidup Sehat dan Aktif" class="hero-img" width="1200" height="670" fetchpriority="high" decoding="async">
@@ -873,7 +915,7 @@
         </div>
     </section>
 
-    <!-- Statistik -->
+    <!-- Statistik : kartu angka (peserta, hasil rata-rata, rating) yang menumpuk di bawah hero -->
     <div class="hero-stats-wrap">
         <div class="container">
             <div class="hero-stats animate-fadeUp delay-5">
@@ -894,7 +936,7 @@
         </div>
     </div>
 
-    <!-- Services Section -->
+    <!-- Services Section : grid 8 kartu layanan unggulan (meal plan, olahraga, komunitas, dll) -->
     <section class="services-section" id="layanan">
         <div class="container services-layout">
             <div class="section-header">
@@ -964,7 +1006,7 @@
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- About Section : profil coach Hesty (foto, cerita, tanda tangan, tombol tanya via WhatsApp) -->
     <section class="about-section" id="tentang">
         <div class="container">
             <div class="row align-items-center g-5">
@@ -991,7 +1033,7 @@
         </div>
     </section>
 
-    <!-- Testimonial Section - Square Photos -->
+    <!-- Testimonial Section : testimoni klien; tampil sebagai grid di desktop & carousel di HP -->
     <section class="testimonial-section" id="testimonial">
         <div class="container">
             <div class="section-header">
@@ -1000,7 +1042,7 @@
                 <p>Kisah nyata dari mereka yang telah berhasil mengubah hidup</p>
             </div>
 
-            <!-- Grid Layout untuk Desktop -->
+            <!-- Grid Layout untuk Desktop : semua testimoni tampil sekaligus dalam 2 kolom -->
             <div class="testimonial-grid">
                 <div class="testimonial-grid-item">
                     <div class="avatar"><img src="images/Testimoni4-Hesty.webp" alt="Hesty" loading="lazy" decoding="async" width="100" height="100"></div>
@@ -1068,7 +1110,7 @@
                 </div>
             </div>
 
-            <!-- Carousel untuk Mobile & Tablet -->
+            <!-- Carousel untuk Mobile & Tablet : testimoni bergeser otomatis setiap 4 detik -->
             <div class="testimonial-carousel-wrapper">
                 <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
                     <div class="carousel-inner">
@@ -1153,7 +1195,7 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
+    <!-- CTA Section : ajakan "Join With Us" dengan daftar keunggulan dan tombol menuju halaman produk -->
     <section class="cta-section" id="tantangan">
         <div class="container">
             <div class="row align-items-center g-5 challenge-panel">
@@ -1183,7 +1225,7 @@
     </section>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer : kaki halaman berisi logo, jam layanan, alamat, kontak, dan sosial media -->
     <footer>
         <div class="container">
             <div class="row g-4">
@@ -1222,12 +1264,12 @@
         </div>
     </footer>
 
-    <!-- Back to Top -->
+    <!-- Back to Top : tombol melayang untuk kembali ke atas halaman (muncul setelah di-scroll) -->
     <a href="#" class="back-to-top" id="backToTop" aria-label="Kembali ke atas">
         <i class="fas fa-arrow-up"></i>
     </a>
 
-    <!-- Modal Konfirmasi -->
+    <!-- Modal Konfirmasi : menanyakan apakah pengunjung sudah pernah menjadi member Herbalife -->
     <div class="modal-overlay" id="modalKonfirmasi" role="dialog" aria-modal="true" aria-label="Konfirmasi keanggotaan">
         <div class="modal-box">
             <div class="modal-icon" style="font:200; font-size:1.1rem;">Konfirmasi <i class="fas fa-question-circle"></i></div>
@@ -1242,19 +1284,32 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS : menjalankan komponen interaktif (navbar lipat, carousel, modal bawaan) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Konten bisa digunakan tanpa menunggu semua gambar selesai dimuat.
+        // =====================================================================
+        // 1. Sembunyikan Preloader
+        //    Menghapus layar loading begitu script dijalankan.
+        // =====================================================================
         document.getElementById('preloader').style.display = 'none';
+
+        // =====================================================================
+        // 2. Label Aksesibilitas Sosial Media
+        //    Memberi atribut aria-label pada tiap ikon sosial agar terbaca
+        //    oleh pembaca layar (screen reader).
+        // =====================================================================
         document.querySelectorAll('.social-icon, .social-links a').forEach(link => {
             if (link.querySelector('.fa-facebook-f')) link.setAttribute('aria-label', 'Facebook BERATidealku');
             if (link.querySelector('.fa-instagram')) link.setAttribute('aria-label', 'Instagram Hesty');
             if (link.querySelector('.fa-youtube')) link.setAttribute('aria-label', 'YouTube');
         });
 
-        // Navbar Scroll Effect
+        // =====================================================================
+        // 3. Navbar Scroll Effect
+        //    Saat halaman di-scroll lebih dari 50px, navbar diberi class
+        //    .scrolled agar muncul bayangan (efek "mengambang").
+        // =====================================================================
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
@@ -1264,7 +1319,11 @@
             }
         });
 
-        // Back to Top
+        // =====================================================================
+        // 4. Back to Top
+        //    Menampilkan tombol "ke atas" setelah scroll 300px, dan
+        //    mengembalikan halaman ke paling atas saat tombol diklik.
+        // =====================================================================
         const backToTop = document.getElementById('backToTop');
         window.addEventListener('scroll', function() {
             if (window.scrollY > 300) {
@@ -1278,7 +1337,12 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Smooth Scroll
+        // =====================================================================
+        // 5. Smooth Scroll
+        //    Klik menu yang mengarah ke bagian halaman (#tentang, #layanan, dst)
+        //    akan menggulir halus dengan offset setinggi navbar, lalu menutup
+        //    menu mobile bila sedang terbuka.
+        // =====================================================================
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
@@ -1298,7 +1362,13 @@
             });
         });
 
-        // Modal Konfirmasi
+        // =====================================================================
+        // 6. Modal Konfirmasi Keanggotaan
+        //    Alur: tombol "Mulai Sekarang"/"Join With Us" -> tampilkanKonfirmasi()
+        //    -> modal bertanya sudah member atau belum -> jawabanKonfirmasi()
+        //    -> jika belum member, redirect ke halaman produk; jika sudah,
+        //       diarahkan menghubungi sponsor.
+        // =====================================================================
         let linkTujuan = "";
 
         // Bawa slug referral di URL tujuan agar halaman berikutnya
@@ -1317,6 +1387,8 @@
             }
         }
 
+        // Membuka modal konfirmasi dan menyiapkan tampilan awalnya
+        // (menampilkan pertanyaan, mengosongkan pesan, mengunci scroll halaman).
         function tampilkanKonfirmasi(link) {
             linkTujuan = tambahParamReferral(link);
             document.getElementById('modalKonfirmasi').style.display = 'block';
@@ -1326,6 +1398,10 @@
             document.body.style.overflow = 'hidden';
         }
 
+        // Menangani jawaban user:
+        //  - "Ya" (sudah member)    -> tampilkan pesan agar menghubungi sponsor.
+        //  - "Tidak" (belum member) -> tampilkan pesan cek kebugaran, lalu
+        //    otomatis pindah ke halaman tujuan setelah 1,5 detik.
         function jawabanKonfirmasi(isMember) {
             document.getElementById('bagianPertanyaan').style.display = 'none';
             const pesan = document.getElementById('pesanKonfirmasi');
@@ -1346,11 +1422,13 @@
             }
         }
 
+        // Menutup modal dan mengembalikan scroll halaman seperti semula.
         function tutupModal() {
             document.getElementById('modalKonfirmasi').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
+        // Menutup modal bila user mengklik area gelap di luar kotak modal.
         document.getElementById('modalKonfirmasi').addEventListener('click', function(e) {
             if (e.target === this) {
                 tutupModal();
