@@ -165,25 +165,52 @@
         .navbar-brand img { max-height: 40px; width: auto; }
         .navbar-nav { gap: 2px; align-items: center; }
         .navbar-nav .nav-link {
+            position: relative;
             font-size: .86rem;
             font-weight: 600;
             color: var(--navy-800);
             padding: 10px 16px;
-            border-radius: var(--radius-sm);
+            background: transparent;
+            border-radius: 0;
             text-transform: none;
             letter-spacing: 0;
             transition: var(--t);
         }
-        .navbar-nav .nav-link:hover { color: var(--blue-600); background: var(--gray-soft); }
-        .navbar-nav .nav-link::after { display: none; }
+        /* Garis bawah orange sebagai indikator hover */
+        .navbar-nav .nav-link::after {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 4px;
+            height: 2px;
+            background: var(--orange);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform .28s ease;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link:focus-visible { color: var(--blue-500); background: transparent; }
+        .navbar-nav .nav-link:hover::after,
+        .navbar-nav .nav-link:focus-visible::after { transform: scaleX(1); }
         .navbar-nav .nav-item:last-child { margin-left: 10px; }
         .navbar-nav .nav-item:last-child .nav-link {
             background: var(--blue-600);
             color: var(--white);
-            padding: 11px 28px;
-            box-shadow: 0 10px 24px rgba(13, 94, 184, .25);
+            padding: 9px 26px;
+            line-height: 1.5;
+            border-radius: var(--radius-sm);
+            box-shadow: none;
         }
-        .navbar-nav .nav-item:last-child .nav-link:hover { background: var(--navy-800); color: var(--white); }
+        .navbar-nav .nav-item:last-child .nav-link::after { display: none; }
+        .navbar-nav .nav-item:last-child .nav-link:hover,
+        .navbar-nav .nav-item:last-child .nav-link:focus-visible {
+            background: var(--navy-800);
+            color: var(--white);
+            padding: 9px 26px;
+            box-shadow: none;
+        }
         .navbar-toggler { border: none; background: var(--gray-soft); border-radius: var(--radius-sm); padding: 9px 11px; }
         .navbar-toggler:focus { box-shadow: none; }
         .navbar-toggler-icon {
